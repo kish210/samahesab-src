@@ -43,8 +43,11 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _remainAmount;
     [ObservableProperty] private string _paymentType = "نقدی";
 
+    [ObservableProperty] private ProductSearchResult? _selectedProductItem;
+
     public ObservableCollection<SalesInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
+    public List<ProductSearchResult> AllProducts { get; private set; } = new();
     public List<CustomerItem> Customers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
     public List<string> InvoiceTypes { get; } = new() { "فروش", "برگشت از فروش", "پیش‌فاکتور" };
@@ -82,6 +85,17 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+
+        var prods = await _productRepository.SearchAsync(companyId, "");
+        AllProducts = prods.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
+        OnPropertyChanged(nameof(AllProducts));
+    }
+
+    /// <summary>Add the product picked from the dropdown.</summary>
+    [RelayCommand]
+    private void AddSelectedProduct()
+    {
+        if (SelectedProductItem != null) { AddToCart(SelectedProductItem); SelectedProductItem = null; }
     }
 
     /// <summary>Reload customer list (after a quick-add) and optionally select one.</summary>

@@ -258,6 +258,21 @@ public partial class App : System.Windows.Application
             var leaf = await accounts.GetLeafAccountsAsync(1);
             Line($"Leaf accounts read: {leaf.Count}");
 
+            // ── Sales VIEWMODEL product-search test (the actual UI path) ──
+            try
+            {
+                var svm = sp.GetRequiredService<ViewModels.Sales.SalesInvoiceEditViewModel>();
+                await svm.LoadAsync();
+                Line($"  SalesVM: customers={svm.Customers.Count}, warehouses={svm.Warehouses.Count}, products={svm.AllProducts.Count}");
+                if (svm.AllProducts.Count > 0)
+                {
+                    svm.SelectedProductItem = svm.AllProducts[0];
+                    svm.AddSelectedProductCommand.Execute(null);
+                    Line($"  SalesVM AddSelectedProduct → cartItems={svm.InvoiceItems.Count}");
+                }
+            }
+            catch (Exception ex) { Line("SALES VM: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Sales invoice ── (use the warehouse that actually holds stock)
             try
             {

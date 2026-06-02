@@ -218,6 +218,7 @@
             </MenuItem>
             <MenuItem Header="خرید">
                 <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
+                <MenuItem Header="لیست خریدها" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoiceList"/>
             </MenuItem>
             <MenuItem Header="انبار">
                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>

@@ -18,7 +18,8 @@ public record CreatePurchaseInvoiceCommand(
     string? Description,
     decimal Shipping,
     decimal OtherCosts,
-    List<PurchaseInvoiceItemDto> Items
+    List<PurchaseInvoiceItemDto> Items,
+    decimal PaidAmount = 0
 ) : IRequest<Result<int>>;
 
 public record PurchaseInvoiceItemDto(
@@ -59,6 +60,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IProductRepository _productRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly IVoucherRepository _voucherRepository;
+    private readonly IRepository<Domain.Entities.Purchase.PurchaseInvoice> _invoiceRepository;
 
     public CreatePurchaseInvoiceCommandHandler(
         IUnitOfWork unitOfWork,
@@ -66,7 +68,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IStockItemRepository stockRepository,
         IProductRepository productRepository,
         IAccountRepository accountRepository,
-        IVoucherRepository voucherRepository)
+        IVoucherRepository voucherRepository,
+        IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -74,6 +77,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _productRepository = productRepository;
         _accountRepository = accountRepository;
         _voucherRepository = voucherRepository;
+        _invoiceRepository = invoiceRepository;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
@@ -82,6 +86,24 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         try
         {
             var companyId = _currentUser.CompanyId!.Value;
+
+            // ── Persist the purchase invoice record ──
+            var invoiceNumber = await GenerateInvoiceNumberAsync(companyId, request.FiscalYearId, ct);
+            var invoice = Domain.Entities.Purchase.PurchaseInvoice.Create(
+                companyId, request.BranchId, request.FiscalYearId, invoiceNumber,
+                request.InvoiceDate, request.SupplierId, request.WarehouseId,
+                request.InvoiceType, request.OrderId, request.DueDate, request.Description);
+
+            for (int i = 0; i < request.Items.Count; i++)
+            {
+                var d = request.Items[i];
+                invoice.AddItem(Domain.Entities.Purchase.PurchaseInvoiceItem.Create(
+                    0, i + 1, d.ProductId, d.Quantity, d.UnitPrice, d.DiscountPct, d.TaxPct,
+                    d.Description, d.BatchId, null));
+            }
+            invoice.SetShipping(request.Shipping, request.OtherCosts);
+            await _invoiceRepository.AddAsync(invoice, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             // Update stock for each item
             foreach (var item in request.Items)
@@ -113,15 +135,18 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                 }
             }
 
+            invoice.SetPaid(request.PaidAmount);
             await _unitOfWork.SaveChangesAsync(ct);
 
             // ── Automatic accounting voucher (debit inventory, credit payable) ──
-            await TryCreatePurchaseVoucherAsync(companyId, request, ct);
+            var voucherId = await TryCreatePurchaseVoucherAsync(companyId, request, ct);
+            if (voucherId.HasValue) invoice.Post(voucherId.Value);
+            _invoiceRepository.Update(invoice);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
 
-            return Result<int>.Success(1); // Return invoice ID
+            return Result<int>.Success(invoice.Id);
         }
         catch (Exception ex)
         {
@@ -130,7 +155,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         }
     }
 
-    private async Task TryCreatePurchaseVoucherAsync(int companyId,
+    private async Task<int?> TryCreatePurchaseVoucherAsync(int companyId,
         CreatePurchaseInvoiceCommand request, CancellationToken ct)
     {
         decimal goods = 0, tax = 0;
@@ -143,18 +168,41 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
             tax += afterDisc * i.TaxPct / 100m;
         }
         var grand = goods + tax + request.Shipping + request.OtherCosts;
-        if (grand <= 0) return;
+        if (grand <= 0) return null;
 
         var inventory = await _accountRepository.GetByCodeAsync(companyId, "1-05-001", ct);
         var payable = await _accountRepository.GetByCodeAsync(companyId, "3-01-001", ct);
-        if (inventory == null || payable == null) return; // chart not set up → skip
+        if (inventory == null || payable == null) return null; // chart not set up → skip
 
         var number = await _voucherRepository.GetNextNumberAsync(companyId, ct);
         var voucher = Domain.Entities.Accounting.Voucher.Create(companyId, request.BranchId,
             request.FiscalYearId, number, request.InvoiceDate, 4 /*Purchase*/,
             "سند خودکار فاکتور خرید");
         voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 1, inventory.Id, grand, 0, "خرید کالا"));
-        voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 2, payable.Id, 0, grand, "بدهی به تأمین‌کننده"));
+
+        // split credit between cash paid now and the remaining payable to supplier
+        var paid = request.PaidAmount > 0 ? System.Math.Min(request.PaidAmount, grand) : 0;
+        var remain = grand - paid;
+        int row = 2;
+        if (paid > 0)
+        {
+            var cash = await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
+            if (cash != null)
+                voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, cash.Id, 0, paid, "پرداخت نقدی به تأمین‌کننده"));
+            else remain = grand;
+        }
+        if (remain > 0)
+            voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, payable.Id, 0, remain, "بدهی به تأمین‌کننده"));
+
         await _voucherRepository.AddAsync(voucher, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+        return voucher.Id;
+    }
+
+    private async Task<string> GenerateInvoiceNumberAsync(int companyId, int fiscalYearId, CancellationToken ct)
+    {
+        var count = await _invoiceRepository.CountAsync(
+            i => i.CompanyId == companyId && i.FiscalYearId == fiscalYearId, ct);
+        return $"PF{(count + 1):D6}";
     }
 }

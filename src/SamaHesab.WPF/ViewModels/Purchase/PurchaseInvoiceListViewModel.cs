@@ -1,17 +1,67 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Domain.Entities.Purchase;
+using SamaHesab.Domain.Entities.CRM;
+using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
+
 namespace SamaHesab.WPF.ViewModels.Purchase;
+
 public partial class PurchaseInvoiceListViewModel : BaseViewModel
 {
+    private readonly ICurrentUserService _currentUser;
+    private readonly IPersianCalendarService _calendar;
+    private readonly IRepository<PurchaseInvoice> _invoiceRepository;
+    private readonly IRepository<Supplier> _supplierRepository;
+
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private decimal _totalAmount;
+
     public ObservableCollection<PurchaseInvoiceListItem> Invoices { get; } = new();
-    public PurchaseInvoiceListViewModel(IPersianCalendarService calendar, IDialogService d, INavigationService n) : base(d, n) { }
-    public override async Task LoadAsync() { await Task.CompletedTask; }
+
+    public PurchaseInvoiceListViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
+        IRepository<PurchaseInvoice> invoiceRepository, IRepository<Supplier> supplierRepository,
+        IDialogService d, INavigationService n) : base(d, n)
+    {
+        _currentUser = currentUser;
+        _calendar = calendar;
+        _invoiceRepository = invoiceRepository;
+        _supplierRepository = supplierRepository;
+    }
+
+    public override async Task LoadAsync() => await SearchAsync();
+
+    [RelayCommand]
+    private async Task SearchAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            Invoices.Clear();
+            var companyId = _currentUser.CompanyId ?? 1;
+            var list = await _invoiceRepository.FindAsync(i => i.CompanyId == companyId);
+            var suppliers = (await _supplierRepository.GetAllAsync()).ToDictionary(s => s.Id, s => s.FullName);
+
+            foreach (var inv in list.OrderByDescending(i => i.Id))
+            {
+                suppliers.TryGetValue(inv.SupplierId, out var sname);
+                Invoices.Add(new PurchaseInvoiceListItem(
+                    inv.Id, inv.InvoiceNumber, inv.InvoiceDate, sname ?? $"#{inv.SupplierId}",
+                    inv.GrandTotal, inv.PaidAmount, inv.RemainAmount, inv.StatusCode));
+            }
+            TotalCount = Invoices.Count;
+            TotalAmount = Invoices.Sum(i => i.Total);
+        });
+    }
+
+    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("PurchaseInvoice");
+    [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال چاپ...");
 }
-public record PurchaseInvoiceListItem(int Id, string Number, string Date, string SupplierName, decimal Total, string Status);
+
+public record PurchaseInvoiceListItem(int Id, string Number, string Date, string SupplierName,
+    decimal Total, decimal Paid, decimal Remain, string Status);

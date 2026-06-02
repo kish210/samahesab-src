@@ -113,6 +113,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SalesInvoiceListViewModel>();
                 services.AddTransient<SalesInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceEditViewModel>();
+                services.AddTransient<PurchaseInvoiceListViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
@@ -342,8 +343,14 @@ public partial class App : System.Windows.Application
                 var r = await mediator.Send(cmd);
                 var after = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, w.Id))?.Quantity ?? 0;
                 Line(r.Succeeded
-                    ? $"PURCHASE INVOICE: PASS (موجودی {before}→{after}, +{after - before} [expect 5])"
+                    ? $"PURCHASE INVOICE: PASS (id={r.Value}, موجودی {before}→{after}, +{after - before} [expect 5])"
                     : $"PURCHASE INVOICE: FAIL - {r.ErrorMessage}");
+
+                // verify the invoice record was persisted and the list VM loads it
+                var purRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>>();
+                var savedCount = (await purRepo.GetAllAsync()).Count;
+                var plvm = sp.GetService<SamaHesab.WPF.ViewModels.Purchase.PurchaseInvoiceListViewModel>();
+                if (plvm != null) { await plvm.LoadAsync(); Line($"PURCHASE LIST: PASS (رکوردها={savedCount}, لیست={plvm.Invoices.Count})"); }
             }
             catch (Exception ex) { Line("PURCHASE INVOICE: EXCEPTION - " + ex.GetBaseException().Message); }
 

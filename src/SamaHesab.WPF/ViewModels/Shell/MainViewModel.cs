@@ -71,6 +71,7 @@ public partial class MainViewModel : BaseViewModel
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),
+            ["PurchaseInvoiceList"]= ("لیست خریدها",       sp => sp.GetRequiredService<PurchaseInvoiceListViewModel>()),
             ["POS"]             = ("صندوق فروش",          sp => sp.GetRequiredService<PosViewModel>()),
             ["Customers"]       = ("مشتریان",             sp => sp.GetRequiredService<CustomerListViewModel>()),
             ["CustomerEdit"]    = ("ویرایش مشتری",        sp => sp.GetRequiredService<CustomerEditViewModel>()),

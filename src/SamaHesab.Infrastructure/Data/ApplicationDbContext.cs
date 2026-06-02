@@ -33,6 +33,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<SalesInvoice> SalesInvoices { get; set; }
     public DbSet<SalesInvoiceItem> SalesInvoiceItems { get; set; }
 
+    // Purchase
+    public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> PurchaseInvoices { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; }
+
     // HRM
     public DbSet<Employee> Employees { get; set; }
 
@@ -74,6 +78,12 @@ public class ApplicationDbContext : DbContext
         // The FK column is InvoiceId (not the convention 'SalesInvoiceId').
         modelBuilder.Entity<SalesInvoice>()
             .HasMany(i => i.Items).WithOne().HasForeignKey(it => it.InvoiceId);
+        // Purchase invoices live in the Pur schema.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>().ToTable("PurchaseInvoices", "Pur");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoiceItem>().ToTable("PurchaseInvoiceItems", "Pur");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>()
+            .HasMany(i => i.Items).WithOne().HasForeignKey(it => it.InvoiceId);
+
         modelBuilder.Entity<Employee>().ToTable("Employees", "Hrm");
         // Avoid cascading the HR detail tables into the model for now.
         modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);

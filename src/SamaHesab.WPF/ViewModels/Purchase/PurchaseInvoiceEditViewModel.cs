@@ -142,7 +142,8 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
                 SelectedWarehouseId, InvoiceType, null, DueDate, Description, Shipping, OtherCosts,
                 InvoiceItems.Select(i => new PurchaseInvoiceItemDto(
                     i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct,
-                    i.Description, null, i.BatchNumber, i.ProductionDate, i.ExpiryDate)).ToList());
+                    i.Description, null, i.BatchNumber, i.ProductionDate, i.ExpiryDate)).ToList(),
+                PaidAmount: PaidAmount);
             var result = await _mediator.Send(cmd);
             if (result.Succeeded)
             {

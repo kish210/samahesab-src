@@ -89,15 +89,19 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                 var stockItem = await _stockRepository
                     .GetByProductAndWarehouseAsync(item.ProductId, request.WarehouseId, ct);
 
-                if (stockItem == null)
+                var isNew = stockItem == null;
+                if (isNew)
                 {
                     stockItem = Domain.Entities.Inventory.StockItem.Create(
                         item.ProductId, request.WarehouseId);
-                    await _stockRepository.AddAsync(stockItem, ct);
                 }
 
-                stockItem.AddStock(item.Quantity, item.UnitPrice);
-                _stockRepository.Update(stockItem);
+                stockItem!.AddStock(item.Quantity, item.UnitPrice);
+
+                if (isNew)
+                    await _stockRepository.AddAsync(stockItem, ct);
+                else
+                    _stockRepository.Update(stockItem);
 
                 // Update product purchase price
                 var product = await _productRepository.GetByIdAsync(item.ProductId, ct);

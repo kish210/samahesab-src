@@ -328,6 +328,25 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("VOUCHER: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Purchase invoice (stock increase + auto voucher) ──
+            try
+            {
+                var stockRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IStockItemRepository>();
+                var w = whList.First();
+                var p = prodList.First();
+                var before = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, w.Id))?.Quantity ?? 0;
+                var cmd = new SamaHesab.Application.Purchase.Commands.CreatePurchaseInvoiceCommand(
+                    1, 1, "1403/06/15", 1, w.Id, "خرید", null, null, "تست خرید خودکار", 0, 0,
+                    new System.Collections.Generic.List<SamaHesab.Application.Purchase.Commands.PurchaseInvoiceItemDto>
+                    { new(p.Id, 5, 800000, 0, 9, null, null, null, null, null) });
+                var r = await mediator.Send(cmd);
+                var after = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, w.Id))?.Quantity ?? 0;
+                Line(r.Succeeded
+                    ? $"PURCHASE INVOICE: PASS (موجودی {before}→{after}, +{after - before} [expect 5])"
+                    : $"PURCHASE INVOICE: FAIL - {r.ErrorMessage}");
+            }
+            catch (Exception ex) { Line("PURCHASE INVOICE: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Customer create ──
             try
             {

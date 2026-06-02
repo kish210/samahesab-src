@@ -42,6 +42,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _paidAmount;
     [ObservableProperty] private decimal _remainAmount;
     [ObservableProperty] private string _paymentType = "نقدی";
+    [ObservableProperty] private decimal _invoiceDiscount;
+    [ObservableProperty] private decimal _commissionPercent;
 
     [ObservableProperty] private ProductSearchResult? _selectedProductItem;
 
@@ -149,9 +151,12 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         SubTotal = InvoiceItems.Sum(i => i.Quantity * i.UnitPrice);
         TotalDiscount = InvoiceItems.Sum(i => i.DiscountAmount);
         TotalTax = InvoiceItems.Sum(i => i.TaxAmount);
-        GrandTotal = SubTotal - TotalDiscount + TotalTax + Shipping + OtherCosts;
+        GrandTotal = SubTotal - TotalDiscount - InvoiceDiscount + TotalTax + Shipping + OtherCosts;
+        if (GrandTotal < 0) GrandTotal = 0;
         RemainAmount = GrandTotal - PaidAmount;
     }
+
+    partial void OnInvoiceDiscountChanged(decimal v) => RecalculateTotals();
 
     [RelayCommand]
     private async Task PostInvoiceAsync()
@@ -166,10 +171,16 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                 BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
                 InvoiceDate: InvoiceDate, CustomerId: SelectedCustomerId,
                 WarehouseId: SelectedWarehouseId, InvoiceType: Domain.Enums.InvoiceType.Sale,
-                PriceLevel: PriceLevel, SalesRepId: null, DueDate: DueDate, Description: Description,
+                PriceLevel: PriceLevel,
+                SalesRepId: CommissionPercent > 0 ? (_currentUser.UserId ?? 1) : (int?)null,
+                DueDate: DueDate, Description: Description,
                 Shipping: Shipping, OtherCosts: OtherCosts,
                 Items: InvoiceItems.Select(i => new SalesInvoiceItemDto(
-                    i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct, null, null, null)).ToList());
+                    i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct, null, null, null)).ToList(),
+                InvoiceDiscount: InvoiceDiscount,
+                PaidAmount: PaidAmount,
+                PaymentMethod: PaymentType,
+                CommissionPercent: CommissionPercent);
             var result = await _mediator.Send(cmd);
             if (result.Succeeded) { await _dialogService.ShowSuccessAsync("فاکتور فروش ثبت شد."); NewInvoice(); }
             else await _dialogService.ShowErrorAsync(result.ErrorMessage);

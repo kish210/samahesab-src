@@ -22,7 +22,11 @@ public record CreateSalesInvoiceCommand(
     string? Description,
     decimal Shipping,
     decimal OtherCosts,
-    List<SalesInvoiceItemDto> Items
+    List<SalesInvoiceItemDto> Items,
+    decimal InvoiceDiscount = 0,        // amount-based whole-invoice discount
+    decimal PaidAmount = 0,             // amount received at invoice time
+    string PaymentMethod = "نسیه",      // نقدی / بانک / چک / نسیه
+    decimal CommissionPercent = 0       // sales-rep commission %
 ) : IRequest<Result<int>>;
 
 public record SalesInvoiceItemDto(
@@ -161,10 +165,36 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
             number, request.InvoiceDate, 3 /*Sale*/, $"سند خودکار فاکتور فروش {invoice.InvoiceNumber}", invoice.InvoiceNumber);
 
+        // amounts (apply whole-invoice amount discount)
+        var discount = request.InvoiceDiscount > 0 ? request.InvoiceDiscount : 0;
+        var grand = invoice.GrandTotal - discount;
+        if (grand < 0) grand = 0;
+        var salesAmount = grand - invoice.TotalTax;
+        if (salesAmount < 0) salesAmount = 0;
+
+        // split the debit between received cash/bank/cheque and the remaining receivable
+        var paid = request.PaidAmount > 0 ? System.Math.Min(request.PaidAmount, grand) : 0;
+        var remain = grand - paid;
+
         int row = 1;
-        voucher.AddItem(VoucherItem.Create(0, row++, receivable.Id, invoice.GrandTotal, 0,
-            $"فاکتور فروش {invoice.InvoiceNumber}"));
-        var salesAmount = invoice.GrandTotal - invoice.TotalTax;
+        if (paid > 0)
+        {
+            var payCode = request.PaymentMethod switch
+            {
+                "نقدی"  => "1-01-001",  // صندوق
+                "چک"    => "1-04-001",  // اسناد دریافتنی
+                "بانک"  => "1-02-001",  // بانک (در صورت وجود)
+                _        => "1-01-001"
+            };
+            var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)
+                         ?? await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
+            if (payAcc != null)
+                voucher.AddItem(VoucherItem.Create(0, row++, payAcc.Id, paid, 0, $"دریافت وجه ({request.PaymentMethod})"));
+            else remain = grand; // fallback: everything receivable
+        }
+        if (remain > 0)
+            voucher.AddItem(VoucherItem.Create(0, row++, receivable.Id, remain, 0, $"فاکتور فروش {invoice.InvoiceNumber}"));
+
         voucher.AddItem(VoucherItem.Create(0, row++, sales.Id, 0, salesAmount, "درآمد فروش"));
         if (invoice.TotalTax > 0 && vat != null)
             voucher.AddItem(VoucherItem.Create(0, row++, vat.Id, 0, invoice.TotalTax, "مالیات بر ارزش افزوده"));
@@ -173,6 +203,24 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         await _unitOfWork.SaveChangesAsync(ct);
         invoice.SetVoucher(voucher.Id);
         _invoiceRepository.Update(invoice);
+
+        // ── Sales-rep commission → expense voucher ──
+        if (request.SalesRepId.HasValue && request.CommissionPercent > 0 && salesAmount > 0)
+        {
+            var commission = salesAmount * request.CommissionPercent / 100m;
+            var expense = await _accountRepository.GetByCodeAsync(companyId, "8-01-001", ct);
+            var payable = await _accountRepository.GetByCodeAsync(companyId, "3-01-001", ct);
+            if (commission > 0 && expense != null && payable != null)
+            {
+                var cnum = await _voucherRepository.GetNextNumberAsync(companyId, ct);
+                var cv = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
+                    cnum, request.InvoiceDate, 9, $"پورسانت بازاریاب فاکتور {invoice.InvoiceNumber}");
+                cv.AddItem(VoucherItem.Create(0, 1, expense.Id, commission, 0, "هزینه پورسانت فروش"));
+                cv.AddItem(VoucherItem.Create(0, 2, payable.Id, 0, commission, "بدهی پورسانت به بازاریاب"));
+                await _voucherRepository.AddAsync(cv, ct);
+                await _unitOfWork.SaveChangesAsync(ct);
+            }
+        }
     }
 
     private async Task<string> GenerateInvoiceNumberAsync(int companyId, int fiscalYearId,

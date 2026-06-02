@@ -294,6 +294,21 @@ public partial class App : System.Windows.Application
                     { new(p.Id, 2, p.SalePrice, 0, 9, null, null, null) });
                 var r = await mediator.Send(cmd);
                 Line(r.Succeeded ? $"SALES INVOICE: PASS (id={r.Value})" : $"SALES INVOICE: FAIL - {r.ErrorMessage}");
+
+                // invoice with amount discount + split payment + sales-rep commission
+                var voucherRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IVoucherRepository>();
+                var beforeCount = (await voucherRepo.GetAllAsync()).Count();
+                var cmd2 = new SamaHesab.Application.Sales.Commands.CreateSalesInvoiceCommand(
+                    1, 1, "1403/06/15", c.Id, w.Id, SamaHesab.Domain.Enums.InvoiceType.Sale,
+                    "خرده", 1, null, "تست تخفیف+پرداخت+پورسانت", 0, 0,
+                    new System.Collections.Generic.List<SamaHesab.Application.Sales.Commands.SalesInvoiceItemDto>
+                    { new(p.Id, 1, 1000000, 0, 0, null, null, null) },
+                    InvoiceDiscount: 100000, PaidAmount: 500000, PaymentMethod: "نقدی", CommissionPercent: 5);
+                var r2 = await mediator.Send(cmd2);
+                var afterCount = (await voucherRepo.GetAllAsync()).Count();
+                Line(r2.Succeeded
+                    ? $"SALES INVOICE (discount+split+commission): PASS (id={r2.Value}, vouchers +{afterCount - beforeCount} [expect 2])"
+                    : $"SALES INVOICE (discount+split+commission): FAIL - {r2.ErrorMessage}");
             }
             catch (Exception ex) { Line("SALES INVOICE: EXCEPTION - " + ex.GetBaseException().Message); }
 

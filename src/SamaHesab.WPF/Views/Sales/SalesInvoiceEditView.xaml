@@ -72,11 +72,12 @@
                                 ToolTip="افزودن مشتری جدید" Click="AddCustomer_Click">
                             <materialDesign:PackIcon Kind="AccountPlus" Width="18" Height="18"/>
                         </Button>
-                        <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding Customers}"
+                        <telerik:RadComboBox ItemsSource="{Binding Customers}"
                                   DisplayMemberPath="Name" SelectedValuePath="Id"
                                   SelectedValue="{Binding SelectedCustomerId}"
-                                  IsEditable="True" IsTextSearchEnabled="True"
-                                  StaysOpenOnEdit="True"/>
+                                  IsEditable="True" IsFilteringEnabled="True"
+                                  CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
+                                  EmptyText="انتخاب / جستجوی مشتری..." Height="36"/>
                     </DockPanel>
                 </StackPanel>
                 <StackPanel Grid.Row="0" Grid.Column="1" Margin="6">
@@ -144,19 +145,19 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Margin="4">
                     <TextBlock Text="مقدار" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddQty}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddQty}" Mask="n2" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Margin="4">
                     <TextBlock Text="قیمت واحد" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddUnitPrice}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddUnitPrice}" Mask="n0" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="4" Margin="4">
                     <TextBlock Text="تخفیف ٪" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddDiscountPct}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddDiscountPct}" Mask="n0" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="5" Margin="4">
                     <TextBlock Text="مالیات ٪" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddTaxPct}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddTaxPct}" Mask="n0" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="6" Margin="4" VerticalAlignment="Bottom">
                     <Button Style="{StaticResource PrimaryButton}" Height="36" Padding="16,0" Command="{Binding SearchProductCommand}">
@@ -250,13 +251,13 @@
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, StringFormat={}{0:#,##0}}" Foreground="{DynamicResource DangerColor}"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Text="{Binding Shipping}" Padding="6,2"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding Shipping}" Mask="n0"/></DockPanel>
                         <Separator Margin="0,8"/>
                         <DockPanel Margin="0,3">
                             <TextBlock DockPanel.Dock="Right" Text="مبلغ قابل پرداخت" FontWeight="Bold" FontSize="15"/>
                             <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
                         </DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="پرداختی" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Text="{Binding PaidAmount}" Padding="6,2"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="پرداختی" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding PaidAmount}" Mask="n0"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مانده" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding RemainAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/></DockPanel>
                     </StackPanel>
                 </Border>

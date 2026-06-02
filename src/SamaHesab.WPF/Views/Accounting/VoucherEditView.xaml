@@ -96,17 +96,12 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="4">
                     <TextBlock Text="حساب" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding LeafAccounts}"
-                              SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Code}" Foreground="{DynamicResource SecondaryText}"/>
-                                    <TextBlock Text="{Binding Name}" Margin="8,0,0,0"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <telerik:RadComboBox ItemsSource="{Binding LeafAccounts}"
+                              SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
+                              DisplayMemberPath="Name" TextSearchMode="Contains"
+                              IsEditable="True" IsFilteringEnabled="True"
+                              CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
+                              EmptyText="انتخاب / جستجوی حساب..." Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Margin="4">
                     <TextBlock Text="شرح ردیف" Style="{StaticResource FieldCaption}"/>
@@ -116,11 +111,11 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Margin="4">
                     <TextBlock Text="بدهکار" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding NewDebit}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding NewDebit}" Mask="n0" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Margin="4">
                     <TextBlock Text="بستانکار" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding NewCredit}"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding NewCredit}" Mask="n0" Height="36"/>
                 </StackPanel>
                 <StackPanel Grid.Column="4" Margin="4" VerticalAlignment="Bottom">
                     <Button Style="{StaticResource PrimaryButton}" Height="36" Padding="16,0" Command="{Binding AddRowCommand}">

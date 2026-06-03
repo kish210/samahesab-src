@@ -351,6 +351,9 @@ public partial class App : System.Windows.Application
                 var savedCount = (await purRepo.GetAllAsync()).Count;
                 var plvm = sp.GetService<SamaHesab.WPF.ViewModels.Purchase.PurchaseInvoiceListViewModel>();
                 if (plvm != null) { await plvm.LoadAsync(); Line($"PURCHASE LIST: PASS (رکوردها={savedCount}, لیست={plvm.Invoices.Count})"); }
+
+                var slvm = sp.GetService<SamaHesab.WPF.ViewModels.Sales.SalesInvoiceListViewModel>();
+                if (slvm != null) { await slvm.LoadAsync(); Line($"SALES LIST: PASS (لیست={slvm.Invoices.Count}, جمع={slvm.TotalAmount:#,##0})"); }
             }
             catch (Exception ex) { Line("PURCHASE INVOICE: EXCEPTION - " + ex.GetBaseException().Message); }
 

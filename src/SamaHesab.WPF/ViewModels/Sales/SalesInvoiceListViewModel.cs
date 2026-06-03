@@ -1,9 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Domain.Entities.Sales;
+using SamaHesab.Domain.Entities.CRM;
+using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Sales;
 
@@ -11,6 +15,8 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IRepository<SalesInvoice> _invoiceRepository;
+    private readonly IRepository<Customer> _customerRepository;
 
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
@@ -23,11 +29,14 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
     public List<string> StatusList { get; } = new() { "همه", "پیش‌نویس", "قطعی", "لغو شده" };
 
     public SalesInvoiceListViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
+        IRepository<SalesInvoice> invoiceRepository, IRepository<Customer> customerRepository,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _currentUser = currentUser;
         _calendar = calendar;
+        _invoiceRepository = invoiceRepository;
+        _customerRepository = customerRepository;
     }
 
     public override async Task LoadAsync()
@@ -44,15 +53,35 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            // Load from repository
             Invoices.Clear();
-            TotalCount = 0;
-            TotalAmount = 0;
-            await Task.CompletedTask;
+            var companyId = _currentUser.CompanyId ?? 1;
+            var list = await _invoiceRepository.FindAsync(i => i.CompanyId == companyId);
+            var customers = (await _customerRepository.GetAllAsync()).ToDictionary(c => c.Id, c => c.FullName);
+
+            foreach (var inv in list.OrderByDescending(i => i.Id))
+            {
+                var statusFa = StatusToPersian(inv.Status);
+                if (SelectedStatus != "همه" && statusFa != SelectedStatus) continue;
+                customers.TryGetValue(inv.CustomerId, out var cname);
+                Invoices.Add(new SalesInvoiceListItem(
+                    inv.Id, inv.InvoiceNumber, inv.InvoiceDate, cname ?? $"#{inv.CustomerId}",
+                    inv.GrandTotal, inv.PaidAmount, inv.RemainAmount, statusFa));
+            }
+            TotalCount = Invoices.Count;
+            TotalAmount = Invoices.Sum(i => i.Total);
         });
     }
 
-    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("NewSalesInvoice");
+    private static string StatusToPersian(SamaHesab.Domain.Enums.InvoiceStatus s) => s switch
+    {
+        SamaHesab.Domain.Enums.InvoiceStatus.Draft => "پیش‌نویس",
+        SamaHesab.Domain.Enums.InvoiceStatus.Confirmed => "قطعی",
+        SamaHesab.Domain.Enums.InvoiceStatus.Posted => "قطعی",
+        SamaHesab.Domain.Enums.InvoiceStatus.Cancelled => "لغو شده",
+        _ => s.ToString()
+    };
+
+    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice");
     [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال چاپ...");
     [RelayCommand] private async Task ExportExcelAsync() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی اکسل...");
 }

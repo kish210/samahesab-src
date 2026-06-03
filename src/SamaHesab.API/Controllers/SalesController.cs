@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Sales.Commands;
@@ -6,7 +6,7 @@ using SamaHesab.Application.Sales.Commands;
 namespace SamaHesab.API.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = "ADMIN")]
 [Route("api/sales")]
 public class SalesController : ControllerBase
 {

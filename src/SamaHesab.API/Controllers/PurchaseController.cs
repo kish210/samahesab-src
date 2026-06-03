@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Purchase.Commands;
@@ -6,7 +6,7 @@ using SamaHesab.Application.Purchase.Commands;
 namespace SamaHesab.API.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = "ADMIN")]
 [Route("api/purchase")]
 public class PurchaseController : ControllerBase
 {

@@ -436,6 +436,20 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("AUTH: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Treasury receipt (دریافت) ──
+            try
+            {
+                var c = custList.First();
+                var before = (await custRepo.GetByIdAsync(c.Id))?.Balance ?? 0;
+                var r = await mediator.Send(new SamaHesab.Application.Treasury.Commands.CreateReceiptCommand(
+                    1, 1, "1403/06/15", c.Id, 1_000_000, "نقدی", "تست دریافت"));
+                var after = (await custRepo.GetByIdAsync(c.Id))?.Balance ?? 0;
+                Line(r.Succeeded
+                    ? $"RECEIPT: PASS (سند={r.Value}, مانده مشتری {before:#,##0}→{after:#,##0})"
+                    : $"RECEIPT: FAIL - {r.ErrorMessage}");
+            }
+            catch (Exception ex) { Line("RECEIPT: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Customer statement ──
             try
             {

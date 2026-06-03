@@ -99,6 +99,25 @@
             </telerik:RadGridView>
         </Border>
 
+        <!-- ═══ Balance Sheet ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
+                Visibility="{Binding IsBalanceSheet, Converter={StaticResource BoolVis}}">
+            <telerik:RadGridView ItemsSource="{Binding BalanceRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+                                 IsReadOnly="True" ShowGroupPanel="True">
+                <telerik:RadGridView.GroupDescriptors>
+                    <telerik:GroupDescriptor Member="Section"/>
+                </telerik:RadGridView.GroupDescriptors>
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="بخش" DataMemberBinding="{Binding Section}" Width="180"/>
+                    <telerik:GridViewDataColumn Header="کد حساب" DataMemberBinding="{Binding Code}" Width="150"/>
+                    <telerik:GridViewDataColumn Header="نام حساب" DataMemberBinding="{Binding Name}" Width="*"/>
+                    <telerik:GridViewDataColumn Header="مبلغ" DataMemberBinding="{Binding Amount}" DataFormatString="{}{0:#,##0}" Width="200">
+                        <telerik:GridViewDataColumn.AggregateFunctions><telerik:SumFunction ResultFormatString="{}{0:#,##0}"/></telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </Border>
+
         <!-- ═══ Footer totals ═══ -->
         <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,2">
@@ -117,6 +136,28 @@
                     <TextBlock Text="{Binding ExpenseTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="سود (زیان) خالص:" Style="{StaticResource ErpInlineLabel}"/>
                     <TextBlock Text="{Binding NetProfit, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <!-- Balance-sheet totals -->
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsBalanceSheet, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="جمع دارایی‌ها:" Style="{StaticResource ErpInlineLabel}"/>
+                    <TextBlock Text="{Binding TotalAssets, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="جمع بدهی‌ها + سرمایه:" Style="{StaticResource ErpInlineLabel}"/>
+                    <TextBlock Text="{Binding TotalLiabEquity, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource WarningColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="وضعیت تراز:" Style="{StaticResource ErpInlineLabel}"/>
+                    <TextBlock VerticalAlignment="Center" FontWeight="Bold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="ناتراز"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding BalanceOk}" Value="True">
+                                        <Setter Property="Text" Value="تراز ✓"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessColor}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -534,6 +534,14 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("FINANCIAL REPORTS: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Balance sheet (ترازنامه) ──
+            try
+            {
+                var bs = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetBalanceSheetQuery("1400/01/01", "1410/12/29"));
+                Line($"BALANCE SHEET: {(bs.IsBalanced ? "PASS" : "FAIL")} (دارایی={bs.TotalAssets:#,##0}, بدهی+سرمایه={bs.TotalLiabilities + bs.TotalEquity:#,##0}, سود={bs.NetProfit:#,##0})");
+            }
+            catch (Exception ex) { Line("BALANCE SHEET: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Open existing voucher (view/edit from list) ──
             try
             {

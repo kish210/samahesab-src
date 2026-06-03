@@ -84,6 +84,69 @@ public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuer
     }
 }
 
+// ── Balance Sheet (ترازنامه) ─────────────────────────────────────────────────
+public record BalanceSheetLine(string Code, string Name, decimal Amount);
+public record BalanceSheetDto(
+    List<BalanceSheetLine> Assets, List<BalanceSheetLine> Liabilities, List<BalanceSheetLine> Equity,
+    decimal TotalAssets, decimal TotalLiabilities, decimal TotalEquity, decimal NetProfit, bool IsBalanced);
+
+public record GetBalanceSheetQuery(string FromDate, string ToDate) : IRequest<BalanceSheetDto>;
+
+public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
+{
+    private readonly IVoucherRepository _vouchers;
+    private readonly IAccountRepository _accounts;
+    private readonly ICurrentUserService _currentUser;
+
+    public GetBalanceSheetQueryHandler(IVoucherRepository v, IAccountRepository a, ICurrentUserService u)
+    { _vouchers = v; _accounts = a; _currentUser = u; }
+
+    private static string Seg0(string code) => (code ?? "").Split('-').FirstOrDefault() ?? "";
+
+    public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery req, CancellationToken ct)
+    {
+        var companyId = _currentUser.CompanyId ?? 1;
+        var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
+            .ToDictionary(a => a.Id, a => (a.Code, a.Name));
+        var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
+
+        var assets = new Dictionary<int, decimal>();   // group 1: debit - credit
+        var liab   = new Dictionary<int, decimal>();   // group 3: credit - debit
+        var equity = new Dictionary<int, decimal>();   // group 2: credit - debit
+        decimal revenue = 0, expense = 0;
+
+        foreach (var i in vouchers.SelectMany(v => v.Items))
+        {
+            if (!accounts.TryGetValue(i.AccountId, out var acc)) continue;
+            switch (Seg0(acc.Code))
+            {
+                case "1": assets[i.AccountId] = assets.GetValueOrDefault(i.AccountId) + (i.Debit - i.Credit); break;
+                case "3": liab[i.AccountId]   = liab.GetValueOrDefault(i.AccountId)   + (i.Credit - i.Debit); break;
+                case "2": equity[i.AccountId] = equity.GetValueOrDefault(i.AccountId) + (i.Credit - i.Debit); break;
+                case "4": case "6": revenue += i.Credit - i.Debit; break;
+                case "5": case "7": case "8": expense += i.Debit - i.Credit; break;
+            }
+        }
+
+        List<BalanceSheetLine> Lines(Dictionary<int, decimal> src) => src
+            .Where(kv => kv.Value != 0)
+            .Select(kv => new BalanceSheetLine(accounts[kv.Key].Code, accounts[kv.Key].Name, kv.Value))
+            .OrderBy(l => l.Code).ToList();
+
+        var netProfit = revenue - expense;
+        var equityLines = Lines(equity);
+        equityLines.Add(new BalanceSheetLine("—", "سود (زیان) انباشته دوره", netProfit));
+
+        var totalAssets = assets.Values.Sum();
+        var totalLiab = liab.Values.Sum();
+        var totalEquity = equity.Values.Sum() + netProfit;
+
+        return new BalanceSheetDto(Lines(assets), Lines(liab), equityLines,
+            totalAssets, totalLiab, totalEquity,
+            netProfit, System.Math.Abs(totalAssets - (totalLiab + totalEquity)) < 1m);
+    }
+}
+
 // ── Profit & Loss ────────────────────────────────────────────────────────────
 public record GetProfitLossQuery(string FromDate, string ToDate) : IRequest<ProfitLossDto>;
 

@@ -154,6 +154,28 @@ public partial class App : System.Windows.Application
             }
         });
 
+        // ─── Capture the login window only (dev only) ─────────────────────────
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_LOGIN") == "1")
+        {
+            var login = _host.Services.GetRequiredService<LoginWindow>();
+            login.Show();
+            await Task.Delay(1500);
+            login.UpdateLayout();
+            var dir = @"D:\duc\sama-hesab\screenshot";
+            System.IO.Directory.CreateDirectory(dir);
+            int width = (int)(login.ActualWidth > 0 ? login.ActualWidth : 440);
+            int height = (int)(login.ActualHeight > 0 ? login.ActualHeight : 580);
+            var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtb.Render(login);
+            var enc = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+            using (var fs = System.IO.File.Create(System.IO.Path.Combine(dir, "00_login.png")))
+                enc.Save(fs);
+            Shutdown();
+            return;
+        }
+
         // ─── Capture screenshots of every screen (dev only) ───────────────────
         if (Environment.GetEnvironmentVariable("SAMA_SHOTS") == "1")
         {

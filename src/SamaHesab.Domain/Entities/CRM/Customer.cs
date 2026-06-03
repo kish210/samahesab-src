@@ -96,4 +96,14 @@ public class Customer : AuditableEntity
     public void Activate() { IsActive = true; UpdatedAt = DateTime.Now; }
     public void SetBirthDate(string birthDate) { BirthDate = birthDate; UpdatedAt = DateTime.Now; }
     public void SetAccountId(int accountId) { AccountId = accountId; UpdatedAt = DateTime.Now; }
+    public void SetDetails(string? nationalCode, string? economicCode, int? groupId, string? notes)
+    {
+        NationalCode = nationalCode; EconomicCode = economicCode; GroupId = groupId; Notes = notes;
+        UpdatedAt = DateTime.Now;
+    }
+    public void UpdateNames(string? firstName, string? lastName, string? companyName)
+    {
+        FirstName = firstName; LastName = lastName; CompanyName = companyName;
+        UpdatedAt = DateTime.Now;
+    }
 }

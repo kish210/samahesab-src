@@ -1,11 +1,68 @@
 <UserControl x:Class="SamaHesab.WPF.Views.Accounting.ChequeListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <Grid>
-        <TextBlock Text="در حال توسعه..." HorizontalAlignment="Center" VerticalAlignment="Center"
-                   FontFamily="{StaticResource VazirFont}" FontSize="18"
-                   Foreground="{DynamicResource SecondaryText}"/>
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
+                        <materialDesign:PackIcon Kind="CheckbookArrowRight" Width="22" Height="22"
+                                                 Foreground="{DynamicResource PrimaryAccent}"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="مدیریت چک" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ClearChequeCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="وصول" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ReturnChequeCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="UndoVariant" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource DangerColor}"/><TextBlock Text="برگشت" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding SearchCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Cheques}" AutoGenerateColumns="False"
+                                 ShowSearchPanel="True" IsReadOnly="True" CanUserFreezeColumns="True"
+                                 ShowGroupPanel="True" ShowColumnFooters="True" RowIndicatorVisibility="Collapsed"
+                                 FontFamily="{StaticResource VazirFont}">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="نوع" DataMemberBinding="{Binding Type}" Width="80"/>
+                    <telerik:GridViewDataColumn Header="شماره چک" DataMemberBinding="{Binding Number}" Width="120"/>
+                    <telerik:GridViewDataColumn Header="بانک" DataMemberBinding="{Binding Bank}" Width="*"/>
+                    <telerik:GridViewDataColumn Header="مبلغ" DataMemberBinding="{Binding Amount}" DataFormatString="{}{0:#,##0}" Width="140">
+                        <telerik:GridViewDataColumn.AggregateFunctions>
+                            <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
+                        </telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                    <telerik:GridViewDataColumn Header="سررسید" DataMemberBinding="{Binding DueDate}" Width="110"/>
+                    <telerik:GridViewDataColumn Header="وضعیت" DataMemberBinding="{Binding Status}" Width="110"/>
+                    <telerik:GridViewDataColumn Header="صادرکننده" DataMemberBinding="{Binding IssuedBy}" Width="150"/>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="12,8">
+            <TextBlock FontSize="12" HorizontalAlignment="Right">
+                <Run Text="تعداد چک:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
+                <Run Text="   |   جمع مبلغ:"/><Run Text="{Binding TotalAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold"/>
+            </TextBlock>
+        </Border>
     </Grid>
 </UserControl>

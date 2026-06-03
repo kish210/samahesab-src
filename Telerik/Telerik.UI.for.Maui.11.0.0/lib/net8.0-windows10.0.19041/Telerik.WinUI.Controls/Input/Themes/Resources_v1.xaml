@@ -1,0 +1,1295 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:primitives="using:Telerik.UI.Xaml.Controls.Primitives"
+    xmlns:primitivesCommon="using:Telerik.UI.Xaml.Controls.Primitives.Common"
+    xmlns:local="using:Telerik.UI.Xaml.Controls.Input"
+    xmlns:localNumericBox="using:Telerik.UI.Xaml.Controls.Input.NumericBox"
+    xmlns:localDateTime="using:Telerik.UI.Xaml.Controls.Input.DateTimePickers"
+    xmlns:localRangeSlider="using:Telerik.UI.Xaml.Controls.Input.RangeSlider"
+    xmlns:localRangeSliderPrimitives="using:Telerik.UI.Xaml.Controls.Primitives"
+    xmlns:primitivesLoopingList="using:Telerik.UI.Xaml.Controls.Primitives.LoopingList">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Themes/CommonThemeResources_v1.xaml"/>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Input/Themes/CommonResources.xaml"/>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/Buttons_v1.xaml"/>
+
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark" Source="ms-appx:///Telerik.WinUI.Controls/Input/Themes/ThemeResourcesDark_v1.xaml"/>
+                <ResourceDictionary x:Key="Light" Source="ms-appx:///Telerik.WinUI.Controls/Input/Themes/ThemeResourcesLight_v1.xaml"/>
+                <ResourceDictionary x:Key="HighContrast" Source="ms-appx:///Telerik.WinUI.Controls/Input/Themes/ThemeResourcesHighContrast_v1.xaml"/>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark" Source="{CustomResource DarkResourcesPath}"/>
+                <ResourceDictionary x:Key="Light" Source="{CustomResource LightResourcesPath}"/>
+                <ResourceDictionary x:Key="HighContrast" Source="{CustomResource HighContrastResourcesPath}"/>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--#region Common-->
+    <primitives:BooleanNotConverter x:Key="BooleanNotConverter" />
+    <primitives:ContentToVisibilityConverter x:Key="ContentToVisibilityConverter" />
+
+    <x:Double x:Key="TelerikSegmentedControl_MinHeight">32</x:Double>
+    <x:Double x:Key="TelerikDateTimePicker_MinHeight">32</x:Double>
+    <x:Double x:Key="TelerikDateTimePicker_ItemHeight">40</x:Double>
+    <Thickness x:Key="TelerikDateTimePicker_HeaderMargin">0 0 0 8</Thickness>
+    <Thickness x:Key="TelerikNumericBox_HeaderMargin">0 0 0 8</Thickness>
+    <Thickness x:Key="TelerikMaskedInput_HeaderMargin">0 0 0 8</Thickness>
+    <Thickness x:Key="TelerikMaskedInput_DescriptionMargin">0 8 0 0</Thickness>
+    <!--#endregion Common -->
+
+    <!--#region MaskedInput Control-->
+    <Style x:Key="MaskedInputClearButtonStyle" TargetType="primitivesCommon:InlineButton" BasedOn="{StaticResource InlineButtonStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMaskedInput_Foreground}" />
+        <Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Content" Value="&#xE894;" />
+        <Setter Property="PointerOverForegroundBrush" Value="{ThemeResource TelerikMaskedInput_ClearButtonForegroundPointerOver}" />
+        <Setter Property="PointerOverBackgroundBrush" Value="Transparent" />
+        <Setter Property="PressedForegroundBrush" Value="{ThemeResource TelerikMaskedInput_ClearButtonForegroundPressed}" />
+        <Setter Property="PressedBackgroundBrush" Value="Transparent" />
+    </Style>
+
+    <Style x:Key="MaskedInputTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderTextContentPresenter" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={ThemeResource TextControlPlaceholderForegroundDisabled}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderTextContentPresenter" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={ThemeResource TextControlPlaceholderForegroundPointerOver}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderTextContentPresenter" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={ThemeResource TextControlPlaceholderForegroundFocused}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ButtonStates">
+                                <VisualState x:Name="ButtonVisible">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="DeleteButton" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="ButtonCollapsed" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Border
+                            x:Name="BorderElement"
+                            Grid.ColumnSpan="2"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Control.IsTemplateFocusTarget="True"
+                            MinWidth="{TemplateBinding MinWidth}"
+                            MinHeight="{TemplateBinding MinHeight}" />
+                        <ScrollViewer
+                            x:Name="ContentElement"
+                            HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                            HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                            VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                            VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                            IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                            IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                            IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                            Margin="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            Foreground="{TemplateBinding Foreground}"
+                            IsTabStop="False"
+                            AutomationProperties.AccessibilityView="Raw"
+                            ZoomMode="Disabled" />
+                        <TextBlock
+                            x:Name="PlaceholderTextContentPresenter"
+                            Grid.ColumnSpan="2"
+                            Foreground="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue={ThemeResource TextControlPlaceholderForeground}}"
+                            Margin="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            Text="{TemplateBinding PlaceholderText}"
+                            TextAlignment="{TemplateBinding TextAlignment}"
+                            TextWrapping="{TemplateBinding TextWrapping}"
+                            IsHitTestVisible="False" />
+                        <primitivesCommon:InlineButton
+                            x:Name="DeleteButton"
+                            Grid.Column="1"
+                            IsTabStop="False"
+                            Style="{StaticResource MaskedInputClearButtonStyle}"
+                            Padding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Padding, Converter={StaticResource ThicknessToOrientedThicknessConverter}, ConverterParameter=Right}"
+                            VerticalAlignment="Stretch"
+                            Visibility="Collapsed"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MaskedInputBaseStyle"  TargetType="local:RadMaskedInputBase">
+        <Style.Setters>
+            <Setter Property="Foreground" Value="{ThemeResource TelerikMaskedInput_Foreground}"/>
+            <Setter Property="Background" Value="{ThemeResource TelerikMaskedInput_Background}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource TelerikMaskedInput_BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="IsTabStop" Value="False" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="local:RadMaskedInputBase">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*,Auto">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="PART_Editor">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMaskedInput_BorderBrushPointerOver}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Focused">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisual" From="0" To="1" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Invalid">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="PART_Editor">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMaskedInput_ValidationBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="PART_ErrorIndicator">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="HeaderContentPresenter">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextControlHeaderForegroundDisabled}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="PART_Editor">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMaskedInput_ForegroundDisabled}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="PART_Editor">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMaskedInput_BorderBrushDisabled}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="HeaderContentPresenter"
+                                              Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              Foreground="{ThemeResource TelerikMaskedInput_HeaderForeground}"
+                                              Margin="{ThemeResource TelerikMaskedInput_HeaderMargin}"
+                                              TextWrapping="Wrap"
+                                              VerticalAlignment="Top"/>
+                            <TextBox x:Name="PART_Editor"
+                                     Grid.Row="1"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     Background="{TemplateBinding Background}"
+                                     BorderBrush="{TemplateBinding BorderBrush}"
+                                     BorderThickness="{TemplateBinding BorderThickness}"
+                                     CornerRadius="{TemplateBinding CornerRadius}"
+                                     Text="{Binding Text, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                     PlaceholderText="{TemplateBinding EmptyText}"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"
+                                     IsTextPredictionEnabled="False"
+                                     IsSpellCheckEnabled="False"
+                                     Style="{StaticResource MaskedInputTextBoxStyle}"/>
+                            <Border x:Name="FocusVisual"
+                                    Grid.Row="1"
+                                    BorderBrush="{ThemeResource TelerikMaskedInput_BorderBrushFocused}"
+                                    BorderThickness="{ThemeResource TextControlBorderThemeThicknessFocused}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    Opacity="0"/>
+                            <FontIcon x:Name="PART_ErrorIndicator"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Foreground="{ThemeResource TelerikMaskedInput_ValidationBrush}"
+                                      FontSize="16"
+                                      Glyph="&#xe783;"
+                                      Margin="8 0 0 0"
+                                      VerticalAlignment="Center"
+                                      Visibility="Collapsed"/>
+                            <ContentPresenter Grid.Row="2"
+                                              Content="{TemplateBinding Description}"
+                                              Foreground="{ThemeResource TelerikMaskedInput_DescriptionForeground}"
+                                              Margin="{ThemeResource TelerikMaskedInput_DescriptionMargin}"
+                                              TextWrapping="Wrap"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style.Setters>
+    </Style>
+
+    <Style TargetType="local:RadMaskedTextInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="aaaaaaaaaaaa" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedNumericInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="n0" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedEmailInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="^([a-zA-Z0-9_\-\.']+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$" />
+        <Setter Property="EmptyText" Value="email:" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedIPInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="###.###.###.###" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedRegexInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="[A-z]" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedDateTimeInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="g" />
+    </Style>
+
+    <Style TargetType="local:RadMaskedTimeSpanInput" BasedOn="{StaticResource MaskedInputBaseStyle}">
+        <Setter Property="Mask" Value="dd:hh:mm:ss.fff" />
+    </Style>
+    <!--#endregion-->
+
+    <!--#region SegmentedControl-->
+    <Style TargetType="local:SegmentedItemsControl">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <local:SegmentedPanel />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:SegmentedItemsControl">
+                    <Grid Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}">
+                        <Canvas x:Name="PART_DecorationLayer" />
+                        <ItemsPresenter />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadSegmentedControl">
+        <Setter Property="Background" Value="{ThemeResource TelerikSegmentedControl_Background}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikSegmentedControl_BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="SeparatorBrush" Value="{ThemeResource TelerikSegmentedControl_SeparatorBrush}" />
+        <Setter Property="SeparatorWidth" Value="1" />
+        <Setter Property="MinHeight" Value="{ThemeResource TelerikSegmentedControl_MinHeight}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadSegmentedControl">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="PART_ItemsPanel">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BorderBrushDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="SeparatorBrush" Storyboard.TargetName="PART_ItemsPanel">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BorderBrushDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Canvas x:Name="PART_AnimationLayer" />
+                        <local:SegmentedItemsControl x:Name="PART_ItemsPanel"
+                                                     ItemContainerStyle="{TemplateBinding ItemContainerStyle}"
+                                                     ItemContainerStyleSelector="{TemplateBinding ItemContainerStyleSelector}"
+                                                     ItemTemplate="{TemplateBinding ItemTemplate}"
+                                                     ItemTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                     SegmentWidthMode="{TemplateBinding SegmentWidthMode}"
+                                                     CornerRadius="{TemplateBinding CornerRadius}"
+                                                     BorderBrush="{TemplateBinding BorderBrush}"
+                                                     Background="{TemplateBinding Background}"
+                                                     BorderThickness="{TemplateBinding BorderThickness}"
+                                                     SeparatorWidth="{TemplateBinding SeparatorWidth}"
+                                                     SeparatorBrush="{TemplateBinding SeparatorBrush}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:Segment">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikSegmentedControl_Foreground}" />
+        <Setter Property="SelectedForeground" Value="{ThemeResource TelerikSegmentedControl_ForegroundSelected}" />
+        <Setter Property="DisabledForeground" Value="{ThemeResource TelerikSegmentedControl_ForegroundDisabled}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="SelectedBackground" Value="{ThemeResource TelerikSegmentedControl_BackgroundSelected}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikSegmentedControl_BorderBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:Segment">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BackgroundPointerOver}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BackgroundPressed}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding Foreground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BorderBrushDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding DisabledForeground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedBackground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedForeground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="SelectedPointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikSegmentedControl_BackgroundSelectedPointerOver}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedForeground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="SelectedPressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedBackground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedForeground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="SelectedDisabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BackgroundVisual">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding SelectedBackground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding DisabledForeground, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused"/>
+                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="PointerFocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Border x:Name="BackgroundVisual"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"/>
+
+                        <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}"
+                                          Content="{TemplateBinding Content}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region NumericBox -->
+    <Style x:Key="NumericBoxButtonBaseStyle" TargetType="primitivesCommon:InlineButton" BasedOn="{StaticResource InlineButtonStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikNumericBox_ButtonForeground}" />
+        <Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style x:Key="NumericButtonIncreaseStyle" TargetType="primitivesCommon:InlineButton" BasedOn="{StaticResource NumericBoxButtonBaseStyle}">
+        <Setter Property="AutomationProperties.Name" Value="NumericIncrease"/>
+        <Setter Property="ClickMode" Value="Press" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Width" Value="{ThemeResource ContentDialogButtonHeight}"/>
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="Content" Value="&#xE0A0;" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="PointerOverForegroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonForeground}" />
+        <Setter Property="PointerOverBackgroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonBackgroundPointerOver}" />
+        <Setter Property="PointerOverBorderBrush" Value="Transparent" />
+        <Setter Property="PressedForegroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonForeground}" />
+        <Setter Property="PressedBackgroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonBackgroundPressed}" />
+        <Setter Property="PressedBorderBrush" Value="Transparent" />
+        <Setter Property="DisabledForegroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonForegroundDisabled}" />
+        <Setter Property="DisabledBackgroundBrush" Value="{ThemeResource TelerikNumericBox_ButtonBackgroundDisabled}" />
+        <Setter Property="DisabledBorderBrush" Value="{ThemeResource TelerikNumericBox_ButtonBorderBrushDisabled}" />
+    </Style>
+
+    <Style x:Key="NumericButtonDecreaseStyle" TargetType="primitivesCommon:InlineButton" BasedOn="{StaticResource NumericButtonIncreaseStyle}">
+        <Setter Property="AutomationProperties.Name" Value="NumericDecrease"/>
+        <Setter Property="Content" Value="&#xE0A1;" />
+    </Style>
+
+    <Style x:Key="DeleteButtonStyle" TargetType="primitivesCommon:InlineButton" BasedOn="{StaticResource NumericBoxButtonBaseStyle}">
+        <Setter Property="Content" Value="&#xE894;" />
+        <Setter Property="PointerOverForegroundBrush" Value="{ThemeResource TelerikNumericBox_ClearButtonForegroundPointerOver}" />
+        <Setter Property="PointerOverBackgroundBrush" Value="Transparent" />
+        <Setter Property="PressedForegroundBrush" Value="{ThemeResource TelerikNumericBox_ClearButtonForegroundPressed}" />
+        <Setter Property="PressedBackgroundBrush" Value="Transparent" />
+    </Style>
+
+    <Style TargetType="localNumericBox:NumericTextBox">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikNumericBox_Foreground}" />
+        <Setter Property="Background" Value="{x:Null}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="InputScope" Value="Number" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+        <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
+        <Setter Property="Padding" Value="10 0" />
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="localNumericBox:NumericTextBox">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="PointerOver"/>
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="DeleteButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ButtonStates">
+                                <VisualState x:Name="ButtonVisible">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DeleteButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="ButtonCollapsed" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ScrollViewer x:Name="ContentElement"
+                                      AutomationProperties.AccessibilityView="Raw"
+                                      HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                      HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                      IsTabStop="False"
+                                      IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                      IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                      IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                      Margin="{TemplateBinding BorderThickness}"
+                                      Padding="{TemplateBinding Padding}"
+                                      VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                      VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      ZoomMode="Disabled" />
+                        <primitivesCommon:InlineButton x:Name="DeleteButton" Grid.Column="1" IsTabStop="False"
+                                                       Style="{StaticResource DeleteButtonStyle}" Visibility="Collapsed" VerticalAlignment="Stretch"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadNumericBoxStyle" TargetType="local:RadNumericBox">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikNumericBox_BorderBrush}" />
+        <Setter Property="Background" Value="{ThemeResource TelerikNumericBox_Background}" />
+        <Setter Property="Foreground" Value="{ThemeResource TelerikNumericBox_Foreground}"/>
+        <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+        <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+        <Setter Property="Minimum" Value="0" />
+        <Setter Property="Maximum" Value="100" />
+        <Setter Property="MinWidth" Value="180" />
+        <Setter Property="MinHeight" Value="{ThemeResource TextControlThemeMinHeight}" />
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="IncreaseButtonStyle" Value="{StaticResource NumericButtonIncreaseStyle}" />
+        <Setter Property="DecreaseButtonStyle" Value="{StaticResource NumericButtonDecreaseStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadNumericBox">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="BorderElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_BorderBrushDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="HeaderElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundDisabled}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="TextBoxStates">
+                                <VisualState x:Name="TextBoxNormal"/>
+                                <VisualState x:Name="TextBoxPointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="BorderElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_BorderBrushPointerOver}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="TextBoxUnfocused"/>
+                                <VisualState x:Name="TextBoxFocused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="BorderElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_BackgroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="PART_TextBox">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="PART_DecreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="PART_IncreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="PointerOverForegroundBrush" Storyboard.TargetName="PART_DecreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="PointerOverForegroundBrush" Storyboard.TargetName="PART_IncreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="PressedForegroundBrush" Storyboard.TargetName="PART_DecreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="PressedForegroundBrush" Storyboard.TargetName="PART_IncreaseButton">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikNumericBox_ForegroundFocused}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisual" From="0" To="1" Duration="0"/>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="WatermarkStates">
+                                <VisualState x:Name="WatermarkHidden" />
+                                <VisualState x:Name="WatermarkVisible">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="Watermark">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <ContentControl x:Name="HeaderElement"
+                                        Content="{TemplateBinding Header}"
+                                        ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                        Style="{TemplateBinding HeaderStyle}"
+                                        IsTabStop="False"
+                                        Visibility="{Binding Content, RelativeSource={RelativeSource Self}, Converter={StaticResource ContentToVisibilityConverter}}" />
+                        <Border x:Name="BorderElement"
+                                Grid.Row="1"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                MinHeight="{TemplateBinding MinHeight}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <localNumericBox:NumericTextBox
+                                    x:Name="PART_TextBox"
+                                    IsEnabled="{TemplateBinding IsEnabled}"
+                                    Visibility="{TemplateBinding TextBoxVisibility}"
+                                    IsReadOnly="{Binding IsEditable, Converter={StaticResource BooleanNotConverter}, RelativeSource={RelativeSource TemplatedParent}}" />
+                                <primitivesCommon:InlineButton
+                                    x:Name="PART_DecreaseButton"
+                                    Grid.Column="1"
+                                    IsRepeatingEnabled="True"
+                                    Visibility="{TemplateBinding ButtonsVisibility}"
+                                    Style="{TemplateBinding DecreaseButtonStyle}" />
+                                <primitivesCommon:InlineButton
+                                    x:Name="PART_IncreaseButton"
+                                    Grid.Column="2"
+                                    IsRepeatingEnabled="True"
+                                    Visibility="{TemplateBinding ButtonsVisibility}"
+                                    Style="{TemplateBinding IncreaseButtonStyle}" />
+                            </Grid>
+                        </Border>
+                        <Border x:Name="FocusVisual"
+                                Grid.Row="1"
+                                BorderBrush="{ThemeResource TelerikNumericBox_BorderBrushFocused}"
+                                BorderThickness="2"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Opacity="0"/>
+                        <ContentControl x:Name="Watermark"
+                                        Grid.Row="1"
+                                        Visibility="Collapsed"
+                                        Foreground="{ThemeResource ToolTipForegroundThemeBrush}"
+                                        Background="Transparent"
+                                        IsTabStop="False"
+                                        IsHitTestVisible="False"
+                                        Content="{TemplateBinding Watermark}"
+                                        ContentTemplate="{TemplateBinding WatermarkTemplate}"
+                                        Padding="10 0"
+                                        Margin="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HeaderStyle">
+            <Setter.Value>
+                <Style TargetType="ContentControl">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    <Setter Property="Margin" Value="{ThemeResource TelerikNumericBox_HeaderMargin}" />
+                    <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+                    <Setter Property="Foreground" Value="{ThemeResource TelerikNumericBox_Foreground}" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadNumericBox" BasedOn="{StaticResource RadNumericBoxStyle}"/>
+    <!--#endregion-->
+
+    <!-- #region Rating-->
+    <Style TargetType="ContentPresenter" x:Key="RatingIconStyle">
+        <Setter Property="FontFamily" Value="{ThemeResource SymbolThemeFontFamily}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="ContentPresenter" x:Key="EmptyIconStyle" BasedOn="{StaticResource RatingIconStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikRating_IconForeground}" />
+    </Style>
+
+    <Style TargetType="ContentPresenter" x:Key="FilledIconStyle" BasedOn="{StaticResource RatingIconStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikRating_IconForeground_Filled}" />
+    </Style>
+
+    <Style TargetType="ContentPresenter" x:Key="HighlightedIconStyle" BasedOn="{StaticResource RatingIconStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikRating_IconForeground_Highlighted}" />
+    </Style>
+
+    <Style TargetType="local:RadRatingItem">
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadRatingItem">
+                    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Padding}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          FontSize="{ThemeResource TelerikRating_Item_ContentFontSize}"
+                                          Content="{TemplateBinding Content}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+
+                        <Border x:Name="EmptyIconContainer" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ContentPresenter Style="{TemplateBinding EmptyIconStyle}" AutomationProperties.AccessibilityView="Raw"
+                                              Content="{TemplateBinding EmptyIconContent}"
+                                              ContentTemplate="{TemplateBinding EmptyIconContentTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              FontSize="{TemplateBinding FontSize}" />
+                        </Border>
+
+                        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="FilledIconContainer" Margin="0" Grid.Row="1">
+                            <ContentPresenter x:Name="FilledIconPresenter" AutomationProperties.AccessibilityView="Raw"
+                                              Style="{TemplateBinding FilledIconStyle}"
+                                              Content="{TemplateBinding FilledIconContent}"
+                                              ContentTemplate="{TemplateBinding FilledIconContentTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              FontSize="{TemplateBinding FontSize}" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadRating">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="UseSystemFocusVisuals" Value="True"/>
+        <Setter Property="EmptyIconStyle" Value="{StaticResource EmptyIconStyle}" />
+        <Setter Property="EmptyIconContent" Value="&#xe0b4;" />
+        <Setter Property="FilledIconStyle" Value="{StaticResource FilledIconStyle}" />
+        <Setter Property="FilledIconContent" Value="&#xe0b4;" />
+        <Setter Property="HighlightedIconStyle" Value="{StaticResource HighlightedIconStyle}" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadRating">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            x:Name="LayoutRoot">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LayoutRoot" Storyboard.TargetProperty="Opacity">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="0.3" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <StackPanel Orientation="{TemplateBinding Orientation}" x:Name="Part_RatingPanel" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion-->
+
+    <!--#region RangeSlider-->
+    <Style TargetType="local:RadRangeSlider">
+        <Setter Property="UseSystemFocusVisuals" Value="True"/>
+        <Setter Property="TopLeftScaleStyle">
+            <Setter.Value>
+                <Style TargetType="localRangeSliderPrimitives:ScalePrimitive">
+                    <Setter Property="LabelPlacement" Value="None"/>
+                    <Setter Property="TickPlacement" Value="TopLeft"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BottomRightScaleStyle">
+            <Setter.Value>
+                <Style TargetType="localRangeSliderPrimitives:ScalePrimitive">
+                    <Setter Property="LabelPlacement" Value="BottomRight"/>
+                    <Setter Property="TickPlacement" Value="BottomRight"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HeaderStyle">
+            <Setter.Value>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Margin" Value="5"/>
+                    <Setter Property="FontSize" Value="14"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadRangeSlider">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <ContentControl Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" Style="{TemplateBinding HeaderStyle}" IsTabStop="False"/>
+
+                        <localRangeSlider:RangeSliderPanel Grid.Row="1" x:Name="PART_RangeSliderPanel">
+                            <localRangeSliderPrimitives:ScalePrimitive x:Name="PART_ScaleTopLeft"
+                                                                       LabelFormat="{TemplateBinding LabelFormat}"
+                                                                       Minimum="{TemplateBinding Minimum}"
+                                                                       Maximum="{TemplateBinding Maximum}" 
+                                                                       TickFrequency="{TemplateBinding TickFrequency}" 
+                                                                       Orientation="{TemplateBinding Orientation}"
+                                                                       Style="{TemplateBinding TopLeftScaleStyle}"/>
+                            <localRangeSliderPrimitives:RangeSliderPrimitive x:Name="PART_RangeSliderPrimitive"
+                                                                             SelectionStart="{Binding SelectionStart, RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}"
+                                                                             SelectionEnd="{Binding SelectionEnd, RelativeSource={RelativeSource TemplatedParent},Mode=TwoWay}"
+                                                                             Minimum="{TemplateBinding Minimum}"
+                                                                             Maximum="{TemplateBinding Maximum}"
+                                                                             SnapsTo="{TemplateBinding SnapsTo}"
+                                                                             TrackTapMode="{TemplateBinding TrackTapMode}" 
+                                                                             TickFrequency="{TemplateBinding TickFrequency}" 
+                                                                             Orientation="{TemplateBinding Orientation}"
+                                                                             LargeChange="{TemplateBinding LargeChange}"
+                                                                             SmallChange="{TemplateBinding SmallChange}"
+                                                                             IsDeferredDraggingEnabled="{TemplateBinding IsDeferredDraggingEnabled}"
+                                                                             ShowValueToolTip ="{TemplateBinding ShowValueToolTip}"
+                                                                             ShowRangeToolTip ="{TemplateBinding ShowRangeToolTip}"
+                                                                             ToolTipFormat ="{TemplateBinding ToolTipFormat}"
+                                                                             AutomationProperties.AccessibilityView="Raw"
+                                                                             IsTabStop="False"
+                                                                             Style="{TemplateBinding SliderPrimitiveStyle}"/>
+                            <localRangeSliderPrimitives:ScalePrimitive x:Name="PART_ScaleBottomRight"
+                                                                       LabelFormat="{TemplateBinding LabelFormat}"
+                                                                       Minimum="{TemplateBinding Minimum}"
+                                                                       Maximum="{TemplateBinding Maximum}"
+                                                                       TickFrequency="{TemplateBinding TickFrequency}"
+                                                                       Orientation="{TemplateBinding Orientation}"
+                                                                       Style="{TemplateBinding BottomRightScaleStyle}"/>
+                        </localRangeSlider:RangeSliderPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--#endregion RangeSlider -->
+
+    <!--#region DateTimePicker-->
+    <ControlTemplate TargetType="localDateTime:DateTimeListItem" x:Key="DateTimeListItemControlTemplate">
+        <Grid x:Name="Root">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualStateGroup.Transitions>
+                        <VisualTransition GeneratedDuration="0:0:0.1"/>
+                    </VisualStateGroup.Transitions>
+                    <VisualState x:Name="Collapsed">
+                        <Storyboard>
+                            <DoubleAnimation To="0" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="Root" Duration="0"/>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Expanded">
+                        <Storyboard Duration="0">
+                            <DoubleAnimation To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="Root" Duration="0"/>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Selected">
+                        <Storyboard Duration="0">
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundVisual" Storyboard.TargetProperty="Fill">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedBackground}" />
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedForeground}" />
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <Storyboard Duration="0">
+                            <DoubleAnimation To="0.4" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="Content" Duration="0"/>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="FocusedStates">
+                    <VisualState x:Name="NotFocused"/>
+                    <VisualState x:Name="Focused"/>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <Rectangle x:Name="BackgroundVisual" Fill="{ThemeResource TelerikDateTimePicker_SelectorItem_Background}"/>
+            <ContentControl x:Name="Content"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}" IsTabStop="False"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            Margin="{TemplateBinding Padding}"/>
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="localDateTime:DateTimeListItem">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikDateTimePicker_SelectorItem_Foreground}"/>
+        <Setter Property="FontStyle" Value="Normal"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="IsHitTestVisible" Value="True" />
+        <Setter Property="Padding" Value="10 0" />
+        <Setter Property="Template" Value="{StaticResource DateTimeListItemControlTemplate}" />
+    </Style>
+
+    <Style TargetType="localDateTime:DateTimeList">
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikDateTimePicker_SelectorBorderBrush}" />
+        <Setter Property="SelectedForeground" Value="{ThemeResource TelerikDateTimePicker_SelectorItem_ForegroundSelected}"/>
+        <Setter Property="SelectedBackground" Value="{ThemeResource TelerikDateTimePicker_SelectorItem_BackgroundSelected}"/>
+        <Setter Property="IsTabStop" Value="True" />
+        <Setter Property="IsCentered" Value="True" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <ContentControl Content="{Binding Text}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="localDateTime:DateTimeList">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <primitivesLoopingList:LoopingPanel x:Name="PART_Panel" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate TargetType="localDateTime:DateTimePickerButton" x:Key="DateTimePickerButtonControlTemplate">
+        <Grid MinHeight="{TemplateBinding MinHeight}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="32"/>
+            </Grid.ColumnDefinitions>
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="PointerOverVisual" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="PressedVisual" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Opacity" To="0.4" Duration="0" />
+                            <DoubleAnimation Storyboard.TargetName="DropDownGlyph" Storyboard.TargetProperty="Opacity" To="0.4" Duration="0" />
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundVisual" Storyboard.TargetProperty="BorderBrush">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikDateTimePicker_BorderBrushDisabled}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="FocusStates">
+                    <VisualState x:Name="Unfocused"/>
+                    <VisualState x:Name="PointerFocused"/>
+                    <VisualState x:Name="Focused">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Border x:Name="BackgroundVisual" Grid.ColumnSpan="2"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"/>
+            <Border x:Name="PointerOverVisual" Grid.ColumnSpan="2"
+                    Background="{ThemeResource TelerikDateTimePicker_BackgroundPointerOver}"
+                    BorderBrush="{ThemeResource TelerikDateTimePicker_BorderBrushPointerOver}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Opacity="0"/>
+            <Border x:Name="PressedVisual" Grid.ColumnSpan="2"
+                    Background="{ThemeResource TelerikDateTimePicker_BackgroundPressed}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Opacity="0"/>
+            <Border x:Name="FocusVisual" Grid.ColumnSpan="2"
+                    Background="{ThemeResource TelerikDateTimePicker_BackgroundFocused}"
+                    BorderBrush="{ThemeResource TelerikDateTimePicker_BorderBrushFocused}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    BorderThickness="2"
+                    Opacity="0" />
+            <ContentPresenter x:Name="ContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Margin="{TemplateBinding Padding}"/>
+            <FontIcon x:Name="DropDownGlyph" Grid.Column="1"
+                      Glyph="&#xE70D;" FontSize="16"
+                      FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                      AutomationProperties.AccessibilityView="Raw"/>
+        </Grid>
+    </ControlTemplate>
+
+    <!--Common props like Background, BorderBrush, BorderThickness, etc.
+        are template bound to the parent DateTimePicker-->
+    <Style TargetType="localDateTime:DateTimePickerButton">
+        <Setter Property="Template" Value="{StaticResource DateTimePickerButtonControlTemplate}" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="DateTimePickerSelectorBackgroundStyle">
+        <Setter Property="Background" Value="{ThemeResource TelerikDateTimePicker_SelectorBackground}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikDateTimePicker_SelectorBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <TransitionCollection>
+                    <PopupThemeTransition/>
+                </TransitionCollection>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate TargetType="local:RadDateTimePicker" x:Key="RadDateTimePickerControlTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ContentToVisibilityConverter}}">
+                <ContentControl Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                Style="{TemplateBinding HeaderStyle}"
+                                IsTabStop="False"
+                                FlowDirection="{TemplateBinding FlowDirection}"
+                                Margin="{ThemeResource TelerikDateTimePicker_HeaderMargin}"
+                                Visibility="{Binding DisplayMode, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource DisplayModeConverter}}"/>
+            </Grid>
+            <localDateTime:DateTimePickerButton x:Name="PART_PickerButton" Grid.Row="1"
+                                                MinHeight="{TemplateBinding MinHeight}"
+                                                FontFamily="{TemplateBinding FontFamily}"
+                                                FontSize="{TemplateBinding FontSize}"
+                                                FontWeight="{TemplateBinding FontWeight}"
+                                                Foreground="{TemplateBinding Foreground}"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                Padding="{TemplateBinding Padding}"
+                                                CornerRadius="{TemplateBinding CornerRadius}"
+                                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                Visibility="{Binding DisplayMode, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource DisplayModeConverter}}"/>
+            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsOpen}" IsLightDismissEnabled="True">
+                <primitives:RadShadow ShadowCornerRadius="3" OffsetY="3" BlurRadius="6">
+                    <Border x:Name="PART_SelectorLayoutRoot" Style="{TemplateBinding SelectorBackgroundStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ContentPresenter x:Name="PART_SelectorHeader"
+                                              Content="{TemplateBinding SelectorHeader}"
+                                              ContentTemplate="{TemplateBinding SelectorHeaderTemplate}"
+                                              BorderBrush="{ThemeResource TelerikDateTimePicker_SelectorBorderBrush}"
+                                              BorderThickness="0 0 0 1"
+                                              Visibility="{Binding SelectorHeader, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource ContentToVisibilityConverter}}"/>
+                            <local:RadSegmentedControl x:Name="PART_DateTimeSegmentedControl" Grid.Row="1"
+                                                       FontSize="14" FontStyle="Normal"
+                                                       Background="{x:Null}" BorderThickness="0 0 0 1">
+                                <local:Segment Content="{Binding DateSegmentText}" IsSelected="True" UseSystemFocusVisuals="True" TabIndex="1" />
+                                <local:Segment Content="{Binding TimeSegmentText}" UseSystemFocusVisuals="True" TabIndex="2" />
+                            </local:RadSegmentedControl>
+                            <Grid HorizontalAlignment="Center" Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <localDateTime:DateTimeList x:Name="PART_MonthList" ComponentType="Month"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            BorderThickness="0 0 1 0"
+                                                            IsLoopingEnabled="False"/>
+                                <localDateTime:DateTimeList x:Name="PART_DayList" ComponentType="Day" Grid.Column="1"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            BorderThickness="0 0 1 0"
+                                                            IsLoopingEnabled="False"/>
+                                <localDateTime:DateTimeList x:Name="PART_YearList" ComponentType="Year" Grid.Column="2"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            BorderThickness="0 0 1 0"
+                                                            IsLoopingEnabled="False"/>
+                                <localDateTime:DateTimeList x:Name="PART_HourList" ComponentType="Hour" Grid.Column="3"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            Step="{TemplateBinding Step}"
+                                                            BorderThickness="0 0 1 0"
+                                                            IsLoopingEnabled="False"/>
+                                <localDateTime:DateTimeList x:Name="PART_MinuteList" ComponentType="Minute" Grid.Column="4"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            Step="{TemplateBinding Step}"
+                                                            BorderThickness="0 0 1 0"
+                                                            IsLoopingEnabled="False"/>
+                                <localDateTime:DateTimeList x:Name="PART_AMPMList" ComponentType="AMPM" Grid.Column="5"
+                                                            ItemWidth="{TemplateBinding ItemWidth}"
+                                                            ItemHeight="{TemplateBinding ItemHeight}"
+                                                            ItemSpacing="{TemplateBinding ItemSpacing}"
+                                                            Step="{TemplateBinding Step}"
+                                                            IsLoopingEnabled="False"/>
+                            </Grid>
+                            <Grid x:Name="PART_SelectorButtonsPanel" Grid.Row="3"
+                                  BorderBrush="{ThemeResource TelerikDateTimePicker_SelectorBorderBrush}"
+                                  BorderThickness="0 1 0 0"
+                                  Visibility="{Binding DisplayMode, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource DisplayModeConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="PART_SelectorOKButton" TabIndex="9"
+                                        FontSize="14" FontStyle="Normal"
+                                        Foreground="{ThemeResource TelerikDateTimePicker_SelectorButton_Foreground}"
+                                        Background="{ThemeResource TelerikDateTimePicker_SelectorButton_Background}"
+                                        HorizontalAlignment="Stretch" CornerRadius="0" />
+                                <Button x:Name="PART_SelectorCancelButton" Grid.Column="1" TabIndex="10"
+                                        FontSize="14" FontStyle="Normal"
+                                        Foreground="{ThemeResource TelerikDateTimePicker_SelectorButton_Foreground}"
+                                        Background="{ThemeResource TelerikDateTimePicker_SelectorButton_Background}"
+                                        HorizontalAlignment="Stretch" CornerRadius="0" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </primitives:RadShadow>
+            </Popup>
+        </Grid>
+    </ControlTemplate>
+
+    <Style TargetType="local:DateTimePicker" x:Key="DateTimePickerCommonStyle">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikDateTimePicker_Foreground}" />
+        <Setter Property="Background" Value="{ThemeResource TelerikDateTimePicker_Background}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikDateTimePicker_BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="{ThemeResource TelerikDateTimePicker_MinHeight}"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Padding" Value="10 0"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="ItemWidth" Value="70"/>
+        <Setter Property="ItemHeight" Value="{ThemeResource TelerikDateTimePicker_ItemHeight}"/>
+        <Setter Property="ItemSpacing" Value="0" />
+        <Setter Property="TabNavigation" Value="Once"/>
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="SelectorBackgroundStyle" Value="{StaticResource DateTimePickerSelectorBackgroundStyle}" />
+        <Setter Property="SelectorHeaderTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontSize="18" FontStyle="Normal"
+                               Foreground="{ThemeResource TelerikDateTimePicker_SelectorForeground}"
+                               VerticalAlignment="Center"
+                               Margin="10 7"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadDatePicker" BasedOn="{StaticResource DateTimePickerCommonStyle}">
+        <Setter Property="Template" Value="{StaticResource RadDateTimePickerControlTemplate}" />
+    </Style>
+
+    <Style TargetType="local:RadTimePicker" BasedOn="{StaticResource DateTimePickerCommonStyle}">
+        <Setter Property="Template" Value="{StaticResource RadDateTimePickerControlTemplate}" />
+    </Style>
+
+    <Style TargetType="local:RadDateTimePicker" BasedOn="{StaticResource DateTimePickerCommonStyle}">
+        <Setter Property="Template" Value="{StaticResource RadDateTimePickerControlTemplate}" />
+    </Style>
+    <!--#endregion-->
+</ResourceDictionary>

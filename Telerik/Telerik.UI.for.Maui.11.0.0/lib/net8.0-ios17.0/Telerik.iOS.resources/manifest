@@ -1,0 +1,14 @@
+﻿<BindingAssembly>
+	<NativeReference Name="TelerikUI.xcframework">
+		<ForceLoad>True</ForceLoad>
+		<Frameworks></Frameworks>
+		<IdentityWithoutPathSeparatorSuffix>../../../Native/iOS/TelerikUI/build/iOS/TelerikUI.xcframework</IdentityWithoutPathSeparatorSuffix>
+		<IsCxx></IsCxx>
+		<Kind>Static</Kind>
+		<LinkerFlags></LinkerFlags>
+		<LinkWithSwiftSystemLibraries></LinkWithSwiftSystemLibraries>
+		<NeedsGccExceptionHandling></NeedsGccExceptionHandling>
+		<SmartLink>False</SmartLink>
+		<WeakFrameworks></WeakFrameworks>
+	</NativeReference>
+</BindingAssembly>

@@ -1,0 +1,133 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/RibbonView/Themes/Resources.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="QuickAccessToolBarTemplate" TargetType="telerik:QuickAccessToolBar">
+        <Grid x:Name="RootElement">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStateGroup">
+                    <VisualState x:Name="Normal"/>
+                    <VisualState x:Name="Disabled">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" Storyboard.TargetName="RootElement" To="{ThemeResource TelerikControlDisabledOpacity}" Duration="0:0:0.2"/>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="HostingState">
+                    <VisualState x:Name="NotHosted"/>
+                    <VisualState x:Name="HostedAboveRibbon">
+                        <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_DropDownButton" Storyboard.TargetProperty="Foreground">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikRibbonView_QuickAccessToolbar_AboveRibbonForeground}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                    <VisualState x:Name="HostedBelowRibbon">
+                        <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AboveBackgroundGrid" Storyboard.TargetProperty="Visibility">
+                                <DiscreteObjectKeyFrame KeyTime="0">
+                                    <DiscreteObjectKeyFrame.Value>
+                                        <Visibility>Collapsed</Visibility>
+                                    </DiscreteObjectKeyFrame.Value>
+                                </DiscreteObjectKeyFrame>
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BelowBackgroundGrid" Storyboard.TargetProperty="Visibility">
+                                <DiscreteObjectKeyFrame KeyTime="0">
+                                    <DiscreteObjectKeyFrame.Value>
+                                        <Visibility>Visible</Visibility>
+                                    </DiscreteObjectKeyFrame.Value>
+                                </DiscreteObjectKeyFrame>
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_DropDownButton" Storyboard.TargetProperty="Foreground">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikRibbonView_QuickAccessToolbar_BelowRibbonForeground}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_TogglePositionMenuItem" Storyboard.TargetProperty="Text">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Show above the Ribbon"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="MinimizeStates">
+                    <VisualState x:Name="NotMinimized"/>
+                    <VisualState x:Name="Minimized">
+                        <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ToggleMinimizeMenuItem" Storyboard.TargetProperty="Text">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Restore the Ribbon"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="BelowBackgroundGrid" Grid.ColumnSpan="2"
+                  MinHeight="{ThemeResource TelerikRibbonView_QuickAccessToolbar_BelowRibbonMinHeight}"
+                  Visibility="Collapsed">
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"/>
+            </Grid>
+            <Grid x:Name="AboveBackgroundGridWrapper">
+                <Grid x:Name="AboveBackgroundGrid"/>
+            </Grid>
+            <ItemsPresenter x:Name="PART_Presenter" Margin="10 0 0 0"/>
+            <telerik:RadRibbonDropDownButton x:Name="PART_DropDownButton"
+                                             Grid.Column="1"
+                                             DropDownIndicatorVisibility="Collapsed"
+                                             Visibility="{TemplateBinding CustomizationMenuVisibility}"
+                                             Foreground="{TemplateBinding Foreground}"
+                                             HorizontalAlignment="Left"
+                                             VerticalAlignment="Center"
+                                             VerticalContentAlignment="Center"
+                                             IsAutoSize="False">
+                <ToolTipService.ToolTip>
+                    <TextBlock Text="Customize Quick Access Toolbar"/>
+                </ToolTipService.ToolTip>
+                <telerik:RadRibbonDropDownButton.Flyout>
+                    <MenuFlyout x:Name="PART_OverflowMenu" Placement="Bottom">
+                        <MenuFlyoutItem Text="Show below the Ribbon" x:Name="PART_TogglePositionMenuItem"/>
+                        <MenuFlyoutSeparator/>
+                        <MenuFlyoutItem Text="Minimize the Ribbon" x:Name="PART_ToggleMinimizeMenuItem"/>
+                    </MenuFlyout>
+                </telerik:RadRibbonDropDownButton.Flyout>
+                <Grid x:Name="DropDownButtonIcon" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <FontIcon Foreground="{Binding ElementName=PART_DropDownButton, Path=Foreground}"
+                              FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              FontSize="{ThemeResource TelerikRibbonView_IconFontSize}"
+                              Glyph="&#xE949;" Margin="0 -8 0 0"/>
+                    <FontIcon Foreground="{Binding ElementName=PART_DropDownButton, Path=Foreground}"
+                              FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                              FontSize="{ThemeResource TelerikRibbonView_IconFontSize}"
+                              Glyph="&#xE0E5;" Margin="0 5 0 0"/>
+                </Grid>
+            </telerik:RadRibbonDropDownButton>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="QuickAccessToolBarStyle" TargetType="telerik:QuickAccessToolBar">
+        <Setter Property="Template" Value="{StaticResource QuickAccessToolBarTemplate}"/>
+        <Setter Property="Foreground" Value="{StaticResource TelerikRibbonView_QuickAccessToolbar_AboveRibbonForeground}"/>
+        <Setter Property="AlternativeForeground" Value="{StaticResource TelerikRibbonView_QuickAccessToolbar_BelowRibbonForeground}"/>
+        <Setter Property="Background" Value="{StaticResource TelerikRibbonView_QuickAccessToolbar_Background}"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="telerik:QuickAccessToolBar" BasedOn="{StaticResource QuickAccessToolBarStyle}"/>
+</ResourceDictionary>
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<UseTelerikTheming Condition="'$(UseTelerikTheming)' == ''">false</UseTelerikTheming>
+		<TelerikMAUIThemingDirectory Condition="'$(TelerikMAUIThemingDirectory)' == ''">TelerikTheming</TelerikMAUIThemingDirectory>
+		<TelerikMAUIThemingNamespace Condition="'$(TelerikMAUIThemingNamespace)' == ''">$(RootNamespace)</TelerikMAUIThemingNamespace>
+	</PropertyGroup>
+
+	<Target Name="RemoveTelerikThemingXamlGeneratedFiles"
+			DependsOnTargets="ResolveProjectReferences"
+			BeforeTargets="TelerikThemingXamlGeneration">
+		<ItemGroup>
+			<MauiXaml Remove="$(TelerikMAUIThemingDirectory)\**\*.xaml" />
+			<Compile Remove="$(TelerikMAUIThemingDirectory)\**\*.xaml.cs" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="TelerikThemingXamlGeneration"
+			BeforeTargets="BeforeBuild"
+			DependsOnTargets="RemoveTelerikThemingXamlGeneratedFiles">
+		<TelerikThemingTask UseTelerikTheming="$(UseTelerikTheming)"
+							MSBuildProjectDirectory="$(MSBuildProjectDirectory)"
+							TelerikMAUIThemingDirectory="$(TelerikMAUIThemingDirectory)"
+							TelerikMAUIThemingNamespace="$(TelerikMAUIThemingNamespace)">
+			<Output TaskParameter="XamlFiles" ItemName="MauiXaml" />
+			<Output TaskParameter="XamlFiles" ItemName="FileWrites" />
+			<Output TaskParameter="CsFiles" ItemName="Compile" />
+			<Output TaskParameter="CsFiles" ItemName="FileWrites" />
+		</TelerikThemingTask>
+	</Target>
+</Project>

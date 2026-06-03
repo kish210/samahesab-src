@@ -470,7 +470,7 @@ CREATE TABLE Inv.StockTransactionTypes (
     Id      INT IDENTITY(1,1) PRIMARY KEY,
     Code    NVARCHAR(20) NOT NULL UNIQUE,
     Name    NVARCHAR(100) NOT NULL,
-    Effect  TINYINT NOT NULL -- 1=ورود, -1=خروج, 0=خنثی
+    Effect  SMALLINT NOT NULL -- 1=ورود, -1=خروج, 0=خنثی
 );
 
 CREATE TABLE Inv.StockTransactions (

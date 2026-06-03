@@ -1,0 +1,25 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/ThemeColorsLight.xaml"/>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource LightResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- DragVisual start -->
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualForeground" Color="#E4000000" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualBackground" Color="#F9F9F9" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualBorderBrush" Color="#0F000000" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualMultiItemBackground" Color="#F9F9F9" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualMultiItemBorderBrush" Color="#0F000000" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualNormalBrush" Color="#9E000000" />
+    <SolidColorBrush x:Key="TelerikDragDrop_DragVisualImportantBrush" Color="#A80000" />
+    <!-- DragVisual end -->
+</ResourceDictionary>

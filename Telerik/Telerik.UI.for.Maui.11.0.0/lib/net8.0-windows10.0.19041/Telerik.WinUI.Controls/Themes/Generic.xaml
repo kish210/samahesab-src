@@ -1,0 +1,35 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <ResourceDictionary.MergedDictionaries>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Chart/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Chart/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/DragDropManager/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/DragDropManager/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/DataVisualization/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/DataVisualization/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Input/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Input/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Grid/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Grid/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/RibbonView/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/RibbonView/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/DataControls/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/DataControls/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Scheduler/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Scheduler/Themes/Generic.xaml"/>
+        <TelerikResourceDictionary xmlns="using:Telerik.UI.Xaml.Controls"
+                                   UwpSource="ms-appx:///Telerik.WinUI.Controls/Navigation/Themes/Generic_v1.xaml"
+                                   DesktopSource="ms-appx:///Telerik.WinUI.Controls/Navigation/Themes/Generic.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
+

@@ -1,15 +1,33 @@
-﻿<Application x:Class="SamaHesab.WPF.App"
+<Application x:Class="SamaHesab.WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- ─── Material Design ─────────────────────────────────────── -->
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Blue" SecondaryColor="Lime"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml"/>
+
+                <!-- ─── MahApps.Metro ───────────────────────────────────────── -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml"/>
+
+                <!-- ─── Material Design ↔ MahApps integration ───────────────── -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Defaults.xaml"/>
+
+                <!-- Telerik theme dictionaries are merged at runtime by ThemeManager
+                     (so the theme can be switched live). -->
+
+                <!-- ─── Sama Hesab custom theme (LAST → wins for existing views) ─ -->
                 <ResourceDictionary Source="Assets/Themes/Base.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/Dark.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/Colors.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/Styles.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/DataTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
             <BooleanToVisibilityConverter x:Key="BoolVis"/>
         </ResourceDictionary>
     </Application.Resources>

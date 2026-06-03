@@ -1,9 +1,11 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                     xmlns:dash="clr-namespace:SamaHesab.WPF.ViewModels.Dashboard"
                     xmlns:acc="clr-namespace:SamaHesab.WPF.ViewModels.Accounting"
                     xmlns:inv="clr-namespace:SamaHesab.WPF.ViewModels.Inventory"
                     xmlns:sal="clr-namespace:SamaHesab.WPF.ViewModels.Sales"
+                    xmlns:pur="clr-namespace:SamaHesab.WPF.ViewModels.Purchase"
                     xmlns:pos="clr-namespace:SamaHesab.WPF.ViewModels.POS"
                     xmlns:crm="clr-namespace:SamaHesab.WPF.ViewModels.CRM"
                     xmlns:hrm="clr-namespace:SamaHesab.WPF.ViewModels.HRM"
@@ -13,6 +15,7 @@
                     xmlns:va="clr-namespace:SamaHesab.WPF.Views.Accounting"
                     xmlns:vi="clr-namespace:SamaHesab.WPF.Views.Inventory"
                     xmlns:vsal="clr-namespace:SamaHesab.WPF.Views.Sales"
+                    xmlns:vpur="clr-namespace:SamaHesab.WPF.Views.Purchase"
                     xmlns:vpos="clr-namespace:SamaHesab.WPF.Views.POS"
                     xmlns:vcrm="clr-namespace:SamaHesab.WPF.Views.CRM"
                     xmlns:vhrm="clr-namespace:SamaHesab.WPF.Views.HRM"
@@ -25,49 +28,57 @@
     </DataTemplate>
 
     <!-- Accounting -->
-    <DataTemplate DataType="{x:Type acc:VoucherEditViewModel}">
-        <va:VoucherEditView/>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type acc:ChartOfAccountsViewModel}">
-        <va:ChartOfAccountsView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type acc:VoucherEditViewModel}"><va:VoucherEditView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:VoucherListViewModel}"><va:VoucherListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:ChartOfAccountsViewModel}"><va:ChartOfAccountsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:ChequeListViewModel}"><va:ChequeListView/></DataTemplate>
 
     <!-- Inventory -->
-    <DataTemplate DataType="{x:Type inv:ProductEditViewModel}">
-        <vi:ProductEditView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:ProductListViewModel}"><vi:ProductListView/></DataTemplate>
 
     <!-- Sales -->
-    <DataTemplate DataType="{x:Type sal:SalesInvoiceEditViewModel}">
-        <vsal:SalesInvoiceEditView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type sal:SalesInvoiceEditViewModel}"><vsal:SalesInvoiceEditView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sal:SalesInvoiceListViewModel}"><vsal:SalesInvoiceListView/></DataTemplate>
+
+    <!-- Purchase -->
+    <DataTemplate DataType="{x:Type pur:PurchaseInvoiceEditViewModel}"><vpur:PurchaseInvoiceEditView/></DataTemplate>
 
     <!-- POS -->
-    <DataTemplate DataType="{x:Type pos:PosViewModel}">
-        <vpos:PosView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type pos:PosViewModel}"><vpos:PosView/></DataTemplate>
 
     <!-- CRM -->
-    <DataTemplate DataType="{x:Type crm:CustomerEditViewModel}">
-        <vcrm:CustomerEditView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type crm:CustomerEditViewModel}"><vcrm:CustomerEditView/></DataTemplate>
+    <DataTemplate DataType="{x:Type crm:CustomerListViewModel}"><vcrm:CustomerListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type crm:SupplierListViewModel}"><vcrm:SupplierListView/></DataTemplate>
 
     <!-- HRM -->
-    <DataTemplate DataType="{x:Type hrm:SalaryViewModel}">
-        <vhrm:SalaryView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type hrm:SalaryViewModel}"><vhrm:SalaryView/></DataTemplate>
+    <DataTemplate DataType="{x:Type hrm:EmployeeListViewModel}"><vhrm:EmployeeListView/></DataTemplate>
 
     <!-- Reports -->
-    <DataTemplate DataType="{x:Type rep:ReportsViewModel}">
-        <vrep:ReportsView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type rep:ReportsViewModel}"><vrep:ReportsView/></DataTemplate>
 
     <!-- Settings -->
-    <DataTemplate DataType="{x:Type cfg:SettingsViewModel}">
-        <vcfg:SettingsView/>
+    <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type cfg:BackupViewModel}"><vcfg:BackupView/></DataTemplate>
+
+    <!-- ── Placeholder for screens still under construction ── -->
+    <DataTemplate x:Key="UnderConstruction">
+        <Border Background="{DynamicResource AppBackground}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <materialDesign:PackIcon Kind="HammerWrench" Width="64" Height="64"
+                                         HorizontalAlignment="Center"
+                                         Foreground="{DynamicResource SecondaryText}"/>
+                <TextBlock Text="این بخش در حال توسعه است"
+                           FontSize="18" Margin="0,16,0,0"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </StackPanel>
+        </Border>
     </DataTemplate>
-    <DataTemplate DataType="{x:Type cfg:BackupViewModel}">
-        <vcfg:BackupView/>
-    </DataTemplate>
+    <DataTemplate DataType="{x:Type acc:BankAccountViewModel}"><va:BankAccountView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:WarehouseViewModel}"><vi:WarehouseView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:StockAdjustViewModel}"><vi:StockAdjustView/></DataTemplate>
+    <DataTemplate DataType="{x:Type hrm:AttendanceViewModel}"><vhrm:AttendanceView/></DataTemplate>
 
 </ResourceDictionary>

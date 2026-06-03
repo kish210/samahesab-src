@@ -1,0 +1,253 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/ThemeColorsDark.xaml"/>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource DarkResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!--#region Base-->
+    <SolidColorBrush x:Key="TelerikGrid_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ForegroundDragging" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_Background" Color="{ThemeResource SolidBackgroundFillColorQuarternary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundCurrentCell" Color="{ThemeResource SolidBackgroundFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundSelected" Color="{ThemeResource SystemAccentColor}" Opacity="0.3"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundPointerOver" Color="{ThemeResource SystemAccentColor}" Opacity="0.2"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundDragging" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundAlternateRow" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BackgroundAggregateRow" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BorderBrushSelected" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BorderBrushDragging" Color="{ThemeResource SystemAccentColor}"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_ServiceButtonPointerOverForeground" Color="{ThemeResource SystemAccentColor}" Opacity="0.7"/>
+    <SolidColorBrush x:Key="TelerikGrid_ServiceButtonPressedForeground" Color="{ThemeResource SystemAccentColor}"/>
+    <!--#endregion-->
+
+    <!--#region BusyOverlay-->
+    <SolidColorBrush x:Key="TelerikGrid_BusyOverlayForeground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_BusyOverlayBackground" Color="{ThemeResource ControlStrokeColorForStrongFillWhenOnImage}"/>
+    <!--#endregion-->
+
+    <!--#region Load More Data-->
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataBackground" Color="{ThemeResource SystemAltHighColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonForegroundPressed" Color="{ThemeResource TextFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonForeground" Color="{ThemeResource SystemBaseHighColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonBackground" Color="{ThemeResource SystemBaseLowColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonBackgroundPointerOver" Color="{ThemeResource SystemListLowColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonBackgroundPressed" Color="{ThemeResource SystemBaseMediumLowColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataProgressBarForeground" Color="{ThemeResource SystemAccentColor}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_LoadMoreDataButtonBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikGrid_LoadMoreDataButtonBorderBrushPointerOver" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikGrid_LoadMoreDataButtonBorderBrushPressed" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <!--#endregion-->
+
+    <!--#region Column-->
+    <SolidColorBrush x:Key="TelerikGrid_ColumnForeground" Color="{ThemeResource SystemBaseHighColor}"/>
+    <!--#endregion-->
+
+    <!--#region ColumnHeader-->
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderBackground" Color="{ThemeResource SolidBackgroundFillColorQuarternary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderBackgroundSelected" Color="{ThemeResource SystemAccentColor}" Opacity="0.4"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderForeground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderForegroundPointerOver" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderForegroundSelected" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnHeaderBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--#endregion-->
+
+    <!--#region DataOperations-->
+    <SolidColorBrush x:Key="TelerikGrid_DataOperationsButtonForeground" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikGrid_DataOperationsButtonForegroundActive" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="TelerikGrid_DataOperationsControlBackground" Color="{ThemeResource SolidBackgroundFillColorBase}" />
+    <SolidColorBrush x:Key="TelerikGrid_DataOperationsControlBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <!--#endregion-->
+
+    <!--#region CellFlyoutControl-->
+    <SolidColorBrush x:Key="TelerikGrid_CellFlyoutControlBackground" Color="{ThemeResource SolidBackgroundFillColorBase}" />
+    <SolidColorBrush x:Key="TelerikGrid_CellFlyoutControlBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <!--#endregion-->
+
+    <!--#region Grouping-->
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutPanelBackground" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutPanelBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--GroupHeader-->
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutHeaderForeground" Color="{ThemeResource SystemBaseHighColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutHeaderGlyphForeground" Color="{ThemeResource SystemBaseHighColor}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutHeaderBackground" Color="{ThemeResource ControlFillColorDefault}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_GroupingFlyoutHeaderBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{StaticResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikGrid_GroupingFlyoutHeaderDragBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{StaticResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <!--GroupingFlyout-->
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutBackground" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupingFlyoutBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--GroupHeaders-->
+    <SolidColorBrush x:Key="TelerikGrid_GroupHeaderForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupHeaderBackground" Color="{ThemeResource SolidBackgroundFillColorQuarternary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_GroupHeaderBackgroundExpanded" Color="{ThemeResource SolidBackgroundFillColorQuarternary}"/>
+    <!--#endregion-->
+
+    <!--#region Columns Choosing-->
+    <!--ColumnHeader-->
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutColumnHeaderForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutColumnHeaderGlyphForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutColumnHeaderBackground" Color="{ThemeResource ControlOnImageFillColorTertiary}"/>
+    <!--ColumnsFlyout-->
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutBackground" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutHeaderBackground" Color="{ThemeResource SolidBackgroundFillColorQuarternary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_ColumnsFlyoutBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--#endregion-->
+
+    <!--#region Filtering-->
+
+    <!--#region Filtering buttons -->
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonBackground" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_FilterFlyoutButtonBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{StaticResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonPointerOverBackground" Color="{ThemeResource ControlFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonPointerOverForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_FilterFlyoutButtonPointerOverBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{StaticResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonPressedBackground" Color="{ThemeResource ControlFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonPressedForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutButtonPressedBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyout_CloseButtonForeground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyout_CloseButtonForegroundPressed" Color="{ThemeResource TextFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyout_CloseButtonBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyout_CloseButtonBackgroundPressed" Color="{ThemeResource SubtleFillColorTertiary}"/>
+    <!--#endregion-->
+
+    <!--#region FlyoutHeader CancelFilter button-->
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonBackground" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonForeground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonBorderBrush" Color="Transparent"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPointerOverBackground" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPointerOverForeground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPointerOverBorderBrush" Color="Transparent"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPressedBackground" Color="{ThemeResource SubtleFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPressedForeground" Color="{ThemeResource TextFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutHeaderCancelButtonPressedBorderBrush" Color="Transparent"/>
+    <!--#endregion-->
+
+    <!--#region TextCaseButton-->
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPointerOverBackground" Color="{ThemeResource ControlFillColorSecondary}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPointerOverBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPointerOverForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPressedBackground" Color="{ThemeResource ControlFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPressedBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonPressedForeground" Color="{ThemeResource TextFillColorTertiary}"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedBackground" Color="{ThemeResource SystemAccentColorLight1}"/>
+    <LinearGradientBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorOnAccentSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorOnAccentDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedForeground" Color="{ThemeResource TextOnAccentFillColorPrimary}"/>
+
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedPointerOverBackground" Color="{ThemeResource SystemAccentColorLight1}" Opacity="0.9"/>
+    <LinearGradientBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedPointerOverBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorOnAccentSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorOnAccentDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikGrid_FilterFlyoutTextCaseButtonCheckedPointerOverForeground" Color="{ThemeResource TextOnAccentFillColorPrimary}"/>
+    <!--#endregion-->
+
+    <!--#region DistinctValuesList-->
+    <SolidColorBrush x:Key="TelerikGrid_DistinctValuesListBackground" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikGrid_DistinctValuesListBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--#endregion-->
+
+    <!--#region Flyout-->
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutBackground" Color="{ThemeResource SolidBackgroundFillColorBase}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_FlyoutBorderBrush" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--#endregion-->
+
+    <!--#endregion-->
+
+    <!--#region Editing-->
+    <!--Row-->
+    <SolidColorBrush x:Key="TelerikGrid_EditRowBackground" Color="{ThemeResource SystemAccentColor}" Opacity="0.4"/>
+    <SolidColorBrush x:Key="TelerikGrid_EditRowBorderBrush" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <!--Commit/Cancel buttons-->
+    <SolidColorBrush x:Key="TelerikGrid_EditRowButtonForeground" Color="{ThemeResource TextOnAccentFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGrid_EditRowButtonForegroundPressed" Color="{ThemeResource TextOnAccentFillColorSecondary}" />
+    <SolidColorBrush x:Key="TelerikGrid_EditRowButtonBackground" Color="{ThemeResource SystemAccentColorLight1}"/>
+    <SolidColorBrush x:Key="TelerikGrid_EditRowButtonBackgroundPointerOver" Color="{ThemeResource SystemAccentColorLight1}" Opacity="0.9"/>
+    <SolidColorBrush x:Key="TelerikGrid_EditRowButtonBackgroundPressed" Color="{ThemeResource SystemAccentColorLight1}" Opacity="0.8"/>
+    <LinearGradientBrush x:Key="TelerikGrid_EditRowButtonBorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{ThemeResource ControlStrokeColorOnAccentSecondary}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorOnAccentDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <!--#endregion-->
+
+</ResourceDictionary>
+

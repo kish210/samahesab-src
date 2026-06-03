@@ -12,7 +12,7 @@
     <AssemblyTitle>سما حساب</AssemblyTitle>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Company>سما نرم‌افزار</Company>
+    <Company>سماع رایانه کیش</Company>
     <Product>سامانه جامع سما حساب</Product>
   </PropertyGroup>
   <ItemGroup>
@@ -21,6 +21,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="FluentWPF" Version="0.10.2" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
@@ -28,6 +32,17 @@
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Telerik.Windows.Controls.Data.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.Docking.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.GridView.Export.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.GridView.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.Input.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.Navigation.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Controls.RibbonView.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Themes.Crystal.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Themes.Fluent.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Themes.Office2019.for.Wpf" Version="2025.2.521" />
+    <PackageReference Include="Telerik.Windows.Themes.Windows11.for.Wpf" Version="2025.2.521" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Fonts\**\*" />

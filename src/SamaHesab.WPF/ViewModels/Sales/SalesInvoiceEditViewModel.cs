@@ -53,22 +53,45 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     private int _editingId;
 
+    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
+
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
-        IProductRepository productRepository, IDialogService dialogService,
+        IProductRepository productRepository,
+        IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepository,
+        IWarehouseRepository warehouseRepository,
+        IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
+        _customerRepository = customerRepository; _warehouseRepository = warehouseRepository;
     }
 
     public override async Task LoadAsync()
     {
         InvoiceDate = _calendar.GetCurrentPersianDate();
-        Customers = new List<CustomerItem> { new(1,"علی احمدی","09120000001"), new(2,"شرکت آلفا","02144556677") };
-        Warehouses = new List<WarehouseItem> { new(1,"انبار مرکزی"), new(2,"انبار شعبه ۱") };
+        var companyId = _currentUser.CompanyId ?? 1;
+
+        var customers = await _customerRepository.FindAsync(c => c.CompanyId == companyId && c.IsActive);
+        Customers = customers.Select(c => new CustomerItem(c.Id, c.FullName, c.Mobile ?? "")).ToList();
+        OnPropertyChanged(nameof(Customers));
+
+        var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
+        Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
+        OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
-        await Task.CompletedTask;
+    }
+
+    /// <summary>Reload customer list (after a quick-add) and optionally select one.</summary>
+    public async Task ReloadCustomersAsync(int? selectId)
+    {
+        var companyId = _currentUser.CompanyId ?? 1;
+        var customers = await _customerRepository.FindAsync(c => c.CompanyId == companyId && c.IsActive);
+        Customers = customers.Select(c => new CustomerItem(c.Id, c.FullName, c.Mobile ?? "")).ToList();
+        OnPropertyChanged(nameof(Customers));
+        if (selectId.HasValue) SelectedCustomerId = selectId.Value;
     }
 
     [RelayCommand]

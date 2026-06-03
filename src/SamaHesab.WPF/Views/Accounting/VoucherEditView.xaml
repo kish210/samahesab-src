@@ -1,220 +1,249 @@
-﻿<UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherEditView"
+<UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherEditView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <UserControl.InputBindings>
-        <KeyBinding Key="F9"  Command="{Binding SaveCommand}"/>
-        <KeyBinding Key="F10" Command="{Binding PostCommand}"/>
-        <KeyBinding Key="F2"  Command="{Binding NewCommand}"/>
-        <KeyBinding Key="F8"  Command="{Binding PrintCommand}"/>
-    </UserControl.InputBindings>
-    <Grid>
+
+    <Grid Margin="6">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
-        <Border Grid.Row="0" Background="{DynamicResource RibbonBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="12,8">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="📋 جدید (F2)"    Style="{StaticResource SecondaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding NewCommand}"/>
-                <Button Content="💾 ذخیره (F9)"   Style="{StaticResource PrimaryButton}"   Height="36" Margin="0,0,6,0" Command="{Binding SaveCommand}"/>
-                <Button Content="✓ قطعی (F10)"   Style="{StaticResource SuccessButton}"   Height="36" Margin="0,0,6,0" Command="{Binding PostCommand}"/>
-                <Button Content="↩ برگشت سند"    Style="{StaticResource SecondaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding ReverseCommand}"/>
-                <Button Content="🖨 چاپ (F8)"     Style="{StaticResource SecondaryButton}" Height="36" Command="{Binding PrintCommand}"/>
-                <Separator Width="1" Background="{DynamicResource BorderColor}" Margin="10,4"/>
-                <TextBlock Text="سند شماره: " VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}"/>
-                <TextBlock Text="{Binding VoucherNumber}" VerticalAlignment="Center"
-                           Foreground="{DynamicResource WarningColor}" FontWeight="Bold" FontSize="16"
-                           FontFamily="{StaticResource VazirFont}"/>
-                <Separator Width="1" Background="{DynamicResource BorderColor}" Margin="10,4"/>
-                <Border Background="#05966920" CornerRadius="12" Padding="10,4"
-                        Visibility="{Binding IsBalanced, Converter={StaticResource BoolVis}}">
-                    <TextBlock Text="✓ سند تراز است" Foreground="#059669"
-                               FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                </Border>
-            </StackPanel>
+        <!-- ═══ Toolbar ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
+                        <materialDesign:PackIcon Kind="FileDocumentEditOutline" Width="22" Height="22"
+                                                 Foreground="{DynamicResource PrimaryAccent}"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="سند حسابداری" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding VoucherNumber, StringFormat=شماره سند: {0}}"
+                                   FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding NewCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید (F2)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding SaveCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="ذخیره (F7)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PostCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="قطعی (F9)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ReverseCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="UndoVariant" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource DangerColor}"/><TextBlock Text="برگشت" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PrintCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ (F8)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
         </Border>
 
-        <!-- Header Fields -->
-        <Border Grid.Row="1" Background="{DynamicResource SurfaceBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="16,12">
+        <!-- ═══ Header fields ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="6">
+                    <TextBlock Text="نوع سند" Style="{StaticResource FieldCaption}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding VoucherTypes}"
+                              DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedVoucherTypeId}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="6">
+                    <TextBlock Text="مرکز هزینه" Style="{StaticResource FieldCaption}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding CostCenters}"
+                              DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedCostCenterId}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="6">
+                    <TextBlock Text="تاریخ سند" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding VoucherDate}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Margin="6">
+                    <TextBlock Text="شماره سند" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding VoucherNumber}" IsReadOnly="True"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Add row bar ═══ -->
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="4">
+                    <TextBlock Text="حساب" Style="{StaticResource FieldCaption}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding LeafAccounts}"
+                              SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Code}" Foreground="{DynamicResource SecondaryText}"/>
+                                    <TextBlock Text="{Binding Name}" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="4">
+                    <TextBlock Text="شرح ردیف" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding NewDescription}">
+                        <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding AddRowCommand}"/></TextBox.InputBindings>
+                    </TextBox>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Margin="4">
+                    <TextBlock Text="بدهکار" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding NewDebit}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Margin="4">
+                    <TextBlock Text="بستانکار" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding NewCredit}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4" Margin="4" VerticalAlignment="Bottom">
+                    <Button Style="{StaticResource PrimaryButton}" Height="36" Padding="16,0" Command="{Binding AddRowCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Plus" Width="18" Height="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="افزودن ردیف" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Items grid ═══ -->
+        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Items}" AutoGenerateColumns="False"
+                      CanUserInsertRows="False" CanUserDeleteRows="False" RowIndicatorVisibility="Collapsed"
+                      ShowGroupPanel="False" ShowColumnFooters="True" FontFamily="{StaticResource VazirFont}">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="ردیف" DataMemberBinding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="حساب کل" DataMemberBinding="{Binding Kol}" Width="70" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="حساب معین" DataMemberBinding="{Binding Moein}" Width="90" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="تفصیلی" DataMemberBinding="{Binding Tafsili}" Width="100" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="نام حساب" DataMemberBinding="{Binding AccountName}" Width="*" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="شرح" DataMemberBinding="{Binding Description}" Width="2*"/>
+                    <telerik:GridViewDataColumn Header="بدهکار" DataMemberBinding="{Binding Debit}" DataFormatString="{}{0:#,##0}" Width="130">
+                        <telerik:GridViewDataColumn.AggregateFunctions>
+                            <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
+                        </telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                    <telerik:GridViewDataColumn Header="بستانکار" DataMemberBinding="{Binding Credit}" DataFormatString="{}{0:#,##0}" Width="130">
+                        <telerik:GridViewDataColumn.AggregateFunctions>
+                            <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
+                        </telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                    <telerik:GridViewDataColumn Header="حذف" Width="50" IsReadOnly="True">
+                        <telerik:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource ToolbarButton}" Width="34" Height="30"
+                                        Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"
+                                        CommandParameter="{Binding}">
+                                    <materialDesign:PackIcon Kind="DeleteOutline" Width="18" Height="18" Foreground="{DynamicResource DangerColor}"/>
+                                </Button>
+                            </DataTemplate>
+                        </telerik:GridViewDataColumn.CellTemplate>
+                    </telerik:GridViewDataColumn>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </Border>
+
+        <!-- ═══ Totals footer ═══ -->
+        <Border Grid.Row="4" Style="{StaticResource FormSectionCard}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                    <TextBlock Text="تاریخ سند *" Style="{StaticResource FormLabel}"/>
-                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                        <TextBox Text="{Binding VoucherDate, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource PrimaryText}" Padding="10,8"
-                                 FontFamily="{StaticResource VazirFont}"/>
-                    </Border>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                    <TextBlock Text="نوع سند" Style="{StaticResource FormLabel}"/>
-                    <ComboBox ItemsSource="{Binding VoucherTypes}" DisplayMemberPath="Name"
-                              SelectedValuePath="Id" SelectedValue="{Binding SelectedVoucherTypeId}" Height="36">
-                        <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource BaseComboBox}"/></ComboBox.Style>
-                    </ComboBox>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Margin="0,0,12,0">
-                    <TextBlock Text="مرکز هزینه" Style="{StaticResource FormLabel}"/>
-                    <ComboBox ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name"
-                              SelectedValuePath="Id" SelectedValue="{Binding SelectedCostCenterId}" Height="36">
-                        <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource BaseComboBox}"/></ComboBox.Style>
-                    </ComboBox>
-                </StackPanel>
-
-                <StackPanel Grid.Column="3">
-                    <TextBlock Text="شرح کلی سند" Style="{StaticResource FormLabel}"/>
-                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource PrimaryText}" Padding="10,8"
-                                 FontFamily="{StaticResource VazirFont}"/>
-                    </Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Add Row Controls -->
-        <Border Grid.Row="2" Background="{DynamicResource SurfaceBackground}" Margin="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Quick Add Row -->
-                <Border Background="{DynamicResource CardBackground}" Padding="12,8"
-                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
-                            <TextBox Text="{Binding NewRowNumber}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,6" FontFamily="{StaticResource VazirFont}" IsReadOnly="True"/>
-                        </Border>
-                        <ComboBox Grid.Column="1" ItemsSource="{Binding LeafAccounts}" DisplayMemberPath="Name"
-                                  SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
-                                  Margin="0,0,6,0" Height="34">
-                            <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource BaseComboBox}"/></ComboBox.Style>
-                        </ComboBox>
-                        <Border Grid.Column="2" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
-                            <TextBox Text="{Binding NewDescription, UpdateSourceTrigger=PropertyChanged}"
-                                     Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}"
-                                     Padding="8,6" FontFamily="{StaticResource VazirFont}"/>
-                        </Border>
-                        <Border Grid.Column="3" Background="{DynamicResource InputBackground}" BorderBrush="#2563EB" BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
-                            <TextBox Text="{Binding NewDebit, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}"
-                                     Background="Transparent" BorderThickness="0" Foreground="#2563EB"
-                                     Padding="8,6" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
-                        </Border>
-                        <Border Grid.Column="4" Background="{DynamicResource InputBackground}" BorderBrush="#DC2626" BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
-                            <TextBox Text="{Binding NewCredit, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}"
-                                     Background="Transparent" BorderThickness="0" Foreground="#DC2626"
-                                     Padding="8,6" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
-                        </Border>
-                        <Button Grid.Column="5" Content="+ افزودن" Style="{StaticResource PrimaryButton}"
-                                Height="34" Command="{Binding AddRowCommand}"/>
-                    </Grid>
+                <!-- Balance badge -->
+                <Border Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        CornerRadius="6" Padding="14,8" Margin="4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#FDE8E8"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBalanced}" Value="True">
+                                    <Setter Property="Background" Value="#E3F6EC"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon VerticalAlignment="Center" Width="20" Height="20">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind" Value="AlertCircleOutline"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBalanced}" Value="True">
+                                            <Setter Property="Kind" Value="CheckCircleOutline"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SuccessColor}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
+                        <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{x:Null}">
+                                    <Setter Property="Text" Value="سند تراز نیست"/>
+                                    <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBalanced}" Value="True">
+                                            <Setter Property="Text" Value="سند تراز است"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SuccessColor}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
                 </Border>
 
-                <!-- Items DataGrid -->
-                <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False"
-                          CanUserAddRows="False" BorderThickness="0" RowHeight="42" ColumnHeaderHeight="44"
-                          Background="{DynamicResource TableRowBg}" Foreground="{DynamicResource PrimaryText}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ردیف"    Binding="{Binding RowNumber}" Width="55"  IsReadOnly="True"/>
-                        <DataGridTextColumn Header="کد حساب" Binding="{Binding AccountCode}" Width="100" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="نام حساب" Binding="{Binding AccountName}" Width="*"  IsReadOnly="True"/>
-                        <DataGridTextColumn Header="شرح"     Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
-                        <DataGridTextColumn Header="بدهکار"  Binding="{Binding Debit,  StringFormat='{}{0:N0}', UpdateSourceTrigger=PropertyChanged}" Width="130"/>
-                        <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat='{}{0:N0}', UpdateSourceTrigger=PropertyChanged}" Width="130"/>
-                        <DataGridTemplateColumn Width="50">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="✕" Style="{StaticResource IconButton}" Foreground="{DynamicResource DangerColor}"
-                                            Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-        </Border>
-
-        <!-- Totals Footer -->
-        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="16,12">
-            <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20,10" Margin="0,0,12,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="جمع بدهکار: " Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}"/>
-                            <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:N0}'}"
-                                       Foreground="#2563EB" FontWeight="Bold" FontSize="16"
-                                       FontFamily="{StaticResource VazirFont}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20,10" Margin="0,0,12,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="جمع بستانکار: " Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}"/>
-                            <TextBlock Text="{Binding TotalCredit, StringFormat='{}{0:N0}'}"
-                                       Foreground="#DC2626" FontWeight="Bold" FontSize="16"
-                                       FontFamily="{StaticResource VazirFont}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border CornerRadius="8" Padding="20,10">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsBalanced}" Value="True">
-                                        <Setter Property="Background" Value="#05966920"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsBalanced}" Value="False">
-                                        <Setter Property="Background" Value="#DC262620"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="مانده: " Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}"/>
-                            <TextBlock Text="{Binding Difference, StringFormat='{}{0:N0}'}"
-                                       FontWeight="Bold" FontSize="16" FontFamily="{StaticResource VazirFont}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsBalanced}" Value="True">
-                                                <Setter Property="Foreground" Value="#059669"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsBalanced}" Value="False">
-                                                <Setter Property="Foreground" Value="#DC2626"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                <Border Grid.Column="1" Background="#E3F6EC" CornerRadius="6" Padding="14,8" Margin="4">
+                    <StackPanel>
+                        <TextBlock Text="جمع بدهکار" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Text="{Binding TotalDebit, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Background="#FDE8E8" CornerRadius="6" Padding="14,8" Margin="4">
+                    <StackPanel>
+                        <TextBlock Text="جمع بستانکار" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Text="{Binding TotalCredit, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Background="{DynamicResource AppBackground}" CornerRadius="6" Padding="14,8" Margin="4">
+                    <StackPanel>
+                        <TextBlock Text="اختلاف (تراز)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Text="{Binding Difference, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
     </Grid>

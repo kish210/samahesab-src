@@ -52,22 +52,35 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
 
     private int _editingId;
 
+    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepository;
+    private readonly IWarehouseRepository _warehouseRepository;
+
     public PurchaseInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
-        IProductRepository productRepository, IDialogService dialogService,
+        IProductRepository productRepository,
+        IRepository<SamaHesab.Domain.Entities.CRM.Supplier> supplierRepository,
+        IWarehouseRepository warehouseRepository,
+        IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
+        _supplierRepository = supplierRepository; _warehouseRepository = warehouseRepository;
     }
 
     public override async Task LoadAsync()
     {
         InvoiceDate = _calendar.GetCurrentPersianDate();
-        Suppliers = new List<SupplierItem> { new(1, "تأمین‌کننده الف", "09120000001") };
-        Warehouses = new List<WarehouseItem> { new(1, "انبار مرکزی") };
+        var companyId = _currentUser.CompanyId ?? 1;
+
+        var suppliers = await _supplierRepository.FindAsync(s => s.CompanyId == companyId && s.IsActive);
+        Suppliers = suppliers.Select(s => new SupplierItem(s.Id, s.FullName, s.Mobile ?? "")).ToList();
+        OnPropertyChanged(nameof(Suppliers));
+
+        var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
+        Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
+        OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
-        await Task.CompletedTask;
     }
 
     [RelayCommand]

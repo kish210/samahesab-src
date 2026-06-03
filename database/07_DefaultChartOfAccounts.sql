@@ -36,8 +36,8 @@ END
 
 -- Helper procedure to insert accounts
 DECLARE @accounts TABLE (
-    Code NVARCHAR(20), Name NVARCHAR(200), Level INT,
-    ParentCode NVARCHAR(20), Nature NVARCHAR(10), AccountType NVARCHAR(50)
+    Code NVARCHAR(40), Name NVARCHAR(400), Level INT,
+    ParentCode NVARCHAR(40), Nature NVARCHAR(20), AccountType NVARCHAR(100)
 );
 
 -- LEVEL 1: Group Accounts (گروه‌ها)

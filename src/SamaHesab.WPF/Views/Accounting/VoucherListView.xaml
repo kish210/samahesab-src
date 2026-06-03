@@ -1,6 +1,7 @@
 <UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
              FlowDirection="RightToLeft">
     <Grid>
@@ -108,23 +109,21 @@
         </Border>
 
         <!-- Data Grid -->
-        <DataGrid Grid.Row="3"
+        <telerik:RadGridView Grid.Row="3"
                   ItemsSource="{Binding Vouchers}"
                   SelectedItem="{Binding SelectedVoucher}"
-                  AutoGenerateColumns="False" CanUserAddRows="False"
-                  BorderThickness="0" RowHeight="42" ColumnHeaderHeight="44"
-                  Background="{DynamicResource TableRowBg}"
-                  Foreground="{DynamicResource PrimaryText}"
-                  GridLinesVisibility="Horizontal">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="شماره سند" Binding="{Binding VoucherNumber}" Width="110"/>
-                <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="100"/>
-                <DataGridTextColumn Header="نوع" Binding="{Binding VoucherTypeName}" Width="100"/>
-                <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
-                <DataGridTextColumn Header="بدهکار" Binding="{Binding TotalDebit, StringFormat='{}{0:N0}'}" Width="130"/>
-                <DataGridTextColumn Header="بستانکار" Binding="{Binding TotalCredit, StringFormat='{}{0:N0}'}" Width="130"/>
-                <DataGridTemplateColumn Header="وضعیت" Width="90">
-                    <DataGridTemplateColumn.CellTemplate>
+                  AutoGenerateColumns="False" ShowSearchPanel="True" CanUserInsertRows="False" CanUserDeleteRows="False"
+                  RowIndicatorVisibility="Collapsed" ShowGroupPanel="True"
+                  FontFamily="{StaticResource VazirFont}">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="شماره سند" DataMemberBinding="{Binding VoucherNumber}" Width="110"/>
+                <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding VoucherDate}" Width="100"/>
+                <telerik:GridViewDataColumn Header="نوع" DataMemberBinding="{Binding VoucherTypeName}" Width="100"/>
+                <telerik:GridViewDataColumn Header="شرح" DataMemberBinding="{Binding Description}" Width="*"/>
+                <telerik:GridViewDataColumn Header="بدهکار" DataMemberBinding="{Binding TotalDebit}" DataFormatString="{}{0:N0}" Width="130"/>
+                <telerik:GridViewDataColumn Header="بستانکار" DataMemberBinding="{Binding TotalCredit}" DataFormatString="{}{0:N0}" Width="130"/>
+                <telerik:GridViewDataColumn Header="وضعیت" Width="90" IsReadOnly="True">
+                    <telerik:GridViewDataColumn.CellTemplate>
                         <DataTemplate>
                             <Border CornerRadius="4" Padding="8,3" HorizontalAlignment="Center">
                                 <Border.Style>
@@ -158,9 +157,9 @@
                                 </TextBlock>
                             </Border>
                         </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                    </telerik:GridViewDataColumn.CellTemplate>
+                </telerik:GridViewDataColumn>
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
     </Grid>
 </UserControl>

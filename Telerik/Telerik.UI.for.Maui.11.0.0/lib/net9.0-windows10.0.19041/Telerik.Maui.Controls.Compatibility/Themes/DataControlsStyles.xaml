@@ -1,0 +1,400 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Telerik.Maui.Controls.Compatibility.DataControlsRenderer.UWP"
+    xmlns:telerikMauiCompatibility="using:Telerik.Maui.Controls.Compatibility"
+    xmlns:nativeListView="using:Telerik.UI.Xaml.Controls.Data.ListView"
+    xmlns:nativeListViewPrimitives="using:Telerik.UI.Xaml.Controls.Data.ListView.Primitives"
+    xmlns:maui="using:Microsoft.Maui.Platform"
+    xmlns:mauiControls="using:Microsoft.Maui.Controls.Platform"
+    xmlns:mauiPlatform="using:Microsoft.Maui.Controls.Platform.Compatibility"
+    xmlns:theming="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+            <theming:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/DataControls/Themes/ThemeResourcesDark.xaml"/>
+                <ResourceDictionary Source="{CustomResource DarkResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <theming:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/DataControls/Themes/ThemeResourcesLight.xaml"/>
+                <ResourceDictionary Source="{CustomResource LightResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <nativeListView:OrientationToHorizontalAlignmentConverter x:Key="OrientationToHorizontalAlignmentConverter" />
+    <nativeListView:OrientationToVerticalAlignmentConverter x:Key="OrientationToVerticalAlignmentConverter" />
+    <nativeListView:OrientationToSizeConverter x:Key="OrientationToSizeConverter" />
+    <nativeListView:OrientationToScrollModeConverter x:Key="OrientationToScrollModeConverter"/>
+
+    <mauiPlatform:CollapseWhenEmptyConverter x:Key="CollapseWhenEmptyConverter" />
+    <mauiControls:ImageConverter x:Key="ImageConverter"/>
+    <telerikMauiCompatibility:ColorToPlatformBrushConverter x:Key="ColorToPlatformBrushConverter" />
+
+    <SolidColorBrush x:Key="DefaultListViewCellTextForeground" Color="{ThemeResource SystemBaseHighColor}" />
+    <SolidColorBrush x:Key="DefaultListViewCellDetailForeground" Color="{ThemeResource SystemBaseHighColor}" Opacity="0.6" />
+    <SolidColorBrush x:Key="DefaultExtendedGroupHeaderBackground" Color="{ThemeResource SystemAltHighColor}"/>
+    <SolidColorBrush x:Key="DefaultExtendedGroupHeaderForeground" Color="{ThemeResource SystemBaseHighColor}"/>
+    <SolidColorBrush x:Key="DefaultExtendedGroupHeaderBorderBrush" Color="{ThemeResource SystemChromeMediumColor}"/>
+    <SolidColorBrush x:Key="DefaultExtendedListViewItemSelectedBackground" Color="{ThemeResource SystemAccentColor}" Opacity="0.4"/>
+    <SolidColorBrush x:Key="DefaultExtendedListViewItemPressedBackground" Color="{ThemeResource SystemAccentColor}" Opacity="0.8"/>
+    <SolidColorBrush x:Key="DefaultExtendedListViewItemReorderBackground" Color="{ThemeResource SystemAccentColor}" Opacity="0.6"/>
+
+    <DataTemplate x:Key="ListViewTextCellTemplate">
+        <Grid MinHeight="40"
+              Padding="12, 0">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding Text}" 
+                           Style="{ThemeResource BodyTextBlockStyle}"
+                           Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource CollapseWhenEmptyConverter}}"
+                           Foreground="{Binding TextColor, Converter={StaticResource ColorToPlatformBrushConverter}, ConverterParameter={StaticResource DefaultListViewCellTextForeground}}" />
+                <TextBlock Text="{Binding Detail}"
+                           Style="{ThemeResource CaptionTextBlockStyle}"
+                           Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource CollapseWhenEmptyConverter}}"
+                           Foreground="{Binding DetailColor, Converter={StaticResource ColorToPlatformBrushConverter}, ConverterParameter={StaticResource DefaultListViewCellDetailForeground}}" />
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ListViewImageCellTemplate">
+        <Grid MinHeight="40"
+              Padding="12, 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image VerticalAlignment="Center"
+                   DataContext="{Binding ImageSource, Converter={StaticResource ImageConverter}}"
+                   Source="{Binding Value}" />
+            <StackPanel Grid.Column="1"
+                        Margin="5,0,0,0" 
+                        VerticalAlignment="Center">
+                <TextBlock Text="{Binding Text}"
+                           Style="{ThemeResource BodyTextBlockStyle}"
+                           Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource CollapseWhenEmptyConverter}}"
+                           Foreground="{Binding TextColor, Converter={StaticResource ColorToPlatformBrushConverter}, ConverterParameter={StaticResource DefaultListViewCellTextForeground}}" />
+                <TextBlock Text="{Binding Detail}"
+                           Style="{ThemeResource CaptionTextBlockStyle}"
+                           Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource CollapseWhenEmptyConverter}}"
+                           Foreground="{Binding DetailColor, Converter={StaticResource ColorToPlatformBrushConverter}, ConverterParameter={StaticResource DefaultListViewCellDetailForeground}}" />
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ListViewGroupHeaderTemplate">
+        <Grid MinHeight="40"
+              Padding="12, 0">
+            <TextBlock Text="{Binding Key}"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding Text, RelativeSource={RelativeSource Self}, Converter={StaticResource CollapseWhenEmptyConverter}}" />
+        </Grid>
+    </DataTemplate>
+
+    <Style TargetType="local:ExtendedGroupHeader" BasedOn="{StaticResource DefaultExtendedGroupHeaderStyle}"/>
+
+    <Style x:Key="DefaultExtendedGroupHeaderStyle" TargetType="local:ExtendedGroupHeader" >
+        <Setter Property="Background" Value="{StaticResource DefaultExtendedGroupHeaderBackground}" />
+        <Setter Property="Foreground" Value="{StaticResource DefaultExtendedGroupHeaderForeground}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="BorderBrush" Value="{StaticResource DefaultExtendedGroupHeaderBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="ContentTemplate" Value="{StaticResource ListViewGroupHeaderTemplate}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ExtendedGroupHeader">
+                    <Border  Background="{TemplateBinding Background}" 
+                                 Padding="{TemplateBinding Margin}"
+                                 BorderThickness="{TemplateBinding BorderThickness}"
+                                 BorderBrush="{TemplateBinding BorderBrush}">
+                        <ContentPresenter FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}"
+                                            Margin="{TemplateBinding Padding}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:UWPListView">
+        <!-- TODO: Check if setting BorderThickness is needed with future versions of Maui or when the contro is migrated to Handler. -->
+        <!-- This is the value set in the Template in WinUI. If it is set to 0 LayoutCycleException is thrown. -->
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="TabNavigation" Value="Once" />
+        <Setter Property="ScrollViewer.BringIntoViewOnFocusChange" Value="False" />
+        <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="MinHeight" Value="100"/>
+        <Setter Property="GroupHeaderStyle" Value="{StaticResource DefaultExtendedGroupHeaderStyle}"/>
+        <Setter Property="ItemStyle" Value="{StaticResource DefaultExtendedListViewItemStyle}"/>
+        <Setter Property="LayoutDefinition">
+            <Setter.Value>
+                <nativeListView:StackLayoutDefinition/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:UWPListView">
+                    <Border x:Name="LayoutRoot"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}">
+                        <nativeListView:ListViewRootPanel x:Name="PART_ListViewRootPanel">
+                            <ScrollViewer x:Name="PART_ScrollViewer"
+                                          VerticalAlignment="Top"
+                                          HorizontalAlignment="Left"
+                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                          ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}"
+                                          TabNavigation="{TemplateBinding TabNavigation}"
+                                          BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
+                                           HorizontalScrollMode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Orientation, Converter={StaticResource OrientationToScrollModeConverter}, ConverterParameter=Horizontal}"
+                                          VerticalScrollMode="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Orientation, Converter={StaticResource OrientationToScrollModeConverter}, ConverterParameter=Vertical}">
+                                <ScrollViewer.TopLeftHeader>
+                                    <nativeListViewPrimitives:FrozenGroupsPanel x:Name="PART_FrozenGroupHeadersHost" />
+                                </ScrollViewer.TopLeftHeader>
+                                <Grid x:Name="PART_RootScrollablePanel" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <local:UWPListViewPanel x:Name="PART_ScrollableContent" Background="Transparent">
+                                        <Canvas x:Name="PART_AnimatingChildrenPanel" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                            <nativeListView:ChildrenListViewPanel x:Name="PART_ChildrenPanel" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent">
+                                                <nativeListView:PullToRefreshIndicator Canvas.ZIndex="1000" x:Name="PART_PullToRefreshIndicator" IsTabStop="False"/>
+                                                <ContentControl x:Name="PART_SwipeActionContent"
+                                                                VerticalContentAlignment="Stretch"
+                                                                HorizontalContentAlignment="Stretch"
+                                                                Content="{TemplateBinding SwipeActionContent}" 
+                                                                Canvas.ZIndex="5" Margin="5" 
+                                                                Padding="5" />
+                                            </nativeListView:ChildrenListViewPanel>
+                                        </Canvas>
+                                    </local:UWPListViewPanel>
+                                    <Canvas x:Name="PART_ScrollableAdornerHost"/>
+                                </Grid>
+                            </ScrollViewer>
+                            <Canvas x:Name="PART_AdornerHost" IsHitTestVisible="False"/>
+                        </nativeListView:ListViewRootPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:ExtendedListViewItem" BasedOn="{StaticResource DefaultExtendedListViewItemStyle}"/>
+
+    <Style x:Key="DefaultExtendedListViewItemStyle" TargetType="local:ExtendedListViewItem">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Canvas.ZIndex" Value="10" />
+        <Setter Property="SelectedBackground" Value="{StaticResource DefaultExtendedListViewItemSelectedBackground}" />
+        <Setter Property="SelectedBorderThickness" Value="0" />
+        <Setter Property="PressedBackground" Value="{StaticResource DefaultExtendedListViewItemPressedBackground}" />
+        <Setter Property="PressedBorderThickness" Value="0" />
+        <Setter Property="ReorderBackground" Value="{ThemeResource DefaultExtendedListViewItemReorderBackground}" />
+        <Setter Property="ReorderBorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ExtendedListViewItem">
+                    <Border Background="{TemplateBinding Background}"  Padding="{TemplateBinding Margin}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="grid" Storyboard.TargetProperty="Opacity">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{Binding DisabledStateOpacity, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="SelectedState">
+                                <VisualState x:Name="Reorder">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderReorder" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="border" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderPressed" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderSelected" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderPressed" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderSelected" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unselected">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderPressed" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="borderSelected" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ReorderState">
+                                <VisualState x:Name="ReorderEnabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ReorderHandle" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="ReorderDisabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PART_ReorderHandle" Storyboard.TargetProperty="Visibility">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid x:Name="grid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="border"
+                                    Grid.ColumnSpan="2"
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Background="{x:Null}" />
+                            <Border x:Name="borderSelected"
+                                    Grid.ColumnSpan="2"
+                                    Visibility="Collapsed"
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{TemplateBinding SelectedBorderBrush}"
+                                    BorderThickness="{TemplateBinding SelectedBorderThickness}"
+                                    Background="{TemplateBinding SelectedBackground}" />
+                            <Border x:Name="borderPressed"
+                                    Grid.ColumnSpan="2"
+                                    Visibility="Collapsed"
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{TemplateBinding PressedBorderBrush}"
+                                    Background="{TemplateBinding PressedBackground}"
+                                    BorderThickness="{TemplateBinding PressedBorderThickness}"/>
+                            <Border x:Name="borderReorder"
+                                    Grid.ColumnSpan="2"
+                                    Visibility="Collapsed"
+                                    IsHitTestVisible="False"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    BorderBrush="{TemplateBinding ReorderBorderBrush}"
+                                    Background="{TemplateBinding ReorderBackground}"
+                                    BorderThickness="{TemplateBinding ReorderBorderThickness}"/>
+                            <ContentPresenter FontSize="{TemplateBinding FontSize}" Foreground="{TemplateBinding Foreground}"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            <Border x:Name="PART_FirstHandle"
+                                    Background="Transparent"
+                                    HorizontalAlignment="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToHorizontalAlignmentConverter},
+                                    ConverterParameter=First}"
+                                    VerticalAlignment="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToVerticalAlignmentConverter},
+                                    ConverterParameter=First}"
+                                    Height="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToSizeConverter},
+                                    ConverterParameter=Height}"
+                                    Width="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToSizeConverter},
+                                    ConverterParameter=Width}" />
+                            <Border x:Name="PART_SecondHandle"
+                                    Background="Transparent"
+                                    HorizontalAlignment="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToHorizontalAlignmentConverter},
+                                    ConverterParameter=Second}"
+                                    VerticalAlignment="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToVerticalAlignmentConverter}, 
+                                    ConverterParameter=Second}"
+                                    Height="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToSizeConverter},
+                                    ConverterParameter=Height}"
+                                    Width="{Binding Path=Orientation, RelativeSource={RelativeSource TemplatedParent},
+                                    Converter={StaticResource OrientationToSizeConverter},
+                                    ConverterParameter=Width}" />
+                            <Border x:Name="PART_ReorderHandle"
+                                    Grid.Column="1"
+                                    Padding="11, 6"
+                                    ManipulationMode="None"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Visibility="Collapsed">
+                                <FontIcon Foreground="{ThemeResource TelerikListView_IconForeground}"
+                                          FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          FontSize="16" Glyph="&#xE76F;"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="nativeListViewPrimitives:ListViewCurrencyControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="nativeListViewPrimitives:ListViewCurrencyControl">
+                    <ContentPresenter/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
+

@@ -1,0 +1,9 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.Maui.Controls.Compatibility/Themes/ChartStyles.xaml" />
+        <ResourceDictionary Source="ms-appx:///Telerik.Maui.Controls.Compatibility/Themes/DataControlsStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
+

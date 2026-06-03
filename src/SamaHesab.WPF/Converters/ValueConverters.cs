@@ -4,6 +4,34 @@ using System.Windows.Data;
 
 namespace SamaHesab.WPF.Converters;
 
+/// <summary>Maps a money amount to a bar height in pixels. ConverterParameter = max amount (divisor).</summary>
+public class AmountToBarHeightConverter : IValueConverter
+{
+    public static readonly AmountToBarHeightConverter Instance = new();
+    private const double MaxPixels = 130;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        double amount = value switch
+        {
+            decimal d => (double)d,
+            double db => db,
+            int i => i,
+            _ => 0
+        };
+        double max = 1;
+        if (parameter != null) double.TryParse(parameter.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out max);
+        if (max <= 0) max = 1;
+        var h = amount / max * MaxPixels;
+        if (h < 2) h = 2;
+        if (h > MaxPixels) h = MaxPixels;
+        return h;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,0 +1,170 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/ThemeColorsLight.xaml"/>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource LightResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+
+    <!--#region SegmentedControl Brushes-->
+    <SolidColorBrush x:Key="TelerikSegmentedControl_Foreground" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_ForegroundSelected" Color="{ThemeResource TextOnAccentFillColorSelectedText}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_ForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_Background" Color="{ThemeResource ControlSolidFillColorDefault}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BackgroundSelected" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BackgroundSelectedPointerOver" Color="{ThemeResource SystemAccentColorDark1}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BackgroundPressed" Color="{ThemeResource SubtleFillColorTertiary}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BorderBrush" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_BorderBrushDisabled" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <SolidColorBrush x:Key="TelerikSegmentedControl_SeparatorBrush" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <!--#endregion-->
+
+    <!--#region NumericBox-->
+    <SolidColorBrush x:Key="TelerikNumericBox_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ForegroundFocused" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ForegroundDisabled" Color="{ThemeResource TemporaryTextFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_Background" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_BackgroundFocused" Color="{ThemeResource ControlFillColorInputActive}"/>
+    <LinearGradientBrush x:Key="TelerikNumericBox_BorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.5" Color="{ThemeResource ControlStrongStrokeColorDefault}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikNumericBox_BorderBrushPointerOver" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.5" Color="{StaticResource ControlStrongStrokeColorDefault}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikNumericBox_BorderBrushFocused" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="1.0" Color="{ThemeResource SystemAccentColorDark1}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikNumericBox_BackgroundDisabled" Color="{ThemeResource ControlFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_BorderBrushDisabled" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--Buttons-->
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonBackgroundPressed" Color="{ThemeResource SubtleFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonBackgroundDisabled" Color="{ThemeResource ControlFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikNumericBox_ButtonBorderBrushDisabled" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <!--Clear button-->
+    <SolidColorBrush x:Key="TelerikNumericBox_ClearButtonForegroundPointerOver" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikNumericBox_ClearButtonForegroundPressed" Color="{ThemeResource TextFillColorSecondary}" />
+    <!--#endregion-->
+
+    <!--#region Rating-->
+    <SolidColorBrush x:Key="TelerikRating_IconForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikRating_IconForeground_Filled" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikRating_IconForeground_Highlighted" Color="{ThemeResource SystemAccentColor}" Opacity="0.9"/>
+    <!--#endregion-->
+
+    <!--#region DateTimePicker-->
+    <SolidColorBrush x:Key="TelerikDateTimePicker_Foreground" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_Background" Color="{ThemeResource ControlFillColorDefault}" />
+    <LinearGradientBrush x:Key="TelerikDateTimePicker_BorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,3">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.33" Color="{StaticResource ControlStrokeColorSecondary}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BackgroundPointerOver" Color="{ThemeResource ControlFillColorSecondary}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BackgroundPressed" Color="{ThemeResource ControlFillColorTertiary}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BackgroundFocused" Color="{ThemeResource ControlFillColorDefault}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BorderBrushPressed" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BorderBrushFocused" Color="{ThemeResource FocusStrokeColorOuter}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_BorderBrushDisabled" Color="{ThemeResource ControlStrokeColorDefault}" />
+    <!--Selector-->
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorForeground" Color="{ThemeResource TextFillColorPrimary}" />
+    <AcrylicBrush x:Key="TelerikDateTimePicker_SelectorBackground" TintColor="#FCFCFC" TintOpacity="0.8" FallbackColor="#F9F9F9"/>
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorBorderBrush" Color="{ThemeResource SurfaceStrokeColorFlyout}" />
+    <!--SelectorItem-->
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorItem_Foreground" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorItem_ForegroundSelected" Color="{ThemeResource TextFillColorPrimary}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorItem_Background" Color="Transparent" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorItem_BackgroundSelected" Color="{ThemeResource SystemAccentColor}" Opacity="0.9" />
+    <!--SelectorButton-->
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorButton_Foreground" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="TelerikDateTimePicker_SelectorButton_Background" Color="Transparent" />
+    <!--#endregion-->
+
+    <!--#region MaskedInput-->
+    <SolidColorBrush x:Key="TelerikMaskedInput_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_HeaderForeground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_HeaderForegroundDisabled" Color="{ThemeResource TextFillColorDisabled}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_DescriptionForeground" Color="{ThemeResource TextFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_Background" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_BackgroundPointerOver" Color="{ThemeResource ControlFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_BackgroundFocused" Color="{ThemeResource ControlFillColorInputActive}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_BackgroundDisabled" Color="{ThemeResource ControlFillColorDisabled}"/>
+    <LinearGradientBrush x:Key="TelerikMaskedInput_BorderBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.5" Color="{ThemeResource ControlStrongStrokeColorDefault}"/>
+            <GradientStop Offset="1.0" Color="{ThemeResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikMaskedInput_BorderBrushPointerOver" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="0.5" Color="{StaticResource ControlStrongStrokeColorDefault}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikMaskedInput_BorderBrushFocused" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="1.0" Color="{ThemeResource SystemAccentColorDark1}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TelerikMaskedInput_BorderBrushInvalid" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform ScaleY="-1" CenterY="0.5"/>
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Offset="1.0" Color="{ThemeResource SystemFillColorCritical}"/>
+            <GradientStop Offset="1.0" Color="{StaticResource ControlStrokeColorDefault}"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TelerikMaskedInput_BorderBrushDisabled" Color="{ThemeResource ControlStrokeColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ValidationBrush" Color="#C42B1C"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ClearButtonForegroundPointerOver" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ClearButtonForegroundPressed" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ClearButtonBackgroundPointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMaskedInput_ClearButtonBackgroundPressed" Color="{ThemeResource SubtleFillColorTertiary}"/>
+    <!--#endregion-->
+</ResourceDictionary>
+

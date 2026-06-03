@@ -1,0 +1,100 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource HighContrastResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="TelerikWindow_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_Background" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_ModalBackground" Color="{ThemeResource SystemColorGrayTextColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_BorderBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_HeaderForeground" Color="{ThemeResource SystemChromeWhiteColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_HeaderButtonForeground" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikWindow_HeaderBackground" Color="{ThemeResource SystemAccentColor}"/>
+
+    <!--#region RadialMenu-->
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonForeground" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonForeground_PointerOver" Color="{ThemeResource SystemColorHighlightTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonForeground_Pressed" Color="{ThemeResource SystemColorHighlightTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonForeground_Disabled" Color="{ThemeResource SystemColorGrayTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBackground_PointerOver" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBackground_Pressed" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBackground_Disabled" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBorderBrush" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ButtonBorderBrush_Focused" Color="{ThemeResource SystemColorWindowTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_ContentMenuBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ContentMenuBorderBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationMenuBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationMenuBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_IconForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_IconForeground_PointerOver" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_IconForeground_Selected" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_IconForeground_Disabled" Color="{ThemeResource SystemColorGrayTextColor}"/>
+
+    <!--Desktop only-->
+    <SolidColorBrush x:Key="TelerikRadialMenu_ItemControlForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ItemControlForeground_PointerOver" Color="{ThemeResource SystemAccentColor}" Opacity="0.9"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ItemControlForeground_Selected" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ItemControlForeground_Disabled" Color="{ThemeResource SystemColorGrayTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_HeaderForeground" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_HeaderForeground_PointerOver" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_HeaderForeground_Selected" Color="{ThemeResource SystemColorHighlightColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationButtonForeground" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationButtonBackground" Color="{ThemeResource SystemColorHotlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationButtonBackground_PointerOver" Color="{ThemeResource SystemColorHotlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_NavigationButtonBorderBrush" Color="Transparent"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_StateItemButtonBackground_PointerOver" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_StateItemButtonBackground_Selected" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_StateItemButtonBackground_SelectedPointerOver" Color="{ThemeResource SystemColorHotlightColor}"/>
+
+    <SolidColorBrush x:Key="TelerikRadialMenu_ToolTipForeground" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ToolTipBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikRadialMenu_ToolTipBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <!--#endregion-->
+
+    <!--#region TabControl-->
+    <SolidColorBrush x:Key="TelerikTabControl_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_IconForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Background" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_BorderBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_BorderBrush_Disabled" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_HeaderBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_HeaderBorderBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemForeground_Selected" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemBackground" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemBackground_PointerOver" Color="{ThemeResource SystemColorHotlightColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemBackground_Disabled" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemBorderBrush" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ItemBorderBrush_Selected" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BackgroundPointerOver" Color="{ThemeResource SystemColorHotlightColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BackgroundPressed" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BackgroundDisabled" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BorderBrushPointerOver" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BorderBrushPressed" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_ScrollButton_BorderBrushDisabled" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_ForegroundPressed" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BackgroundPointerOver" Color="{ThemeResource SystemColorHotlightColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BackgroundPressed" Color="{ThemeResource SystemColorHighlightColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BackgroundDisabled" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BorderBrushPointerOver" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BorderBrushPressed" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikTabControl_Button_BorderBrushDisabled" Color="Transparent"/>
+    <!--#endregion-->
+</ResourceDictionary>
+

@@ -1,0 +1,2046 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Telerik.UI.Xaml.Controls.DataVisualization"
+    xmlns:bulletGraph="using:Telerik.UI.Xaml.Controls.DataVisualization.BulletGraph" 
+    xmlns:telerikMap="using:Telerik.UI.Xaml.Controls.DataVisualization.Map" 
+    xmlns:primitives="using:Telerik.UI.Xaml.Controls.Primitives" 
+    xmlns:controls="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Themes/CommonThemeResources_v1.xaml"/>
+
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark" Source="ms-appx:///Telerik.WinUI.Controls/DataVisualization/Themes/ThemeResourcesDark_v1.xaml"/>
+                <ResourceDictionary x:Key="Light" Source="ms-appx:///Telerik.WinUI.Controls/DataVisualization/Themes/ThemeResourcesLight_v1.xaml"/>
+                <ResourceDictionary x:Key="HighContrast" Source="ms-appx:///Telerik.WinUI.Controls/DataVisualization/Themes/ThemeResourcesHighContrast.xaml"/>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark" Source="{CustomResource DarkResourcesPath}"/>
+                <ResourceDictionary x:Key="Light" Source="{CustomResource LightResourcesPath}"/>
+                <ResourceDictionary x:Key="HighContrast" Source="{CustomResource HighContrastResourcesPath}"/>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <bulletGraph:ValueToVisibilityConverter x:Key="ZeroToCollapsedConverter" Visibility="Collapsed"/>
+    <bulletGraph:ValueToVisibilityConverter x:Key="ZeroToVisibleConverter" Visibility="Visible"/>
+
+    <DataTemplate x:Key="LabelTemplate">
+        <TextBlock Text="{Binding}" FontSize="12" Foreground="{ThemeResource TelerikGauge_RangeForegroundBrush}"/>
+    </DataTemplate>
+
+    <Style TargetType="local:RadLinearGauge">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadLinearGauge">
+                    <local:LinearGaugePanel x:Name="PART_Panel" local:RadLinearGauge.Orientation="{TemplateBinding Orientation}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="LabelTemplate" Value="{StaticResource LabelTemplate}"/>
+        <Setter Property="TickTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Rectangle Width="2" Height="4" Fill="{ThemeResource TelerikGauge_TickBackgroundBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadRadialGauge">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadRadialGauge">
+                    <local:RadialGaugePanel x:Name="PART_Panel"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="LabelTemplate" Value="{StaticResource LabelTemplate}"/>
+        <Setter Property="TickTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Rectangle Width="4" Height="2" Fill="{ThemeResource TelerikGauge_TickBackgroundBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:LinearBarGaugeIndicator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:LinearBarGaugeIndicator">
+                    <Canvas>
+                        <Rectangle x:Name="PART_Bar" Fill="{TemplateBinding Brush}" StrokeThickness="{TemplateBinding BorderThickness}" Stroke="{TemplateBinding BorderBrush}" RenderTransformOrigin="0.5, 0.5"/>
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:ArrowGaugeIndicator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ArrowGaugeIndicator">
+                    <Grid x:Name="PART_Layout" RenderTransformOrigin="0.5, 0.5">
+                        <Path x:Name="PART_Path" 
+                              StrokeThickness="{TemplateBinding Thickness}"
+                              Stroke="{TemplateBinding Brush}"
+                              Fill="{TemplateBinding Brush}">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <PathGeometry>
+                                        <PathFigure x:Name="PART_ArrowHead" IsClosed="True">
+                                            <LineSegment x:Name="PART_ArrowBottom"/>
+                                            <LineSegment x:Name="PART_ArrowTop"/>
+                                        </PathFigure>
+                                    </PathGeometry>
+                                    <LineGeometry x:Name="PART_ArrowShaft"/>
+                                    <EllipseGeometry x:Name="PART_ArrowTail" RadiusX="2" RadiusY="2"/>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+                        <Grid.RenderTransform>
+                            <RotateTransform x:Name="PART_NeedleRotateTransform"/>
+                        </Grid.RenderTransform>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadialBarGaugeIndicator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadialBarGaugeIndicator">
+                    <Grid>
+                        <Path x:Name="PART_Path" StrokeThickness="{TemplateBinding Thickness}" Stroke="{TemplateBinding Brush}">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathGeometry.Figures>
+                                        <PathFigure x:Name="PART_Figure"/>
+                                    </PathGeometry.Figures>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:MarkerGaugeIndicator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:MarkerGaugeIndicator">
+                    <Canvas x:Name="PART_Canvas">
+                        <ContentPresenter x:Name="PART_VisualElement"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          RenderTransformOrigin="0.5, 0.5">
+                            <ContentPresenter.RenderTransform>
+                                <RotateTransform x:Name="PART_VisualElementRotation"/>
+                            </ContentPresenter.RenderTransform>
+                        </ContentPresenter>
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:SegmentedGaugeIndicator" x:Key="BaseSegmentedIndicatorStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:SegmentedGaugeIndicator">
+                    <Grid x:Name="PART_Layout"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:SegmentedLinearGaugeIndicator" BasedOn="{StaticResource BaseSegmentedIndicatorStyle}"/>
+
+    <Style TargetType="local:SegmentedRadialGaugeIndicator" BasedOn="{StaticResource BaseSegmentedIndicatorStyle}"/>
+
+    <Style TargetType="local:BarIndicatorSegment">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:BarIndicatorSegment">
+                    <Canvas x:Name="PART_Layout"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:RadBulletGraph">
+        <Setter Property="FeaturedMeasureBrush" Value="{ThemeResource TelerikBulletGraph_FeaturedMeasureBackgroundBrush}"/>
+        <Setter Property="FeaturedMeasureAlternativeTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Ellipse Width="10" Height="15" Fill="{ThemeResource TelerikBulletGraph_FeaturedMeasureBackgroundBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ComparativeMeasureTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Rectangle Width="9" Height="15" Fill="{ThemeResource TelerikBulletGraph_ComparitiveMeasureBackgroundBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="TickTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Rectangle Width="2" Height="7" Fill="{ThemeResource TelerikBulletGraph_TickBackgroundBrush}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadBulletGraph">
+                    <local:RadLinearGauge x:Name="PART_Scale"
+                                            MinValue="{TemplateBinding StartValue}"
+                                            MaxValue="{TemplateBinding EndValue}"
+                                            TickStep="{TemplateBinding TickStep}"
+                                            LabelStep="{TemplateBinding LabelStep}"
+                                            LabelOffset="{TemplateBinding LabelOffset}"
+                                            local:RadLinearGauge.Orientation="{TemplateBinding Orientation}"
+                                            TickTemplate="{TemplateBinding TickTemplate}"
+                                            LabelTemplate="{TemplateBinding LabelTemplate}">
+
+                        <local:SegmentedLinearGaugeIndicator x:Name="PART_QualitativeBar"
+                                                             StartValue="{TemplateBinding StartValue}"
+                                                             Value="{TemplateBinding EndValue}"
+                                                             local:RadLinearGauge.IndicatorOffset="-15"
+                                                             Canvas.ZIndex="0"/>
+                        <local:LinearBarGaugeIndicator x:Name="PART_FeaturedMeasure"
+                                                       Value="{TemplateBinding FeaturedMeasure}"
+                                                       Brush="{TemplateBinding FeaturedMeasureBrush}"
+                                                       Thickness="{TemplateBinding FeaturedMeasureThickness}"
+                                                       local:RadLinearGauge.IndicatorOffset="-15"
+                                                       StartValue="{TemplateBinding FeaturedMeasureStartValue}"
+                                                       Visibility="{Binding ElementName=PART_BulletGraphScale, Path=MinValue, Converter={StaticResource ZeroToVisibleConverter}}"
+                                                       Canvas.ZIndex="9"
+                                                       IsAnimated="{TemplateBinding IsAnimated}"/>
+                        <local:LinearBarGaugeIndicator x:Name="PART_ProjectedMeasure"
+                                                       Value="{TemplateBinding ProjectedMeasure}"
+                                                       Brush="{TemplateBinding ProjectedMeasureBrush}"
+                                                       StartValue="{TemplateBinding FeaturedMeasureStartValue}"
+                                                       Thickness="{Binding Thickness, ElementName=PART_FeaturedMeasure}"
+                                                       local:RadLinearGauge.IndicatorOffset="-15"
+                                                       Canvas.ZIndex="1"/>
+                        <local:MarkerGaugeIndicator x:Name="PART_AlternativeFeaturedMeasure"
+                                                    Value="{TemplateBinding FeaturedMeasure}"
+                                                    local:RadLinearGauge.IndicatorOffset="-20"
+                                                    Visibility="{Binding ElementName=PART_BulletGraphScale, Path=MinValue, Converter={StaticResource ZeroToCollapsedConverter}}"
+                                                    ContentTemplate="{TemplateBinding FeaturedMeasureAlternativeTemplate}"
+                                                    IsRotated="True"
+                                                    Canvas.ZIndex="9"/>
+                        <local:MarkerGaugeIndicator x:Name="PART_ComparativeMeasure"
+                                                    IsRotated="True"
+                                                    local:RadLinearGauge.IndicatorOffset="-15"
+                                                    Value="{TemplateBinding ComparativeMeasure}"
+                                                    Canvas.ZIndex="2"
+                                                    ContentTemplate="{TemplateBinding ComparativeMeasureTemplate}"/>
+                    </local:RadLinearGauge>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--<Style TargetType="local:RadBarcode">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadBarcode">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Canvas x:Name="PART_MainContainer" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
+
+    <Style x:Key="FastItemsControlBaseStyle" TargetType="local:FastItemsControlBase">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:FastItemsControlBase">
+                    <Border Name="PART_ControlRoot"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--#region Sparklines-->
+    <Style x:Key="NegativeIndicatorStyle" TargetType="local:IndicatorItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:IndicatorItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NegativeScatterStyle" TargetType="local:ScatterItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ScatterItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FirstLastIndicatorStyle" TargetType="local:IndicatorItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:IndicatorItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HighLowIndicatorStyle" TargetType="local:IndicatorItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:IndicatorItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FirstLastScatterStyle" TargetType="local:ScatterItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ScatterItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HighLowScatterStyle" TargetType="local:ScatterItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ScatterItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Height="9" Width="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <local:PointCollectionCloneConverter x:Key="PointCollectionCloneConverter"/>
+    <local:RectToRectangleGeometryConverter x:Key="RectToRectangleGeometryConverter"/>
+
+    <Style x:Key="RadWinLossSparklineStyle" TargetType="local:RadWinLossSparkline">
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikSparkline_AxisStroke}"/>
+        <Setter Property="ItemFill" Value="{ThemeResource TelerikSparkline_Fill_Column}"/>
+        <Setter Property="FirstPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush_Column}"/>
+        <Setter Property="LastPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush_Column}"/>
+        <Setter Property="HighPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush_Column}"/>
+        <Setter Property="LowPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush_Column}"/>
+        <Setter Property="NegativePointBrush" Value="{ThemeResource TelerikSparkline_NegativePointBrush_Column}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadWinLossSparkline">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <local:ColumnsContainer x:Name="PART_IndicatorsContainer"
+                                                    ItemStyle="{TemplateBinding ItemStyle}"
+                                                    ItemsSource="{TemplateBinding Tag}"/>
+                            <Line Stroke="{TemplateBinding AxisStroke}"
+                                  StrokeThickness="1"
+                                  X1="0"
+                                  Y1="{TemplateBinding ZeroYPosition}"
+                                  X2="{TemplateBinding AxisWidth}"
+                                  Y2="{TemplateBinding ZeroYPosition}"
+                                  Visibility="{TemplateBinding AxisVisibility}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadColumnSparklineStyle" TargetType="local:RadColumnSparkline">
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikSparkline_AxisStroke}"/>
+        <Setter Property="ItemFill" Value="{ThemeResource TelerikSparkline_Fill_Column}"/>
+        <Setter Property="FirstPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush_Column}"/>
+        <Setter Property="LastPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush_Column}"/>
+        <Setter Property="HighPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush_Column}"/>
+        <Setter Property="LowPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush_Column}"/>
+        <Setter Property="NegativePointBrush" Value="{ThemeResource TelerikSparkline_NegativePointBrush_Column}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadColumnSparkline">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <local:ColumnsContainer x:Name="PART_IndicatorsContainer"
+                                                    ColumnLayoutMode="{TemplateBinding ColumnLayoutMode}"
+                                                    ItemStyle="{TemplateBinding ItemStyle}"
+                                                    ItemsSource="{TemplateBinding Tag}"/>
+                            <Line Stroke="{TemplateBinding AxisStroke}"
+                                  StrokeThickness="1"
+                                  X1="0"
+                                  Y1="{TemplateBinding ZeroYPosition}"
+                                  X2="{TemplateBinding AxisWidth}"
+                                  Y2="{TemplateBinding ZeroYPosition}"
+                                  Visibility="{TemplateBinding AxisVisibility}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadAreaSparklineStyle" TargetType="local:RadAreaSparkline">
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikSparkline_AxisStroke}"/>
+        <Setter Property="MarkersBrush" Value="{ThemeResource TelerikSparkline_MarkersBrush}"/>
+        <Setter Property="PositiveAreaFill" Value="{ThemeResource TelerikSparkline_PositiveAreaFill}"/>
+        <Setter Property="PositiveAreaStroke" Value="{ThemeResource TelerikSparkline_Stroke}"/>
+        <Setter Property="NegativeAreaFill" Value="{ThemeResource TelerikSparkline_NegativeAreaFill}"/>
+        <Setter Property="NegativeAreaStroke" Value="{ThemeResource TelerikSparkline_NegativeAreaStroke}"/>
+        <Setter Property="FirstPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="FirstPointStyle" Value="{StaticResource FirstLastIndicatorStyle}"/>
+        <Setter Property="LastPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="LastPointStyle" Value="{StaticResource FirstLastIndicatorStyle}"/>
+        <Setter Property="HighPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="HighPointStyle" Value="{StaticResource HighLowIndicatorStyle}"/>
+        <Setter Property="LowPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="LowPointStyle" Value="{StaticResource HighLowIndicatorStyle}"/>
+        <Setter Property="NegativePointBrush" Value="{ThemeResource TelerikSparkline_NegativePointBrush}"/>
+        <Setter Property="NegativePointStyle" Value="{StaticResource NegativeIndicatorStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadAreaSparkline">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Polyline Visibility="{TemplateBinding TopLineVisibility}"
+                                      Clip="{Binding TopClipRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                      Points="{Binding AreaPoints, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PointCollectionCloneConverter}}"
+                                      Fill="{TemplateBinding PositiveAreaFill}"
+                                      Style="{TemplateBinding PositiveAreaShapeStyle}"/>
+                            <Polyline Visibility="{TemplateBinding TopLineVisibility}"
+                                      Clip="{Binding TopClipRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                      Points="{Binding LinePoints, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PointCollectionCloneConverter}}"
+                                      StrokeLineJoin="Round"
+                                      StrokeThickness="1"
+                                      Stroke="{TemplateBinding PositiveAreaStroke}"
+                                      Style="{TemplateBinding PositiveLineShapeStyle}"/>
+                            <Polyline Visibility="{TemplateBinding BottomLineVisibility}"
+                                      Clip="{Binding BottomClipRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                      Points="{Binding AreaPoints, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PointCollectionCloneConverter}}"
+                                      Fill="{TemplateBinding NegativeAreaFill}"
+                                      Style="{TemplateBinding NegativeAreaShapeStyle}"/>
+                            <Polyline Visibility="{TemplateBinding BottomLineVisibility}"
+                                      Clip="{Binding BottomClipRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                      Points="{Binding LinePoints, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PointCollectionCloneConverter}}"
+                                      StrokeLineJoin="Round"
+                                      StrokeThickness="1"
+                                      Stroke="{TemplateBinding NegativeAreaStroke}"
+                                      Style="{TemplateBinding NegativeLineShapeStyle}"/>
+                            <Line Stroke="{TemplateBinding AxisStroke}"
+                                  X1="0"
+                                  Y1="{TemplateBinding ZeroYPosition}"
+                                  X2="{TemplateBinding AxisWidth}"
+                                  Y2="{TemplateBinding ZeroYPosition}"
+                                  StrokeThickness="1"
+                                  Visibility="{TemplateBinding AxisVisibility}"/>
+                            <local:IndicatorsContainer x:Name="PART_IndicatorsContainer"
+                                                       ItemStyle="{TemplateBinding IndicatorStyle}"
+                                                       ItemsSource="{TemplateBinding IndicatorsPoints}"
+                                                       Visibility="{TemplateBinding IndicatorsVisibility}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadLinearSparklineStyle" TargetType="local:RadLinearSparkline">
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikSparkline_AxisStroke}"/>
+        <Setter Property="LineStroke" Value="{ThemeResource TelerikSparkline_Stroke}"/>
+        <Setter Property="MarkersBrush" Value="{ThemeResource TelerikSparkline_MarkersBrush}"/>
+        <Setter Property="NormalRangeFill" Value="{ThemeResource TelerikSparkline_NormalRangeFill}"/>
+        <Setter Property="FirstPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="FirstPointStyle" Value="{StaticResource FirstLastIndicatorStyle}"/>
+        <Setter Property="LastPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="LastPointStyle" Value="{StaticResource FirstLastIndicatorStyle}"/>
+        <Setter Property="HighPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="HighPointStyle" Value="{StaticResource HighLowIndicatorStyle}"/>
+        <Setter Property="LowPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="LowPointStyle" Value="{StaticResource HighLowIndicatorStyle}"/>
+        <Setter Property="NegativePointBrush" Value="{ThemeResource TelerikSparkline_NegativePointBrush}"/>
+        <Setter Property="NegativePointStyle" Value="{StaticResource NegativeIndicatorStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadLinearSparkline">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Path Fill="{TemplateBinding NormalRangeFill}"
+                                  Data="{Binding NormalRangeRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                  Visibility="{TemplateBinding NormalRangeVisibility}"/>
+                            <Polyline Visibility="{TemplateBinding LineShapeVisibility}"
+                                      Style="{TemplateBinding LineShapeStyle}"
+                                      Points="{Binding LinePoints, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PointCollectionCloneConverter}}"
+                                      StrokeLineJoin="Round"
+                                      Stroke="{TemplateBinding LineStroke}"/>
+                            <Line Stroke="{TemplateBinding AxisStroke}"
+                                  StrokeThickness="1"
+                                  X1="0"
+                                  Y1="{TemplateBinding ZeroYPosition}"
+                                  X2="{TemplateBinding AxisWidth}"
+                                  Y2="{TemplateBinding ZeroYPosition}"
+                                  Visibility="{TemplateBinding AxisVisibility}"/>
+                            <local:IndicatorsContainer x:Name="PART_IndicatorsContainer"
+                                                       ItemStyle="{TemplateBinding IndicatorStyle}"
+                                                       ItemsSource="{TemplateBinding IndicatorsPoints}"
+                                                       Visibility="{TemplateBinding IndicatorsVisibility}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadScatterSparklineStyle" TargetType="local:RadScatterSparkline">
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikSparkline_AxisStroke}"/>
+        <Setter Property="ItemFill" Value="{ThemeResource TelerikSparkline_MarkersBrush}"/>
+        <Setter Property="NormalRangeFill" Value="{ThemeResource TelerikSparkline_NormalRangeFill}"/>
+        <Setter Property="FirstPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="FirstPointStyle" Value="{StaticResource FirstLastScatterStyle}"/>
+        <Setter Property="LastPointBrush" Value="{ThemeResource TelerikSparkline_FirstLastPointBrush}"/>
+        <Setter Property="LastPointStyle" Value="{StaticResource FirstLastScatterStyle}"/>
+        <Setter Property="HighPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="HighPointStyle" Value="{StaticResource HighLowScatterStyle}"/>
+        <Setter Property="LowPointBrush" Value="{ThemeResource TelerikSparkline_HighLowPointBrush}"/>
+        <Setter Property="LowPointStyle" Value="{StaticResource HighLowScatterStyle}"/>
+        <Setter Property="NegativePointBrush" Value="{ThemeResource TelerikSparkline_NegativePointBrush}"/>
+        <Setter Property="NegativePointStyle" Value="{StaticResource NegativeScatterStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadScatterSparkline">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Path Fill="{TemplateBinding NormalRangeFill}"
+                                  Data="{Binding NormalRangeRect, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource RectToRectangleGeometryConverter}}"
+                                  Visibility="{TemplateBinding NormalRangeVisibility}"/>
+                            <Line Stroke="{TemplateBinding AxisStroke}"
+                                  StrokeThickness="1"
+                                  X1="0"
+                                  Y1="{TemplateBinding ZeroYPosition}"
+                                  X2="{TemplateBinding AxisWidth}"
+                                  Y2="{TemplateBinding ZeroYPosition}"
+                                  Visibility="{TemplateBinding AxisVisibility}"/>
+                            <local:ScatterContainer x:Name="PART_IndicatorsContainer" ItemStyle="{TemplateBinding ItemStyle}" ItemsSource="{TemplateBinding Tag}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ColumnStyle" TargetType="local:Column">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:Column">
+                    <Rectangle Fill="{TemplateBinding Fill}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScatterItemStyle" TargetType="local:ScatterItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:ScatterItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Width="9" Height="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IndicatorItemStyle" TargetType="local:IndicatorItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:IndicatorItem">
+                    <Ellipse Fill="{TemplateBinding Fill}" Width="9" Height="9"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="local:ColumnsContainer" BasedOn="{StaticResource FastItemsControlBaseStyle}"/>
+    <Style TargetType="local:ScatterContainer" BasedOn="{StaticResource FastItemsControlBaseStyle}"/>
+    <Style TargetType="local:IndicatorsContainer" BasedOn="{StaticResource FastItemsControlBaseStyle}"/>
+    <Style TargetType="local:RadWinLossSparkline" BasedOn="{StaticResource RadWinLossSparklineStyle}"/>
+    <Style TargetType="local:RadColumnSparkline" BasedOn="{StaticResource RadColumnSparklineStyle}"/>
+    <Style TargetType="local:RadAreaSparkline" BasedOn="{StaticResource RadAreaSparklineStyle}"/>
+    <Style TargetType="local:RadLinearSparkline" BasedOn="{StaticResource RadLinearSparklineStyle}"/>
+    <Style TargetType="local:RadScatterSparkline" BasedOn="{StaticResource RadScatterSparklineStyle}"/>
+    <Style TargetType="local:Column" BasedOn="{StaticResource ColumnStyle}"/>
+    <Style TargetType="local:ScatterItem" BasedOn="{StaticResource ScatterItemStyle}"/>
+    <Style TargetType="local:IndicatorItem" BasedOn="{StaticResource IndicatorItemStyle}"/>
+    <!--#endregion-->
+
+    <!--#region DataBars-->
+    <x:Double x:Key="TelerikDataBar_BorderThickness">0</x:Double>
+
+    <Style x:Key="DataBarShapeStyle" TargetType="local:DataBarShape"/>
+
+    <Style x:Key="DataBarAxisStyle" TargetType="Rectangle">
+        <Setter Property="Width" Value="1"/>
+    </Style>
+
+    <Style x:Key="RadDataBarStyle" TargetType="local:RadDataBar">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikDataBar_Foreground}"/>
+        <Setter Property="AxisVisibility" Value="Collapsed"/>
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikDataBar_AxisStroke}"/>
+        <Setter Property="AxisStyle" Value="{StaticResource DataBarAxisStyle}"/>
+        <Setter Property="BarHeightPercent" Value="0.66"/>
+        <Setter Property="BarStyle" Value="{StaticResource DataBarShapeStyle}"/>
+        <Setter Property="BarBorderThickness" Value="{StaticResource TelerikDataBar_BorderThickness}"/>
+        <Setter Property="ValueBrush" Value="{ThemeResource TelerikDataBar_ValueBrush}"/>
+        <Setter Property="ValueBorderBrush" Value="{ThemeResource TelerikDataBar_ValueBrush}"/>
+        <Setter Property="NegativeValueBrush" Value="{ThemeResource TelerikDataBar_NegativeValueBrush}"/>
+        <Setter Property="NegativeValueBorderBrush" Value="{ThemeResource TelerikDataBar_NegativeValueBrush}"/>
+        <Setter Property="LabelDistance" Value="5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadDataBar">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <local:DataBarShape Fill="{TemplateBinding AppliedBarBrush}"
+                                                Style="{TemplateBinding BarStyle}"
+                                                Stroke="{TemplateBinding AppliedBarBorderBrush}"
+                                                StrokeThickness="{TemplateBinding BarBorderThickness}"
+                                                HeightPercent="{TemplateBinding BarHeightPercent}"
+                                                RightPercent="{TemplateBinding BarRightPercent}"
+                                                LeftPercent="{TemplateBinding BarLeftPercent}"
+                                                OutOfRangeRule="{TemplateBinding AppliedOutOfRangeRule}"/>
+                            <ContentPresenter ContentTemplate="{TemplateBinding AppliedOutOfRangeTemplate}"/>
+                            <Rectangle Margin="{TemplateBinding AppliedAxisMargin}"
+                                       Fill="{TemplateBinding AxisStroke}"
+                                       Style="{TemplateBinding AxisStyle}"
+                                       Visibility="{TemplateBinding AppliedAxisVisibility}"
+                                       HorizontalAlignment="Left"/>
+                            <TextBlock Text="{TemplateBinding LabelText}"
+                                       Style="{TemplateBinding LabelStyle}"
+                                       Visibility="{TemplateBinding LabelVisibility}"
+                                       Margin="{TemplateBinding AppliedLabelMargin}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadStackedDataBarStyle" TargetType="local:RadStackedDataBar">
+        <Setter Property="AxisVisibility" Value="Collapsed"/>
+        <Setter Property="AxisStroke" Value="{ThemeResource TelerikDataBar_AxisStroke}"/>
+        <Setter Property="AxisStyle" Value="{StaticResource DataBarAxisStyle}"/>
+        <Setter Property="BarHeightPercent" Value="0.66"/>
+        <Setter Property="BarBrushes" Value="{ThemeResource TelerikDataBar_StackedBrushes}"/>
+        <Setter Property="BarBorderBrushes" Value="{ThemeResource TelerikDataBar_StackedBorderBrushes}"/>
+        <Setter Property="BarBorderThickness" Value="{StaticResource TelerikDataBar_BorderThickness}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadStackedDataBar">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <local:StackedBarItemsControl
+                                BarHeightPercent="{TemplateBinding BarHeightPercent}"
+                                BarBrushes="{TemplateBinding BarBrushes}"
+                                BarBorderBrushes="{TemplateBinding BarBorderBrushes}"
+                                BarBorderThickness="{TemplateBinding BarBorderThickness}"
+                                BarStyle="{TemplateBinding BarStyle}"
+                                ItemsSource="{TemplateBinding DataBarItems}"
+                                ShowToolTips="{TemplateBinding ShowToolTips}"
+                                IsTabStop="False"/>
+                            <ContentPresenter ContentTemplate="{TemplateBinding AppliedUnderflowTemplate}"/>
+                            <ContentPresenter ContentTemplate="{TemplateBinding AppliedOverflowTemplate}"/>
+                            <Rectangle
+                                Margin="{TemplateBinding AppliedAxisMargin}"
+                                Fill="{TemplateBinding AxisStroke}"
+                                Style="{TemplateBinding AxisStyle}"
+                                Visibility="{TemplateBinding AppliedAxisVisibility}"
+                                HorizontalAlignment="Left"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RadStacked100DataBarStyle" TargetType="local:RadStacked100DataBar">
+        <Setter Property="BarHeightPercent" Value="0.66"/>
+        <Setter Property="BarBrushes" Value="{ThemeResource TelerikDataBar_StackedBrushes}"/>
+        <Setter Property="BarBorderBrushes" Value="{ThemeResource TelerikDataBar_StackedBorderBrushes}"/>
+        <Setter Property="BarBorderThickness" Value="{StaticResource TelerikDataBar_BorderThickness}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadStacked100DataBar">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <local:StackedBarItemsControl
+                                BarHeightPercent="{TemplateBinding BarHeightPercent}"
+                                BarBrushes="{TemplateBinding BarBrushes}"
+                                BarBorderBrushes="{TemplateBinding BarBorderBrushes}"
+                                BarBorderThickness="{TemplateBinding BarBorderThickness}"
+                                BarStyle="{TemplateBinding BarStyle}"
+                                ItemsSource="{TemplateBinding DataBarItems}"
+                                ShowToolTips="{TemplateBinding ShowToolTips}"
+                                IsTabStop="False"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StackedBarItemStyle" TargetType="local:StackedBarItem">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:StackedBarItem">
+                    <local:DataBarShape
+                        LeftPercent="{Binding LeftPercent}"
+                        RightPercent="{Binding RightPercent}"
+                        HeightPercent="{TemplateBinding BarHeightPercent}"
+                        Fill="{TemplateBinding BarBrush}"
+                        Stroke="{TemplateBinding BarBorderBrush}"
+                        StrokeThickness="{TemplateBinding BarBorderThickness}"
+                        ShowToolTip="{TemplateBinding ShowToolTip}"
+                        Style="{TemplateBinding BarStyle}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HorizontalDataAxisTickStyle" TargetType="local:HorizontalDataAxisTick">
+        <Setter Property="TickLength" Value="6"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HorizontalDataAxisTick">
+                    <Rectangle Width="1" Height="{TemplateBinding TickLength}" Fill="{TemplateBinding Stroke}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VerticalDataAxisTickStyle" TargetType="local:VerticalDataAxisTick">
+        <Setter Property="TickLength" Value="6"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:VerticalDataAxisTick">
+                    <Rectangle Width="{TemplateBinding TickLength}" Height="1" Fill="{TemplateBinding Stroke}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HorizontalDataAxisLabelStyle" TargetType="local:HorizontalDataAxisLabel">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HorizontalDataAxisLabel">
+                    <TextBlock Text="{TemplateBinding LabelText}" Style="{TemplateBinding LabelStyle}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VerticalDataAxisLabelStyle" TargetType="local:VerticalDataAxisLabel">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Margin" Value="0 0 2 0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:VerticalDataAxisLabel">
+                    <TextBlock Text="{TemplateBinding LabelText}" Style="{TemplateBinding LabelStyle}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HorizontalDataAxisStyle" TargetType="local:RadHorizontalDataAxis">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikDataBar_Foreground}"/>
+        <Setter Property="Stroke" Value="{ThemeResource TelerikDataBar_AxisStroke}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadHorizontalDataAxis">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Grid.Row="0" Height="1" Fill="{TemplateBinding Stroke}"/>
+                        <local:HorizontalDataAxisTicksControl
+                            TickLength="{TemplateBinding MinorTickLength}"
+                            Grid.Row="1"
+                            ItemsSource="{TemplateBinding CalculatedMinorTicks}"
+                            VerticalAlignment="Top"
+                            Stroke="{TemplateBinding Stroke}"
+                            IsTabStop="False"/>
+                        <local:HorizontalDataAxisTicksControl
+                            TickLength="{TemplateBinding MajorTickLength}"
+                            Grid.Row="1"
+                            ItemsSource="{TemplateBinding CalculatedMajorTicks}"
+                            VerticalAlignment="Top"
+                            Stroke="{TemplateBinding Stroke}"
+                            IsTabStop="False"/>
+                        <local:HorizontalDataAxisLabelsControl
+                            Grid.Row="2"
+                            ItemsSource="{TemplateBinding CalculatedLabelInfos}"
+                            LabelStyle="{TemplateBinding LabelStyle}"
+                            IsTabStop="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VerticalDataAxisStyle" TargetType="local:RadVerticalDataAxis">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikDataBar_Foreground}"/>
+        <Setter Property="Stroke" Value="{ThemeResource TelerikDataBar_AxisStroke}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadVerticalDataAxis">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Grid.Column="2" Width="1" Fill="{TemplateBinding Stroke}"/>
+                        <local:VerticalDataAxisTicksControl
+                            TickLength="{TemplateBinding MinorTickLength}"
+                            Grid.Column="1"
+                            ItemsSource="{TemplateBinding CalculatedMinorTicks}"
+                            HorizontalAlignment="Right"
+                            Stroke="{TemplateBinding Stroke}"
+                            IsTabStop="False"/>
+                        <local:VerticalDataAxisTicksControl
+                            TickLength="{TemplateBinding MajorTickLength}"
+                            Grid.Column="1"
+                            ItemsSource="{TemplateBinding CalculatedMajorTicks}"
+                            HorizontalAlignment="Right"
+                            Stroke="{TemplateBinding Stroke}"
+                            IsTabStop="False"/>
+                        <local:VerticalDataAxisLabelsControl
+                            Grid.Column="0"
+                            ItemsSource="{TemplateBinding CalculatedLabelInfos}"
+                            LabelStyle="{TemplateBinding LabelStyle}"
+                            IsTabStop="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:FastItemsControlBase"/>
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:StackedBarItemsControl"/>
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:HorizontalDataAxisTicksControl"/>
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:HorizontalDataAxisLabelsControl"/>
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:VerticalDataAxisTicksControl"/>
+    <Style BasedOn="{StaticResource FastItemsControlBaseStyle}" TargetType="local:VerticalDataAxisLabelsControl"/>
+    <Style BasedOn="{StaticResource RadDataBarStyle}" TargetType="local:RadDataBar"/>
+    <Style BasedOn="{StaticResource RadStackedDataBarStyle}" TargetType="local:RadStackedDataBar"/>
+    <Style BasedOn="{StaticResource RadStacked100DataBarStyle}" TargetType="local:RadStacked100DataBar"/>
+    <Style BasedOn="{StaticResource StackedBarItemStyle}" TargetType="local:StackedBarItem"/>
+    <Style BasedOn="{StaticResource HorizontalDataAxisTickStyle}" TargetType="local:HorizontalDataAxisTick"/>
+    <Style BasedOn="{StaticResource VerticalDataAxisTickStyle}" TargetType="local:VerticalDataAxisTick"/>
+    <Style BasedOn="{StaticResource HorizontalDataAxisLabelStyle}" TargetType="local:HorizontalDataAxisLabel"/>
+    <Style BasedOn="{StaticResource VerticalDataAxisLabelStyle}" TargetType="local:VerticalDataAxisLabel"/>
+    <Style BasedOn="{StaticResource HorizontalDataAxisStyle}" TargetType="local:RadHorizontalDataAxis"/>
+    <Style BasedOn="{StaticResource VerticalDataAxisStyle}" TargetType="local:RadVerticalDataAxis"/>
+    <!--#endregion-->
+
+    <!--#region Map-->
+    <Style x:Key="MapExpanderHeaderButtonStyle" TargetType="primitives:ExpanderHeaderToggleButton" BasedOn="{StaticResource ExpanderHeaderButtonStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_Expander_HeaderButton_Foreground}"/>
+        <Setter Property="Background" Value="{ThemeResource TelerikMap_Expander_HeaderButton_Background}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="primitives:ExpanderHeaderToggleButton">
+                    <Grid Background="{ThemeResource TelerikMap_Expander_HeaderButton_UnderlayBackground}"
+                          CornerRadius="{TemplateBinding CornerRadius}"
+                          Margin="{TemplateBinding Padding}">
+                        <Grid x:Name="ArrowPanel"
+                              Width="{ThemeResource TelerikExpander_HeaderButtonWidth}"
+                              Height="{ThemeResource TelerikExpander_HeaderButtonHeight}"
+                              Background="{TemplateBinding Background}"
+                              BorderBrush="{TemplateBinding BorderBrush}"
+                              BorderThickness="{TemplateBinding BorderThickness}"
+                              CornerRadius="{TemplateBinding CornerRadius}"
+                              RenderTransformOrigin=".5 .5">
+                            <Grid.RenderTransform>
+                                <RotateTransform Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ExpandDirection, Converter={StaticResource ExpandDirectionToRotationAngleConverter}}"/>
+                            </Grid.RenderTransform>
+                            <FontIcon x:Name="Arrow"
+                                      Glyph="&#xE70D;"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      FontSize="14"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      RenderTransformOrigin=".5 .5">
+                                <FontIcon.RenderTransform>
+                                    <RotateTransform x:Name="ArrowRotateTransform" Angle="0" />
+                                </FontIcon.RenderTransform>
+                            </FontIcon>
+                        </Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStateGroup">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrowPanel" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_BackgroundPointerOver}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrowPanel" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_BackgroundPressed}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Opacity" To=".4"/>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CheckStates">
+                                <VisualState x:Name="Unchecked">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ArrowRotateTransform" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.2"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Checked">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ArrowRotateTransform" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrowPanel" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_BackgroundChecked}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Foreground" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_ForegroundChecked}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="CheckedPointerOver">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ArrowRotateTransform" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrowPanel" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_BackgroundCheckedPointerOver}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Foreground" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_ForegroundChecked}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="CheckedPressed">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ArrowRotateTransform" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ArrowPanel" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_BackgroundCheckedPressed}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Foreground" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_ForegroundChecked}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="CheckedDisabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ArrowRotateTransform" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Opacity" To=".4"/>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Foreground" Duration="0:0:0">
+                                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_HeaderButton_ForegroundChecked}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <ControlTemplate x:Key="MapExpanderTemplate" TargetType="primitives:RadExpander">
+        <Grid HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="ExpandStateGroup">
+                    <VisualState x:Name="Expanded"/>
+                    <VisualState x:Name="Collapsed">
+                        <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background" Duration="0:0:0">
+                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_BackgroundCollapsed}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush" Duration="0:0:0">
+                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{ThemeResource TelerikMap_Expander_BorderBrushCollapsed}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <Grid x:Name="RootGrid"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+                <ContentPresenter
+                    x:Name="Content"
+                    Margin="{TemplateBinding Padding}"
+                    Visibility="Collapsed"
+                    UseLayoutRounding="True"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                <primitives:ExpanderHeaderToggleButton
+                    x:Name="HeaderButton"
+                    IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                    ClickMode="{TemplateBinding ClickMode}"
+                    Content="{TemplateBinding Header}"
+                    ContentTemplate="{TemplateBinding HeaderTemplate}"
+                    Style="{TemplateBinding HeaderButtonStyle}"/>
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+    <Style x:Key="MapExpanderStyle" TargetType="primitives:RadExpander" BasedOn="{StaticResource RadExpanderStyle}">
+        <Setter Property="Background" Value="{ThemeResource TelerikMap_Expander_Background}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource TelerikMap_Expander_BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalHeaderAlignment" Value="Right"/>
+        <Setter Property="VerticalHeaderAlignment" Value="Top"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="HeaderButtonStyle" Value="{StaticResource MapExpanderHeaderButtonStyle}"/>
+        <Setter Property="Template" Value="{StaticResource MapExpanderTemplate}"/>
+    </Style>
+
+    <Style TargetType="local:RadMap">
+        <Setter Property="Background" Value="{ThemeResource TelerikMap_Background}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadMap">
+                    <Grid x:Name="PART_LayoutRoot">
+                        <telerikMap:MultiScaleImage x:Name="PART_MasterImage"/>
+                        <telerikMap:TilesVisualizationLayer x:Name="PART_TilesVisualizationLayer"
+                                                            Background="{TemplateBinding Background}"
+                                                            Grid.RowSpan="2" />
+                        <ItemsPresenter Grid.RowSpan="2" />
+                        <telerikMap:MouseControl x:Name="PART_MouseControl"/>
+
+                        <Grid VerticalAlignment="Bottom">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="PART_MapBarControlsPanel"
+                                  Background="{ThemeResource TelerikMap_NavigationBarBackground}"
+                                  Margin="0 0 10 10"
+                                  CornerRadius="4"
+                                  MinWidth="48"
+                                  MinHeight="170"
+                                  HorizontalAlignment="Right">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <telerikMap:MapCommandBar x:Name="PART_MapCommandBar"
+                                                          VerticalAlignment="Center"
+                                                          HorizontalAlignment="Right"
+                                                          Margin="15 0"/>
+                                <telerikMap:MapNavigation x:Name="PART_MapNavigation"
+                                                          Grid.Row="1"
+                                                          VerticalAlignment="Center"
+                                                          Visibility="Visible"/>
+                                <telerikMap:MapZoomBar x:Name="PART_MapZoomBar"
+                                                       Grid.Row="2"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Left"
+                                                       Visibility="Visible"
+                                                       Margin="15 0" />
+                            </Grid>
+                            <Grid Grid.Row="1"
+                                  HorizontalAlignment="Right"
+                                  Background="{ThemeResource TelerikMap_NavigationBarBackground}"
+                                  CornerRadius="4"
+                                  Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MinWidth="210"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <telerikMap:MapMouseLocationIndicator x:Name="PART_MapMouseLocationIndicator"
+                                                                      Visibility="Visible" />
+                                <telerikMap:MapScale x:Name="PART_MapScale"
+                                                     Grid.Column="1"
+                                                     DistanceUnit="{TemplateBinding DistanceUnit}"
+                                                     Margin="20 0 0 0"
+                                                     Visibility="Visible" />
+                            </Grid>
+                        </Grid>
+
+                        <primitives:RadExpander
+                            x:Name="PART_MiniMapExpander"
+                            Visibility="Collapsed"
+                            IsExpanded="{TemplateBinding IsMiniMapExpanded}"
+                            Style="{StaticResource MapExpanderStyle}">
+                            <Grid Width="{TemplateBinding MiniMapWidth}"
+                                  Height="{TemplateBinding MiniMapHeight}">
+                                <telerikMap:MiniMap x:Name="PART_MiniMap"
+                                                    AutomationProperties.Name="Mini Map"/>
+                            </Grid>
+                        </primitives:RadExpander>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TilesVisualizationLayerStyle" TargetType="telerikMap:TilesVisualizationLayer">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:TilesVisualizationLayer">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid x:Name="PART_ContentGrid">
+                            <Canvas>
+                                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <telerikMap:MapCanvas />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="InformationLayerStyle" TargetType="telerikMap:InformationLayer">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="DefaultInformationLayerTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <telerikMap:Pushpin />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="MapShapeDataTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Canvas x:Name="PART_ShapeCanvas" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:InformationLayer">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Canvas>
+                                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <telerikMap:MapCanvas />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DynamicLayerStyle" TargetType="telerikMap:DynamicLayer">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="DefaultInformationLayerTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <telerikMap:Pushpin />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="MapShapeDataTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Canvas x:Name="PART_ShapeCanvas" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:DynamicLayer">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Canvas>
+                                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+                            </Canvas>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <telerikMap:MapCanvas />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VisualizationLayerStyle" TargetType="telerikMap:VisualizationLayer">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="DefaultClusterTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Grid x:Name="ParentRoot"
+                          Width="40"
+                          Height="25">
+                        <!--telerikMap:MapLayer.HotSpot="0.5,1">-->
+                        <Path Width="{Binding Width,ElementName=ParentRoot}"
+                              Height="{Binding Height,ElementName=ParentRoot}"
+                              Data="M978.6,491.3L958.6,491.3L954.4,500.8L949.9,491.3L930.6,491.3C928.4,491.3,926.6,489.5,926.6,487.3L926.6,433.2C926.6,431.0,928.4,429.2,930.6,429.2L978.6,429.2C980.8,429.2,982.6,431.0,982.6,433.2L982.6,487.3C982.6,489.5,980.8,491.3,978.6,491.3z"
+                              StrokeStartLineCap="Flat"
+                              Stretch="Fill"
+                              StrokeEndLineCap="Flat"
+                              Stroke="White"
+                              StrokeThickness="1"
+                              StrokeMiterLimit="10"
+                              StrokeLineJoin="Miter"
+                              Fill="#7F000000"/>
+                        <StackPanel Margin="5 2 5 5">
+                            <TextBlock Foreground="White" HorizontalAlignment="Center" Text="{Binding Path=Count}" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="DefaultItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <telerikMap:Pushpin />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="DefaultKmlItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <StackPanel x:Name="PART_Panel"
+                                Orientation="Horizontal"
+                                telerikMap:MapLayer.Location="{Binding Location}"
+                                telerikMap:MapLayer.HotSpot="{Binding HotSpot}"
+                                ToolTipService.ToolTip="{Binding ToolTip}">
+                        <Image x:Name="PART_Image"
+                               Stretch="None"
+                               Visibility="{Binding ImageVisibility}"
+                               Source="{Binding ImageSource}"
+                               RenderTransform="{Binding ImageTransform}"/>
+                        <TextBlock x:Name="PART_Text"
+                                   Margin="2 0 0 0" VerticalAlignment="Center"
+                                   Text="{Binding Text}" />
+                    </StackPanel>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ShapeTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Path x:Name="PART_RangePath"
+                          Fill="{Binding ActiveShapeFill.Fill}" 
+                          Stroke="{Binding ActiveShapeFill.Stroke}"
+                          StrokeDashArray="{Binding ActiveShapeFill.StrokeDashArray}"
+                          StrokeDashCap="{Binding ActiveShapeFill.StrokeDashCap}"
+                          StrokeDashOffset="{Binding ActiveShapeFill.StrokeDashOffset}"
+                          StrokeEndLineCap="{Binding ActiveShapeFill.StrokeEndLineCap}"
+                          StrokeLineJoin="{Binding ActiveShapeFill.StrokeLineJoin}"
+                          StrokeMiterLimit="{Binding ActiveShapeFill.StrokeMiterLimit}"
+                          StrokeStartLineCap="{Binding ActiveShapeFill.StrokeStartLineCap}"
+                          StrokeThickness="{Binding ActiveShapeFill.StrokeThickness}"
+                          Data="{Binding Path=Geometry,Mode=OneWay}"
+                          RenderTransformOrigin="{Binding Path=RenderTransformOrigin,Mode=OneWay}"
+                          RenderTransform="{Binding Path=Transform,Mode=OneWay}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:VisualizationLayer">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid x:Name="PART_LayerRoot">
+                            <Canvas x:Name="PART_CellCanvas" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MouseControlStyle" TargetType="telerikMap:MouseControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MouseControl">
+                    <Canvas>
+                        <Rectangle x:Name="PART_PixelBox"
+                                   Fill="#3E1157DC"
+                                   Stroke="#FF0781F7"
+                                   StrokeDashArray="20 8"
+                                   StrokeEndLineCap="Round"
+                                   StrokeDashCap="Round"
+                                   StrokeThickness="1.5"
+                                   RadiusY="8" RadiusX="8"
+                                   Visibility="Collapsed"/>
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapNavigationButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_NavigationButton_Foreground}"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Indicator" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMap_NavigationButton_Foreground_PointerOver}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Indicator" Storyboard.TargetProperty="Opacity" To="0.4" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter x:Name="Indicator"
+                                          FontSize="{TemplateBinding FontSize}"
+                                          FontFamily="{TemplateBinding FontFamily}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapNavigationStyle" TargetType="telerikMap:MapNavigation">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapNavigation">
+                    <Grid x:Name="mapNavigation"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Width="48"
+                          Height="48">
+
+                        <Button x:Name="PART_ArrowLeft"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Style="{StaticResource MapNavigationButtonStyle}">
+                            <FontIcon Glyph="&#xE76B;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                        </Button>
+
+                        <Button x:Name="PART_ArrowRight"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Style="{StaticResource MapNavigationButtonStyle}">
+                            <FontIcon Glyph="&#xE76C;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                        </Button>
+
+                        <Button x:Name="PART_ArrowUp"
+                                HorizontalAlignment="Center" VerticalAlignment="Top"
+                                Style="{StaticResource MapNavigationButtonStyle}">
+                            <FontIcon Glyph="&#xE70E;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                        </Button>
+
+                        <Button x:Name="PART_ArrowDown"
+                                VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                Style="{StaticResource MapNavigationButtonStyle}">
+                            <FontIcon Glyph="&#xE70D;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                        </Button>
+
+                        <Button x:Name="PART_CenterButton"
+                                Style="{StaticResource MapNavigationCenterButtonStyle}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapNavigationCenterButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_NavigationButton_Foreground}"/>
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Indicator" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMap_NavigationButton_Foreground_PointerOver}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Indicator" Storyboard.TargetProperty="Opacity" To="0.4" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="MapNavigationExpandCollapseStates">
+                                <VisualState x:Name="MapNavigationExpanded"/>
+                                <VisualState x:Name="MapNavigationCollapsed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Indicator" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMap_NavigationButton_Foreground_Accent}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Ellipse x:Name="Indicator"
+                                 Width="{TemplateBinding Width}"
+                                 Height="{TemplateBinding Height}"
+                                 Fill="{TemplateBinding Foreground}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapScaleStyle" TargetType="telerikMap:MapScale">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_Scale_Foreground}"/>
+        <Setter Property="Background" Value="{ThemeResource TelerikMap_Scale_Background}"/>
+        <Setter Property="Padding" Value="10 5"/>
+        <Setter Property="Margin" Value="0 0 10 25"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapScale">
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle x:Name="PART_Rectangle"
+                                   Fill="{TemplateBinding Background}"
+                                   Height="5" RadiusX="4" RadiusY="4"
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Grid MinWidth="80" Margin="5 0 0 0">
+                            <Border Background="{TemplateBinding ScaleLabelBackground}"
+                                    BorderBrush="{TemplateBinding ScaleLabelBorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"/>
+                            <TextBlock x:Name="PART_TextBlock"
+                                       Margin="{TemplateBinding Padding}"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Grid>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapNoIndicatorDropDownButtonStyle" TargetType="DropDownButton">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_NoIndicatorDropDownButton_Foreground}"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="RootGrid"
+                          Background="{TemplateBinding Background}"
+                          CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMap_NoIndicatorDropDownButton_Foreground_PointerOver}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TelerikMap_NoIndicatorDropDownButton_Foreground_Pressed}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Opacity">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="0.4" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          AutomationProperties.AccessibilityView="Raw" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapCommandBarButtonStyle" TargetType="DropDownButton" BasedOn="{StaticResource MapNoIndicatorDropDownButtonStyle}"/>
+
+    <Style x:Key="MapCommandBarStyle" TargetType="telerikMap:MapCommandBar">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="MapSwitchModeButtonTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <Grid BorderBrush="{ThemeResource TelerikMap_SeparatorBorderBrush}" BorderThickness="0 1 0 0">
+                        <controls:RadToggleButton x:Name="PART_IsLabelVisible"
+                                                  Command="{Binding Path=Command}"
+                                                  CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"
+                                                  CommandTarget="{Binding Path=CommandTarget}"
+                                                  IsChecked="{Binding Path=IsSelected, Mode=TwoWay}"
+                                                  Content="{Binding Path=Command.Text}"
+                                                  HorizontalAlignment="Stretch"
+                                                  MinWidth="130" Margin="0 12 0 0"
+                                                  Style="{StaticResource ToggleButtonRevealStyle}"/>
+                    </Grid>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="MapSourceButtonTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:RadRadioButton x:Name="mapRadioButton"
+                                             Command="{Binding Path=Command}"
+                                             CommandParameter="{Binding Path=CommandParameter}"
+                                             CommandTarget="{Binding Path=CommandTarget}"
+                                             IsChecked="{Binding Path=IsSelected, Mode=TwoWay}"
+                                             HorizontalAlignment="Stretch"
+                                             HorizontalContentAlignment="Center"
+                                             MinWidth="130" Margin="0 0 0 12"
+                                             Content="{Binding Path=Command.Text}"
+                                             Style="{StaticResource ToggleButtonRevealStyle}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapCommandBar">
+                    <DropDownButton x:Name="PART_MapCommandDropDown"
+                                    Style="{StaticResource MapCommandBarButtonStyle}">
+                        <DropDownButton.Flyout>
+                            <Flyout Placement="LeftEdgeAlignedBottom">
+                                <Grid x:Name="PART_DropDownPopupWrapper"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}">
+                                    <StackPanel x:Name="PART_CommandPanel"/>
+                                </Grid>
+                            </Flyout>
+                        </DropDownButton.Flyout>
+                        <FontIcon Glyph="&#xE81E;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                    </DropDownButton>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapZoomBarButtonStyle" TargetType="DropDownButton" BasedOn="{StaticResource MapNoIndicatorDropDownButtonStyle}"/>
+
+    <Style x:Key="MapZoomBarStyle" TargetType="telerikMap:MapZoomBar">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="ZoomLevelButtonTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <controls:RadRadioButton Command="{Binding Path=Command}"
+                                             CommandParameter="{Binding Path=CommandParameter}"
+                                             CommandTarget="{Binding Path=CommandTarget}"
+                                             Content="{Binding Path=Command.Text}"
+                                             GroupName="ZoomLevelButtons"
+                                             HorizontalContentAlignment="Center"
+                                             MinWidth="110"
+                                             Margin="0 15"
+                                             Style="{StaticResource ToggleButtonRevealStyle}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapZoomBar">
+                    <Grid x:Name="mapNavigation" Background="Transparent">
+                        <DropDownButton x:Name="PART_MapNavigationDropDown"
+                                        Grid.Column="1"
+                                        Style="{StaticResource MapZoomBarButtonStyle}">
+                            <DropDownButton.Flyout>
+                                <Flyout Placement="LeftEdgeAlignedBottom">
+                                    <Grid x:Name="PART_DropDownPopupWrapper"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Margin="-5 0 0 0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <RepeatButton x:Name="PART_ZoomSliderIncreaseButton"
+                                                          Background="Transparent" Padding="4" Margin="0 0 0 5"
+                                                          HorizontalAlignment="Center">
+                                                <FontIcon Glyph="&#xE948;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                                            </RepeatButton>
+                                            <Slider x:Name="PART_ZoomSlider" Grid.Row="1"
+                                                    Orientation="Vertical"
+                                                    HorizontalAlignment="Center"/>
+                                            <RepeatButton x:Name="PART_ZoomSliderDecreaseButton" Grid.Row="2"
+                                                          Background="Transparent" Padding="4" Margin="0 5 0 0"
+                                                          HorizontalAlignment="Center">
+                                                <FontIcon Glyph="&#xE949;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                                            </RepeatButton>
+                                        </Grid>
+                                        <Grid Grid.Column="1" Margin="15 20 0 0">
+                                            <Grid x:Name="PART_ZoomPresetsPanel"/>
+                                        </Grid>
+                                    </Grid>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+                            <FontIcon Glyph="&#xE71E;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16"/>
+                        </DropDownButton>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapMouseLocationIndicatorStyle" TargetType="telerikMap:MapMouseLocationIndicator">
+        <Setter Property="Foreground" Value="{ThemeResource TelerikMap_MouseLocationIndicator_Foreground}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="MinWidth" Value="210" />
+        <Setter Property="Padding" Value="10 5" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapMouseLocationIndicator">
+                    <Grid Background="{TemplateBinding IndicatorLabelBackground}"
+                          BorderBrush="{TemplateBinding IndicatorLabelBorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          CornerRadius="{TemplateBinding CornerRadius}">
+                        <TextBlock x:Name="PART_TextBlock"
+                                   Margin="{TemplateBinding Padding}"
+                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MiniMapStyle" TargetType="telerikMap:MiniMap">
+        <Setter Property="ViewportAreaStroke" Value="{ThemeResource TelerikMap_MiniMap_ViewportArea_Stroke}"/>
+        <Setter Property="ViewportAreaFill" Value="{ThemeResource TelerikMap_MiniMap_ViewportArea_Fill}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MiniMap">
+                    <Grid x:Name="PART_LayoutRoot">
+                        <telerikMap:MultiScaleImage x:Name="PART_MasterImage"/>
+                        <telerikMap:TilesVisualizationLayer x:Name="PART_TilesVisualizationLayer" Background="{TemplateBinding Background}"/>
+                        <ItemsPresenter/>
+                        <telerikMap:MouseControl x:Name="PART_MouseControl"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <Grid/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapLegendCanvasItemStyle" TargetType="telerikMap:MapLegendCanvasItem">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapLegendCanvasItem">
+                    <Canvas>
+                        <TextBlock x:Name="PART_MinLabel" Text="{TemplateBinding Min}" />
+                        <TextBlock x:Name="PART_MaxLabel" Text="{TemplateBinding Max}" />
+                        <Rectangle x:Name="PART_Rectangle" 
+								   Width="{TemplateBinding MarkerWidth}" 
+								   Height="{TemplateBinding MarkerHeight}" 
+								   RadiusX="{TemplateBinding RadiusX}" 
+								   RadiusY="{TemplateBinding RadiusY}" 
+								   Fill="{TemplateBinding Fill}"
+								   Stroke="{TemplateBinding Stroke}"
+								   StrokeThickness="{TemplateBinding StrokeThickness}"/>
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapLegendStyle" TargetType="telerikMap:MapLegend">
+        <Setter Property="Background" Value="#ABFFFFFF" />
+        <Setter Property="BorderBrush" Value="#FFFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="12 10" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapLegend">
+                    <Border Background="{TemplateBinding Background}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <ContentControl x:Name="PART_HeaderContentControl"
+                                            Foreground="{TemplateBinding Foreground}" 
+                                            Content="{TemplateBinding Header}" 
+                                            ContentTemplate="{TemplateBinding HeaderTemplate}"/>
+                            <ItemsPresenter Grid.Row="1"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <telerikMap:MapLegendCanvas />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MapPinPointStyle" TargetType="telerikMap:MapPinPoint">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:MapPinPoint">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="3"
+                            Padding="2">
+                        <StackPanel Name="PART_Panel" Orientation="Horizontal">
+                            <Image Name="PART_Image" Visibility="Collapsed" Stretch="None" Source="{TemplateBinding ImageSource}" />
+                            <TextBlock Name="PART_Text" Margin="2 0 0 0" VerticalAlignment="Center" Text="{TemplateBinding Text}" />
+                        </StackPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PushpinStyle" TargetType="telerikMap:Pushpin">
+        <Setter Property="Background" Value="{ThemeResource TelerikMap_Pushpin_Background}" />
+        <Setter Property="telerikMap:MapLayer.HotSpot" Value="0.5,Fraction,40,InsetPixels" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:Pushpin">
+                    <Border>
+                        <telerikMap:MapLayer.HotSpot>
+                            <local:HotSpot X="0.5" Y="40" XUnits="Fraction" YUnits="InsetPixels" />
+                        </telerikMap:MapLayer.HotSpot>
+                        <Path Data="M256,0C158.8,0,80,78.8,80,176s176,336,176,336s176-238.8,176-336S353.2,0,256,0z M256,288c-61.9,0-112-50.1-112-112  S194.1,64,256,64s112,50.1,112,112S317.9,288,256,288z M304,176c0,26.5-21.5,48-48,48s-48-21.5-48-48s21.5-48,48-48  S304,149.5,304,176z"
+                              Width="22" Height="32"
+                              Stretch="Fill" Fill="{TemplateBinding Background}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="BalloonStyle" TargetType="telerikMap:Balloon">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="telerikMap:Balloon">
+                    <Border Background="{TemplateBinding Background}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                        <ContentPresenter Margin="5"
+                                          Content="{TemplateBinding Content}" 
+                                          ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="telerikMap:Pushpin" BasedOn="{StaticResource PushpinStyle}" />
+    <Style TargetType="telerikMap:Balloon" BasedOn="{StaticResource BalloonStyle}" />
+    <Style TargetType="telerikMap:MiniMap" BasedOn="{StaticResource MiniMapStyle}"/>
+    <Style TargetType="telerikMap:MapScale" BasedOn="{StaticResource MapScaleStyle}"/>
+    <Style TargetType="telerikMap:MapLegend" BasedOn="{StaticResource MapLegendStyle}" />
+    <Style TargetType="telerikMap:MapZoomBar" BasedOn="{StaticResource MapZoomBarStyle}"/>
+    <Style TargetType="telerikMap:MapPinPoint" BasedOn="{StaticResource MapPinPointStyle}" />
+    <Style TargetType="telerikMap:DynamicLayer" BasedOn="{StaticResource DynamicLayerStyle}" />
+    <Style TargetType="telerikMap:MouseControl" BasedOn="{StaticResource MouseControlStyle}"/>
+    <Style TargetType="telerikMap:MapNavigation" BasedOn="{StaticResource MapNavigationStyle}"/>
+    <Style TargetType="telerikMap:MapCommandBar" BasedOn="{StaticResource MapCommandBarStyle}"/>
+    <Style TargetType="telerikMap:InformationLayer" BasedOn="{StaticResource InformationLayerStyle}" />
+    <Style TargetType="telerikMap:VisualizationLayer" BasedOn="{StaticResource VisualizationLayerStyle}" />
+    <Style TargetType="telerikMap:MapLegendCanvasItem" BasedOn="{StaticResource MapLegendCanvasItemStyle}" />
+    <Style TargetType="telerikMap:TilesVisualizationLayer" BasedOn="{StaticResource TilesVisualizationLayerStyle}"/>
+    <Style TargetType="telerikMap:MapMouseLocationIndicator" BasedOn="{StaticResource MapMouseLocationIndicatorStyle}" />
+    <!--#endregion-->
+
+    <!--#region RadHeatMap-->
+    <local:PositionToGridRowConverter x:Key="PositionToGridRowConverter"/>
+    <local:PositionToGridColumnConverter x:Key="PositionToGridColumnConverter"/>
+    <Style x:Key="HeatMapColumnHeaderDecoratorStyle" TargetType="local:HeatMapColumnHeaderDecorator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapColumnHeaderDecorator">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HeatMapRowHeaderDecoratorStyle" TargetType="local:HeatMapRowHeaderDecorator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapRowHeaderDecorator">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HeatMapColorGridStyle" TargetType="local:HeatMapColorGrid">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapColorGrid">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <Image Source="{TemplateBinding Bitmap}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HeatMapLabelsGridStyle" TargetType="local:HeatMapLabelsGrid">
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapLabelsGrid">
+                    <Canvas x:Name="PART_RenderSurface"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HeatMapRowLabelStyle" TargetType="local:HeatMapRowLabel">
+        <Setter Property="Margin" Value="2 0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapRowLabel">
+                    <TextBlock Text="{TemplateBinding LabelText}" Style="{TemplateBinding AppliedLabelStyle}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="HeatMapColumnLabelStyle" TargetType="local:HeatMapColumnLabel">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:HeatMapColumnLabel">
+                    <primitives:RadLayoutTransformControl x:Name="PART_LayoutTransformControl" VerticalAlignment="{TemplateBinding VerticalAlignment}" HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+                        <primitives:RadLayoutTransformControl.Content>
+                            <TextBlock Style="{TemplateBinding AppliedLabelStyle}" Text="{Binding LabelText}"/>
+                        </primitives:RadLayoutTransformControl.Content>
+                        <primitives:RadLayoutTransformControl.LayoutTransform>
+                            <RotateTransform x:Name="PART_RotateTransform"/>
+                        </primitives:RadLayoutTransformControl.LayoutTransform>
+                    </primitives:RadLayoutTransformControl>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="RadHeatMapStyle" TargetType="local:RadHeatMap">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="local:RadHeatMap">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <local:HeatMapColorGrid
+                                    Definition="{TemplateBinding Definition}"
+                                    CellBorderThickness="{TemplateBinding CellBorderThickness}"
+                                    CellBorderColor="{TemplateBinding CellBorderColor}"
+                                    HoveredCellDataPoint="{Binding HoveredCellDataPoint, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                    HoveredCellBorderThickness="{TemplateBinding HoveredCellBorderThickness}"
+                                    HoveredCellBorderColor="{TemplateBinding HoveredCellBorderColor}"
+                                    SelectedCellBorderThickness="{TemplateBinding SelectedCellBorderThickness}"
+                                    SelectedCellBorderColor="{TemplateBinding SelectedCellBorderColor}"
+                                    ShowToolTips="{TemplateBinding ShowToolTips}"
+                                    ToolTipSettings="{TemplateBinding ToolTipSettings}"
+                                    Grid.Row="1"
+                                    Grid.Column="1">
+                            </local:HeatMapColorGrid>
+                            <local:HeatMapLabelsGrid
+                                    Definition="{TemplateBinding Definition}"
+                                    CellBorderThickness="{TemplateBinding CellBorderThickness}"
+                                    CellLabelSettings="{TemplateBinding CellLabelSettings}"
+                                    Grid.Row="1"
+                                    Grid.Column="1"/>
+                            <local:HeatMapColumnHeaderDecorator Grid.ColumnSpan="3" Grid.Row="{Binding ColumnHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridRowConverter}}"/>
+                            <local:HeatMapRowHeaderDecorator Grid.RowSpan="3" Grid.Column="{Binding RowHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridColumnConverter}}"/>
+                            <local:HeatMapColumnLabelsControl
+                                    ItemsSource="{TemplateBinding ColumnHeaders}"
+                                    LabelRotationAngle="{Binding ColumnHeaderSettings.LabelRotationAngle, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelStyle="{Binding ColumnHeaderSettings.LabelStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                                    HoveredLabelStyle="{Binding ColumnHeaderSettings.HoveredLabelStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Position="{Binding ColumnHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelHorizontalAlignment="{Binding ColumnHeaderSettings.LabelHorizontalAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelVerticalAlignment="{Binding ColumnHeaderSettings.LabelVerticalAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelClipToBounds="{Binding ColumnHeaderSettings.LabelClipToBounds, RelativeSource={RelativeSource TemplatedParent}}"
+                                    CellBorderThickness="{TemplateBinding CellBorderThickness}"
+                                    ColumnsCount="{TemplateBinding ColumnsCount}"
+                                    Grid.Row="{Binding ColumnHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridRowConverter}}"
+                                    Grid.Column="1"/>
+                            <local:HeatMapRowLabelsControl
+                                    ItemsSource="{TemplateBinding RowHeaders}"
+                                    LabelStyle="{Binding RowHeaderSettings.LabelStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                                    HoveredLabelStyle="{Binding RowHeaderSettings.HoveredLabelStyle, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Position="{Binding RowHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelHorizontalAlignment="{Binding RowHeaderSettings.LabelHorizontalAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelVerticalAlignment="{Binding RowHeaderSettings.LabelVerticalAlignment, RelativeSource={RelativeSource TemplatedParent}}"
+                                    LabelClipToBounds="{Binding RowHeaderSettings.LabelClipToBounds, RelativeSource={RelativeSource TemplatedParent}}"
+                                    CellBorderThickness="{TemplateBinding CellBorderThickness}"
+                                    RowsCount="{TemplateBinding RowsCount}"
+                                    Grid.Row="1"
+                                    Grid.Column="{Binding RowHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridColumnConverter}}"/>
+                            <ContentPresenter Content="{TemplateBinding DescriptionContent}" Grid.Row="{Binding ColumnHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridRowConverter}}" Grid.Column="{Binding RowHeaderSettings.LabelsPanelPosition, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource PositionToGridColumnConverter}}"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="local:HeatMapColumnHeaderDecorator" BasedOn="{StaticResource HeatMapColumnHeaderDecoratorStyle}"/>
+    <Style TargetType="local:HeatMapRowHeaderDecorator" BasedOn="{StaticResource HeatMapRowHeaderDecoratorStyle}"/>
+    <Style TargetType="local:HeatMapColorGrid" BasedOn="{StaticResource HeatMapColorGridStyle}"/>
+    <Style TargetType="local:HeatMapLabelsGrid" BasedOn="{StaticResource HeatMapLabelsGridStyle}"/>
+    <Style TargetType="local:HeatMapRowLabel" BasedOn="{StaticResource HeatMapRowLabelStyle}"/>
+    <Style TargetType="local:HeatMapColumnLabel" BasedOn="{StaticResource HeatMapColumnLabelStyle}"/>
+    <Style TargetType="local:RadHeatMap" BasedOn="{StaticResource RadHeatMapStyle}"/>
+    <Style TargetType="local:HeatMapColumnLabelsControl" BasedOn="{StaticResource FastItemsControlBaseStyle}"/>
+    <Style TargetType="local:HeatMapRowLabelsControl" BasedOn="{StaticResource FastItemsControlBaseStyle}"/>
+    <!--#endregion-->
+</ResourceDictionary>
+

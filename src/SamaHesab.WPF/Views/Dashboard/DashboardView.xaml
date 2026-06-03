@@ -1,294 +1,172 @@
-﻿<UserControl x:Class="SamaHesab.WPF.Views.Dashboard.DashboardView"
+<UserControl x:Class="SamaHesab.WPF.Views.Dashboard.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
 
-            <!-- Welcome Header -->
-            <Grid Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="خوش آمدید 👋" FontSize="22" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryText}"
-                               FontFamily="{StaticResource VazirFont}"/>
-                    <TextBlock Text="{Binding TodayPersianDate, StringFormat='امروز: {0}'}"
-                               Foreground="{DynamicResource SecondaryText}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="13" Margin="0,4,0,0"/>
-                </StackPanel>
-                <Button Content="🔄 بروزرسانی" Style="{StaticResource SecondaryButton}"
-                        HorizontalAlignment="Left" Command="{Binding RefreshCommand}"/>
-            </Grid>
+    <UserControl.Resources>
+        <!-- Compact KPI tile -->
+        <Style x:Key="KpiTile" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+        <Style x:Key="KpiLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+        </Style>
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <!-- Dense list panel -->
+        <Style x:Key="ListPanel" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <Style x:Key="PanelHeader" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource TableHeaderBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+        <Style x:Key="DenseGrid" TargetType="telerik:RadGridView">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="ShowGroupPanel" Value="False"/>
+            <Setter Property="RowIndicatorVisibility" Value="Collapsed"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeight" Value="26"/>
+            <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Resources>
 
-            <!-- Alerts -->
-            <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,0,0,16">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="0,0,0,8" CornerRadius="8" Padding="14,10">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Type}" Value="warning">
-                                            <Setter Property="Background" Value="#78350F20"/>
-                                            <Setter Property="BorderBrush" Value="#D97706"/>
-                                            <Setter Property="BorderThickness" Value="0,0,0,0"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Type}" Value="danger">
-                                            <Setter Property="Background" Value="#7F1D1D20"/>
-                                            <Setter Property="BorderBrush" Value="#DC2626"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Type}" Value="info">
-                                            <Setter Property="Background" Value="#0C4A6E20"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <Grid>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding Message}" FontFamily="{StaticResource VazirFont}"
-                                               Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- KPI strip -->
+            <RowDefinition Height="*"/>      <!-- dense lists -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══ Compact KPI strip ═══ -->
+        <UniformGrid Grid.Row="0" Columns="7">
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="فروش امروز" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TodaySales, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource PrimaryAccent}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="خرید امروز" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TodayPurchase, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource WarningColor}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="سود خالص (ماه)" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding NetProfit, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource SuccessColor}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="دریافتی امروز" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TodayReceipt, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource SuccessColor}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="پرداختی امروز" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding TodayPayment, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource DangerColor}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="موجودی صندوق" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding CashBalance, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}"/></StackPanel>
+            </Border>
+            <Border Style="{StaticResource KpiTile}">
+                <StackPanel><TextBlock Text="مانده دریافتنی" Style="{StaticResource KpiLabel}"/>
+                    <TextBlock Text="{Binding Receivable, StringFormat={}{0:#,##0}}" Style="{StaticResource KpiValue}" Foreground="{DynamicResource DangerColor}"/></StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- ═══ Dense information panels (2 × 2) ═══ -->
+        <Grid Grid.Row="1" Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- فاکتورهای اخیر -->
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ListPanel}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeader}">
+                        <TextBlock Text="فاکتورهای اخیر" FontWeight="Bold" FontSize="12"/></Border>
+                    <telerik:RadGridView ItemsSource="{Binding RecentInvoices}" Style="{StaticResource DenseGrid}">
+                        <telerik:RadGridView.Columns>
+                            <telerik:GridViewDataColumn Header="شماره" DataMemberBinding="{Binding Number}" Width="90"/>
+                            <telerik:GridViewDataColumn Header="مشتری" DataMemberBinding="{Binding CustomerName}" Width="*"/>
+                            <telerik:GridViewDataColumn Header="مبلغ" DataMemberBinding="{Binding Amount}" DataFormatString="{}{0:#,##0}" Width="110"/>
+                            <telerik:GridViewDataColumn Header="وضعیت" DataMemberBinding="{Binding Status}" Width="80"/>
+                        </telerik:RadGridView.Columns>
+                    </telerik:RadGridView>
+                </DockPanel>
+            </Border>
+
+            <!-- چک‌های سررسید -->
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource ListPanel}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeader}">
+                        <TextBlock Text="چک‌های سررسید" FontWeight="Bold" FontSize="12"/></Border>
+                    <telerik:RadGridView ItemsSource="{Binding ChequesDue}" Style="{StaticResource DenseGrid}">
+                        <telerik:RadGridView.Columns>
+                            <telerik:GridViewDataColumn Header="شماره چک" DataMemberBinding="{Binding ChequeNumber}" Width="100"/>
+                            <telerik:GridViewDataColumn Header="بانک" DataMemberBinding="{Binding BankName}" Width="*"/>
+                            <telerik:GridViewDataColumn Header="مبلغ" DataMemberBinding="{Binding Amount}" DataFormatString="{}{0:#,##0}" Width="110"/>
+                            <telerik:GridViewDataColumn Header="نوع" DataMemberBinding="{Binding Type}" Width="70"/>
+                        </telerik:RadGridView.Columns>
+                    </telerik:RadGridView>
+                </DockPanel>
+            </Border>
+
+            <!-- کالاهای پرفروش -->
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ListPanel}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeader}">
+                        <TextBlock Text="کالاهای پرفروش" FontWeight="Bold" FontSize="12"/></Border>
+                    <telerik:RadGridView ItemsSource="{Binding TopProducts}" Style="{StaticResource DenseGrid}">
+                        <telerik:RadGridView.Columns>
+                            <telerik:GridViewDataColumn Header="کالا" DataMemberBinding="{Binding Name}" Width="*"/>
+                            <telerik:GridViewDataColumn Header="تعداد" DataMemberBinding="{Binding QtySold}" Width="80"/>
+                            <telerik:GridViewDataColumn Header="فروش" DataMemberBinding="{Binding Revenue}" DataFormatString="{}{0:#,##0}" Width="120"/>
+                        </telerik:RadGridView.Columns>
+                    </telerik:RadGridView>
+                </DockPanel>
+            </Border>
+
+            <!-- اعلان‌ها و هشدارها -->
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ListPanel}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeader}">
+                        <TextBlock Text="اعلان‌ها و هشدارها" FontWeight="Bold" FontSize="12"/></Border>
+                    <ListBox ItemsSource="{Binding Alerts}" BorderThickness="0" Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="2">
+                                    <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Message}" Margin="6,0,0,0" VerticalAlignment="Center"
+                                               FontSize="12" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Button Content="مشاهده ←" HorizontalAlignment="Left"
-                                        Style="{StaticResource IconButton}" FontSize="12"
-                                        Foreground="{DynamicResource PrimaryAccent}"
-                                        Command="{Binding DataContext.NavigateToCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                        CommandParameter="{Binding ActionPage}"/>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <!-- KPI Cards Row 1 -->
-            <UniformGrid Rows="1" Columns="4" Margin="0,0,0,16">
-                <!-- Today Sales -->
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="فروش امروز" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                        <TextBlock Text="{Binding TodaySales, StringFormat='{}{0:N0}'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#2563EB"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,8,0,4"/>
-                        <TextBlock Text="ریال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="11"/>
-                        <ProgressBar Value="65" Maximum="100" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-                <!-- Month Sales -->
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="فروش ماه جاری" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                        <TextBlock Text="{Binding MonthSales, StringFormat='{}{0:N0}'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#059669"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,8,0,4"/>
-                        <TextBlock Text="ریال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="11"/>
-                        <ProgressBar Value="78" Maximum="100" Margin="0,8,0,0" Foreground="#059669"/>
-                    </StackPanel>
-                </Border>
-                <!-- Receivable -->
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel>
-                        <TextBlock Text="مانده دریافتنی" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                        <TextBlock Text="{Binding Receivable, StringFormat='{}{0:N0}'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#D97706"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,8,0,4"/>
-                        <TextBlock Text="ریال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="11"/>
-                        <ProgressBar Value="45" Maximum="100" Margin="0,8,0,0" Foreground="#D97706"/>
-                    </StackPanel>
-                </Border>
-                <!-- Net Profit -->
-                <Border Style="{StaticResource Card}">
-                    <StackPanel>
-                        <TextBlock Text="سود خالص ماه" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                        <TextBlock Text="{Binding NetProfit, StringFormat='{}{0:N0}'}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#7C3AED"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,8,0,4"/>
-                        <TextBlock Text="ریال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="11"/>
-                        <ProgressBar Value="55" Maximum="100" Margin="0,8,0,0" Foreground="#7C3AED"/>
-                    </StackPanel>
-                </Border>
-            </UniformGrid>
-
-            <!-- KPI Cards Row 2 -->
-            <UniformGrid Rows="1" Columns="4" Margin="0,0,0,20">
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="👥" FontSize="28" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalCustomers}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"
-                                   HorizontalAlignment="Center" Margin="0,8,0,4"/>
-                        <TextBlock Text="مشتری فعال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="🏷" FontSize="28" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalProducts}" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"
-                                   HorizontalAlignment="Center" Margin="0,8,0,4"/>
-                        <TextBlock Text="کالای فعال" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="⚠" FontSize="28" HorizontalAlignment="Center" Foreground="#D97706"/>
-                        <TextBlock Text="{Binding LowStockCount}" FontSize="28" FontWeight="Bold"
-                                   Foreground="#D97706" FontFamily="{StaticResource VazirFont}"
-                                   HorizontalAlignment="Center" Margin="0,8,0,4"/>
-                        <TextBlock Text="کمبود موجودی" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                <Border Style="{StaticResource Card}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="💰" FontSize="28" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding CashBalance, StringFormat='{}{0:N0}'}" FontSize="20" FontWeight="Bold"
-                                   Foreground="#059669" FontFamily="{StaticResource VazirFont}"
-                                   HorizontalAlignment="Center" Margin="0,8,0,4"/>
-                        <TextBlock Text="موجودی صندوق (ریال)" Foreground="{DynamicResource SecondaryText}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="11" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </UniformGrid>
-
-            <!-- Bottom Row: Recent Invoices + Cheques Due -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="360"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Recent Invoices -->
-                <Border Grid.Column="0" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,12">
-                            <TextBlock Text="آخرین فاکتورهای فروش" FontWeight="Bold" FontSize="14"
-                                       FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"/>
-                            <Button Content="مشاهده همه ←" Style="{StaticResource IconButton}"
-                                    HorizontalAlignment="Left" Foreground="{DynamicResource PrimaryAccent}"
-                                    Command="{Binding NavigateToCommand}" CommandParameter="SalesInvoiceList"/>
-                        </Grid>
-                        <DataGrid ItemsSource="{Binding RecentInvoices}" AutoGenerateColumns="False"
-                                  CanUserAddRows="False" BorderThickness="0" RowHeight="38" ColumnHeaderHeight="38">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="شماره" Binding="{Binding Number}" Width="80"/>
-                                <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="90"/>
-                                <DataGridTextColumn Header="مشتری" Binding="{Binding CustomerName}" Width="*"/>
-                                <DataGridTextColumn Header="مبلغ (ریال)" Binding="{Binding Amount, StringFormat='{}{0:N0}'}" Width="120"/>
-                                <DataGridTemplateColumn Header="وضعیت" Width="80">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Border CornerRadius="12" Padding="8,3" HorizontalAlignment="Center">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Status}" Value="قطعی">
-                                                                <Setter Property="Background" Value="#05966920"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="پیش‌نویس">
-                                                                <Setter Property="Background" Value="#64748B20"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Border.Style>
-                                                <TextBlock Text="{Binding Status}" FontFamily="{StaticResource VazirFont}" FontSize="11">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Status}" Value="قطعی">
-                                                                    <Setter Property="Foreground" Value="#059669"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="پیش‌نویس">
-                                                                    <Setter Property="Foreground" Value="#64748B"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </Border>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Cheques Due -->
-                <Border Grid.Column="2" Style="{StaticResource Card}">
-                    <StackPanel>
-                        <TextBlock Text="چک‌های سررسید" FontWeight="Bold" FontSize="14"
-                                   FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"
-                                   Margin="0,0,0,12"/>
-                        <ItemsControl ItemsSource="{Binding ChequesDue}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceBackground}"
-                                            CornerRadius="8" Padding="12" Margin="0,0,0,8">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition/><RowDefinition/>
-                                            </Grid.RowDefinitions>
-                                            <Grid>
-                                                <TextBlock Text="{Binding ChequeNumber}" FontWeight="Bold"
-                                                           FontFamily="{StaticResource VazirFont}"
-                                                           Foreground="{DynamicResource PrimaryText}"/>
-                                                <Border HorizontalAlignment="Left" CornerRadius="10" Padding="6,2">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Type}" Value="دریافتی">
-                                                                    <Setter Property="Background" Value="#05966920"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Type}" Value="پرداختی">
-                                                                    <Setter Property="Background" Value="#DC262620"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock Text="{Binding Type}" FontSize="11"
-                                                               FontFamily="{StaticResource VazirFont}">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Type}" Value="دریافتی"><Setter Property="Foreground" Value="#059669"/></DataTrigger>
-                                                                    <DataTrigger Binding="{Binding Type}" Value="پرداختی"><Setter Property="Foreground" Value="#DC2626"/></DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </Border>
-                                            </Grid>
-                                            <Grid Grid.Row="1" Margin="0,6,0,0">
-                                                <TextBlock Text="{Binding BankName}" Foreground="{DynamicResource SecondaryText}"
-                                                           FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                                                <TextBlock Text="{Binding Amount, StringFormat='{}{0:N0} ریال'}"
-                                                           HorizontalAlignment="Left" FontWeight="Bold"
-                                                           Foreground="{DynamicResource WarningColor}"
-                                                           FontFamily="{StaticResource VazirFont}" FontSize="13"/>
-                                            </Grid>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Button Content="مشاهده همه چک‌ها ←" Style="{StaticResource IconButton}"
-                                Foreground="{DynamicResource PrimaryAccent}" HorizontalAlignment="Center"
-                                Command="{Binding NavigateToCommand}" CommandParameter="Cheques" Margin="0,8,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-        </StackPanel>
-    </ScrollViewer>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
 </UserControl>

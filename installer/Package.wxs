@@ -2,7 +2,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <Package Name="سما حساب - Sama Hesab"
-           Manufacturer="Sama Software"
+           Manufacturer="Samaa Rayaneh Kish"
            Version="1.0.0.0"
            UpgradeCode="B6E2F1A4-3C7D-4E9A-9F21-1A2B3C4D5E6F"
            Scope="perMachine"

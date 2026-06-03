@@ -1,0 +1,60 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Inventory.StockAdjustView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
+                        <materialDesign:PackIcon Kind="SwapHorizontal" Width="22" Height="22"
+                                                 Foreground="{DynamicResource PrimaryAccent}"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="تعدیل موجودی" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+                <Button DockPanel.Dock="Left" Style="{StaticResource ToolbarButton}" Command="{Binding SaveCommand}">
+                    <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="ذخیره تعدیل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                </Button>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="4" Width="260">
+                    <TextBlock Text="انبار" Style="{StaticResource FieldCaption}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding Warehouses}"
+                              DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedWarehouseId}"/>
+                </StackPanel>
+                <TextBlock Text="مقدار جدید را در ستون «موجودی جدید» ویرایش و سپس «ذخیره تعدیل» را بزنید."
+                           VerticalAlignment="Bottom" Margin="12,0,0,10" FontSize="11"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Rows}" AutoGenerateColumns="False"
+                                 RowIndicatorVisibility="Collapsed" ShowGroupPanel="True"
+                                 CanUserInsertRows="False" CanUserDeleteRows="False"
+                                 FontFamily="{StaticResource VazirFont}">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding ProductCode}" Width="100" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="نام کالا" DataMemberBinding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="موجودی فعلی" DataMemberBinding="{Binding CurrentQty}" DataFormatString="{}{0:#,##0}" Width="130" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="موجودی جدید" DataMemberBinding="{Binding NewQty}" Width="130"/>
+                    <telerik:GridViewDataColumn Header="توضیحات" DataMemberBinding="{Binding Notes}" Width="2*"/>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </Border>
+    </Grid>
+</UserControl>

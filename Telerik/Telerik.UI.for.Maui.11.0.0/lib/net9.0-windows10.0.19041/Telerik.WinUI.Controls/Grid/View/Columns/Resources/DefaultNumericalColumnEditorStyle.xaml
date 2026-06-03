@@ -1,0 +1,14 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerikInput="using:Telerik.UI.Xaml.Controls.Input">
+
+    <Style x:Key="DefaultColumnEditorStyle" TargetType="telerikInput:RadNumericBox">
+        <Setter Property="Margin" Value="2 0"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="Minimum" Value="-2147483648"/>
+        <Setter Property="Maximum" Value="2147483647"/>
+    </Style>
+</ResourceDictionary>

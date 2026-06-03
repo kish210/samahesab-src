@@ -13,6 +13,7 @@ public partial class CustomerEditViewModel : BaseViewModel
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<Customer> _customerRepo;
 
     [ObservableProperty] private string _code = string.Empty;
     [ObservableProperty] private string _customerType = "حقیقی";
@@ -47,9 +48,10 @@ public partial class CustomerEditViewModel : BaseViewModel
     public List<CustomerGroupItem> Groups { get; private set; } = new();
 
     public CustomerEditViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IUnitOfWork unitOfWork, IDialogService dialogService, INavigationService navigationService)
+        IUnitOfWork unitOfWork, IRepository<Customer> customerRepo,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _currentUser = currentUser; _calendar = calendar; _unitOfWork = unitOfWork; }
+    { _currentUser = currentUser; _calendar = calendar; _unitOfWork = unitOfWork; _customerRepo = customerRepo; }
 
     public override async Task LoadAsync()
     {
@@ -65,10 +67,32 @@ public partial class CustomerEditViewModel : BaseViewModel
     private async Task SaveAsync()
     {
         if (string.IsNullOrWhiteSpace(Code)) { await _dialogService.ShowErrorAsync("کد مشتری الزامی است."); return; }
+        if (IsPersonal && string.IsNullOrWhiteSpace(FirstName) && string.IsNullOrWhiteSpace(LastName))
+        { await _dialogService.ShowErrorAsync("نام و نام خانوادگی الزامی است."); return; }
+        if (IsCompany && string.IsNullOrWhiteSpace(CompanyName))
+        { await _dialogService.ShowErrorAsync("نام شرکت الزامی است."); return; }
+
         await ExecuteAsync(async () =>
         {
-            await _dialogService.ShowSuccessAsync("مشتری با موفقیت ذخیره شد.");
-            _navigationService.NavigateTo("Customers");
+            try
+            {
+                var companyId = _currentUser.CompanyId ?? 1;
+                var entity = Customer.Create(companyId, Code, CustomerType, FirstName, LastName, CompanyName);
+                entity.UpdateContactInfo(Phone, Mobile, Email, Province, City, Address, PostalCode);
+                entity.UpdateCreditTerms(CreditLimit, CreditDays, PriceLevel, Discount);
+                entity.SetDetails(NationalCode, EconomicCode, GroupId, Notes);
+                if (!string.IsNullOrWhiteSpace(BirthDate)) entity.SetBirthDate(BirthDate!);
+
+                await _customerRepo.AddAsync(entity);
+                await _unitOfWork.SaveChangesAsync();
+
+                await _dialogService.ShowSuccessAsync("مشتری با موفقیت ذخیره شد.");
+                _navigationService.NavigateTo("Customers");
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorAsync("خطا در ذخیره مشتری: " + ex.Message);
+            }
         }, "در حال ذخیره...");
     }
 

@@ -114,9 +114,14 @@
                         Click="ConnectionSettings_Click"/>
 
                 <!-- Footer -->
-                <TextBlock Text="نسخه ۱.۰.۰ | سما نرم‌افزار © ۱۴۰۳"
-                           Foreground="#475569" FontFamily="{StaticResource VazirFont}"
-                           FontSize="11" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                <StackPanel HorizontalAlignment="Center" Margin="0,12,0,0">
+                    <TextBlock Text="نسخه ۱.۰.۰ | سماع رایانه کیش © ۱۴۰۴"
+                               Foreground="#475569" FontFamily="{StaticResource VazirFont}"
+                               FontSize="11" HorizontalAlignment="Center"/>
+                    <TextBlock Text="kishwifi.com" Foreground="#60A5FA"
+                               FontFamily="{StaticResource VazirFont}" FontSize="11"
+                               HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
             </StackPanel>
 
             <!-- Close Button -->

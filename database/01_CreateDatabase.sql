@@ -48,12 +48,20 @@ GO
 -- SCHEMAS
 -- =============================================================================
 CREATE SCHEMA Acc;   -- Accounting
+GO
 CREATE SCHEMA Inv;   -- Inventory
+GO
 CREATE SCHEMA Sal;   -- Sales
+GO
 CREATE SCHEMA Pur;   -- Purchase
+GO
 CREATE SCHEMA Pos;   -- Point of Sale
+GO
 CREATE SCHEMA Crm;   -- CRM
+GO
 CREATE SCHEMA Hrm;   -- HRM
+GO
 CREATE SCHEMA Cfg;   -- Configuration/Settings
+GO
 CREATE SCHEMA Sec;   -- Security
 GO

@@ -177,8 +177,8 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#1E3A5F"/>
-                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="#DBEAFE"/>
+                <Setter Property="Foreground" Value="#1E293B"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -222,6 +222,53 @@
         <Setter Property="FontWeight"  Value="Bold"/>
     </Style>
 
+    <!-- ─── Toolbar / form styles ──────────────────────────────────────────── -->
+    <Style x:Key="ToolbarButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Height" Value="54"/>
+        <Setter Property="Width" Value="64"/>
+        <Setter Property="Margin" Value="1,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="#EFF4FF"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FormSectionCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="14"/>
+        <Setter Property="Margin" Value="8,4"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style x:Key="FieldCaption" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+        <Setter Property="Margin" Value="2,0,2,4"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+
     <!-- ─── Card ───────────────────────────────────────────────────────────── -->
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource CardBackground}"/>
@@ -229,7 +276,7 @@
         <Setter Property="Padding"         Value="20"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+                <DropShadowEffect Color="#94A3B8" Opacity="0.25" BlurRadius="10" ShadowDepth="1" Direction="270"/>
             </Setter.Value>
         </Setter>
     </Style>

@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Telerik.UI.for.Maui</id>
+    <version>11.0.0</version>
+    <title>Progress Telerik UI for .NET Maui.</title>
+    <authors>Progress</authors>
+    <owners>Progress</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">LicenseAgreements\EULA.txt</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>Images/maui.png</icon>
+    <iconUrl>http://www.telerik.com/docs/default-source/nuget-feed-product-files/nugeticon_maui.png?sfvrsn=2</iconUrl>
+    <description>Telerik UI For .NET Maui.</description>
+    <language>en-US</language>
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net9.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net8.0-android34.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net9.0-android34.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net8.0-ios17.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net9.0-ios17.2">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net8.0-maccatalyst17.0">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net9.0-maccatalyst17.2">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net8.0-windows10.0.19041">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+      <group targetFramework="net9.0-windows10.0.19041">
+        <dependency id="Telerik.Licensing" version="[1.6.5, 2.0.0)" />
+        <dependency id="SkiaSharp.Views.Maui.Controls" version="3.116.1" exclude="Build,Analyzers" />
+        <dependency id="Telerik.Documents.Fixed" version="2025.2.520" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

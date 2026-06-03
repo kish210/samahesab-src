@@ -18,7 +18,7 @@ public class VoucherConfiguration : IEntityTypeConfiguration<Voucher>
         builder.Property(v => v.TotalDebit).HasColumnType("decimal(18,2)");
         builder.Property(v => v.TotalCredit).HasColumnType("decimal(18,2)");
         builder.Property(v => v.ExchangeRate).HasColumnType("decimal(18,4)").HasDefaultValue(1m);
-        builder.Property(v => v.Status).HasConversion<int>().HasDefaultValue(VoucherStatus.Draft);
+        builder.Property(v => v.Status).HasConversion<byte>().HasDefaultValue(VoucherStatus.Draft);
         builder.Property(v => v.CreatedAt).HasDefaultValueSql("GETDATE()");
 
         builder.HasMany(v => v.Items)
@@ -57,8 +57,10 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Code).IsRequired().HasMaxLength(20);
         builder.Property(a => a.Name).IsRequired().HasMaxLength(200);
         builder.Property(a => a.Description).HasMaxLength(500);
-        builder.Property(a => a.Nature).HasConversion<string>().HasMaxLength(10);
-        builder.Property(a => a.Level).HasConversion<int>();
+        builder.Property(a => a.Nature)
+               .HasConversion(new SamaHesab.Infrastructure.Data.AccountNatureToPersianConverter())
+               .HasMaxLength(10);
+        builder.Property(a => a.Level).HasConversion<byte>();
         builder.Property(a => a.AccountType).HasMaxLength(50);
         builder.Property(a => a.CreatedAt).HasDefaultValueSql("GETDATE()");
 

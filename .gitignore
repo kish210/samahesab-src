@@ -108,3 +108,7 @@ build/*.wixpdb
 # Keep the distributable artifacts (installer + portable zip):
 !build/SamaHesab_Setup.msi
 !build/SamaHesab-Portable.zip
+build/_smoke/
+
+# Telerik license key (do not commit)
+telerik-license.txt

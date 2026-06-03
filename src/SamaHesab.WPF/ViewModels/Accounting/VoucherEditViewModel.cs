@@ -204,6 +204,14 @@ public partial class VoucherItemRow : ObservableObject
     [ObservableProperty] private string? _description;
     [ObservableProperty] private decimal _debit;
     [ObservableProperty] private decimal _credit;
+
+    // Iranian chart segments derived from the account code (e.g. 1-03-001)
+    public string Kol => (AccountCode ?? "").Split('-').ElementAtOrDefault(0) ?? "";
+    public string Moein
+    {
+        get { var p = (AccountCode ?? "").Split('-'); return p.Length >= 2 ? $"{p[0]}-{p[1]}" : (AccountCode ?? ""); }
+    }
+    public string Tafsili => AccountCode ?? "";
 }
 
 public record VoucherTypeItem(int Id, string Name);

@@ -1,0 +1,103 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource HighContrastResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="TelerikScheduler_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_Background" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_BorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_NavigationHeaderBackground" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigationIntervalForeground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigationCalendarDatePicker_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigationCalendarDatePicker_AcccentForeground" Color="{ThemeResource SystemAccentColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_HighlightBackground" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_DragDropHighlightForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_DragDropHighlightBackground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_DragDropHighlightBorderBrush" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_ResizeHighlightForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_ResizeHighlightBackground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_ResizeHighlightBorderBrush" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_MouseOverHighlightBackground" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_SelectionHighlightBackground" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_ForegroundPressed" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_BorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_TodayForeground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_TodayBackground" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_TodayBorderBrush" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_Background_PointerOver" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeaderButton_Background_Pressed" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeader_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GroupHeader_BorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Foreground_Pressed" Color="{ThemeResource SystemColorWindowTextColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Foreground_Disabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Background" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Background_PointerOver" Color="{ThemeResource SubtleFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Background_Pressed" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_Background_Disabled" Color="{ThemeResource SystemColorButtonFaceColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_BorderBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_BorderBrushPointerOver" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_BorderBrush_Pressed" Color="{ThemeResource SystemColorButtonTextColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_NavigateToAppointmentButton_BorderBrush_Disabled" Color="{ThemeResource SystemColorButtonTextColor}" />
+
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_Background" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_Background_PointerOver" Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.9" />
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_Background_Selected" Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.8"/>
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_Background_ReadOnly" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikScheduler_AppointmentItem_DeleteButton_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_TimeRulerItem_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_TimeRulerItem_AccentForeground" Color="{ThemeResource SystemAccentColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_MonthView_GroupItem_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikScheduler_MonthView_GroupItem_Background" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikScheduler_MonthView_Item_TodayBorderBrush" Color="{ThemeResource SystemAccentColor}"/>
+
+    <SolidColorBrush x:Key="TelerikSchedulerDialog_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikSchedulerDialog_HeaderForeground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+    <SolidColorBrush x:Key="TelerikSchedulerDialog_HeaderBackground" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikSchedulerDialog_FooterBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+    <SolidColorBrush x:Key="TelerikSchedulerDialog_FooterBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_CurrentTimeIndicator_Background" Color="{ThemeResource SystemAccentColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_ExtendedArrow_Foreground" Color="{ThemeResource SystemColorWindowTextColor}"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_GoToDayButton_Background" Color="Transparent" />
+    <SolidColorBrush x:Key="TelerikScheduler_GoToDayButton_Background_PointerOver" Color="{ThemeResource SystemColorButtonFaceColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_GoToDayButton_Background_Pressed" Color="{ThemeResource SystemColorButtonFaceColor}" />
+
+    <!-- Drag Visual -->
+    <SolidColorBrush x:Key="TelerikScheduler_DragVisual_Foreground" Color="{ThemeResource SystemColorWindowTextColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_DragVisual_Border" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="TelerikScheduler_DragVisual_Background" Color="{ThemeResource SystemAccentColor}" />
+
+    <SolidColorBrush x:Key="TelerikScheduler_RedCategoryBrush" Color="#D90000"/>
+    <SolidColorBrush x:Key="TelerikScheduler_GreenCategoryBrush" Color="#00A81C"/>
+    <SolidColorBrush x:Key="TelerikScheduler_BlueCategoryBrush" Color="#0078D4"/>
+    <SolidColorBrush x:Key="TelerikScheduler_PurpleCategoryBrush" Color="#721BB4"/>
+    <SolidColorBrush x:Key="TelerikScheduler_YellowCategoryBrush" Color="#EECE00"/>
+    <SolidColorBrush x:Key="TelerikScheduler_OliveCategoryBrush" Color="#6B985D"/>
+
+    <SolidColorBrush x:Key="TelerikScheduler_FreeTimeMarkerBrush" Color="#00A81C"/>
+    <ImageBrush x:Key="TelerikScheduler_TentativeTimeMarkerBrush" ImageSource="ms-appx:///Telerik.WinUI.Controls/Scheduler/Icons/tentative_brush.png" Stretch="None" />
+    <SolidColorBrush x:Key="TelerikScheduler_BusyTimeMarkerBrush" Color="#499DDD"/>
+    <SolidColorBrush x:Key="TelerikScheduler_OutOfOfficeTimeMarkerBrush" Color="#721BB4"/>
+</ResourceDictionary>

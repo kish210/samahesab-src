@@ -87,7 +87,7 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(ex.Message);
+            return Result<int>.Failure(ex.GetBaseException().Message);
         }
     }
 }

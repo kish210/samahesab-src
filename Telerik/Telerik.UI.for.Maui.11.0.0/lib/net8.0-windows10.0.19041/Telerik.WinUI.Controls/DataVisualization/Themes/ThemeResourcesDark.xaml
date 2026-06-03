@@ -1,0 +1,126 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls"
+    xmlns:dataVisualization="using:Telerik.UI.Xaml.Controls.DataVisualization">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/ThemeColorsDark.xaml"/>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource DarkResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Color x:Key="TelerikDataVisualizationColor1">#FF989898</Color>
+    <Color x:Key="TelerikDataVisualizationColor2">#FF404040</Color>
+    <Color x:Key="TelerikDataVisualizationColor3">#FF98ECFE</Color>
+    <Color x:Key="TelerikDataVisualizationColor4">#FF60CCFE</Color>
+    <Color x:Key="TelerikDataVisualizationColor5">#FF00CC6A</Color>
+    <Color x:Key="TelerikDataVisualizationColor6">#FFFF99A4</Color>
+    <Color x:Key="TelerikDataVisualizationColor7">#FF0093F9</Color>
+    <Color x:Key="TelerikDataVisualizationColor8">#FF00B7C3</Color>
+    <Color x:Key="TelerikDataVisualizationColor9">#FFFFB900</Color>
+    <Color x:Key="TelerikDataVisualizationColor10">#FFC239B3</Color>
+    <Color x:Key="TelerikDataVisualizationColor11">#FF0078D4</Color>
+    <Color x:Key="TelerikDataVisualizationColor12">#FFEA005E</Color>
+    <Color x:Key="TelerikDataVisualizationColor13">#FF6B69D6</Color>
+
+    <!--#region Gauges-->
+    <!--Default styles resources-->
+    <SolidColorBrush x:Key="TelerikGauge_RangeForegroundBrush" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikGauge_TickBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <!--Demos resources-->
+    <SolidColorBrush x:Key="TelerikGauge_RangeBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <SolidColorBrush x:Key="TelerikGauge_MainIndicatorBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <SolidColorBrush x:Key="TelerikGauge_SecondaryIndicatorBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor7}"/>
+    <SolidColorBrush x:Key="TelerikGauge_ThirdIndicatorBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor6}"/>
+    <SolidColorBrush x:Key="TelerikGauge_GoodBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor5}"/>
+    <SolidColorBrush x:Key="TelerikGauge_BadBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor6}"/>
+    <SolidColorBrush x:Key="TelerikGauge_IndicatorBrush" Color="{ThemeResource TelerikDataVisualizationColor5}"/>
+    <SolidColorBrush x:Key="TelerikGauge_MarkerBrush" Color="{ThemeResource TelerikDataVisualizationColor11}"/>
+    <!--#endregion-->
+
+    <!--#region BulletGraph-->
+    <!--Default styles resources-->
+    <SolidColorBrush x:Key="TelerikBulletGraph_FeaturedMeasureBackgroundBrush" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <SolidColorBrush x:Key="TelerikBulletGraph_TickBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <SolidColorBrush x:Key="TelerikBulletGraph_ComparitiveMeasureBackgroundBrush" Color="{ThemeResource ControlSolidFillColorDefault}"/>
+    <!--Demos resources-->
+    <SolidColorBrush x:Key="TelerikBulletGraph_LabelBrush" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikBulletGraph_GoodQualitativeRangeBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor7}"/>
+    <SolidColorBrush x:Key="TelerikBulletGraph_SatisfactoryQualitativeRangeBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor4}"/>
+    <SolidColorBrush x:Key="TelerikBulletGraph_BadQualitativeRangeBackgroundBrush" Color="{ThemeResource TelerikDataVisualizationColor11}"/>
+    <!--#endregion-->
+
+    <!--#region Sparklines-->
+    <SolidColorBrush x:Key="TelerikSparkline_Stroke" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_AxisStroke" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_MarkersBrush" Color="{ThemeResource TelerikDataVisualizationColor7}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_NormalRangeFill" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_PositiveAreaFill" Color="{ThemeResource TelerikDataVisualizationColor3}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_NegativeAreaFill" Color="{ThemeResource TelerikDataVisualizationColor3}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_NegativeAreaStroke" Color="{ThemeResource TelerikDataVisualizationColor6}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_FirstLastPointBrush" Color="{ThemeResource TelerikDataVisualizationColor4}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_HighLowPointBrush" Color="{ThemeResource TelerikDataVisualizationColor5}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_NegativePointBrush" Color="{ThemeResource TelerikDataVisualizationColor6}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_Fill_Column" Color="{ThemeResource TelerikDataVisualizationColor1}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_FirstLastPointBrush_Column" Color="{ThemeResource TelerikDataVisualizationColor4}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_HighLowPointBrush_Column" Color="{ThemeResource TelerikDataVisualizationColor5}"/>
+    <SolidColorBrush x:Key="TelerikSparkline_NegativePointBrush_Column" Color="{ThemeResource TelerikDataVisualizationColor2}"/>
+    <!--#endregion-->
+
+    <!--#region Databars-->
+    <dataVisualization:BrushCollection x:Key="TelerikDataBar_StackedBrushes">
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor11}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor12}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor7}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor9}"/>
+    </dataVisualization:BrushCollection>
+    <dataVisualization:BrushCollection x:Key="TelerikDataBar_StackedBorderBrushes">
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor11}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor12}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor7}"/>
+        <SolidColorBrush Color="{ThemeResource TelerikDataVisualizationColor9}"/>
+    </dataVisualization:BrushCollection>
+    <SolidColorBrush x:Key="TelerikDataBar_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikDataBar_AxisStroke" Color="{ThemeResource FocusStrokeColorOuter}"/>
+    <SolidColorBrush x:Key="TelerikDataBar_ValueBrush" Color="{ThemeResource TelerikDataVisualizationColor11}"/>
+    <SolidColorBrush x:Key="TelerikDataBar_NegativeValueBrush" Color="{ThemeResource TelerikDataVisualizationColor6}"/>
+    <!--#endregion-->
+
+    <!--#region Map-->
+    <SolidColorBrush x:Key="TelerikMap_Background" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_SeparatorBorderBrush" Color="{ThemeResource ControlStrokeColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMap_NavigationBarBackground" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_NavigationButton_Foreground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMap_NavigationButton_Foreground_PointerOver" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_NavigationButton_Foreground_Accent" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikMap_Scale_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Scale_Background" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikMap_NoIndicatorDropDownButton_Foreground" Color="{ThemeResource TextFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMap_NoIndicatorDropDownButton_Foreground_PointerOver" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_NoIndicatorDropDownButton_Foreground_Pressed" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_MouseLocationIndicator_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_MouseLocationIndicator_Background" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_Background" Color="{ThemeResource SubtleFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_BackgroundCollapsed" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_BorderBrush" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_BorderBrushCollapsed" Color="Transparent"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_Foreground" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_ForegroundChecked" Color="{ThemeResource TextFillColorPrimary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_UnderlayBackground" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_Background" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_BackgroundPointerOver" Color="{ThemeResource ControlFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_BackgroundPressed" Color="{ThemeResource ControlFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_BackgroundChecked" Color="{ThemeResource ControlFillColorDefault}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_BackgroundCheckedPointerOver" Color="{ThemeResource ControlFillColorSecondary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Expander_HeaderButton_BackgroundCheckedPressed" Color="{ThemeResource ControlFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikMap_MiniMap_ViewportArea_Stroke" Color="{ThemeResource SystemAccentColor}"/>
+    <SolidColorBrush x:Key="TelerikMap_MiniMap_ViewportArea_Fill" Color="{ThemeResource ControlFillColorTertiary}"/>
+    <SolidColorBrush x:Key="TelerikMap_Pushpin_Background" Color="#FFF7630C"/>
+    <!--#endregion-->
+</ResourceDictionary>
+

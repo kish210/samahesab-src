@@ -1,0 +1,41 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="using:Telerik.UI.Xaml.Controls">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ms-appx:///Telerik.WinUI.Controls/Primitives/Themes/ThemeColorsDark.xaml"/>
+        <ResourceDictionary>
+            <telerik:UserThemeResources x:Key="ResourceLoaderInitializer"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{CustomResource DarkResourcesPath}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Axis -->
+    <SolidColorBrush x:Key="TelerikChart_AxisBorderBrush" Color="#59FFFFFF" />
+    <SolidColorBrush x:Key="TelerikChart_AxisLabelsForeground" Color="{StaticResource TelerikDisabledColor}"/>
+    <SolidColorBrush x:Key="TelerikChart_AxisTitleForeground" Color="{StaticResource TelerikSecondaryForegroundColor}"/>
+
+    <!-- Grid -->
+    <SolidColorBrush x:Key="TelerikChart_GridLineBorderBrush" Color="#1EFFFFFF" />
+    <SolidColorBrush x:Key="TelerikChart_StripeBackground" Color="#11CACACA" />
+
+    <!-- Annotations -->
+    <SolidColorBrush x:Key="TelerikChart_GridLineAnnotationBorderBrush" Color="#CCFFFFFF" />
+    <SolidColorBrush x:Key="TelerikChart_PlotBandAnnotationBackground" Color="#4C000000" />
+    <SolidColorBrush x:Key="TelerikChart_MarkedZoneAnnotationBackground" Color="#4C000000" />
+
+    <!-- TrackBall -->
+    <SolidColorBrush x:Key="TelerikChart_TrackBallInfoForeground" Color="#FF1D1D1D" />
+    <SolidColorBrush x:Key="TelerikChart_TrackBallInfoBackground" Color="#DEFFFFFF" />
+    <SolidColorBrush x:Key="TelerikChart_TrackBallInfoBorderBrush" Color="#DEFFFFFF" />
+    <SolidColorBrush x:Key="TelerikChart_TrackBallLineBorderBrush" Color="#DEFFFFFF" />
+
+    <SolidColorBrush x:Key="TelerikChart_ToolTipForeground" Color="{StaticResource TelerikBlackColor}"/>
+    <SolidColorBrush x:Key="TelerikChart_ToolTipBackground" Color="{StaticResource TelerikWhiteColor}"/>
+
+    <SolidColorBrush x:Key="TelerikChart_PolarChartGridStripeBrush" Color="#66FFFFFF" Opacity="0.15"/>
+</ResourceDictionary>
+

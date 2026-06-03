@@ -23,7 +23,10 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString, sqlOptions =>
             {
-                sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
+                // NOTE: do NOT enable a retrying execution strategy here — it is
+                // incompatible with the user-initiated transactions used in the
+                // command handlers (sales/purchase) and causes them to throw.
+                sqlOptions.CommandTimeout(15);
             }));
 
         // Repositories

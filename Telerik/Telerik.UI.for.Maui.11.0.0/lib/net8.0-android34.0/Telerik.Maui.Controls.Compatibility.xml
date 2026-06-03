@@ -1,0 +1,2128 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Telerik.Maui.Controls.Compatibility</name>
+    </assembly>
+    <members>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartAnnotation">
+            <summary>
+            Base class for all cartesian chart annotations.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.AxisProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.Axis"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.ValueProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.Value"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.Axis">
+            <summary>
+            Gets or sets the Axis.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianGridLineAnnotation.Value">
+            <summary>
+            Gets or sets the Value.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.AxisProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.Axis"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.FillProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.Fill"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.FromProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.From"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.ToProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.To"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.Axis">
+            <summary>
+            Gets or sets the Axis.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.Fill">
+            <summary>
+            Gets or sets the Fill.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.From">
+            <summary>
+            Gets or sets the From.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.To">
+            <summary>
+            Gets or sets the To.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.CartesianPlotBandAnnotation.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.DashArrayProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.DashArray"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.StrokeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.Stroke"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.StrokeThicknessProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.StrokeThickness"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.DashArray">
+            <summary>
+            Gets or sets the DashArray.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.Stroke">
+            <summary>
+            Gets or sets the Stroke.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.StrokeThickness">
+            <summary>
+            Gets or sets the StrokeThickness.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.CartesianStrokedAnnotation.IsDefaultValue(System.String)">
+            <summary>
+            Tells whether the property with the specified name has a default (invalid) value that should be
+            disregarded while updating the native components.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartAnnotationLabelDefinition.Format">
+            <summary>
+            Gets or sets a format string for the annotation text.
+            </summary>
+            <value>The format.</value>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartAnnotationLabelDefinition.HorizontalAlignment">
+            <summary>
+            Gets or sets the annotation horizontal alignment.
+            </summary>
+            <value>The horizontal alignment.</value>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartAnnotationLabelDefinition.HorizontalOffset">
+            <summary>
+            Gets or sets the annotation horizontal offset.
+            </summary>
+            <value>The horizontal offset.</value>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartAnnotationLabelDefinition.VerticalAlignment">
+            <summary>
+            Gets or sets the annotation vertical alignment.
+            </summary>
+            <value>The vertical alignment.</value>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartAnnotationLabelDefinition.VerticalOffset">
+            <summary>
+            Gets or sets the annotation vertical offset.
+            </summary>
+            <value>The vertical offset.</value>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.ZoomModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.ZoomMode"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.PanModeProperty">
+            <summary>
+            Identifies the <see cref="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.PanModeProperty"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.HandleDoubleTapProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.HandleDoubleTap"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.ZoomMode">
+            <summary>
+            Gets or sets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode"/> value that specifies how the chart will respond to a zoom gesture.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.PanMode">
+            <summary>
+            Gets or sets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode"/> value that specifies how the chart will respond to a pan gesture.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPanAndZoomBehavior.HandleDoubleTap">
+            <summary>
+            Gets or sets a value indicating whether a Double-tap gesture will be handled by the behavior to reset the current Zoom and PanOffset values.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode">
+            <summary>
+            Defines how a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase"/> instance will handle a zoom or a pan gesture.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode.None">
+            <summary>
+            A zoom/pan gesture is not handled.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode.Horizontal">
+            <summary>
+            The chart is zoomed/panned horizontally (along the X-axis).
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode.Vertical">
+            <summary>
+            The chart is zoomed/panned vertically (along the Y-axis).
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartPanZoomMode.Both">
+            <summary>
+            Both Horizontal and Vertical flags are valid.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SeriesSelectionModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SeriesSelectionMode"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.DataPointSelectionModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.DataPointSelectionMode"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.CommandProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.Command"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.CommandParameterProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.CommandParameter"/> property.
+            </summary>
+        </member>
+        <member name="E:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SelectionChanged">
+            <summary>
+            Occurs when the IsSelected property of a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries"/> and/or <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.DataPoint"/> instance changes.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SeriesSelectionMode">
+            <summary>
+            Gets or sets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode"/> that controls the selection behavior of the chart series.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.DataPointSelectionMode">
+            <summary>
+            Gets or sets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode"/> that controls the selection behavior of the data points within the chart series.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.Command">
+            <summary>
+            Gets or sets the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.Command"/> that is invoked when selection changes.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.CommandParameter">
+            <summary>
+            Gets or sets the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.CommandParameter"/> that is passed to the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.Command"/> property. The ChartSelectionBehavior instance is the default parameter.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SelectedPoints">
+            <summary>
+            Gets all the points from all series within the chart plot area that are currently selected.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SelectedSeries">
+            <summary>
+            Gets all the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries"/> instances within the plot area that are currently selected.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.ClearSelection(System.Boolean,System.Boolean)">
+            <summary>
+            Removes the current selection within the chart.
+            </summary>
+            <param name="dataPoints">True to clear the selected state of each data point, false otherwise.</param>
+            <param name="chartSeries">True to clear the selected state of each chart series, false otherwise.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.OnSelectionChanged">
+            <summary>
+            Raises the <see cref="E:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior.SelectionChanged"/> event.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode">
+            <summary>
+            Specifies the possible modes used by a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionBehavior"/> to update the current selection within a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase"/> instance.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode.None">
+            <summary>
+            No selection is performed.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode.Single">
+            <summary>
+            One DataPoint/ChartSeries may be selected at a time.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSelectionMode.Multiple">
+            <summary>
+            Multiple DataPoint/ChartSeries may be selected at a time.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ClearSelectionRequestEventArgs.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ClearSelectionRequestEventArgs"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ClearSelectionRequestEventArgs.ClearDataPoints">
+            <summary>
+            Gets or sets a value indicating whether the selected data points should be cleared.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ClearSelectionRequestEventArgs.ClearSeries">
+            <summary>
+            Gets or sets a value indicating whether the selected series should be cleared.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ChartTooltipBehavior">
+            <summary>
+            Defines the tooltip behavior for RadChart.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartTooltipBehavior.TriggerModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTooltipBehavior.TriggerMode"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTooltipBehavior.TriggerMode">
+            <summary>
+            Gets or sets the tool tip trigger mode.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ToolTipTriggerMode">
+            <summary>
+            Determines the gestures on which the ChartToolTipBehavior should
+            show a tool tip.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ToolTipTriggerMode.Tap">
+            <summary>
+            The tool tip will be shown on the tap gesture.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ToolTipTriggerMode.Hold">
+            <summary>
+            The tool tip will be shown on the hold gesture.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowTrackInfoProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowTrackInfo"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowIntersectionPointsProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowIntersectionPoints"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowTrackInfo">
+            <summary>
+            Gets or sets a value indicating whether a visual information for all the closest data points will be displayed.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior.ShowIntersectionPoints">
+            <summary>
+            Gets or sets a value indicating whether a visual information for all the closest data points will be displayed.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.TrackBallSnapMode">
+            <summary>
+            Defines how a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartTrackBallBehavior"/> or a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartTooltipBehavior"/> instance should snap to the closest to a physical location data points.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TrackBallSnapMode.None">
+            <summary>
+            The trackball will not be snapped to any of the closests data points.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TrackBallSnapMode.ClosestPoint">
+            <summary>
+            The behavior will snap to the closest data point, regardless of the chart series that own it.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TrackBallSnapMode.AllClosePoints">
+            <summary>
+            The behavior will snap to the closest data points from all chart series.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianAxis.LocationProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianAxis.Location"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianAxis.Location">
+            <summary>
+            Gets or sets the axis location - left or right for vertical axis, top or bottom for horizontal axis.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.CartesianAxis.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.GapLengthProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.GapLength"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.MajorTickIntervalProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.MajorTickInterval"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.PlotModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.PlotMode"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.GapLength">
+            <summary>
+            Gets or sets the GapLength. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.MajorTickInterval">
+            <summary>
+            Gets or sets the MajorTickInterval. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalAxis.PlotMode">
+            <summary>
+            Gets or sets the PlotMode. 
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.GapLengthProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.GapLength"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStepProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStep"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStepUnitProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStepUnit"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MaximumProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.Maximum"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MinimumProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.Minimum"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.PlotModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.PlotMode"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.GapLength">
+            <summary>
+            Gets or sets the GapLength. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStep">
+            <summary>
+            Gets or sets the MajorStep. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.MajorStepUnit">
+            <summary>
+            Gets or sets the MajorStepUnit. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.Maximum">
+            <summary>
+            Gets or sets the Maximum. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.Minimum">
+            <summary>
+            Gets or sets the Minimum. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.DateTimeContinuousAxis.PlotMode">
+            <summary>
+            Gets or sets the PlotMode. 
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.MajorStepProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.MajorStep"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.MaximumProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.Maximum"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.MinimumProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.Minimum"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.RangeExtendDirectionProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.RangeExtendDirection"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.MajorStep">
+            <summary>
+            Gets or sets the MajorStep. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.Maximum">
+            <summary>
+            Gets or sets the Maximum. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.Minimum">
+            <summary>
+            Gets or sets the Minimum. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxis.RangeExtendDirection">
+            <summary>
+            Gets or sets the RangeExtendDirection. 
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid">
+            <summary>
+            Represents a decoration over a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart"/> plot area. Adds major lines, connected to each Major tick of each axis.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorXLineDashArrayProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorXLineDashArray"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorYLineDashArrayProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorYLineDashArray"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLinesVisibilityProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLinesVisibility"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.StripLinesVisibilityProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.StripLinesVisibility"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeAlternativeColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeAlternativeColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeAlternativeColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeAlternativeColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineThicknessProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineThickness"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorXLineDashArray">
+            <summary>
+            Gets or sets the MajorXLineDashArray. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorYLineDashArray">
+            <summary>
+            Gets or sets the MajorYLineDashArray. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLinesVisibility">
+            <summary>
+            Gets or sets the MajorLinesVisibility. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.StripLinesVisibility">
+            <summary>
+            Gets or sets the StripLinesVisibility. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeColor">
+            <summary>
+            Gets or sets the XStripeColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.XStripeAlternativeColor">
+            <summary>
+            Gets or sets the XStripeAlternativeColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeColor">
+            <summary>
+            Gets or sets the YStripeColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.YStripeAlternativeColor">
+            <summary>
+            Gets or sets the YStripeAlternativeColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineColor">
+            <summary>
+            Gets or sets the MajorXLineColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.MajorLineThickness">
+            <summary>
+            Gets or sets the MajorXLineThickness. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid.IsDefaultValue(System.String)">
+            <summary>
+            Tells whether the property with the specified name has a default (invalid) value that should be
+            disregarded while updating the native components.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart">
+            <summary>
+            A chart that plots its data in a cartesian coordinate system.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.GridProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.Grid"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.HorizontalAxisProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.HorizontalAxis"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.VerticalAxisProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.VerticalAxis"/> property.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.Annotations">
+            <summary>
+            Gets the chart annotations collection.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.Series">
+            <summary>
+            Gets the series collection.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.Grid">
+            <summary>
+            Gets or sets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid"/> used to decorate the chart plot area with major grid and strip lines.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.HorizontalAxis">
+            <summary>
+            Gets or sets the visual <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.Axis"/> instance that will be used to plot points along the horizontal (X) axis.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart.VerticalAxis">
+            <summary>
+            Gets or sets the visual <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.Axis"/> instance that will be used to plot points along the vertical (Y) axis.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AreaSeries.FillProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.AreaSeries.Fill"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.AreaSeries.Fill">
+            <summary>
+            Gets or sets the Fill. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.AreaSeries.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.BarSeries.PaletteModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.BarSeries.PaletteMode"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.BarSeries.PaletteMode">
+            <summary>
+            Gets or sets the Series Palette Mode. 
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.ValueBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.ValueBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CategoryBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CategoryBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CombineModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CombineMode"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.StackGroupKeyProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.StackGroupKey"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.ValueBinding">
+            <summary>
+            Gets or sets the binding that will be used to fill the Value member of the contained data points.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CategoryBinding">
+            <summary>
+            Gets or sets the binding that will be used to fill the Category member of the contained data points.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.CombineMode">
+            <summary>
+            Gets or sets the CombineMode. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalSeries.StackGroupKey">
+            <summary>
+            Gets or sets the StackGroupKey. 
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.StrokeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.Stroke"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.StrokeThicknessProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.StrokeThickness"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.Stroke">
+            <summary>
+            Gets or sets the Stroke. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.StrokeThickness">
+            <summary>
+            Gets or sets the StrokeThickness. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.CategoricalStrokedSeries.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CategoryBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CategoryBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.HighBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.HighBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.LowBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.LowBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CloseBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CloseBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.OpenBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.OpenBinding"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.OpenBinding">
+            <summary>
+            Gets or Sets the binding that will be used for the "Open" value of each data point
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CloseBinding">
+            <summary>
+            Gets or Sets the binding that will be used for the "Close" value of each data point
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.LowBinding">
+            <summary>
+            Gets or Sets the binding that will be used for the "Low" value of each data point
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.HighBinding">
+            <summary>
+            Gets or Sets the binding that will be used for the "High" value of each data point
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.OhlcSeriesBase.CategoryBinding">
+            <summary>
+            Gets or sets the binding that will be used to fill the Category member of the contained data points.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ScatterAreaSeries.FillProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterAreaSeries.Fill"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterAreaSeries.Fill">
+            <summary>
+            Gets or sets the Fill. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ScatterAreaSeries.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.StrokeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.Stroke"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.StrokeThicknessProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.StrokeThickness"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.Stroke">
+            <summary>
+            Gets or sets the Stroke. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.StrokeThickness">
+            <summary>
+            Gets or sets the StrokeThickness. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ScatterLineSeries.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.XValueBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.XValueBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.YValueBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.YValueBinding"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.XValueBinding">
+            <summary>
+            Gets or sets the XValueBinding. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ScatterPointSeries.YValueBinding">
+            <summary>
+            Gets or sets the YValueBinding. 
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase">
+            <summary>
+            Base class for all charts.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.MaxZoomProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.MaxZoom"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PaletteNameProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PaletteName"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PaletteProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Palette"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PanOffsetProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PanOffset"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPaletteNameProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPaletteName"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPaletteProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPalette"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.ZoomProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Zoom"/> property.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.ChartBehaviors">
+            <summary>
+            Gets the behaviors collection.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.IsOperational">
+            <summary>
+            Gets a value indicating whether the renderer has finished creating the native chart elements.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.MaxZoom">
+            <summary>
+            Gets or sets the MaxZoom. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Palette">
+            <summary>
+            Gets or sets the Palette. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PaletteName">
+            <summary>
+            Gets or sets the PaletteName. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.PanOffset">
+            <summary>
+            Gets or sets the pan offset.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPalette">
+            <summary>
+            Gets or sets the SelectionPalette. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.SelectionPaletteName">
+            <summary>
+            Gets or sets the SelectionPalette. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Zoom">
+            <summary>
+            Gets or sets the zoom.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Telerik#Maui#Controls#Compatibility#Common#IParentElement#OnChildElementChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <summary>
+            Notifies the element that one of its children has been replaced.
+            </summary>
+            <param name="oldElement">Old child.</param>
+            <param name="newElement">New child.</param>
+            <param name="key">The key of the child.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.Telerik#Maui#Controls#Compatibility#Common#IParentElement#OnChildPropertyChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <summary>
+            Notifies the element when a child property change can't be handled by the child. 
+            </summary>
+            <param name="childElement">Child element.</param>
+            <param name="propertyName">Property name.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.Axis">
+            <summary>
+            Represents an axis within a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadCartesianChart"/> instance.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFitModeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFitMode"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFontSizeProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFontSize"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormatProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormat"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelTextColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelTextColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineDashArrayProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineDashArray"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickBackgroundColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickBackgroundColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickThicknessProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickThickness"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.ShowLabelsProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.ShowLabels"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormatterProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormatter"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFitMode">
+            <summary>
+            Gets or sets the LabelFitMode. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFontSize">
+            <summary>
+            Gets or sets the LabelFontSize. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormatter">
+            <summary>
+            Gets or sets the label formatter.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelFormat">
+            <summary>
+            Gets or sets the format to display label data. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LabelTextColor">
+            <summary>
+            Gets or sets the LabelTextColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineColor">
+            <summary>
+            Gets or sets the LineColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.LineDashArray">
+            <summary>
+            Gets or sets the LineStroke. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickBackgroundColor">
+            <summary>
+            Gets or sets the MajorTickBackgroudColor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.MajorTickThickness">
+            <summary>
+            Gets or sets the MajorTickThickness. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.Axis.ShowLabels">
+            <summary>
+            Gets or sets a value indicating whether labels will be displayed on this axis.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.Axis.IsDefaultValue(System.String)">
+            <summary>
+            Tells whether the property with the specified name has a default (invalid) value that should be
+            disregarded while updating the native components.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Key">
+            <inheritdoc/>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Telerik#Maui#Controls#Compatibility#Common#IChildElement#ParentElement">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Telerik#Maui#Controls#Compatibility#Common#IChildElement#AttachToParent(Telerik.Maui.Controls.Compatibility.Common.IParentElement,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Telerik#Maui#Controls#Compatibility#Common#IChildElement#DetatchFromParent">
+            <inheritdoc/>  
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Telerik#Maui#Controls#Compatibility#Common#IParentElement#OnChildPropertyChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.Telerik#Maui#Controls#Compatibility#Common#IParentElement#OnChildElementChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartElement.OnPropertyChanged(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.AllowSelectProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.AllowSelect"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.DisplayNameProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.DisplayName"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.IsSelectedProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.IsSelected"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ItemsSourceProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ItemsSource"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ShowLabelsProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ShowLabels"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormatProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormat"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormatterProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormatter"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormatter">
+            <summary>
+            Gets or sets the label formatter.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.AllowSelect">
+            <summary>
+            Gets or sets a value indicating whether the series could be selected.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.DisplayName">
+            <summary>
+            Gets or sets the DisplayName. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.IsSelected">
+            <summary>
+            Gets or sets a value indicating whether the series are selected.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ItemsSource">
+            <summary>
+            Gets or sets the source items to generate data points from.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.ShowLabels">
+            <summary>
+            Gets or sets a value indicating whether the series will display a label associated with each data point.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelBinding">
+            <summary>
+            Gets or sets the LabelBinding. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.LabelFormat">
+            <summary>
+            Gets or sets the label format. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.IsDefaultValue(System.String)">
+            <summary>
+            Tells whether the property with the specified name has a default (invalid) value that should be
+            disregarded while updating the native components.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.OnItemsSourceCollectionChanged(System.Object,System.Collections.Specialized.NotifyCollectionChangedEventArgs)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartSeries.OnItemsSourceChanged(System.Collections.IEnumerable,System.Collections.IEnumerable)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding">
+            <summary>
+            Represents an object that uses reflection to look-up the values for the generated data points.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.PropertyNameProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.PropertyName"/> property. 
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding"/> class.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding"/> class.
+            </summary>
+            <param name="propertyName">The name of the property which value is bound.</param>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.PropertyName">
+            <summary>
+            Gets or sets the name of the property which value is bound.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBinding.GetDataPointValue(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.AxisLabelFitMode">
+            <summary>
+            Determines the label fit mode of the chart axis labels.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLabelFitMode.None">
+            <summary>
+            Does not attempt to fit the axis labels.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLabelFitMode.MultiLine">
+            <summary>
+            Arranges axis labels on multiple lines with each label on a different line
+            than its neighbor labels.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLabelFitMode.Rotate">
+            <summary>
+            Arranges the axis labels so that they are rotated some degrees around their top left corner.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation">
+            <summary>
+            Defines the supported position for horizontally and vertically rendered axis.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation.Unset">
+            <summary>
+            The vertical axis should be located at the left side of the plot area. The horizontal axis should be located below the plot area.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation.Left">
+            <summary>
+            The vertical axis should be located at the left side of the plot area.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation.Right">
+            <summary>
+            The vertical axis should be located at the right side of the plot area.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation.Bottom">
+            <summary>
+            The horizontal axis should be located below the plot area.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisLocation.Top">
+            <summary>
+            The horizontal axis should be located above the plot area.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.AxisPlotMode">
+            <summary>
+            Defines how data points are plotted relatively to the ticks of the axis.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisPlotMode.BetweenTicks">
+            <summary>
+            Points are plotted in the middle of the range, defined by two ticks.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.AxisPlotMode.OnTicks">
+            <summary>
+            Points are plotted over each tick.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ChartSeriesCombineMode">
+            <summary>
+            Defines how multiple series of same type are combined on the plot area.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeriesCombineMode.None">
+            <summary>
+            No combining. Each series is plotted independently.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeriesCombineMode.Cluster">
+            <summary>
+            Series are combined next to each other.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeriesCombineMode.Stack">
+            <summary>
+            Series form stacks.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.ChartSeriesCombineMode.Stack100">
+            <summary>
+            Series for stacks that occupy 100% of the plot area.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.DateTimePlotStretchMode">
+            <summary>
+            Defines the different modes used to plot a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.DataPoint"/> by a <see cref="!:Telerik.UI.Xaml.Controls.Chart.DateTimeContinuousAxis"/> model.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimePlotStretchMode.TickSlot">
+            <summary>
+            Each point is stretched within the owning tick (plot) slot.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.DateTimePlotStretchMode.Uniform">
+            <summary>
+            Each point's length is proportional to the total number of points plotted by the axis.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility">
+            <summary>
+            Defines the visibility of the major and minor lines within a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.CartesianChartGrid"/>.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility.Unset">
+            <summary>
+            The default value is used.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility.None">
+            <summary>
+            Lines are hidden.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility.X">
+            <summary>
+            The lines along the X-axis are visible.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility.Y">
+            <summary>
+            The lines along the Y-axis are visible.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.GridLineVisibility.XY">
+            <summary>
+            The lines are visible along both axes.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxisRangeExtendDirection">
+            <summary>
+            Specifies how a numerical axis auto-range will be extended so that each data point is visualized in the best possible way.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxisRangeExtendDirection.None">
+            <summary>
+            The range minimum is the minimum data point value and the range maximum is the maximum data point value.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxisRangeExtendDirection.Positive">
+            <summary>
+            The range maximum will be extended (if necessary) with one major step.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxisRangeExtendDirection.Negative">
+            <summary>
+            The range minimum will be extended (if necessary) with one major step.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.NumericalAxisRangeExtendDirection.Both">
+            <summary>
+            The range will be extended in both directions by one major tick step.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval">
+            <summary>
+            Specifies the predefined time interval types.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Unset">
+            <summary>
+            The interval will be calculated automatically.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Year">
+            <summary>
+            1 Year (365 days).
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Quarter">
+            <summary>
+            1 Quarter (3 months).
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Month">
+            <summary>
+            1 Month.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Week">
+            <summary>
+            1 Week (7 days).
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Day">
+            <summary>
+            1 Day.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Hour">
+            <summary>
+            1 Hour.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Minute">
+            <summary>
+            1 Minute.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Second">
+            <summary>
+            1 Minute.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.TimeInterval.Millisecond">
+            <summary>
+            1 Millisecond.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette">
+            <summary>
+            Defines the palette semantic for a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadChartBase"/> instance.
+            The palette contains <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette.Entries"/>, which are <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry"/> objects, not related to any particular series
+            and the <see cref="!:SeriesEntries"/> collection, which may be used to define a palette for a series family - e.g. Area.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette"/> class.
+            </summary>
+        </member>
+        <member name="E:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette.Changed">
+            <summary>
+            Occurs upon a change in some of the entries or when an entry is added/removed/replaced.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette.Entries">
+            <summary>
+            Gets the collection that stores entries not related to any particular series.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette.GetEntry(System.Int32)">
+            <summary>
+            Gets the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry"/> (if present) at the specified index.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry">
+            <summary>
+            Defines an entry in a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette"/> instance.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.#ctor(Microsoft.Maui.Graphics.Color)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry"/> struct.
+            </summary>
+            <param name="fillColor">The fill color.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.#ctor(Microsoft.Maui.Graphics.Color,Microsoft.Maui.Graphics.Color)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry"/> struct.
+            </summary>
+            <param name="fillColor">The fill color.</param>
+            <param name="strokeColor">The stroke color.</param>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.FillColor">
+            <summary>
+            Gets or sets the <see cref="T:Microsoft.Maui.Graphics.Color"/> instance that defines the fill of the corresponding visual objects.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.StrokeColor">
+            <summary>
+            Gets or sets the <see cref="!:Brush"/> instance that defines the stroke of the corresponding visual objects.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.op_Equality(Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry,Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry)">
+            <summary>
+            Determines whether the two palette entries are equal.
+            </summary>
+            <param name="entry1"></param>
+            <param name="entry2"></param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.op_Inequality(Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry,Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry)">
+            <summary>
+            Determines whether the two palette entries are not equal.
+            </summary>
+            <param name="entry1"></param>
+            <param name="entry2"></param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PaletteEntry.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to this instance.
+            </summary>
+            <param name="obj">The <see cref="T:System.Object"/> to compare with this instance.</param>
+            <returns>
+                <c>true</c> if the specified <see cref="T:System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.SeriesPaletteMode">
+            <summary>
+            Defines the possible ways of a <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.ChartPalette"/> instance to apply the palette of its owning chart.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.SeriesPaletteMode.Series">
+            <summary>
+            The palette is applied to data points depending on the index of the owning ChartSeries instance.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.SeriesPaletteMode.DataPoint">
+            <summary>
+            The palette is applied to the data points depending on the index of each data point within the owning ChartSeries instance.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.PropertyNameDataPointBindingConverter">
+            <summary>
+            A class that converts string objects to PropertyNameDataPointBinding instances.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.DonutSeries">
+            <summary>
+            Donut series.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Chart.PieSeries">
+            <summary>
+            Pie series.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.ValueBindingProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.ValueBinding"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.RadiusFactorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.RadiusFactor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.SelectedPointOffsetProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.SelectedPointOffset"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.ValueBinding">
+            <summary>
+            Gets or sets the ValueBinding. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.RadiusFactor">
+            <summary>
+            Gets or sets the RadiusFactor. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.SelectedPointOffset">
+            <summary>
+            Gets or sets the SelectedPointOffset. 
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.LegendTitleBinding">
+            <summary>
+            Gets or sets the LegendTitleBinding.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.PieSeries.IsDefaultValue(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Chart.RadPieChart.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.Chart.RadPieChart"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Chart.RadPieChart.Series">
+            <summary>
+            Gets the series collection.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.ElementsCollection`1.InsertItem(System.Int32,`0)">
+            <summary>
+            Inserts an element into the collection at the specified index.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.ElementsCollection`1.RemoveItem(System.Int32)">
+            <summary>
+            Removes the element at the specified index of the collection.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.ElementsCollection`1.ClearItems">
+            <summary>
+            Removes all elements from the <see cref="T:System.Collections.ObjectModel.Collection`1"/>.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.ElementsCollection`1.SetItem(System.Int32,`0)">
+            <summary>
+            Replaces the element at the specified index.
+            </summary>
+            <param name="index">The zero-based index of the element to replace.</param>
+            <param name="newPresenter">The new value for the element at the specified index. The value can be null for reference types.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is less than zero.
+            -or-
+            <paramref name="index"/> is greater than <see cref="P:System.Collections.ObjectModel.Collection`1.Count"/>.
+            </exception>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Common.IChildElement.ParentElement">
+            <summary>
+            Gets the parent of this chart element.
+            </summary> 
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Common.IChildElement.Key">
+            <summary>
+            Gets context used by the parent to handle changes in this class properties.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.IChildElement.AttachToParent(Telerik.Maui.Controls.Compatibility.Common.IParentElement,System.String)">
+            <summary>
+            Attaches the element to its parent.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.IChildElement.DetatchFromParent">
+            <summary>
+            Detaches the element to its parent.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.IParentElement.OnChildPropertyChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <summary>
+            Notifies the parent for any property changes in its child.
+            </summary>
+            <param name="childElement">Child element.</param>
+            <param name="propertyName">Property name.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.IParentElement.OnChildElementChanged(Telerik.Maui.Controls.Compatibility.Common.IChildElement,Telerik.Maui.Controls.Compatibility.Common.IChildElement,System.String)">
+            <summary>
+            Notifies the element that one of its children has been replaced.
+            </summary>
+            <param name="oldElement">Old child.</param>
+            <param name="newElement">New child.</param>
+            <param name="key">The key of the child.</param>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Common.ItemReorderPlacement">
+            <summary>
+            Indicates whether the dragged item should be placed before or after the destination item.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Common.ItemReorderPlacement.Before">
+            <summary>
+            The dragged item should be placed before the destination item.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.Common.ItemReorderPlacement.After">
+            <summary>
+            The dragged item should be placed after the destination item.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.Common.TypeMappings.Adapters">
+            <summary>
+            Gets the adapters used to sync native with XF types.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.Common.TypeMappings.CreateNativeControl(System.Object,System.Object)">
+            <summary>
+            This method is intended to be used inside a renderer's CreateNativeControl() override.
+            This method creates an object but does not register it, i.e. does not call UpdateInstance().
+            After calling the renderer's CreateNativeControl() method, the UpdateInstance() method
+            should be called, so that the client developer may use a custom native control.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.Common.Android.PixelsSize">
+            <summary>
+            This class holds device dependent size. It is analogous to android.util.size, but we cannot use the latter as it is only available in API 21 and later.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle">
+            <summary>
+            A class exposing properties that could be used to customize the appearance.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BackgroundColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BackgroundColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderColor"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderLocationProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderLocation"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderWidthProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderWidth"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BackgroundColor">
+            <summary>
+            Gets or sets the color of the token background.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderColor">
+            <summary>
+            Gets or sets the color of the border.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderLocation">
+            <summary>
+            Gets or sets the location of the border.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ItemStyle.BorderWidth">
+            <summary>
+            Gets or sets the width of the border.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandService">
+            <summary>
+            Encapsulates the command-related routine within a <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.RadListView"/> instance.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandService.ExecuteCommand(Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandId,System.Object)">
+            <summary>
+            Attempts to find the command, associated with the specified Id and to perform its Execute routine, using the provided parameter.
+            </summary>
+            <param name="id">The <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandId"/> value to look for.</param>
+            <param name="parameter">The parameter that is passed to the CanExecute and Execute methods of the command.</param>
+            <returns>True if the command is successfully executed, false otherwise.</returns>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandService.CanExecuteCommand(Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandId,System.Object)">
+            <summary>
+            Determines whether the command, associated with the specified Id can be executed given the parameter provided.
+            </summary>
+            <param name="id">The <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.CommandId"/> value to look for.</param>
+            <param name="parameter">The parameter that is passed to the CanExecute and Execute methods of the command.</param>
+            <returns>True if the command can be executed, false otherwise.</returns>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemHoldCommandContext">
+            <summary>
+            Represents the context that is passed as a parameter of a ItemHold command.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemHoldCommandContext.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemHoldCommandContext"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemHoldCommandContext.Item">
+            <summary>
+            Gets the item.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemTapCommandContext">
+            <summary>
+            Represents the context that is passed as a parameter of a <see cref="!:ItemTapCommand"/>.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemTapCommandContext.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemTapCommandContext"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ItemTapCommandContext.Item">
+            <summary>
+            Gets the tapped item.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewCommand">
+            <summary>
+            Represents a command abstraction that is associated with a particular <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.RadListView"/> instance.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewCommand.Id">
+            <summary>
+            Gets or sets the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewCommand.CommandId"/> value for this instance.
+            This value is used to associate a command with a known event within a <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.RadListView"/> instance.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand">
+            <summary>
+            Represents a predefined command that aggregates a custom ICommand implementation, which may be used to perform additional action over the default implementation.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand.CommandProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand.Command"/> dependency property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand.Command">
+            <summary>
+            Gets or sets the <see cref="T:System.Windows.Input.ICommand"/> implementation that is used to perform the custom logic associated with this command.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand.CanExecute(System.Object)">
+            <summary>
+            Determines whether the command can be executed against the provided parameter.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ListViewUserCommand.Execute(System.Object)">
+            <summary>
+            Performs the core action given the provided parameter.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.LoadOnDemandCommandContext.BindingContext">
+            <summary>
+            Gets the underlying binding context.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.LoadOnDemandCommandContext.View">
+            <summary>
+            Gets the view to which this context is associated with.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ReorderEndedCommandContext.Item">
+            <summary>
+            Gets the data item that is being interacted with.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ReorderEndedCommandContext.DestinationItem">
+            <summary>
+            Gets the data item that corresponds to the location where the dragged item has been released.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ReorderEndedCommandContext.Group">
+            <summary>
+            Gets the data group containing the data item that is being interacted with.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ReorderEndedCommandContext.DestinationGroup">
+            <summary>
+            Gets the data group that corresponds to the location where the dragged item has been released.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.Commands.ReorderEndedCommandContext.Placement">
+            <summary>
+            Gets a value indicating whether the dargged item should be placed before or after the destination item.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs">
+            <summary>
+            Represents the arguments that are passed to the <see cref="E:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.GroupHeaderTapped"/>.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs.#ctor(Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs.Key">
+            <summary>
+            Gets the specific for the group key.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs.Items">
+            <summary>
+            Gets the child items of the group.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs.Level">
+            <summary>
+            Gets the zero-based level (or the depth) of the group.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderTapEventArgs.IsExpanded">
+            <summary>
+            Gets a value indicating whether the group is currently expanded (has its child items visible).
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ItemHoldEventArgs">
+            <summary>
+            Represents the arguments that are passed to the <see cref="!:RadListView.ItemHoldEvent"/>.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ItemHoldEventArgs.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ItemHoldEventArgs"/> class.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ItemHoldEventArgs.Item">
+            <summary>
+            Gets the item.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ReorderEndedEventArgs.Item">
+            <summary>
+            Gets the data item that is being interacted with.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ReorderEndedEventArgs.DestinationItem">
+            <summary>
+            Gets the data item that corresponds to the location where the dragged item has been released.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ReorderEndedEventArgs.Group">
+            <summary>
+            Gets the data group containing the data item that is being interacted with.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ReorderEndedEventArgs.DestinationGroup">
+            <summary>
+            Gets the data group that corresponds to the location where the dragged item has been released.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ReorderEndedEventArgs.Placement">
+            <summary>
+            Gets a value indicating whether the dargged item should be placed before or after the destination item.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext">
+            <summary>
+            Represents the context that is passed to a <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewGroupHeaderCell"/> control that represents a group within a <see cref="T:Telerik.Maui.Controls.Compatibility.DataControls.RadListView"/> instance.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext.Key">
+            <summary>
+            Gets the specific for the group key.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext.Items">
+            <summary>
+            Gets the child items of the group.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext.Level">
+            <summary>
+            Gets the zero-based level (or the depth) of the group.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.GroupHeaderContext.IsExpanded">
+            <summary>
+            Gets or sets a value indicating whether the group is currently expanded (has its child items visible).
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewGroupStyle">
+            <summary>
+            A class exposing properties that could be used to customize the appearance of a ListView group.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewGroupStyle.TextColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewGroupStyle.TextColor"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewGroupStyle.TextColor">
+            <summary>
+            Gets or sets the color of the text.
+            </summary>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewItemStyle">
+            <summary>
+            A class exposing properties that could be used to customize the appearance of ListView item.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewItemStyle.TextCellTextColorProperty">
+            <summary>
+            Identifies the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewItemStyle.TextCellTextColor"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewItemStyle.TextCellTextColor">
+            <summary>
+            Gets or sets the color of the color of the text in a text cell.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewStyleSelector.OnSelectStyle(System.Object,Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewStyleContext)">
+            <summary>
+            Called when [select style].
+            </summary>
+            <param name="item">The item.</param>
+            <param name="styleContext">The style context.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewStyleSelector.SelectStyle(System.Object,Telerik.Maui.Controls.Compatibility.DataControls.ListView.ListViewStyleContext)">
+            <summary>
+            Selects the style.
+            </summary>
+            <param name="item">The item.</param>
+            <param name="styleContext">The style context.</param>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.CommandService">
+            <summary>
+            Gets the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.CommandService"/> instance that manages the commanding behavior of this instance.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.Commands">
+            <summary>
+            Gets the collection with all the custom commands registered with the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.CommandService"/>. Custom commands have higher priority than the built-in (default) ones.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.HeaderTemplateProperty">
+            <summary>
+            Identifies the <see cref="!:Header"/> property.
+            </summary>
+        </member>
+        <member name="F:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.FooterTemplateProperty">
+            <summary>
+            Identifies the <see cref="!:Footer"/> property.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.HeaderTemplate">
+            <summary>
+            Specifies a <see cref="T:Microsoft.Maui.Controls.DataTemplate"/> to be displayed as a header before all items.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.FooterTemplate">
+            <summary>
+            Specifies a <see cref="T:Microsoft.Maui.Controls.DataTemplate"/> to be displayed as a footer after all items.
+            </summary>
+        </member>
+        <member name="E:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.LoadOnDemand">
+            <summary>
+            Occurs when more items need to be loaded. When in Manual mode, this event is raised during the
+            click of a button, presented as the last item in the list view. When in Automatic mode, this 
+            event is raised while scrolling towards the end. You can use a ListViewLoadOnDemandCollection as an ItemsSource
+            to automatically show loading indicator and load more items asynchronously, or you can manually
+            fetch and add items in this event. If you need to get more items async, you need to set the 
+            IsLoadOnDemandActive property to true before running the async call and set to false
+            after adding the items to the ItemsSource. The event is not raised while the value 
+            of the IsLoadOnDemandActive property is true.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.IsLoadOnDemandEnabled">
+            <summary>
+            Gets or sets a value indicating whether the load-on-demand feature is enabled. This is the
+            ability to load more items, either by pressing a button (Manual) or by scrolling towards 
+            the end (Automatic). You can get notifications when more items need to be loaded from 
+            the LoadOnDemand event, the LoadOnDemand ListViewUserCommand, or by using a 
+            ListViewLoadOnDemandCollection as ItemsSource.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.IsLoadOnDemandActive">
+            <summary>
+            Gets or sets a value indicating whether an async operation for getting more items is 
+            currently running, and if it is then a loading indicator is displayed.
+            This property is automatically/internally set when using a 
+            ListViewLoadOnDemandCollection. When not using this collection, you must use the
+            LoadOnDemand event, or LoadOnDemand ListViewUserCommand, and must manually update the
+            value of this property. Set to true before running the async call and set to false
+            after adding the items to the ItemsSource.
+            </summary>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.LoadOnDemandMode">
+            <summary>
+            Gets or sets a value indicating how the operation for getting more items is triggered - either
+            by a button presented as the last item in the list view (Manual) or by scrolling towards the
+            end (Automatic).
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.UpdateItemIsSelected(System.Object,System.Boolean)">
+            <summary>
+            A mechanism to change the item selected state that is not triggered
+            by direct changes in the <see cref="P:Telerik.Maui.Controls.Compatibility.DataControls.RadListView.SelectedItems"/> collection.
+            This can be considered as an external update.
+            </summary>
+            <param name="item">The item.</param>
+            <param name="isSelected">The is selected.</param>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.AndroidChartPanAndZoomBehavior.SetZoomToChart(System.Double,System.Double,System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.AndroidChartPanAndZoomBehavior.SetPanOffsetToChart(System.Double,System.Double)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.CategoricalLabelRenderer">
+            <summary>
+            This class is responsible for creating the data point labels for categorial series.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.CategoricalLabelRenderer.GetLabelText(Com.Telerik.Widget.Chart.Engine.DataPoints.DataPoint)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.OhlcLabelRenderer">
+            <summary>
+            This class is responsible for creating the data point labels for ohlc series.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.OhlcLabelRenderer.GetLabelText(Com.Telerik.Widget.Chart.Engine.DataPoints.DataPoint)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.PieLabelRenderer">
+            <summary>
+            This class is responsible for creating the data point labels for PieSeries.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.PieLabelRenderer.GetLabelText(Com.Telerik.Widget.Chart.Engine.DataPoints.DataPoint)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.ScatterLabelRenderer">
+            <summary>
+            This class is responsible for creating the data point labels for scatter series.
+            </summary>
+        </member>
+        <member name="M:Telerik.Maui.Controls.Compatibility.ChartRenderer.Android.ScatterLabelRenderer.GetLabelText(Com.Telerik.Widget.Chart.Engine.DataPoints.DataPoint)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Telerik.Maui.Controls.Compatibility.DataControlsRenderer.Android.RadExtendedListView.RestrictToScreenSize">
+            <summary>
+            Restrict the realized items to realize items only to fill the screen size in case the parent container report infinity.
+            </summary>
+        </member>
+    </members>
+</doc>

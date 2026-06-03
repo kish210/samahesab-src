@@ -1,0 +1,69 @@
+<Window x:Class="SamaHesab.WPF.Views.Settings.PrintSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="تنظیمات چاپ"
+        Height="560" Width="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        FlowDirection="RightToLeft"
+        FontFamily="{StaticResource VazirFont}"
+        Background="{DynamicResource AppBackground}">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="تنظیمات چاپ فاکتور و رسید" FontSize="18" FontWeight="Bold"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="چاپگر" Style="{StaticResource FormLabel}"/>
+            <ComboBox x:Name="CmbPrinter" Style="{StaticResource BaseComboBox}" Margin="0,0,0,10"/>
+
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                    <TextBlock Text="اندازه کاغذ" Style="{StaticResource FormLabel}"/>
+                    <ComboBox x:Name="CmbPaper" Style="{StaticResource BaseComboBox}">
+                        <ComboBoxItem Content="A4"/><ComboBoxItem Content="A5"/><ComboBoxItem Content="رسید حرارتی ۸۰ میلی‌متر"/>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                    <TextBlock Text="تعداد نسخه" Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="TxtCopies" Text="1"/>
+                </StackPanel>
+            </Grid>
+
+            <CheckBox x:Name="ChkDialog" Content="نمایش پنجره چاپ ویندوز قبل از چاپ" Margin="0,2"/>
+            <CheckBox x:Name="ChkLogo" Content="نمایش سربرگ/لوگو روی فاکتور" Margin="0,2,0,10"/>
+
+            <TextBlock Text="عنوان سربرگ" Style="{StaticResource FormLabel}"/>
+            <TextBox x:Name="TxtHeader" Margin="0,0,0,10"/>
+            <TextBlock Text="زیرعنوان سربرگ" Style="{StaticResource FormLabel}"/>
+            <TextBox x:Name="TxtHeader2" Margin="0,0,0,10"/>
+
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                    <TextBlock Text="تلفن" Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="TxtPhone"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                    <TextBlock Text="نشانی" Style="{StaticResource FormLabel}"/>
+                    <TextBox x:Name="TxtAddress"/>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="متن پاورقی" Style="{StaticResource FormLabel}"/>
+            <TextBox x:Name="TxtFooter"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,14,0,0">
+            <Button Content="ذخیره" Style="{StaticResource PrimaryButton}" Width="110" Click="Save_Click"/>
+            <Button Content="انصراف" Style="{StaticResource SecondaryButton}" Width="90" Margin="8,0,0,0" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

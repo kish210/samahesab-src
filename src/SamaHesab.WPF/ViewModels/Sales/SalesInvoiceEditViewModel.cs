@@ -61,17 +61,30 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
     private readonly IWarehouseRepository _warehouseRepository;
 
+    private readonly IPrintService _printService;
+
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         IProductRepository productRepository,
         IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepository,
         IWarehouseRepository warehouseRepository,
         IDialogService dialogService,
-        INavigationService navigationService, IPersianCalendarService calendar)
+        INavigationService navigationService, IPersianCalendarService calendar,
+        IPrintService printService)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
         _customerRepository = customerRepository; _warehouseRepository = warehouseRepository;
+        _printService = printService;
+    }
+
+    private PrintDocumentData BuildPrintData()
+    {
+        var customerName = Customers.FirstOrDefault(c => c.Id == SelectedCustomerId)?.Name ?? "—";
+        var lines = InvoiceItems.Select(i => new PrintLine(
+            i.RowNumber, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
+        return new PrintDocumentData("فاکتور فروش", InvoiceNumber, InvoiceDate, "مشتری", customerName,
+            lines, SubTotal, TotalDiscount + InvoiceDiscount, TotalTax, Shipping, GrandTotal, PaidAmount, RemainAmount, Description);
     }
 
     public override async Task LoadAsync()
@@ -197,7 +210,21 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         PaidAmount = 0; RecalculateTotals();
     }
 
-    [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال چاپ فاکتور...");
+    [RelayCommand]
+    private async Task PrintAsync()
+    {
+        if (!InvoiceItems.Any()) { await _dialogService.ShowErrorAsync("فاکتور خالی است."); return; }
+        try { _printService.PrintInvoice(BuildPrintData()); }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در چاپ: " + ex.Message); }
+    }
+
+    [RelayCommand]
+    private async Task PrintPreviewAsync()
+    {
+        if (!InvoiceItems.Any()) { await _dialogService.ShowErrorAsync("فاکتور خالی است."); return; }
+        try { _printService.Preview(BuildPrintData()); }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در پیش‌نمایش: " + ex.Message); }
+    }
     [RelayCommand] private async Task SaveDraftAsync() { await _dialogService.ShowSuccessAsync("پیش‌نویس ذخیره شد."); }
 
     partial void OnShippingChanged(decimal v) => RecalculateTotals();

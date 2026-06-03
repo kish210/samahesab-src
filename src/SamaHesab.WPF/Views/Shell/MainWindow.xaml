@@ -242,6 +242,7 @@
             <MenuItem Header="سیستم">
                 <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
+                <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
                 <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
                 <Separator/>
                 <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>

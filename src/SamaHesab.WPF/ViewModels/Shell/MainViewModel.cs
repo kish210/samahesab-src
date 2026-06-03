@@ -216,6 +216,16 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand] private async Task ChangeBranchAsync() => await _dialogService.ShowInfoAsync("تغییر شعبه (در نسخه بعدی فعال می‌شود).");
 
     [RelayCommand]
+    private void OpenPrintSettings()
+    {
+        var win = new SamaHesab.WPF.Views.Settings.PrintSettingsWindow
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        win.ShowDialog();
+    }
+
+    [RelayCommand]
     private void ChangeTheme(string theme)
     {
         SamaHesab.WPF.Services.ThemeManager.Apply(theme);

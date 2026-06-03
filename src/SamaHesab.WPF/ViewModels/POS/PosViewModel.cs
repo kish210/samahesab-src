@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Sales.Commands;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -13,6 +15,9 @@ public partial class PosViewModel : BaseViewModel
     private readonly IProductRepository _productRepo;
     private readonly IPersianCalendarService _calendar;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
+    private readonly IPrintService _printService;
+    private int _lastInvoiceId;
 
     [ObservableProperty] private string _barcodeInput = string.Empty;
     [ObservableProperty] private string? _selectedCustomerName;
@@ -33,10 +38,12 @@ public partial class PosViewModel : BaseViewModel
     private readonly System.Windows.Threading.DispatcherTimer _timer;
 
     public PosViewModel(IProductRepository productRepo, IPersianCalendarService calendar,
-        ICurrentUserService currentUser, IDialogService dialogService, INavigationService navigationService)
+        ICurrentUserService currentUser, IMediator mediator, IPrintService printService,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _productRepo = productRepo; _calendar = calendar; _currentUser = currentUser;
+        _mediator = mediator; _printService = printService;
         _timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => CurrentTime = DateTime.Now.ToString("HH:mm:ss");
         _timer.Start();
@@ -92,10 +99,38 @@ public partial class PosViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
-            await Task.Delay(300); // Process sale
-            await _dialogService.ShowSuccessAsync($"فروش با موفقیت ثبت شد.\nباقیمانده: {Change:N0} ریال");
+            // صدور فوری فاکتور فروش (کاهش موجودی + سند خودکار)
+            var cmd = new CreateSalesInvoiceCommand(
+                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                InvoiceDate: _calendar.GetCurrentPersianDate(),
+                CustomerId: SelectedCustomerId ?? 1,
+                WarehouseId: 1,
+                InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale,
+                PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "فروش صندوق (POS)",
+                Shipping: 0, OtherCosts: 0,
+                Items: CartItems.Select(i => new SalesInvoiceItemDto(
+                    i.ProductId, i.Quantity, i.UnitPrice, 0, i.TaxRate, null, null, null)).ToList(),
+                InvoiceDiscount: Discount,
+                PaidAmount: PaymentMode == "نقدی" ? GrandTotal : CashReceived,
+                PaymentMethod: PaymentMode == "کارتخوان" ? "بانک" : "نقدی");
+
+            var result = await _mediator.Send(cmd);
+            if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+
+            _lastInvoiceId = result.Value;
+            try { _printService.PrintReceipt(BuildReceiptData()); } catch { /* چاپ اختیاری */ }
+            await _dialogService.ShowSuccessAsync($"فروش ثبت شد (فاکتور #{result.Value}).\nباقیمانده: {Change:N0} ریال");
             NewSale();
-        }, "در حال پردازش...");
+        }, "در حال صدور فاکتور...");
+    }
+
+    private PrintDocumentData BuildReceiptData()
+    {
+        var lines = CartItems.Select((i, idx) => new PrintLine(
+            idx + 1, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, 0, i.NetAmount)).ToList();
+        return new PrintDocumentData("رسید فروش", ReceiptNumber, _calendar.GetCurrentPersianDate(),
+            "صندوق", _currentUser.FullName ?? "صندوق‌دار", lines,
+            SubTotal, Discount, Tax, 0, GrandTotal, CashReceived, Change, null);
     }
 
     [RelayCommand]
@@ -107,7 +142,13 @@ public partial class PosViewModel : BaseViewModel
         BarcodeInput = string.Empty;
     }
 
-    [RelayCommand] private async Task PrintReceiptAsync() => await _dialogService.ShowInfoAsync("در حال چاپ رسید...");
+    [RelayCommand]
+    private async Task PrintReceiptAsync()
+    {
+        if (!CartItems.Any()) { await _dialogService.ShowWarningAsync("سبد خرید خالی است."); return; }
+        try { _printService.PrintReceipt(BuildReceiptData()); }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در چاپ رسید: " + ex.Message); }
+    }
 }
 
 public partial class PosCartItem : ObservableObject

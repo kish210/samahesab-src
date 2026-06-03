@@ -95,6 +95,7 @@ public partial class App : System.Windows.Application
                 // WPF Services
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<INavigationService, NavigationService>();
+                services.AddSingleton<IPrintService, PrintService>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
                 // ViewModels
@@ -201,6 +202,28 @@ public partial class App : System.Windows.Application
         {
             await RunSelfTestAsync();
             Shutdown();
+            return;
+        }
+
+        // ─── Touch POS mode (pos.exe / --pos / SAMA_POS=1): fullscreen fast checkout ──
+        if (e.Args.Contains("--pos") || Environment.GetEnvironmentVariable("SAMA_POS") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "صندوق‌دار", new[] { "ADMIN" }, Array.Empty<string>());
+            try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services); } catch { }
+            var posVm = _host.Services.GetRequiredService<ViewModels.POS.PosViewModel>();
+            await posVm.LoadAsync();
+            var posWindow = new Window
+            {
+                Title = "صندوق فروش — سما حساب",
+                Content = new Views.POS.PosView { DataContext = posVm },
+                DataContext = posVm,
+                WindowState = WindowState.Maximized,
+                WindowStyle = WindowStyle.SingleBorderWindow,
+                FlowDirection = FlowDirection.RightToLeft,
+                FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+            };
+            posWindow.Show();
             return;
         }
 
@@ -472,6 +495,21 @@ public partial class App : System.Windows.Application
                 Line(validXlsx ? $"EXCEL EXPORT: PASS (bytes={bytes.Length})" : "EXCEL EXPORT: FAIL (invalid xlsx)");
             }
             catch (Exception ex) { Line("EXCEL EXPORT: EXCEPTION - " + ex.GetBaseException().Message); }
+
+            // ── Invoice print document (build only, no printer) ──
+            try
+            {
+                var ps = (Services.PrintService)sp.GetRequiredService<Services.IPrintService>();
+                var data = new Services.PrintDocumentData("فاکتور فروش", "F000001", "1403/06/15", "مشتری", "علی احمدی",
+                    new[] { new Services.PrintLine(1, "K1001", "روغن موتور", 2, 500000, 0, 1090000) },
+                    1000000, 0, 90000, 0, 1090000, 1090000, 0, "تست چاپ");
+                var docA4 = ps.Build(data, new Services.PrintSettings(), receipt: false);
+                var docRcpt = ps.Build(data, new Services.PrintSettings { Paper = Services.PaperKind.Receipt80mm }, receipt: true);
+                Line(docA4.Blocks.Count > 0 && docRcpt.Blocks.Count > 0
+                    ? $"PRINT DOC: PASS (A4 blocks={docA4.Blocks.Count}, رسید blocks={docRcpt.Blocks.Count})"
+                    : "PRINT DOC: FAIL (empty document)");
+            }
+            catch (Exception ex) { Line("PRINT DOC: EXCEPTION - " + ex.GetBaseException().Message); }
 
             // ── Customer create ──
             try

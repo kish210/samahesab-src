@@ -436,6 +436,17 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("AUTH: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Customer statement ──
+            try
+            {
+                var c = custList.First();
+                var st = await mediator.Send(new SamaHesab.Application.CRM.Queries.GetCustomerStatementQuery(c.Id));
+                Line(st.Succeeded
+                    ? $"CUSTOMER STATEMENT: PASS ({st.Value!.CustomerName}، ردیف‌ها={st.Value.Rows.Count}، مانده={st.Value.ClosingBalance:#,##0})"
+                    : $"CUSTOMER STATEMENT: FAIL - {st.ErrorMessage}");
+            }
+            catch (Exception ex) { Line("CUSTOMER STATEMENT: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Excel export service ──
             try
             {

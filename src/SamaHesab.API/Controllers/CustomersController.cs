@@ -1,6 +1,8 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 
@@ -13,11 +15,21 @@ public class CustomersController : ControllerBase
 {
     private readonly IRepository<Customer> _customers;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
 
-    public CustomersController(IRepository<Customer> customers, ICurrentUserService currentUser)
+    public CustomersController(IRepository<Customer> customers, ICurrentUserService currentUser, IMediator mediator)
     {
         _customers = customers;
         _currentUser = currentUser;
+        _mediator = mediator;
+    }
+
+    /// <summary>Customer account statement (transactions with running balance).</summary>
+    [HttpGet("{id:int}/statement")]
+    public async Task<IActionResult> Statement(int id, [FromQuery] string? from, [FromQuery] string? to, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetCustomerStatementQuery(id, from, to), ct);
+        return result.Succeeded ? Ok(result.Value) : NotFound(new { message = result.ErrorMessage });
     }
 
     [HttpGet]

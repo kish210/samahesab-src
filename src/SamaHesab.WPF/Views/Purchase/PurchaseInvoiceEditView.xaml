@@ -112,7 +112,7 @@
 
             <Border Grid.Column="0" Style="{StaticResource ErpCardPanel}" Padding="0">
                 <telerik:RadGridView ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
-                          AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" CanUserInsertRows="False" CanUserDeleteRows="False"
+                          AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" CanUserInsertRows="False" CanUserDeleteRows="False"
                           ShowColumnFooters="True" IsReadOnly="False" GridLinesVisibility="Both">
                     <telerik:RadGridView.Columns>
                         <telerik:GridViewDataColumn Header="ردیف" DataMemberBinding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>

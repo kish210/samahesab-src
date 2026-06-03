@@ -79,7 +79,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="آخرین فروش‌ها" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding RecentInvoices}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding RecentInvoices}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="شماره" DataMemberBinding="{Binding Number}" Width="100"/>
                             <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding Date}" Width="100"/>
@@ -95,7 +95,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="آخرین خریدها" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding RecentPurchases}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding RecentPurchases}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="شماره" DataMemberBinding="{Binding Number}" Width="100"/>
                             <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding Date}" Width="100"/>
@@ -111,7 +111,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="چک‌های سررسید" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding ChequesDue}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding ChequesDue}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="سررسید" DataMemberBinding="{Binding DueDate}" Width="100"/>
                             <telerik:GridViewDataColumn Header="بانک" DataMemberBinding="{Binding BankName}" Width="*"/>
@@ -127,7 +127,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="هشدار کسری موجودی" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding LowStockItems}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding LowStockItems}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding Code}" Width="90"/>
                             <telerik:GridViewDataColumn Header="کالا" DataMemberBinding="{Binding Name}" Width="*"/>
@@ -143,7 +143,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="بدهکاران (دریافتنی)" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding Debtors}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding Debtors}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="مشتری" DataMemberBinding="{Binding Name}" Width="*"/>
                             <telerik:GridViewDataColumn Header="مانده" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0}" Width="150"/>
@@ -157,7 +157,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="بستانکاران (پرداختنی)" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding Creditors}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding Creditors}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="تأمین‌کننده" DataMemberBinding="{Binding Name}" Width="*"/>
                             <telerik:GridViewDataColumn Header="مانده" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0}" Width="150"/>
@@ -171,7 +171,7 @@
                 <DockPanel>
                     <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
                         <TextBlock Text="مشتریان برتر" FontWeight="Bold" FontSize="12"/></Border>
-                    <telerik:RadGridView ItemsSource="{Binding TopCustomers}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True">
+                    <telerik:RadGridView ItemsSource="{Binding TopCustomers}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False" IsReadOnly="True">
                         <telerik:RadGridView.Columns>
                             <telerik:GridViewDataColumn Header="مشتری" DataMemberBinding="{Binding Name}" Width="*"/>
                             <telerik:GridViewDataColumn Header="مانده حساب" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0}" Width="150"/>

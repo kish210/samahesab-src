@@ -114,7 +114,7 @@
 
         <!-- ═══ Entries grid (the focus of the screen) ═══ -->
         <Border Grid.Row="2" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Items}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+            <telerik:RadGridView ItemsSource="{Binding Items}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" ShowGroupPanel="False"
                       CanUserInsertRows="False" CanUserDeleteRows="False"
                       ShowColumnFooters="True" IsReadOnly="False" GridLinesVisibility="Both">
                 <telerik:RadGridView.Columns>

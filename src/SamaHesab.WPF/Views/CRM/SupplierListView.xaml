@@ -7,75 +7,53 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
-    <Grid Margin="6">
+    <Grid Margin="3">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
-        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
-                        <materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="تأمین‌کنندگان" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ExportCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="MicrosoftExcel" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="خروجی اکسل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding RefreshCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- Filter -->
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}">
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="4">
-                    <TextBlock Text="جستجو (کد / نام / موبایل)" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding ExportCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="MicrosoftExcel" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="اکسل" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding RefreshCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="6,0" VerticalAlignment="Center">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding SearchCommand}"/></TextBox.InputBindings>
                     </TextBox>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="4" VerticalAlignment="Bottom">
-                    <Button Style="{StaticResource SecondaryButton}" Height="36" Width="44" Command="{Binding SearchCommand}">
-                        <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18"/>
-                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- Grid -->
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Suppliers}" AutoGenerateColumns="False" ShowSearchPanel="True"
-                                 IsReadOnly="True" CanUserFreezeColumns="True" ShowGroupPanel="True"
-                                 RowIndicatorVisibility="Collapsed" FontFamily="{StaticResource VazirFont}">
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Suppliers}" Style="{StaticResource ErpGrid}"
+                                 IsReadOnly="True" ShowSearchPanel="True" ShowGroupPanel="True" ShowColumnFooters="True">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding Code}" Width="100"/>
                     <telerik:GridViewDataColumn Header="نام / شرکت" DataMemberBinding="{Binding Name}" Width="2*"/>
                     <telerik:GridViewDataColumn Header="موبایل" DataMemberBinding="{Binding Mobile}" Width="130"/>
                     <telerik:GridViewDataColumn Header="شهر" DataMemberBinding="{Binding City}" Width="120"/>
-                    <telerik:GridViewDataColumn Header="مانده حساب" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0}" Width="150"/>
+                    <telerik:GridViewDataColumn Header="مانده حساب" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0}" Width="150">
+                        <telerik:GridViewDataColumn.AggregateFunctions>
+                            <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
+                        </telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
                 </telerik:RadGridView.Columns>
             </telerik:RadGridView>
         </Border>
 
-        <!-- Footer -->
-        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="12,8">
-            <TextBlock FontSize="12" HorizontalAlignment="Right">
+        <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <TextBlock FontSize="12" HorizontalAlignment="Right" Margin="4,2" VerticalAlignment="Center">
                 <Run Text="تعداد:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
                 <Run Text="   |   جمع مانده:"/><Run Text="{Binding TotalBalance, StringFormat={}{0:#,##0}}" FontWeight="Bold"/>
             </TextBlock>

@@ -6,36 +6,25 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <Grid Margin="6">
+    <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
-                        <materialDesign:PackIcon Kind="AccountTieOutline" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="کارکنان" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding AddNewCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="AccountPlusOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="کارمند جدید" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                </StackPanel>
-            </DockPanel>
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource ErpToolButton}" Command="{Binding AddNewCommand}">
+                    <StackPanel><materialDesign:PackIcon Kind="AccountPlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="کارمند جدید" TextAlignment="Center"/></StackPanel>
+                </Button>
+            </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Employees}" AutoGenerateColumns="False"
-                                 ShowSearchPanel="True" IsReadOnly="True" CanUserFreezeColumns="True"
-                                 ShowGroupPanel="True" ShowColumnFooters="True" RowIndicatorVisibility="Collapsed"
-                                 FontFamily="{StaticResource VazirFont}">
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Employees}" Style="{StaticResource ErpGrid}"
+                                 ShowSearchPanel="True" IsReadOnly="True"
+                                 ShowGroupPanel="True" ShowColumnFooters="True">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding Code}" Width="80"/>
                     <telerik:GridViewDataColumn Header="نام" DataMemberBinding="{Binding FirstName}" Width="*"/>
@@ -53,8 +42,8 @@
             </telerik:RadGridView>
         </Border>
 
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="12,8">
-            <TextBlock FontSize="12" HorizontalAlignment="Right" Text="فهرست کارکنان فعال"/>
+        <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <TextBlock FontSize="12" HorizontalAlignment="Right" Text="فهرست کارکنان فعال" Margin="4,2" VerticalAlignment="Center"/>
         </Border>
     </Grid>
 </UserControl>

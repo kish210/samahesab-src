@@ -6,33 +6,24 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <Grid Margin="6">
+    <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
-                        <materialDesign:PackIcon Kind="BankOutline" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="حساب‌های بانکی" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
-                <Button DockPanel.Dock="Left" Style="{StaticResource ToolbarButton}" Command="{Binding RefreshCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource ErpToolButton}" Command="{Binding RefreshCommand}">
+                    <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" TextAlignment="Center"/></StackPanel>
                 </Button>
-            </DockPanel>
+            </StackPanel>
         </Border>
 
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Accounts}" AutoGenerateColumns="False" ShowSearchPanel="True"
-                                 IsReadOnly="True" RowIndicatorVisibility="Collapsed" ShowGroupPanel="True"
-                                 FontFamily="{StaticResource VazirFont}">
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Accounts}" Style="{StaticResource ErpGrid}" ShowSearchPanel="True"
+                                 IsReadOnly="True" ShowGroupPanel="True" ShowColumnFooters="True">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="بانک" DataMemberBinding="{Binding BankName}" Width="150"/>
                     <telerik:GridViewDataColumn Header="شماره حساب" DataMemberBinding="{Binding AccountNumber}" Width="160"/>
@@ -44,8 +35,8 @@
             </telerik:RadGridView>
         </Border>
 
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="12,8">
-            <TextBlock HorizontalAlignment="Right" FontSize="12">
+        <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <TextBlock HorizontalAlignment="Right" FontSize="12" Margin="4,2" VerticalAlignment="Center">
                 <Run Text="تعداد حساب‌ها:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
             </TextBlock>
         </Border>

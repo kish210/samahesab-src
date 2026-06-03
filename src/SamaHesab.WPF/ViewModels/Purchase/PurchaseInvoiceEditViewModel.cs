@@ -33,6 +33,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private string? _addProductionDate;
     [ObservableProperty] private string? _addExpiryDate;
     [ObservableProperty] private PurchaseInvoiceItemRow? _selectedItem;
+    [ObservableProperty] private ProductSearchResult? _selectedProductItem;
     [ObservableProperty] private decimal _subTotal;
     [ObservableProperty] private decimal _totalDiscount;
     [ObservableProperty] private decimal _totalTax;
@@ -45,6 +46,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
 
     public ObservableCollection<PurchaseInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
+    public List<ProductSearchResult> AllProducts { get; private set; } = new();
     public List<SupplierItem> Suppliers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
     public List<string> InvoiceTypes { get; } = new() { "خرید", "برگشت از خرید" };
@@ -81,6 +83,18 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+
+        var products = await _productRepository.SearchAsync(companyId, "");
+        AllProducts = products.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
+        OnPropertyChanged(nameof(AllProducts));
+    }
+
+    [RelayCommand]
+    private void AddSelectedProduct()
+    {
+        if (SelectedProductItem == null) { _ = _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
+        AddProduct(SelectedProductItem);
+        SelectedProductItem = null;
     }
 
     [RelayCommand]

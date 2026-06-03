@@ -7,145 +7,128 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
-    <Grid Margin="6">
+    <Grid Margin="3">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>   <!-- toolbar + metadata (compact header = ~15%) -->
+            <RowDefinition Height="Auto"/>   <!-- inline entry line -->
+            <RowDefinition Height="*"/>      <!-- entries grid (dominant ~80%) -->
+            <RowDefinition Height="Auto"/>   <!-- one-line totals -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ Toolbar ═══ -->
-        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
-                        <materialDesign:PackIcon Kind="FileDocumentEditOutline" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="سند حسابداری" FontSize="18" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding VoucherNumber, StringFormat=شماره سند: {0}}"
-                                   FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding NewCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید (F2)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding SaveCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="ذخیره (F7)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PostCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="قطعی (F9)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ReverseCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="UndoVariant" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource DangerColor}"/><TextBlock Text="برگشت" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PrintCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ (F8)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- ═══ Header fields ═══ -->
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}">
+        <!-- ═══ Compact header: actions (left) + document metadata (right) ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>   <!-- actions -->
+                    <ColumnDefinition Width="*"/>      <!-- description -->
+                    <ColumnDefinition Width="Auto"/>   <!-- metadata -->
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="6">
-                    <TextBlock Text="نوع سند" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding VoucherTypes}"
-                              DisplayMemberPath="Name" SelectedValuePath="Id"
+
+                <!-- actions -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید F2" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding SaveCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="ذخیره F7" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding PostCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="قطعی F9" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding ReverseCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="UndoVariant" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource DangerColor}"/><TextBlock Text="برگشت" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ F8" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
+                </StackPanel>
+
+                <!-- voucher description -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                    <TextBlock Text="شرح سند" Style="{StaticResource ErpInlineLabel}"/>
+                    <TextBox Text="{Binding Description}" MinWidth="220" Width="Auto" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+
+                <!-- document metadata -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="نوع سند" Style="{StaticResource ErpInlineLabel}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" Width="130" Height="30"
+                              ItemsSource="{Binding VoucherTypes}" DisplayMemberPath="Name" SelectedValuePath="Id"
                               SelectedValue="{Binding SelectedVoucherTypeId}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="6">
-                    <TextBlock Text="مرکز هزینه" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding CostCenters}"
-                              DisplayMemberPath="Name" SelectedValuePath="Id"
+                    <TextBlock Text="مرکز هزینه" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" Width="110" Height="30"
+                              ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id"
                               SelectedValue="{Binding SelectedCostCenterId}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2" Margin="6">
-                    <TextBlock Text="تاریخ سند" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding VoucherDate}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="3" Margin="6">
-                    <TextBlock Text="شماره سند" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding VoucherNumber}" IsReadOnly="True"/>
+                    <TextBlock Text="تاریخ" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                    <TextBox Text="{Binding VoucherDate}" Width="95"/>
+                    <TextBlock Text="شماره" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                    <TextBox Text="{Binding VoucherNumber}" Width="92" IsReadOnly="True"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ═══ Add row bar ═══ -->
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}">
+        <!-- ═══ Inline entry line (keyboard workflow: type → Enter adds row) ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="6,5">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="2.4*"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="4">
+                <StackPanel Grid.Column="0" Margin="3,0">
                     <TextBlock Text="حساب" Style="{StaticResource FieldCaption}"/>
                     <telerik:RadComboBox ItemsSource="{Binding LeafAccounts}"
                               SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
                               DisplayMemberPath="Name" TextSearchMode="Contains"
                               IsEditable="True" IsFilteringEnabled="True"
                               CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
-                              EmptyText="انتخاب / جستجوی حساب..." Height="36"/>
+                              EmptyText="جستجوی حساب (کد یا نام)..." Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Margin="4">
+                <StackPanel Grid.Column="1" Margin="3,0">
                     <TextBlock Text="شرح ردیف" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding NewDescription}">
+                    <TextBox Text="{Binding NewDescription}" Height="32">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding AddRowCommand}"/></TextBox.InputBindings>
                     </TextBox>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Margin="4">
+                <StackPanel Grid.Column="2" Margin="3,0">
                     <TextBlock Text="بدهکار" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding NewDebit}" Mask="n0" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding NewDebit}" Mask="n0" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Margin="4">
+                <StackPanel Grid.Column="3" Margin="3,0">
                     <TextBlock Text="بستانکار" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding NewCredit}" Mask="n0" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding NewCredit}" Mask="n0" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="4" Margin="4" VerticalAlignment="Bottom">
-                    <Button Style="{StaticResource PrimaryButton}" Height="36" Padding="16,0" Command="{Binding AddRowCommand}">
+                <StackPanel Grid.Column="4" Margin="3,0" VerticalAlignment="Bottom">
+                    <Button Style="{StaticResource PrimaryButton}" Height="32" Padding="14,0" Command="{Binding AddRowCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Plus" Width="18" Height="18" VerticalAlignment="Center"/>
-                            <TextBlock Text="افزودن ردیف" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Plus" Width="16" Height="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="افزودن (Enter)" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ═══ Items grid ═══ -->
-        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Items}" AutoGenerateColumns="False"
-                      CanUserInsertRows="False" CanUserDeleteRows="False" RowIndicatorVisibility="Collapsed"
-                      ShowGroupPanel="False" ShowColumnFooters="True" FontFamily="{StaticResource VazirFont}">
+        <!-- ═══ Entries grid (the focus of the screen) ═══ -->
+        <Border Grid.Row="2" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Items}" Style="{StaticResource ErpGrid}"
+                      CanUserInsertRows="False" CanUserDeleteRows="False"
+                      ShowColumnFooters="True" IsReadOnly="False" GridLinesVisibility="Both">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="ردیف" DataMemberBinding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="حساب کل" DataMemberBinding="{Binding Kol}" Width="70" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="حساب معین" DataMemberBinding="{Binding Moein}" Width="90" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="تفصیلی" DataMemberBinding="{Binding Tafsili}" Width="100" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="نام حساب" DataMemberBinding="{Binding AccountName}" Width="*" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="کد حساب" DataMemberBinding="{Binding AccountCode}" Width="110" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="نام حساب" DataMemberBinding="{Binding AccountName}" Width="2*" IsReadOnly="True"/>
+                    <telerik:GridViewDataColumn Header="تفصیلی" DataMemberBinding="{Binding Tafsili}" Width="120" IsReadOnly="True"/>
                     <telerik:GridViewDataColumn Header="شرح" DataMemberBinding="{Binding Description}" Width="2*"/>
-                    <telerik:GridViewDataColumn Header="بدهکار" DataMemberBinding="{Binding Debit}" DataFormatString="{}{0:#,##0}" Width="130">
+                    <telerik:GridViewDataColumn Header="بدهکار" DataMemberBinding="{Binding Debit}" DataFormatString="{}{0:#,##0}" Width="140">
                         <telerik:GridViewDataColumn.AggregateFunctions>
                             <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
                         </telerik:GridViewDataColumn.AggregateFunctions>
                     </telerik:GridViewDataColumn>
-                    <telerik:GridViewDataColumn Header="بستانکار" DataMemberBinding="{Binding Credit}" DataFormatString="{}{0:#,##0}" Width="130">
+                    <telerik:GridViewDataColumn Header="بستانکار" DataMemberBinding="{Binding Credit}" DataFormatString="{}{0:#,##0}" Width="140">
                         <telerik:GridViewDataColumn.AggregateFunctions>
                             <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
                         </telerik:GridViewDataColumn.AggregateFunctions>
@@ -153,10 +136,10 @@
                     <telerik:GridViewDataColumn Header="حذف" Width="50" IsReadOnly="True">
                         <telerik:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource ToolbarButton}" Width="34" Height="30"
+                                <Button Style="{StaticResource ErpToolButton}" Width="34" Height="26"
                                         Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"
                                         CommandParameter="{Binding}">
-                                    <materialDesign:PackIcon Kind="DeleteOutline" Width="18" Height="18" Foreground="{DynamicResource DangerColor}"/>
+                                    <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" Foreground="{DynamicResource DangerColor}"/>
                                 </Button>
                             </DataTemplate>
                         </telerik:GridViewDataColumn.CellTemplate>
@@ -165,19 +148,11 @@
             </telerik:RadGridView>
         </Border>
 
-        <!-- ═══ Totals footer ═══ -->
-        <Border Grid.Row="4" Style="{StaticResource FormSectionCard}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Balance badge -->
-                <Border Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
-                        CornerRadius="6" Padding="14,8" Margin="4">
+        <!-- ═══ One-line totals footer ═══ -->
+        <Border Grid.Row="3" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,2">
+                <!-- balance pill -->
+                <Border CornerRadius="4" Padding="10,4" Margin="3,0">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Background" Value="#FDE8E8"/>
@@ -189,7 +164,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon VerticalAlignment="Center" Width="20" Height="20">
+                        <materialDesign:PackIcon VerticalAlignment="Center" Width="18" Height="18">
                             <materialDesign:PackIcon.Style>
                                 <Style TargetType="materialDesign:PackIcon">
                                     <Setter Property="Kind" Value="AlertCircleOutline"/>
@@ -203,9 +178,9 @@
                                 </Style>
                             </materialDesign:PackIcon.Style>
                         </materialDesign:PackIcon>
-                        <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="Bold">
+                        <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" FontWeight="Bold" FontSize="12">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{x:Null}">
+                                <Style TargetType="TextBlock">
                                     <Setter Property="Text" Value="سند تراز نیست"/>
                                     <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
                                     <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
@@ -220,26 +195,14 @@
                         </TextBlock>
                     </StackPanel>
                 </Border>
-
-                <Border Grid.Column="1" Background="#E3F6EC" CornerRadius="6" Padding="14,8" Margin="4">
-                    <StackPanel>
-                        <TextBlock Text="جمع بدهکار" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
-                        <TextBlock Text="{Binding TotalDebit, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="2" Background="#FDE8E8" CornerRadius="6" Padding="14,8" Margin="4">
-                    <StackPanel>
-                        <TextBlock Text="جمع بستانکار" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
-                        <TextBlock Text="{Binding TotalCredit, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Column="3" Background="{DynamicResource AppBackground}" CornerRadius="6" Padding="14,8" Margin="4">
-                    <StackPanel>
-                        <TextBlock Text="اختلاف (تراز)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
-                        <TextBlock Text="{Binding Difference, StringFormat={}{0:#,##0}}" FontSize="16" FontWeight="Bold"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="8,4"/>
+                <TextBlock Text="جمع بدهکار:" Style="{StaticResource ErpInlineLabel}" Margin="6,0,4,0"/>
+                <TextBlock Text="{Binding TotalDebit, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center"/>
+                <TextBlock Text="جمع بستانکار:" Style="{StaticResource ErpInlineLabel}" Margin="16,0,4,0"/>
+                <TextBlock Text="{Binding TotalCredit, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
+                <TextBlock Text="اختلاف:" Style="{StaticResource ErpInlineLabel}" Margin="16,0,4,0"/>
+                <TextBlock Text="{Binding Difference, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>

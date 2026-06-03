@@ -8,189 +8,144 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
-    <Grid Margin="6">
+    <Grid Margin="3">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- Toolbar -->
-            <RowDefinition Height="Auto"/>   <!-- Header fields -->
-            <RowDefinition Height="Auto"/>   <!-- Add item bar -->
-            <RowDefinition Height="*"/>      <!-- Items grid -->
-            <RowDefinition Height="Auto"/>   <!-- Totals -->
+            <RowDefinition Height="Auto"/>   <!-- toolbar + customer (top) -->
+            <RowDefinition Height="Auto"/>   <!-- add-item line -->
+            <RowDefinition Height="*"/>      <!-- products grid (center) + summary (right) -->
+            <RowDefinition Height="Auto"/>   <!-- payment bar (bottom) -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ Toolbar ═══ -->
-        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="8">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Border Width="40" Height="40" CornerRadius="8" Background="#E0EDFF">
-                        <materialDesign:PackIcon Kind="CartArrowRight" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="فاکتور فروش" FontSize="18" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding InvoiceNumber, StringFormat=شماره سند: {0}}"
-                                   FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding NewInvoiceCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید (F2)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding SaveDraftCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="پیش‌نویس" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PostInvoiceCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="ثبت قطعی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding PrintCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ (F8)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                    </Button>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- ═══ Header fields ═══ -->
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}">
+        <!-- ═══ Top: actions + customer header ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>   <!-- actions -->
+                    <ColumnDefinition Width="*"/>      <!-- customer -->
+                    <ColumnDefinition Width="Auto"/>   <!-- meta -->
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Grid.Column="0" Margin="6">
-                    <TextBlock Text="مشتری (جستجو)" Style="{StaticResource FieldCaption}"/>
-                    <DockPanel>
-                        <Button DockPanel.Dock="Left" Width="34" Height="36" Margin="6,0,0,0"
-                                Style="{StaticResource PrimaryButton}" Padding="0"
-                                ToolTip="افزودن مشتری جدید" Click="AddCustomer_Click">
-                            <materialDesign:PackIcon Kind="AccountPlus" Width="18" Height="18"/>
-                        </Button>
-                        <telerik:RadComboBox ItemsSource="{Binding Customers}"
-                                  DisplayMemberPath="Name" SelectedValuePath="Id"
-                                  SelectedValue="{Binding SelectedCustomerId}"
-                                  IsEditable="True" IsFilteringEnabled="True"
-                                  CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
-                                  EmptyText="انتخاب / جستجوی مشتری..." Height="36"/>
-                    </DockPanel>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewInvoiceCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید F2" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding SaveDraftCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="پیش‌نویس" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ F8" TextAlignment="Center"/></StackPanel>
+                    </Button>
+                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
                 </StackPanel>
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="6">
-                    <TextBlock Text="انبار" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding Warehouses}"
+
+                <!-- customer search (prominent) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
+                    <materialDesign:PackIcon Kind="AccountTie" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/>
+                    <TextBlock Text="مشتری" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
+                    <telerik:RadComboBox ItemsSource="{Binding Customers}" Width="320"
                               DisplayMemberPath="Name" SelectedValuePath="Id"
-                              SelectedValue="{Binding SelectedWarehouseId}"/>
-                </StackPanel>
-                <StackPanel Grid.Row="0" Grid.Column="2" Margin="6">
-                    <TextBlock Text="تاریخ فاکتور" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding InvoiceDate}"/>
-                </StackPanel>
-                <StackPanel Grid.Row="0" Grid.Column="3" Margin="6">
-                    <TextBlock Text="شماره سند" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding InvoiceNumber}" IsReadOnly="True"/>
+                              SelectedValue="{Binding SelectedCustomerId}"
+                              IsEditable="True" IsFilteringEnabled="True"
+                              CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
+                              EmptyText="انتخاب / جستجوی مشتری..." Height="32"/>
+                    <Button Width="32" Height="32" Margin="6,0,0,0"
+                            Style="{StaticResource PrimaryButton}" Padding="0"
+                            ToolTip="افزودن مشتری جدید" Click="AddCustomer_Click">
+                        <materialDesign:PackIcon Kind="AccountPlus" Width="16" Height="16"/>
+                    </Button>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="6">
-                    <TextBlock Text="نوع فاکتور" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding InvoiceTypes}"
-                              SelectedItem="{Binding InvoiceType}"/>
-                </StackPanel>
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="6">
-                    <TextBlock Text="سطح قیمت" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding PriceLevels}"
-                              SelectedItem="{Binding PriceLevel}"/>
-                </StackPanel>
-                <StackPanel Grid.Row="1" Grid.Column="2" Margin="6">
-                    <TextBlock Text="نحوه پرداخت" Style="{StaticResource FieldCaption}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding PaymentTypes}"
-                              SelectedItem="{Binding PaymentType}"/>
-                </StackPanel>
-                <StackPanel Grid.Row="1" Grid.Column="3" Margin="6">
-                    <TextBlock Text="تاریخ سررسید" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding DueDate}"/>
+                <!-- meta -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="انبار" Style="{StaticResource ErpInlineLabel}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" Width="130" Height="30"
+                              ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedWarehouseId}"/>
+                    <TextBlock Text="تاریخ" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                    <TextBox Text="{Binding InvoiceDate}" Width="95"/>
+                    <TextBlock Text="شماره" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                    <TextBox Text="{Binding InvoiceNumber}" Width="92" IsReadOnly="True"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ═══ Add item bar ═══ -->
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}">
+        <!-- ═══ Add-item line (keyboard: search product → Enter) ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="6,5">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="90"/>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="130"/>
                     <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Margin="4">
-                    <TextBlock Text="انتخاب کالا (کد / بارکد / نام)" Style="{StaticResource FieldCaption}"/>
+                <StackPanel Grid.Column="0" Margin="3,0">
+                    <TextBlock Text="کالا (کد / بارکد / نام)" Style="{StaticResource FieldCaption}"/>
                     <telerik:RadComboBox ItemsSource="{Binding AllProducts}" DisplayMemberPath="Name"
                               SelectedItem="{Binding SelectedProductItem}" TextSearchMode="Contains"
                               IsEditable="True" IsFilteringEnabled="True" CanAutocompleteSelectItems="True"
-                              OpenDropDownOnFocus="True" EmptyText="جستجوی کالا..." Height="36"/>
+                              OpenDropDownOnFocus="True" EmptyText="جستجوی کالا..." Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Margin="4">
+                <StackPanel Grid.Column="1" Margin="3,0">
                     <TextBlock Text="مقدار" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding AddQty}" Mask="n2" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddQty}" Mask="n2" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Margin="4">
+                <StackPanel Grid.Column="2" Margin="3,0">
                     <TextBlock Text="قیمت واحد" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding AddUnitPrice}" Mask="n0" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddUnitPrice}" Mask="n0" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="4" Margin="4">
+                <StackPanel Grid.Column="3" Margin="3,0">
                     <TextBlock Text="تخفیف ٪" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding AddDiscountPct}" Mask="n0" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddDiscountPct}" Mask="n0" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="5" Margin="4">
+                <StackPanel Grid.Column="4" Margin="3,0">
                     <TextBlock Text="مالیات ٪" Style="{StaticResource FieldCaption}"/>
-                    <telerik:RadMaskedNumericInput Value="{Binding AddTaxPct}" Mask="n0" Height="36"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding AddTaxPct}" Mask="n0" Height="32"/>
                 </StackPanel>
-                <StackPanel Grid.Column="6" Margin="4" VerticalAlignment="Bottom">
-                    <Button Style="{StaticResource PrimaryButton}" Height="36" Padding="16,0" Command="{Binding AddSelectedProductCommand}">
+                <StackPanel Grid.Column="5" Margin="3,0" VerticalAlignment="Bottom">
+                    <Button Style="{StaticResource PrimaryButton}" Height="32" Padding="16,0" Command="{Binding AddSelectedProductCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Plus" Width="18" Height="18" VerticalAlignment="Center"/>
-                            <TextBlock Text="افزودن" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Plus" Width="16" Height="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="افزودن (Enter)" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ═══ Items grid + search results ═══ -->
-        <Grid Grid.Row="3" Margin="8,4">
+        <!-- ═══ Center: products grid + financial summary (right) ═══ -->
+        <Grid Grid.Row="2" Margin="0,3,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="320"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource FormSectionCard}" Margin="0,0,4,0" Padding="0">
+            <!-- products grid -->
+            <Border Grid.Column="0" Style="{StaticResource ErpCardPanel}" Padding="0">
                 <telerik:RadGridView ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
-                          AutoGenerateColumns="False" CanUserInsertRows="False" CanUserDeleteRows="False"
-                          RowIndicatorVisibility="Collapsed" ShowGroupPanel="False" FontFamily="{StaticResource VazirFont}">
+                          Style="{StaticResource ErpGrid}" CanUserInsertRows="False" CanUserDeleteRows="False"
+                          ShowColumnFooters="True" IsReadOnly="False" GridLinesVisibility="Both">
                     <telerik:RadGridView.Columns>
-                        <telerik:GridViewDataColumn Header="ردیف" DataMemberBinding="{Binding RowNumber}" Width="50" IsReadOnly="True"/>
-                        <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding ProductCode}" Width="80" IsReadOnly="True"/>
+                        <telerik:GridViewDataColumn Header="ردیف" DataMemberBinding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>
+                        <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding ProductCode}" Width="90" IsReadOnly="True"/>
                         <telerik:GridViewDataColumn Header="نام کالا" DataMemberBinding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
-                        <telerik:GridViewDataColumn Header="مقدار" DataMemberBinding="{Binding Quantity}" Width="80"/>
-                        <telerik:GridViewDataColumn Header="قیمت واحد" DataMemberBinding="{Binding UnitPrice}" DataFormatString="{}{0:#,##0}" Width="110"/>
-                        <telerik:GridViewDataColumn Header="تخفیف ٪" DataMemberBinding="{Binding DiscountPct}" Width="70"/>
-                        <telerik:GridViewDataColumn Header="مالیات ٪" DataMemberBinding="{Binding TaxPct}" Width="70"/>
-                        <telerik:GridViewDataColumn Header="مبلغ خالص" DataMemberBinding="{Binding NetAmount}" DataFormatString="{}{0:#,##0}" Width="120" IsReadOnly="True"/>
+                        <telerik:GridViewDataColumn Header="مقدار" DataMemberBinding="{Binding Quantity}" Width="90"/>
+                        <telerik:GridViewDataColumn Header="قیمت واحد" DataMemberBinding="{Binding UnitPrice}" DataFormatString="{}{0:#,##0}" Width="120"/>
+                        <telerik:GridViewDataColumn Header="تخفیف ٪" DataMemberBinding="{Binding DiscountPct}" Width="80"/>
+                        <telerik:GridViewDataColumn Header="مالیات ٪" DataMemberBinding="{Binding TaxPct}" Width="80"/>
+                        <telerik:GridViewDataColumn Header="مبلغ خالص" DataMemberBinding="{Binding NetAmount}" DataFormatString="{}{0:#,##0}" Width="140" IsReadOnly="True">
+                            <telerik:GridViewDataColumn.AggregateFunctions>
+                                <telerik:SumFunction ResultFormatString="{}{0:#,##0}"/>
+                            </telerik:GridViewDataColumn.AggregateFunctions>
+                        </telerik:GridViewDataColumn>
                         <telerik:GridViewDataColumn Header="حذف" Width="50" IsReadOnly="True">
                             <telerik:GridViewDataColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource ToolbarButton}" Width="34" Height="30"
+                                    <Button Style="{StaticResource ErpToolButton}" Width="34" Height="26"
                                             Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"
                                             CommandParameter="{Binding}">
-                                        <materialDesign:PackIcon Kind="DeleteOutline" Width="18" Height="18" Foreground="{DynamicResource DangerColor}"/>
+                                        <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" Foreground="{DynamicResource DangerColor}"/>
                                     </Button>
                                 </DataTemplate>
                             </telerik:GridViewDataColumn.CellTemplate>
@@ -199,64 +154,68 @@
                 </telerik:RadGridView>
             </Border>
 
-            <!-- Search results -->
-            <Border Grid.Column="1" Style="{StaticResource FormSectionCard}" Width="240" Margin="4,0,0,0"
-                    Visibility="{Binding SearchResults.Count, Converter={x:Static conv:GreaterThanZeroVisibilityConverter.Instance}}">
+            <!-- financial summary -->
+            <Border Grid.Column="1" Style="{StaticResource ErpCardPanel}">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="نتایج جستجو" FontWeight="Bold" Margin="0,0,0,8"/>
-                    <ListBox ItemsSource="{Binding SearchResults}" BorderThickness="0" Background="Transparent">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Button HorizontalContentAlignment="Stretch" Background="Transparent" BorderThickness="0"
-                                        Cursor="Hand" Padding="6"
-                                        Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                        CommandParameter="{Binding}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontSize="12"/>
-                                        <DockPanel Margin="0,2,0,0">
-                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Code}" FontSize="10" Foreground="{DynamicResource SecondaryText}"/>
-                                            <TextBlock DockPanel.Dock="Left" Text="{Binding Price, StringFormat={}{0:#,##0}}" FontSize="10" Foreground="{DynamicResource PrimaryAccent}"/>
-                                        </DockPanel>
-                                    </StackPanel>
-                                </Button>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
+                        <TextBlock Text="خلاصه مالی فاکتور" FontWeight="Bold" FontSize="12"/></Border>
+                    <StackPanel Margin="10,8">
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="نوع" Style="{StaticResource ErpInlineLabel}"/>
+                            <ComboBox Grid.Column="1" Style="{StaticResource BaseComboBox}" Height="28" ItemsSource="{Binding InvoiceTypes}" SelectedItem="{Binding InvoiceType}"/>
+                        </Grid>
+                        <Grid Margin="0,2">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="سطح قیمت" Style="{StaticResource ErpInlineLabel}"/>
+                            <ComboBox Grid.Column="1" Style="{StaticResource BaseComboBox}" Height="28" ItemsSource="{Binding PriceLevels}" SelectedItem="{Binding PriceLevel}"/>
+                        </Grid>
+                        <Separator Margin="0,6"/>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف ردیف‌ها" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, StringFormat={}{0:#,##0}}" Foreground="{DynamicResource DangerColor}"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, StringFormat={}{0:#,##0}}"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding Shipping}" Mask="n0" Height="28"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف مبلغی" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding InvoiceDiscount}" Mask="n0" Height="28"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="پورسانت ٪" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding CommissionPercent}" Mask="n2" Height="28"/></DockPanel>
+                        <Separator Margin="0,8"/>
+                        <DockPanel Margin="0,3">
+                            <TextBlock DockPanel.Dock="Right" Text="قابل پرداخت" FontWeight="Bold" FontSize="14"/>
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
+                        </DockPanel>
+                    </StackPanel>
                 </DockPanel>
             </Border>
         </Grid>
 
-        <!-- ═══ Totals + description ═══ -->
-        <Border Grid.Row="4" Style="{StaticResource FormSectionCard}">
-            <Grid>
+        <!-- ═══ Bottom: payment bar ═══ -->
+        <Border Grid.Row="3" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <Grid Margin="4,4">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="360"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Margin="4">
-                    <TextBlock Text="توضیحات" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding Description}" Height="96" AcceptsReturn="True"
-                             TextWrapping="Wrap" VerticalContentAlignment="Top"/>
+                <!-- payment inputs -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <materialDesign:PackIcon Kind="CashMultiple" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/>
+                    <TextBlock Text="نحوه پرداخت" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" Width="120" Height="30" ItemsSource="{Binding PaymentTypes}" SelectedItem="{Binding PaymentType}"/>
+                    <TextBlock Text="پرداختی" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                    <telerik:RadMaskedNumericInput Value="{Binding PaidAmount}" Mask="n0" Width="140" Height="30"/>
+                    <TextBlock Text="سررسید" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                    <TextBox Text="{Binding DueDate}" Width="95"/>
+                    <TextBlock Text="مانده" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                    <TextBlock Text="{Binding RemainAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <Border Grid.Column="1" Background="{DynamicResource AppBackground}" CornerRadius="8" Padding="14" Margin="8,0,0,0">
-                    <StackPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, StringFormat={}{0:#,##0}}" Foreground="{DynamicResource DangerColor}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding Shipping}" Mask="n0"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف مبلغی فاکتور" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding InvoiceDiscount}" Mask="n0"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="درصد پورسانت بازاریاب" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding CommissionPercent}" Mask="n2"/></DockPanel>
-                        <Separator Margin="0,8"/>
-                        <DockPanel Margin="0,3">
-                            <TextBlock DockPanel.Dock="Right" Text="مبلغ قابل پرداخت" FontWeight="Bold" FontSize="15"/>
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
-                        </DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="پرداختی" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="130" Value="{Binding PaidAmount}" Mask="n0"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مانده" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding RemainAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/></DockPanel>
+                <!-- post button -->
+                <Button Grid.Column="2" Style="{StaticResource SuccessButton}" Height="40" Padding="24,0" Command="{Binding PostInvoiceCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CheckCircle" Width="20" Height="20" VerticalAlignment="Center"/>
+                        <TextBlock Text="ثبت قطعی فاکتور (F9)" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
                     </StackPanel>
-                </Border>
+                </Button>
             </Grid>
         </Border>
     </Grid>

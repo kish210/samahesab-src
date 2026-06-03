@@ -47,6 +47,7 @@
   <ItemGroup>
     <Resource Include="Assets\Fonts\**\*" />
     <Resource Include="Assets\Icons\**\*" />
+    <Resource Include="Assets\Images\**\*" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

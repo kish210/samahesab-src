@@ -14,15 +14,30 @@ public class AuthController : ControllerBase
     private readonly JwtTokenService _jwt;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
+    private readonly RefreshTokenStore _refreshStore;
+    private readonly IConfiguration _config;
 
-    public AuthController(JwtTokenService jwt, ICurrentUserService currentUser, IMediator mediator)
+    public AuthController(JwtTokenService jwt, ICurrentUserService currentUser, IMediator mediator,
+        RefreshTokenStore refreshStore, IConfiguration config)
     {
         _jwt = jwt;
         _currentUser = currentUser;
         _mediator = mediator;
+        _refreshStore = refreshStore;
+        _config = config;
     }
 
     public record LoginRequest(string Username, string Password, int CompanyId = 1, int BranchId = 1);
+    public record RefreshRequest(string RefreshToken);
+
+    private int RefreshDays => int.TryParse(_config["Jwt:RefreshTokenDays"], out var d) ? d : 14;
+
+    private TokenPair IssueAndStore(AuthenticatedUser user)
+    {
+        var pair = _jwt.Issue(user);
+        _refreshStore.Save(pair.RefreshToken, user, DateTime.UtcNow.AddDays(RefreshDays));
+        return pair;
+    }
 
     /// <summary>Authenticate against Sec.Users (PBKDF2) and receive a JWT access + refresh token pair.</summary>
     [HttpPost("login")]
@@ -35,8 +50,27 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = result.ErrorMessage });
 
         var u = result.Value;
-        return Ok(_jwt.Issue(new AuthenticatedUser(
+        return Ok(IssueAndStore(new AuthenticatedUser(
             u.UserId, u.CompanyId, u.BranchId, u.Username, u.FullName, u.Roles)));
+    }
+
+    /// <summary>Exchange a valid refresh token for a new access+refresh pair (rotation).</summary>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public ActionResult<TokenPair> Refresh([FromBody] RefreshRequest req)
+    {
+        if (!_refreshStore.TryConsume(req.RefreshToken, out var user) || user is null)
+            return Unauthorized(new { message = "توکن تمدید نامعتبر یا منقضی است." });
+        return Ok(IssueAndStore(user));
+    }
+
+    /// <summary>Revoke a refresh token (logout).</summary>
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout([FromBody] RefreshRequest req)
+    {
+        _refreshStore.Revoke(req.RefreshToken);
+        return Ok(new { loggedOut = true });
     }
 
     /// <summary>Return the current authenticated principal (smoke-test for JWT).</summary>

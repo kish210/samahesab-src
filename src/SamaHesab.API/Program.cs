@@ -17,6 +17,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, HttpCurrentUserService>();
 builder.Services.AddSingleton<JwtTokenService>();
+builder.Services.AddSingleton<RefreshTokenStore>();
 
 // ── JWT authentication ──
 var jwt = builder.Configuration.GetSection("Jwt");

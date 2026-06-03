@@ -266,31 +266,24 @@
          ERP DENSITY SYSTEM  (shared dense controls — commercial-ERP look)
     ═══════════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Dense data grid: tight rows, alternating bands, frozen-friendly, footer sums -->
-    <Style x:Key="ErpGrid" TargetType="telerik:RadGridView">
+    <!-- Dense data grid for the whole app.
+         IMPORTANT: MUST be BasedOn the Telerik default RadGridView style. With the
+         NoXaml themes the ControlTemplate is supplied by the implicit theme style;
+         assigning a keyed Style WITHOUT BasedOn replaces it and the grid renders
+         completely blank (no headers, no rows). -->
+    <Style x:Key="ErpGrid" TargetType="telerik:RadGridView"
+           BasedOn="{StaticResource {x:Type telerik:RadGridView}}">
         <Setter Property="AutoGenerateColumns" Value="False"/>
-        <Setter Property="CanUserFreezeColumns" Value="True"/>
         <Setter Property="ShowGroupPanel" Value="False"/>
         <Setter Property="RowIndicatorVisibility" Value="Collapsed"/>
-        <Setter Property="GridLinesVisibility" Value="Both"/>
-        <Setter Property="AlternationCount" Value="2"/>
-        <Setter Property="AlternateRowBackground" Value="{DynamicResource TableAltRowBg}"/>
-        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="RowHeight" Value="28"/>
         <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="SelectionMode" Value="Single"/>
-        <Setter Property="SelectionUnit" Value="FullRow"/>
-        <Setter Property="CanUserSortColumns" Value="True"/>
-        <Setter Property="EnableColumnVirtualization" Value="True"/>
-        <Setter Property="EnableRowVirtualization" Value="True"/>
     </Style>
 
     <!-- Editable dense grid (invoice / voucher entry lines) -->
     <Style x:Key="ErpEditGrid" TargetType="telerik:RadGridView" BasedOn="{StaticResource ErpGrid}">
         <Setter Property="IsReadOnly" Value="False"/>
-        <Setter Property="CanUserInsertRows" Value="True"/>
-        <Setter Property="CanUserDeleteRows" Value="True"/>
         <Setter Property="ShowColumnFooters" Value="True"/>
         <Setter Property="RowHeight" Value="30"/>
     </Style>

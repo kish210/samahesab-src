@@ -1,4 +1,4 @@
-<UserControl x:Class="SamaHesab.WPF.Views.CRM.CustomerListView"
+﻿<UserControl x:Class="SamaHesab.WPF.Views.CRM.CustomerListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -36,7 +36,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Customers}" Style="{StaticResource ErpGrid}"
+            <telerik:RadGridView ItemsSource="{Binding Customers}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
                                  IsReadOnly="True" ShowSearchPanel="True" ShowGroupPanel="True" ShowColumnFooters="True">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding Code}" Width="90"/>

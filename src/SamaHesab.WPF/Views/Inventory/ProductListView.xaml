@@ -1,4 +1,4 @@
-<UserControl x:Class="SamaHesab.WPF.Views.Inventory.ProductListView"
+﻿<UserControl x:Class="SamaHesab.WPF.Views.Inventory.ProductListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -60,7 +60,7 @@
             <telerik:RadGridView x:Name="grid"
                                  ItemsSource="{Binding Products}"
                                  SelectedItem="{Binding SelectedProduct}"
-                                 Style="{StaticResource ErpGrid}"
+                                 AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
                                  IsReadOnly="True" ShowSearchPanel="True"
                                  ShowGroupPanel="True" GroupRenderMode="Flat"
                                  FilteringMode="Popup">

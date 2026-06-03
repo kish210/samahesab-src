@@ -1,4 +1,4 @@
-<UserControl x:Class="SamaHesab.WPF.Views.HRM.EmployeeListView"
+﻿<UserControl x:Class="SamaHesab.WPF.Views.HRM.EmployeeListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -22,7 +22,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Employees}" Style="{StaticResource ErpGrid}"
+            <telerik:RadGridView ItemsSource="{Binding Employees}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
                                  ShowSearchPanel="True" IsReadOnly="True"
                                  ShowGroupPanel="True" ShowColumnFooters="True">
                 <telerik:RadGridView.Columns>

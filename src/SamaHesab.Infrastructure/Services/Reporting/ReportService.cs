@@ -62,8 +62,57 @@ public class ReportService : IReportService
 
     public Task<byte[]> GenerateWordAsync(string reportName, object data, CancellationToken ct = default)
     {
-        // Placeholder — returns empty for now
-        return Task.FromResult(Array.Empty<byte>());
+        var sb = new System.Text.StringBuilder();
+
+        // RTF document — opens natively in Microsoft Word
+        sb.Append(@"{\rtf1\ansi\ansicpg1256\deff0 ");
+        sb.Append(@"{\fonttbl{\f0\fnil\fcharset178 Tahoma;}}");
+        sb.Append(@"{\colortbl ;\red37\green99\blue235;}");
+        sb.Append(@"\deflang1065\widowctrl ");
+
+        // Title
+        sb.Append(@"\pard\rtlpar\qc\sb200\sa200\b\f0\fs28 ");
+        sb.Append(ToRtf(reportName));
+        sb.Append(@"\b0\par ");
+
+        // Column headers
+        sb.Append(@"\pard\rtlpar\sb100\sa100\b\cf1 ");
+        foreach (var header in new[] { "کد", "شرح", "بدهکار", "بستانکار", "مانده" })
+            sb.Append(ToRtf(header) + @"\tab ");
+        sb.Append(@"\b0\par ");
+
+        // Data rows
+        if (data is System.Collections.IEnumerable rows)
+        {
+            foreach (var item in rows)
+            {
+                var props = item.GetType().GetProperties();
+                sb.Append(@"\pard\rtlpar ");
+                foreach (var p in props.Take(5))
+                    sb.Append(ToRtf(p.GetValue(item)?.ToString() ?? string.Empty) + @"\tab ");
+                sb.Append(@"\par ");
+            }
+        }
+
+        sb.Append('}');
+
+        var bytes = System.Text.Encoding.ASCII.GetBytes(sb.ToString());
+        _logger.LogInformation("Word document generated for report: {ReportName}", reportName);
+        return Task.FromResult(bytes);
+    }
+
+    private static string ToRtf(string text)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (char c in text)
+        {
+            if (c == '\\') sb.Append(@"\\");
+            else if (c == '{') sb.Append(@"\{");
+            else if (c == '}') sb.Append(@"\}");
+            else if (c > 127) sb.Append($@"\u{(int)c}?");
+            else sb.Append(c);
+        }
+        return sb.ToString();
     }
 
     public async Task PrintAsync(string reportName, object data, string? printerName = null, CancellationToken ct = default)

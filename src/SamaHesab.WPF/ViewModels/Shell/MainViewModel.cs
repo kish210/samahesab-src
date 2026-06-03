@@ -106,12 +106,12 @@ public partial class MainViewModel : BaseViewModel
     }
 
     private void OnNavigationRequested(object? sender, NavigationEventArgs e) =>
-        System.Windows.Application.Current.Dispatcher.InvokeAsync(() => NavigateToAsync(e.ViewName));
+        System.Windows.Application.Current.Dispatcher.InvokeAsync(() => NavigateToAsync(e.ViewName, e.Parameter));
 
     [RelayCommand]
     private async Task NavigateAsync(string page) => await NavigateToAsync(page);
 
-    private async Task NavigateToAsync(string page)
+    private async Task NavigateToAsync(string page, object? parameter = null)
     {
         if (!_pages.TryGetValue(page, out var entry)) return;
 
@@ -122,6 +122,8 @@ public partial class MainViewModel : BaseViewModel
             SelectedTab = existing;
             ActiveMenu = page;
             CurrentPageTitle = entry.Title;
+            if (parameter != null && existing.Content is Services.INavigationAware aware)
+                await aware.OnNavigatedToAsync(parameter);
             return;
         }
 
@@ -141,6 +143,8 @@ public partial class MainViewModel : BaseViewModel
             ActiveMenu = page;
             CurrentPageTitle = entry.Title;
             await vm.LoadAsync();
+            if (parameter != null && vm is Services.INavigationAware aware)
+                await aware.OnNavigatedToAsync(parameter);
         }
         finally
         {

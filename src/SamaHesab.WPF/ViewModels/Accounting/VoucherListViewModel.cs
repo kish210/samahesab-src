@@ -89,7 +89,7 @@ public partial class VoucherListViewModel : BaseViewModel
     private void EditVoucher()
     {
         if (SelectedVoucher == null) return;
-        _navigationService.NavigateTo("VoucherEdit");
+        _navigationService.NavigateTo("VoucherEdit", SelectedVoucher.Id);
     }
 
     [RelayCommand]

@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
-public partial class VoucherEditViewModel : BaseViewModel
+public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly IAccountRepository _accountRepo;
@@ -126,9 +126,56 @@ public partial class VoucherEditViewModel : BaseViewModel
         IsBalanced  = Math.Abs(Difference) < 0.01m && Items.Any();
     }
 
+    /// <summary>Open an existing voucher for viewing (passed from the voucher list).</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is int id && id > 0)
+            await LoadVoucherAsync(id);
+    }
+
+    private async Task LoadVoucherAsync(int id)
+    {
+        await ExecuteAsync(async () =>
+        {
+            var v = await _voucherRepo.GetWithItemsAsync(id);
+            if (v == null) { await _dialogService.ShowErrorAsync("سند یافت نشد."); return; }
+
+            _editingId = v.Id;
+            VoucherNumber = v.VoucherNumber;
+            VoucherDate = v.VoucherDate;
+            SelectedVoucherTypeId = v.VoucherTypeId;
+            Description = v.Description;
+
+            Items.Clear();
+            foreach (var it in v.Items.OrderBy(i => i.RowNumber))
+            {
+                var acc = LeafAccounts.FirstOrDefault(a => a.Id == it.AccountId);
+                var row = new VoucherItemRow
+                {
+                    RowNumber = it.RowNumber,
+                    AccountId = it.AccountId,
+                    AccountCode = acc?.Code ?? "",
+                    AccountName = acc?.Name ?? "",
+                    Description = it.Description,
+                    Debit = it.Debit,
+                    Credit = it.Credit
+                };
+                row.PropertyChanged += (_, _) => Recalculate();
+                Items.Add(row);
+            }
+            NewRowNumber = Items.Count + 1;
+            Recalculate();
+        }, "در حال بارگذاری سند...");
+    }
+
     [RelayCommand]
     private async Task SaveAsync()
     {
+        if (_editingId > 0)
+        {
+            await _dialogService.ShowInfoAsync("این سند قبلاً ذخیره شده است. برای اصلاح، آن را «برگشت» بزنید یا سند جدید ثبت کنید.");
+            return;
+        }
         if (!Items.Any()) { await _dialogService.ShowErrorAsync("سند باید حداقل یک ردیف داشته باشد."); return; }
         await ExecuteAsync(async () =>
         {

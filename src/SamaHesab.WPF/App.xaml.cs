@@ -534,6 +534,23 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("FINANCIAL REPORTS: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Open existing voucher (view/edit from list) ──
+            try
+            {
+                var vrepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IVoucherRepository>();
+                var all = await vrepo.GetByDateRangeAsync(1, 1, "1400/01/01", "1410/12/29");
+                var any = all.FirstOrDefault();
+                if (any != null)
+                {
+                    var vevm = sp.GetRequiredService<SamaHesab.WPF.ViewModels.Accounting.VoucherEditViewModel>();
+                    await vevm.LoadAsync();
+                    await ((SamaHesab.WPF.Services.INavigationAware)vevm).OnNavigatedToAsync(any.Id);
+                    Line($"VOUCHER OPEN: PASS (سند {vevm.VoucherNumber}، ردیف‌ها={vevm.Items.Count}، بدهکار={vevm.TotalDebit:#,##0})");
+                }
+                else Line("VOUCHER OPEN: SKIP (سندی موجود نیست)");
+            }
+            catch (Exception ex) { Line("VOUCHER OPEN: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Authentication (DB-backed) + audit ──
             try
             {

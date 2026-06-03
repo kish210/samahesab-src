@@ -114,6 +114,9 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SalesInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceListViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.StockTransferViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
@@ -229,6 +232,7 @@ public partial class App : System.Windows.Application
             ("Suppliers","17_تامین_کنندگان"), ("Employees","18_کارکنان"),
             ("Salary","19_حقوق"), ("Attendance","20_حضور_غیاب"),
             ("Reports","21_گزارشها"), ("Settings","22_تنظیمات"), ("Backup","23_پشتیبانگیری"),
+            ("FinancialReports","24_گزارشهای_مالی"), ("StockTransfer","25_انتقال_انبار"), ("Kardex","26_کاردکس"),
         };
 
         await Task.Delay(1500); // let the shell + dashboard render
@@ -378,6 +382,42 @@ public partial class App : System.Windows.Application
                 if (slvm != null) { await slvm.LoadAsync(); Line($"SALES LIST: PASS (لیست={slvm.Invoices.Count}, جمع={slvm.TotalAmount:#,##0})"); }
             }
             catch (Exception ex) { Line("PURCHASE INVOICE: EXCEPTION - " + ex.GetBaseException().Message); }
+
+            // ── Stock transfer + kardex (#3) ──
+            try
+            {
+                if (whList.Count >= 2)
+                {
+                    var stockRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IStockItemRepository>();
+                    var src = whList.First(); var dst = whList.ElementAt(1); var p = prodList.First();
+                    var srcBefore = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, src.Id))?.Quantity ?? 0;
+                    var dstBefore = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, dst.Id))?.Quantity ?? 0;
+                    var tr = await mediator.Send(new SamaHesab.Application.Inventory.Commands.TransferStockCommand(
+                        src.Id, dst.Id, p.Id, 3, "1403/06/16", "تست انتقال"));
+                    var srcAfter = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, src.Id))?.Quantity ?? 0;
+                    var dstAfter = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, dst.Id))?.Quantity ?? 0;
+                    Line(tr.Succeeded
+                        ? $"STOCK TRANSFER: PASS (مبدأ {srcBefore}→{srcAfter}, مقصد {dstBefore}→{dstAfter})"
+                        : $"STOCK TRANSFER: FAIL - {tr.ErrorMessage}");
+
+                    var kardex = await mediator.Send(new SamaHesab.Application.Inventory.Queries.GetKardexQuery(p.Id, null, null, null));
+                    Line($"KARDEX: PASS (ردیف‌ها={kardex.Count}, ورود={kardex.Sum(k => k.In):#,##0}, خروج={kardex.Sum(k => k.Out):#,##0})");
+                }
+            }
+            catch (Exception ex) { Line("STOCK TRANSFER/KARDEX: EXCEPTION - " + ex.GetBaseException().Message); }
+
+            // ── Financial reports (#2) ──
+            try
+            {
+                var tb = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetTrialBalanceQuery("1400/01/01", "1410/12/29"));
+                var td = tb.Sum(r => r.Debit); var tc = tb.Sum(r => r.Credit);
+                Line($"TRIAL BALANCE: PASS (حساب‌ها={tb.Count}, بدهکار={td:#,##0}, بستانکار={tc:#,##0}, تراز={(td == tc ? "بله" : "خیر")})");
+                var pl = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetProfitLossQuery("1400/01/01", "1410/12/29"));
+                Line($"PROFIT/LOSS: PASS (درآمد={pl.Revenue:#,##0}, هزینه={pl.Expense:#,##0}, سود خالص={pl.NetProfit:#,##0})");
+                var led = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetGeneralLedgerQuery("1400/01/01", "1410/12/29", null));
+                Line($"GENERAL LEDGER: PASS (ردیف‌ها={led.Count})");
+            }
+            catch (Exception ex) { Line("FINANCIAL REPORTS: EXCEPTION - " + ex.GetBaseException().Message); }
 
             // ── Customer create ──
             try

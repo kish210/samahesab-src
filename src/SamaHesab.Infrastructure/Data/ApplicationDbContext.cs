@@ -64,6 +64,11 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Warehouse>().Ignore(w => w.CreatedAt);
         modelBuilder.Entity<Warehouse>().Ignore(w => w.UpdatedAt);
         modelBuilder.Entity<StockItem>().ToTable("StockItems", "Inv");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.StockTransaction>(b =>
+        {
+            b.ToTable("StockTransactions", "Inv");
+            b.HasKey(t => t.Id);
+        });
         modelBuilder.Entity<Customer>().ToTable("Customers", "Crm");
         modelBuilder.Entity<Supplier>().ToTable("Suppliers", "Crm");
         modelBuilder.Entity<SalesInvoice>().ToTable("SalesInvoices", "Sal");

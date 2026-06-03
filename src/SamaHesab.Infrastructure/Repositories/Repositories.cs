@@ -23,6 +23,16 @@ public class VoucherRepository : GenericRepository<Voucher>, IVoucherRepository
             .ToListAsync(ct);
     }
 
+    public async Task<List<Voucher>> GetByDateRangeWithItemsAsync(
+        int companyId, string fromDate, string toDate, CancellationToken ct = default)
+    {
+        return await DbSet.Include(v => v.Items)
+            .Where(v => v.CompanyId == companyId
+                && string.Compare(v.VoucherDate, fromDate) >= 0
+                && string.Compare(v.VoucherDate, toDate) <= 0)
+            .ToListAsync(ct);
+    }
+
     public async Task<Voucher?> GetWithItemsAsync(int voucherId, CancellationToken ct = default)
     {
         return await DbSet.Include(v => v.Items)

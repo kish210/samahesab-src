@@ -67,6 +67,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IProductRepository _productRepository;
     private readonly IAccountRepository _accountRepository;
     private readonly IVoucherRepository _voucherRepository;
+    private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
 
     public CreateSalesInvoiceCommandHandler(
         IRepository<SalesInvoice> invoiceRepository,
@@ -76,7 +77,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IStockItemRepository stockRepository,
         IProductRepository productRepository,
         IAccountRepository accountRepository,
-        IVoucherRepository voucherRepository)
+        IVoucherRepository voucherRepository,
+        IRepository<Domain.Entities.Inventory.StockTransaction> ledger)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
@@ -86,6 +88,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _productRepository = productRepository;
         _accountRepository = accountRepository;
         _voucherRepository = voucherRepository;
+        _ledger = ledger;
     }
 
     public async Task<Result<int>> Handle(CreateSalesInvoiceCommand request, CancellationToken ct)
@@ -131,8 +134,16 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                         throw new InvalidOperationException(
                             $"موجودی کافی برای «{product.Name}» در انبار وجود ندارد (موجودی: {stock?.Quantity ?? 0}).");
 
+                    var unitCost = stock.AverageCost;
                     stock.RemoveStock(dto.Quantity);
                     _stockRepository.Update(stock);
+
+                    // kardex ledger entry (outflow)
+                    await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
+                        companyId, request.BranchId, "خروج فروش", invoiceNumber, request.InvoiceDate,
+                        dto.ProductId, request.WarehouseId, -dto.Quantity, unitCost,
+                        stock.Quantity, stock.Quantity * stock.AverageCost,
+                        "SalesInvoice", invoice.Id, null), ct);
                 }
             }
 

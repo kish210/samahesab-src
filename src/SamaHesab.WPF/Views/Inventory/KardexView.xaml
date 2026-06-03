@@ -1,0 +1,69 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Inventory.KardexView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="3">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <materialDesign:PackIcon Kind="ClipboardListOutline" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/>
+                <TextBlock Text="کاردکس" Style="{StaticResource ErpInlineLabel}" Margin="8,0,6,0"/>
+                <telerik:RadComboBox Width="280" Height="30" ItemsSource="{Binding Products}" DisplayMemberPath="Display"
+                          SelectedItem="{Binding SelectedProduct}" TextSearchMode="Contains"
+                          IsEditable="True" IsFilteringEnabled="True" CanAutocompleteSelectItems="True"
+                          OpenDropDownOnFocus="True" EmptyText="انتخاب کالا..."/>
+                <TextBlock Text="انبار" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                <ComboBox Style="{StaticResource BaseComboBox}" Width="150" Height="30" ItemsSource="{Binding Warehouses}"
+                          DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedWarehouseId}"/>
+                <TextBlock Text="از" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                <TextBox Text="{Binding FromDate}" Width="95"/>
+                <TextBlock Text="تا" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
+                <TextBox Text="{Binding ToDate}" Width="95"/>
+                <Button Style="{StaticResource PrimaryButton}" Height="30" Padding="16,0" Margin="12,0,0,0" Command="{Binding RunCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Magnify" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="نمایش" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0">
+            <telerik:RadGridView ItemsSource="{Binding Rows}" Style="{StaticResource ErpGrid}"
+                                 IsReadOnly="True" ShowColumnFooters="True">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding Date}" Width="120"/>
+                    <telerik:GridViewDataColumn Header="نوع تراکنش" DataMemberBinding="{Binding Type}" Width="160"/>
+                    <telerik:GridViewDataColumn Header="شماره سند" DataMemberBinding="{Binding DocumentNumber}" Width="130"/>
+                    <telerik:GridViewDataColumn Header="ورود" DataMemberBinding="{Binding In}" DataFormatString="{}{0:#,##0.##}" Width="120">
+                        <telerik:GridViewDataColumn.AggregateFunctions><telerik:SumFunction ResultFormatString="{}{0:#,##0.##}"/></telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                    <telerik:GridViewDataColumn Header="خروج" DataMemberBinding="{Binding Out}" DataFormatString="{}{0:#,##0.##}" Width="120">
+                        <telerik:GridViewDataColumn.AggregateFunctions><telerik:SumFunction ResultFormatString="{}{0:#,##0.##}"/></telerik:GridViewDataColumn.AggregateFunctions>
+                    </telerik:GridViewDataColumn>
+                    <telerik:GridViewDataColumn Header="مانده" DataMemberBinding="{Binding Balance}" DataFormatString="{}{0:#,##0.##}" Width="130"/>
+                    <telerik:GridViewDataColumn Header="بهای واحد" DataMemberBinding="{Binding UnitCost}" DataFormatString="{}{0:#,##0}" Width="130"/>
+                    <telerik:GridViewDataColumn Header="توضیحات" DataMemberBinding="{Binding Notes}" Width="*"/>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,2">
+                <TextBlock Text="جمع ورود:" Style="{StaticResource ErpInlineLabel}"/>
+                <TextBlock Text="{Binding TotalIn, StringFormat={}{0:#,##0.##}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Text="جمع خروج:" Style="{StaticResource ErpInlineLabel}"/>
+                <TextBlock Text="{Binding TotalOut, StringFormat={}{0:#,##0.##}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -61,6 +61,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IAccountRepository _accountRepository;
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Purchase.PurchaseInvoice> _invoiceRepository;
+    private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
 
     public CreatePurchaseInvoiceCommandHandler(
         IUnitOfWork unitOfWork,
@@ -69,7 +70,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IProductRepository productRepository,
         IAccountRepository accountRepository,
         IVoucherRepository voucherRepository,
-        IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository)
+        IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository,
+        IRepository<Domain.Entities.Inventory.StockTransaction> ledger)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -78,6 +80,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _accountRepository = accountRepository;
         _voucherRepository = voucherRepository;
         _invoiceRepository = invoiceRepository;
+        _ledger = ledger;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
@@ -124,6 +127,13 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                     await _stockRepository.AddAsync(stockItem, ct);
                 else
                     _stockRepository.Update(stockItem);
+
+                // kardex ledger entry (inflow)
+                await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
+                    companyId, request.BranchId, "ورود خرید", invoiceNumber, request.InvoiceDate,
+                    item.ProductId, request.WarehouseId, item.Quantity, item.UnitPrice,
+                    stockItem.Quantity, stockItem.Quantity * stockItem.AverageCost,
+                    "PurchaseInvoice", invoice.Id, null), ct);
 
                 // Update product purchase price
                 var product = await _productRepository.GetByIdAsync(item.ProductId, ct);

@@ -223,6 +223,8 @@
                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
                 <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
                 <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
+                <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
+                <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
             </MenuItem>
             <MenuItem Header="اشخاص">
                 <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
@@ -235,6 +237,7 @@
             </MenuItem>
             <MenuItem Header="گزارشات">
                 <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
+                <MenuItem Header="گزارش‌های مالی" Command="{Binding NavigateCommand}" CommandParameter="FinancialReports"/>
             </MenuItem>
             <MenuItem Header="سیستم">
                 <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>

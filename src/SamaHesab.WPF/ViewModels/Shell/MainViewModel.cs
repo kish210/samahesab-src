@@ -68,6 +68,8 @@ public partial class MainViewModel : BaseViewModel
             ["ProductEdit"]     = ("ویرایش کالا",         sp => sp.GetRequiredService<ProductEditViewModel>()),
             ["Warehouses"]      = ("انبارها",              sp => sp.GetRequiredService<WarehouseViewModel>()),
             ["StockAdjust"]     = ("تعدیل موجودی",        sp => sp.GetRequiredService<StockAdjustViewModel>()),
+            ["StockTransfer"]   = ("انتقال بین انبار",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.StockTransferViewModel>()),
+            ["Kardex"]          = ("کاردکس کالا",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>()),
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),
@@ -81,6 +83,7 @@ public partial class MainViewModel : BaseViewModel
             ["Salary"]          = ("حقوق و دستمزد",       sp => sp.GetRequiredService<SalaryViewModel>()),
             ["Attendance"]      = ("حضور و غیاب",         sp => sp.GetRequiredService<AttendanceViewModel>()),
             ["Reports"]         = ("گزارش‌ها",            sp => sp.GetRequiredService<ReportsViewModel>()),
+            ["FinancialReports"]= ("گزارش‌های مالی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
         };

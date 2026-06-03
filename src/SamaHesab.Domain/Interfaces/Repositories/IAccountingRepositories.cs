@@ -6,7 +6,11 @@ public interface IVoucherRepository : IRepository<Entities.Accounting.Voucher>
 {
     Task<List<Entities.Accounting.Voucher>> GetByDateRangeAsync(
         int companyId, int fiscalYearId, string fromDate, string toDate, CancellationToken ct = default);
-    
+
+    /// <summary>Vouchers (with their items eager-loaded) in a date range — used by financial reports.</summary>
+    Task<List<Entities.Accounting.Voucher>> GetByDateRangeWithItemsAsync(
+        int companyId, string fromDate, string toDate, CancellationToken ct = default);
+
     Task<Entities.Accounting.Voucher?> GetWithItemsAsync(int voucherId, CancellationToken ct = default);
     Task<string> GetNextNumberAsync(int companyId, CancellationToken ct = default);
 }

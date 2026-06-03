@@ -119,6 +119,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
+                services.AddTransient<RestaurantPosViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
                 services.AddTransient<SupplierListViewModel>();
@@ -162,6 +163,28 @@ public partial class App : System.Windows.Application
                 Log.Warning(ex, "اتصال اولیه به پایگاه داده برقرار نشد");
             }
         });
+
+        // ─── Render the restaurant POS to PNG (dev only) ──────────────────────
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_RESTAURANT") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "صندوق رستوران", new[] { "ADMIN" }, Array.Empty<string>());
+            try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
+                  await SamaHesab.Infrastructure.Seed.RestaurantSeeder.EnsureMenuAsync(_host.Services); } catch { }
+            var rvm = _host.Services.GetRequiredService<ViewModels.POS.RestaurantPosViewModel>();
+            await rvm.LoadAsync();
+            // add a couple of demo lines
+            if (rvm.MenuItems.Count > 0) { rvm.AddItemCommand.Execute(rvm.MenuItems[0]); if (rvm.MenuItems.Count > 3) rvm.AddItemCommand.Execute(rvm.MenuItems[3]); }
+            var view = new Views.POS.RestaurantPosView { DataContext = rvm };
+            var win = new Window { Content = view, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            win.Show(); await Task.Delay(2200); win.UpdateLayout();
+            var dir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(dir);
+            var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtb.Render(win);
+            var enc = new System.Windows.Media.Imaging.PngBitmapEncoder(); enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+            using (var fs = System.IO.File.Create(System.IO.Path.Combine(dir, "restoran.png"))) enc.Save(fs);
+            Shutdown(); return;
+        }
 
         // ─── Capture the login window only (dev only) ─────────────────────────
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_LOGIN") == "1")
@@ -224,6 +247,31 @@ public partial class App : System.Windows.Application
                 FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
             };
             posWindow.Show();
+            return;
+        }
+
+        // ─── Restaurant POS mode (restoran.exe / --restaurant / SAMA_RESTAURANT=1) ──
+        if (e.Args.Contains("--restaurant") || Environment.GetEnvironmentVariable("SAMA_RESTAURANT") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "صندوق رستوران", new[] { "ADMIN" }, Array.Empty<string>());
+            try
+            {
+                await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
+                await SamaHesab.Infrastructure.Seed.RestaurantSeeder.EnsureMenuAsync(_host.Services);
+            }
+            catch (Exception ex) { Log.Warning(ex, "Restaurant seed skipped"); }
+            var rvm = _host.Services.GetRequiredService<ViewModels.POS.RestaurantPosViewModel>();
+            await rvm.LoadAsync();
+            new Window
+            {
+                Title = "صندوق رستوران — سما حساب",
+                Content = new Views.POS.RestaurantPosView { DataContext = rvm },
+                DataContext = rvm,
+                WindowState = WindowState.Maximized,
+                FlowDirection = FlowDirection.RightToLeft,
+                FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+            }.Show();
             return;
         }
 

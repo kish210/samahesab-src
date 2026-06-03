@@ -59,6 +59,14 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Cheque>().ToTable("Cheques", "Acc");
         modelBuilder.Entity<BankAccount>().ToTable("BankAccounts", "Acc");
         modelBuilder.Entity<Product>().ToTable("Products", "Inv");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.ProductGroup>(b =>
+        {
+            b.ToTable("ProductGroups", "Inv");
+            b.Ignore(g => g.Parent);
+            b.Ignore(g => g.Children);
+            b.Ignore(g => g.CreatedAt);   // Inv.ProductGroups has no audit-date columns
+            b.Ignore(g => g.UpdatedAt);
+        });
         modelBuilder.Entity<Warehouse>().ToTable("Warehouses", "Inv");
         // Inv.Warehouses has no CreatedAt/UpdatedAt columns.
         modelBuilder.Entity<Warehouse>().Ignore(w => w.CreatedAt);

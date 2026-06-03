@@ -42,6 +42,7 @@ public static class DependencyInjection
         // Services
         services.AddScoped<IPersianCalendarService, PersianCalendarService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IExcelExportService, ExcelExportService>();
         services.AddScoped<IBackupService, BackupService>();
 
         // SMS

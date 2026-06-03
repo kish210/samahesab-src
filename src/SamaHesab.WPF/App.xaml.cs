@@ -436,6 +436,18 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Line("AUTH: EXCEPTION - " + ex.GetBaseException().Message); }
 
+            // ── Excel export service ──
+            try
+            {
+                var excel = sp.GetRequiredService<SamaHesab.Application.Common.Interfaces.IExcelExportService>();
+                var bytes = excel.Export("تست",
+                    new[] { "کد", "نام", "مبلغ" },
+                    new[] { (IReadOnlyList<object?>)new object?[] { "K1", "کالای تست", 1234500m } });
+                bool validXlsx = bytes.Length > 0 && bytes[0] == (byte)'P' && bytes[1] == (byte)'K';
+                Line(validXlsx ? $"EXCEL EXPORT: PASS (bytes={bytes.Length})" : "EXCEL EXPORT: FAIL (invalid xlsx)");
+            }
+            catch (Exception ex) { Line("EXCEL EXPORT: EXCEPTION - " + ex.GetBaseException().Message); }
+
             // ── Customer create ──
             try
             {

@@ -12,11 +12,28 @@ public class ProductsController : ControllerBase
 {
     private readonly IProductRepository _products;
     private readonly ICurrentUserService _currentUser;
+    private readonly IExcelExportService _excel;
 
-    public ProductsController(IProductRepository products, ICurrentUserService currentUser)
+    public ProductsController(IProductRepository products, ICurrentUserService currentUser, IExcelExportService excel)
     {
         _products = products;
         _currentUser = currentUser;
+        _excel = excel;
+    }
+
+    /// <summary>Export the product list to an Excel (.xlsx) file.</summary>
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] string? q, CancellationToken ct)
+    {
+        var companyId = _currentUser.CompanyId ?? 1;
+        var list = await _products.SearchAsync(companyId, q ?? string.Empty, ct);
+        var headers = new[] { "کد", "بارکد", "نام کالا", "قیمت خرید", "قیمت فروش", "حداقل موجودی", "وضعیت" };
+        var rows = list.Select(p => (IReadOnlyList<object?>)new object?[]
+        {
+            p.Code, p.Barcode, p.Name, p.PurchasePrice, p.SalePrice, p.MinStock, p.IsActive
+        }).ToList();
+        var bytes = _excel.Export("کالاها", headers, rows);
+        return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "products.xlsx");
     }
 
     /// <summary>Search products by code / barcode / name (empty = all).</summary>

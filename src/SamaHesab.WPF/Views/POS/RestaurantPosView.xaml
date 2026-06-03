@@ -49,6 +49,8 @@
                     <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
                     <TextBox Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" Width="260" Margin="6,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding CurrentTime}" Style="{StaticResource ErpInlineLabel}" Margin="14,0,0,0"/>
+                    <Button Content="⚙ سرور" Height="32" Margin="14,0,0,0" Style="{StaticResource SecondaryButton}"
+                            ToolTip="تنظیمات اتصال به سرور (IP)" Click="ServerSettings_Click"/>
                 </StackPanel>
             </DockPanel>
         </Border>

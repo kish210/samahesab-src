@@ -231,6 +231,14 @@ public partial class App : System.Windows.Application
         // ─── Touch POS mode (pos.exe / --pos / SAMA_POS=1): fullscreen fast checkout ──
         if (e.Args.Contains("--pos") || Environment.GetEnvironmentVariable("SAMA_POS") == "1")
         {
+            // On a separate client PC the DB is remote; if it can't be reached, let the
+            // operator enter the server IP, then restart to apply.
+            if (e.Args.Contains("--setup") || !await ClientDbReachableAsync())
+            {
+                new Views.Shell.ConnectionSettingsWindow().ShowDialog();
+                RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
+                return;
+            }
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "صندوق‌دار", new[] { "ADMIN" }, Array.Empty<string>());
             try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services); } catch { }
@@ -253,6 +261,12 @@ public partial class App : System.Windows.Application
         // ─── Restaurant POS mode (restoran.exe / --restaurant / SAMA_RESTAURANT=1) ──
         if (e.Args.Contains("--restaurant") || Environment.GetEnvironmentVariable("SAMA_RESTAURANT") == "1")
         {
+            if (e.Args.Contains("--setup") || !await ClientDbReachableAsync())
+            {
+                new Views.Shell.ConnectionSettingsWindow().ShowDialog();
+                RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
+                return;
+            }
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "صندوق رستوران", new[] { "ADMIN" }, Array.Empty<string>());
             try
@@ -287,6 +301,31 @@ public partial class App : System.Windows.Application
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();
+    }
+
+    /// <summary>Probe the configured DB (short timeout) — used by kiosk clients (pos/restoran).</summary>
+    private async Task<bool> ClientDbReachableAsync()
+    {
+        try
+        {
+            using var scope = _host!.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            return await db.Database.CanConnectAsync();
+        }
+        catch { return false; }
+    }
+
+    /// <summary>Relaunch the current executable (to apply a changed connection string).</summary>
+    private void RestartSelf(string[] args)
+    {
+        try
+        {
+            var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+            if (!string.IsNullOrEmpty(exe))
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, string.Join(' ', args)) { UseShellExecute = false });
+        }
+        catch { }
+        Shutdown();
     }
 
     private async Task RunScreenshotsAsync(Window w)

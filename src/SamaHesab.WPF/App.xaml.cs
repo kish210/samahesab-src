@@ -150,6 +150,11 @@ public partial class App : System.Windows.Application
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var ok = await db.Database.CanConnectAsync();
                 Log.Information("اتصال پایگاه داده: {Ok}", ok ? "برقرار" : "ناموفق");
+                if (ok)
+                {
+                    // Ensure a default admin exists so DB-backed login works on a fresh DB.
+                    await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
+                }
             }
             catch (Exception ex)
             {
@@ -418,6 +423,18 @@ public partial class App : System.Windows.Application
                 Line($"GENERAL LEDGER: PASS (ردیف‌ها={led.Count})");
             }
             catch (Exception ex) { Line("FINANCIAL REPORTS: EXCEPTION - " + ex.GetBaseException().Message); }
+
+            // ── Authentication (DB-backed) + audit ──
+            try
+            {
+                await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
+                var good = await mediator.Send(new SamaHesab.Application.Security.Commands.AuthenticateCommand(1, "admin", "admin123"));
+                var bad = await mediator.Send(new SamaHesab.Application.Security.Commands.AuthenticateCommand(1, "admin", "wrongpass"));
+                Line(good.Succeeded && !bad.Succeeded
+                    ? $"AUTH: PASS (admin/admin123 ✓ id={good.Value?.UserId}, رمز غلط ✗)"
+                    : $"AUTH: FAIL (good={good.Succeeded}, bad={bad.Succeeded})");
+            }
+            catch (Exception ex) { Line("AUTH: EXCEPTION - " + ex.GetBaseException().Message); }
 
             // ── Customer create ──
             try

@@ -89,6 +89,18 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>()
             .HasMany(i => i.Items).WithOne().HasForeignKey(it => it.InvoiceId);
 
+        // Security: users + audit trail.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Security.User>(b =>
+        {
+            b.ToTable("Users", "Sec");
+            b.Ignore("Avatar"); // VARBINARY column not needed by the app
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Security.AuditLog>(b =>
+        {
+            b.ToTable("AuditLogs", "Sec");
+            b.HasKey(a => a.Id);
+        });
+
         modelBuilder.Entity<Employee>().ToTable("Employees", "Hrm");
         // Avoid cascading the HR detail tables into the model for now.
         modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);

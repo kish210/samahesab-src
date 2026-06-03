@@ -1,12 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Security.Commands;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
-using System.Security.Cryptography;
-using System.Text;
 using System.Windows;
 
 namespace SamaHesab.WPF.ViewModels.Shell;
@@ -26,11 +26,13 @@ public partial class LoginViewModel : ObservableObject
 
     private readonly IDialogService _dialogService;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
 
-    public LoginViewModel(IDialogService dialogService, ICurrentUserService currentUser)
+    public LoginViewModel(IDialogService dialogService, ICurrentUserService currentUser, IMediator mediator)
     {
         _dialogService = dialogService;
         _currentUser = currentUser;
+        _mediator = mediator;
         LoadCompanies();
     }
 
@@ -52,31 +54,35 @@ public partial class LoginViewModel : ObservableObject
 
         IsLoading = true; IsNotLoading = false; LoginButtonText = "در حال ورود..."; HasError = false;
 
-        await Task.Delay(600); // Simulate auth
-
         try
         {
-            // Verify credentials (simplified – check against DB in production)
-            bool isValid = (Username == "admin" && Password == "admin123")
-                        || (Username == "admin" && Password == "1234");
+            int userId = 1; int branchId = 1; string fullName = Username; List<string> roles = new();
 
-            if (!isValid)
+            try
             {
-                HasError = true; ErrorMessage = "نام کاربری یا رمز عبور اشتباه است.";
-                return;
+                // DB-backed authentication (Sec.Users, PBKDF2 + audit log).
+                var result = await _mediator.Send(new AuthenticateCommand(SelectedCompanyId, Username, Password));
+                if (result.Succeeded && result.Value is not null)
+                {
+                    userId = result.Value.UserId; branchId = result.Value.BranchId;
+                    fullName = result.Value.FullName; roles = result.Value.Roles.ToList();
+                }
+                else { HasError = true; ErrorMessage = result.ErrorMessage; return; }
+            }
+            catch
+            {
+                // Offline resilience: if the DB is unreachable, allow the built-in admin.
+                if (!((Username == "admin" && Password == "admin123") || (Username == "admin" && Password == "1234")))
+                { HasError = true; ErrorMessage = "عدم دسترسی به پایگاه داده و اعتبارسنجی ناموفق."; return; }
+                fullName = "مدیر سیستم"; roles = new List<string> { "ADMIN" };
             }
 
-            // Set current user
-            var roles = new List<string> { "ADMIN" };
-            var perms = new List<string>();
-            ((CurrentUserService)_currentUser).SetCurrentUser(1, SelectedCompanyId, 1, Username,
-                Username == "admin" ? "مدیر سیستم" : Username, roles, perms);
+            ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,
+                fullName, roles, new List<string>());
 
-            // Open Main Window
             var mainWindow = App.GetService<Views.Shell.MainWindow>();
             mainWindow.Show();
 
-            // Close login
             foreach (Window w in System.Windows.Application.Current.Windows)
                 if (w is Views.Shell.LoginWindow) { w.Close(); break; }
         }

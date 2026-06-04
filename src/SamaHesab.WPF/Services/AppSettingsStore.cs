@@ -28,6 +28,7 @@ public static class AppSettingsStore
         public Dictionary<string, string> ConnectionStrings { get; set; } = new();
         public string? Theme { get; set; }
         public PrintSettings? Print { get; set; }
+        public ApiSettings? Api { get; set; }
     }
 
     private static Model Load()
@@ -92,6 +93,15 @@ public static class AppSettingsStore
     {
         var m = Load();
         m.Print = settings;
+        Save(m);
+    }
+
+    public static ApiSettings GetApiSettings() => Load().Api ?? new ApiSettings();
+
+    public static void SaveApiSettings(ApiSettings settings)
+    {
+        var m = Load();
+        m.Api = settings;
         Save(m);
     }
 }

@@ -96,6 +96,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<INavigationService, NavigationService>();
                 services.AddSingleton<IPrintService, PrintService>();
+                services.AddSingleton<Services.ApiClient>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
                 // ViewModels
@@ -229,20 +230,25 @@ public partial class App : System.Windows.Application
         }
 
         // ─── Touch POS mode (pos.exe / --pos / SAMA_POS=1): fullscreen fast checkout ──
+        // This is a standalone CLIENT: it talks to the central server over the Web API
+        // (HTTP), never the database directly. Server address is set in ApiSettings.
         if (e.Args.Contains("--pos") || Environment.GetEnvironmentVariable("SAMA_POS") == "1")
         {
-            // On a separate client PC the DB is remote; if it can't be reached, let the
-            // operator enter the server IP, then restart to apply.
-            if (e.Args.Contains("--setup") || !await ClientDbReachableAsync())
+            var apiSettings = Services.AppSettingsStore.GetApiSettings();
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(apiSettings.BaseUrl);
+            var (apiOk, apiErr) = await api.LoginAsync(apiSettings.Username, apiSettings.Password);
+            if (e.Args.Contains("--setup") || !apiOk)
             {
-                new Views.Shell.ConnectionSettingsWindow().ShowDialog();
+                Log.Warning("POS API login failed: {Err}", apiErr);
+                new Views.Shell.ApiSettingsWindow().ShowDialog();
                 RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
                 return;
             }
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "صندوق‌دار", new[] { "ADMIN" }, Array.Empty<string>());
-            try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services); } catch { }
             var posVm = _host.Services.GetRequiredService<ViewModels.POS.PosViewModel>();
+            posVm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
             await posVm.LoadAsync();
             var posWindow = new Window
             {

@@ -17,7 +17,13 @@ public partial class PosViewModel : BaseViewModel
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
     private readonly IPrintService _printService;
+    private readonly ApiClient _api;
     private int _lastInvoiceId;
+
+    /// <summary>When true (standalone pos.exe), all data goes through the Web API, not the DB.</summary>
+    public bool UseApi { get; set; }
+    private int _apiCustomerId = 1, _apiWarehouseId = 1;
+    public void ConfigureApi(int customerId, int warehouseId) { UseApi = true; _apiCustomerId = customerId; _apiWarehouseId = warehouseId; }
 
     [ObservableProperty] private string _barcodeInput = string.Empty;
     [ObservableProperty] private string? _selectedCustomerName;
@@ -39,11 +45,11 @@ public partial class PosViewModel : BaseViewModel
 
     public PosViewModel(IProductRepository productRepo, IPersianCalendarService calendar,
         ICurrentUserService currentUser, IMediator mediator, IPrintService printService,
-        IDialogService dialogService, INavigationService navigationService)
+        ApiClient api, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _productRepo = productRepo; _calendar = calendar; _currentUser = currentUser;
-        _mediator = mediator; _printService = printService;
+        _mediator = mediator; _printService = printService; _api = api;
         _timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => CurrentTime = DateTime.Now.ToString("HH:mm:ss");
         _timer.Start();
@@ -60,16 +66,30 @@ public partial class PosViewModel : BaseViewModel
     private async Task ProcessBarcodeAsync()
     {
         if (string.IsNullOrWhiteSpace(BarcodeInput)) return;
-        var product = await _productRepo.GetByBarcodeAsync(_currentUser.CompanyId ?? 1, BarcodeInput)
-                   ?? await _productRepo.GetByCodeAsync(_currentUser.CompanyId ?? 1, BarcodeInput);
+        var code = BarcodeInput.Trim();
 
-        if (product == null) { await _dialogService.ShowWarningAsync($"کالا با کد '{BarcodeInput}' یافت نشد."); BarcodeInput = string.Empty; return; }
+        // (id, code, name, price, tax)
+        (int Id, string Code, string Name, decimal Price, decimal Tax)? hit = null;
+        if (UseApi)
+        {
+            var found = await _api.SearchProductsAsync(code);
+            var p = found.FirstOrDefault(x => x.Code == code || x.Barcode == code) ?? found.FirstOrDefault();
+            if (p != null) hit = (p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate);
+        }
+        else
+        {
+            var product = await _productRepo.GetByBarcodeAsync(_currentUser.CompanyId ?? 1, code)
+                       ?? await _productRepo.GetByCodeAsync(_currentUser.CompanyId ?? 1, code);
+            if (product != null) hit = (product.Id, product.Code, product.Name, product.SalePrice, product.TaxRate);
+        }
 
-        var existing = CartItems.FirstOrDefault(i => i.ProductId == product.Id);
+        if (hit == null) { await _dialogService.ShowWarningAsync($"کالا با کد '{code}' یافت نشد."); BarcodeInput = string.Empty; return; }
+
+        var existing = CartItems.FirstOrDefault(i => i.ProductId == hit.Value.Id);
         if (existing != null) { existing.Quantity++; existing.Recalculate(); }
         else
         {
-            var item = new PosCartItem(product.Id, product.Code, product.Name, 1, product.SalePrice, product.TaxRate);
+            var item = new PosCartItem(hit.Value.Id, hit.Value.Code, hit.Value.Name, 1, hit.Value.Price, hit.Value.Tax);
             item.PropertyChanged += (_, _) => RecalculateTotals();
             CartItems.Add(item);
         }
@@ -99,27 +119,43 @@ public partial class PosViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
-            // صدور فوری فاکتور فروش (کاهش موجودی + سند خودکار)
-            var cmd = new CreateSalesInvoiceCommand(
-                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
-                InvoiceDate: _calendar.GetCurrentPersianDate(),
-                CustomerId: SelectedCustomerId ?? 1,
-                WarehouseId: 1,
-                InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale,
-                PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "فروش صندوق (POS)",
-                Shipping: 0, OtherCosts: 0,
-                Items: CartItems.Select(i => new SalesInvoiceItemDto(
-                    i.ProductId, i.Quantity, i.UnitPrice, 0, i.TaxRate, null, null, null)).ToList(),
-                InvoiceDiscount: Discount,
-                PaidAmount: PaymentMode == "نقدی" ? GrandTotal : CashReceived,
-                PaymentMethod: PaymentMode == "کارتخوان" ? "بانک" : "نقدی");
+            var paid = PaymentMode == "نقدی" ? GrandTotal : CashReceived;
+            var method = PaymentMode == "کارتخوان" ? "بانک" : "نقدی";
+            int invoiceId;
 
-            var result = await _mediator.Send(cmd);
-            if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+            if (UseApi)
+            {
+                // صدور فوری از طریق وب‌سرویس (کلاینت مستقل، بدون دسترسی مستقیم به دیتابیس)
+                var (ok, id, error) = await _api.CreatePosSaleAsync(
+                    CartItems.Select(i => (i.ProductId, i.Quantity, i.UnitPrice, 0m, i.TaxRate)),
+                    paid, method, _apiCustomerId, _apiWarehouseId, Discount);
+                if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در صدور فاکتور."); return; }
+                invoiceId = id;
+            }
+            else
+            {
+                // صدور فوری فاکتور فروش (کاهش موجودی + سند خودکار) — حالت محلی
+                var cmd = new CreateSalesInvoiceCommand(
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    InvoiceDate: _calendar.GetCurrentPersianDate(),
+                    CustomerId: SelectedCustomerId ?? 1,
+                    WarehouseId: 1,
+                    InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale,
+                    PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "فروش صندوق (POS)",
+                    Shipping: 0, OtherCosts: 0,
+                    Items: CartItems.Select(i => new SalesInvoiceItemDto(
+                        i.ProductId, i.Quantity, i.UnitPrice, 0, i.TaxRate, null, null, null)).ToList(),
+                    InvoiceDiscount: Discount,
+                    PaidAmount: paid,
+                    PaymentMethod: method);
+                var result = await _mediator.Send(cmd);
+                if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+                invoiceId = result.Value;
+            }
 
-            _lastInvoiceId = result.Value;
+            _lastInvoiceId = invoiceId;
             try { _printService.PrintReceipt(BuildReceiptData()); } catch { /* چاپ اختیاری */ }
-            await _dialogService.ShowSuccessAsync($"فروش ثبت شد (فاکتور #{result.Value}).\nباقیمانده: {Change:N0} ریال");
+            await _dialogService.ShowSuccessAsync($"فروش ثبت شد (فاکتور #{invoiceId}).\nباقیمانده: {Change:N0} ریال");
             NewSale();
         }, "در حال صدور فاکتور...");
     }

@@ -35,7 +35,7 @@ public class SalesController : ControllerBase
 
     public record PosSaleItem(int ProductId, decimal Quantity, decimal UnitPrice, decimal DiscountPct = 0, decimal TaxPct = 0);
     public record PosSaleRequest(List<PosSaleItem> Items, decimal Paid = 0, string PaymentMethod = "نقدی",
-        int CustomerId = 1, int WarehouseId = 1, decimal Discount = 0);
+        int CustomerId = 1, int WarehouseId = 1, decimal Discount = 0, decimal OtherCosts = 0, string? Description = null);
 
     /// <summary>
     /// Simplified POS / restaurant checkout: the kiosk sends only items + payment and the
@@ -58,9 +58,9 @@ public class SalesController : ControllerBase
             PriceLevel: "خرده",
             SalesRepId: null,
             DueDate: null,
-            Description: "فروش صندوق (POS)",
+            Description: req.Description ?? "فروش صندوق (POS)",
             Shipping: 0,
-            OtherCosts: 0,
+            OtherCosts: req.OtherCosts,
             Items: req.Items.Select(i => new SalesInvoiceItemDto(
                 i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct, null, null, null)).ToList(),
             InvoiceDiscount: req.Discount,

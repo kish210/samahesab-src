@@ -36,6 +36,19 @@ public class ProductsController : ControllerBase
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "products.xlsx");
     }
 
+    /// <summary>Product groups (categories) for the restaurant/POS category tiles.</summary>
+    [HttpGet("groups")]
+    public async Task<IActionResult> Groups([FromServices] SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Inventory.ProductGroup> groups, CancellationToken ct)
+    {
+        var companyId = _currentUser.CompanyId ?? 1;
+        try
+        {
+            var list = await groups.FindAsync(g => g.CompanyId == companyId, ct);
+            return Ok(list.Select(g => new { g.Id, g.Name }));
+        }
+        catch { return Ok(Array.Empty<object>()); }
+    }
+
     /// <summary>Search products by code / barcode / name (empty = all).</summary>
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] string? q, CancellationToken ct)
@@ -44,6 +57,7 @@ public class ProductsController : ControllerBase
         var list = await _products.SearchAsync(companyId, q ?? string.Empty, ct);
         return Ok(list.Select(p => new
         {
+            p.GroupId,
             p.Id, p.Code, p.Name, p.Barcode,
             p.PurchasePrice, p.SalePrice, p.WholesalePrice, p.MinStock, p.TaxRate, p.IsActive
         }));

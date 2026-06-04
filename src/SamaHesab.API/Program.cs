@@ -61,9 +61,11 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Ensure a default admin exists (idempotent) so the API is usable on a fresh DB.
+// Ensure a default admin + restaurant menu exist (idempotent) so the API is usable on a fresh DB.
 try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(app.Services); }
 catch (Exception ex) { app.Logger.LogWarning(ex, "Identity seeding skipped (DB unavailable?)"); }
+try { await SamaHesab.Infrastructure.Seed.RestaurantSeeder.EnsureMenuAsync(app.Services); }
+catch (Exception ex) { app.Logger.LogWarning(ex, "Restaurant menu seeding skipped"); }
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SamaHesab ERP API v1"));

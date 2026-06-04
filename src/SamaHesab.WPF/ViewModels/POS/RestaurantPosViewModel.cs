@@ -19,6 +19,12 @@ public partial class RestaurantPosViewModel : BaseViewModel
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
     private readonly IPrintService _printService;
+    private readonly ApiClient _api;
+
+    /// <summary>When true (standalone restoran.exe), all data goes through the Web API, not the DB.</summary>
+    public bool UseApi { get; set; }
+    private int _apiCustomerId = 1, _apiWarehouseId = 1;
+    public void ConfigureApi(int customerId, int warehouseId) { UseApi = true; _apiCustomerId = customerId; _apiWarehouseId = warehouseId; }
 
     [ObservableProperty] private string _orderType = "سالن";          // سالن / بیرون / پیک
     [ObservableProperty] private int _tableNumber;
@@ -57,12 +63,12 @@ public partial class RestaurantPosViewModel : BaseViewModel
     public RestaurantPosViewModel(IProductRepository productRepo,
         IRepository<SamaHesab.Domain.Entities.Inventory.ProductGroup> groupRepo,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IMediator mediator, IPrintService printService,
+        IMediator mediator, IPrintService printService, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _productRepo = productRepo; _groupRepo = groupRepo; _currentUser = currentUser;
-        _calendar = calendar; _mediator = mediator; _printService = printService;
+        _calendar = calendar; _mediator = mediator; _printService = printService; _api = api;
         _timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => CurrentTime = DateTime.Now.ToString("HH:mm:ss");
         _timer.Start();
@@ -74,18 +80,28 @@ public partial class RestaurantPosViewModel : BaseViewModel
         OrderNumber = "R-" + DateTime.Now.ToString("yyMMddHHmm");
         CurrentTime = DateTime.Now.ToString("HH:mm:ss");
 
-        var products = await _productRepo.FindAsync(p => p.CompanyId == companyId && p.IsActive);
-        _allMenu = products.Select(p => new MenuTile(p.Id, p.Code, p.Name, p.SalePrice, p.GroupId, p.TaxRate)).ToList();
-
         Categories.Clear();
         Categories.Add(new CategoryTile(-1, "همه"));
-        try
+
+        if (UseApi)
         {
-            var groups = await _groupRepo.FindAsync(g => g.CompanyId == companyId);
-            foreach (var g in groups.OrderBy(g => g.Code))
+            var prods = await _api.SearchProductsAsync("");
+            _allMenu = prods.Select(p => new MenuTile(p.Id, p.Code, p.Name, p.SalePrice, p.GroupId, p.TaxRate)).ToList();
+            foreach (var g in await _api.GetGroupsAsync())
                 Categories.Add(new CategoryTile(g.Id, g.Name));
         }
-        catch { /* groups optional */ }
+        else
+        {
+            var products = await _productRepo.FindAsync(p => p.CompanyId == companyId && p.IsActive);
+            _allMenu = products.Select(p => new MenuTile(p.Id, p.Code, p.Name, p.SalePrice, p.GroupId, p.TaxRate)).ToList();
+            try
+            {
+                var groups = await _groupRepo.FindAsync(g => g.CompanyId == companyId);
+                foreach (var g in groups.OrderBy(g => g.Code))
+                    Categories.Add(new CategoryTile(g.Id, g.Name));
+            }
+            catch { /* groups optional */ }
+        }
 
         ApplyCategory();
     }
@@ -171,21 +187,38 @@ public partial class RestaurantPosViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             var desc = $"رستوران {OrderType}" + (OrderType == "سالن" ? $" میز {TableNumber}/{People}نفر" : $" {CustomerName} {CustomerPhone}");
-            var cmd = new CreateSalesInvoiceCommand(
-                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
-                InvoiceDate: _calendar.GetCurrentPersianDate(), CustomerId: 1, WarehouseId: 1,
-                InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale, PriceLevel: "خرده",
-                SalesRepId: null, DueDate: null, Description: desc,
-                Shipping: 0, OtherCosts: ServiceAmount + Tip,
-                Items: OrderLines.Select(l => new SalesInvoiceItemDto(
-                    l.ProductId, l.Qty, l.UnitPrice, 0, TaxEnabled ? l.TaxRate : 0, null, null, null)).ToList(),
-                InvoiceDiscount: Discount,
-                PaidAmount: CashPaid + PosPaid,
-                PaymentMethod: PosPaid > 0 && CashPaid == 0 ? "بانک" : "نقدی");
-            var result = await _mediator.Send(cmd);
-            if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+            var method = PosPaid > 0 && CashPaid == 0 ? "بانک" : "نقدی";
+            int invoiceId;
+
+            if (UseApi)
+            {
+                var (ok, id, error) = await _api.CreatePosSaleAsync(
+                    OrderLines.Select(l => (l.ProductId, l.Qty, l.UnitPrice, 0m, TaxEnabled ? l.TaxRate : 0m)),
+                    CashPaid + PosPaid, method, _apiCustomerId, _apiWarehouseId,
+                    Discount, ServiceAmount + Tip, desc);
+                if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در ثبت سفارش."); return; }
+                invoiceId = id;
+            }
+            else
+            {
+                var cmd = new CreateSalesInvoiceCommand(
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    InvoiceDate: _calendar.GetCurrentPersianDate(), CustomerId: 1, WarehouseId: 1,
+                    InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale, PriceLevel: "خرده",
+                    SalesRepId: null, DueDate: null, Description: desc,
+                    Shipping: 0, OtherCosts: ServiceAmount + Tip,
+                    Items: OrderLines.Select(l => new SalesInvoiceItemDto(
+                        l.ProductId, l.Qty, l.UnitPrice, 0, TaxEnabled ? l.TaxRate : 0, null, null, null)).ToList(),
+                    InvoiceDiscount: Discount,
+                    PaidAmount: CashPaid + PosPaid,
+                    PaymentMethod: method);
+                var result = await _mediator.Send(cmd);
+                if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+                invoiceId = result.Value;
+            }
+
             try { _printService.PrintReceipt(BuildBill("صورتحساب")); } catch { }
-            await _dialogService.ShowSuccessAsync($"سفارش ثبت شد (فاکتور #{result.Value}).");
+            await _dialogService.ShowSuccessAsync($"سفارش ثبت شد (فاکتور #{invoiceId}).");
             NewOrder();
         }, "در حال ثبت سفارش...");
     }

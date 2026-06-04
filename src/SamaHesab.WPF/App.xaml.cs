@@ -265,23 +265,24 @@ public partial class App : System.Windows.Application
         }
 
         // ─── Restaurant POS mode (restoran.exe / --restaurant / SAMA_RESTAURANT=1) ──
+        // Standalone CLIENT — talks to the central server over the Web API, not the DB.
         if (e.Args.Contains("--restaurant") || Environment.GetEnvironmentVariable("SAMA_RESTAURANT") == "1")
         {
-            if (e.Args.Contains("--setup") || !await ClientDbReachableAsync())
+            var apiSettings = Services.AppSettingsStore.GetApiSettings();
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(apiSettings.BaseUrl);
+            var (apiOk, apiErr) = await api.LoginAsync(apiSettings.Username, apiSettings.Password);
+            if (e.Args.Contains("--setup") || !apiOk)
             {
-                new Views.Shell.ConnectionSettingsWindow().ShowDialog();
+                Log.Warning("Restaurant API login failed: {Err}", apiErr);
+                new Views.Shell.ApiSettingsWindow().ShowDialog();
                 RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
                 return;
             }
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "صندوق رستوران", new[] { "ADMIN" }, Array.Empty<string>());
-            try
-            {
-                await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
-                await SamaHesab.Infrastructure.Seed.RestaurantSeeder.EnsureMenuAsync(_host.Services);
-            }
-            catch (Exception ex) { Log.Warning(ex, "Restaurant seed skipped"); }
             var rvm = _host.Services.GetRequiredService<ViewModels.POS.RestaurantPosViewModel>();
+            rvm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
             await rvm.LoadAsync();
             new Window
             {

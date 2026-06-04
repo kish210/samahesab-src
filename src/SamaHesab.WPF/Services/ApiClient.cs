@@ -4,7 +4,8 @@ using System.Net.Http.Json;
 
 namespace SamaHesab.WPF.Services;
 
-public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate);
+public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
+public record ApiGroup(int Id, string Name);
 
 /// <summary>
 /// HTTP client used by the POS / restaurant kiosk apps to talk to the central
@@ -53,9 +54,16 @@ public class ApiClient
         return list ?? new List<ApiProduct>();
     }
 
+    public async Task<List<ApiGroup>> GetGroupsAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiGroup>>("/api/products/groups") ?? new(); }
+        catch { return new(); }
+    }
+
     public async Task<(bool ok, int invoiceId, string? error)> CreatePosSaleAsync(
         IEnumerable<(int productId, decimal qty, decimal unitPrice, decimal discountPct, decimal taxPct)> items,
-        decimal paid, string paymentMethod, int customerId, int warehouseId, decimal discount = 0)
+        decimal paid, string paymentMethod, int customerId, int warehouseId, decimal discount = 0,
+        decimal otherCosts = 0, string? description = null)
     {
         try
         {
@@ -66,7 +74,7 @@ public class ApiClient
                     productId = i.productId, quantity = i.qty, unitPrice = i.unitPrice,
                     discountPct = i.discountPct, taxPct = i.taxPct
                 }).ToArray(),
-                paid, paymentMethod, customerId, warehouseId, discount
+                paid, paymentMethod, customerId, warehouseId, discount, otherCosts, description
             };
             var resp = await _http.PostAsJsonAsync("/api/sales/pos", body);
             if (resp.IsSuccessStatusCode)

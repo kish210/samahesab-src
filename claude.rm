@@ -60,7 +60,8 @@ cd src/SamaHesab.API && dotnet run -c Release
   - DB: `database/09_Restaurant.sql` (idempotent، سید سالن + ۶ میز) — روی SQLEXPRESS اجرا شده.
   - Application: Commands (`OpenTable, AddOrderItem, SendOrderToKitchen, SettleOrder`) + Queries (`GetHallsWithTables, GetOrder, GetKitchenBoard`).
   - API: `RestaurantController` (`/api/restaurant/...`). تست end-to-end موفق.
-  - **باقی‌مانده‌ی فاز ۱:** UI لمسی گارسون (سالن/میز)، صفحه‌ی سفارش، نمایشگر آشپزخانه (KDS) در WPF؛ اتصال تسویه به فاکتور فروش/سند (فعلاً فقط رویداد منتشر می‌شود، هندلر ندارد).
+  - **UI گارسون (انجام‌شده، commit `94c310c`):** `WaiterViewModel`+`WaiterView` لمسی روی API؛ تخته‌ی میزها با رنگ وضعیت، باز/ادامه‌ی سفارش، افزودن آیتم، ارسال به آشپزخانه، تسویه. حالت اجرا `--waiter` (نشان «گارسون») + میانبر در نصاب‌ها. هارنس `SAMA_SHOT_WAITER`.
+  - **باقی‌مانده‌ی فاز ۱:** نمایشگر آشپزخانه (KDS) به‌عنوان حالت اجرا (`--kitchen`)؛ اتصال تسویه به فاکتور فروش/سند (فعلاً فقط رویداد `RestaurantOrderSettledEvent` منتشر می‌شود، هندلر ندارد)؛ ویرایش تعداد/حذف ردیف و یادداشت آشپزخانه در UI.
 - **فازهای بعدی:** ۲=انبار فرایندمحور+costing، ۳=حسابداری حرفه‌ای، ۴=POS تجاری، ۵=CRM/اعتبار، ۶=وب/موبایل.
 
 ## کارهای باز / احتمالی بعدی

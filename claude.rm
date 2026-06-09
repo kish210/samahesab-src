@@ -68,7 +68,8 @@ cd src/SamaHesab.API && dotnet run -c Release
   - API: `RestaurantController` (`/api/restaurant/...`). تست end-to-end موفق.
   - **UI گارسون (انجام‌شده، commit `94c310c`):** `WaiterViewModel`+`WaiterView` لمسی روی API؛ تخته‌ی میزها با رنگ وضعیت، باز/ادامه‌ی سفارش، افزودن آیتم، ارسال به آشپزخانه، تسویه. حالت اجرا `--waiter` (نشان «گارسون») + میانبر در نصاب‌ها. هارنس `SAMA_SHOT_WAITER`.
   - **تسویه → حسابداری (انجام‌شده، commit `0adebf0`):** `SettleOrderCommand` از `CreateSalesInvoiceCommand` استفاده می‌کند → فاکتور فروش + سند حسابداری خودکار متوازن + لینک `SalesInvoiceId` به سفارش. تست شد: S00002→F000055→سند ۱۳۷ متوازن.
-  - **باقی‌مانده‌ی فاز ۱:** نمایشگر آشپزخانه (KDS) به‌عنوان حالت اجرا (`--kitchen`)؛ ویرایش تعداد/حذف ردیف و یادداشت آشپزخانه در UI گارسون؛ چاپ صورتحساب/تیکت.
+  - **KDS — نمایشگر آشپزخانه (انجام‌شده، commit `0546b8d`):** `AdvanceKitchenTicketCommand` (New→Preparing→Ready→Completed + آبشاری به ردیف‌ها)، endpoint، `KitchenViewModel`+`KitchenView` (کارت رنگی، رفرش خودکار)، حالت `--kitchen`، هارنس `SAMA_SHOT_KITCHEN`، میانبر در نصاب‌ها. **فاز ۱ رستوران کامل شد.**
+  - **باقی‌مانده‌ی جزئی فاز ۱:** ویرایش تعداد/حذف ردیف در UI گارسون؛ چاپ صورتحساب/تیکت.
 - **فاز ۳ — حسابداری (در حال انجام):**
   - گزارش‌ها از قبل: تراز آزمایشی، دفتر معین/کل، ترازنامه، سود و زیان (`FinancialReportsQueries.cs`).
   - **سند برگشتی (commit `7b8b021`):** `ReverseVoucherCommand` + `POST /api/vouchers/{id}/reverse`. تست‌دار.

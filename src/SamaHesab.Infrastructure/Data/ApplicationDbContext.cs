@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SamaHesab.Application.Common.Events;
+using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Entities.Settings;
@@ -11,8 +14,10 @@ namespace SamaHesab.Infrastructure.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
+    private readonly IPublisher? _publisher;
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher)
+        : base(options) { _publisher = publisher; }
 
     // Accounting
     public DbSet<Voucher> Vouchers { get; set; }
@@ -167,7 +172,28 @@ public class ApplicationDbContext : DbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        // Handle domain events, audit, etc.
-        return await base.SaveChangesAsync(cancellationToken);
+        // Collect domain events from tracked aggregates BEFORE saving.
+        var entitiesWithEvents = ChangeTracker.Entries<BaseEntity>()
+            .Select(e => e.Entity)
+            .Where(e => e.DomainEvents.Count > 0)
+            .ToList();
+        var domainEvents = entitiesWithEvents.SelectMany(e => e.DomainEvents).ToList();
+
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        // Dispatch AFTER a successful save so handlers see persisted state.
+        if (_publisher is not null && domainEvents.Count > 0)
+        {
+            foreach (var e in entitiesWithEvents) e.ClearDomainEvents();
+            foreach (var domainEvent in domainEvents)
+            {
+                var notification = Activator.CreateInstance(
+                    typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()), domainEvent);
+                if (notification is INotification n)
+                    await _publisher.Publish(n, cancellationToken);
+            }
+        }
+
+        return result;
     }
 }

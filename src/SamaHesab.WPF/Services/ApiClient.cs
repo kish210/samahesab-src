@@ -21,6 +21,10 @@ public record ApiKitchenTicket(int Id, string TicketNumber, int OrderId, string?
     string Status, int StatusCode, DateTime CreatedAt, List<ApiKitchenItem> Items);
 public record ApiKitchenItem(int Id, string ProductName, decimal Quantity, string Status, string? Notes);
 
+// ── Warehouse (v2 — Phase 2) DTOs ──
+public record ApiWarehouse(int Id, string Name);
+public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
+
 /// <summary>
 /// HTTP client used by the POS / restaurant kiosk apps to talk to the central
 /// SamaHesab Web API (never the database directly). Configured from ApiSettings.
@@ -193,6 +197,64 @@ public class ApiClient
             var resp = await _http.PostAsJsonAsync($"/api/restaurant/orders/{orderId}/settle",
                 new { orderId, paidAmount, discount, serviceCharge, tax, tip });
             return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تسویه.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Warehouse (v2 — Phase 2): receiving / issuing / adjustment over the Web API
+    // ─────────────────────────────────────────────────────────────────────────
+    public async Task<List<ApiWarehouse>> GetWarehousesAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiWarehouse>>("/api/warehouse") ?? new(); }
+        catch { return new(); }
+    }
+
+    public async Task<List<ApiStockRow>> GetWarehouseStockAsync(int warehouseId, string? q = null)
+    {
+        try
+        {
+            var url = $"/api/warehouse/stock?warehouseId={warehouseId}";
+            if (!string.IsNullOrWhiteSpace(q)) url += $"&q={Uri.EscapeDataString(q)}";
+            return await _http.GetFromJsonAsync<List<ApiStockRow>>(url) ?? new();
+        }
+        catch { return new(); }
+    }
+
+    public async Task<(bool ok, string? error)> ReceiveStockAsync(int warehouseId, string date,
+        string? description, IEnumerable<(int productId, decimal qty, decimal unitCost)> items)
+    {
+        try
+        {
+            var body = new { warehouseId, date, description,
+                items = items.Select(i => new { productId = i.productId, quantity = i.qty, unitCost = i.unitCost }).ToArray() };
+            var resp = await _http.PostAsJsonAsync("/api/warehouse/receive", body);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت رسید.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> IssueStockAsync(int warehouseId, string date,
+        string? description, IEnumerable<(int productId, decimal qty)> items)
+    {
+        try
+        {
+            var body = new { warehouseId, date, description,
+                items = items.Select(i => new { productId = i.productId, quantity = i.qty }).ToArray() };
+            var resp = await _http.PostAsJsonAsync("/api/warehouse/issue", body);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت حواله.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> AdjustStockAsync(int warehouseId, int productId,
+        decimal newQuantity, string date, string? description)
+    {
+        try
+        {
+            var body = new { warehouseId, productId, newQuantity, date, description };
+            var resp = await _http.PostAsJsonAsync("/api/warehouse/adjust", body);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تعدیل.");
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }

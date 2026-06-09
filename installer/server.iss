@@ -57,6 +57,7 @@ Name: "{group}\صندوق فروشگاه";            Filename: "{app}\{#AppExe}
 Name: "{group}\صندوق رستوران";            Filename: "{app}\{#AppExe}"; Parameters: "--restaurant"; WorkingDir: "{app}"
 Name: "{group}\صندوق گارسون";            Filename: "{app}\{#AppExe}"; Parameters: "--waiter"; WorkingDir: "{app}"
 Name: "{group}\نمایشگر آشپزخانه";        Filename: "{app}\{#AppExe}"; Parameters: "--kitchen"; WorkingDir: "{app}"
+Name: "{group}\انبارداری";               Filename: "{app}\{#AppExe}"; Parameters: "--warehouse"; WorkingDir: "{app}"
 Name: "{group}\راه‌اندازی سرور (API)";    Filename: "{app}\server\{#ApiExe}"; WorkingDir: "{app}\server"
 Name: "{group}\حذف سما حساب";            Filename: "{uninstallexe}"
 Name: "{commondesktop}\حسابداری سما حساب"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Tasks: desktopicon

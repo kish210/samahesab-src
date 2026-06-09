@@ -123,6 +123,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<RestaurantPosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.WaiterViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.KitchenViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.WarehouseClientViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
                 services.AddTransient<SupplierListViewModel>();
@@ -226,6 +227,28 @@ public partial class App : System.Windows.Application
             wrtb.Render(wwin);
             var wenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); wenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(wrtb));
             using (var wfs = System.IO.File.Create(System.IO.Path.Combine(wdir, "waiter.png"))) wenc.Save(wfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_WAREHOUSE") == "1")
+        {
+            var s = Services.AppSettingsStore.GetApiSettings();
+            var ov = Environment.GetEnvironmentVariable("SAMA_API_URL");
+            if (!string.IsNullOrWhiteSpace(ov)) s.BaseUrl = ov;
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(s.BaseUrl);
+            await api.LoginAsync(s.Username, s.Password);
+            var wvm = _host.Services.GetRequiredService<ViewModels.Inventory.WarehouseClientViewModel>();
+            await wvm.LoadAsync();
+            wvm.QuickSearch = "روغن"; await wvm.SearchCommand.ExecuteAsync(null);
+            var wview = new Views.Inventory.WarehouseClientView { DataContext = wvm };
+            var wwin = new Window { Content = wview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            wwin.Show(); await Task.Delay(2200); wwin.UpdateLayout();
+            var wdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(wdir);
+            var wrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            wrtb.Render(wwin);
+            var wenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); wenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(wrtb));
+            using (var wfs = System.IO.File.Create(System.IO.Path.Combine(wdir, "warehouse.png"))) wenc.Save(wfs);
             Shutdown(); return;
         }
 
@@ -394,6 +417,26 @@ public partial class App : System.Windows.Application
                     Title = "نمایشگر آشپزخانه — سما حساب",
                     Content = new Views.Restaurant.KitchenView { DataContext = kvm },
                     DataContext = kvm,
+                    WindowState = WindowState.Maximized,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+                }.Show();
+            });
+            return;
+        }
+
+        // ─── Warehouse client mode (--warehouse / SAMA_WAREHOUSE=1): operator app ──
+        if (e.Args.Contains("--warehouse") || Environment.GetEnvironmentVariable("SAMA_WAREHOUSE") == "1")
+        {
+            ShowApiLogin(e.Args, "انبار", () =>
+            {
+                var wvm = _host!.Services.GetRequiredService<ViewModels.Inventory.WarehouseClientViewModel>();
+                _ = wvm.LoadAsync();
+                new Window
+                {
+                    Title = "انبارداری — سما حساب",
+                    Content = new Views.Inventory.WarehouseClientView { DataContext = wvm },
+                    DataContext = wvm,
                     WindowState = WindowState.Maximized,
                     FlowDirection = FlowDirection.RightToLeft,
                     FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")

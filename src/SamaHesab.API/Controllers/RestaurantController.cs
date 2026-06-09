@@ -28,6 +28,15 @@ public class RestaurantController : ControllerBase
     public async Task<IActionResult> Kitchen(CancellationToken ct)
         => Ok(await _mediator.Send(new GetKitchenBoardQuery(), ct));
 
+    /// <summary>تغییر وضعیت رسید آشپزخانه: 1=در حال آماده‌سازی، 2=آماده، 3=تحویل‌شده.</summary>
+    [HttpPost("kitchen/{ticketId:int}/status/{status:int}")]
+    public async Task<IActionResult> AdvanceKitchen(int ticketId, int status, CancellationToken ct)
+    {
+        var r = await _mediator.Send(
+            new AdvanceKitchenTicketCommand(ticketId, (SamaHesab.Domain.Enums.KitchenTicketStatus)status), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>جزئیات یک سفارش با ردیف‌ها.</summary>
     [HttpGet("orders/{id:int}")]
     public async Task<IActionResult> GetOrder(int id, CancellationToken ct)

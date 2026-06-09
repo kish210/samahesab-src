@@ -44,6 +44,7 @@ Source: "..\dist\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs c
 Name: "{group}\صندوق فروشگاه";              Filename: "{app}\{#AppExe}"; Parameters: "--pos";        WorkingDir: "{app}"
 Name: "{group}\صندوق رستوران";              Filename: "{app}\{#AppExe}"; Parameters: "--restaurant"; WorkingDir: "{app}"
 Name: "{group}\صندوق گارسون";              Filename: "{app}\{#AppExe}"; Parameters: "--waiter"; WorkingDir: "{app}"
+Name: "{group}\نمایشگر آشپزخانه";          Filename: "{app}\{#AppExe}"; Parameters: "--kitchen"; WorkingDir: "{app}"
 Name: "{group}\حذف صندوق سما حساب";        Filename: "{uninstallexe}"
 Name: "{commondesktop}\صندوق فروشگاه";       Filename: "{app}\{#AppExe}"; Parameters: "--pos";        WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{commondesktop}\صندوق رستوران";       Filename: "{app}\{#AppExe}"; Parameters: "--restaurant"; WorkingDir: "{app}"; Tasks: desktopicon

@@ -1,0 +1,88 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Restaurant.KitchenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#0F172A"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <Style x:Key="AdvanceBtn" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#2563EB"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- نوار بالا -->
+        <DockPanel Grid.Row="0" Margin="2,0,2,10">
+            <TextBlock Text="🍳 نمایشگر آشپزخانه" FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding CurrentTime}" DockPanel.Dock="Left" FontSize="18" Foreground="#93C5FD" VerticalAlignment="Center"/>
+            <Button Content="بروزرسانی ⟳" DockPanel.Dock="Left" Margin="0,0,16,0" Padding="14,6"
+                    FontSize="14" Cursor="Hand" Command="{Binding RefreshCommand}"/>
+            <TextBlock Text="{Binding StatusText}" Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#94A3B8" FontSize="14"/>
+        </DockPanel>
+
+        <!-- کارت‌های رسید -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Tickets}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="270" Margin="8" CornerRadius="14" Background="#1E293B"
+                                BorderThickness="2" BorderBrush="#3B82F6">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding StatusCode}" Value="0"><Setter Property="BorderBrush" Value="#3B82F6"/></DataTrigger>
+                                        <DataTrigger Binding="{Binding StatusCode}" Value="1"><Setter Property="BorderBrush" Value="#D97706"/></DataTrigger>
+                                        <DataTrigger Binding="{Binding StatusCode}" Value="2"><Setter Property="BorderBrush" Value="#16A34A"/></DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel Margin="14">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding TableName}" FontSize="19" FontWeight="Bold" Foreground="White"/>
+                                    <Border DockPanel.Dock="Left" CornerRadius="8" Padding="8,2" Background="#0B1220">
+                                        <TextBlock Text="{Binding Status}" FontSize="13" Foreground="#E2E8F0"/>
+                                    </Border>
+                                </DockPanel>
+                                <TextBlock Text="{Binding TicketNumber}" FontSize="12" Foreground="#64748B" Margin="0,2,0,8"/>
+                                <Rectangle Height="1" Fill="#334155" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding Lines}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Foreground="#F1F5F9" FontSize="15" Margin="0,4" TextWrapping="Wrap"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Margin="0,12,0,0"
+                                        Content="{Binding NextLabel}"
+                                        Command="{Binding DataContext.AdvanceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource AdvanceBtn}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding StatusCode}" Value="1"><Setter Property="Background" Value="#16A34A"/></DataTrigger>
+                                                <DataTrigger Binding="{Binding StatusCode}" Value="2"><Setter Property="Background" Value="#4B5563"/></DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

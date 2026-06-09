@@ -136,6 +136,17 @@ public class ApiClient
         catch { return new(); }
     }
 
+    /// <summary>status: 1=Preparing 2=Ready 3=Completed</summary>
+    public async Task<(bool ok, string? error)> AdvanceKitchenTicketAsync(int ticketId, int status)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/kitchen/{ticketId}/status/{status}", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تغییر وضعیت.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
     /// <summary>orderType: 0=DineIn 1=Takeaway 2=Delivery</summary>
     public async Task<(bool ok, int orderId, string? error)> OpenOrderAsync(
         int orderType, int? tableId, int guestCount = 1, int? waiterId = null, int? customerId = null)

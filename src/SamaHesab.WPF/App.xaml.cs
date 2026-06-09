@@ -122,6 +122,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<RestaurantPosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.WaiterViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.KitchenViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
                 services.AddTransient<SupplierListViewModel>();
@@ -225,6 +226,27 @@ public partial class App : System.Windows.Application
             wrtb.Render(wwin);
             var wenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); wenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(wrtb));
             using (var wfs = System.IO.File.Create(System.IO.Path.Combine(wdir, "waiter.png"))) wenc.Save(wfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_KITCHEN") == "1")
+        {
+            var s = Services.AppSettingsStore.GetApiSettings();
+            var ov = Environment.GetEnvironmentVariable("SAMA_API_URL");
+            if (!string.IsNullOrWhiteSpace(ov)) s.BaseUrl = ov;
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(s.BaseUrl);
+            await api.LoginAsync(s.Username, s.Password);
+            var kvm = _host.Services.GetRequiredService<ViewModels.Restaurant.KitchenViewModel>();
+            await kvm.LoadAsync();
+            var kview = new Views.Restaurant.KitchenView { DataContext = kvm };
+            var kwin = new Window { Content = kview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            kwin.Show(); await Task.Delay(2200); kwin.UpdateLayout();
+            var kdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(kdir);
+            var krtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            krtb.Render(kwin);
+            var kenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); kenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(krtb));
+            using (var kfs = System.IO.File.Create(System.IO.Path.Combine(kdir, "kitchen.png"))) kenc.Save(kfs);
             Shutdown(); return;
         }
 
@@ -352,6 +374,26 @@ public partial class App : System.Windows.Application
                     Title = "صندوق گارسون — سما حساب",
                     Content = new Views.Restaurant.WaiterView { DataContext = wvm },
                     DataContext = wvm,
+                    WindowState = WindowState.Maximized,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+                }.Show();
+            });
+            return;
+        }
+
+        // ─── Kitchen Display mode (--kitchen / SAMA_KITCHEN=1): KDS for the kitchen ──
+        if (e.Args.Contains("--kitchen") || Environment.GetEnvironmentVariable("SAMA_KITCHEN") == "1")
+        {
+            ShowApiLogin(e.Args, "آشپزخانه", () =>
+            {
+                var kvm = _host!.Services.GetRequiredService<ViewModels.Restaurant.KitchenViewModel>();
+                _ = kvm.LoadAsync();
+                new Window
+                {
+                    Title = "نمایشگر آشپزخانه — سما حساب",
+                    Content = new Views.Restaurant.KitchenView { DataContext = kvm },
+                    DataContext = kvm,
                     WindowState = WindowState.Maximized,
                     FlowDirection = FlowDirection.RightToLeft,
                     FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")

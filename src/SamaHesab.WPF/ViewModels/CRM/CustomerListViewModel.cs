@@ -39,7 +39,7 @@ public partial class CustomerListViewModel : BaseViewModel
                       (c.Code?.Contains(term) ?? false) ||
                       (c.Mobile?.Contains(term) ?? false)))
                     continue;
-                Customers.Add(new CustomerListItem(c.Id, c.Code, c.FullName, c.Mobile ?? "",
+                Customers.Add(new CustomerListItem(c.Id, c.Code ?? "", c.FullName ?? "", c.Mobile ?? "",
                     c.Balance, c.PriceLevel, c.IsActive));
             }
             TotalCount = Customers.Count;

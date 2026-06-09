@@ -34,7 +34,7 @@ public partial class ProductEditViewModel : BaseViewModel
     [ObservableProperty] private string? _description;
     [ObservableProperty] private int _editingProductId;
 
-    public bool IsEditing => _editingProductId > 0;
+    public bool IsEditing => EditingProductId > 0;
     public List<string> ValuationMethods { get; } = new() { "میانگین", "FIFO" };
 
     public ProductEditViewModel(IMediator mediator, ICurrentUserService currentUser,
@@ -64,7 +64,7 @@ public partial class ProductEditViewModel : BaseViewModel
             var result = await _mediator.Send(command);
             if (result.Succeeded)
             {
-                _editingProductId = result.Value;
+                EditingProductId = result.Value;
                 await _dialogService.ShowSuccessAsync("کالا با موفقیت ذخیره شد.");
                 _navigationService.NavigateTo("Products");
             }

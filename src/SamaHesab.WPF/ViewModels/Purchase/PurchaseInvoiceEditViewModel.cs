@@ -52,8 +52,6 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     public List<string> InvoiceTypes { get; } = new() { "خرید", "برگشت از خرید" };
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه" };
 
-    private int _editingId;
-
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepository;
     private readonly IWarehouseRepository _warehouseRepository;
 
@@ -171,7 +169,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private void NewInvoice()
     {
-        _editingId = 0; InvoiceNumber = "--- خودکار ---";
+        InvoiceNumber = "--- خودکار ---";
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedSupplierId = 0; Description = null; DueDate = null;
         InvoiceItems.Clear(); PaidAmount = 0; RecalculateTotals();

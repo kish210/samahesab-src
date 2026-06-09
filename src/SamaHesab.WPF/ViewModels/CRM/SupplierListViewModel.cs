@@ -39,7 +39,7 @@ public partial class SupplierListViewModel : BaseViewModel
                       (s.Code?.Contains(term) ?? false) ||
                       (s.Mobile?.Contains(term) ?? false)))
                     continue;
-                Suppliers.Add(new SupplierListItem(s.Id, s.Code, s.FullName, s.Mobile ?? "",
+                Suppliers.Add(new SupplierListItem(s.Id, s.Code ?? "", s.FullName ?? "", s.Mobile ?? "",
                     s.City ?? "", s.Balance, s.IsActive));
             }
             TotalCount = Suppliers.Count;

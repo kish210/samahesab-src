@@ -56,8 +56,6 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public List<string> PriceLevels { get; } = new() { "خرده", "عمده", "ویژه" };
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه", "اقساط" };
 
-    private int _editingId;
-
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
     private readonly IWarehouseRepository _warehouseRepository;
 
@@ -169,7 +167,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         RemainAmount = GrandTotal - PaidAmount;
     }
 
-    partial void OnInvoiceDiscountChanged(decimal v) => RecalculateTotals();
+    partial void OnInvoiceDiscountChanged(decimal value) => RecalculateTotals();
 
     [RelayCommand]
     private async Task PostInvoiceAsync()
@@ -203,7 +201,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private void NewInvoice()
     {
-        _editingId = 0; InvoiceNumber = "--- خودکار ---";
+        InvoiceNumber = "--- خودکار ---";
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedCustomerId = 0; SelectedCustomerName = string.Empty;
         Description = null; DueDate = null; InvoiceItems.Clear();
@@ -227,9 +225,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     }
     [RelayCommand] private async Task SaveDraftAsync() { await _dialogService.ShowSuccessAsync("پیش‌نویس ذخیره شد."); }
 
-    partial void OnShippingChanged(decimal v) => RecalculateTotals();
-    partial void OnOtherCostsChanged(decimal v) => RecalculateTotals();
-    partial void OnPaidAmountChanged(decimal v) => RemainAmount = GrandTotal - v;
+    partial void OnShippingChanged(decimal value) => RecalculateTotals();
+    partial void OnOtherCostsChanged(decimal value) => RecalculateTotals();
+    partial void OnPaidAmountChanged(decimal value) => RemainAmount = GrandTotal - value;
 }
 
 public partial class SalesInvoiceItemRow : ObservableObject
@@ -247,10 +245,10 @@ public partial class SalesInvoiceItemRow : ObservableObject
     [ObservableProperty] private decimal _taxAmount;
     [ObservableProperty] private decimal _netAmount;
 
-    partial void OnQuantityChanged(decimal v) => Recalculate();
-    partial void OnUnitPriceChanged(decimal v) => Recalculate();
-    partial void OnDiscountPctChanged(decimal v) => Recalculate();
-    partial void OnTaxPctChanged(decimal v) => Recalculate();
+    partial void OnQuantityChanged(decimal value) => Recalculate();
+    partial void OnUnitPriceChanged(decimal value) => Recalculate();
+    partial void OnDiscountPctChanged(decimal value) => Recalculate();
+    partial void OnTaxPctChanged(decimal value) => Recalculate();
 
     public void Recalculate()
     {

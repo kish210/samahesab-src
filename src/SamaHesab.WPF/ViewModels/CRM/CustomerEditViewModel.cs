@@ -41,8 +41,8 @@ public partial class CustomerEditViewModel : BaseViewModel
     [ObservableProperty] private bool _isPersonal = true;
     [ObservableProperty] private bool _isCompany;
 
-    private int _editingId;
-    public bool IsEditing => _editingId > 0;
+    public int EditingId { get; set; }
+    public bool IsEditing => EditingId > 0;
     public List<string> CustomerTypes { get; } = new() { "حقیقی", "حقوقی" };
     public List<string> PriceLevels { get; } = new() { "خرده", "عمده", "ویژه" };
     public List<CustomerGroupItem> Groups { get; private set; } = new();

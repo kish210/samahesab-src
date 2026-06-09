@@ -6,9 +6,6 @@ using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
 
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
-
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
 public partial class AccountTreeNode : ObservableObject

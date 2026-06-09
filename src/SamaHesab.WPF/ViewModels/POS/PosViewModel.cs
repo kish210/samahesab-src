@@ -108,8 +108,8 @@ public partial class PosViewModel : BaseViewModel
         Change     = Math.Max(0, CashReceived - GrandTotal);
     }
 
-    partial void OnCashReceivedChanged(decimal v) => Change = Math.Max(0, v - GrandTotal);
-    partial void OnDiscountChanged(decimal v) => RecalculateTotals();
+    partial void OnCashReceivedChanged(decimal value) => Change = Math.Max(0, value - GrandTotal);
+    partial void OnDiscountChanged(decimal value) => RecalculateTotals();
 
     [RelayCommand]
     private async Task CheckoutAsync()
@@ -201,8 +201,8 @@ public partial class PosCartItem : ObservableObject
     public PosCartItem(int id, string code, string name, decimal qty, decimal price, decimal taxRate)
     { ProductId = id; ProductCode = code; ProductName = name; _quantity = qty; _unitPrice = price; _taxRate = taxRate; Recalculate(); }
 
-    partial void OnQuantityChanged(decimal v) => Recalculate();
-    partial void OnUnitPriceChanged(decimal v) => Recalculate();
+    partial void OnQuantityChanged(decimal value) => Recalculate();
+    partial void OnUnitPriceChanged(decimal value) => Recalculate();
 
     public void Recalculate()
     { var sub = Quantity * UnitPrice; TaxAmount = sub * TaxRate / 100; NetAmount = sub + TaxAmount; }

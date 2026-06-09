@@ -159,13 +159,13 @@ public partial class RestaurantPosViewModel : BaseViewModel
         Remain = GrandTotal - CashPaid - PosPaid;
     }
 
-    partial void OnDiscountChanged(decimal v) => Recalculate();
-    partial void OnTipChanged(decimal v) => Recalculate();
-    partial void OnServiceEnabledChanged(bool v) => Recalculate();
-    partial void OnServicePctChanged(decimal v) => Recalculate();
-    partial void OnTaxEnabledChanged(bool v) => Recalculate();
-    partial void OnCashPaidChanged(decimal v) => Recalculate();
-    partial void OnPosPaidChanged(decimal v) => Recalculate();
+    partial void OnDiscountChanged(decimal value) => Recalculate();
+    partial void OnTipChanged(decimal value) => Recalculate();
+    partial void OnServiceEnabledChanged(bool value) => Recalculate();
+    partial void OnServicePctChanged(decimal value) => Recalculate();
+    partial void OnTaxEnabledChanged(bool value) => Recalculate();
+    partial void OnCashPaidChanged(decimal value) => Recalculate();
+    partial void OnPosPaidChanged(decimal value) => Recalculate();
 
     private PrintDocumentData BuildBill(string title)
     {

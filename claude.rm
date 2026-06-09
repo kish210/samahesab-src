@@ -59,7 +59,8 @@ cd src/SamaHesab.API && dotnet run -c Release
   - **Domain Events زنده شد:** `DomainEventNotification<T>` + انتشار در `ApplicationDbContext.SaveChangesAsync` (IPublisher). هندلرهای لاگ ممیزی برای VoucherPosted/SalesInvoicePosted/RestaurantOrderSettled. تأیید زنده در لاگ سرور.
   - **پروژه‌ی تست `tests/SamaHesab.Tests` (xUnit) — ۱۳ تست سبز:** توازن دوطرفه‌ی سند، قواعد VoucherItem، جریان سفارش رستوران. اجرا: `dotnet test`.
   - تراز آزمایشی/ترازنامه از قبل در `Reports/Queries/FinancialReportsQueries.cs` موجود بود.
-  - **باقی‌مانده‌ی فاز ۰:** `BranchId` در `AuditableEntity` + Global Query Filter (مهاجرت اسکیما — پرریسک، جدا انجام شود).
+  - **Global Query Filter چندمستأجری (انجام‌شده، commit `07c5229`):** `ApplicationDbContext` با `ICurrentUserService` روی همه‌ی AuditableEntityها بر اساس `CompanyId` فیلتر می‌زند (الگوی امن EF + گارد برای seeding/ورود). تأیید شد لاگین/کوئری‌ها سالم‌اند.
+  - **تصمیم طراحی:** `BranchId` روی داده‌ی پایه (حساب/کالا/مشتری) اضافه نشد (سطح‌شرکت‌اند)؛ روی تراکنش‌ها (سند/فاکتور/سفارش) از قبل هست. فاز ۰ از نظر مکانیزم چندمستأجری کامل است.
 - **فاز ۱ — رستوران (انجام‌شده، commit `2843291`):**
   - Domain: `Hall, DiningTable, RestaurantOrder, RestaurantOrderItem, KitchenTicket` + enums + events (اسکیمای `Rst`).
   - DB: `database/09_Restaurant.sql` (idempotent، سید سالن + ۶ میز) — روی SQLEXPRESS اجرا شده.

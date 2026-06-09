@@ -121,6 +121,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<RestaurantPosViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.WaiterViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
                 services.AddTransient<SupplierListViewModel>();
@@ -203,6 +204,27 @@ public partial class App : System.Windows.Application
             prtb.Render(pwin);
             var penc = new System.Windows.Media.Imaging.PngBitmapEncoder(); penc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(prtb));
             using (var pfs = System.IO.File.Create(System.IO.Path.Combine(pdir, "pos.png"))) penc.Save(pfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_WAITER") == "1")
+        {
+            var s = Services.AppSettingsStore.GetApiSettings();
+            var ov = Environment.GetEnvironmentVariable("SAMA_API_URL");
+            if (!string.IsNullOrWhiteSpace(ov)) s.BaseUrl = ov;
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(s.BaseUrl);
+            await api.LoginAsync(s.Username, s.Password);
+            var wvm = _host.Services.GetRequiredService<ViewModels.Restaurant.WaiterViewModel>();
+            await wvm.LoadAsync();
+            var wview = new Views.Restaurant.WaiterView { DataContext = wvm };
+            var wwin = new Window { Content = wview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            wwin.Show(); await Task.Delay(2200); wwin.UpdateLayout();
+            var wdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(wdir);
+            var wrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            wrtb.Render(wwin);
+            var wenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); wenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(wrtb));
+            using (var wfs = System.IO.File.Create(System.IO.Path.Combine(wdir, "waiter.png"))) wenc.Save(wfs);
             Shutdown(); return;
         }
 
@@ -309,6 +331,27 @@ public partial class App : System.Windows.Application
                     Title = "صندوق رستوران — سما حساب",
                     Content = new Views.POS.RestaurantPosView { DataContext = rvm },
                     DataContext = rvm,
+                    WindowState = WindowState.Maximized,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+                }.Show();
+            });
+            return;
+        }
+
+        // ─── Waiter mode (--waiter / SAMA_WAITER=1): touch table/hall board (v2) ──
+        // Standalone CLIENT — halls, tables, orders and kitchen all go through the Web API.
+        if (e.Args.Contains("--waiter") || Environment.GetEnvironmentVariable("SAMA_WAITER") == "1")
+        {
+            ShowApiLogin(e.Args, "گارسون", () =>
+            {
+                var wvm = _host!.Services.GetRequiredService<ViewModels.Restaurant.WaiterViewModel>();
+                _ = wvm.LoadAsync();
+                new Window
+                {
+                    Title = "صندوق گارسون — سما حساب",
+                    Content = new Views.Restaurant.WaiterView { DataContext = wvm },
+                    DataContext = wvm,
                     WindowState = WindowState.Maximized,
                     FlowDirection = FlowDirection.RightToLeft,
                     FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")

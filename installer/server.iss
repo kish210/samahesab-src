@@ -55,6 +55,7 @@ Name: "{app}\backup"; Permissions: everyone-full
 Name: "{group}\حسابداری سما حساب";        Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"
 Name: "{group}\صندوق فروشگاه";            Filename: "{app}\{#AppExe}"; Parameters: "--pos"; WorkingDir: "{app}"
 Name: "{group}\صندوق رستوران";            Filename: "{app}\{#AppExe}"; Parameters: "--restaurant"; WorkingDir: "{app}"
+Name: "{group}\صندوق گارسون";            Filename: "{app}\{#AppExe}"; Parameters: "--waiter"; WorkingDir: "{app}"
 Name: "{group}\راه‌اندازی سرور (API)";    Filename: "{app}\server\{#ApiExe}"; WorkingDir: "{app}\server"
 Name: "{group}\حذف سما حساب";            Filename: "{uninstallexe}"
 Name: "{commondesktop}\حسابداری سما حساب"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Tasks: desktopicon

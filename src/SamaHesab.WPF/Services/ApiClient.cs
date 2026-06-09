@@ -8,6 +8,19 @@ public record ApiProduct(int Id, string Code, string Name, string? Barcode, deci
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName, string[] Roles);
 
+// ── Restaurant (v2) DTOs — match the Application-layer query DTOs ──
+public record ApiHall(int Id, string Name, int DisplayOrder, List<ApiTable> Tables);
+public record ApiTable(int Id, int HallId, string Name, int Capacity, string Status,
+    int StatusCode, int? CurrentOrderId, int PositionX, int PositionY);
+public record ApiOrder(int Id, string OrderNumber, string OrderType, string Status, int? TableId,
+    int GuestCount, decimal SubTotal, decimal Discount, decimal ServiceCharge, decimal Tax,
+    decimal Tip, decimal GrandTotal, decimal PaidAmount, List<ApiOrderItem> Items);
+public record ApiOrderItem(int Id, int ProductId, string ProductName, decimal Quantity,
+    decimal UnitPrice, decimal DiscountAmount, decimal LineTotal, string Status, int StatusCode, string? Notes);
+public record ApiKitchenTicket(int Id, string TicketNumber, int OrderId, string? TableName,
+    string Status, int StatusCode, DateTime CreatedAt, List<ApiKitchenItem> Items);
+public record ApiKitchenItem(int Id, string ProductName, decimal Quantity, string Status, string? Notes);
+
 /// <summary>
 /// HTTP client used by the POS / restaurant kiosk apps to talk to the central
 /// SamaHesab Web API (never the database directly). Configured from ApiSettings.
@@ -94,5 +107,82 @@ public class ApiClient
             return (false, 0, err?.message ?? $"خطای سرور ({(int)resp.StatusCode})");
         }
         catch (Exception ex) { return (false, 0, ex.GetBaseException().Message); }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Restaurant (v2) — waiter / table / kitchen workflow over the Web API
+    // ─────────────────────────────────────────────────────────────────────────
+    private async Task<string?> ReadErrorAsync(HttpResponseMessage resp)
+    {
+        try { return (await resp.Content.ReadFromJsonAsync<ErrorResult>())?.message; }
+        catch { return null; }
+    }
+
+    public async Task<List<ApiHall>> GetHallsAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiHall>>("/api/restaurant/halls") ?? new(); }
+        catch { return new(); }
+    }
+
+    public async Task<ApiOrder?> GetOrderAsync(int orderId)
+    {
+        try { return await _http.GetFromJsonAsync<ApiOrder>($"/api/restaurant/orders/{orderId}"); }
+        catch { return null; }
+    }
+
+    public async Task<List<ApiKitchenTicket>> GetKitchenBoardAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiKitchenTicket>>("/api/restaurant/kitchen") ?? new(); }
+        catch { return new(); }
+    }
+
+    /// <summary>orderType: 0=DineIn 1=Takeaway 2=Delivery</summary>
+    public async Task<(bool ok, int orderId, string? error)> OpenOrderAsync(
+        int orderType, int? tableId, int guestCount = 1, int? waiterId = null, int? customerId = null)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("/api/restaurant/orders/open",
+                new { orderType, tableId, guestCount, waiterId, customerId });
+            if (!resp.IsSuccessStatusCode) return (false, 0, await ReadErrorAsync(resp) ?? "خطا در باز کردن سفارش.");
+            var doc = await resp.Content.ReadFromJsonAsync<Dictionary<string, int>>();
+            return (true, doc != null && doc.TryGetValue("orderId", out var id) ? id : 0, null);
+        }
+        catch (Exception ex) { return (false, 0, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> AddOrderItemAsync(
+        int orderId, int productId, string productName, decimal quantity, decimal unitPrice,
+        decimal discountAmount = 0, string? notes = null)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync($"/api/restaurant/orders/{orderId}/items",
+                new { orderId, productId, productName, quantity, unitPrice, discountAmount, notes });
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در افزودن آیتم.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> SendToKitchenAsync(int orderId)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/orders/{orderId}/send-to-kitchen", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ارسال به آشپزخانه.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> SettleOrderAsync(int orderId, decimal paidAmount,
+        decimal discount = 0, decimal serviceCharge = 0, decimal tax = 0, decimal tip = 0)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync($"/api/restaurant/orders/{orderId}/settle",
+                new { orderId, paidAmount, discount, serviceCharge, tax, tip });
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تسویه.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
 }

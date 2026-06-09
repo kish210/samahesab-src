@@ -13,7 +13,11 @@ public partial class LoginWindow : Window
         _vm = viewModel;
         DataContext = viewModel;
         Resources["BoolVis"] = new System.Windows.Controls.BooleanToVisibilityConverter();
-        Loaded += (_, _) => TxtUsername?.Focus();
+        Loaded += (_, _) =>
+        {
+            TxtUsername?.Focus();
+            if (_vm.IsApiMode) BtnSettings.Content = "⚙  تنظیمات اتصال به سرور";
+        };
     }
 
     private void PwdBox_PasswordChanged(object sender, RoutedEventArgs e) =>
@@ -24,6 +28,12 @@ public partial class LoginWindow : Window
 
     private void ConnectionSettings_Click(object sender, RoutedEventArgs e)
     {
+        if (_vm.IsApiMode)
+        {
+            // POS / restaurant clients connect to the central Web API server, not the DB.
+            new ApiSettingsWindow { Owner = this }.ShowDialog();
+            return;
+        }
         var dlg = new ConnectionSettingsWindow { Owner = this };
         dlg.ShowDialog();
     }

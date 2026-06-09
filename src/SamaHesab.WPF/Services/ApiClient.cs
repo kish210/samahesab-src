@@ -6,6 +6,7 @@ namespace SamaHesab.WPF.Services;
 
 public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
 public record ApiGroup(int Id, string Name);
+public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName, string[] Roles);
 
 /// <summary>
 /// HTTP client used by the POS / restaurant kiosk apps to talk to the central
@@ -58,6 +59,13 @@ public class ApiClient
     {
         try { return await _http.GetFromJsonAsync<List<ApiGroup>>("/api/products/groups") ?? new(); }
         catch { return new(); }
+    }
+
+    /// <summary>Returns the authenticated principal (from JWT claims) — call after a successful login.</summary>
+    public async Task<ApiMe?> GetMeAsync()
+    {
+        try { return await _http.GetFromJsonAsync<ApiMe>("/api/auth/me"); }
+        catch { return null; }
     }
 
     public async Task<(bool ok, int invoiceId, string? error)> CreatePosSaleAsync(

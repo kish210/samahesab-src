@@ -22,18 +22,39 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty] private string _loginButtonText = "ورود به سیستم";
     [ObservableProperty] private bool _isNotLoading = true;
 
+    /// <summary>When true, authenticate through the Web API (POS/restaurant clients) instead of the DB.</summary>
+    [ObservableProperty] private bool _isApiMode;
+
+    /// <summary>Which program this login belongs to: «حسابداری» / «فروشگاه» / «رستوران».</summary>
+    [ObservableProperty] private string _moduleName = "حسابداری";
+
+    /// <summary>Raised on successful login in API mode; the host opens the POS/restaurant window.</summary>
+    public event Action? Authenticated;
+
     public ObservableCollection<CompanyItem> Companies { get; } = new();
 
     private readonly IDialogService _dialogService;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
+    private readonly ApiClient _apiClient;
 
-    public LoginViewModel(IDialogService dialogService, ICurrentUserService currentUser, IMediator mediator)
+    public LoginViewModel(IDialogService dialogService, ICurrentUserService currentUser, IMediator mediator, ApiClient apiClient)
     {
         _dialogService = dialogService;
         _currentUser = currentUser;
         _mediator = mediator;
+        _apiClient = apiClient;
         LoadCompanies();
+    }
+
+    /// <summary>Switch this login form into Web API mode (used by pos.exe / restoran.exe).</summary>
+    /// <param name="moduleName">Program label shown on the form, e.g. «فروشگاه» or «رستوران».</param>
+    public void EnableApiMode(string moduleName)
+    {
+        IsApiMode = true;
+        ModuleName = moduleName;
+        var s = AppSettingsStore.GetApiSettings();
+        if (string.IsNullOrWhiteSpace(Username)) Username = s.Username;
     }
 
     private void LoadCompanies()
@@ -56,6 +77,22 @@ public partial class LoginViewModel : ObservableObject
 
         try
         {
+            // ── API mode (POS / restaurant clients): authenticate over HTTP, never the DB ──
+            if (IsApiMode)
+            {
+                var (ok, err) = await _apiClient.LoginAsync(Username, Password, SelectedCompanyId);
+                if (!ok) { HasError = true; ErrorMessage = err ?? "ورود ناموفق بود."; return; }
+
+                var me = await _apiClient.GetMeAsync();
+                ((CurrentUserService)_currentUser).SetCurrentUser(
+                    me?.UserId ?? 1, me?.CompanyId ?? SelectedCompanyId, me?.BranchId ?? 1,
+                    me?.Username ?? Username, me?.FullName ?? Username,
+                    me?.Roles ?? new[] { "ADMIN" }, Array.Empty<string>());
+
+                Authenticated?.Invoke();
+                return;
+            }
+
             int userId = 1; int branchId = 1; string fullName = Username; List<string> roles = new();
 
             try

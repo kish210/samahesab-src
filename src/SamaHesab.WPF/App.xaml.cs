@@ -275,32 +275,22 @@ public partial class App : System.Windows.Application
         if (e.Args.Contains("--pos") || Environment.GetEnvironmentVariable("SAMA_POS") == "1")
         {
             var apiSettings = Services.AppSettingsStore.GetApiSettings();
-            var api = _host.Services.GetRequiredService<Services.ApiClient>();
-            api.Configure(apiSettings.BaseUrl);
-            var (apiOk, apiErr) = await api.LoginAsync(apiSettings.Username, apiSettings.Password);
-            if (e.Args.Contains("--setup") || !apiOk)
+            ShowApiLogin(e.Args, "فروشگاه", () =>
             {
-                Log.Warning("POS API login failed: {Err}", apiErr);
-                new Views.Shell.ApiSettingsWindow().ShowDialog();
-                RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
-                return;
-            }
-            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
-                .SetCurrentUser(1, 1, 1, "admin", "صندوق‌دار", new[] { "ADMIN" }, Array.Empty<string>());
-            var posVm = _host.Services.GetRequiredService<ViewModels.POS.PosViewModel>();
-            posVm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
-            await posVm.LoadAsync();
-            var posWindow = new Window
-            {
-                Title = "صندوق فروش — سما حساب",
-                Content = new Views.POS.PosView { DataContext = posVm },
-                DataContext = posVm,
-                WindowState = WindowState.Maximized,
-                WindowStyle = WindowStyle.SingleBorderWindow,
-                FlowDirection = FlowDirection.RightToLeft,
-                FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
-            };
-            posWindow.Show();
+                var posVm = _host!.Services.GetRequiredService<ViewModels.POS.PosViewModel>();
+                posVm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
+                _ = posVm.LoadAsync();
+                new Window
+                {
+                    Title = "صندوق فروش — سما حساب",
+                    Content = new Views.POS.PosView { DataContext = posVm },
+                    DataContext = posVm,
+                    WindowState = WindowState.Maximized,
+                    WindowStyle = WindowStyle.SingleBorderWindow,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+                }.Show();
+            });
             return;
         }
 
@@ -309,30 +299,21 @@ public partial class App : System.Windows.Application
         if (e.Args.Contains("--restaurant") || Environment.GetEnvironmentVariable("SAMA_RESTAURANT") == "1")
         {
             var apiSettings = Services.AppSettingsStore.GetApiSettings();
-            var api = _host.Services.GetRequiredService<Services.ApiClient>();
-            api.Configure(apiSettings.BaseUrl);
-            var (apiOk, apiErr) = await api.LoginAsync(apiSettings.Username, apiSettings.Password);
-            if (e.Args.Contains("--setup") || !apiOk)
+            ShowApiLogin(e.Args, "رستوران", () =>
             {
-                Log.Warning("Restaurant API login failed: {Err}", apiErr);
-                new Views.Shell.ApiSettingsWindow().ShowDialog();
-                RestartSelf(e.Args.Where(a => a != "--setup").ToArray());
-                return;
-            }
-            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
-                .SetCurrentUser(1, 1, 1, "admin", "صندوق رستوران", new[] { "ADMIN" }, Array.Empty<string>());
-            var rvm = _host.Services.GetRequiredService<ViewModels.POS.RestaurantPosViewModel>();
-            rvm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
-            await rvm.LoadAsync();
-            new Window
-            {
-                Title = "صندوق رستوران — سما حساب",
-                Content = new Views.POS.RestaurantPosView { DataContext = rvm },
-                DataContext = rvm,
-                WindowState = WindowState.Maximized,
-                FlowDirection = FlowDirection.RightToLeft,
-                FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
-            }.Show();
+                var rvm = _host!.Services.GetRequiredService<ViewModels.POS.RestaurantPosViewModel>();
+                rvm.ConfigureApi(apiSettings.CustomerId, apiSettings.WarehouseId);
+                _ = rvm.LoadAsync();
+                new Window
+                {
+                    Title = "صندوق رستوران — سما حساب",
+                    Content = new Views.POS.RestaurantPosView { DataContext = rvm },
+                    DataContext = rvm,
+                    WindowState = WindowState.Maximized,
+                    FlowDirection = FlowDirection.RightToLeft,
+                    FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+                }.Show();
+            });
             return;
         }
 
@@ -360,6 +341,36 @@ public partial class App : System.Windows.Application
             return await db.Database.CanConnectAsync();
         }
         catch { return false; }
+    }
+
+    /// <summary>
+    /// Show the (API-mode) login form for the POS / restaurant kiosk clients. On a successful
+    /// login the current user is set from the server (/api/auth/me) and <paramref name="onAuthenticated"/>
+    /// runs to open the kiosk window — the login window is closed afterwards (open-then-close, so the
+    /// app does not shut down on last-window-close). Closing the form without logging in exits the app.
+    /// </summary>
+    private void ShowApiLogin(string[] args, string moduleName, Action onAuthenticated)
+    {
+        var settings = Services.AppSettingsStore.GetApiSettings();
+        // --setup forces the server-connection dialog first (set/verify the server IP).
+        if (args.Contains("--setup"))
+        {
+            new Views.Shell.ApiSettingsWindow().ShowDialog();
+            settings = Services.AppSettingsStore.GetApiSettings();
+        }
+
+        var api = _host!.Services.GetRequiredService<Services.ApiClient>();
+        api.Configure(settings.BaseUrl);
+
+        var vm = _host.Services.GetRequiredService<ViewModels.Shell.LoginViewModel>();
+        vm.EnableApiMode(moduleName);
+        var win = new Views.Shell.LoginWindow(vm);
+        vm.Authenticated += () =>
+        {
+            onAuthenticated();   // open the kiosk window first …
+            win.Close();         // … then close the login form
+        };
+        win.Show();
     }
 
     /// <summary>Relaunch the current executable (to apply a changed connection string).</summary>

@@ -4,6 +4,7 @@ using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.CRM;
+using SamaHesab.Domain.Entities.Purchase;
 using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.Application.Treasury.Commands;
@@ -30,10 +31,12 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<PurchaseInvoice> _invoices;
 
     public CreatePaymentCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
-        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Supplier> suppliers)
-    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; }
+        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Supplier> suppliers,
+        IRepository<PurchaseInvoice> invoices)
+    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; }
 
     public async Task<Result<int>> Handle(CreatePaymentCommand req, CancellationToken ct)
     {
@@ -62,6 +65,21 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
             var supplier = await _suppliers.GetByIdAsync(req.SupplierId, ct);
             if (supplier != null) supplier.UpdateBalance(supplier.Balance - req.Amount);
+
+            // تخصیص خودکار FIFO به فاکتورهای خریدِ بازِ تأمین‌کننده (قدیمی‌ترین اول)
+            var open = await _invoices.FindAsync(
+                i => i.SupplierId == req.SupplierId && i.StatusCode == "قطعی"
+                     && i.RemainAmount > 0.01m, ct);
+            var ordered = open
+                .OrderBy(i => i.InvoiceDate)          // تاریخ شمسی yyyy/MM/dd → مرتب‌سازی لغوی = زمانی
+                .ThenBy(i => i.InvoiceNumber)
+                .Select(i => (i.Id, i.RemainAmount));
+            var (lines, _) = PaymentAllocation.AllocateFifo(req.Amount, ordered);
+            foreach (var line in lines)
+            {
+                var inv = open.First(i => i.Id == line.InvoiceId);
+                inv.SetPaid(inv.PaidAmount + line.Applied);
+            }
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

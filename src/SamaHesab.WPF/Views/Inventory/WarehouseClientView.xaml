@@ -7,6 +7,7 @@
              FlowDirection="RightToLeft">
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
     </UserControl.Resources>
 
     <Grid Margin="6">
@@ -26,6 +27,12 @@
                 <TextBlock Text="انبار:" Margin="16,0,8,0" VerticalAlignment="Center" Foreground="{DynamicResource MutedText}"/>
                 <ComboBox Width="180" Height="34" VerticalContentAlignment="Center"
                           ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedWarehouse}"/>
+                <!-- انبار مقصد (فقط در حالت انتقال) -->
+                <TextBlock Text="به انبار:" Margin="16,0,8,0" VerticalAlignment="Center" Foreground="{DynamicResource MutedText}"
+                           Visibility="{Binding IsTransfer, Converter={StaticResource BoolVis}}"/>
+                <ComboBox Width="180" Height="34" VerticalContentAlignment="Center"
+                          Visibility="{Binding IsTransfer, Converter={StaticResource BoolVis}}"
+                          ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedItem="{Binding DestWarehouse}"/>
                 <TextBlock Text="{Binding StatusText}" DockPanel.Dock="Left" VerticalAlignment="Center"
                            Foreground="{DynamicResource MutedText}" FontSize="13"/>
             </DockPanel>

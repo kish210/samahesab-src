@@ -19,14 +19,16 @@ public partial class WarehouseClientViewModel : BaseViewModel
     public ObservableCollection<WhProductTile> SearchResults { get; } = new();
     public ObservableCollection<WhCartLine> Cart { get; } = new();
     public ObservableCollection<ApiStockRow> Stock { get; } = new();
-    public List<string> Operations { get; } = new() { "رسید ورود", "حواله خروج", "تعدیل موجودی" };
+    public List<string> Operations { get; } = new() { "رسید ورود", "حواله خروج", "تعدیل موجودی", "انتقال بین انبار" };
 
     [ObservableProperty] private ApiWarehouse? _selectedWarehouse;
+    [ObservableProperty] private ApiWarehouse? _destWarehouse;     // مقصد انتقال
     [ObservableProperty] private string _operation = "رسید ورود";
     [ObservableProperty] private string _quickSearch = string.Empty;
     [ObservableProperty] private decimal _totalQty;
     [ObservableProperty] private decimal _totalValue;
     [ObservableProperty] private bool _isReceive = true;     // برای نمایش ستون بهای واحد
+    [ObservableProperty] private bool _isTransfer;            // برای نمایش انتخاب انبار مقصد
     [ObservableProperty] private string _statusText = string.Empty;
 
     public WarehouseClientViewModel(ApiClient api, IDialogService dialogService, INavigationService navigationService)
@@ -43,7 +45,11 @@ public partial class WarehouseClientViewModel : BaseViewModel
         await RefreshStockAsync();
     }
 
-    partial void OnOperationChanged(string value) => IsReceive = value == "رسید ورود";
+    partial void OnOperationChanged(string value)
+    {
+        IsReceive = value == "رسید ورود";
+        IsTransfer = value == "انتقال بین انبار";
+    }
     partial void OnSelectedWarehouseChanged(ApiWarehouse? value) => _ = RefreshStockAsync();
     partial void OnQuickSearchChanged(string value) => _ = SearchAsync();
 
@@ -102,6 +108,17 @@ public partial class WarehouseClientViewModel : BaseViewModel
                 case "حواله خروج":
                     r = await _api.IssueStockAsync(SelectedWarehouse.Id, date, "حواله از کلاینت انبار",
                         Cart.Select(c => (c.ProductId, c.Qty)));
+                    break;
+                case "انتقال بین انبار":
+                    if (DestWarehouse is null || DestWarehouse.Id == SelectedWarehouse.Id)
+                    { await _dialogService.ShowWarningAsync("انبار مقصد را (متفاوت از مبدأ) انتخاب کنید."); return; }
+                    r = (true, null);
+                    foreach (var c in Cart)
+                    {
+                        var (ok, err) = await _api.TransferStockAsync(SelectedWarehouse.Id, DestWarehouse.Id,
+                            c.ProductId, c.Qty, date, "انتقال از کلاینت انبار");
+                        if (!ok) { r = (false, err); break; }
+                    }
                     break;
                 default: // تعدیل موجودی — هر ردیف موجودی را به مقدار واردشده تنظیم می‌کند
                     r = (true, null);

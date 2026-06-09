@@ -258,4 +258,16 @@ public class ApiClient
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
+
+    public async Task<(bool ok, string? error)> TransferStockAsync(int fromWarehouseId, int toWarehouseId,
+        int productId, decimal quantity, string date, string? description)
+    {
+        try
+        {
+            var body = new { fromWarehouseId, toWarehouseId, productId, quantity, date, description };
+            var resp = await _http.PostAsJsonAsync("/api/warehouse/transfer", body);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در انتقال.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
 }

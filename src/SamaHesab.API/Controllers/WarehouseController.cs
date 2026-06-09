@@ -46,4 +46,12 @@ public class WarehouseController : ControllerBase
         var r = await _mediator.Send(cmd, ct);
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>انتقال یک کالا بین دو انبار.</summary>
+    [HttpPost("transfer")]
+    public async Task<IActionResult> Transfer([FromBody] TransferStockCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
 }

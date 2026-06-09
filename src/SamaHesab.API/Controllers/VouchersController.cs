@@ -32,4 +32,16 @@ public class VouchersController : ControllerBase
             ? Ok(new { posted = true })
             : BadRequest(new { message = result.ErrorMessage });
     }
+
+    public record ReverseRequest(string Date, string? Description = null);
+
+    /// <summary>سند برگشتی: خنثی‌کردن یک سند قطعی با جابه‌جایی بدهکار/بستانکار.</summary>
+    [HttpPost("{id:int}/reverse")]
+    public async Task<IActionResult> Reverse(int id, [FromBody] ReverseRequest req, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new ReverseVoucherCommand(id, req.Date, req.Description), ct);
+        return result.Succeeded
+            ? Ok(new { reversalVoucherId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
 }

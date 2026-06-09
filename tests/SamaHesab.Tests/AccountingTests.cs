@@ -76,4 +76,39 @@ public class AccountingTests
     [Fact]
     public void VoucherItem_Throws_When_Negative()
         => Assert.Throws<ArgumentException>(() => VoucherItem.Create(0, 1, 10, debit: -100, credit: 0));
+
+    [Fact]
+    public void Posted_Voucher_CanReverse_Until_Reversed()
+    {
+        var v = NewVoucher();
+        v.AddItem(VoucherItem.Create(0, 1, 10, 1000, 0));
+        v.AddItem(VoucherItem.Create(0, 2, 20, 0, 1000));
+        v.Post(1);
+
+        Assert.True(v.CanReverse());
+        v.MarkAsReversed();
+        Assert.False(v.CanReverse());
+    }
+
+    [Fact]
+    public void Reversal_With_Swapped_Amounts_Is_Balanced_And_Linked()
+    {
+        // original
+        var orig = NewVoucher();
+        orig.AddItem(VoucherItem.Create(0, 1, 10, 1000, 0));
+        orig.AddItem(VoucherItem.Create(0, 2, 20, 0, 1000));
+        orig.Post(1);
+
+        // reversal = swap debit/credit
+        var rev = Voucher.Create(1, 1, 1, "2", "1404/01/02", 1, "برگشت");
+        foreach (var i in orig.Items)
+            rev.AddItem(VoucherItem.Create(0, i.RowNumber, i.AccountId, debit: i.Credit, credit: i.Debit));
+        rev.SetAsReversalOf(orig.Id);
+        rev.Post(1);
+
+        Assert.True(rev.IsBalanced());
+        Assert.Equal(orig.Id, rev.ReversedFromId);
+        Assert.Equal(orig.TotalDebit, rev.TotalCredit);   // 1000 debit ⇄ 1000 credit
+        Assert.Equal(orig.TotalCredit, rev.TotalDebit);
+    }
 }

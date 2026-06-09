@@ -90,6 +90,13 @@ public class Voucher : AuditableEntity
 
     public void MarkAsReversed() { IsReversed = true; UpdatedAt = DateTime.Now; }
 
+    /// <summary>این سند را به‌عنوان «سند برگشتی» سندِ دیگری علامت می‌زند.</summary>
+    public void SetAsReversalOf(int originalVoucherId)
+    {
+        ReversedFromId = originalVoucherId;
+        UpdatedAt = DateTime.Now;
+    }
+
     private void RecalculateTotals()
     {
         TotalDebit = Items.Sum(i => i.Debit);

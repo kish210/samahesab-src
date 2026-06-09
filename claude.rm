@@ -1,0 +1,59 @@
+# claude.rm — وضعیت و حافظه‌ی پروژه «سما حساب»
+
+> فایل دست‌به‌دست (handoff) برای ادامه‌ی کار. آخرین به‌روزرسانی: 2026-06-09
+
+## معماری کلی
+ERP فارسی «سما حساب» — .NET 9 / WPF (RTL) + لایه‌بندی Clean Architecture.
+- `src/SamaHesab.WPF` — برنامه‌ی اصلی (حسابداری دسکتاپ). `AssemblyName=SamaHesab` → `SamaHesab.exe`.
+  - حالت‌های اجرا با سوییچ: بدون سوییچ = حسابداری، `--pos` = صندوق فروشگاه، `--restaurant` = صندوق رستوران.
+- `src/SamaHesab.POS` → `pos.exe`، `src/SamaHesab.Restaurant` → `restoran.exe`
+  - فقط **لانچر**اند: `SamaHesab.exe --pos` / `--restaurant` را اجرا می‌کنند.
+- `src/SamaHesab.API` — سرور Web API (ASP.NET Core + JWT). کلاینت‌های صندوق از طریق این API به سرور وصل می‌شوند (نه دیتابیس مستقیم).
+- `src/SamaHesab.Application` / `Infrastructure` / `Domain` — لایه‌های مشترک (MediatR، EF Core، SQL Server).
+- پایگاه داده: SQL Server؛ اسکریپت‌ها در `database/` (ساخت با `database/setup-database.ps1`).
+
+## نکات کلیدی پیکربندی
+- API روی `http://0.0.0.0:5080` گوش می‌دهد (`src/SamaHesab.API/appsettings.json` → `"Urls"`).
+- تنظیمات کلاینت (آدرس سرور) در `%AppData%\SamaHesab\settings.user.json` (کلید `Api.BaseUrl`).
+- کاربر پیش‌فرض: `admin` / `admin123` (Sec.Users، PBKDF2).
+- لاگ‌های اجرا: `%AppData%\SamaHesab\logs\samaHesab-YYYYMMDD.txt`.
+
+## کارهای انجام‌شده در این جلسه
+1. **اتصال کلاینت‌ها به API** تأیید شد (login + products/groups): `ok=true, products=27, groups=5`.
+2. **فرم لاگین برای صندوق‌ها** (commit `17679c0`):
+   - `pos.exe`/`restoran.exe` دیگر خودکار لاگین نمی‌کنند؛ همان `LoginWindow.xaml` با احراز هویت **API** نمایش داده می‌شود.
+   - کاربر واقعی از `GET /api/auth/me` ست می‌شود (نه admin ثابت).
+   - نشان (badge) نام برنامه روی فرم: **حسابداری / فروشگاه / رستوران** (`LoginViewModel.ModuleName`).
+   - دکمه‌ی «تنظیمات اتصال به سرور» (`ApiSettingsWindow`) در حالت API.
+   - فایل‌ها: `ApiClient.cs` (+`GetMeAsync`/`ApiMe`)، `LoginViewModel.cs`، `LoginWindow.xaml(.cs)`، `App.xaml.cs` (helper `ShowApiLogin`).
+3. **نصاب‌ها** با Inno Setup (commit `d97bf04`):
+   - `installer/publish-all.ps1` — انتشار **خودکفا** (self-contained win-x64) به `dist/app` و `dist/api`.
+   - `installer/server.iss` → **`setup.exe`**: نصب کامل سرور (حسابداری + API + DB scripts)، ساخت DB با sqlcmd، باز کردن پورت 5080 فایروال، اجرای خودکار سرور.
+   - `installer/client.iss` → **`client.exe`**: نصب صندوق (فروشگاه/رستوران)، گرفتن آدرس سرور، میانبرها.
+   - خروجی نهایی کپی‌شده در: `D:\duc\samahesab-setup\setup.exe` و `client.exe`.
+   - (`dist/` و `installer/Output/` در `.gitignore`.)
+
+## دستورهای پرکاربرد
+```bash
+# Build
+dotnet build SamaHesab.sln -c Release
+
+# اجرای سرور API (پورت 5080)
+cd src/SamaHesab.API && dotnet run -c Release
+
+# اجرای کلاینت‌ها (نیاز به API بالا)
+#   از D:\duc\sama-hesab\src\SamaHesab.WPF\bin\Release\net9.0-windows\
+#   SamaHesab.exe --pos        (صندوق فروشگاه)
+#   SamaHesab.exe --restaurant (صندوق رستوران)
+
+# ساخت دوباره‌ی نصاب‌ها
+#   1) powershell installer\publish-all.ps1   (یا دستورهای dotnet publish خودکفا)
+#   2) ISCC.exe installer\server.iss  و  installer\client.iss
+#   ISCC: C:\Users\admin\AppData\Local\Programs\Inno Setup 6\ISCC.exe
+```
+
+## کارهای باز / احتمالی بعدی
+- تست واقعی نصاب‌ها روی یک ویندوز تمیز (روی این سیستم اجرا نشده‌اند).
+- آیکون اختصاصی نصاب (الان `.ico` نداریم؛ فقط `src/SamaHesab.WPF/Assets/Images/logo.png`).
+- اضافه‌کردن کاربر دوم در `Sec.Users` برای تست هویت واقعی فرم لاگین.
+- پاک‌سازی ۳۰ هشدار build (تفاوت امضای partial methodها، usingهای تکراری و …).

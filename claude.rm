@@ -52,6 +52,17 @@ cd src/SamaHesab.API && dotnet run -c Release
 #   ISCC: C:\Users\admin\AppData\Local\Programs\Inno Setup 6\ISCC.exe
 ```
 
+## نسخه ۲ (در حال توسعه)
+- سند راهبردی: [docs/ERP_V2_AUDIT.md](docs/ERP_V2_AUDIT.md) — ممیزی کامل + نقشه‌ی راه فازبندی‌شده.
+- **اصل بنیادی v2:** هر عملیات کسب‌وکار = یک Command/Query در Application (نه منطق در ViewModel)، تا وب/موبایل ۸۰٪ بازاستفاده کنند.
+- **فاز ۱ — رستوران (انجام‌شده، commit `2843291`):**
+  - Domain: `Hall, DiningTable, RestaurantOrder, RestaurantOrderItem, KitchenTicket` + enums + events (اسکیمای `Rst`).
+  - DB: `database/09_Restaurant.sql` (idempotent، سید سالن + ۶ میز) — روی SQLEXPRESS اجرا شده.
+  - Application: Commands (`OpenTable, AddOrderItem, SendOrderToKitchen, SettleOrder`) + Queries (`GetHallsWithTables, GetOrder, GetKitchenBoard`).
+  - API: `RestaurantController` (`/api/restaurant/...`). تست end-to-end موفق.
+  - **باقی‌مانده‌ی فاز ۱:** UI لمسی گارسون (سالن/میز)، صفحه‌ی سفارش، نمایشگر آشپزخانه (KDS) در WPF؛ اتصال تسویه به فاکتور فروش/سند (فعلاً فقط رویداد منتشر می‌شود، هندلر ندارد).
+- **فازهای بعدی:** ۲=انبار فرایندمحور+costing، ۳=حسابداری حرفه‌ای، ۴=POS تجاری، ۵=CRM/اعتبار، ۶=وب/موبایل.
+
 ## کارهای باز / احتمالی بعدی
 - تست واقعی نصاب‌ها روی یک ویندوز تمیز (روی این سیستم اجرا نشده‌اند).
 - آیکون اختصاصی نصاب (الان `.ico` نداریم؛ فقط `src/SamaHesab.WPF/Assets/Images/logo.png`).

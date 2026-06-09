@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using System.Reflection;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SamaHesab.Application.Common.Events;
+using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.Inventory;
@@ -16,8 +18,24 @@ public class ApplicationDbContext : DbContext
 {
     private readonly IPublisher? _publisher;
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher)
-        : base(options) { _publisher = publisher; }
+    // ── Multi-tenancy (Phase 0): scope every AuditableEntity to the current company ──
+    // مقدارها در سازنده از کاربر جاری خوانده می‌شوند؛ EF این ارجاع‌ها را per-query پارامتری می‌کند.
+    private readonly int _companyId;
+    private readonly bool _tenantFilterEnabled;
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher,
+        ICurrentUserService? currentUser = null)
+        : base(options)
+    {
+        _publisher = publisher;
+        _companyId = currentUser?.CompanyId ?? 0;
+        // وقتی کاربری احراز نشده (seeding/ورود/سرویس‌های پس‌زمینه) فیلتر غیرفعال است تا چیزی نشکند.
+        _tenantFilterEnabled = _companyId > 0;
+    }
+
+    private void ApplyTenantFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : AuditableEntity
+        => modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(e => !_tenantFilterEnabled || e.CompanyId == _companyId);
 
     // Accounting
     public DbSet<Voucher> Vouchers { get; set; }
@@ -159,6 +177,8 @@ public class ApplicationDbContext : DbContext
         // The audit-by-user columns are not present in every table created by the
         // SQL scripts. They are not used by the UI, so ignore them everywhere to
         // avoid "Invalid column name 'CreatedByUserId'" at query time.
+        var applyTenant = typeof(ApplicationDbContext)
+            .GetMethod(nameof(ApplyTenantFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
         foreach (var et in modelBuilder.Model.GetEntityTypes().ToList())
         {
             if (typeof(SamaHesab.Domain.Common.AuditableEntity).IsAssignableFrom(et.ClrType))
@@ -166,6 +186,9 @@ public class ApplicationDbContext : DbContext
                 var eb = modelBuilder.Entity(et.ClrType);
                 eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.CreatedByUserId));
                 eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.UpdatedByUserId));
+
+                // multi-tenant global query filter (scoped to current company)
+                applyTenant.MakeGenericMethod(et.ClrType).Invoke(this, new object[] { modelBuilder });
             }
         }
     }

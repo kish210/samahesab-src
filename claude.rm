@@ -75,7 +75,12 @@ cd src/SamaHesab.API && dotnet run -c Release
   - **سند برگشتی (commit `7b8b021`):** `ReverseVoucherCommand` + `POST /api/vouchers/{id}/reverse`. تست‌دار.
   - **بستن سال مالی (commit `346db59`):** `CloseFiscalYearCommand` — سند اختتامیه (صفرکردن درآمد/هزینه → ۵-۰۴) + سند افتتاحیه. `POST /api/vouchers/close-fiscal-year`. تست شد (اختتامیه #145 متوازن، سود ۸۶,۱۷۴,۰۰۰).
   - **باقی‌مانده‌ی حسابداری:** Post خودکار اسناد فروش/خرید (الان Draft می‌مانند)؛ UI ورود سریع سند؛ اسناد تکراری/الگو؛ اصلاح ناسازگاری گروه‌بندی درآمد/هزینه در گزارش‌های قدیمی (Seg0 با چارت فعلی هم‌خوان نیست).
-- **فازهای بعدی:** ۲=انبار فرایندمحور+costing، ۴=POS تجاری، ۵=CRM/اعتبار، ۶=وب/موبایل.
+- **فاز ۲ — انبار (انجام‌شده، commit `effc043`):** کلاینت لمسی انبار مثل POS/رستوران از طریق API.
+  - Application: `ReceiveStockCommand`/`IssueStockCommand`/`AdjustStockCommand` (میانگین موزون + کاردکس)، `GetWarehousesQuery`/`GetWarehouseStockQuery`.
+  - API `WarehouseController` (`/api/warehouse`) + ApiClient + `WarehouseClientViewModel`/`View`، حالت `--warehouse`، هارنس `SAMA_SHOT_WAREHOUSE`، میانبر «انبارداری».
+  - تأیید end-to-end: رسید ۱۰@۵۰٬۰۰۰ → حواله ۳ → موجودی ۷ بهای میانگین ۵۰٬۰۰۰؛ حواله بیش از موجودی رد شد.
+  - **باقی‌مانده‌ی فاز ۲:** FIFO و ردیابی بچ/سریال؛ فرایند رسمی انبارگردانی (شمارش/مغایرت)؛ سند حسابداری خودکار برای رسید/حواله.
+- **فازهای بعدی:** ۴=POS تجاری، ۵=CRM/اعتبار، ۶=وب/موبایل؛ و تکمیل UI حسابداری.
 
 ## کارهای باز / احتمالی بعدی
 - تست واقعی نصاب‌ها روی یک ویندوز تمیز (روی این سیستم اجرا نشده‌اند).

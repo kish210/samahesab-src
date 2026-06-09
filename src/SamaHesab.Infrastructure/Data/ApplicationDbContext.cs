@@ -5,6 +5,7 @@ using SamaHesab.Domain.Entities.Settings;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Entities.Sales;
 using SamaHesab.Domain.Entities.HRM;
+using SamaHesab.Domain.Entities.Restaurant;
 
 namespace SamaHesab.Infrastructure.Data;
 
@@ -39,6 +40,13 @@ public class ApplicationDbContext : DbContext
 
     // HRM
     public DbSet<Employee> Employees { get; set; }
+
+    // Restaurant (v2)
+    public DbSet<Hall> Halls { get; set; }
+    public DbSet<DiningTable> DiningTables { get; set; }
+    public DbSet<RestaurantOrder> RestaurantOrders { get; set; }
+    public DbSet<RestaurantOrderItem> RestaurantOrderItems { get; set; }
+    public DbSet<KitchenTicket> KitchenTickets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +121,29 @@ public class ApplicationDbContext : DbContext
         // Avoid cascading the HR detail tables into the model for now.
         modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);
         modelBuilder.Entity<Employee>().Ignore(e => e.SalarySlips);
+
+        // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
+        modelBuilder.Entity<Hall>(b =>
+        {
+            b.ToTable("Halls", "Rst");
+            b.Ignore(h => h.Tables);   // tables are queried directly by HallId
+        });
+        modelBuilder.Entity<DiningTable>().ToTable("DiningTables", "Rst");
+        modelBuilder.Entity<KitchenTicket>().ToTable("KitchenTickets", "Rst");
+        modelBuilder.Entity<RestaurantOrder>(b =>
+        {
+            b.ToTable("RestaurantOrders", "Rst");
+            b.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
+            foreach (var p in new[] { "SubTotal", "Discount", "ServiceCharge", "Tax", "Tip", "GrandTotal", "PaidAmount" })
+                b.Property(p).HasPrecision(18, 2);
+        });
+        modelBuilder.Entity<RestaurantOrderItem>(b =>
+        {
+            b.ToTable("RestaurantOrderItems", "Rst");
+            b.Property(i => i.Quantity).HasPrecision(18, 3);
+            foreach (var p in new[] { "UnitPrice", "DiscountAmount", "LineTotal" })
+                b.Property(p).HasPrecision(18, 2);
+        });
 
         // Cheque enums are stored as Persian NVARCHAR in the DB.
         modelBuilder.Entity<Cheque>().Property(c => c.Status)

@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
+using SamaHesab.Application.Sales.Commands;
 using SamaHesab.Domain.Entities.Restaurant;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -206,21 +207,52 @@ public class SettleOrderCommandHandler : IRequestHandler<SettleOrderCommand, Res
     private readonly IRepository<DiningTable> _tables;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IMediator _mediator;
+    private readonly IPersianCalendarService _calendar;
 
     public SettleOrderCommandHandler(IRestaurantOrderRepository orders, IRepository<DiningTable> tables,
-        IUnitOfWork uow, ICurrentUserService user)
-    { _orders = orders; _tables = tables; _uow = uow; _user = user; }
+        IUnitOfWork uow, ICurrentUserService user, IMediator mediator, IPersianCalendarService calendar)
+    { _orders = orders; _tables = tables; _uow = uow; _user = user; _mediator = mediator; _calendar = calendar; }
 
     public async Task<Result> Handle(SettleOrderCommand req, CancellationToken ct)
     {
         var order = await _orders.GetWithItemsAsync(req.OrderId, ct);
         if (order is null) return Result.Failure("سفارش یافت نشد.");
+        if (order.Status is RestaurantOrderStatus.Settled or RestaurantOrderStatus.Cancelled)
+            return Result.Failure("سفارش قابل تسویه نیست.");
 
+        // ── ۱) ثبت فروش از مسیر موجود فروش (فاکتور + کاهش موجودی + سند حسابداری خودکار) ──
+        // service/tax/tip در «سایر هزینه‌ها» و تخفیف کل در InvoiceDiscount می‌رود تا جمع با سفارش یکی شود.
+        int? invoiceId = null;
+        var activeItems = order.Items.Where(i => i.Status != OrderItemStatus.Cancelled).ToList();
+        if (activeItems.Count > 0)
+        {
+            var party = order.TableId is not null ? $" میز {order.TableId}" : $" ({order.OrderType})";
+            var saleCmd = new CreateSalesInvoiceCommand(
+                BranchId: _user.BranchId ?? 1, FiscalYearId: 1,
+                InvoiceDate: _calendar.GetCurrentPersianDate(),
+                CustomerId: order.CustomerId ?? 1, WarehouseId: 1,
+                InvoiceType: InvoiceType.Sale, PriceLevel: "خرده",
+                SalesRepId: null, DueDate: null,
+                Description: $"رستوران — سفارش {order.OrderNumber}{party}",
+                Shipping: 0, OtherCosts: req.ServiceCharge + req.Tax + req.Tip,
+                Items: activeItems.Select(i => new SalesInvoiceItemDto(
+                    i.ProductId, i.Quantity, i.UnitPrice, 0, 0, i.Notes, null, null)).ToList(),
+                InvoiceDiscount: req.Discount,
+                PaidAmount: req.PaidAmount,
+                PaymentMethod: "نقدی");
+            var saleResult = await _mediator.Send(saleCmd, ct);
+            // اگر ثبت فروش/سند ناموفق بود، تسویه‌ی میز را متوقف نمی‌کنیم (میز باید آزاد شود)؛ صرفاً بدون لینک فاکتور.
+            if (saleResult.Succeeded) invoiceId = saleResult.Value;
+        }
+
+        // ── ۲) تسویه‌ی سفارش + لینک فاکتور + آزادسازی میز (تراکنشی) ──
         await _uow.BeginTransactionAsync(ct);
         try
         {
             order.SetCharges(req.Discount, req.ServiceCharge, req.Tax, req.Tip);
             order.Settle(_user.UserId ?? 0, req.PaidAmount);   // raises RestaurantOrderSettledEvent
+            if (invoiceId is not null) order.LinkSalesInvoice(invoiceId.Value);
             _orders.Update(order);
 
             if (order.TableId is not null)

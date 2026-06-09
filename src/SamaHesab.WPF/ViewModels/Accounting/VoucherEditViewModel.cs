@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.Accounting;
@@ -105,6 +106,19 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         // Reset input
         NewRowNumber++;
         NewAccountId = null; NewDescription = null; NewDebit = 0; NewCredit = 0;
+    }
+
+    /// <summary>
+    /// توازن خودکار: سمت خالیِ ردیف جدید را با مابه‌التفاوت بدهکار/بستانکار پر می‌کند
+    /// تا با افزودن آن، سند تراز شود. کلید میان‌بر: «=».
+    /// </summary>
+    [RelayCommand]
+    private void FillBalance()
+    {
+        var (debit, credit) = VoucherBalance.BalancingEntry(TotalDebit, TotalCredit);
+        if (debit == 0 && credit == 0) return; // سند از قبل تراز است
+        NewDebit = debit;
+        NewCredit = credit;
     }
 
     [RelayCommand]

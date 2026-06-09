@@ -7,6 +7,16 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
+    <!-- ═══ میان‌برهای کیبورد: گردش‌کار سریع ورود سند بدون ماوس ═══ -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding NewCommand}"/>
+        <KeyBinding Key="F7" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="F8" Command="{Binding PrintCommand}"/>
+        <KeyBinding Key="F9" Command="{Binding PostCommand}"/>
+        <KeyBinding Key="OemPlus" Command="{Binding FillBalanceCommand}"/>   <!-- «=» توازن خودکار -->
+        <KeyBinding Key="Return" Modifiers="Control" Command="{Binding PostCommand}"/>
+    </UserControl.InputBindings>
+
     <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>   <!-- toolbar + metadata (compact header = ~15%) -->

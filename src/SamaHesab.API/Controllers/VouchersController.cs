@@ -44,4 +44,14 @@ public class VouchersController : ControllerBase
             ? Ok(new { reversalVoucherId = result.Value })
             : BadRequest(new { message = result.ErrorMessage });
     }
+
+    /// <summary>بستن سال مالی: صدور سند اختتامیه (و اختیاری سند افتتاحیه سال بعد).</summary>
+    [HttpPost("close-fiscal-year")]
+    public async Task<IActionResult> CloseFiscalYear([FromBody] CloseFiscalYearCommand command, CancellationToken ct)
+    {
+        var result = await _mediator.Send(command, ct);
+        return result.Succeeded
+            ? Ok(result.Value)
+            : BadRequest(new { message = result.ErrorMessage });
+    }
 }

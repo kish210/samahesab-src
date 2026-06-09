@@ -166,6 +166,46 @@ public partial class App : System.Windows.Application
         });
 
         // ─── Render the restaurant POS to PNG (dev only) ──────────────────────
+        if (Environment.GetEnvironmentVariable("SAMA_TEST_APILOGIN") == "1")
+        {
+            var s = Services.AppSettingsStore.GetApiSettings();
+            var ov = Environment.GetEnvironmentVariable("SAMA_API_URL");
+            if (!string.IsNullOrWhiteSpace(ov)) s.BaseUrl = ov;
+            Log.Information("[APILOGIN] url={Url} user={User}", s.BaseUrl, s.Username);
+            var api = _host.Services.GetRequiredService<Services.ApiClient>();
+            api.Configure(s.BaseUrl);
+            var (ok, err) = await api.LoginAsync(s.Username, s.Password);
+            Log.Information("[APILOGIN] result ok={Ok} err={Err}", ok, err);
+            if (ok)
+            {
+                var prods = await api.SearchProductsAsync("");
+                var groups = await api.GetGroupsAsync();
+                Log.Information("[APILOGIN] products={P} groups={G}", prods.Count, groups.Count);
+            }
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_POS") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "صندوق‌دار", new[] { "ADMIN" }, Array.Empty<string>());
+            try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services); } catch { }
+            var pvm = _host.Services.GetRequiredService<ViewModels.POS.PosViewModel>();
+            await pvm.LoadAsync();
+            foreach (var bc in new[] { "K1001", "K1002", "K1003" })
+            { pvm.BarcodeInput = bc; try { await pvm.ProcessBarcodeCommand.ExecuteAsync(null); } catch { } }
+            pvm.CashReceived = 5_000_000;
+            var pview = new Views.POS.PosView { DataContext = pvm };
+            var pwin = new Window { Content = pview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            pwin.Show(); await Task.Delay(2200); pwin.UpdateLayout();
+            var pdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(pdir);
+            var prtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            prtb.Render(pwin);
+            var penc = new System.Windows.Media.Imaging.PngBitmapEncoder(); penc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(prtb));
+            using (var pfs = System.IO.File.Create(System.IO.Path.Combine(pdir, "pos.png"))) penc.Save(pfs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_RESTAURANT") == "1")
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())

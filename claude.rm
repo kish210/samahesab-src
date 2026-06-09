@@ -55,6 +55,11 @@ cd src/SamaHesab.API && dotnet run -c Release
 ## نسخه ۲ (در حال توسعه)
 - سند راهبردی: [docs/ERP_V2_AUDIT.md](docs/ERP_V2_AUDIT.md) — ممیزی کامل + نقشه‌ی راه فازبندی‌شده.
 - **اصل بنیادی v2:** هر عملیات کسب‌وکار = یک Command/Query در Application (نه منطق در ViewModel)، تا وب/موبایل ۸۰٪ بازاستفاده کنند.
+- **فاز ۰ — پایه (انجام‌شده، commit `7429d0a`):**
+  - **Domain Events زنده شد:** `DomainEventNotification<T>` + انتشار در `ApplicationDbContext.SaveChangesAsync` (IPublisher). هندلرهای لاگ ممیزی برای VoucherPosted/SalesInvoicePosted/RestaurantOrderSettled. تأیید زنده در لاگ سرور.
+  - **پروژه‌ی تست `tests/SamaHesab.Tests` (xUnit) — ۱۳ تست سبز:** توازن دوطرفه‌ی سند، قواعد VoucherItem، جریان سفارش رستوران. اجرا: `dotnet test`.
+  - تراز آزمایشی/ترازنامه از قبل در `Reports/Queries/FinancialReportsQueries.cs` موجود بود.
+  - **باقی‌مانده‌ی فاز ۰:** `BranchId` در `AuditableEntity` + Global Query Filter (مهاجرت اسکیما — پرریسک، جدا انجام شود).
 - **فاز ۱ — رستوران (انجام‌شده، commit `2843291`):**
   - Domain: `Hall, DiningTable, RestaurantOrder, RestaurantOrderItem, KitchenTicket` + enums + events (اسکیمای `Rst`).
   - DB: `database/09_Restaurant.sql` (idempotent، سید سالن + ۶ میز) — روی SQLEXPRESS اجرا شده.

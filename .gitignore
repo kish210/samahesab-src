@@ -112,3 +112,7 @@ build/_smoke/
 
 # Telerik license key (do not commit)
 telerik-license.txt
+
+# Build/publish artifacts for installers
+/dist/
+/installer/Output/

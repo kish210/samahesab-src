@@ -48,6 +48,12 @@ public class AnalyticsController : ControllerBase
         [FromQuery] string from, [FromQuery] string to, CancellationToken ct)
         => Ok(await _mediator.Send(new GetBranchPerformanceQuery(from, to), ct));
 
+    /// <summary>روند ورود/خروج موجودی به‌تفکیک ماه (اختیاری: یک کالا).</summary>
+    [HttpGet("inventory-trend")]
+    public async Task<IActionResult> InventoryTrend(
+        [FromQuery] string from, [FromQuery] string to, [FromQuery] int? productId, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetInventoryTrendQuery(from, to, productId), ct));
+
     /// <summary>داشبورد مدیر/مالک (KPIهای کلیدی).</summary>
     [HttpGet("dashboard/manager")]
     public async Task<IActionResult> ManagerDashboard([FromQuery] string today, CancellationToken ct)

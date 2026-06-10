@@ -49,7 +49,7 @@
 27. ⬜ اسکن بارکد یکپارچه (سرویس مشترک: رسید/حواله/POS/شمارش)
 28. 🔧 انبارگردانی سندی (شمارش گروهی + گزارش مغایرت) — ✅ بک‌اند (کلود ۲): `StockCountSession`/`Line` + اسکیمای `Inv` (`database/14_StockCount.sql`) + Start/Count/Post (تبدیل مغایرت به تعدیل + سند خودکار) + `GetStockCountQuery` + `/api/stockcount/*` + ۵ تست · UI مانده
 29. ⬜ بهای تمام‌شده FIFO + ردیابی بچ/سریال
-30. ⬜ POS — شیفت/صندوق (باز/بستن + شمارش)
+30. ✅ POS — شیفت/صندوق (کلود ۲): `CashShift` (اسکیمای `Pos`، `database/16_CashShifts.sql`) + Open/RecordSale/Close (موردانتظار=موجودی‌اولیه+فروش‌نقدی، مغایرت=شمارش−موردانتظار) + `GetOpenShiftQuery` (Z-report زنده) + `ShiftsController` (`/api/shifts/current|open|record-sale|close`) + ۵ تست (۱۱۷ سبز) · UI مانده
 31. ⬜ POS — گزارش Z/X
 32. ⬜ POS — مرجوعی فروش
 33. ⬜ POS — تعلیق/فراخوان فاکتور (Hold/Recall)

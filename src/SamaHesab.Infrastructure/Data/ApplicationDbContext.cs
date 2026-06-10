@@ -47,6 +47,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
     public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.POS.CashShift> CashShifts { get; set; }
     public DbSet<StockCountSession> StockCountSessions { get; set; }
     public DbSet<StockCountLine> StockCountLines { get; set; }
 
@@ -181,6 +182,12 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.POS.CashShift>(b =>
+        {
+            b.ToTable("CashShifts", "Pos");
+            foreach (var p in new[] { "OpeningFloat", "CashSales", "CardSales", "CountedCash", "ExpectedCash", "Variance" })
+                b.Property(p).HasPrecision(18, 2);
+        });
 
         // ─── Stock Count (انبارگردانی) — schema Inv ──────────────────────────────
         modelBuilder.Entity<StockCountSession>(b =>

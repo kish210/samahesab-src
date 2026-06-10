@@ -75,6 +75,21 @@ public class AnalyticsController : ControllerBase
     public async Task<IActionResult> WarehouseDashboard([FromQuery] string today, CancellationToken ct)
         => Ok(await _mediator.Send(new GetWarehouseDashboardQuery(today), ct));
 
+    /// <summary>داشبورد نقش «صندوق‌دار» (فروش امروز).</summary>
+    [HttpGet("dashboard/cashier")]
+    public async Task<IActionResult> CashierDashboard([FromQuery] string today, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetCashierDashboardQuery(today), ct));
+
+    /// <summary>داشبورد نقش «رستوران» (وضعیت میزها + سفارش‌های باز).</summary>
+    [HttpGet("dashboard/restaurant")]
+    public async Task<IActionResult> RestaurantDashboard(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetRestaurantDashboardQuery(), ct));
+
+    /// <summary>داشبورد نقش «مالک» (نمای چندشعبه).</summary>
+    [HttpGet("dashboard/owner")]
+    public async Task<IActionResult> OwnerDashboard([FromQuery] string today, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetOwnerDashboardQuery(today), ct));
+
     /// <summary>اعلان‌های عملیاتی لحظه‌ای (سررسید چک + کسری موجودی).</summary>
     [HttpGet("alerts")]
     public async Task<IActionResult> Alerts([FromQuery] string today, CancellationToken ct)

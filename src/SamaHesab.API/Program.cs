@@ -19,6 +19,9 @@ builder.Services.AddScoped<ICurrentUserService, HttpCurrentUserService>();
 builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddSingleton<RefreshTokenStore>();
 
+// زمان‌بند پس‌زمینه‌ی اعلان‌ها (P2، کار #۷)
+builder.Services.AddHostedService<SamaHesab.API.Services.NotificationSchedulerService>();
+
 // ── JWT authentication ──
 var jwt = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

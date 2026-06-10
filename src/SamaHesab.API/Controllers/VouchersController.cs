@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Accounting.Commands;
+using SamaHesab.Application.Accounting.Queries;
 
 namespace SamaHesab.API.Controllers;
 
@@ -54,4 +55,21 @@ public class VouchersController : ControllerBase
             ? Ok(result.Value)
             : BadRequest(new { message = result.ErrorMessage });
     }
+
+    public record CopyRequest(string Date, string? Description = null);
+
+    /// <summary>کپی سند به‌عنوان پیش‌نویس جدید (بهره‌وری: اسناد تکرارشونده).</summary>
+    [HttpPost("{id:int}/copy")]
+    public async Task<IActionResult> Copy(int id, [FromBody] CopyRequest req, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new CopyVoucherCommand(id, req.Date, req.Description), ct);
+        return result.Succeeded
+            ? Ok(new { voucherId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
+
+    /// <summary>پیشنهاد هوشمند حساب‌های طرفِ مقابلِ پرتکرار برای یک حساب (auto-completion).</summary>
+    [HttpGet("suggest-accounts/{accountId:int}")]
+    public async Task<IActionResult> SuggestAccounts(int accountId, [FromQuery] int top, CancellationToken ct)
+        => Ok(await _mediator.Send(new SuggestAccountPairsQuery(accountId, top <= 0 ? 6 : top), ct));
 }

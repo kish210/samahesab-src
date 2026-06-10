@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SamaHesab.Application.Automation.Queries;
 using SamaHesab.Application.BI.Queries;
 
 namespace SamaHesab.API.Controllers;
@@ -39,4 +40,9 @@ public class AnalyticsController : ControllerBase
     [HttpGet("dashboard/manager")]
     public async Task<IActionResult> ManagerDashboard([FromQuery] string today, CancellationToken ct)
         => Ok(await _mediator.Send(new GetManagerDashboardQuery(today), ct));
+
+    /// <summary>اعلان‌های عملیاتی لحظه‌ای (سررسید چک + کسری موجودی).</summary>
+    [HttpGet("alerts")]
+    public async Task<IActionResult> Alerts([FromQuery] string today, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetAlertsQuery(today), ct));
 }

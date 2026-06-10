@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **P2 — اتوماسیون اعلان‌ها**: موتور خالص `AlertEngine` (سررسید چک + کسری موجودی) + `GetAlertsQuery` + `/api/analytics/alerts` + ۳ تست (۷۱ سبز)
 - **2026-06-10** — **P1 — BI پایه**: موتور خالص `SalesAnalytics` (مشتریان/کالاهای برتر، روند ماهانه، سود) + queryها + داشبورد مدیر + `AnalyticsController` (`/api/analytics/top-customers|sales-trend|profit|dashboard/manager`) + ۷ تست (۶۸ سبز)
 - **2026-06-10** — **آغاز فاز محصول‌سازی (Productization)** (`docs/PRODUCTIZATION.md`): ۸ حوزه + نقشه‌ی راه API-First (P1..P7)
 - **2026-06-10** — **اسناد تکرارشونده (Recurring Vouchers)**: `RecurringVoucher` + `RecurrenceSchedule` (منطق خالص ماهانه/سالانه) + اسکیمای `Acc` (`database/12_RecurringVouchers.sql`) + Save/List/`GenerateDueRecurringVouchersCommand` (تولید catch-up + idempotent) + endpointها (`/recurring`, `/recurring/run`) + ۹ تست. (۶۱ تست سبز)
@@ -42,7 +43,7 @@
 
 اولویت پیاده‌سازی (هرکدام: Application + endpoint API + تست):
 - [~] P1. داشبورد نقش‌محور + BI پایه — ✅ بک‌اند: موتور `SalesAnalytics` + queryهای مشتریان/کالاهای برتر، روند فروش، تحلیل سود، داشبورد مدیر + endpointها (`/api/analytics/...`) + ۷ تست · داشبوردهای حسابدار/انباردار/صندوق + UI مانده
-- [ ] P2. اتوماسیون اعلان‌ها (Hosted Service: سررسید چک / کسری موجودی / یادآور بدهی)
+- [~] P2. اتوماسیون اعلان‌ها — ✅ بک‌اند: موتور `AlertEngine` (سررسید چک + کسری موجودی) + `GetAlertsQuery` + `/api/analytics/alerts` + ۳ تست · Hosted Service زمان‌بند + یادآور بدهی (نیاز به سررسید) + اعلان انقضا (نیاز به بچ) مانده
 - [~] P3. اسناد/فاکتورهای تکراری — ✅ اسناد تکراری + الگوی سند (بک‌اند، session موازی) · فاکتور تکراری + زمان‌بند خودکار مانده
 - [ ] P4. پیشنهاد خودکار سفارش خرید (نقطه‌ی سفارش)
 - [ ] P5. موتور گزارش‌ساز (PDF/Excel: مالی/مدیریتی/انبار/فروش/شعب/مشتری/تأمین‌کننده)

@@ -21,18 +21,33 @@ Write-Host "[2/4] publish POS launcher (pos.exe) ..." -ForegroundColor Cyan
 dotnet publish "$root\src\SamaHesab.POS\SamaHesab.POS.csproj" @common -o $app
 if ($LASTEXITCODE) { throw "POS publish failed" }
 
-Write-Host "[3/4] publish Restaurant launcher (restoran.exe) ..." -ForegroundColor Cyan
+Write-Host "[3/7] publish Restaurant launcher (restoran.exe) ..." -ForegroundColor Cyan
 dotnet publish "$root\src\SamaHesab.Restaurant\SamaHesab.Restaurant.csproj" @common -o $app
 if ($LASTEXITCODE) { throw "Restaurant publish failed" }
 
-Write-Host "[4/4] publish API server (SamaHesab.API.exe) ..." -ForegroundColor Cyan
+Write-Host "[4/7] publish Waiter launcher (waiter.exe) ..." -ForegroundColor Cyan
+dotnet publish "$root\src\SamaHesab.Waiter\SamaHesab.Waiter.csproj" @common -o $app
+if ($LASTEXITCODE) { throw "Waiter publish failed" }
+
+Write-Host "[5/7] publish Kitchen launcher (kitchen.exe) ..." -ForegroundColor Cyan
+dotnet publish "$root\src\SamaHesab.Kitchen\SamaHesab.Kitchen.csproj" @common -o $app
+if ($LASTEXITCODE) { throw "Kitchen publish failed" }
+
+Write-Host "[6/7] publish Warehouse launcher (warehouse.exe) ..." -ForegroundColor Cyan
+dotnet publish "$root\src\SamaHesab.Warehouse\SamaHesab.Warehouse.csproj" @common -o $app
+if ($LASTEXITCODE) { throw "Warehouse publish failed" }
+
+Write-Host "[7/7] publish API server (SamaHesab.API.exe) ..." -ForegroundColor Cyan
 dotnet publish "$root\src\SamaHesab.API\SamaHesab.API.csproj" @common -o $api
 if ($LASTEXITCODE) { throw "API publish failed" }
 
 Write-Host "`nDONE." -ForegroundColor Green
-"app exe : " + (Test-Path "$app\SamaHesab.exe")
-"pos exe : " + (Test-Path "$app\pos.exe")
-"res exe : " + (Test-Path "$app\restoran.exe")
-"api exe : " + (Test-Path "$api\SamaHesab.API.exe")
+"app exe   : " + (Test-Path "$app\SamaHesab.exe")
+"pos exe   : " + (Test-Path "$app\pos.exe")
+"res exe   : " + (Test-Path "$app\restoran.exe")
+"waiter exe: " + (Test-Path "$app\waiter.exe")
+"kitchen   : " + (Test-Path "$app\kitchen.exe")
+"warehouse : " + (Test-Path "$app\warehouse.exe")
+"api exe   : " + (Test-Path "$api\SamaHesab.API.exe")
 "app size: {0:N0} MB" -f ((Get-ChildItem $app -Recurse | Measure-Object Length -Sum).Sum/1MB)
 "api size: {0:N0} MB" -f ((Get-ChildItem $api -Recurse | Measure-Object Length -Sum).Sum/1MB)

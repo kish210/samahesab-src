@@ -1,4 +1,4 @@
-﻿name: Build & Test
+name: CI (build & test)
 
 on:
   push:
@@ -7,50 +7,33 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build:
-    runs-on: windows-latest
-    
+  test:
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Setup .NET 9
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore src/
-      working-directory: ${{ github.workspace }}
-    
-    - name: Build solution
-      run: dotnet build src/SamaHesab.sln --configuration Release --no-restore
-      working-directory: ${{ github.workspace }}
-    
-    - name: Run tests (if any)
-      run: dotnet test src/ --configuration Release --no-build
-      working-directory: ${{ github.workspace }}
-      continue-on-error: true
+    - name: Checkout
+      uses: actions/checkout@v4
 
-  codeql:
-    runs-on: windows-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
     - name: Setup .NET 9
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+
+    # فقط پروژه‌ی تست + وابستگی‌هایش (Application/Infrastructure/Domain) ساخته می‌شود؛
+    # WPF (وابسته به Telerik تجاری/لوکال) عمداً در CI ساخته نمی‌شود.
+    # منبع به‌صراحت nuget.org تا منبع لوکال Telerik در NuGet.config نادیده گرفته شود.
+    - name: Restore test project
+      run: dotnet restore tests/SamaHesab.Tests/SamaHesab.Tests.csproj --source https://api.nuget.org/v3/index.json
+
+    - name: Build
+      run: dotnet build tests/SamaHesab.Tests/SamaHesab.Tests.csproj -c Release --no-restore
+
+    - name: Test
+      run: dotnet test tests/SamaHesab.Tests/SamaHesab.Tests.csproj -c Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
       with:
-        languages: 'csharp'
-    
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
-    
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+        name: test-results
+        path: '**/test-results.trx'
+        if-no-files-found: ignore

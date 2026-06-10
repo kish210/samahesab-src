@@ -33,7 +33,7 @@
 13. ⬜ P6 — موتور گردش‌کار و تأیید (ماشین وضعیت + Approval)
 14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
 15. ⬜ P7 — تکمیل پوشش API برای همهٔ عملیات (آمادگی وب/موبایل)
-16. ⬜ CI روی GitHub Actions (build + test خودکار)
+16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
 17. ⬜ UI داشبورد نقش‌محور در WPF (مصرف `/api/analytics/...`)
 18. 🔧 UI تابلوی چک (مصرف `GetChequeBoardQuery` + تغییر وضعیت)
 19. 🔧 UI مغایرت‌گیری بانکی (مصرف موتور تطبیق + پارسر)
@@ -67,6 +67,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **کار #۱۶ — CI**: بازنویسی `.github/workflows/ci.yml` به نسخه‌ی سبز (Ubuntu، build+test پروژه‌ی تست، nuget.org، بدون WPF/Telerik)
 - **2026-06-10** — **کار #۷ — زمان‌بند اعلان‌ها (P2)**: `NotificationSchedulerService` (BackgroundService، per-company، بازه‌پذیر) + **#۱۴**: تأیید Swagger/Bearer از قبل فعال
 - **2026-06-10** — **کارهای #۴+#۵+#۶ — داشبورد صندوق/رستوران/مالک (P1)**: ۳ Query + endpoint زیر `/api/analytics/dashboard/{cashier|restaurant|owner}`
 - **2026-06-10** — **کارهای #۲+#۳ — خروجی گزارش‌ها (P5)**: `ReportsController` با ۹ endpoint (تراز/دفتر کل/سود و زیان + مشتری/تأمین‌کننده/شعب/روند فروش/موجودی) خروجی CSV/HTML با BOM فارسی

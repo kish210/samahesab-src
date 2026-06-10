@@ -17,3 +17,8 @@ public interface IVoucherTemplateRepository : IRepository<Entities.Accounting.Vo
 
     Task<List<Entities.Accounting.VoucherTemplate>> GetByCompanyAsync(int companyId, CancellationToken ct = default);
 }
+
+public interface IRecurringVoucherRepository : IRepository<Entities.Accounting.RecurringVoucher>
+{
+    Task<List<Entities.Accounting.RecurringVoucher>> GetActiveAsync(int companyId, CancellationToken ct = default);
+}

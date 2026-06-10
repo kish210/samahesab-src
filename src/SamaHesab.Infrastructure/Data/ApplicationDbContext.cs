@@ -45,6 +45,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<BankAccount> BankAccounts { get; set; }
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
+    public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
 
     // Inventory
     public DbSet<Product> Products { get; set; }
@@ -159,6 +160,7 @@ public class ApplicationDbContext : DbContext
             b.Property(l => l.Debit).HasPrecision(18, 2);
             b.Property(l => l.Credit).HasPrecision(18, 2);
         });
+        modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
 
         // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
         modelBuilder.Entity<Hall>(b =>

@@ -96,4 +96,28 @@ public class VouchersController : ControllerBase
         var r = await _mediator.Send(new CreateVoucherFromTemplateCommand(templateId, req.Date, req.Description), ct);
         return r.Succeeded ? Ok(new { voucherId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
+
+    // ── اسناد تکرارشونده (Recurring Vouchers) ────────────────────────────────
+    /// <summary>فهرست اسناد تکرارشونده.</summary>
+    [HttpGet("recurring")]
+    public async Task<IActionResult> Recurring(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetRecurringVouchersQuery(), ct));
+
+    /// <summary>تعریف یک سند تکرارشونده (الگو + دوره + تاریخ شروع).</summary>
+    [HttpPost("recurring")]
+    public async Task<IActionResult> SaveRecurring([FromBody] SaveRecurringVoucherCommand command, CancellationToken ct)
+    {
+        var r = await _mediator.Send(command, ct);
+        return r.Succeeded ? Ok(new { recurringId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    public record RunRecurringRequest(string Today);
+
+    /// <summary>اجرای موتور تولید: ساخت اسناد پیش‌نویس برای همه‌ی موارد سررسیدشده تا «امروز».</summary>
+    [HttpPost("recurring/run")]
+    public async Task<IActionResult> RunRecurring([FromBody] RunRecurringRequest req, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new GenerateDueRecurringVouchersCommand(req.Today), ct);
+        return r.Succeeded ? Ok(r.Value) : BadRequest(new { message = r.ErrorMessage });
+    }
 }

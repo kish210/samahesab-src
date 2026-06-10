@@ -182,3 +182,14 @@ public class VoucherTemplateRepository
         int companyId, CancellationToken ct = default)
         => await DbSet.Include(t => t.Lines).Where(t => t.CompanyId == companyId && t.IsActive).ToListAsync(ct);
 }
+
+// Recurring Vouchers (productivity)
+public class RecurringVoucherRepository
+    : GenericRepository<SamaHesab.Domain.Entities.Accounting.RecurringVoucher>, IRecurringVoucherRepository
+{
+    public RecurringVoucherRepository(ApplicationDbContext context) : base(context) { }
+
+    public async Task<List<SamaHesab.Domain.Entities.Accounting.RecurringVoucher>> GetActiveAsync(
+        int companyId, CancellationToken ct = default)
+        => await DbSet.Where(r => r.CompanyId == companyId && r.IsActive).ToListAsync(ct);
+}

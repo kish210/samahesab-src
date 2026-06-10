@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **اسناد تکرارشونده (Recurring Vouchers)**: `RecurringVoucher` + `RecurrenceSchedule` (منطق خالص ماهانه/سالانه) + اسکیمای `Acc` (`database/12_RecurringVouchers.sql`) + Save/List/`GenerateDueRecurringVouchersCommand` (تولید catch-up + idempotent) + endpointها (`/recurring`, `/recurring/run`) + ۹ تست. (۶۱ تست سبز)
 - **2026-06-10** — **الگوی سند (Voucher Templates)**: موجودیت `VoucherTemplate`/`Line` + اسکیمای `Acc` (`database/11_VoucherTemplates.sql`) + `SaveVoucherTemplateCommand`/`GetVoucherTemplatesQuery`/`CreateVoucherFromTemplateCommand` + endpointها (`/templates`, `/from-template/{id}`) + ۴ تست. (۵۲ تست سبز)
 - **2026-06-10** — بهره‌وری سند: **کپی سند** (`CopyVoucherCommand`) + **پیشنهاد هوشمند حساب** (`SuggestAccountPairsQuery` بر پایه‌ی تاریخچه، ۴ تست) + endpointها (`/copy`, `/suggest-accounts`). بک‌اند آماده‌ی اتصال به گرید سند.
 - **2026-06-10** — افزودن لانچرهای `waiter.exe`/`kitchen.exe`/`warehouse.exe` (مثل pos/restoran) + بازسازی setup.exe/client.exe
@@ -59,7 +60,7 @@
 - [x] کپی سند (`CopyVoucherCommand` + `/api/vouchers/{id}/copy`)
 - [x] پیشنهاد هوشمند حساب / auto-completion (`SuggestAccountPairsQuery` + `/api/vouchers/suggest-accounts/{id}`)
 - [x] الگوی سند (Voucher Templates) — موجودیت + اسکیمای `Acc` + Command/Query + endpointها (`/templates`, `/from-template/{id}`) ✅ بک‌اند · UI انتخاب الگو مانده
-- [ ] اسناد تکرارشونده (Recurring Vouchers) — زمان‌بند + تولید خودکار از الگو (روی Voucher Templates سوار می‌شود)
+- [x] اسناد تکرارشونده (Recurring Vouchers) — موتور تولید catch-up + idempotent (`/recurring`, `/recurring/run`) ✅ بک‌اند · UI تعریف/اجرا مانده · (زمان‌بند خودکار روزانه بعداً)
 **فروش:**
 - [ ] مشتریان اخیر (Recent Customers) · کالاهای محبوب (Favorite Products) — نیاز به ذخیره‌ی Favorites/Recent
 - [ ] جست‌وجوی سریع کالا + اولویت بارکد (بخشی موجود در POS)

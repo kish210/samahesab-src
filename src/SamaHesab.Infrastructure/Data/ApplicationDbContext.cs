@@ -66,6 +66,8 @@ public class ApplicationDbContext : DbContext
     // Purchase
     public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> PurchaseInvoices { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseInvoiceItem> PurchaseInvoiceItems { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseOrder> PurchaseOrders { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseOrderItem> PurchaseOrderItems { get; set; }
 
     // HRM
     public DbSet<Employee> Employees { get; set; }
@@ -133,6 +135,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoiceItem>().ToTable("PurchaseInvoiceItems", "Pur");
         modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>()
             .HasMany(i => i.Items).WithOne().HasForeignKey(it => it.InvoiceId);
+        // Purchase orders (P12): schema Pur.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseOrder>(b =>
+        {
+            b.ToTable("PurchaseOrders", "Pur");
+            b.HasMany(o => o.Items).WithOne().HasForeignKey(it => it.OrderId);
+            b.Property(o => o.Total).HasPrecision(18, 2);
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseOrderItem>(b =>
+        {
+            b.ToTable("PurchaseOrderItems", "Pur");
+            b.Property(i => i.Quantity).HasPrecision(18, 3);
+            b.Property(i => i.UnitPrice).HasPrecision(18, 2);
+            b.Property(i => i.LineTotal).HasPrecision(18, 2);
+        });
 
         // Security: users + audit trail.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Security.User>(b =>

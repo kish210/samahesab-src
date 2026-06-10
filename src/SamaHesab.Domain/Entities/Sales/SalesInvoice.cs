@@ -131,6 +131,7 @@ public class SalesInvoice : AuditableEntity
 
     public void IncrementPrintCount() { PrintCount++; UpdatedAt = DateTime.Now; }
     public void SetVoucher(int voucherId) { VoucherId = voucherId; UpdatedAt = DateTime.Now; }
+    public void SetReturnedFrom(int originalInvoiceId) { ReturnedFromId = originalInvoiceId; UpdatedAt = DateTime.Now; }
     public bool IsFullyPaid() => RemainAmount <= 0.01m;
     public bool IsPartiallyPaid() => PaidAmount > 0 && RemainAmount > 0.01m;
 }

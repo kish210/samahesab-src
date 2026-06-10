@@ -33,6 +33,16 @@ public class SalesController : ControllerBase
             : BadRequest(new { message = result.ErrorMessage });
     }
 
+    /// <summary>مرجوعی فروش (کار #۳۲): بازگشت کالا به انبار + سند حسابداری معکوس.</summary>
+    [HttpPost("returns")]
+    public async Task<IActionResult> Return([FromBody] CreateSalesReturnCommand command, CancellationToken ct)
+    {
+        var result = await _mediator.Send(command, ct);
+        return result.Succeeded
+            ? Ok(new { returnInvoiceId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
+
     public record PosSaleItem(int ProductId, decimal Quantity, decimal UnitPrice, decimal DiscountPct = 0, decimal TaxPct = 0);
     public record PosSaleRequest(List<PosSaleItem> Items, decimal Paid = 0, string PaymentMethod = "نقدی",
         int CustomerId = 1, int WarehouseId = 1, decimal Discount = 0, decimal OtherCosts = 0, string? Description = null);

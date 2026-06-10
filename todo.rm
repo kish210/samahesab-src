@@ -30,7 +30,7 @@
 10. ⬜ P3 — فاکتور تکرارشونده (Recurring Invoice) — بک‌اند
 11. ⬜ P3 — زمان‌بند خودکار تولید اسناد/فاکتورهای تکراری
 12. ⬜ P4 — تبدیل «پیشنهاد سفارش» به سفارش خرید (Command)
-13. ⬜ P6 — موتور گردش‌کار و تأیید (ماشین وضعیت + Approval)
+13. ✅ P6 — موتور گردش‌کار/تأیید: `ApprovalWorkflow` (ماشین‌وضعیت خالص Draft→Pending→Approved/Rejected→Reopen) + ۶ تست · اتصال به سند/PO (نیاز به فیلد وضعیت تأیید) بعداً
 14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
 15. ⬜ P7 — تکمیل پوشش API برای همهٔ عملیات (آمادگی وب/موبایل)
 16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
@@ -67,6 +67,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **کار #۱۳ — موتور گردش‌کار/تأیید (P6)**: `ApprovalWorkflow` ماشین‌وضعیت خالص + ۶ تست (۹۵ سبز)
 - **2026-06-10** — **کار #۱۶ — CI**: بازنویسی `.github/workflows/ci.yml` به نسخه‌ی سبز (Ubuntu، build+test پروژه‌ی تست، nuget.org، بدون WPF/Telerik)
 - **2026-06-10** — **کار #۷ — زمان‌بند اعلان‌ها (P2)**: `NotificationSchedulerService` (BackgroundService، per-company، بازه‌پذیر) + **#۱۴**: تأیید Swagger/Bearer از قبل فعال
 - **2026-06-10** — **کارهای #۴+#۵+#۶ — داشبورد صندوق/رستوران/مالک (P1)**: ۳ Query + endpoint زیر `/api/analytics/dashboard/{cashier|restaurant|owner}`

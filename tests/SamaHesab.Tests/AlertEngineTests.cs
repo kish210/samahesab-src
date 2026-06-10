@@ -40,6 +40,39 @@ public class AlertEngineTests
     }
 
     [Fact]
+    public void DebtAlerts_Flags_Overdue_And_DueToday()
+    {
+        var invoices = new[]
+        {
+            new ReceivableAlertInput(1, "F001", "1404/03/01", 5000),  // معوق
+            new ReceivableAlertInput(2, "F002", "1404/03/10", 3000),  // امروز
+            new ReceivableAlertInput(3, "F003", "1404/03/20", 2000),  // آینده → هیچ
+            new ReceivableAlertInput(4, "F004", "1404/03/01", 0),     // تسویه → هیچ
+            new ReceivableAlertInput(5, "F005", null, 1000),          // بدون سررسید → هیچ
+        };
+        var alerts = AlertEngine.DebtAlerts(invoices, "1404/03/10").ToList();
+        Assert.Equal(2, alerts.Count);
+        Assert.Contains(alerts, a => a.Kind == "OverdueReceivable" && a.RefId == 1);
+        Assert.Contains(alerts, a => a.Kind == "ReceivableDueToday" && a.RefId == 2);
+    }
+
+    [Fact]
+    public void ExpiryAlerts_Flags_Expired_And_ExpiringSoon()
+    {
+        var batches = new[]
+        {
+            new BatchAlertInput(1, "شیر", "B1", "1404/03/01", 10),  // منقضی
+            new BatchAlertInput(2, "ماست", "B2", "1404/03/25", 5),  // تا افق ۳۱ → نزدیک
+            new BatchAlertInput(3, "پنیر", "B3", "1404/05/01", 8),  // دور → هیچ
+            new BatchAlertInput(4, "کره", "B4", "1404/03/01", 0),   // بدون موجودی → هیچ
+        };
+        var alerts = AlertEngine.ExpiryAlerts(batches, "1404/03/10", "1404/03/31").ToList();
+        Assert.Equal(2, alerts.Count);
+        Assert.Contains(alerts, a => a.Kind == "Expired" && a.RefId == 1);
+        Assert.Contains(alerts, a => a.Kind == "ExpiringSoon" && a.RefId == 2);
+    }
+
+    [Fact]
     public void Build_Sorts_Critical_First()
     {
         var cheques = new[] { new ChequeAlertInput(1, "C1", "1404/03/01", 1000, "Received") };

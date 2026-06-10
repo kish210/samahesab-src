@@ -13,6 +13,12 @@ public record ChequeAlertInput(int Id, string ChequeNumber, string DueDate, deci
 /// <summary>ورودی موجودی کالا برای ارزیابی اعلان.</summary>
 public record StockAlertInput(int ProductId, string Name, decimal OnHand, decimal MinStock, decimal? ReorderPoint);
 
+/// <summary>ورودی فاکتور فروش معوق برای یادآور بدهی.</summary>
+public record ReceivableAlertInput(int InvoiceId, string InvoiceNumber, string? DueDate, decimal Remain);
+
+/// <summary>ورودی بچ کالا برای اعلان انقضا.</summary>
+public record BatchAlertInput(int BatchId, string ProductName, string BatchNumber, string? ExpiryDate, decimal Quantity);
+
 /// <summary>
 /// موتور تولید اعلان‌های اتوماسیون — منطق خالص و تست‌پذیر (بدون دسترسی به داده).
 /// منبعِ اعلان‌ها: سررسید چک، کسری موجودی.
@@ -53,6 +59,40 @@ public static class AlertEngine
         }
     }
 
+    /// <summary>یادآور بدهی: فاکتور فروشِ با ماندهٔ پرداخت که سررسیدش گذشته/امروز است.</summary>
+    public static IEnumerable<Alert> DebtAlerts(IEnumerable<ReceivableAlertInput> invoices, string today)
+    {
+        foreach (var i in invoices)
+        {
+            if (i.Remain <= 0.01m || string.IsNullOrEmpty(i.DueDate)) continue;
+            var cmp = string.CompareOrdinal(i.DueDate, today);
+            if (cmp < 0)
+                yield return new Alert("OverdueReceivable", AlertSeverity.Critical,
+                    $"بدهی سررسیدگذشته فاکتور {i.InvoiceNumber}", i.InvoiceId, i.Remain);
+            else if (cmp == 0)
+                yield return new Alert("ReceivableDueToday", AlertSeverity.Warning,
+                    $"سررسید بدهی فاکتور {i.InvoiceNumber} امروز است", i.InvoiceId, i.Remain);
+        }
+    }
+
+    /// <summary>
+    /// اعلان انقضا: بچِ دارای موجودی که منقضی شده (بحرانی) یا تا افق نزدیک منقضی می‌شود (هشدار).
+    /// تاریخ‌ها شمسیِ yyyy/MM/dd؛ horizon را فراخواننده محاسبه می‌کند (مثلاً امروز + ۳۰ روز).
+    /// </summary>
+    public static IEnumerable<Alert> ExpiryAlerts(IEnumerable<BatchAlertInput> batches, string today, string horizon)
+    {
+        foreach (var b in batches)
+        {
+            if (b.Quantity <= 0 || string.IsNullOrEmpty(b.ExpiryDate)) continue;
+            if (string.CompareOrdinal(b.ExpiryDate, today) < 0)
+                yield return new Alert("Expired", AlertSeverity.Critical,
+                    $"انقضای گذشته: {b.ProductName} (بچ {b.BatchNumber})", b.BatchId, b.Quantity);
+            else if (string.CompareOrdinal(b.ExpiryDate, horizon) <= 0)
+                yield return new Alert("ExpiringSoon", AlertSeverity.Warning,
+                    $"انقضای نزدیک: {b.ProductName} (بچ {b.BatchNumber}, {b.ExpiryDate})", b.BatchId, b.Quantity);
+        }
+    }
+
     /// <summary>همه‌ی اعلان‌ها، مرتب بر شدت (بحرانی اول).</summary>
     public static List<Alert> Build(IEnumerable<ChequeAlertInput> cheques, string today,
         IEnumerable<StockAlertInput> stock)
@@ -60,4 +100,8 @@ public static class AlertEngine
             .Concat(LowStockAlerts(stock))
             .OrderByDescending(a => a.Severity)
             .ToList();
+
+    /// <summary>مرتب‌سازی نهایی مجموعه‌ای از اعلان‌ها بر شدت (بحرانی اول).</summary>
+    public static List<Alert> Sort(IEnumerable<Alert> alerts)
+        => alerts.OrderByDescending(a => a.Severity).ToList();
 }

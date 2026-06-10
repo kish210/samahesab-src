@@ -25,8 +25,8 @@
 5. ✅ P1 — داشبورد رستوران: `GetRestaurantDashboardQuery` (وضعیت میز + سفارش باز) + `/dashboard/restaurant`
 6. ✅ P1 — داشبورد مالک (Owner): `GetOwnerDashboardQuery` (KPI + breakdown شعب) + `/dashboard/owner`
 7. ✅ P2 — Hosted Service زمان‌بند اعلان‌ها: `NotificationSchedulerService` (per-company، بازه‌پذیر `Notifications:IntervalHours`، لاگ بحرانی/هشدار) — ثبت در DI
-8. ⬜ P2 — یادآور بدهی مشتری (نیاز به سررسید فاکتور)
-9. ⬜ P2 — اعلان انقضای موجودی (نیاز به ردیابی بچ/تاریخ انقضا)
+8. ✅ P2 — یادآور بدهی معوق: `AlertEngine.DebtAlerts` (فاکتور فروشِ با مانده، سررسیدگذشته/امروز) + در `GetAlertsQuery`
+9. ✅ P2 — اعلان انقضای موجودی: `AlertEngine.ExpiryAlerts` (بچِ منقضی/نزدیک، افق ۳۰ روزه‌ی شمسی) + در `GetAlertsQuery`
 10. ⬜ P3 — فاکتور تکرارشونده (Recurring Invoice) — بک‌اند
 11. ⬜ P3 — زمان‌بند خودکار تولید اسناد/فاکتورهای تکراری
 12. ⬜ P4 — تبدیل «پیشنهاد سفارش» به سفارش خرید (Command)
@@ -67,6 +67,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **کارهای #۸+#۹ — یادآور بدهی معوق + اعلان انقضا (P2)**: `AlertEngine.DebtAlerts`/`ExpiryAlerts` + گسترش `GetAlertsQuery` (افق شمسی) + ۲ تست (۹۷ سبز)
 - **2026-06-10** — **کار #۱۳ — موتور گردش‌کار/تأیید (P6)**: `ApprovalWorkflow` ماشین‌وضعیت خالص + ۶ تست (۹۵ سبز)
 - **2026-06-10** — **کار #۱۶ — CI**: بازنویسی `.github/workflows/ci.yml` به نسخه‌ی سبز (Ubuntu، build+test پروژه‌ی تست، nuget.org، بدون WPF/Telerik)
 - **2026-06-10** — **کار #۷ — زمان‌بند اعلان‌ها (P2)**: `NotificationSchedulerService` (BackgroundService، per-company، بازه‌پذیر) + **#۱۴**: تأیید Swagger/Bearer از قبل فعال

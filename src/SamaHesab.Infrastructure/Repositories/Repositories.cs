@@ -216,3 +216,14 @@ public class UserItemRefRepository
             && r.EntityType == entityType && r.Pinned)
             .OrderBy(r => r.Label).ToListAsync(ct);
 }
+
+// Stock Count (انبارگردانی) — کار #۲۸
+public class StockCountRepository
+    : GenericRepository<SamaHesab.Domain.Entities.Inventory.StockCountSession>, IStockCountRepository
+{
+    public StockCountRepository(ApplicationDbContext context) : base(context) { }
+
+    public async Task<SamaHesab.Domain.Entities.Inventory.StockCountSession?> GetWithLinesAsync(
+        int id, CancellationToken ct = default)
+        => await DbSet.Include(s => s.Lines).FirstOrDefaultAsync(s => s.Id == id, ct);
+}

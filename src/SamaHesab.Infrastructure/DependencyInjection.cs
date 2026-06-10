@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IVoucherTemplateRepository, VoucherTemplateRepository>();
         services.AddScoped<IRecurringVoucherRepository, RecurringVoucherRepository>();
         services.AddScoped<IUserItemRefRepository, UserItemRefRepository>();
+        services.AddScoped<IStockCountRepository, StockCountRepository>();
 
         // Services
         services.AddScoped<IPersianCalendarService, PersianCalendarService>();

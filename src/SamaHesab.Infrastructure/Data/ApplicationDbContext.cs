@@ -47,6 +47,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
     public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
+    public DbSet<StockCountSession> StockCountSessions { get; set; }
+    public DbSet<StockCountLine> StockCountLines { get; set; }
 
     // Inventory
     public DbSet<Product> Products { get; set; }
@@ -163,6 +165,20 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
+
+        // ─── Stock Count (انبارگردانی) — schema Inv ──────────────────────────────
+        modelBuilder.Entity<StockCountSession>(b =>
+        {
+            b.ToTable("StockCountSessions", "Inv");
+            b.HasMany(s => s.Lines).WithOne().HasForeignKey(l => l.SessionId);
+        });
+        modelBuilder.Entity<StockCountLine>(b =>
+        {
+            b.ToTable("StockCountLines", "Inv");
+            b.Ignore(l => l.Variance);   // محاسباتی
+            b.Property(l => l.SystemQty).HasPrecision(18, 3);
+            b.Property(l => l.CountedQty).HasPrecision(18, 3);
+        });
 
         // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
         modelBuilder.Entity<Hall>(b =>

@@ -118,13 +118,13 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
         foreach (var i in vouchers.SelectMany(v => v.Items))
         {
             if (!accounts.TryGetValue(i.AccountId, out var acc)) continue;
-            switch (Seg0(acc.Code))
+            switch (AccountClassifier.Classify(acc.Code))
             {
-                case "1": assets[i.AccountId] = assets.GetValueOrDefault(i.AccountId) + (i.Debit - i.Credit); break;
-                case "3": liab[i.AccountId]   = liab.GetValueOrDefault(i.AccountId)   + (i.Credit - i.Debit); break;
-                case "2": equity[i.AccountId] = equity.GetValueOrDefault(i.AccountId) + (i.Credit - i.Debit); break;
-                case "4": case "6": revenue += i.Credit - i.Debit; break;
-                case "5": case "7": case "8": expense += i.Debit - i.Credit; break;
+                case AccountCategory.Asset:     assets[i.AccountId] = assets.GetValueOrDefault(i.AccountId) + (i.Debit - i.Credit); break;
+                case AccountCategory.Liability: liab[i.AccountId]   = liab.GetValueOrDefault(i.AccountId)   + (i.Credit - i.Debit); break;
+                case AccountCategory.Equity:    equity[i.AccountId] = equity.GetValueOrDefault(i.AccountId) + (i.Credit - i.Debit); break;
+                case AccountCategory.Revenue:   revenue += i.Credit - i.Debit; break;
+                case AccountCategory.Expense:   expense += i.Debit - i.Credit; break;
             }
         }
 
@@ -168,17 +168,17 @@ public class GetProfitLossQueryHandler : IRequestHandler<GetProfitLossQuery, Pro
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
         var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
 
-        // Iranian charts vary: treat code groups {4,6} as revenue and {5,7,8} as expense/COGS.
+        // طبق نمودار واقعی: گروه ۶ = درآمد، گروه‌های ۷/۸/۹ = هزینه (AccountClassifier).
         var revenue = new Dictionary<int, decimal>();
         var expense = new Dictionary<int, decimal>();
 
         foreach (var i in vouchers.SelectMany(v => v.Items))
         {
             if (!accounts.TryGetValue(i.AccountId, out var acc)) continue;
-            var g = Seg0(acc.Code);
-            if (g is "4" or "6")
+            var cat = AccountClassifier.Classify(acc.Code);
+            if (cat == AccountCategory.Revenue)
                 revenue[i.AccountId] = revenue.GetValueOrDefault(i.AccountId) + (i.Credit - i.Debit);
-            else if (g is "5" or "7" or "8")
+            else if (cat == AccountCategory.Expense)
                 expense[i.AccountId] = expense.GetValueOrDefault(i.AccountId) + (i.Debit - i.Credit);
         }
 

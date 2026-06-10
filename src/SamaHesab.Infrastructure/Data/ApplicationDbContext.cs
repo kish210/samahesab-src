@@ -49,6 +49,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.CashShift> CashShifts { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.HeldSale> HeldSales { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.CRM.LoyaltyTransaction> LoyaltyTransactions { get; set; }
     public DbSet<StockCountSession> StockCountSessions { get; set; }
     public DbSet<StockCountLine> StockCountLines { get; set; }
 
@@ -194,6 +195,7 @@ public class ApplicationDbContext : DbContext
             b.ToTable("HeldSales", "Pos");
             b.Property(h => h.Total).HasPrecision(18, 2);
         });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.CRM.LoyaltyTransaction>().ToTable("LoyaltyTransactions", "Crm");
 
         // ─── Stock Count (انبارگردانی) — schema Inv ──────────────────────────────
         modelBuilder.Entity<StockCountSession>(b =>

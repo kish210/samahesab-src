@@ -57,7 +57,7 @@
 35. ⬜ رستوران — چاپ صورتحساب و تیکت آشپزخانه
 36. ⬜ رستوران — رزرو میز و تخصیص گارسون
 37. ✅ CRM — سقف اعتبار مشتری (کلود ۲): منطق خالص `CreditLimitPolicy` (سقف۰=نامحدود) + کنترل در `CreateSalesInvoiceCommand` برای بخش نسیه (با `AllowOverCredit`) + `GetCustomerCreditQuery` + `/api/customers/{id}/credit` + ۶ تست (۱۱۲ سبز)
-38. ⬜ CRM — باشگاه مشتریان / امتیاز
+38. ✅ CRM — باشگاه مشتریان/امتیاز (کلود ۲): نگاشت به جدول موجود `Crm.LoyaltyTransactions` + `LoyaltyPolicy` خالص (هر ۱۰۰هزار ریال=۱ امتیاز) + Award/Redeem (کنترل موجودی) + `GetCustomerLoyaltyQuery` + `/api/loyalty/*` + ۸ تست. e2e: کسب ۲۵/استفاده ۱۰/موجودی ۱۵ ✓
 39. 🔧 فروش — مشتریان اخیر + کالاهای محبوب + سرویس عمومی Favorites/Recent — ✅ بک‌اند (`UserItemRef` + `/api/favorites/*` + ۵ تست، کلود ۲) · اتصال UI مانده
 40. ⬜ نصاب — آیکون اختصاصی/`BranchId` + راهنمای کاربر PDF
 

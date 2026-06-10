@@ -24,6 +24,14 @@ public class CustomersController : ControllerBase
         _mediator = mediator;
     }
 
+    /// <summary>وضعیت اعتبار مشتری: مانده، سقف، اعتبار باقی‌مانده (کار #۳۷).</summary>
+    [HttpGet("{id:int}/credit")]
+    public async Task<IActionResult> Credit(int id, CancellationToken ct)
+    {
+        var dto = await _mediator.Send(new GetCustomerCreditQuery(id), ct);
+        return dto is null ? NotFound() : Ok(dto);
+    }
+
     /// <summary>Customer account statement (transactions with running balance).</summary>
     [HttpGet("{id:int}/statement")]
     public async Task<IActionResult> Statement(int id, [FromQuery] string? from, [FromQuery] string? to, CancellationToken ct)

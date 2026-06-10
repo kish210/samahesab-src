@@ -26,7 +26,8 @@ public record CreateSalesInvoiceCommand(
     decimal InvoiceDiscount = 0,        // amount-based whole-invoice discount
     decimal PaidAmount = 0,             // amount received at invoice time
     string PaymentMethod = "نسیه",      // نقدی / بانک / چک / نسیه
-    decimal CommissionPercent = 0       // sales-rep commission %
+    decimal CommissionPercent = 0,      // sales-rep commission %
+    bool AllowOverCredit = false        // عبور مجاز از سقف اعتبار (با تأیید کاربر مجاز)
 ) : IRequest<Result<int>>;
 
 public record SalesInvoiceItemDto(
@@ -68,6 +69,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IAccountRepository _accountRepository;
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
+    private readonly IRepository<Domain.Entities.CRM.Customer> _customers;
 
     public CreateSalesInvoiceCommandHandler(
         IRepository<SalesInvoice> invoiceRepository,
@@ -78,7 +80,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IProductRepository productRepository,
         IAccountRepository accountRepository,
         IVoucherRepository voucherRepository,
-        IRepository<Domain.Entities.Inventory.StockTransaction> ledger)
+        IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
+        IRepository<Domain.Entities.CRM.Customer> customers)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
@@ -89,6 +92,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _accountRepository = accountRepository;
         _voucherRepository = voucherRepository;
         _ledger = ledger;
+        _customers = customers;
     }
 
     public async Task<Result<int>> Handle(CreateSalesInvoiceCommand request, CancellationToken ct)
@@ -117,6 +121,22 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             }
 
             invoice.SetShipping(request.Shipping, request.OtherCosts);
+
+            // ── کنترل سقف اعتبار مشتری برای بخش نسیه (کار #۳۷) ──
+            if (request.InvoiceType == Domain.Enums.InvoiceType.Sale && !request.AllowOverCredit)
+            {
+                var creditPortion = invoice.GrandTotal - request.InvoiceDiscount - request.PaidAmount;
+                if (creditPortion > 0)
+                {
+                    var customer = await _customers.GetByIdAsync(request.CustomerId, ct);
+                    if (customer != null && CRM.CreditLimitPolicy.IsBlocked(customer.Balance, creditPortion, customer.CreditLimit))
+                    {
+                        await _unitOfWork.RollbackTransactionAsync(ct);
+                        return Result<int>.Failure(
+                            $"سقف اعتبار مشتری کافی نیست (سقف: {customer.CreditLimit:#,##0}، مانده: {customer.Balance:#,##0}).");
+                    }
+                }
+            }
 
             await _invoiceRepository.AddAsync(invoice, ct);
             await _unitOfWork.SaveChangesAsync(ct);

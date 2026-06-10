@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **BI — تحلیل مشتری**: `GetCustomerAnalyticsQuery` (مانده/خرید/میانگین/روند/کالاهای برتر) + `/api/analytics/customer/{id}`
 - **2026-06-10** — **BI — روند موجودی**: موتور خالص `InventoryAnalytics` + `GetInventoryTrendQuery` + `/api/analytics/inventory-trend` + ۲ تست (۷۷ سبز)
 - **2026-06-10** — **P1+ — داشبورد نقش‌محور**: داشبورد حسابدار + انباردار (`/api/analytics/dashboard/accountant|warehouse`)
 - **2026-06-10** — **P1+ — BI تکمیلی**: تأمین‌کنندگان برتر + عملکرد شعب (`/api/analytics/top-suppliers|branch-performance`)

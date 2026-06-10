@@ -35,7 +35,7 @@
 15. 🔧 P7 — تکمیل پوشش API: افزوده شد دریافتنی/پرداختنی (`/api/treasury/receivables|payables`) + تابلوی چک و تغییر وضعیت (`/api/cheques/board`, `/api/cheques/{id}/status`) · مغایرت بانکی نیاز به Query دفتر بانک دارد (بعداً)
 16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
 17. 🔨 UI داشبورد نقش‌محور (WPF) — **کلود ۲ گرفت (کمک به بستهٔ ۱)**
-18. 🔨 UI تابلوی چک — **کلود ۲ گرفت**
+18. ✅ UI تابلوی چک (کلود ۲): `ChequeBoardViewModel`+`ChequeBoardView` (مرتب بر اساس سررسید، رنگ سررسیدگذشته/امروز، دکمه‌های «وصول»/«برگشت») با `GetChequeBoardQuery`+`ChangeChequeStatusCommand`؛ منو «تابلوی چک»
 19. 🔨 UI مغایرت‌گیری بانکی — **کلود ۲ گرفت**
 20. ✅ UI فهرست دریافتنی/پرداختنی + ثبت سریع (کلود ۲): `ReceivablesViewModel`+`ReceivablesView` (دو گرید بدهکار/بستانکار + «وصول/پرداخت کامل» یک‌کلیکی + «مبلغ دلخواه») با `CreateReceiptCommand`/`CreatePaymentCommand`؛ منو «دریافتنی/پرداختنی». Build سبز، ۱۰۶ تست
 

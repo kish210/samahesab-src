@@ -208,6 +208,7 @@
             </MenuItem>
             <MenuItem Header="خزانه‌داری">
                 <MenuItem Header="مدیریت چک" Command="{Binding NavigateCommand}" CommandParameter="Cheques"/>
+                <MenuItem Header="تابلوی چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
                 <MenuItem Header="دریافتنی/پرداختنی" Command="{Binding NavigateCommand}" CommandParameter="Receivables"/>
                 <MenuItem Header="حساب‌های بانکی" Command="{Binding NavigateCommand}" CommandParameter="BankAccounts"/>
             </MenuItem>

@@ -72,4 +72,28 @@ public class VouchersController : ControllerBase
     [HttpGet("suggest-accounts/{accountId:int}")]
     public async Task<IActionResult> SuggestAccounts(int accountId, [FromQuery] int top, CancellationToken ct)
         => Ok(await _mediator.Send(new SuggestAccountPairsQuery(accountId, top <= 0 ? 6 : top), ct));
+
+    // ── الگوهای سند (Voucher Templates) ──────────────────────────────────────
+    /// <summary>فهرست الگوهای سند.</summary>
+    [HttpGet("templates")]
+    public async Task<IActionResult> Templates(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetVoucherTemplatesQuery(), ct));
+
+    /// <summary>ذخیره‌ی یک الگوی سند جدید.</summary>
+    [HttpPost("templates")]
+    public async Task<IActionResult> SaveTemplate([FromBody] SaveVoucherTemplateCommand command, CancellationToken ct)
+    {
+        var r = await _mediator.Send(command, ct);
+        return r.Succeeded ? Ok(new { templateId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    public record FromTemplateRequest(string Date, string? Description = null);
+
+    /// <summary>ساخت سند پیش‌نویس از روی یک الگو.</summary>
+    [HttpPost("from-template/{templateId:int}")]
+    public async Task<IActionResult> FromTemplate(int templateId, [FromBody] FromTemplateRequest req, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new CreateVoucherFromTemplateCommand(templateId, req.Date, req.Description), ct);
+        return r.Succeeded ? Ok(new { voucherId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
 }

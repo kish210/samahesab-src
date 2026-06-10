@@ -9,3 +9,11 @@ public interface IRestaurantOrderRepository : IRepository<RestaurantOrder>
 
     Task<int> CountByCompanyAsync(int companyId, CancellationToken ct = default);
 }
+
+public interface IVoucherTemplateRepository : IRepository<Entities.Accounting.VoucherTemplate>
+{
+    /// <summary>الگو به‌همراه ردیف‌هایش (برای ساخت سند از روی الگو).</summary>
+    Task<Entities.Accounting.VoucherTemplate?> GetWithLinesAsync(int id, CancellationToken ct = default);
+
+    Task<List<Entities.Accounting.VoucherTemplate>> GetByCompanyAsync(int companyId, CancellationToken ct = default);
+}

@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IStockItemRepository, StockItemRepository>();
         services.AddScoped<IRestaurantOrderRepository, RestaurantOrderRepository>();
+        services.AddScoped<IVoucherTemplateRepository, VoucherTemplateRepository>();
 
         // Services
         services.AddScoped<IPersianCalendarService, PersianCalendarService>();

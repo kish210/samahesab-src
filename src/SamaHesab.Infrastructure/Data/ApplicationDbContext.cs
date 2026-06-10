@@ -43,6 +43,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Cheque> Cheques { get; set; }
     public DbSet<BankAccount> BankAccounts { get; set; }
+    public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
+    public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
 
     // Inventory
     public DbSet<Product> Products { get; set; }
@@ -144,6 +146,19 @@ public class ApplicationDbContext : DbContext
         // Avoid cascading the HR detail tables into the model for now.
         modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);
         modelBuilder.Entity<Employee>().Ignore(e => e.SalarySlips);
+
+        // ─── Voucher Templates (productivity): schema Acc ───────────────────────
+        modelBuilder.Entity<VoucherTemplate>(b =>
+        {
+            b.ToTable("VoucherTemplates", "Acc");
+            b.HasMany(t => t.Lines).WithOne().HasForeignKey(l => l.TemplateId);
+        });
+        modelBuilder.Entity<VoucherTemplateLine>(b =>
+        {
+            b.ToTable("VoucherTemplateLines", "Acc");
+            b.Property(l => l.Debit).HasPrecision(18, 2);
+            b.Property(l => l.Credit).HasPrecision(18, 2);
+        });
 
         // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
         modelBuilder.Entity<Hall>(b =>

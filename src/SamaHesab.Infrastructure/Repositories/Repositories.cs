@@ -167,3 +167,18 @@ public class RestaurantOrderRepository
     public async Task<int> CountByCompanyAsync(int companyId, CancellationToken ct = default)
         => await DbSet.CountAsync(o => o.CompanyId == companyId, ct);
 }
+
+// Voucher Templates (productivity)
+public class VoucherTemplateRepository
+    : GenericRepository<SamaHesab.Domain.Entities.Accounting.VoucherTemplate>, IVoucherTemplateRepository
+{
+    public VoucherTemplateRepository(ApplicationDbContext context) : base(context) { }
+
+    public async Task<SamaHesab.Domain.Entities.Accounting.VoucherTemplate?> GetWithLinesAsync(
+        int id, CancellationToken ct = default)
+        => await DbSet.Include(t => t.Lines).FirstOrDefaultAsync(t => t.Id == id, ct);
+
+    public async Task<List<SamaHesab.Domain.Entities.Accounting.VoucherTemplate>> GetByCompanyAsync(
+        int companyId, CancellationToken ct = default)
+        => await DbSet.Include(t => t.Lines).Where(t => t.CompanyId == companyId && t.IsActive).ToListAsync(ct);
+}

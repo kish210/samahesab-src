@@ -20,7 +20,12 @@
                     xmlns:vcrm="clr-namespace:SamaHesab.WPF.Views.CRM"
                     xmlns:vhrm="clr-namespace:SamaHesab.WPF.Views.HRM"
                     xmlns:vrep="clr-namespace:SamaHesab.WPF.Views.Reports"
-                    xmlns:vcfg="clr-namespace:SamaHesab.WPF.Views.Settings">
+                    xmlns:vcfg="clr-namespace:SamaHesab.WPF.Views.Settings"
+                    xmlns:tr="clr-namespace:SamaHesab.WPF.ViewModels.Treasury"
+                    xmlns:vtr="clr-namespace:SamaHesab.WPF.Views.Treasury">
+
+    <!-- Treasury (#20) دریافتنی/پرداختنی -->
+    <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
 
     <!-- Dashboard -->
     <DataTemplate DataType="{x:Type dash:DashboardViewModel}">

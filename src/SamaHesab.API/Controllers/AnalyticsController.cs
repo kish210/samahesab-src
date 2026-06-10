@@ -36,6 +36,18 @@ public class AnalyticsController : ControllerBase
         [FromQuery] string from, [FromQuery] string to, [FromQuery] int topProducts, CancellationToken ct)
         => Ok(await _mediator.Send(new GetProfitAnalysisQuery(from, to, topProducts <= 0 ? 10 : topProducts), ct));
 
+    /// <summary>پرخریدترین تأمین‌کنندگان در بازه.</summary>
+    [HttpGet("top-suppliers")]
+    public async Task<IActionResult> TopSuppliers(
+        [FromQuery] string from, [FromQuery] string to, [FromQuery] int take, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetTopSuppliersQuery(from, to, take <= 0 ? 10 : take), ct));
+
+    /// <summary>عملکرد شعب (فروش هر شعبه) در بازه.</summary>
+    [HttpGet("branch-performance")]
+    public async Task<IActionResult> BranchPerformance(
+        [FromQuery] string from, [FromQuery] string to, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetBranchPerformanceQuery(from, to), ct));
+
     /// <summary>داشبورد مدیر/مالک (KPIهای کلیدی).</summary>
     [HttpGet("dashboard/manager")]
     public async Task<IActionResult> ManagerDashboard([FromQuery] string today, CancellationToken ct)

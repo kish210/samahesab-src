@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **P1+ — BI تکمیلی**: تأمین‌کنندگان برتر + عملکرد شعب (`/api/analytics/top-suppliers|branch-performance`)
 - **2026-06-10** — **P4 — پیشنهاد سفارش خرید**: موتور خالص `ReorderEngine` + `GetReorderSuggestionsQuery` + `/api/analytics/reorder-suggestions` + ۴ تست (۷۵ سبز)
 - **2026-06-10** — **P2 — اتوماسیون اعلان‌ها**: موتور خالص `AlertEngine` (سررسید چک + کسری موجودی) + `GetAlertsQuery` + `/api/analytics/alerts` + ۳ تست (۷۱ سبز)
 - **2026-06-10** — **P1 — BI پایه**: موتور خالص `SalesAnalytics` (مشتریان/کالاهای برتر، روند ماهانه، سود) + queryها + داشبورد مدیر + `AnalyticsController` (`/api/analytics/top-customers|sales-trend|profit|dashboard/manager`) + ۷ تست (۶۸ سبز)

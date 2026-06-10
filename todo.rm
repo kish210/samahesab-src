@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **آغاز فاز محصول‌سازی (Productization)** (`docs/PRODUCTIZATION.md`): ۸ حوزه + نقشه‌ی راه API-First (P1..P7)
 - **2026-06-10** — **اسناد تکرارشونده (Recurring Vouchers)**: `RecurringVoucher` + `RecurrenceSchedule` (منطق خالص ماهانه/سالانه) + اسکیمای `Acc` (`database/12_RecurringVouchers.sql`) + Save/List/`GenerateDueRecurringVouchersCommand` (تولید catch-up + idempotent) + endpointها (`/recurring`, `/recurring/run`) + ۹ تست. (۶۱ تست سبز)
 - **2026-06-10** — **الگوی سند (Voucher Templates)**: موجودیت `VoucherTemplate`/`Line` + اسکیمای `Acc` (`database/11_VoucherTemplates.sql`) + `SaveVoucherTemplateCommand`/`GetVoucherTemplatesQuery`/`CreateVoucherFromTemplateCommand` + endpointها (`/templates`, `/from-template/{id}`) + ۴ تست. (۵۲ تست سبز)
 - **2026-06-10** — بهره‌وری سند: **کپی سند** (`CopyVoucherCommand`) + **پیشنهاد هوشمند حساب** (`SuggestAccountPairsQuery` بر پایه‌ی تاریخچه، ۴ تست) + endpointها (`/copy`, `/suggest-accounts`). بک‌اند آماده‌ی اتصال به گرید سند.
@@ -31,10 +32,28 @@
 
 ---
 
-## ⭐ فاز فعلی — پالایش محصول و گردش‌کار (Workflow Refinement)
-> سند کامل: **`docs/WORKFLOW_REDESIGN.md`** — قبل از کار روی هر ماژول حتماً خوانده شود.
+## ⭐ فاز فعلی — محصول‌سازی (Productization)
+> سند کامل: **`docs/PRODUCTIZATION.md`** — قبل از کار روی هر حوزه حتماً خوانده شود.
 
-پروژه **دیگر در فاز ساخت فرم/UI نیست**. تمرکز: گردش‌کار، سرعت ورود داده، کیبوردمحوری، بهره‌وری.
+هدف: تبدیل «مجموعه‌ای از ماژول‌ها» به **یک پلتفرم کامل ERP** (مثل SAP B1 / Dynamics / راهکاران).
+**API-First:** هر عملیات = Command/Query در Application، افشا از طریق Web API؛ کلاینت‌های وب/موبایل/دسکتاپ روی همان.
+معیار موفقیت = زمان صرفه‌جویی‌شده / کاهش کلیک / افزایش اتوماسیون (نه تعداد صفحه). **ساخت CRUD متوقف.**
+
+اولویت پیاده‌سازی (هرکدام: Application + endpoint API + تست):
+- [ ] P1. داشبورد نقش‌محور + BI پایه (مشتریان/کالاهای برتر، سود، روند فروش)
+- [ ] P2. اتوماسیون اعلان‌ها (Hosted Service: سررسید چک / کسری موجودی / یادآور بدهی)
+- [~] P3. اسناد/فاکتورهای تکراری — ✅ اسناد تکراری + الگوی سند (بک‌اند، session موازی) · فاکتور تکراری + زمان‌بند خودکار مانده
+- [ ] P4. پیشنهاد خودکار سفارش خرید (نقطه‌ی سفارش)
+- [ ] P5. موتور گزارش‌ساز (PDF/Excel: مالی/مدیریتی/انبار/فروش/شعب/مشتری/تأمین‌کننده)
+- [ ] P6. موتور گردش‌کار و تأیید (ماشین وضعیت + Approval)
+- [ ] P7. تکمیل پوشش API + Swagger + نسخه‌بندی (آمادگی وب/موبایل)
+
+---
+
+## فاز قبلی — پالایش گردش‌کار (Workflow Refinement) — بک‌اند عمدتاً انجام‌شده
+> سند کامل: **`docs/WORKFLOW_REDESIGN.md`**.
+
+تمرکز: گردش‌کار، سرعت ورود داده، کیبوردمحوری، بهره‌وری.
 معیار موفقیت = تعداد کلیک، زمان، عملیات در ساعت (نه تعداد صفحه). هر گردش‌کار اصلی باید کاملاً کیبوردی باشد.
 
 ### اهداف بهره‌وری (کلیک / کیبورد / ثانیه)

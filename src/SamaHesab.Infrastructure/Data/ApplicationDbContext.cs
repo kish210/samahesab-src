@@ -46,6 +46,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
     public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
 
     // Inventory
     public DbSet<Product> Products { get; set; }
@@ -161,6 +162,7 @@ public class ApplicationDbContext : DbContext
             b.Property(l => l.Credit).HasPrecision(18, 2);
         });
         modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
 
         // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
         modelBuilder.Entity<Hall>(b =>

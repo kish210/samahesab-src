@@ -9,6 +9,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **سرویس عمومی Favorites/Recent/Pinned**: موجودیت `UserItemRef` + اسکیمای `Cfg` (`database/13_UserItemRefs.sql`) + Touch/Pin command + Recent/Pinned query + `FavoritesController` (`/api/favorites/recent|pinned|touch|pin`) + ۵ تست (۸۲ سبز). آماده‌ی اتصال «مشتری اخیر / کالای محبوب» فروش به همه‌ی ماژول‌ها.
 - **2026-06-10** — **BI — تحلیل مشتری**: `GetCustomerAnalyticsQuery` (مانده/خرید/میانگین/روند/کالاهای برتر) + `/api/analytics/customer/{id}`
 - **2026-06-10** — **BI — روند موجودی**: موتور خالص `InventoryAnalytics` + `GetInventoryTrendQuery` + `/api/analytics/inventory-trend` + ۲ تست (۷۷ سبز)
 - **2026-06-10** — **P1+ — داشبورد نقش‌محور**: داشبورد حسابدار + انباردار (`/api/analytics/dashboard/accountant|warehouse`)
@@ -88,12 +89,12 @@
 - [x] الگوی سند (Voucher Templates) — موجودیت + اسکیمای `Acc` + Command/Query + endpointها (`/templates`, `/from-template/{id}`) ✅ بک‌اند · UI انتخاب الگو مانده
 - [x] اسناد تکرارشونده (Recurring Vouchers) — موتور تولید catch-up + idempotent (`/recurring`, `/recurring/run`) ✅ بک‌اند · UI تعریف/اجرا مانده · (زمان‌بند خودکار روزانه بعداً)
 **فروش:**
-- [ ] مشتریان اخیر (Recent Customers) · کالاهای محبوب (Favorite Products) — نیاز به ذخیره‌ی Favorites/Recent
+- [~] مشتریان اخیر (Recent Customers) · کالاهای محبوب (Favorite Products) — ✅ بک‌اندِ عمومی Favorites آماده (`/api/favorites`) · اتصال به فاکتور فروش/POS مانده
 - [ ] جست‌وجوی سریع کالا + اولویت بارکد (بخشی موجود در POS)
 **انبار:**
 - [ ] انتقال سریع / تعدیل سریع (روی Command‌های موجود) · عملیات بارکد (سرویس مشترک #۳)
 **عمومی (Quick Actions / Pinned / Recent):**
-- [ ] سرویس عمومی Favorites/Pinned/Recent (مشتری/کالا/حساب/سند) — یک‌بار، قابل‌استفاده در همه ماژول‌ها
+- [x] سرویس عمومی Favorites/Pinned/Recent (مشتری/کالا/حساب/سند) — ✅ بک‌اند: `UserItemRef` + `Cfg.UserItemRefs` + Touch/Pin + Recent/Pinned query + `/api/favorites/*` + ۵ تست · اتصال در UIها مانده
 **داشبورد نقش‌محور (#۵):** مدیر / حسابدار / انباردار / رستوران — هرکدام Queryِ KPI خودش.
 
 ---

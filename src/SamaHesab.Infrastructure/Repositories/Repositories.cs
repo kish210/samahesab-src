@@ -193,3 +193,26 @@ public class RecurringVoucherRepository
         int companyId, CancellationToken ct = default)
         => await DbSet.Where(r => r.CompanyId == companyId && r.IsActive).ToListAsync(ct);
 }
+
+// User Favorites / Recent / Pinned (productivity)
+public class UserItemRefRepository
+    : GenericRepository<SamaHesab.Domain.Entities.Settings.UserItemRef>, IUserItemRefRepository
+{
+    public UserItemRefRepository(ApplicationDbContext context) : base(context) { }
+
+    public async Task<SamaHesab.Domain.Entities.Settings.UserItemRef?> FindAsync(
+        int companyId, int userId, string entityType, int entityId, CancellationToken ct = default)
+        => await DbSet.FirstOrDefaultAsync(r => r.CompanyId == companyId && r.UserId == userId
+            && r.EntityType == entityType && r.EntityId == entityId, ct);
+
+    public async Task<List<SamaHesab.Domain.Entities.Settings.UserItemRef>> RecentAsync(
+        int companyId, int userId, string entityType, int top, CancellationToken ct = default)
+        => await DbSet.Where(r => r.CompanyId == companyId && r.UserId == userId && r.EntityType == entityType)
+            .OrderByDescending(r => r.LastUsedAt).Take(top).ToListAsync(ct);
+
+    public async Task<List<SamaHesab.Domain.Entities.Settings.UserItemRef>> PinnedAsync(
+        int companyId, int userId, string entityType, CancellationToken ct = default)
+        => await DbSet.Where(r => r.CompanyId == companyId && r.UserId == userId
+            && r.EntityType == entityType && r.Pinned)
+            .OrderBy(r => r.Label).ToListAsync(ct);
+}

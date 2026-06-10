@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Treasury.Commands;
+using SamaHesab.Application.Treasury.Queries;
 
 namespace SamaHesab.API.Controllers;
 
@@ -28,4 +29,14 @@ public class TreasuryController : ControllerBase
         var r = await _mediator.Send(cmd, ct);
         return r.Succeeded ? Ok(new { voucherId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>فهرست دریافتنی‌ها (مشتریان بدهکار، مرتب بر مبلغ).</summary>
+    [HttpGet("receivables")]
+    public async Task<IActionResult> Receivables([FromQuery] int max, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetReceivablesQuery(max <= 0 ? 200 : max), ct));
+
+    /// <summary>فهرست پرداختنی‌ها (تأمین‌کنندگان بستانکار، مرتب بر مبلغ).</summary>
+    [HttpGet("payables")]
+    public async Task<IActionResult> Payables([FromQuery] int max, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetPayablesQuery(max <= 0 ? 200 : max), ct));
 }

@@ -32,7 +32,7 @@
 12. ⬜ P4 — تبدیل «پیشنهاد سفارش» به سفارش خرید (Command)
 13. ✅ P6 — موتور گردش‌کار/تأیید: `ApprovalWorkflow` (ماشین‌وضعیت خالص Draft→Pending→Approved/Rejected→Reopen) + ۶ تست · اتصال به سند/PO (نیاز به فیلد وضعیت تأیید) بعداً
 14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
-15. ⬜ P7 — تکمیل پوشش API برای همهٔ عملیات (آمادگی وب/موبایل)
+15. 🔧 P7 — تکمیل پوشش API: افزوده شد دریافتنی/پرداختنی (`/api/treasury/receivables|payables`) + تابلوی چک و تغییر وضعیت (`/api/cheques/board`, `/api/cheques/{id}/status`) · مغایرت بانکی نیاز به Query دفتر بانک دارد (بعداً)
 16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
 17. ⬜ UI داشبورد نقش‌محور در WPF (مصرف `/api/analytics/...`)
 18. 🔧 UI تابلوی چک (مصرف `GetChequeBoardQuery` + تغییر وضعیت)
@@ -68,6 +68,7 @@
 
 ## تغییرات اخیر (Changelog)
 - **2026-06-10** — **کار #۲۸ — انبارگردانی سندی (کلود ۲)**: `StockCountSession`/`StockCountLine` + اسکیمای `Inv` (`database/14_StockCount.sql`) + Start (snapshot)/Count/Post (مغایرت→تعدیل + سند خودکار) + `GetStockCountQuery` + `StockCountController` (`/api/stockcount/start|{id}|count|post`) + ۵ تست. · تست e2e: شمارش ۷ از ۱۶ → تعدیل به ۷ ✓
+- **2026-06-10** — **کار #۱۵ — تکمیل پوشش API**: `TreasuryController` (receivables/payables) + `ChequesController` (board + change-status) — افشای backendهای آماده
 - **2026-06-10** — **کارهای #۸+#۹ — یادآور بدهی معوق + اعلان انقضا (P2)**: `AlertEngine.DebtAlerts`/`ExpiryAlerts` + گسترش `GetAlertsQuery` (افق شمسی) + ۲ تست (۹۷ سبز)
 - **2026-06-10** — **کار #۱۳ — موتور گردش‌کار/تأیید (P6)**: `ApprovalWorkflow` ماشین‌وضعیت خالص + ۶ تست (۹۵ سبز)
 - **2026-06-10** — **کار #۱۶ — CI**: بازنویسی `.github/workflows/ci.yml` به نسخه‌ی سبز (Ubuntu، build+test پروژه‌ی تست، nuget.org، بدون WPF/Telerik)

@@ -52,7 +52,7 @@
 30. ✅ POS — شیفت/صندوق (کلود ۲): `CashShift` (اسکیمای `Pos`، `database/16_CashShifts.sql`) + Open/RecordSale/Close (موردانتظار=موجودی‌اولیه+فروش‌نقدی، مغایرت=شمارش−موردانتظار) + `GetOpenShiftQuery` (Z-report زنده) + `ShiftsController` (`/api/shifts/current|open|record-sale|close`) + ۵ تست (۱۱۷ سبز) · UI مانده
 31. ⬜ POS — گزارش Z/X
 32. ✅ مرجوعی فروش (کلود ۲): `CreateSalesReturnCommand` — فاکتور SaleReturn + بازگشت کالا به انبار (کاردکس) + سند معکوس (بد: فروش+مالیات / بس: دریافتنی یا صندوق) + لینک به فاکتور اصلی + `/api/sales/returns`. تست e2e: موجودی +۲، فاکتور BR000001، سند ۱۵۶ ✓
-33. ⬜ POS — تعلیق/فراخوان فاکتور (Hold/Recall)
+33. ✅ POS — تعلیق/فراخوان فاکتور (کلود ۲): `HeldSale` (اسکیمای `Pos`، payload سبد JSON) + Hold/Delete + List/Get(فراخوان) + `/api/heldsales` + ۳ تست
 34. ⬜ رستوران — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه
 35. ⬜ رستوران — چاپ صورتحساب و تیکت آشپزخانه
 36. ⬜ رستوران — رزرو میز و تخصیص گارسون

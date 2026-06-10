@@ -45,4 +45,9 @@ public class AnalyticsController : ControllerBase
     [HttpGet("alerts")]
     public async Task<IActionResult> Alerts([FromQuery] string today, CancellationToken ct)
         => Ok(await _mediator.Send(new GetAlertsQuery(today), ct));
+
+    /// <summary>پیشنهاد خودکار سفارش خرید (نقطه‌ی سفارش/سقف موجودی).</summary>
+    [HttpGet("reorder-suggestions")]
+    public async Task<IActionResult> ReorderSuggestions(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetReorderSuggestionsQuery(), ct));
 }

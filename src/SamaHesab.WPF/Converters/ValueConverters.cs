@@ -159,6 +159,17 @@ public class StatusToColorConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>پوسته‌ی ERP: نشانگر طلاییِ آیتم فعالِ سایدبار. values[0]=ActiveMenu، values[1]=کلیدِ آیتم.</summary>
+public class NavActiveToVisibilityConverter : System.Windows.Data.IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        => (values.Length == 2 && values[0] is string a && values[1] is string b && a == b)
+            ? Visibility.Visible : Visibility.Collapsed;
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 public class NullToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

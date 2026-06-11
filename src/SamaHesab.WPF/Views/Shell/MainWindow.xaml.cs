@@ -25,6 +25,17 @@ public partial class MainWindow : MetroWindow
         Loaded += async (_, _) => await viewModel.LoadAsync();
     }
 
+    /// <summary>منوی تاپ‌بار: کلیک روی دکمه، فهرست بازشونده‌ی همان دکمه را زیر آن باز می‌کند.</summary>
+    private void TopMenu_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button b && b.ContextMenu is not null)
+        {
+            b.ContextMenu.PlacementTarget = b;
+            b.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            b.ContextMenu.IsOpen = true;
+        }
+    }
+
     private void OpenTabs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems != null)

@@ -1,29 +1,53 @@
-﻿<mah:MetroWindow x:Class="SamaHesab.WPF.Views.Shell.MainWindow"
+<mah:MetroWindow x:Class="SamaHesab.WPF.Views.Shell.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
         Title="{Binding CompanyName}"
         WindowState="Maximized"
         MinWidth="1200" MinHeight="760"
         FlowDirection="RightToLeft"
         TitleCharacterCasing="Normal"
         FontFamily="{StaticResource VazirFont}"
-        Background="{DynamicResource AppBackground}"
-        GlowBrush="{DynamicResource PrimaryAccent}"
+        Background="{StaticResource ErpAppBg}"
+        GlowBrush="{StaticResource ErpBlue700}"
         BorderThickness="0">
 
     <mah:MetroWindow.Resources>
+        <conv:NavActiveToVisibilityConverter x:Key="NavActive"/>
 
-        <!-- ─── Ribbon big button ─────────────────────────────────────────── -->
-        <Style x:Key="RibbonButton" TargetType="Button">
+        <!-- دکمه‌ی منوی تاپ‌بار (سفید روی آبی) -->
+        <Style x:Key="TopMenuBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E6ECF7"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="11,7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/><Setter Property="Foreground" Value="White"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- آیکون تاپ‌بار -->
+        <Style x:Key="TbIc" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="78"/>
-            <Setter Property="Height" Value="72"/>
-            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="Width" Value="34"/><Setter Property="Height" Value="34"/>
+            <Setter Property="Foreground" Value="#CFD9EC"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -31,70 +55,41 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#EEF1F7"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#DCE2EE"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/><Setter Property="Foreground" Value="White"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- ─── Ribbon small QAT icon button ──────────────────────────────── -->
-        <Style x:Key="QatButton" TargetType="Button">
+        <!-- آیتم سایدبار: آیکون + لیبل + نوار طلاییِ فعال -->
+        <Style x:Key="SideItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="38"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#EEF1F7"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ─── Tree nav group expander ───────────────────────────────────── -->
-        <Style x:Key="NavExpander" TargetType="Expander">
-            <Setter Property="Foreground" Value="{DynamicResource SidebarText}"/>
-            <Setter Property="IsExpanded" Value="True"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
-        </Style>
-
-        <!-- ─── Tree nav leaf item ────────────────────────────────────────── -->
-        <Style x:Key="NavItem" TargetType="Button">
-            <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="{DynamicResource SidebarText}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Foreground" Value="#B8C4DC"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Command" Value="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Margin="6,1" Padding="10,0">
-                            <ContentPresenter VerticalAlignment="Center"/>
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="7" Margin="8,2" Padding="9,0">
+                            <Grid>
+                                <Rectangle Width="3" HorizontalAlignment="Right" Margin="-6,8,0,8" RadiusX="2" RadiusY="2"
+                                           Fill="{StaticResource ErpGold500}">
+                                    <Rectangle.Visibility>
+                                        <MultiBinding Converter="{StaticResource NavActive}">
+                                            <Binding Path="DataContext.ActiveMenu" RelativeSource="{RelativeSource AncestorType=mah:MetroWindow}"/>
+                                            <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        </MultiBinding>
+                                    </Rectangle.Visibility>
+                                </Rectangle>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#283A60"/>
-                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/><Setter Property="Foreground" Value="White"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -104,166 +99,166 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- Quick Access Toolbar -->
-            <RowDefinition Height="Auto"/>   <!-- Ribbon -->
-            <RowDefinition Height="*"/>      <!-- Nav + Workspace -->
-            <RowDefinition Height="Auto"/>   <!-- Status bar -->
+            <RowDefinition Height="56"/>     <!-- تاپ‌بار -->
+            <RowDefinition Height="*"/>      <!-- سایدبار + محتوا -->
+            <RowDefinition Height="26"/>     <!-- نوار وضعیت -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ Quick Access Toolbar ═══ -->
-        <Border Grid.Row="0" Background="{DynamicResource RibbonBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
-            <DockPanel LastChildFill="True" Margin="14,8">
+        <!-- ═══ تاپ‌بار (۵۶px، آبی) ═══ -->
+        <Border Grid.Row="0" Background="{StaticResource ErpBlue700}">
+            <Grid Margin="12,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>   <!-- برند -->
+                    <ColumnDefinition Width="Auto"/>   <!-- منو -->
+                    <ColumnDefinition Width="*"/>      <!-- جستجو -->
+                    <ColumnDefinition Width="Auto"/>   <!-- آیکون‌ها -->
+                    <ColumnDefinition Width="Auto"/>   <!-- کاربر -->
+                </Grid.ColumnDefinitions>
 
-                <!-- Company (right side in RTL) -->
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/Assets/Images/logo.png" Height="32"
-                           Stretch="Uniform" FlowDirection="LeftToRight" VerticalAlignment="Center"/>
-                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="10,4"/>
-                    <TextBlock Text="{Binding CompanyName}" FontSize="15" FontWeight="Bold"
-                               VerticalAlignment="Center" Margin="0,0,0,0"/>
+                <!-- برند -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Border Width="30" Height="30" CornerRadius="7" Background="#26FFFFFF">
+                        <TextBlock Text="س" Foreground="White" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="سماع‌حساب" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock Text="نسخه ۳٫۲ سازمانی" Foreground="#9FB0D0" FontSize="10"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Action cluster (left side in RTL) -->
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Date -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                        <materialDesign:PackIcon Kind="CalendarMonthOutline" Width="18" Height="18"
-                                                 Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding TodayPersianDate}" Margin="6,0,0,0"
-                                   Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="8,4"/>
-                    <!-- Branch -->
-                    <Button Style="{StaticResource QatButton}" Width="Auto" Padding="8,0"
-                            Command="{Binding ChangeBranchCommand}" ToolTip="تغییر شعبه">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="SourceBranch" Width="18" Height="18" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding CurrentBranch}" Margin="6,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
+                <!-- منو (دکمه‌های بازشونده) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="حسابداری" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
+                                <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
+                                <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
-                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="8,4"/>
-                    <!-- Calculator -->
-                    <Button Style="{StaticResource QatButton}" Command="{Binding OpenCalculatorCommand}" ToolTip="ماشین حساب">
-                        <materialDesign:PackIcon Kind="Calculator" Width="20" Height="20"/>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="خزانه‌داری" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="مدیریت چک" Command="{Binding NavigateCommand}" CommandParameter="Cheques"/>
+                                <MenuItem Header="تابلوی چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
+                                <MenuItem Header="دریافتنی/پرداختنی" Command="{Binding NavigateCommand}" CommandParameter="Receivables"/>
+                                <MenuItem Header="حساب‌های بانکی" Command="{Binding NavigateCommand}" CommandParameter="BankAccounts"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
-                    <!-- Notifications -->
-                    <Button Style="{StaticResource QatButton}" Command="{Binding ShowNotificationsCommand}" ToolTip="اعلان‌ها">
-                        <materialDesign:Badged Badge="{Binding NotificationCount}" BadgeColorZoneMode="SecondaryMid">
-                            <materialDesign:PackIcon Kind="BellOutline" Width="20" Height="20"/>
-                        </materialDesign:Badged>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="خرید" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
+                                <MenuItem Header="لیست خریدها" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoiceList"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
-                    <!-- Messages -->
-                    <Button Style="{StaticResource QatButton}" Command="{Binding ShowMessagesCommand}" ToolTip="پیام‌ها">
-                        <materialDesign:Badged Badge="{Binding MessageCount}" BadgeColorZoneMode="SecondaryMid">
-                            <materialDesign:PackIcon Kind="EmailOutline" Width="20" Height="20"/>
-                        </materialDesign:Badged>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="فروش" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="فاکتور فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
+                                <MenuItem Header="لیست فاکتورها" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
+                                <MenuItem Header="صندوق فروش" Command="{Binding NavigateCommand}" CommandParameter="POS"/>
+                                <MenuItem Header="صندوق / شیفت (Z/X)" Command="{Binding NavigateCommand}" CommandParameter="CashShift"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
-                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="8,4"/>
-                    <!-- User -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0">
-                        <materialDesign:PackIcon Kind="AccountCircle" Width="26" Height="26"
-                                                 Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
-                        <StackPanel Margin="6,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentUserName}" FontSize="12" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding CurrentUserRole}" FontSize="10"
-                                       Foreground="{DynamicResource SecondaryText}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <Button Style="{StaticResource QatButton}" Command="{Binding LogoutCommand}" ToolTip="خروج">
-                        <materialDesign:PackIcon Kind="LogoutVariant" Width="20" Height="20" Foreground="{DynamicResource DangerColor}"/>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="انبار" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
+                                <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
+                                <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
+                                <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
+                                <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
+                                <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="اشخاص" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
+                                <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="گزارشات" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
+                                <MenuItem Header="گزارش‌های مالی" Command="{Binding NavigateCommand}" CommandParameter="FinancialReports"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="سیستم" Click="TopMenu_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="میز کار / داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
+                                <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees"/>
+                                <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary"/>
+                                <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
+                                <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
+                                <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
+                                <Separator/>
+                                <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
                     </Button>
                 </StackPanel>
 
-                <!-- Quick search (center, fills) -->
-                <Border Background="{DynamicResource AppBackground}" CornerRadius="8"
-                        Margin="20,0" MaxWidth="520" HorizontalAlignment="Stretch"
-                        BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+                <!-- جستجو -->
+                <Border Grid.Column="2" Background="#1AFFFFFF" CornerRadius="6" Height="32" Margin="14,0" MaxWidth="360" HorizontalAlignment="Stretch"
+                        BorderBrush="#2EFFFFFF" BorderThickness="1">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Grid.Column="0" Kind="Magnify" Width="18" Height="18"
-                                                 Margin="10,0" VerticalAlignment="Center"
-                                                 Foreground="{DynamicResource SecondaryText}"/>
-                        <TextBox Grid.Column="1" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0" VerticalAlignment="Center"
-                                 materialDesign:HintAssist.Hint="جستجوی سریع (Ctrl+F)"/>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Grid.Column="0" Kind="Magnify" Width="16" Height="16" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#9FB0D0"/>
+                        <TextBox Grid.Column="1" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
+                                 Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" Padding="8,0"
+                                 materialDesign:HintAssist.Hint="جستجو در همه‌جا…  Ctrl+K" materialDesign:HintAssist.Foreground="#8294B6"/>
                     </Grid>
                 </Border>
-            </DockPanel>
+
+                <!-- آیکون‌ها -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource TbIc}" Command="{Binding OpenCalculatorCommand}" ToolTip="ماشین حساب">
+                        <materialDesign:PackIcon Kind="Calculator" Width="19" Height="19"/>
+                    </Button>
+                    <Button Style="{StaticResource TbIc}" Command="{Binding ShowMessagesCommand}" ToolTip="پیام‌ها">
+                        <materialDesign:Badged Badge="{Binding MessageCount}" BadgeColorZoneMode="SecondaryMid">
+                            <materialDesign:PackIcon Kind="EmailOutline" Width="19" Height="19"/>
+                        </materialDesign:Badged>
+                    </Button>
+                    <Button Style="{StaticResource TbIc}" Command="{Binding ShowNotificationsCommand}" ToolTip="اعلان‌ها">
+                        <materialDesign:Badged Badge="{Binding NotificationCount}" BadgeColorZoneMode="SecondaryMid">
+                            <materialDesign:PackIcon Kind="BellOutline" Width="19" Height="19"/>
+                        </materialDesign:Badged>
+                    </Button>
+                </StackPanel>
+
+                <!-- کاربر -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource ErpGold500}">
+                        <TextBlock Text="ر.م" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding CurrentUserName}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding CurrentUserRole}" Foreground="#9FB0D0" FontSize="10"/>
+                    </StackPanel>
+                    <Button Style="{StaticResource TbIc}" Command="{Binding LogoutCommand}" ToolTip="خروج" Margin="6,0,0,0">
+                        <materialDesign:PackIcon Kind="LogoutVariant" Width="18" Height="18"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- ═══ Standard top menu ═══ -->
-        <Menu Grid.Row="1" FontFamily="{StaticResource VazirFont}" FontSize="13"
-              Background="{DynamicResource RibbonBackground}" Padding="8,3"
-              BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1">
-            <MenuItem Header="حسابداری">
-                <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
-                <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
-                <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
-                <Separator/>
-                <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
-            </MenuItem>
-            <MenuItem Header="خزانه‌داری">
-                <MenuItem Header="مدیریت چک" Command="{Binding NavigateCommand}" CommandParameter="Cheques"/>
-                <MenuItem Header="تابلوی چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
-                <MenuItem Header="دریافتنی/پرداختنی" Command="{Binding NavigateCommand}" CommandParameter="Receivables"/>
-                <MenuItem Header="حساب‌های بانکی" Command="{Binding NavigateCommand}" CommandParameter="BankAccounts"/>
-            </MenuItem>
-            <MenuItem Header="فروش">
-                <MenuItem Header="فاکتور فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
-                <MenuItem Header="لیست فاکتورها" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
-                <MenuItem Header="صندوق فروش" Command="{Binding NavigateCommand}" CommandParameter="POS"/>
-                <MenuItem Header="صندوق / شیفت (Z/X)" Command="{Binding NavigateCommand}" CommandParameter="CashShift"/>
-            </MenuItem>
-            <MenuItem Header="خرید">
-                <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
-                <MenuItem Header="لیست خریدها" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoiceList"/>
-            </MenuItem>
-            <MenuItem Header="انبار">
-                <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
-                <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
-                <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
-                <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
-                <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
-                <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
-            </MenuItem>
-            <MenuItem Header="اشخاص">
-                <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
-                <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
-            </MenuItem>
-            <MenuItem Header="منابع انسانی">
-                <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees"/>
-                <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary"/>
-                <MenuItem Header="حضور و غیاب" Command="{Binding NavigateCommand}" CommandParameter="Attendance"/>
-            </MenuItem>
-            <MenuItem Header="گزارشات">
-                <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
-                <MenuItem Header="گزارش‌های مالی" Command="{Binding NavigateCommand}" CommandParameter="FinancialReports"/>
-            </MenuItem>
-            <MenuItem Header="سیستم">
-                <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
-                <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
-                <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
-                <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
-                <Separator/>
-                <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>
-            </MenuItem>
-            <MenuItem Header="نمایش (پوسته)">
-                <MenuItem Header="Office 2019" Command="{Binding ChangeThemeCommand}" CommandParameter="Office2019"/>
-                <MenuItem Header="Fluent" Command="{Binding ChangeThemeCommand}" CommandParameter="Fluent"/>
-                <MenuItem Header="Crystal" Command="{Binding ChangeThemeCommand}" CommandParameter="Crystal"/>
-                <MenuItem Header="Windows 11" Command="{Binding ChangeThemeCommand}" CommandParameter="Windows11"/>
-            </MenuItem>
-        </Menu>
-
-        <!-- ═══ Workspace: ریل آیکونی عمودی (راست، طبق design-system) + RadDocking (MDI) ═══ -->
-        <Grid Grid.Row="2">
+        <!-- ═══ سایدبار (راست، ۶۰→۲۲۰ هاور) + RadDocking (MDI) ═══ -->
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>   <!-- ریل آیکونی (راست در RTL — مطابق طرح) -->
-                <ColumnDefinition Width="*"/>      <!-- محتوا (چپ در RTL) -->
+                <ColumnDefinition Width="Auto"/>   <!-- سایدبار (راست در RTL) -->
+                <ColumnDefinition Width="*"/>      <!-- محتوا -->
             </Grid.ColumnDefinitions>
 
             <telerik:RadDocking Grid.Column="1" x:Name="docking" Margin="2"
@@ -275,73 +270,72 @@
                 </telerik:RadDocking.DocumentHost>
             </telerik:RadDocking>
 
-            <!-- ریل آیکونی برند (راست، مرجع: design-system) -->
-            <Border Grid.Column="0" Width="56" Background="{DynamicResource SidebarBackground}">
-                <Border.Resources>
-                    <Style x:Key="RailBtn" TargetType="Button">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Height" Value="46"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Setter Property="Command" Value="{Binding NavigateCommand}"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="rb" Background="{TemplateBinding Background}" CornerRadius="8" Margin="8,3">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="rb" Property="Background" Value="{DynamicResource SidebarActiveBg}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
+            <!-- سایدبار آیکون+لیبلِ هاوری -->
+            <Border Grid.Column="0" Background="{StaticResource ErpBlue900}" ClipToBounds="True" Width="60">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Width" Value="60"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Width" Value="220"/></Trigger>
+                        </Style.Triggers>
                     </Style>
-                </Border.Resources>
-                <StackPanel VerticalAlignment="Top" Margin="0,6">
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="Dashboard" ToolTip="میز کار">
-                        <materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                </Border.Style>
+                <StackPanel VerticalAlignment="Top" Margin="0,8">
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Dashboard">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="Vouchers" ToolTip="اسناد حسابداری">
-                        <materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Vouchers">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="SalesInvoice" ToolTip="فروش">
-                        <materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="SalesInvoice">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="PurchaseInvoice" ToolTip="خرید">
-                        <materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="PurchaseInvoice">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="Products" ToolTip="انبار">
-                        <materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Products">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="POS" ToolTip="صندوق فروش">
-                        <materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="ChequeBoard">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="Bank" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="ChequeBoard" ToolTip="مدیریت چک">
-                        <materialDesign:PackIcon Kind="Bank" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="POS">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="Customers" ToolTip="اشخاص">
-                        <materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Customers">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource RailBtn}" CommandParameter="Reports" ToolTip="گزارش‌ها">
-                        <materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Reports">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                    </Button>
+                    <Rectangle Height="1" Fill="#14FFFFFF" Margin="14,8"/>
+                    <Button Style="{StaticResource SideItem}" CommandParameter="Settings">
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CogOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
                 </StackPanel>
             </Border>
         </Grid>
-        <!-- ═══ Status bar ═══ -->
-        <Border Grid.Row="3" Background="{DynamicResource SidebarBackground}" Height="28">
-            <DockPanel LastChildFill="False" Margin="14,0">
-                <TextBlock DockPanel.Dock="Right" Text="{Binding StatusMessage}"
-                           Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
-                <TextBlock DockPanel.Dock="Left" Text="سماع رایانه کیش | سما حساب ۱.۰.۰ | kishwifi.com"
-                           Foreground="#64748B" FontSize="11" VerticalAlignment="Center"/>
-                <TextBlock DockPanel.Dock="Left" Text="{Binding CurrentBranch}" Margin="16,0,0,0"
-                           Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
-                <TextBlock DockPanel.Dock="Left" Text="{Binding TodayPersianDate}" Margin="16,0,0,0"
-                           Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center"/>
+
+        <!-- ═══ نوار وضعیت (۲۶px، آبی) ═══ -->
+        <Border Grid.Row="2" Background="{StaticResource ErpBlue700}">
+            <DockPanel LastChildFill="False" Margin="12,0">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="7" Height="7" Fill="#6FCF97"/>
+                    <TextBlock Text="متصل" Foreground="#D6DEEF" FontSize="11" Margin="6,0,0,0"/>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Foreground="#9FB0D0" FontSize="11"><Run Text="کاربر: "/><Run Text="{Binding CurrentUserName, Mode=OneWay}" Foreground="White"/></TextBlock>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Foreground="#9FB0D0" FontSize="11"><Run Text="شعبه: "/><Run Text="{Binding CurrentBranch, Mode=OneWay}" Foreground="White"/></TextBlock>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="#9FB0D0" FontSize="11"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="سماع رایانه کیش · kishwifi.com" Foreground="#7F90B2" FontSize="11"/>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Text="{Binding TodayPersianDate}" Foreground="#9FB0D0" FontSize="11"/>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Foreground="#9FB0D0" FontSize="11"><Run Text="سرور: "/><Run Text="SRV-01" Foreground="White"/></TextBlock>
+                </StackPanel>
             </DockPanel>
         </Border>
     </Grid>

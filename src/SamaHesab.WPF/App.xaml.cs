@@ -97,6 +97,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<INavigationService, NavigationService>();
                 services.AddSingleton<IPrintService, PrintService>();
                 services.AddSingleton<Services.ApiClient>();
+                services.AddSingleton<Services.ModuleService>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
                 // ViewModels

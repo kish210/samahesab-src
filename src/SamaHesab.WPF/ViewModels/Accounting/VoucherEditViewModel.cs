@@ -288,6 +288,10 @@ public partial class VoucherItemRow : ObservableObject
 }
 
 public record VoucherTypeItem(int Id, string Name);
-public record VoucherAccountItem(int Id, string Code, string Name);
+public record VoucherAccountItem(int Id, string Code, string Name)
+{
+    /// <summary>متنِ جست‌وجوی هوشمند: شامل کد و نام تا تایپِ هرکدام (contains) فیلتر کند.</summary>
+    public string Display => $"{Code} — {Name}";
+}
 public record CostCenterItem(int Id, string Name);
 

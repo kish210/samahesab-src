@@ -73,6 +73,7 @@ public partial class MainViewModel : BaseViewModel
             ["StockTransfer"]   = ("انتقال بین انبار",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.StockTransferViewModel>()),
             ["StockCount"]      = ("انبارگردانی",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.StockCountViewModel>()),
             ["Kardex"]          = ("کاردکس کالا",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>()),
+            ["ProductCard"]     = ("کارت کالا",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>()),
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),

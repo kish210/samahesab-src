@@ -121,6 +121,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.StockTransferViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.StockCountViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>();

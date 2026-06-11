@@ -1,4 +1,4 @@
-<UserControl x:Class="SamaHesab.WPF.Views.Treasury.ReceivablesView"
+﻿<UserControl x:Class="SamaHesab.WPF.Views.Treasury.ReceivablesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource AppBackground}"
@@ -23,7 +23,7 @@
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <DockPanel Grid.Row="0" Margin="2,0,2,8">
-                    <TextBlock Text="دریافتنی‌ها (بدهکاران)" FontSize="16" FontWeight="Bold" Foreground="#16A34A"/>
+                    <TextBlock Text="دریافتنی‌ها (بدهکاران)" FontSize="16" FontWeight="Bold" Foreground="#2E7D52"/>
                     <TextBlock DockPanel.Dock="Left" Text="{Binding TotalReceivable, StringFormat='جمع: {0:#,##0}'}" FontWeight="SemiBold"/>
                 </DockPanel>
                 <DataGrid Grid.Row="1" ItemsSource="{Binding Receivables}" AutoGenerateColumns="False"
@@ -36,10 +36,10 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="وصول کامل" Style="{StaticResource ActBtn}" Background="#16A34A"
+                                        <Button Content="وصول کامل" Style="{StaticResource ActBtn}" Background="#2E7D52"
                                                 Command="{Binding DataContext.ReceiveFullCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="مبلغ…" Style="{StaticResource ActBtn}" Background="#2563EB"
+                                        <Button Content="مبلغ…" Style="{StaticResource ActBtn}" Background="#4B5F97"
                                                 Command="{Binding DataContext.ReceiveCustomCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>
@@ -56,7 +56,7 @@
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <DockPanel Grid.Row="0" Margin="2,0,2,8">
-                    <TextBlock Text="پرداختنی‌ها (بستانکاران)" FontSize="16" FontWeight="Bold" Foreground="#DC2626"/>
+                    <TextBlock Text="پرداختنی‌ها (بستانکاران)" FontSize="16" FontWeight="Bold" Foreground="#C2403A"/>
                     <TextBlock DockPanel.Dock="Left" Text="{Binding TotalPayable, StringFormat='جمع: {0:#,##0}'}" FontWeight="SemiBold"/>
                 </DockPanel>
                 <DataGrid Grid.Row="1" ItemsSource="{Binding Payables}" AutoGenerateColumns="False"
@@ -69,10 +69,10 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Content="پرداخت کامل" Style="{StaticResource ActBtn}" Background="#DC2626"
+                                        <Button Content="پرداخت کامل" Style="{StaticResource ActBtn}" Background="#C2403A"
                                                 Command="{Binding DataContext.PayFullCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="مبلغ…" Style="{StaticResource ActBtn}" Background="#2563EB"
+                                        <Button Content="مبلغ…" Style="{StaticResource ActBtn}" Background="#4B5F97"
                                                 Command="{Binding DataContext.PayCustomCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>

@@ -231,7 +231,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             voucher.AddItem(VoucherItem.Create(0, row++, vat.Id, 0, invoice.TotalTax, "مالیات بر ارزش افزوده"));
 
         await _voucherRepository.AddAsync(voucher, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);   // assigns voucher.Id
+
+        // Auto-post the voucher (Id now exists so the audit event records the real number).
+        // Only when balanced — otherwise leave it Draft for manual review instead of failing the invoice.
+        if (voucher.CanPost())
+            voucher.Post(_currentUser.UserId ?? 1);
+        _voucherRepository.Update(voucher);
+
         invoice.SetVoucher(voucher.Id);
         _invoiceRepository.Update(invoice);
 
@@ -249,7 +256,12 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                 cv.AddItem(VoucherItem.Create(0, 1, expense.Id, commission, 0, "هزینه پورسانت فروش"));
                 cv.AddItem(VoucherItem.Create(0, 2, payable.Id, 0, commission, "بدهی پورسانت به بازاریاب"));
                 await _voucherRepository.AddAsync(cv, ct);
-                await _unitOfWork.SaveChangesAsync(ct);
+                await _unitOfWork.SaveChangesAsync(ct);   // assigns cv.Id
+                if (cv.CanPost())
+                {
+                    cv.Post(_currentUser.UserId ?? 1);
+                    _voucherRepository.Update(cv);
+                }
             }
         }
     }

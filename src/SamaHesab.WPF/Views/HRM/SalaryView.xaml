@@ -85,10 +85,10 @@
                         <TextBlock Text="{Binding TotalInsurance, StringFormat='{}{0:N0}'}" Foreground="{DynamicResource DangerColor}" FontWeight="Bold" FontFamily="{StaticResource VazirFont}"/>
                     </StackPanel>
                 </Border>
-                <Border Background="#05966930" CornerRadius="8" Padding="16,8">
+                <Border Background="#2E7D5230" CornerRadius="8" Padding="16,8">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="جمع قابل پرداخت: " Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}"/>
-                        <TextBlock Text="{Binding TotalNet, StringFormat='{}{0:N0} ریال'}" Foreground="#059669" FontWeight="Bold" FontSize="16" FontFamily="{StaticResource VazirFont}"/>
+                        <TextBlock Text="{Binding TotalNet, StringFormat='{}{0:N0} ریال'}" Foreground="#2E7D52" FontWeight="Bold" FontSize="16" FontFamily="{StaticResource VazirFont}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

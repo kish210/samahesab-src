@@ -6,40 +6,44 @@
          Keys kept identical to previous theme so all existing views resolve.
     ═══════════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Primary / accent colors -->
-    <Color x:Key="PrimaryAccentColor">#2563EB</Color>
-    <Color x:Key="PrimaryAccentHoverColor">#1D4ED8</Color>
-    <Color x:Key="SecondaryAccentColor">#7C3AED</Color>
-    <Color x:Key="SuccessColorVal">#16A34A</Color>
-    <Color x:Key="WarningColorVal">#F59E0B</Color>
-    <Color x:Key="DangerColorVal">#DC2626</Color>
-    <Color x:Key="InfoColorVal">#0891B2</Color>
+    <!-- Primary / accent colors — برند دیزاین‌سیستم (لوگو: آبی #4B5F97 / سرمه‌ای #324A7A / طلایی #B18A5A) -->
+    <Color x:Key="PrimaryAccentColor">#4B5F97</Color>
+    <Color x:Key="PrimaryAccentHoverColor">#324A7A</Color>
+    <Color x:Key="SecondaryAccentColor">#324A7A</Color>
+    <Color x:Key="GoldAccentColor">#B18A5A</Color>
+    <Color x:Key="SuccessColorVal">#2E7D52</Color>
+    <Color x:Key="WarningColorVal">#C9881E</Color>
+    <Color x:Key="DangerColorVal">#C2403A</Color>
+    <Color x:Key="InfoColorVal">#4B5F97</Color>
 
-    <!-- Backgrounds (light) -->
-    <Color x:Key="AppBackgroundColor">#F5F7FA</Color>
+    <!-- Backgrounds (خنثی‌های دیزاین‌سیستم) -->
+    <Color x:Key="AppBackgroundColor">#F6F8FB</Color>
     <Color x:Key="SurfaceBackgroundColor">#FFFFFF</Color>
     <Color x:Key="CardBackgroundColor">#FFFFFF</Color>
     <Color x:Key="InputBackgroundColor">#FFFFFF</Color>
     <Color x:Key="RibbonBackgroundColor">#FFFFFF</Color>
     <Color x:Key="TableRowBgColor">#FFFFFF</Color>
-    <Color x:Key="TableAltRowBgColor">#F8FAFC</Color>
-    <Color x:Key="TableHeaderBgColor">#F1F5F9</Color>
+    <Color x:Key="TableAltRowBgColor">#F6F8FB</Color>
+    <Color x:Key="TableHeaderBgColor">#EEF1F6</Color>
 
-    <!-- Sidebar stays dark (classic ERP look) -->
-    <Color x:Key="SidebarBackgroundColor">#1E293B</Color>
-    <Color x:Key="SidebarTextColor">#CBD5E1</Color>
+    <!-- Sidebar (سرمه‌ای تیره برند) -->
+    <Color x:Key="SidebarBackgroundColor">#1B2843</Color>
+    <Color x:Key="SidebarTextColor">#BAC5DD</Color>
     <Color x:Key="SidebarActiveTextColor">#FFFFFF</Color>
-    <Color x:Key="SidebarActiveBgColor">#2563EB</Color>
+    <Color x:Key="SidebarActiveBgColor">#4B5F97</Color>
+
+    <!-- Topbar / statusbar (سرمه‌ای برند) -->
+    <Color x:Key="TopbarBackgroundColor">#324A7A</Color>
 
     <!-- Text (dark on light) -->
-    <Color x:Key="PrimaryTextColor">#1E293B</Color>
-    <Color x:Key="SecondaryTextColor">#64748B</Color>
-    <Color x:Key="DisabledTextColor">#94A3B8</Color>
+    <Color x:Key="PrimaryTextColor">#161C2A</Color>
+    <Color x:Key="SecondaryTextColor">#3F4859</Color>
+    <Color x:Key="DisabledTextColor">#7B8699</Color>
 
     <!-- Borders / separators -->
-    <Color x:Key="InputBorderColor">#CBD5E1</Color>
-    <Color x:Key="BorderColorVal">#E2E8F0</Color>
-    <Color x:Key="SeparatorColorVal">#E2E8F0</Color>
+    <Color x:Key="InputBorderColor">#CCD4E0</Color>
+    <Color x:Key="BorderColorVal">#E0E5EE</Color>
+    <Color x:Key="SeparatorColorVal">#E0E5EE</Color>
 
     <!-- ═══ Brushes ═══ -->
     <SolidColorBrush x:Key="AppBackground"         Color="{StaticResource AppBackgroundColor}"/>
@@ -62,15 +66,20 @@
     <SolidColorBrush x:Key="SidebarActiveBg"       Color="{StaticResource SidebarActiveBgColor}"/>
     <SolidColorBrush x:Key="PrimaryAccent"         Color="{StaticResource PrimaryAccentColor}"/>
     <SolidColorBrush x:Key="PrimaryAccentHover"    Color="{StaticResource PrimaryAccentHoverColor}"/>
+    <SolidColorBrush x:Key="PrimaryAccentDark"     Color="{StaticResource PrimaryAccentHoverColor}"/>
+    <SolidColorBrush x:Key="SecondaryAccent"       Color="{StaticResource SecondaryAccentColor}"/>
+    <SolidColorBrush x:Key="TopbarBackground"      Color="{StaticResource TopbarBackgroundColor}"/>
+    <SolidColorBrush x:Key="StatusbarBackground"   Color="{StaticResource TopbarBackgroundColor}"/>
+    <SolidColorBrush x:Key="GoldAccent"            Color="{StaticResource GoldAccentColor}"/>
     <SolidColorBrush x:Key="SuccessColor"          Color="{StaticResource SuccessColorVal}"/>
     <SolidColorBrush x:Key="WarningColor"          Color="{StaticResource WarningColorVal}"/>
     <SolidColorBrush x:Key="DangerColor"           Color="{StaticResource DangerColorVal}"/>
     <SolidColorBrush x:Key="InfoColor"             Color="{StaticResource InfoColorVal}"/>
 
     <!-- Status colors -->
-    <SolidColorBrush x:Key="StatusDraft"     Color="#64748B"/>
-    <SolidColorBrush x:Key="StatusPosted"    Color="#16A34A"/>
-    <SolidColorBrush x:Key="StatusCancelled" Color="#DC2626"/>
-    <SolidColorBrush x:Key="StatusPending"   Color="#F59E0B"/>
+    <SolidColorBrush x:Key="StatusDraft"     Color="#7B8699"/>
+    <SolidColorBrush x:Key="StatusPosted"    Color="#2E7D52"/>
+    <SolidColorBrush x:Key="StatusCancelled" Color="#C2403A"/>
+    <SolidColorBrush x:Key="StatusPending"   Color="#C9881E"/>
 
 </ResourceDictionary>

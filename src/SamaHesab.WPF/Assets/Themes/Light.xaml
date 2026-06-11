@@ -1,36 +1,57 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ═══════════════════════════════════════════════════════════════════════
-         SAMA HESAB - Light Theme
+         SAMA HESAB — Light Theme  ·  منطبق بر دیزاین‌سیستم رسمی (design-system/)
+         برند (از لوگو): آبی #4B5F97 · سرمه‌ای #324A7A · سایدبار #1B2843 · طلایی #B18A5A
+         نسبت: ۸۰٪ خنثی / ۱۵٪ برند / ۵٪ وضعیت
     ═══════════════════════════════════════════════════════════════════════════ -->
 
-    <SolidColorBrush x:Key="AppBackground"         Color="#F8FAFC"/>
+    <!-- خنثی‌ها (gray scale دیزاین‌سیستم) -->
+    <SolidColorBrush x:Key="AppBackground"         Color="#F6F8FB"/>
     <SolidColorBrush x:Key="SurfaceBackground"     Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="CardBackground"        Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="SidebarBackground"     Color="#1E293B"/>
-    <SolidColorBrush x:Key="RibbonBackground"      Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBackground"        Color="#EEF1F6"/>
     <SolidColorBrush x:Key="InputBackground"       Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="RibbonBackground"      Color="#FFFFFF"/>
     <SolidColorBrush x:Key="TableRowBg"            Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TableAltRowBg"         Color="#F8FAFC"/>
-    <SolidColorBrush x:Key="TableHeaderBg"         Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="PrimaryText"           Color="#0F172A"/>
-    <SolidColorBrush x:Key="SecondaryText"         Color="#475569"/>
-    <SolidColorBrush x:Key="DisabledText"          Color="#94A3B8"/>
-    <SolidColorBrush x:Key="InputBorder"           Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="BorderColor"           Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="SeparatorColor"        Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="SidebarText"           Color="#CBD5E1"/>
-    <SolidColorBrush x:Key="SidebarActiveText"     Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="SidebarActiveBg"       Color="#2563EB"/>
-    <SolidColorBrush x:Key="PrimaryAccent"         Color="#2563EB"/>
-    <SolidColorBrush x:Key="SuccessColor"          Color="#059669"/>
-    <SolidColorBrush x:Key="WarningColor"          Color="#D97706"/>
-    <SolidColorBrush x:Key="DangerColor"           Color="#DC2626"/>
+    <SolidColorBrush x:Key="TableAltRowBg"         Color="#F6F8FB"/>
+    <SolidColorBrush x:Key="TableHeaderBg"         Color="#EEF1F6"/>
 
-    <SolidColorBrush x:Key="StatusDraft"    Color="#64748B"/>
-    <SolidColorBrush x:Key="StatusPosted"   Color="#059669"/>
-    <SolidColorBrush x:Key="StatusCancelled" Color="#DC2626"/>
-    <SolidColorBrush x:Key="StatusPending"  Color="#D97706"/>
+    <!-- متن -->
+    <SolidColorBrush x:Key="PrimaryText"           Color="#161C2A"/>
+    <SolidColorBrush x:Key="SecondaryText"         Color="#3F4859"/>
+    <SolidColorBrush x:Key="DisabledText"          Color="#7B8699"/>
+    <SolidColorBrush x:Key="MutedText"             Color="#7B8699"/>
+
+    <!-- خطوط/مرزها -->
+    <SolidColorBrush x:Key="InputBorder"           Color="#CCD4E0"/>
+    <SolidColorBrush x:Key="BorderColor"           Color="#E0E5EE"/>
+    <SolidColorBrush x:Key="SeparatorColor"        Color="#E0E5EE"/>
+
+    <!-- سایدبار (سرمه‌ای تیره برند) -->
+    <SolidColorBrush x:Key="SidebarBackground"     Color="#1B2843"/>
+    <SolidColorBrush x:Key="SidebarText"           Color="#BAC5DD"/>
+    <SolidColorBrush x:Key="SidebarActiveText"     Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SidebarActiveBg"       Color="#4B5F97"/>
+
+    <!-- برند (۱۵٪) -->
+    <SolidColorBrush x:Key="PrimaryAccent"         Color="#4B5F97"/>
+    <SolidColorBrush x:Key="PrimaryAccentDark"     Color="#324A7A"/>
+    <SolidColorBrush x:Key="PrimaryAccentLight"    Color="#EEF1F7"/>
+    <SolidColorBrush x:Key="SecondaryAccent"       Color="#324A7A"/>
+    <SolidColorBrush x:Key="TopbarBackground"      Color="#324A7A"/>
+    <SolidColorBrush x:Key="StatusbarBackground"   Color="#324A7A"/>
+    <SolidColorBrush x:Key="GoldAccent"            Color="#B18A5A"/>
+
+    <!-- وضعیت (۵٪) -->
+    <SolidColorBrush x:Key="SuccessColor"          Color="#2E7D52"/>
+    <SolidColorBrush x:Key="WarningColor"          Color="#C9881E"/>
+    <SolidColorBrush x:Key="DangerColor"           Color="#C2403A"/>
+    <SolidColorBrush x:Key="InfoColor"             Color="#4B5F97"/>
+
+    <SolidColorBrush x:Key="StatusDraft"     Color="#7B8699"/>
+    <SolidColorBrush x:Key="StatusPosted"    Color="#2E7D52"/>
+    <SolidColorBrush x:Key="StatusCancelled" Color="#C2403A"/>
+    <SolidColorBrush x:Key="StatusPending"   Color="#C9881E"/>
 
 </ResourceDictionary>

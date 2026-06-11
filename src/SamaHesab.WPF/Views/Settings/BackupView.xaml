@@ -59,9 +59,9 @@
                         <TextBlock Text="📥 بازیابی پایگاه داده" FontWeight="Bold" FontSize="14"
                                    Foreground="{DynamicResource PrimaryText}"
                                    FontFamily="{StaticResource VazirFont}" Margin="0,0,0,16"/>
-                        <Border Background="#7F1D1D20" BorderBrush="#DC2626" BorderThickness="1"
+                        <Border Background="#7F1D1D20" BorderBrush="#C2403A" BorderThickness="1"
                                 CornerRadius="8" Padding="12,10" Margin="0,0,0,12">
-                            <TextBlock TextWrapping="Wrap" Foreground="#DC2626"
+                            <TextBlock TextWrapping="Wrap" Foreground="#C2403A"
                                        FontFamily="{StaticResource VazirFont}" FontSize="12">
                                 ⚠ هشدار: بازیابی پایگاه داده تمام اطلاعات فعلی را با فایل پشتیبان جایگزین می‌کند.
                             </TextBlock>

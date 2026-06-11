@@ -66,13 +66,13 @@
                                 <StackPanel Margin="0,0,8,8">
                                     <TextBlock Style="{StaticResource FormLabel}" Text="قیمت خرید (ریال)"/>
                                     <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                        <TextBox Text="{Binding PurchasePrice, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="#2563EB" Padding="10,8" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding PurchasePrice, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="#4B5F97" Padding="10,8" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,0,8">
                                     <TextBlock Style="{StaticResource FormLabel}" Text="قیمت فروش خرده (ریال)"/>
                                     <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                        <TextBox Text="{Binding SalePrice, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="#059669" Padding="10,8" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
+                                        <TextBox Text="{Binding SalePrice, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="#2E7D52" Padding="10,8" FontFamily="{StaticResource VazirFont}" FontWeight="Bold"/>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,8,0">
@@ -148,7 +148,7 @@
                                 <StackPanel>
                                     <Grid Margin="0,0,0,6">
                                         <TextBlock Text="موجودی کل:" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                                        <TextBlock Text="۱۲۰ عدد" HorizontalAlignment="Left" Foreground="#059669" FontWeight="Bold" FontFamily="{StaticResource VazirFont}"/>
+                                        <TextBlock Text="۱۲۰ عدد" HorizontalAlignment="Left" Foreground="#2E7D52" FontWeight="Bold" FontFamily="{StaticResource VazirFont}"/>
                                     </Grid>
                                     <Grid>
                                         <TextBlock Text="میانگین بهای تمام شده:" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="12"/>

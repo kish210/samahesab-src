@@ -1,4 +1,4 @@
-<UserControl x:Class="SamaHesab.WPF.Views.Accounting.ChequeBoardView"
+﻿<UserControl x:Class="SamaHesab.WPF.Views.Accounting.ChequeBoardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource AppBackground}"
@@ -16,7 +16,7 @@
                            Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
                 <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center"
                            Text="{Binding TotalAmount, StringFormat='جمع: {0:#,##0} ریال'}" FontWeight="SemiBold"/>
-                <TextBlock Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#DC2626"
+                <TextBlock Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#C2403A"
                            Text="{Binding OverdueCount, StringFormat='سررسید گذشته: {0}'}"/>
             </DockPanel>
         </Border>
@@ -44,11 +44,11 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="وصول" Margin="2,0" Padding="10,3" Cursor="Hand" Foreground="White"
-                                        BorderThickness="0" Background="#16A34A"
+                                        BorderThickness="0" Background="#2E7D52"
                                         Command="{Binding DataContext.ClearChequeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"/>
                                 <Button Content="برگشت" Margin="2,0" Padding="10,3" Cursor="Hand" Foreground="White"
-                                        BorderThickness="0" Background="#DC2626"
+                                        BorderThickness="0" Background="#C2403A"
                                         Command="{Binding DataContext.ReturnChequeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"/>
                             </StackPanel>

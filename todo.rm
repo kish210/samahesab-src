@@ -67,6 +67,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **اعمال دیزاین‌سیستم روی WPF**: پالت برند (`Dark.xaml`/`Light.xaml`) → آبی #4B5F97 · سرمه‌ای #324A7A · سایدبار #1B2843 · طلایی #B18A5A + سوئیپ رنگ‌های tailwind در ۱۷ View به برند (byte-safe، فارسی سالم). Build سبز.
 - **2026-06-10** — **کارهای #۱۰+#۱۱ — فاکتور تکرارشونده + زمان‌بند (P3)**: `RecurringInvoice`/`Line` + `database/18_RecurringInvoices.sql` + Save/List/GenerateDue (catch-up) + `RecurringDocumentSchedulerService` + endpointها (`/api/sales/recurring*`) + ۴ تست (۱۱۰ سبز)
 - **2026-06-10** — **کار #۱۲ — سفارش خرید (PurchaseOrder)**: موجودیت + EF + `database/15_PurchaseOrders.sql` + `CreatePurchaseOrderFromReorderCommand` (خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها + ۴ تست (۱۰۱ سبز)
 - **2026-06-10** — **کار #۲۸ — انبارگردانی سندی (کلود ۲)**: `StockCountSession`/`StockCountLine` + اسکیمای `Inv` (`database/14_StockCount.sql`) + Start (snapshot)/Count/Post (مغایرت→تعدیل + سند خودکار) + `GetStockCountQuery` + `StockCountController` (`/api/stockcount/start|{id}|count|post`) + ۵ تست. · تست e2e: شمارش ۷ از ۱۶ → تعدیل به ۷ ✓

@@ -205,7 +205,14 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
             voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, payable.Id, 0, remain, "بدهی به تأمین‌کننده"));
 
         await _voucherRepository.AddAsync(voucher, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.SaveChangesAsync(ct);   // assigns voucher.Id
+
+        // Auto-post once the Id exists; leave Draft (don't fail) if somehow unbalanced.
+        if (voucher.CanPost())
+        {
+            voucher.Post(_currentUser.UserId ?? 1);
+            _voucherRepository.Update(voucher);
+        }
         return voucher.Id;
     }
 

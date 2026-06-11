@@ -175,6 +175,7 @@
                 </ItemsControl>
             </ScrollViewer>
 
+<<<<<<< Updated upstream
             <!-- شبکه‌ی کالا -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Products}">
@@ -199,5 +200,46 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
+=======
+                    <!-- Payment Mode -->
+                    <TextBlock Text="روش پرداخت:" Foreground="{DynamicResource SecondaryText}"
+                               FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,0,0,6"/>
+                    <ComboBox ItemsSource="{Binding PaymentModes}" SelectedItem="{Binding PaymentMode}"
+                              Height="38" Margin="0,0,0,12">
+                        <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource BaseComboBox}"/></ComboBox.Style>
+                    </ComboBox>
+
+                    <TextBlock Text="مبلغ دریافتی:" Foreground="{DynamicResource SecondaryText}"
+                               FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,0,0,6"/>
+                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="2" CornerRadius="8" Margin="0,0,0,12">
+                        <TextBox Text="{Binding CashReceived, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}"
+                                 Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SuccessColor}"
+                                 Padding="12,10" FontFamily="{StaticResource VazirFont}" FontSize="18" FontWeight="Bold"/>
+                    </Border>
+
+                    <Border Background="#2E7D5220" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+                        <Grid>
+                            <TextBlock Text="باقیمانده:" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource SecondaryText}" FontWeight="Bold" FontSize="14"/>
+                            <TextBlock Text="{Binding Change, StringFormat='{}{0:N0} ریال'}" HorizontalAlignment="Left"
+                                       Foreground="#2E7D52" FontFamily="{StaticResource VazirFont}"
+                                       FontWeight="Bold" FontSize="18"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Checkout Button -->
+                <StackPanel Grid.Row="2">
+                    <Button Content="✓ پرداخت و صدور رسید (F12)"
+                            Style="{StaticResource SuccessButton}" Height="52" FontSize="15"
+                            FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"
+                            Command="{Binding CheckoutCommand}"/>
+                    <Button Content="🖨 چاپ آخرین رسید (F8)"
+                            Style="{StaticResource SecondaryButton}" Height="38" FontSize="13"
+                            FontFamily="{StaticResource VazirFont}"
+                            Command="{Binding PrintReceiptCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+>>>>>>> Stashed changes
     </Grid>
 </UserControl>

@@ -21,6 +21,11 @@ public partial class DashboardViewModel : BaseViewModel
     private readonly IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> _salesRepo;
     private readonly IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> _purchaseRepo;
 
+    // Workspace header (طبق ماک‌آپ طراح: سلام + تاریخ روز)
+    [ObservableProperty] private string _greeting = "خوش آمدید";
+    [ObservableProperty] private string _todayDateText = string.Empty;
+    [ObservableProperty] private int _chequesDueCount;
+
     // KPI Cards
     [ObservableProperty] private decimal _todaySales;
     [ObservableProperty] private decimal _monthSales;
@@ -72,6 +77,9 @@ public partial class DashboardViewModel : BaseViewModel
             var today = _calendar.GetCurrentPersianDate();           // 1403/06/15
             var month = today.Length >= 7 ? today.Substring(0, 7) : today; // 1403/06
 
+            Greeting = $"خوش آمدید {_currentUser.FullName ?? "کاربر گرامی"}";
+            TodayDateText = $"امروز — {today}";
+
             var products  = await _productRepo.FindAsync(p => p.CompanyId == companyId);
             var customers = await _customerRepo.FindAsync(c => c.CompanyId == companyId);
             var suppliers = await _supplierRepo.FindAsync(s => s.CompanyId == companyId);
@@ -122,6 +130,7 @@ public partial class DashboardViewModel : BaseViewModel
                     c.ChequeType == SamaHesab.Domain.Enums.ChequeType.Received ? "دریافتی" : "پرداختی"));
             }
             OverdueCheques = ChequesDue.Count(c => string.Compare(c.DueDate, today, System.StringComparison.Ordinal) < 0);
+            ChequesDueCount = ChequesDue.Count;
 
             // ── Low stock (real stock totals vs MinStock) ──
             LowStockItems.Clear();

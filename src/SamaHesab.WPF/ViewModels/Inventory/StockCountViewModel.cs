@@ -24,6 +24,8 @@ public partial class StockCountViewModel : BaseViewModel
     [ObservableProperty] private bool _isStarted;
     [ObservableProperty] private bool _isPosted;
     [ObservableProperty] private string _resultText = string.Empty;
+    [ObservableProperty] private string _barcodeInput = string.Empty;   // اسکن بارکد برای شمارش سریع
+    [ObservableProperty] private string _scanInfo = string.Empty;
 
     public StockCountViewModel(ApiClient api, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
@@ -59,6 +61,22 @@ public partial class StockCountViewModel : BaseViewModel
         Status = dto.Status; VarianceCount = dto.VarianceCount;
         foreach (var l in dto.Lines)
             Lines.Add(new StockCountRow(l.ProductId, l.ProductName, l.SystemQty) { CountedQty = l.CountedQty });
+    }
+
+    /// <summary>اسکن بارکد: ردیف کالای متناظر را پیدا و شمارش آن را +۱ می‌کند (workflow انباردار، کیبوردمحور).</summary>
+    [RelayCommand]
+    private async Task ScanAsync()
+    {
+        if (!IsStarted) { await _dialogService.ShowWarningAsync("ابتدا شمارش را شروع کنید."); return; }
+        var code = BarcodeInput?.Trim() ?? "";
+        if (code.Length == 0) return;
+        var hit = await _api.ResolveBarcodeAsync(code);
+        BarcodeInput = string.Empty;
+        if (hit == null) { ScanInfo = $"یافت نشد: {code}"; return; }
+        var row = Lines.FirstOrDefault(l => l.ProductId == hit.ProductId);
+        if (row == null) { ScanInfo = $"خارج از این انبار: {hit.Name}"; return; }
+        row.CountedQty += 1;
+        ScanInfo = $"+۱ → {row.ProductName}  (شمارش: {row.CountedQty:N0})";
     }
 
     /// <summary>ثبت تعداد شمرده‌شده‌ی همه‌ی ردیف‌ها روی سرور و بازخوانی مغایرت‌ها.</summary>

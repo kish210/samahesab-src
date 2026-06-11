@@ -17,27 +17,41 @@
             <RowDefinition Height="Auto"/>   <!-- footer -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ نوار شروع (gbox) ═══ -->
-        <Border Grid.Row="0" Style="{StaticResource ErpGbox}" Padding="12,9" Margin="0,0,0,10">
-            <DockPanel>
-                <TextBlock Text="انبارگردانی سندی" FontSize="17" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="انبار" Style="{StaticResource ErpFieldLabel}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                    <ComboBox Width="180" Height="32" ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
-                              SelectedValue="{Binding SelectedWarehouseId}" IsEnabled="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
-                    <TextBlock Text="تاریخ" Style="{StaticResource ErpFieldLabel}" Margin="12,0,6,0" VerticalAlignment="Center"/>
-                    <TextBox Style="{StaticResource ErpInput}" Text="{Binding Date}" Width="100"/>
-                    <Button Style="{StaticResource ErpBtnPrimary}" Content="شروع شمارش" Padding="16,0" Margin="12,0,0,0" FontWeight="Bold"
-                            Command="{Binding StartCommand}"
-                            Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
-                    <Border Background="{StaticResource ErpBlue50}" CornerRadius="6" Padding="10,5" Margin="12,0,0,0" VerticalAlignment="Center"
-                            Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
-                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource ErpBlue700}" FontWeight="SemiBold">
-                            <Run Text="سند #"/><Run Text="{Binding SessionId, Mode=OneWay}"/><Run Text="  ·  مغایرت: "/><Run Text="{Binding VarianceCount, Mode=OneWay}"/><Run Text=" قلم"/>
-                        </TextBlock>
-                    </Border>
-                </StackPanel>
-            </DockPanel>
+        <!-- ═══ نوار شروع + اسکن (gbox) ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource ErpGbox}" Padding="10,7" Margin="0,0,0,8">
+            <StackPanel>
+                <DockPanel>
+                    <TextBlock Text="انبارگردانی سندی" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock Text="انبار" Style="{StaticResource ErpFieldLabel}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <ComboBox Width="170" Height="30" ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                                  SelectedValue="{Binding SelectedWarehouseId}" IsEnabled="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                        <TextBlock Text="تاریخ" Style="{StaticResource ErpFieldLabel}" Margin="12,0,6,0" VerticalAlignment="Center"/>
+                        <TextBox Style="{StaticResource ErpInput}" Height="30" Text="{Binding Date}" Width="100" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                        <Button Style="{StaticResource ErpBtnPrimary}" Content="شروع شمارش" Padding="16,0" Margin="12,0,0,0" Height="30" FontWeight="Bold"
+                                Command="{Binding StartCommand}"
+                                Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                        <Border Background="{StaticResource ErpBlue50}" CornerRadius="6" Padding="10,5" Margin="12,0,0,0" VerticalAlignment="Center"
+                                Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
+                            <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource ErpBlue700}" FontWeight="SemiBold">
+                                <Run Text="سند #"/><Run Text="{Binding SessionId, Mode=OneWay}"/><Run Text="  ·  مغایرت: "/><Run Text="{Binding VarianceCount, Mode=OneWay}"/><Run Text=" قلم"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+
+                <!-- نوار اسکن بارکد (کیبوردمحور: اسکن → +۱ شمارش) -->
+                <Border Background="{StaticResource ErpBlue50}" BorderBrush="{StaticResource ErpBlue100}" BorderThickness="1" CornerRadius="6" Padding="8,5" Margin="0,7,0,0"
+                        Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" Text="🔍 اسکن بارکد کالا (هر اسکن = +۱):" Foreground="{StaticResource ErpBlue700}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="ScanBox" DockPanel.Dock="Right" Style="{StaticResource ErpInput}" Height="30" Width="220" Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight">
+                            <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding ScanCommand}"/></TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Text="{Binding ScanInfo}" Foreground="{StaticResource ErpSuccess700}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
         </Border>
 
         <!-- ═══ گرید شمارش (dgrid) ═══ -->

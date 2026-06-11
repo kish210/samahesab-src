@@ -54,4 +54,9 @@ public class WarehouseController : ControllerBase
         var r = await _mediator.Send(cmd, ct);
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>کار #۲۹ — ارزش‌گذاری FIFO یک کالا از روی کاردکس (بهای موردانتظار خروج + ارزش باقی‌مانده).</summary>
+    [HttpGet("fifo-valuation")]
+    public async Task<IActionResult> FifoValuation([FromQuery] int productId, [FromQuery] int? warehouseId, CancellationToken ct)
+        => Ok(await _mediator.Send(new SamaHesab.Application.Inventory.Queries.GetFifoValuationQuery(productId, warehouseId), ct));
 }

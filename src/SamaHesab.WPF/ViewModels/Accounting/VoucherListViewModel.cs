@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -14,6 +15,15 @@ public partial class VoucherListViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IVoucherRepository _voucherRepo;
+    private readonly IAccountRepository _accountRepo;
+    private Dictionary<int, string> _accountNames = new();
+
+    // پنل پیش‌نمایش: ردیف‌های حساب سند انتخاب‌شده (طبق accounting-docs.html)
+    public ObservableCollection<VoucherPreviewLine> PreviewLines { get; } = new();
+    [ObservableProperty] private decimal _previewDebit;
+    [ObservableProperty] private decimal _previewCredit;
+    [ObservableProperty] private bool _previewBalanced;
 
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
@@ -41,11 +51,45 @@ public partial class VoucherListViewModel : BaseViewModel
         ICurrentUserService currentUser,
         IDialogService dialogService,
         INavigationService navigationService,
-        IPersianCalendarService calendar) : base(dialogService, navigationService)
+        IPersianCalendarService calendar,
+        IVoucherRepository voucherRepo,
+        IAccountRepository accountRepo) : base(dialogService, navigationService)
     {
         _mediator = mediator;
         _currentUser = currentUser;
         _calendar = calendar;
+        _voucherRepo = voucherRepo;
+        _accountRepo = accountRepo;
+    }
+
+    /// <summary>با انتخاب سند، ردیف‌های حساب آن را برای پنل پیش‌نمایش بارگذاری می‌کند.</summary>
+    partial void OnSelectedVoucherChanged(VoucherListDto? value)
+    {
+        if (value == null) { PreviewLines.Clear(); PreviewDebit = PreviewCredit = 0; PreviewBalanced = false; return; }
+        _ = LoadPreviewAsync(value.Id);
+    }
+
+    private async Task LoadPreviewAsync(int voucherId)
+    {
+        try
+        {
+            if (_accountNames.Count == 0)
+            {
+                var accs = await _accountRepo.GetLeafAccountsAsync(_currentUser.CompanyId ?? 1);
+                _accountNames = accs.ToDictionary(a => a.Id, a => a.Name);
+            }
+            var v = await _voucherRepo.GetWithItemsAsync(voucherId);
+            PreviewLines.Clear();
+            if (v == null) return;
+            foreach (var it in v.Items.OrderBy(i => i.RowNumber))
+                PreviewLines.Add(new VoucherPreviewLine(
+                    _accountNames.TryGetValue(it.AccountId, out var n) ? n : $"حساب {it.AccountId}",
+                    it.Debit, it.Credit));
+            PreviewDebit = PreviewLines.Sum(l => l.Debit);
+            PreviewCredit = PreviewLines.Sum(l => l.Credit);
+            PreviewBalanced = Math.Abs(PreviewDebit - PreviewCredit) < 0.01m && PreviewLines.Count > 0;
+        }
+        catch { PreviewLines.Clear(); }
     }
 
     public override async Task LoadAsync()
@@ -84,6 +128,10 @@ public partial class VoucherListViewModel : BaseViewModel
 
     [RelayCommand]
     private void NewVoucher() => _navigationService.NavigateTo("VoucherEdit");
+
+    [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports");
+    [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports");
+    [RelayCommand] private async Task ExportAsync() => await _dialogService.ShowInfoAsync("خروجی اکسلِ اسناد فیلترشده در حال آماده‌سازی…");
 
     [RelayCommand]
     private void EditVoucher()
@@ -128,3 +176,4 @@ public partial class VoucherListViewModel : BaseViewModel
 }
 
 public record StatusItem(int? Id, string Name);
+public record VoucherPreviewLine(string Account, decimal Debit, decimal Credit);

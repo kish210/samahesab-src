@@ -49,6 +49,9 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
             companyId, request.FiscalYearId, fromDate, toDate, ct);
 
         var statusMap = new Dictionary<int, string> { {1,"پیش‌نویس"},{2,"قطعی"},{3,"دائمی"} };
+        var typeMap = new Dictionary<int, string> {
+            {1,"افتتاحیه"},{2,"اختتامیه"},{3,"فروش"},{4,"خرید"},{5,"صندوق"},{6,"بانک"},
+            {7,"چک"},{9,"عمومی"},{10,"پرداخت"},{11,"دریافت"},{12,"حقوق"} };
 
         var query = vouchers.AsQueryable();
 
@@ -69,7 +72,7 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
                 v.Id,
                 v.VoucherNumber,
                 v.VoucherDate,
-                v.VoucherTypeId.ToString(),
+                typeMap.GetValueOrDefault(v.VoucherTypeId, v.VoucherTypeId.ToString()),
                 statusMap.GetValueOrDefault((int)v.Status, "نامشخص"),
                 v.Items.Sum(i => i.Debit),
                 v.Items.Sum(i => i.Credit),

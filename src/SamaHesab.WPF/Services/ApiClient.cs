@@ -21,6 +21,10 @@ public record ApiKitchenTicket(int Id, string TicketNumber, int OrderId, string?
     string Status, int StatusCode, DateTime CreatedAt, List<ApiKitchenItem> Items);
 public record ApiKitchenItem(int Id, string ProductName, decimal Quantity, string Status, string? Notes);
 
+// ── Unified barcode (#27) DTO ──
+public record ApiBarcodeHit(int ProductId, string Code, string Name, decimal SalePrice,
+    decimal TaxRate, int? GroupId, bool Weighted, decimal? EmbeddedValue);
+
 // ── POS shift (#30/#31) DTO ──
 public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, decimal CardSales,
     int SalesCount, decimal ExpectedCash, decimal CountedCash, decimal Variance);
@@ -261,6 +265,13 @@ public class ApiClient
         catch (Exception ex) { return (false, 0, 0, ex.GetBaseException().Message); }
     }
     private record PostCountResponse(int AdjustedItems, decimal TotalVariance);
+
+    // ── Unified barcode (#27) ──
+    public async Task<ApiBarcodeHit?> ResolveBarcodeAsync(string code)
+    {
+        try { return await _http.GetFromJsonAsync<ApiBarcodeHit>($"/api/barcode/resolve?code={Uri.EscapeDataString(code)}"); }
+        catch { return null; }
+    }
 
     // ── POS shift / صندوق (#30/#31) ──
     public async Task<ApiShiftSummary?> GetCurrentShiftAsync()

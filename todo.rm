@@ -46,7 +46,7 @@
 24. ⬜ UI سند برگشتی + بستن سال مالی
 25. ✅ Post خودکار اسناد فروش/خرید (کلود ۲): فاکتور خرید از قبل `invoice.Post(voucherId)` می‌کرد؛ فاکتور فروش فقط `SetVoucher` می‌زد و **Draft** می‌ماند (در نتیجه از تحلیل‌ها/گزارش‌هایی که Draft را کنار می‌گذارند حذف می‌شد). اصلاح: `CreateSalesInvoiceCommand` اکنون `invoice.Post(userId, voucherId)` می‌زند → وضعیت Posted + لینک سند + رویداد `SalesInvoicePostedEvent`. ۳ تست قرارداد وضعیت (۱۵۷ سبز).
 26. ✅ اصلاح گروه‌بندی درآمد/هزینه (کلود ۲): کلاس خالص `AccountClassifier` طبق نمودار واقعی (۱،۲=دارایی · ۳،۴=بدهی · ۵=سرمایه · ۶=درآمد · ۷،۸،۹=هزینه) جایگزین Seg0 غلط در سود/زیان و ترازنامه + ۹ تست (۱۲۹ سبز)
-27. ⬜ اسکن بارکد یکپارچه (سرویس مشترک: رسید/حواله/POS/شمارش)
+27. ✅ اسکن بارکد یکپارچه (کلود ۲): منطق خالص `BarcodeParser` (نرمال‌سازی ارقام فارسی/عربی + تشخیص بارکد وزنی/قیمت‌دار EAN-13) + `ResolveBarcodeQuery` (تطبیق بارکد→وزنی→کد کالا) + `BarcodeController` (`/api/barcode/resolve`) + `ApiClient.ResolveBarcodeAsync` + بازآرایی POS برای استفاده از همین سرویس (هم standalone هم درون‌برنامه) + ۹ تست (۱۶۶ سبز). آماده‌ی اتصال در رسید/حواله/انبارگردانی.
 28. ✅ انبارگردانی سندی (شمارش گروهی + گزارش مغایرت) (کلود ۲): بک‌اند `StockCountSession`/`Line` + `Inv` (`database/14_StockCount.sql`) + Start/Count/Post (تبدیل مغایرت به تعدیل + سند خودکار) + `GetStockCountQuery` + `/api/stockcount/*` + ۵ تست. **+UI:** `StockCountViewModel`+`StockCountView` (انتخاب انبار/شروع، گرید شمارش با مغایرت زنده، ثبت شمارش‌ها، قطعی‌سازی) + متدهای ApiClient + منوی انبار→انبارگردانی.
 29. 🔧 بهای تمام‌شده FIFO (کلود ۲): موتور خالص `FifoCostEngine` (لایه‌بندی) + `GetFifoValuationQuery` (ارزش‌گذاری از کاردکس) + `/api/warehouse/fifo-valuation` + ۴ تست (۱۴۲ سبز) · ادغام در مسیر خروج و بچ/سریال فاز بعد
 30. ✅ POS — شیفت/صندوق (کلود ۲): `CashShift` (اسکیمای `Pos`، `database/16_CashShifts.sql`) + Open/RecordSale/Close (موردانتظار=موجودی‌اولیه+فروش‌نقدی، مغایرت=شمارش−موردانتظار) + `GetOpenShiftQuery` (Z-report زنده) + `ShiftsController` + ۵ تست. **+UI (کلود ۲):** `ShiftViewModel`+`ShiftView` (باز کردن صندوق، گزارش زنده، بستن با شمارش و نمایش مغایرت) + متدهای ApiClient + منوی «صندوق/شیفت».
@@ -97,6 +97,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **کار #۲۷ — سرویس بارکد یکپارچه (کلود ۲)**: `BarcodeParser` (نرمال‌سازی فارسی/عربی + بارکد وزنی) + `ResolveBarcodeQuery` + `BarcodeController` (`/api/barcode/resolve`) + `ApiClient.ResolveBarcodeAsync` + بازآرایی POS. ۹ تست (۱۶۶ سبز). مشترک برای رسید/حواله/انبارگردانی.
 - **2026-06-11** — **کار #۲۵ — Post خودکار فاکتور فروش (کلود ۲)**: رفع باگ — فاکتور فروش پس از ساخت Draft می‌ماند (سند پست می‌شد ولی فاکتور نه) و از تحلیل‌ها حذف می‌شد. اکنون `invoice.Post(userId, voucherId)` → Posted + رویداد. ۳ تست (۱۵۷ سبز).
 - **2026-06-11** — **کار #۳۹ — اتصال «مشتریان اخیر/کالای محبوب» به فاکتور فروش (کلود ۲)**: نوار چیپ «مشتریان اخیر» در `SalesInvoiceEditView` (از `GetRecentItemsQuery("customer")`) + ثبت `TouchRecentItemCommand` هنگام انتخاب مشتری و افزودن کالا (entityType: customer/product). منبع واحد سرویس Favorites. · اتصال POS فاز بعد.
 - **2026-06-11** — **پریمیتیوهای دیزاین‌سیستم + مهاجرت صفحات (کلود ۲)**: `ErpDesignSystem.xaml` (توکن‌ها + دکمه/ورودی/gbox/dgrid/sumbar) و مهاجرت ShiftView/CustomerCardView/WaiterView/PosView/StockCountView به آن.
@@ -188,7 +189,7 @@
 اولویت پیاده‌سازی:
 - [~] ۱. سرعت ورود سند حسابداری — ✅ توازن خودکار (`=`) + میان‌برهای F2/F7/F8/F9 + Ctrl+Enter · بک‌اند `SearchAccountsQuery` آماده (اتصال به گرید مانده)
 - [~] ۲. دریافتنی/پرداختنی — ✅ بک‌اند: تخصیص خودکار FIFO در ثبت دریافت/پرداخت + Query فهرست بدهکاران/بستانکاران · UI فهرست و ثبت سریع مانده
-- [ ] ۳. اسکن بارکد یکپارچه (سرویس مشترک: رسید/حواله/POS/شمارش)
+- [x] ۳. اسکن بارکد یکپارچه — ✅ `BarcodeParser`+`ResolveBarcodeQuery`+`/api/barcode/resolve` + POS متصل (کلود ۲)
 - [~] ۴. مدیریت چک — ✅ بک‌اند: تابلوی چک‌های در جریان (GetChequeBoardQuery + classifier سررسید) + ChangeChequeStatusCommand (وصول با سند خودکار/برگشت/واگذاری) · UI تابلو
 - [ ] ۵. داشبورد نقش‌محور (مدیر/حسابدار/انباردار/صندوق)
 - [~] ۶. مغایرت‌گیری بانکی — ✅ بک‌اند: موتور تطبیق خودکار (BankReconciliation) + پارسر CSV صورت‌حساب (ارقام فارسی) · Query دفتر بانک + ماندگاری وضعیت تطبیق + UI مانده

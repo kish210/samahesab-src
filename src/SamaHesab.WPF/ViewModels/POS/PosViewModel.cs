@@ -133,19 +133,18 @@ public partial class PosViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(BarcodeInput)) return;
         var code = BarcodeInput.Trim();
 
-        // (id, code, name, price, tax)
+        // کار #۲۷ — سرویس بارکد یکپارچه (نرمال‌سازی ارقام فارسی + بارکد وزنی + fallback به کد کالا).
+        // standalone از Web API، حالت درون‌برنامه از همان Query در Application.
         (int Id, string Code, string Name, decimal Price, decimal Tax)? hit = null;
         if (UseApi)
         {
-            var found = await _api.SearchProductsAsync(code);
-            var p = found.FirstOrDefault(x => x.Code == code || x.Barcode == code) ?? found.FirstOrDefault();
-            if (p != null) hit = (p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate);
+            var b = await _api.ResolveBarcodeAsync(code);
+            if (b != null) hit = (b.ProductId, b.Code, b.Name, b.SalePrice, b.TaxRate);
         }
         else
         {
-            var product = await _productRepo.GetByBarcodeAsync(_currentUser.CompanyId ?? 1, code)
-                       ?? await _productRepo.GetByCodeAsync(_currentUser.CompanyId ?? 1, code);
-            if (product != null) hit = (product.Id, product.Code, product.Name, product.SalePrice, product.TaxRate);
+            var b = await _mediator.Send(new SamaHesab.Application.Common.Barcode.ResolveBarcodeQuery(code));
+            if (b != null) hit = (b.ProductId, b.Code, b.Name, b.SalePrice, b.TaxRate);
         }
 
         if (hit == null) { await _dialogService.ShowWarningAsync($"کالا با کد '{code}' یافت نشد."); BarcodeInput = string.Empty; return; }

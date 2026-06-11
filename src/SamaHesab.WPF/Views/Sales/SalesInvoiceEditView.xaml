@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
     </UserControl.Resources>
 
     <Grid Margin="3">
@@ -73,6 +74,27 @@
                     <TextBox Text="{Binding InvoiceNumber}" Width="92" IsReadOnly="True"/>
                 </StackPanel>
             </Grid>
+        </Border>
+
+        <!-- مشتریان اخیر (کار #۳۹): چیپ‌های دسترسی سریع -->
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,0,0,1" Padding="12,4"
+                Visibility="{Binding RecentCustomers.Count, Converter={StaticResource GtzVis}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="مشتریان اخیر:" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ItemsControl ItemsSource="{Binding RecentCustomers}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource ErpBtnGhost}" Height="26" Padding="10,0" Margin="0,0,6,0" FontSize="11.5"
+                                    Background="{StaticResource ErpBlue50}" Foreground="{StaticResource ErpBlue700}"
+                                    Content="{Binding Label}"
+                                    Command="{Binding DataContext.SelectRecentCustomerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
 
         <!-- اطلاعات اعتباری مشتری (طبق design-system: مانده / سقف اعتبار / هشدار عبور از سقف) -->

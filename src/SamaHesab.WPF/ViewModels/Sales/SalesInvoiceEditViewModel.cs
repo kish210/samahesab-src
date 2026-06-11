@@ -56,6 +56,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     public ObservableCollection<SalesInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
+    /// <summary>مشتریان اخیرِ این کاربر (کار #۳۹) — چیپ‌های دسترسی سریع.</summary>
+    public ObservableCollection<RecentRef> RecentCustomers { get; } = new();
     public List<ProductSearchResult> AllProducts { get; private set; } = new();
     public List<CustomerItem> Customers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
@@ -109,7 +111,24 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var prods = await _productRepository.SearchAsync(companyId, "");
         AllProducts = prods.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
+
+        await LoadRecentCustomersAsync();
     }
+
+    /// <summary>کار #۳۹ — بارگذاری مشتریان اخیرِ کاربر جاری.</summary>
+    private async Task LoadRecentCustomersAsync()
+    {
+        try
+        {
+            var recent = await _mediator.Send(new SamaHesab.Application.Common.Favorites.GetRecentItemsQuery("customer", 8));
+            RecentCustomers.Clear();
+            foreach (var r in recent) RecentCustomers.Add(new RecentRef(r.EntityId, r.Label));
+        }
+        catch { /* بی‌اهمیت: نوار اخیر اختیاری است */ }
+    }
+
+    [RelayCommand]
+    private void SelectRecentCustomer(RecentRef? r) { if (r != null) SelectedCustomerId = r.Id; }
 
     /// <summary>Add the product picked from the dropdown.</summary>
     [RelayCommand]
@@ -160,6 +179,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         }
         RecalculateTotals();
         ProductSearch = string.Empty; AddQty = 1; AddDiscountPct = 0; SearchResults.Clear();
+        // کار #۳۹: ثبت استفاده‌ی کالا برای «کالاهای پرتکرار»
+        _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", product.Id, product.Name));
     }
 
     [RelayCommand] private void RemoveItem(SalesInvoiceItemRow? i) { if (i != null) { InvoiceItems.Remove(i); RecalculateTotals(); } }
@@ -241,6 +262,10 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     {
         if (value <= 0) { HasCustomerInfo = false; return; }
         _ = LoadCustomerCreditAsync(value);
+        // کار #۳۹: ثبت استفاده برای فهرست «مشتریان اخیر»
+        var name = Customers.FirstOrDefault(c => c.Id == value)?.Name;
+        if (!string.IsNullOrWhiteSpace(name))
+            _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("customer", value, name!));
     }
 
     private async Task LoadCustomerCreditAsync(int customerId)
@@ -292,6 +317,7 @@ public partial class SalesInvoiceItemRow : ObservableObject
     }
 }
 
+public record RecentRef(int Id, string Label);
 public record CustomerItem(int Id, string Name, string? Mobile);
 public record WarehouseItem(int Id, string Name);
 public record ProductSearchResult(int Id, string Code, string Name, string? Barcode, decimal Price, decimal TaxRate);

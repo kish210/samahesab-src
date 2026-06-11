@@ -58,7 +58,7 @@
 36. 🔧 رستوران — انتقال میز + تخصیص گارسون (کلود ۲): متدهای دامنه `MoveToTable`/`AssignWaiter` + `MoveOrderTableCommand` (آزادسازی میز قبلی + اشغال مقصد، تراکنشی) + endpoint `/orders/{id}/move-table/{tableId}` + ApiClient + دکمه‌ی «انتقال میز» در `WaiterView` (پرسش میز مقصد) + ۳ تست (۱۵۴ سبز) · رزرو میز UI مانده
 37. ✅ CRM — سقف اعتبار مشتری (کلود ۲): منطق خالص `CreditLimitPolicy` (سقف۰=نامحدود) + کنترل در `CreateSalesInvoiceCommand` برای بخش نسیه (با `AllowOverCredit`) + `GetCustomerCreditQuery` + `/api/customers/{id}/credit` + ۶ تست (۱۱۲ سبز)
 38. ✅ CRM — باشگاه مشتریان/امتیاز (کلود ۲): نگاشت به جدول موجود `Crm.LoyaltyTransactions` + `LoyaltyPolicy` خالص (هر ۱۰۰هزار ریال=۱ امتیاز) + Award/Redeem (کنترل موجودی) + `GetCustomerLoyaltyQuery` + `/api/loyalty/*` + ۸ تست. e2e: کسب ۲۵/استفاده ۱۰/موجودی ۱۵ ✓
-39. 🔧 فروش — مشتریان اخیر + کالاهای محبوب + سرویس عمومی Favorites/Recent — ✅ بک‌اند (`UserItemRef` + `/api/favorites/*` + ۵ تست، کلود ۲) · اتصال UI مانده
+39. ✅ فروش — مشتریان اخیر + کالاهای محبوب + سرویس عمومی Favorites/Recent (کلود ۲): بک‌اند `UserItemRef` + `/api/favorites/*` + ۵ تست. **+اتصال UI:** فاکتور فروش حالا نوار «مشتریان اخیر» (چیپ‌های دسترسی سریع از `GetRecentItemsQuery("customer")`) دارد و با انتخاب مشتری/افزودن کالا `TouchRecentItemCommand` ثبت می‌کند. · اتصال POS از طریق ApiClient فاز بعد.
 40. ⬜ نصاب — آیکون اختصاصی/`BranchId` + راهنمای کاربر PDF
 
 ### مشترک
@@ -97,6 +97,8 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **کار #۳۹ — اتصال «مشتریان اخیر/کالای محبوب» به فاکتور فروش (کلود ۲)**: نوار چیپ «مشتریان اخیر» در `SalesInvoiceEditView` (از `GetRecentItemsQuery("customer")`) + ثبت `TouchRecentItemCommand` هنگام انتخاب مشتری و افزودن کالا (entityType: customer/product). منبع واحد سرویس Favorites. · اتصال POS فاز بعد.
+- **2026-06-11** — **پریمیتیوهای دیزاین‌سیستم + مهاجرت صفحات (کلود ۲)**: `ErpDesignSystem.xaml` (توکن‌ها + دکمه/ورودی/gbox/dgrid/sumbar) و مهاجرت ShiftView/CustomerCardView/WaiterView/PosView/StockCountView به آن.
 - **2026-06-11** — **کار #۲۸ — UI انبارگردانی سندی (کلود ۲)**: `StockCountViewModel`+`StockCountView` (انتخاب انبار + شروع شمارش، گرید کالا/موجودی سیستم/شمارش/مغایرت با مغایرت زنده، «ثبت شمارش‌ها» و «قطعی‌سازی و تعدیل موجودی») + متدهای ApiClient (`StartStockCount`/`GetStockCount`/`SetStockCountLine`/`PostStockCount`) + DI/DataTemplate/منوی انبار→انبارگردانی + هارنس `SAMA_SHOT_STOCKCOUNT`. Build سبز.
 - **2026-06-11** — **کارهای #۳۰+#۳۱ — UI شیفت/صندوق POS + گزارش Z/X (کلود ۲)**: `ShiftViewModel`+`ShiftView` (باز کردن صندوق با موجودی اولیه، گزارش X زنده، بستن صندوق با شمارش نقد و نمایش مغایرت=گزارش Z) + متدهای ApiClient (`GetCurrentShift`/`OpenShift`/`CloseShift`) + ثبت DI/DataTemplate/منوی «صندوق/شیفت (Z/X)» + هارنس `SAMA_SHOT_SHIFT`. Build سبز.
 - **2026-06-11** — **کار #۳۵ — چاپ صورتحساب و تیکت آشپزخانه رستوران (کلود ۲)**: اتصال دکمه‌ی «صورتحساب» به `IPrintService.PrintReceipt` (رسید حرارتی) + چاپ خودکار KOT بدون قیمت هنگام ارسال به آشپزخانه. تزریق `IPrintService`+`IPersianCalendarService` در `WaiterViewModel`. ✅ ماژول رستوران تکمیل شد (#۳۴/#۳۵/#۳۶).

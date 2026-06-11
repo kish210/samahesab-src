@@ -1,86 +1,108 @@
-﻿<UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherListView"
+<UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <Grid Margin="3">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- actions -->
-            <RowDefinition Height="Auto"/>   <!-- filters -->
-            <RowDefinition Height="*"/>      <!-- grid -->
-            <RowDefinition Height="Auto"/>   <!-- summary footer -->
+            <RowDefinition Height="Auto"/>   <!-- نوار فیلتر -->
+            <RowDefinition Height="*"/>      <!-- لیست + پیش‌نمایش -->
+            <RowDefinition Height="Auto"/>   <!-- نوار جمع -->
         </Grid.RowDefinitions>
 
-        <!-- actions -->
-        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewVoucherCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="سند جدید" TextAlignment="Center"/></StackPanel>
-                </Button>
-                <Button Style="{StaticResource ErpToolButton}" Command="{Binding EditVoucherCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="PencilOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource WarningColor}"/><TextBlock Text="ویرایش" TextAlignment="Center"/></StackPanel>
-                </Button>
-                <Button Style="{StaticResource ErpToolButton}" Command="{Binding PostVoucherCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="CheckCircleOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="قطعی" TextAlignment="Center"/></StackPanel>
-                </Button>
-                <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintVoucherCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" TextAlignment="Center"/></StackPanel>
-                </Button>
-                <Button Style="{StaticResource ErpToolButton}" Command="{Binding SearchCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" TextAlignment="Center"/></StackPanel>
-                </Button>
+        <!-- ═══ نوار فیلتر ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource ErpGbox}">
+            <DockPanel Margin="10,8">
+                <Button DockPanel.Dock="Left" Content="＋ سند جدید" Style="{StaticResource ErpBtnPrimary}"
+                        Height="32" Command="{Binding NewVoucherCommand}"/>
+                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="12,0"
+                           Foreground="{DynamicResource MutedText}" FontSize="11.5"
+                           Text="{Binding TotalCount, StringFormat='{}{0} نتیجه'}"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="اسناد حسابداری" Style="{StaticResource ErpGboxTitle}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="از" VerticalAlignment="Center" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                    <TextBox Text="{Binding FromDate}" Style="{StaticResource ErpInput}" Width="110" Margin="4,0"/>
+                    <TextBlock Text="تا" VerticalAlignment="Center" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                    <TextBox Text="{Binding ToDate}" Style="{StaticResource ErpInput}" Width="110" Margin="4,0"/>
+                    <ComboBox ItemsSource="{Binding StatusOptions}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedStatus}" Width="120" Margin="4,0" Height="32"/>
+                    <TextBox Text="{Binding SearchText}" Style="{StaticResource ErpInput}" Width="180" Margin="4,0"/>
+                    <Button Content="🔍 جستجو" Style="{StaticResource ErpBtnSecondary}" Height="32" Margin="4,0"
+                            Command="{Binding SearchCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ لیست (اصلی) + پیش‌نمایش (کنار) ═══ -->
+        <Grid Grid.Row="1" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="340"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- لیست اسناد -->
+            <DataGrid Grid.Column="0" ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}"
+                      Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="All" CanUserAddRows="False" Margin="0,0,5,0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="شماره" Binding="{Binding VoucherNumber}" Width="80"/>
+                    <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="95"/>
+                    <DataGridTextColumn Header="نوع" Binding="{Binding VoucherTypeName}" Width="80"/>
+                    <DataGridTextColumn Header="شرح سند" Binding="{Binding Description}" Width="*"/>
+                    <DataGridTextColumn Header="مبلغ (ریال)" Binding="{Binding TotalDebit, StringFormat='{}{0:#,##0}'}" Width="130"/>
+                    <DataGridTextColumn Header="وضعیت" Binding="{Binding StatusName}" Width="85"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- پنل پیش‌نمایش سند انتخاب‌شده -->
+            <Border Grid.Column="1" Style="{StaticResource ErpGbox}" Margin="5,0,0,0">
+                <DockPanel Margin="14,12">
+                    <TextBlock DockPanel.Dock="Top" Style="{StaticResource ErpGboxTitle}"
+                               Text="{Binding SelectedVoucher.VoucherNumber, StringFormat='پیش‌نمایش سند {0}', FallbackValue='پیش‌نمایش سند'}"/>
+
+                    <Button DockPanel.Dock="Bottom" Content="باز کردن سند کامل ↗" Style="{StaticResource ErpBtnPrimary}"
+                            Height="36" Margin="0,12,0,0" Command="{Binding EditVoucherCommand}"/>
+
+                    <StackPanel DockPanel.Dock="Top" Margin="0,12,0,0">
+                        <Grid Margin="0,4">
+                            <TextBlock Text="تاریخ" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedVoucher.VoucherDate}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="نوع" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedVoucher.VoucherTypeName}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="وضعیت" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedVoucher.StatusName}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource PrimaryAccent}"/>
+                        </Grid>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="جمع بدهکار" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedVoucher.TotalDebit, StringFormat='{}{0:#,##0}'}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="جمع بستانکار" Foreground="{DynamicResource MutedText}" FontSize="12"/>
+                            <TextBlock Text="{Binding SelectedVoucher.TotalCredit, StringFormat='{}{0:#,##0}'}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="10,8" Margin="0,8,0,0">
+                            <TextBlock Text="{Binding SelectedVoucher.Description}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource PrimaryText}" FontSize="12"/>
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- ═══ نوار جمع ═══ -->
+        <Border Grid.Row="2" Style="{StaticResource ErpSumBarOk}" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal" Margin="12,8">
+                <TextBlock Text="جمع اسناد فیلترشده:" Foreground="{DynamicResource MutedText}" FontSize="12" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalCount, StringFormat='{}{0} سند'}" FontWeight="Bold" Margin="4,0,16,0" VerticalAlignment="Center"/>
+                <TextBlock Text="جمع بدهکار:" Foreground="{DynamicResource MutedText}" FontSize="12" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalDebit, StringFormat='{}{0:#,##0}'}" FontWeight="Bold" Margin="4,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
-        </Border>
-
-        <!-- filters -->
-        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="8,5">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="از تاریخ" Style="{StaticResource ErpInlineLabel}"/>
-                <TextBox Text="{Binding FromDate}" Width="110" Margin="0,0,12,0"/>
-                <TextBlock Text="تا تاریخ" Style="{StaticResource ErpInlineLabel}"/>
-                <TextBox Text="{Binding ToDate}" Width="110" Margin="0,0,12,0"/>
-                <TextBlock Text="وضعیت" Style="{StaticResource ErpInlineLabel}"/>
-                <ComboBox Style="{StaticResource BaseComboBox}" Width="120" Height="30" Margin="0,0,12,0"
-                          ItemsSource="{Binding StatusOptions}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedStatus}"/>
-                <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
-                <TextBox Text="{Binding SearchText}" Width="220" Margin="6,0">
-                    <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding SearchCommand}"/></TextBox.InputBindings>
-                </TextBox>
-                <Button Content="جستجو" Style="{StaticResource PrimaryButton}" Height="30" Command="{Binding SearchCommand}"/>
-            </StackPanel>
-        </Border>
-
-        <!-- grid -->
-        <Border Grid.Row="2" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <telerik:RadGridView ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}"
-                      AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28" IsReadOnly="True"
-                      ShowSearchPanel="True" ShowGroupPanel="True" ShowColumnFooters="True">
-                <telerik:RadGridView.Columns>
-                    <telerik:GridViewDataColumn Header="شماره سند" DataMemberBinding="{Binding VoucherNumber}" Width="110"/>
-                    <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding VoucherDate}" Width="100"/>
-                    <telerik:GridViewDataColumn Header="نوع" DataMemberBinding="{Binding VoucherTypeName}" Width="110"/>
-                    <telerik:GridViewDataColumn Header="شرح" DataMemberBinding="{Binding Description}" Width="*"/>
-                    <telerik:GridViewDataColumn Header="بدهکار" DataMemberBinding="{Binding TotalDebit}" DataFormatString="{}{0:N0}" Width="130">
-                        <telerik:GridViewDataColumn.AggregateFunctions><telerik:SumFunction ResultFormatString="{}{0:N0}"/></telerik:GridViewDataColumn.AggregateFunctions>
-                    </telerik:GridViewDataColumn>
-                    <telerik:GridViewDataColumn Header="بستانکار" DataMemberBinding="{Binding TotalCredit}" DataFormatString="{}{0:N0}" Width="130">
-                        <telerik:GridViewDataColumn.AggregateFunctions><telerik:SumFunction ResultFormatString="{}{0:N0}"/></telerik:GridViewDataColumn.AggregateFunctions>
-                    </telerik:GridViewDataColumn>
-                    <telerik:GridViewDataColumn Header="وضعیت" DataMemberBinding="{Binding StatusName}" Width="90"/>
-                </telerik:RadGridView.Columns>
-            </telerik:RadGridView>
-        </Border>
-
-        <!-- summary -->
-        <Border Grid.Row="3" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
-            <TextBlock Foreground="{DynamicResource SecondaryText}" HorizontalAlignment="Right" Margin="4,2" VerticalAlignment="Center" FontSize="12">
-                <Run Text="تعداد اسناد: "/><Run Text="{Binding TotalCount}" Foreground="{DynamicResource PrimaryText}" FontWeight="Bold"/>
-                <Run Text="  |  جمع بدهکار: "/><Run Text="{Binding TotalDebit, StringFormat='{}{0:N0}'}" Foreground="{DynamicResource InfoColor}" FontWeight="Bold"/>
-                <Run Text="  |  جمع بستانکار: "/><Run Text="{Binding TotalCredit, StringFormat='{}{0:N0}'}" Foreground="{DynamicResource SuccessColor}" FontWeight="Bold"/>
-            </TextBlock>
         </Border>
     </Grid>
 </UserControl>

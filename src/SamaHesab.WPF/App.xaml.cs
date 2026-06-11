@@ -128,6 +128,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.WarehouseClientViewModel>();
                 services.AddTransient<CustomerListViewModel>();
                 services.AddTransient<CustomerEditViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.CRM.CustomerCardViewModel>();
                 services.AddTransient<SupplierListViewModel>();
                 services.AddTransient<EmployeeListViewModel>();
                 services.AddTransient<EmployeeEditViewModel>();
@@ -298,6 +299,36 @@ public partial class App : System.Windows.Application
             vrtb.Render(vwin);
             var venc = new System.Windows.Media.Imaging.PngBitmapEncoder(); venc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(vrtb));
             using (var vfs = System.IO.File.Create(System.IO.Path.Combine(vdir, "voucher.png"))) venc.Save(vfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_CUSTOMER") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "فروش", new[] { "ADMIN" }, Array.Empty<string>());
+            var cvm = _host.Services.GetRequiredService<ViewModels.CRM.CustomerCardViewModel>();
+            // داده‌ی نمونه برای پیش‌نمایش (بدون نیاز به دیتابیس) — مطابق customer-card.html
+            cvm.Name = "بازرگانی پارس خودرو"; cvm.Initials = "پ‌خ"; cvm.Code = "20012";
+            cvm.GroupLabel = "حقوقی · همکار عمده"; cvm.Mobile = "0912 345 6789"; cvm.Phone = "021-8876 5432";
+            cvm.NationalCode = "10102345678"; cvm.EconomicCode = "411234567890";
+            cvm.Address = "تهران، بازار قطعات، پلاک ۱۲";
+            cvm.Balance = 78000000; cvm.CreditLimit = 120000000; cvm.UnlimitedCredit = false;
+            cvm.CreditPercent = 65; cvm.CreditPercentLabel = SamaHesab.WPF.Converters.NumberFormatConverter.ToPersian("65٪");
+            cvm.TotalSales = 1240000000; cvm.InvoiceCount = 24; cvm.AveragePerInvoice = 51666000; cvm.LoyaltyPoints = 1850;
+            cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/03/13","F000052","فاکتور فروش — ۸ قلم قطعات",48200000,0,78000000,"بد"));
+            cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/03/05","RC-0114","دریافت چک — ملت ۴۵۶۱۲۳",0,45000000,29800000,"بد"));
+            cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/02/28","F000048","فاکتور فروش — لاستیک و باتری",36400000,0,74800000,"بد"));
+            cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/02/20","RC-0109","دریافت وجه — کارت‌خوان",0,50000000,38400000,"بد"));
+            cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/02/11","F000044","فاکتور فروش — روغن و فیلتر",22900000,0,88400000,"بد"));
+            cvm.LedgerTotalDebit = 324500000; cvm.LedgerTotalCredit = 246500000; cvm.LedgerClosing = 78000000; cvm.HasData = true;
+            var cview = new Views.CRM.CustomerCardView { DataContext = cvm };
+            var cwin = new Window { Content = cview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            cwin.Show(); await Task.Delay(1400); cwin.UpdateLayout();
+            var cdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(cdir);
+            var crtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            crtb.Render(cwin);
+            var cenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); cenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(crtb));
+            using (var cfs = System.IO.File.Create(System.IO.Path.Combine(cdir, "customer.png"))) cenc.Save(cfs);
             Shutdown(); return;
         }
 

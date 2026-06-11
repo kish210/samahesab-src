@@ -4,15 +4,10 @@
              xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft"
-             Background="#F4F5F7">
+             Background="{StaticResource ErpAppBg}">
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
-        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
-        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
-        <SolidColorBrush x:Key="Line2" Color="#F0F1F3"/>
-        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
-        <SolidColorBrush x:Key="Strong" Color="#1F2937"/>
     </UserControl.Resources>
 
     <Grid Margin="12">
@@ -22,22 +17,22 @@
             <RowDefinition Height="Auto"/>   <!-- footer -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ نوار شروع ═══ -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,0,0,10">
+        <!-- ═══ نوار شروع (gbox) ═══ -->
+        <Border Grid.Row="0" Style="{StaticResource ErpGbox}" Padding="12,9" Margin="0,0,0,10">
             <DockPanel>
-                <TextBlock Text="انبارگردانی سندی" FontSize="17" FontWeight="Bold" Foreground="{StaticResource Blue700}" VerticalAlignment="Center"/>
+                <TextBlock Text="انبارگردانی سندی" FontSize="17" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="انبار" Foreground="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock Text="انبار" Style="{StaticResource ErpFieldLabel}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                     <ComboBox Width="180" Height="32" ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
                               SelectedValue="{Binding SelectedWarehouseId}" IsEnabled="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
-                    <TextBlock Text="تاریخ" Foreground="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="12,0,6,0"/>
-                    <TextBox Text="{Binding Date}" Width="100" Height="32" VerticalContentAlignment="Center"/>
-                    <Button Content="شروع شمارش" Height="34" Padding="16,0" Margin="12,0,0,0" Cursor="Hand" FontWeight="Bold"
-                            Background="{StaticResource Blue700}" Foreground="White" BorderThickness="0" Command="{Binding StartCommand}"
+                    <TextBlock Text="تاریخ" Style="{StaticResource ErpFieldLabel}" Margin="12,0,6,0" VerticalAlignment="Center"/>
+                    <TextBox Style="{StaticResource ErpInput}" Text="{Binding Date}" Width="100"/>
+                    <Button Style="{StaticResource ErpBtnPrimary}" Content="شروع شمارش" Padding="16,0" Margin="12,0,0,0" FontWeight="Bold"
+                            Command="{Binding StartCommand}"
                             Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
-                    <Border Background="#EEF2FB" CornerRadius="6" Padding="10,5" Margin="12,0,0,0" VerticalAlignment="Center"
+                    <Border Background="{StaticResource ErpBlue50}" CornerRadius="6" Padding="10,5" Margin="12,0,0,0" VerticalAlignment="Center"
                             Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
-                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource Blue700}" FontWeight="SemiBold">
+                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource ErpBlue700}" FontWeight="SemiBold">
                             <Run Text="سند #"/><Run Text="{Binding SessionId, Mode=OneWay}"/><Run Text="  ·  مغایرت: "/><Run Text="{Binding VarianceCount, Mode=OneWay}"/><Run Text=" قلم"/>
                         </TextBlock>
                     </Border>
@@ -45,25 +40,9 @@
             </DockPanel>
         </Border>
 
-        <!-- ═══ گرید شمارش ═══ -->
-        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10">
-            <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" HeadersVisibility="Column"
-                      GridLinesVisibility="All" CanUserAddRows="False" CanUserDeleteRows="False"
-                      RowHeight="32" FontSize="13" Background="White" BorderThickness="0"
-                      HorizontalGridLinesBrush="{StaticResource Line2}" VerticalGridLinesBrush="{StaticResource Line2}"
-                      AlternatingRowBackground="#FAFBFC" RowBackground="White">
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F6F7F9"/>
-                        <Setter Property="Foreground" Value="{StaticResource Muted}"/>
-                        <Setter Property="FontSize" Value="12"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="8,7"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Right"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
+        <!-- ═══ گرید شمارش (dgrid) ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpGbox}">
+            <DataGrid Style="{StaticResource ErpDataGrid}" ItemsSource="{Binding Lines}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="موجودی سیستم" Binding="{Binding SystemQty, Converter={StaticResource Num}}" Width="140" IsReadOnly="True">
@@ -78,7 +57,7 @@
                                 <Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/>
                                 <Setter Property="Margin" Value="6,0"/><Setter Property="FontWeight" Value="Bold"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Variance}" Value="0"><Setter Property="Foreground" Value="{StaticResource Muted}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding Variance}" Value="0"><Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/></DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
@@ -88,15 +67,13 @@
         </Border>
 
         <!-- ═══ پایین ═══ -->
-        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,10,0,0"
+        <Border Grid.Row="2" Style="{StaticResource ErpGbox}" Padding="12,9" Margin="0,10,0,0"
                 Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
             <DockPanel>
-                <TextBlock Text="{Binding ResultText}" Foreground="#16A34A" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ResultText}" Foreground="{StaticResource ErpSuccess700}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="ثبت شمارش‌ها" Height="38" Padding="18,0" Cursor="Hand" FontWeight="SemiBold"
-                            Background="White" BorderBrush="{StaticResource Line}" Command="{Binding SaveCountsCommand}"/>
-                    <Button Content="قطعی‌سازی و تعدیل موجودی" Height="38" Padding="18,0" Margin="8,0,0,0" Cursor="Hand" FontWeight="Bold"
-                            Background="#16A34A" Foreground="White" BorderThickness="0" Command="{Binding PostCommand}"/>
+                    <Button Style="{StaticResource ErpBtnSecondary}" Content="ثبت شمارش‌ها" Padding="18,0" Command="{Binding SaveCountsCommand}"/>
+                    <Button Style="{StaticResource ErpBtnSuccess}" Content="قطعی‌سازی و تعدیل موجودی" Padding="18,0" Margin="8,0,0,0" FontWeight="Bold" Command="{Binding PostCommand}"/>
                 </StackPanel>
             </DockPanel>
         </Border>

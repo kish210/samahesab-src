@@ -21,6 +21,10 @@ public record ApiKitchenTicket(int Id, string TicketNumber, int OrderId, string?
     string Status, int StatusCode, DateTime CreatedAt, List<ApiKitchenItem> Items);
 public record ApiKitchenItem(int Id, string ProductName, decimal Quantity, string Status, string? Notes);
 
+// ── POS shift (#30/#31) DTO ──
+public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, decimal CardSales,
+    int SalesCount, decimal ExpectedCash, decimal CountedCash, decimal Variance);
+
 // ── Warehouse (v2 — Phase 2) DTOs ──
 public record ApiWarehouse(int Id, string Name);
 public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
@@ -207,6 +211,35 @@ public class ApiClient
             return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت یادداشت.");
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    // ── POS shift / صندوق (#30/#31) ──
+    public async Task<ApiShiftSummary?> GetCurrentShiftAsync()
+    {
+        try { return await _http.GetFromJsonAsync<ApiShiftSummary>("/api/shifts/current"); }
+        catch { return null; }
+    }
+
+    public async Task<(bool ok, string? error)> OpenShiftAsync(decimal openingFloat)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("/api/shifts/open", new { openingFloat });
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در باز کردن صندوق.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, ApiShiftSummary? summary, string? error)> CloseShiftAsync(decimal countedCash, string? notes = null)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("/api/shifts/close", new { countedCash, notes });
+            if (!resp.IsSuccessStatusCode) return (false, null, await ReadErrorAsync(resp) ?? "خطا در بستن صندوق.");
+            var dto = await resp.Content.ReadFromJsonAsync<ApiShiftSummary>();
+            return (true, dto, null);
+        }
+        catch (Exception ex) { return (false, null, ex.GetBaseException().Message); }
     }
 
     public async Task<(bool ok, string? error)> MoveOrderTableAsync(int orderId, int newTableId)

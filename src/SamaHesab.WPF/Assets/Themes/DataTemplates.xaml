@@ -54,6 +54,7 @@
 
     <!-- POS -->
     <DataTemplate DataType="{x:Type pos:PosViewModel}"><vpos:PosView/></DataTemplate>
+    <DataTemplate DataType="{x:Type pos:ShiftViewModel}"><vpos:ShiftView/></DataTemplate>
 
     <!-- CRM -->
     <DataTemplate DataType="{x:Type crm:CustomerEditViewModel}"><vcrm:CustomerEditView/></DataTemplate>

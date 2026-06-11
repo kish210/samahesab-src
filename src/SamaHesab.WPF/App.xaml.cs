@@ -122,6 +122,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>();
                 services.AddTransient<RestaurantPosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.WaiterViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.KitchenViewModel>();
@@ -340,6 +341,23 @@ public partial class App : System.Windows.Application
             vrtb.Render(vwin);
             var venc = new System.Windows.Media.Imaging.PngBitmapEncoder(); venc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(vrtb));
             using (var vfs = System.IO.File.Create(System.IO.Path.Combine(vdir, "voucher.png"))) venc.Save(vfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_SHIFT") == "1")
+        {
+            var svm = _host.Services.GetRequiredService<ViewModels.POS.ShiftViewModel>();
+            svm.HasOpenShift = true; svm.OpeningFloat = 2_000_000; svm.CashSales = 18_450_000;
+            svm.CardSales = 9_300_000; svm.SalesCount = 37; svm.ExpectedCash = 20_450_000; svm.TotalSales = 27_750_000;
+            svm.CountedCash = 20_400_000;
+            var sview = new Views.POS.ShiftView { DataContext = svm };
+            var swin = new Window { Content = sview, Width = 1100, Height = 760, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            swin.Show(); await Task.Delay(1200); swin.UpdateLayout();
+            var sdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(sdir);
+            var srtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1100, 760, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            srtb.Render(swin);
+            var senc = new System.Windows.Media.Imaging.PngBitmapEncoder(); senc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(srtb));
+            using (var sfs = System.IO.File.Create(System.IO.Path.Combine(sdir, "shift.png"))) senc.Save(sfs);
             Shutdown(); return;
         }
 

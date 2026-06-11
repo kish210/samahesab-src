@@ -49,8 +49,8 @@
 27. ⬜ اسکن بارکد یکپارچه (سرویس مشترک: رسید/حواله/POS/شمارش)
 28. 🔧 انبارگردانی سندی (شمارش گروهی + گزارش مغایرت) — ✅ بک‌اند (کلود ۲): `StockCountSession`/`Line` + اسکیمای `Inv` (`database/14_StockCount.sql`) + Start/Count/Post (تبدیل مغایرت به تعدیل + سند خودکار) + `GetStockCountQuery` + `/api/stockcount/*` + ۵ تست · UI مانده
 29. 🔧 بهای تمام‌شده FIFO (کلود ۲): موتور خالص `FifoCostEngine` (لایه‌بندی) + `GetFifoValuationQuery` (ارزش‌گذاری از کاردکس) + `/api/warehouse/fifo-valuation` + ۴ تست (۱۴۲ سبز) · ادغام در مسیر خروج و بچ/سریال فاز بعد
-30. ✅ POS — شیفت/صندوق (کلود ۲): `CashShift` (اسکیمای `Pos`، `database/16_CashShifts.sql`) + Open/RecordSale/Close (موردانتظار=موجودی‌اولیه+فروش‌نقدی، مغایرت=شمارش−موردانتظار) + `GetOpenShiftQuery` (Z-report زنده) + `ShiftsController` (`/api/shifts/current|open|record-sale|close`) + ۵ تست (۱۱۷ سبز) · UI مانده
-31. ⬜ POS — گزارش Z/X
+30. ✅ POS — شیفت/صندوق (کلود ۲): `CashShift` (اسکیمای `Pos`، `database/16_CashShifts.sql`) + Open/RecordSale/Close (موردانتظار=موجودی‌اولیه+فروش‌نقدی، مغایرت=شمارش−موردانتظار) + `GetOpenShiftQuery` (Z-report زنده) + `ShiftsController` + ۵ تست. **+UI (کلود ۲):** `ShiftViewModel`+`ShiftView` (باز کردن صندوق، گزارش زنده، بستن با شمارش و نمایش مغایرت) + متدهای ApiClient + منوی «صندوق/شیفت».
+31. ✅ POS — گزارش Z/X (کلود ۲): گزارش X زنده (دکمه‌ی بروزرسانی، بدون بستن) + گزارش Z (بستن صندوق + مغایرت) در همان `ShiftView`. هارنس `SAMA_SHOT_SHIFT`→`screenshot/shift.png`.
 32. ✅ مرجوعی فروش (کلود ۲): `CreateSalesReturnCommand` — فاکتور SaleReturn + بازگشت کالا به انبار (کاردکس) + سند معکوس (بد: فروش+مالیات / بس: دریافتنی یا صندوق) + لینک به فاکتور اصلی + `/api/sales/returns`. تست e2e: موجودی +۲، فاکتور BR000001، سند ۱۵۶ ✓
 33. ✅ POS — تعلیق/فراخوان فاکتور (کلود ۲): `HeldSale` (اسکیمای `Pos`، payload سبد JSON) + Hold/Delete + List/Get(فراخوان) + `/api/heldsales` + ۳ تست
 34. ✅ رستوران — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه (کلود ۲): متدهای دامنه `ChangeItemQuantity`/`SetItemNotes` (+`RemoveItem` موجود) + Commandها (`ChangeOrderItemQty`/`RemoveOrderItem`/`SetOrderItemNotes`) + endpointها (`/orders/{id}/items/{itemId}/qty/{q}`, `DELETE …/items/{itemId}`, `…/notes`) + متدهای ApiClient + اتصال در `WaiterView` (استپر −/+ واقعی، حذف خودکار در صفر، دکمه‌ی ✎ یادداشت) + دیالوگ ورودی واقعی `PromptAsync` + ۵ تست (۱۵۱ سبز)
@@ -97,6 +97,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **کارهای #۳۰+#۳۱ — UI شیفت/صندوق POS + گزارش Z/X (کلود ۲)**: `ShiftViewModel`+`ShiftView` (باز کردن صندوق با موجودی اولیه، گزارش X زنده، بستن صندوق با شمارش نقد و نمایش مغایرت=گزارش Z) + متدهای ApiClient (`GetCurrentShift`/`OpenShift`/`CloseShift`) + ثبت DI/DataTemplate/منوی «صندوق/شیفت (Z/X)» + هارنس `SAMA_SHOT_SHIFT`. Build سبز.
 - **2026-06-11** — **کار #۳۵ — چاپ صورتحساب و تیکت آشپزخانه رستوران (کلود ۲)**: اتصال دکمه‌ی «صورتحساب» به `IPrintService.PrintReceipt` (رسید حرارتی) + چاپ خودکار KOT بدون قیمت هنگام ارسال به آشپزخانه. تزریق `IPrintService`+`IPersianCalendarService` در `WaiterViewModel`. ✅ ماژول رستوران تکمیل شد (#۳۴/#۳۵/#۳۶).
 - **2026-06-11** — **کار #۳۶ (بخش انتقال میز) — رستوران (کلود ۲)**: `RestaurantOrder.MoveToTable`/`AssignWaiter` + `MoveOrderTableCommand` (آزادسازی میز قبلی + اشغال مقصد، تراکنشی) + endpoint `/orders/{id}/move-table/{tableId}` + `MoveOrderTableAsync` + اتصال دکمه‌ی «انتقال میز» در `WaiterView` (جایگزین placeholder) + ۳ تست (۱۵۴ سبز). · رزرو میز مانده.
 - **2026-06-11** — **کار #۳۴ — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه رستوران (کلود ۲)**: `RestaurantOrder.ChangeItemQuantity`/`SetItemNotes` + Commandهای ویرایش ردیف + ۳ endpoint جدید رستوران + متدهای ApiClient + اتصال استپر −/+ و دکمه‌ی یادداشت در `WaiterView` (جایگزین placeholderهای «فاز بعد») + پیاده‌سازی واقعی `DialogService.PromptAsync` (دیالوگ ورودی RTL) + ۵ تست (۱۵۱ سبز).

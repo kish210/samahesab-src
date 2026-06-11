@@ -1,180 +1,203 @@
-﻿<UserControl x:Class="SamaHesab.WPF.Views.POS.PosView"
+<UserControl x:Class="SamaHesab.WPF.Views.POS.PosView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-             Background="{DynamicResource AppBackground}"
-             FlowDirection="RightToLeft">
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="#F4F5F7">
 
     <UserControl.InputBindings>
+        <KeyBinding Key="Return" Command="{Binding CheckoutCommand}"/>
         <KeyBinding Key="F1" Command="{Binding NewSaleCommand}"/>
         <KeyBinding Key="F12" Command="{Binding CheckoutCommand}"/>
         <KeyBinding Key="F8" Command="{Binding PrintReceiptCommand}"/>
     </UserControl.InputBindings>
 
-    <Grid>
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>
+        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
+        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
+        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
+
+        <!-- تایل کالا -->
+        <Style x:Key="PItem" TargetType="Button">
+            <Setter Property="Height" Value="78"/><Setter Property="Width" Value="156"/>
+            <Setter Property="Margin" Value="4"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="9" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="11,10">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="#9DB0DA"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="bd" Property="Background" Value="#EEF2FB"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- چیپ دسته -->
+        <Style x:Key="Cat" TargetType="Button">
+            <Setter Property="Height" Value="42"/><Setter Property="Padding" Value="16,0"/><Setter Property="Margin" Value="0,0,7,0"/>
+            <Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="400"/>   <!-- سبد (چپ در RTL) -->
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>      <!-- کالاها -->
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT: Cart -->
+        <!-- ═══ سبد + پرداخت ═══ -->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Search / Barcode Bar -->
-            <Border Grid.Row="0" Background="{DynamicResource SurfaceBackground}"
-                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="16,12">
+            <!-- سبد -->
+            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="9">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource PrimaryAccent}"
-                            BorderThickness="2" CornerRadius="8" Margin="0,0,12,0">
-                        <TextBox x:Name="BarcodeBox" Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}"
-                                 Padding="12,10" FontFamily="{StaticResource VazirFont}" FontSize="16">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding ProcessBarcodeCommand}"/>
-                            </TextBox.InputBindings>
-                        </TextBox>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="#F6F7F9" CornerRadius="9,9,0,0" Padding="12,9" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+                        <DockPanel>
+                            <TextBlock Text="{Binding ReceiptNumber, StringFormat='فاکتور صندوق {0}'}" FontWeight="Bold" FontSize="12.5" Foreground="{StaticResource Blue700}"/>
+                            <TextBlock DockPanel.Dock="Left" Text="مشتری: متفرقه" FontSize="11.5" Foreground="{StaticResource Muted}" VerticalAlignment="Center"/>
+                        </DockPanel>
                     </Border>
-                    <Button Grid.Column="1" Content="🔍 جستجو" Style="{StaticResource PrimaryButton}" Height="42" Margin="0,0,8,0" Command="{Binding ProcessBarcodeCommand}"/>
-                    <Button Grid.Column="2" Content="🗑 پاک کردن (F1)" Style="{StaticResource SecondaryButton}" Height="42" Command="{Binding NewSaleCommand}"/>
-                    <Button Grid.Column="3" Content="⚙ سرور" Style="{StaticResource SecondaryButton}" Height="42" Margin="8,0,0,0"
-                            ToolTip="تنظیمات اتصال به سرور (IP)" Click="ServerSettings_Click"/>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding CartItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#F0F1F3" BorderThickness="0,0,0,1" Padding="12,7">
+                                        <DockPanel>
+                                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                                <Button Content="−" Width="30" Height="30" Cursor="Hand" Background="White" BorderBrush="{StaticResource Line}"
+                                                        Command="{Binding DataContext.DecItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                <TextBlock Text="{Binding Quantity}" Width="32" TextAlignment="Center" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                <Button Content="+" Width="30" Height="30" Cursor="Hand" Background="White" BorderBrush="{StaticResource Line}"
+                                                        Command="{Binding DataContext.IncItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                <TextBlock Text="{Binding NetAmount, Converter={StaticResource Num}}" Width="92" TextAlignment="Left" FlowDirection="LeftToRight"
+                                                           FontWeight="Bold" FontSize="12.5" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ProductName}" FontSize="12.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Quantity}" FontSize="10.5" Foreground="{StaticResource Muted}"/>
+                                                    <TextBlock Text=" × " FontSize="10.5" Foreground="{StaticResource Muted}"/>
+                                                    <TextBlock Text="{Binding UnitPrice, Converter={StaticResource Num}}" FontSize="10.5" Foreground="{StaticResource Muted}" FlowDirection="LeftToRight"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <!-- جمع‌ها -->
+                    <StackPanel Grid.Row="2">
+                        <DockPanel Margin="14,5"><TextBlock Text="جمع اقلام" FontSize="12" Foreground="{StaticResource Muted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                        <DockPanel Margin="14,3"><TextBlock Text="تخفیف" FontSize="12" Foreground="{StaticResource Muted}"/><TextBox DockPanel.Dock="Left" Text="{Binding Discount, UpdateSourceTrigger=PropertyChanged}" Width="110" Height="26" FlowDirection="LeftToRight" TextAlignment="Left"/></DockPanel>
+                        <DockPanel Margin="14,5"><TextBlock Text="مالیات ۹٪" FontSize="12" Foreground="{StaticResource Muted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                        <Border Background="{StaticResource Blue700}" Padding="14,12">
+                            <DockPanel>
+                                <TextBlock Text="مبلغ قابل پرداخت" Foreground="White" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" Foreground="White" FontSize="24" FontWeight="Bold" FlowDirection="LeftToRight"/>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- Cart Items -->
-            <telerik:RadGridView Grid.Row="1" ItemsSource="{Binding CartItems}" AutoGenerateColumns="False"
-                      CanUserInsertRows="False" CanUserDeleteRows="False" RowIndicatorVisibility="Collapsed"
-                      ShowGroupPanel="False" FontFamily="{StaticResource VazirFont}">
-                <telerik:RadGridView.Columns>
-                    <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding ProductCode}" Width="80" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="نام کالا" DataMemberBinding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="تعداد" DataMemberBinding="{Binding Quantity}" Width="70"/>
-                    <telerik:GridViewDataColumn Header="قیمت (ریال)" DataMemberBinding="{Binding UnitPrice}" DataFormatString="{}{0:N0}" Width="120"/>
-                    <telerik:GridViewDataColumn Header="مالیات" DataMemberBinding="{Binding TaxAmount}" DataFormatString="{}{0:N0}" Width="90" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Header="جمع (ریال)" DataMemberBinding="{Binding NetAmount}" DataFormatString="{}{0:N0}" Width="130" IsReadOnly="True"/>
-                    <telerik:GridViewDataColumn Width="50" IsReadOnly="True">
-                        <telerik:GridViewDataColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="✕" Style="{StaticResource IconButton}" Foreground="{DynamicResource DangerColor}"
-                                        Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"
-                                        CommandParameter="{Binding}"/>
-                            </DataTemplate>
-                        </telerik:GridViewDataColumn.CellTemplate>
-                    </telerik:GridViewDataColumn>
-                </telerik:RadGridView.Columns>
-            </telerik:RadGridView>
+            <!-- دکمه‌های پرداخت -->
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Button Grid.Row="0" Height="62" Background="#16A34A" Foreground="White" BorderThickness="0" Cursor="Hand"
+                        FontSize="16" FontWeight="Bold" Content="پرداخت نقدی — Enter" Command="{Binding CheckoutCommand}"/>
+                <Grid Grid.Row="1" Margin="0,7,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Height="52" Background="White" BorderBrush="{StaticResource Line}" Cursor="Hand" Content="کارت‌خوان" FontWeight="SemiBold"/>
+                    <Button Grid.Column="2" Height="52" Background="White" BorderBrush="{StaticResource Line}" Cursor="Hand" Content="نسیه" FontWeight="SemiBold"/>
+                    <Button Grid.Column="4" Height="52" Background="White" BorderBrush="{StaticResource Line}" Cursor="Hand" Content="ترکیبی" FontWeight="SemiBold"/>
+                </Grid>
+            </Grid>
 
-            <!-- Quick Products (frequent items) -->
-            <Border Grid.Row="2" Background="{DynamicResource SurfaceBackground}"
-                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="12,10">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="⏱ کالاهای پرفروش:" Foreground="{DynamicResource SecondaryText}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBlock Text="{Binding CurrentTime}" Foreground="{DynamicResource WarningColor}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="14" FontWeight="Bold"
-                               VerticalAlignment="Center" HorizontalAlignment="Left" FlowDirection="LeftToRight"/>
-                </StackPanel>
-            </Border>
+            <!-- ردیف توابع -->
+            <Grid Grid.Row="2" Margin="0,7,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Height="40" Background="White" BorderBrush="{StaticResource Line}" Foreground="{StaticResource Muted}" FontSize="11.5" Content="تعلیق فاکتور F4"/>
+                <Button Grid.Column="2" Height="40" Background="White" BorderBrush="{StaticResource Line}" Foreground="{StaticResource Muted}" FontSize="11.5" Content="بازیابی F5"/>
+                <Button Grid.Column="4" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="ابطال Esc" Command="{Binding NewSaleCommand}"/>
+            </Grid>
         </Grid>
 
-        <!-- RIGHT: Payment Panel -->
-        <Border Grid.Column="1" Background="{DynamicResource SurfaceBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1,0,0,0">
-            <Grid Margin="16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <!-- ═══ کالاها ═══ -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
 
-                <!-- Receipt Info -->
-                <StackPanel Grid.Row="0" Margin="0,0,0,16">
-                    <Grid>
-                        <TextBlock Text="رسید فروش" FontWeight="Bold" FontSize="16"
-                                   FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"/>
-                        <TextBlock Text="{Binding ReceiptNumber}" HorizontalAlignment="Left"
-                                   Foreground="{DynamicResource PrimaryAccent}"
-                                   FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                    </Grid>
-                    <!-- Customer -->
-                    <TextBlock Text="مشتری (اختیاری):" Foreground="{DynamicResource SecondaryText}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,12,0,4"/>
-                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="6">
-                        <TextBox Text="{Binding SelectedCustomerName}" Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource PrimaryText}" Padding="10,8"
-                                 FontFamily="{StaticResource VazirFont}"/>
-                    </Border>
-                </StackPanel>
+            <!-- جستجو/بارکد -->
+            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Margin="0,0,0,8">
+                <TextBox Height="42" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center" Padding="12,0" FontSize="14"
+                         Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
+                         Tag="🔍  اسکن بارکد یا جستجوی کالا…  (F1)">
+                    <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding ProcessBarcodeCommand}"/></TextBox.InputBindings>
+                </TextBox>
+            </Border>
 
-                <!-- Totals -->
-                <StackPanel Grid.Row="1">
-                    <Border Background="{DynamicResource CardBackground}" CornerRadius="12" Padding="16" Margin="0,0,0,12">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,8"><TextBlock Text="جمع کل:" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="{Binding SubTotal, StringFormat='{}{0:N0}'}" HorizontalAlignment="Left" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}" FontWeight="Bold"/></Grid>
-                            <Grid Margin="0,0,0,8">
-                                <TextBlock Text="تخفیف:" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource SecondaryText}"/>
-                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4" HorizontalAlignment="Left" Width="100">
-                                    <TextBox Text="{Binding Discount, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource DangerColor}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
-                                </Border>
-                            </Grid>
-                            <Grid Margin="0,0,0,8"><TextBlock Text="مالیات:" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="{Binding Tax, StringFormat='{}{0:N0}'}" HorizontalAlignment="Left" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource WarningColor}"/></Grid>
-                            <Border Height="1" Background="{DynamicResource SeparatorColor}" Margin="0,4"/>
-                            <Grid Margin="0,8,0,0">
-                                <TextBlock Text="مبلغ قابل پرداخت:" FontWeight="Bold" FontSize="14" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"/>
-                                <TextBlock Text="{Binding GrandTotal, StringFormat='{}{0:N0}'}" HorizontalAlignment="Left" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource WarningColor}" FontFamily="{StaticResource VazirFont}"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
+            <!-- دسته‌ها -->
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,8">
+                <ItemsControl ItemsSource="{Binding Categories}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource Cat}" Content="{Binding Name}"
+                                    Command="{Binding DataContext.SelectCategoryCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
-                    <!-- Payment Mode -->
-                    <TextBlock Text="روش پرداخت:" Foreground="{DynamicResource SecondaryText}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,0,0,6"/>
-                    <ComboBox ItemsSource="{Binding PaymentModes}" SelectedItem="{Binding PaymentMode}"
-                              Height="38" Margin="0,0,0,12">
-                        <ComboBox.Style><Style TargetType="ComboBox" BasedOn="{StaticResource BaseComboBox}"/></ComboBox.Style>
-                    </ComboBox>
-
-                    <TextBlock Text="مبلغ دریافتی:" Foreground="{DynamicResource SecondaryText}"
-                               FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,0,0,6"/>
-                    <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="2" CornerRadius="8" Margin="0,0,0,12">
-                        <TextBox Text="{Binding CashReceived, UpdateSourceTrigger=PropertyChanged, StringFormat='{}{0:N0}'}"
-                                 Background="Transparent" BorderThickness="0" Foreground="{DynamicResource SuccessColor}"
-                                 Padding="12,10" FontFamily="{StaticResource VazirFont}" FontSize="18" FontWeight="Bold"/>
-                    </Border>
-
-                    <Border Background="#05966920" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
-                        <Grid>
-                            <TextBlock Text="باقیمانده:" FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource SecondaryText}" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock Text="{Binding Change, StringFormat='{}{0:N0} ریال'}" HorizontalAlignment="Left"
-                                       Foreground="#059669" FontFamily="{StaticResource VazirFont}"
-                                       FontWeight="Bold" FontSize="18"/>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-
-                <!-- Checkout Button -->
-                <StackPanel Grid.Row="2">
-                    <Button Content="✓ پرداخت و صدور رسید (F12)"
-                            Style="{StaticResource SuccessButton}" Height="52" FontSize="15"
-                            FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"
-                            Command="{Binding CheckoutCommand}"/>
-                    <Button Content="🖨 چاپ آخرین رسید (F8)"
-                            Style="{StaticResource SecondaryButton}" Height="38" FontSize="13"
-                            FontFamily="{StaticResource VazirFont}"
-                            Command="{Binding PrintReceiptCommand}"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+            <!-- شبکه‌ی کالا -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Products}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource PItem}"
+                                    Command="{Binding DataContext.AddProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}">
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Top" Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="#1F2937"/>
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Price, Converter={StaticResource Num}}" FontSize="12" FontWeight="Bold" Foreground="{StaticResource Blue700}" FlowDirection="LeftToRight"/>
+                                            <TextBlock Text=" ریال" FontSize="11" Foreground="{StaticResource Muted}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Code}" FontSize="10" Foreground="{StaticResource Muted}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

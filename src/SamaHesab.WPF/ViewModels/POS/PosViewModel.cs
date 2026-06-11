@@ -13,6 +13,7 @@ namespace SamaHesab.WPF.ViewModels.POS;
 public partial class PosViewModel : BaseViewModel
 {
     private readonly IProductRepository _productRepo;
+    private readonly IRepository<SamaHesab.Domain.Entities.Inventory.ProductGroup> _groupRepo;
     private readonly IPersianCalendarService _calendar;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
@@ -41,14 +42,23 @@ public partial class PosViewModel : BaseViewModel
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
     public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };
 
+    // شبکه‌ی کالاهای لمسی + دسته‌بندی (طبق طرح pos.html)
+    public ObservableCollection<PosCategoryTile> Categories { get; } = new();
+    public ObservableCollection<PosProductTile> Products { get; } = new();
+    [ObservableProperty] private int _selectedCategoryId = -1;
+    [ObservableProperty] private string _quickSearch = string.Empty;
+    private List<PosProductTile> _allProducts = new();
+
     private readonly System.Windows.Threading.DispatcherTimer _timer;
 
-    public PosViewModel(IProductRepository productRepo, IPersianCalendarService calendar,
+    public PosViewModel(IProductRepository productRepo,
+        IRepository<SamaHesab.Domain.Entities.Inventory.ProductGroup> groupRepo,
+        IPersianCalendarService calendar,
         ICurrentUserService currentUser, IMediator mediator, IPrintService printService,
         ApiClient api, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _productRepo = productRepo; _calendar = calendar; _currentUser = currentUser;
+        _productRepo = productRepo; _groupRepo = groupRepo; _calendar = calendar; _currentUser = currentUser;
         _mediator = mediator; _printService = printService; _api = api;
         _timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) => CurrentTime = DateTime.Now.ToString("HH:mm:ss");
@@ -59,8 +69,63 @@ public partial class PosViewModel : BaseViewModel
     {
         ReceiptNumber = "POS-" + DateTime.Now.ToString("yyyyMMddHHmm");
         CurrentTime = DateTime.Now.ToString("HH:mm:ss");
-        await Task.CompletedTask;
+
+        Categories.Clear();
+        Categories.Add(new PosCategoryTile(-1, "همه"));
+        var companyId = _currentUser.CompanyId ?? 1;
+        if (UseApi)
+        {
+            var prods = await _api.SearchProductsAsync("");
+            _allProducts = prods.Select(p => new PosProductTile(p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate, p.GroupId)).ToList();
+            foreach (var g in await _api.GetGroupsAsync()) Categories.Add(new PosCategoryTile(g.Id, g.Name));
+        }
+        else
+        {
+            var products = await _productRepo.FindAsync(p => p.CompanyId == companyId && p.IsActive);
+            _allProducts = products.Select(p => new PosProductTile(p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate, p.GroupId)).ToList();
+            try { foreach (var g in (await _groupRepo.FindAsync(g => g.CompanyId == companyId)).OrderBy(g => g.Code)) Categories.Add(new PosCategoryTile(g.Id, g.Name)); }
+            catch { }
+        }
+        ApplyFilter();
     }
+
+    private void ApplyFilter()
+    {
+        Products.Clear();
+        IEnumerable<PosProductTile> q = _allProducts;
+        if (SelectedCategoryId != -1) q = q.Where(p => p.GroupId == SelectedCategoryId);
+        if (!string.IsNullOrWhiteSpace(QuickSearch))
+            q = q.Where(p => p.Name.Contains(QuickSearch) || p.Code.Contains(QuickSearch));
+        foreach (var p in q.Take(60)) Products.Add(p);
+    }
+
+    partial void OnQuickSearchChanged(string value) => ApplyFilter();
+
+    [RelayCommand]
+    private void SelectCategory(PosCategoryTile? cat)
+    {
+        if (cat == null) return;
+        SelectedCategoryId = cat.Id;
+        ApplyFilter();
+    }
+
+    [RelayCommand]
+    private void AddProduct(PosProductTile? tile)
+    {
+        if (tile == null) return;
+        var existing = CartItems.FirstOrDefault(i => i.ProductId == tile.Id);
+        if (existing != null) { existing.Quantity++; existing.Recalculate(); }
+        else
+        {
+            var item = new PosCartItem(tile.Id, tile.Code, tile.Name, 1, tile.Price, tile.TaxRate);
+            item.PropertyChanged += (_, _) => RecalculateTotals();
+            CartItems.Add(item);
+        }
+        RecalculateTotals();
+    }
+
+    [RelayCommand] private void IncItem(PosCartItem? i) { if (i != null) { i.Quantity++; i.Recalculate(); RecalculateTotals(); } }
+    [RelayCommand] private void DecItem(PosCartItem? i) { if (i != null) { if (i.Quantity > 1) { i.Quantity--; i.Recalculate(); } else CartItems.Remove(i); RecalculateTotals(); } }
 
     [RelayCommand]
     private async Task ProcessBarcodeAsync()
@@ -207,3 +272,6 @@ public partial class PosCartItem : ObservableObject
     public void Recalculate()
     { var sub = Quantity * UnitPrice; TaxAmount = sub * TaxRate / 100; NetAmount = sub + TaxAmount; }
 }
+
+public record PosCategoryTile(int Id, string Name);
+public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId);

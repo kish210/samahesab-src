@@ -27,8 +27,8 @@
 7. ✅ P2 — Hosted Service زمان‌بند اعلان‌ها: `NotificationSchedulerService` (per-company، بازه‌پذیر `Notifications:IntervalHours`، لاگ بحرانی/هشدار) — ثبت در DI
 8. ✅ P2 — یادآور بدهی معوق: `AlertEngine.DebtAlerts` (فاکتور فروشِ با مانده، سررسیدگذشته/امروز) + در `GetAlertsQuery`
 9. ✅ P2 — اعلان انقضای موجودی: `AlertEngine.ExpiryAlerts` (بچِ منقضی/نزدیک، افق ۳۰ روزه‌ی شمسی) + در `GetAlertsQuery`
-10. ⬜ P3 — فاکتور تکرارشونده (Recurring Invoice) — بک‌اند
-11. ⬜ P3 — زمان‌بند خودکار تولید اسناد/فاکتورهای تکراری
+10. ✅ P3 — فاکتور تکرارشونده: `RecurringInvoice`/`Line` (schema Sal، `database/18_RecurringInvoices.sql`) + Save/List/`GenerateDueRecurringInvoicesCommand` (catch-up، تولید فاکتور فروش واقعی) + endpointها (`/api/sales/recurring`, `/recurring/run`) + ۴ تست
+11. ✅ P3 — زمان‌بند خودکار: `RecurringDocumentSchedulerService` (BackgroundService روزانه، تولید اسناد+فاکتورهای تکرارشونده‌ی سررسیدشده) — ثبت در DI · (تفکیک per-company بعداً)
 12. ✅ P4/P12 — موجودیت `PurchaseOrder`/`Item` (schema Pur، `database/15_PurchaseOrders.sql`) + `CreatePurchaseOrderFromReorderCommand` (ساخت خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها (`/api/purchase/orders`, `/orders/from-reorder`) + ۴ تست
 13. ✅ P6 — موتور گردش‌کار/تأیید: `ApprovalWorkflow` (ماشین‌وضعیت خالص Draft→Pending→Approved/Rejected→Reopen) + ۶ تست · اتصال به سند/PO (نیاز به فیلد وضعیت تأیید) بعداً
 14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
@@ -67,6 +67,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-10** — **کارهای #۱۰+#۱۱ — فاکتور تکرارشونده + زمان‌بند (P3)**: `RecurringInvoice`/`Line` + `database/18_RecurringInvoices.sql` + Save/List/GenerateDue (catch-up) + `RecurringDocumentSchedulerService` + endpointها (`/api/sales/recurring*`) + ۴ تست (۱۱۰ سبز)
 - **2026-06-10** — **کار #۱۲ — سفارش خرید (PurchaseOrder)**: موجودیت + EF + `database/15_PurchaseOrders.sql` + `CreatePurchaseOrderFromReorderCommand` (خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها + ۴ تست (۱۰۱ سبز)
 - **2026-06-10** — **کار #۲۸ — انبارگردانی سندی (کلود ۲)**: `StockCountSession`/`StockCountLine` + اسکیمای `Inv` (`database/14_StockCount.sql`) + Start (snapshot)/Count/Post (مغایرت→تعدیل + سند خودکار) + `GetStockCountQuery` + `StockCountController` (`/api/stockcount/start|{id}|count|post`) + ۵ تست. · تست e2e: شمارش ۷ از ۱۶ → تعدیل به ۷ ✓
 - **2026-06-10** — **کار #۱۵ — تکمیل پوشش API**: `TreasuryController` (receivables/payables) + `ChequesController` (board + change-status) — افشای backendهای آماده

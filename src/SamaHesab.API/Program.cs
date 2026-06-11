@@ -21,6 +21,8 @@ builder.Services.AddSingleton<RefreshTokenStore>();
 
 // زمان‌بند پس‌زمینه‌ی اعلان‌ها (P2، کار #۷)
 builder.Services.AddHostedService<SamaHesab.API.Services.NotificationSchedulerService>();
+// زمان‌بند تولید اسناد/فاکتورهای تکرارشونده (P3، کار #۱۱)
+builder.Services.AddHostedService<SamaHesab.API.Services.RecurringDocumentSchedulerService>();
 
 // ── JWT authentication ──
 var jwt = builder.Configuration.GetSection("Jwt");

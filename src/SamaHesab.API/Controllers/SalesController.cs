@@ -81,4 +81,27 @@ public class SalesController : ControllerBase
         var r = await _mediator.Send(cmd, ct);
         return r.Succeeded ? Ok(new { invoiceId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
+
+    // ── فاکتورهای تکرارشونده (P3، کار #۱۰) ──────────────────────────────────────
+    /// <summary>فهرست فاکتورهای تکرارشونده.</summary>
+    [HttpGet("recurring")]
+    public async Task<IActionResult> RecurringList(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetRecurringInvoicesQuery(), ct));
+
+    /// <summary>تعریف فاکتور تکرارشونده.</summary>
+    [HttpPost("recurring")]
+    public async Task<IActionResult> RecurringSave([FromBody] SaveRecurringInvoiceCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>تولید فاکتورهای سررسیدشده تا امروز (catch-up).</summary>
+    [HttpPost("recurring/run")]
+    public async Task<IActionResult> RecurringRun([FromQuery] string? today, CancellationToken ct)
+    {
+        var date = string.IsNullOrEmpty(today) ? _calendar.GetCurrentPersianDate() : today;
+        var r = await _mediator.Send(new GenerateDueRecurringInvoicesCommand(date), ct);
+        return r.Succeeded ? Ok(r.Value) : BadRequest(new { message = r.ErrorMessage });
+    }
 }

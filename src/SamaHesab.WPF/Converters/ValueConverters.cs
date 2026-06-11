@@ -56,17 +56,42 @@ public class InverseBoolConverter : IValueConverter
 
 public class NumberFormatConverter : IValueConverter
 {
+    // ارقام فارسی + جداکننده‌ی هزارگان فارسی (٬) — طبق design-system
+    private static readonly char[] FaDigits = { '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' };
+
+    public static string ToPersian(string s)
+    {
+        var arr = s.ToCharArray();
+        for (int k = 0; k < arr.Length; k++)
+        {
+            if (arr[k] >= '0' && arr[k] <= '9') arr[k] = FaDigits[arr[k] - '0'];
+            else if (arr[k] == ',') arr[k] = '٬';
+        }
+        return new string(arr);
+    }
+
+    private static string ToLatin(string s)
+    {
+        var arr = s.ToCharArray();
+        for (int k = 0; k < arr.Length; k++)
+        {
+            int idx = System.Array.IndexOf(FaDigits, arr[k]);
+            if (idx >= 0) arr[k] = (char)('0' + idx);
+        }
+        return new string(arr).Replace("٬", "").Replace(",", "");
+    }
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is decimal d) return d.ToString("N0");
-        if (value is double dbl) return dbl.ToString("N0");
-        if (value is int i) return i.ToString("N0");
+        if (value is decimal d) return ToPersian(d.ToString("N0"));
+        if (value is double dbl) return ToPersian(dbl.ToString("N0"));
+        if (value is int i) return ToPersian(i.ToString("N0"));
         return value?.ToString() ?? string.Empty;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (decimal.TryParse(value?.ToString()?.Replace(",", ""), out var d)) return d;
+        if (decimal.TryParse(ToLatin(value?.ToString() ?? string.Empty), out var d)) return d;
         return 0m;
     }
 }

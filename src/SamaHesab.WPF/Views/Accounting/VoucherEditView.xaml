@@ -109,6 +109,7 @@
                     <StackPanel Orientation="Horizontal"><TextBlock Text="قطعی‌سازی" Foreground="#15803D"/><Border Style="{StaticResource Fk}" Background="#C9E9D2"><TextBlock Text="F9" FontSize="10.5" Foreground="#15803D"/></Border></StackPanel>
                 </Button>
                 <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>
+                <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}"><TextBlock Text="کپی سند"/></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}"><TextBlock Text="سند معکوس"/></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PrintCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
@@ -144,7 +145,8 @@
                             <ColumnDefinition Width="130"/><ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="150"/><ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="160"/><ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0"><TextBlock Style="{StaticResource Lbl}" Text="شماره سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherNumber}" IsReadOnly="True" Background="#F3F4F6"/></StackPanel>
                         <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Lbl}" Text="تاریخ *"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherDate}"/></StackPanel>
@@ -153,6 +155,7 @@
                         <StackPanel Grid.Column="6"><TextBlock Style="{StaticResource Lbl}" Text="مرکز هزینه"/>
                             <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedCostCenterId}"/></StackPanel>
                         <StackPanel Grid.Column="8"><TextBlock Style="{StaticResource Lbl}" Text="شرح سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding Description}"/></StackPanel>
+                        <StackPanel Grid.Column="10"><TextBlock Style="{StaticResource Lbl}" Text="ارجاع"/><TextBox Style="{StaticResource InputC}" Text="{Binding Reference}"/></StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -230,10 +233,10 @@
                         <DataGridTextColumn Header="کد" Binding="{Binding AccountCode}" Width="80"/>
                         <DataGridTextColumn Header="نام حساب" Binding="{Binding AccountName}" Width="*"/>
                         <DataGridTextColumn Header="شرح ردیف" Binding="{Binding Description}" Width="1.4*"/>
-                        <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat='{}{0:#,##0}'}" Width="120">
+                        <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="120">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat='{}{0:#,##0}'}" Width="120">
+                        <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="120">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTemplateColumn Width="40">

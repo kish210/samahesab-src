@@ -26,6 +26,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     [ObservableProperty] private int _selectedVoucherTypeId = 9;
     [ObservableProperty] private int? _selectedCostCenterId;
     [ObservableProperty] private string? _description;
+    [ObservableProperty] private string? _reference;
 
     // New row input
     [ObservableProperty] private int _newRowNumber = 1;
@@ -199,7 +200,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
                 VoucherDate: VoucherDate,
                 VoucherTypeId: SelectedVoucherTypeId,
                 Description: Description,
-                Reference: null,
+                Reference: Reference,
                 CurrencyId: null,
                 ExchangeRate: 1,
                 Items: Items.Select(r => new VoucherItemDto(
@@ -247,12 +248,23 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     [RelayCommand]
     private void Cancel() => _navigationService.NavigateTo("Vouchers");
 
-        [RelayCommand]
+    [RelayCommand]
     private void New()
     {
         _editingId = 0; VoucherNumber = "--- خودکار ---";
         VoucherDate = _calendar.GetCurrentPersianDate();
-        Description = null; Items.Clear(); NewRowNumber = 1; Recalculate();
+        Description = null; Reference = null; Items.Clear(); NewRowNumber = 1; Recalculate();
+    }
+
+    /// <summary>کپی سند: ردیف‌های فعلی را در یک سند پیش‌نویس تازه نگه می‌دارد (شماره/تاریخ جدید).</summary>
+    [RelayCommand]
+    private void Copy()
+    {
+        _editingId = 0;
+        VoucherNumber = "--- خودکار ---";
+        VoucherDate = _calendar.GetCurrentPersianDate();
+        // ردیف‌ها حفظ می‌شوند تا فقط مبالغ/شرح ویرایش شود
+        Recalculate();
     }
 }
 

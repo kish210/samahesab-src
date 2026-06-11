@@ -77,4 +77,54 @@ public class RestaurantTests
         o.Settle(1, 1000);
         Assert.Throws<InvalidOperationException>(() => o.AddItem(Item("دوغ", 1, 100)));
     }
+
+    // ─── #34: ویرایش تعداد / حذف / یادداشت ردیف ───
+    [Fact]
+    public void ChangeItemQuantity_Updates_Totals()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 2, 1000));   // Id=0 در تست دامنه
+        o.ChangeItemQuantity(itemId: 0, quantity: 5);
+        Assert.Equal(5000, o.SubTotal);
+        Assert.Equal(5000, o.GrandTotal);
+    }
+
+    [Fact]
+    public void ChangeItemQuantity_To_Zero_Removes_The_Row()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 2, 1000));
+        o.ChangeItemQuantity(itemId: 0, quantity: 0);
+        Assert.Empty(o.Items);
+        Assert.Equal(0, o.GrandTotal);
+    }
+
+    [Fact]
+    public void RemoveItem_Deletes_Row_And_Recalculates()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 1, 1000));
+        o.RemoveItem(itemId: 0);
+        Assert.Empty(o.Items);
+        Assert.Equal(0, o.GrandTotal);
+    }
+
+    [Fact]
+    public void SetItemNotes_Updates_Note()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 1, 1000));
+        o.SetItemNotes(itemId: 0, notes: "بدون پیاز");
+        Assert.Equal("بدون پیاز", System.Linq.Enumerable.First(o.Items).Notes);
+    }
+
+    [Fact]
+    public void ChangeItemQuantity_Throws_After_SentToKitchen()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 1, 1000));
+        o.SendToKitchen(1);
+        // ردیف ارسال‌شده دیگر Pending نیست → ویرایش تعداد مجاز نیست
+        Assert.Throws<InvalidOperationException>(() => o.ChangeItemQuantity(itemId: 0, quantity: 3));
+    }
 }

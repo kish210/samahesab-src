@@ -258,8 +258,12 @@
                                                 <Button Style="{StaticResource Stepper}" Content="+"
                                                         Command="{Binding DataContext.IncLineCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                             </StackPanel>
+                                            <!-- یادداشت آشپزخانه -->
+                                            <Button DockPanel.Dock="Left" Width="26" Height="26" Content="✎" FontSize="13" Cursor="Hand"
+                                                    Background="White" BorderBrush="{StaticResource Line}" ToolTip="یادداشت آشپزخانه"
+                                                    Command="{Binding DataContext.EditNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                             <!-- نام + یادداشت -->
-                                            <StackPanel VerticalAlignment="Center">
+                                            <StackPanel VerticalAlignment="Center" Margin="6,0,0,0">
                                                 <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource Strong}"/>
                                                 <TextBlock Text="{Binding Notes}" FontSize="10.5" Foreground="{StaticResource Muted}"
                                                            Visibility="{Binding Notes, Converter={StaticResource NullVis}}"/>

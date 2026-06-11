@@ -179,6 +179,36 @@ public class ApiClient
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
 
+    public async Task<(bool ok, string? error)> ChangeOrderItemQtyAsync(int orderId, int itemId, decimal qty)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/orders/{orderId}/items/{itemId}/qty/{qty}", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تغییر تعداد.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> RemoveOrderItemAsync(int orderId, int itemId)
+    {
+        try
+        {
+            var resp = await _http.DeleteAsync($"/api/restaurant/orders/{orderId}/items/{itemId}");
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در حذف ردیف.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> SetOrderItemNotesAsync(int orderId, int itemId, string? notes)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync($"/api/restaurant/orders/{orderId}/items/{itemId}/notes", notes);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت یادداشت.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
     public async Task<(bool ok, string? error)> SendToKitchenAsync(int orderId)
     {
         try

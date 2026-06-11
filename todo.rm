@@ -53,7 +53,7 @@
 31. ⬜ POS — گزارش Z/X
 32. ✅ مرجوعی فروش (کلود ۲): `CreateSalesReturnCommand` — فاکتور SaleReturn + بازگشت کالا به انبار (کاردکس) + سند معکوس (بد: فروش+مالیات / بس: دریافتنی یا صندوق) + لینک به فاکتور اصلی + `/api/sales/returns`. تست e2e: موجودی +۲، فاکتور BR000001، سند ۱۵۶ ✓
 33. ✅ POS — تعلیق/فراخوان فاکتور (کلود ۲): `HeldSale` (اسکیمای `Pos`، payload سبد JSON) + Hold/Delete + List/Get(فراخوان) + `/api/heldsales` + ۳ تست
-34. ⬜ رستوران — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه
+34. ✅ رستوران — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه (کلود ۲): متدهای دامنه `ChangeItemQuantity`/`SetItemNotes` (+`RemoveItem` موجود) + Commandها (`ChangeOrderItemQty`/`RemoveOrderItem`/`SetOrderItemNotes`) + endpointها (`/orders/{id}/items/{itemId}/qty/{q}`, `DELETE …/items/{itemId}`, `…/notes`) + متدهای ApiClient + اتصال در `WaiterView` (استپر −/+ واقعی، حذف خودکار در صفر، دکمه‌ی ✎ یادداشت) + دیالوگ ورودی واقعی `PromptAsync` + ۵ تست (۱۵۱ سبز)
 35. ⬜ رستوران — چاپ صورتحساب و تیکت آشپزخانه
 36. ⬜ رستوران — رزرو میز و تخصیص گارسون
 37. ✅ CRM — سقف اعتبار مشتری (کلود ۲): منطق خالص `CreditLimitPolicy` (سقف۰=نامحدود) + کنترل در `CreateSalesInvoiceCommand` برای بخش نسیه (با `AllowOverCredit`) + `GetCustomerCreditQuery` + `/api/customers/{id}/credit` + ۶ تست (۱۱۲ سبز)
@@ -97,6 +97,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **کار #۳۴ — ویرایش تعداد/حذف ردیف + یادداشت آشپزخانه رستوران (کلود ۲)**: `RestaurantOrder.ChangeItemQuantity`/`SetItemNotes` + Commandهای ویرایش ردیف + ۳ endpoint جدید رستوران + متدهای ApiClient + اتصال استپر −/+ و دکمه‌ی یادداشت در `WaiterView` (جایگزین placeholderهای «فاز بعد») + پیاده‌سازی واقعی `DialogService.PromptAsync` (دیالوگ ورودی RTL) + ۵ تست (۱۵۱ سبز).
 - **2026-06-11** — **پوسته: انتقال ریل آیکونی به سمت راست طبق طرح (FND-4 اصلاح، کلود ۲)**: در `MainWindow.xaml` ستون ریل آیکونی از چپ به **راست** منتقل شد تا دقیقاً مطابق `png/04`/`png/11` باشد (محتوا چپ، ریل راست). تأیید با هارنس `SAMA_SHOT_SHELL`→`screenshot/shell.png` (پوسته با داده‌ی واقعی). ⚠️ کلود ۱: این فایل مشترک است — لطفاً قبل از ویرایش MainWindow هماهنگ شود.
 - **2026-06-11** — **C2-4 رستوران لمسی طبق design-system v2 (restaurant.html) (کلود ۲)**: بازطراحی `WaiterView` به چیدمان تک‌صفحه‌ای طرح — نقشه‌ی میز (کارت‌های وضعیت‌رنگ: آزاد/فعالِ آبی/صورتحسابِ طلایی) + دسته‌های منو + شبکه‌ی منو (سمت راست) و کارت سفارش با هدر آبی + استپر تعداد + جمع اقلام/مالیات و خدمات/جمع کل + دکمه‌های KOT/صورتحساب/انتقال میز/تسویه (سمت چپ). افزوده‌های VM: `ProductId` در ردیف، `ServiceTax`، `CurrentSeats`، `IncLine/DecLine/TransferTable/Bill`. KOT و تسویه و افزایش تعداد فعال؛ کاهش/انتقال میز منتظر endpoint. هارنس `SAMA_SHOT_WAITERDEMO`→`screenshot/waiter.png`. Build سبز.
 - **2026-06-11** — **C2-2 کارت ۳۶۰° مشتری طبق design-system (customer-card.html) (کلود ۲)**: `CustomerCardView`+`CustomerCardViewModel` جدید — ستون شناسنامه (آواتار/کد/گروه/تماس) + کارت مانده با نوار اعتبار و هشدار عبور از سقف + ۴ KPI (جمع خرید امسال/تعداد فاکتور/میانگین فاکتور/امتیاز وفاداری) + مینی‌تب‌ها + گرید گردش حساب (از `GetCustomerStatementQuery`) با ارقام فارسی و سطر جمع. اتصال داده: `GetCustomerAnalyticsQuery`+`GetCustomerCreditQuery`+`GetCustomerStatementQuery`. ثبت در DI/DataTemplates/منوی `CustomerCard` + هارنس `SAMA_SHOT_CUSTOMER`→`screenshot/customer.png`. Build سبز.

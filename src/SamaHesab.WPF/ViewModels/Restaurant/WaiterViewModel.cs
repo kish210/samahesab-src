@@ -162,10 +162,38 @@ public partial class WaiterViewModel : BaseViewModel
         await ReloadOrderAsync();
     }
 
-    /// <summary>کاهش تعداد ردیف — نیازمند endpoint حذف/کاهش آیتم (فاز بعد).</summary>
+    /// <summary>کاهش تعداد ردیف (به صفر برسد، حذف می‌شود). فقط ردیف ارسال‌نشده به آشپزخانه.</summary>
     [RelayCommand]
     private async Task DecLineAsync(WaiterOrderLine? line)
-        => await _dialogService.ShowInfoAsync("کاهش/حذف ردیف سفارش در نسخه‌ی بعدی API افزوده می‌شود.");
+    {
+        if (line == null || CurrentOrderId == 0) return;
+        var newQty = line.Qty - 1;
+        var (ok, error) = await _api.ChangeOrderItemQtyAsync(CurrentOrderId, line.Id, newQty);
+        if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در تغییر تعداد."); return; }
+        await ReloadOrderAsync();
+    }
+
+    /// <summary>حذف کامل یک ردیف از سفارش.</summary>
+    [RelayCommand]
+    private async Task RemoveLineAsync(WaiterOrderLine? line)
+    {
+        if (line == null || CurrentOrderId == 0) return;
+        var (ok, error) = await _api.RemoveOrderItemAsync(CurrentOrderId, line.Id);
+        if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در حذف ردیف."); return; }
+        await ReloadOrderAsync();
+    }
+
+    /// <summary>ثبت یادداشت آشپزخانه برای یک ردیف (مثل «بدون پیاز»).</summary>
+    [RelayCommand]
+    private async Task EditNoteAsync(WaiterOrderLine? line)
+    {
+        if (line == null || CurrentOrderId == 0) return;
+        var note = await _dialogService.PromptAsync("یادداشت آشپزخانه برای این ردیف:", "یادداشت", line.Notes ?? "");
+        if (note == null) return;
+        var (ok, error) = await _api.SetOrderItemNotesAsync(CurrentOrderId, line.Id, string.IsNullOrWhiteSpace(note) ? null : note);
+        if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در ثبت یادداشت."); return; }
+        await ReloadOrderAsync();
+    }
 
     /// <summary>انتقال میز — نیازمند endpoint انتقال سفارش (فاز بعد).</summary>
     [RelayCommand]

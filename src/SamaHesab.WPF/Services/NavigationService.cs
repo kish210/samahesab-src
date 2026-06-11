@@ -113,13 +113,39 @@ public class DialogService : IDialogService
     }
 
     public Task<string?> ShowInputAsync(string prompt, string title = "ورود اطلاعات")
-    {
-        // Simple implementation - in production use a custom dialog
-        return Task.FromResult<string?>(null);
-    }
+        => PromptAsync(prompt, title);
 
+    /// <summary>دیالوگ ورودی متن ساده (RTL) — یک TextBox با تأیید/انصراف.</summary>
     public Task<string?> PromptAsync(string message, string title = "ورودی", string defaultValue = "")
-        => Task.FromResult<string?>(defaultValue);
+    {
+        var win = new System.Windows.Window
+        {
+            Title = title, Width = 380, SizeToContent = System.Windows.SizeToContent.Height,
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen,
+            FlowDirection = System.Windows.FlowDirection.RightToLeft,
+            ResizeMode = System.Windows.ResizeMode.NoResize,
+            Owner = System.Windows.Application.Current?.MainWindow
+        };
+        var root = new System.Windows.Controls.StackPanel { Margin = new System.Windows.Thickness(16) };
+        root.Children.Add(new System.Windows.Controls.TextBlock
+        { Text = message, Margin = new System.Windows.Thickness(0, 0, 0, 8), FontSize = 13 });
+        var box = new System.Windows.Controls.TextBox
+        { Text = defaultValue, FontSize = 14, Padding = new System.Windows.Thickness(6,4,6,4) };
+        root.Children.Add(box);
+        var btns = new System.Windows.Controls.StackPanel
+        { Orientation = System.Windows.Controls.Orientation.Horizontal,
+          HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Margin = new System.Windows.Thickness(0,14,0,0) };
+        var ok = new System.Windows.Controls.Button { Content = "تأیید", Width = 84, Height = 30, IsDefault = true, Margin = new System.Windows.Thickness(0,0,8,0) };
+        var cancel = new System.Windows.Controls.Button { Content = "انصراف", Width = 84, Height = 30, IsCancel = true };
+        btns.Children.Add(ok); btns.Children.Add(cancel);
+        root.Children.Add(btns);
+        win.Content = root;
+        string? result = null;
+        ok.Click += (_, _) => { result = box.Text; win.DialogResult = true; };
+        box.Loaded += (_, _) => { box.SelectAll(); box.Focus(); };
+        var dr = win.ShowDialog();
+        return Task.FromResult(dr == true ? result : null);
+    }
 }
 
 public interface IThemeService

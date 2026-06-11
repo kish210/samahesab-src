@@ -61,6 +61,30 @@ public class RestaurantController : ControllerBase
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
+    /// <summary>تغییر تعداد یک ردیف سفارش (۰ یا کمتر = حذف ردیف).</summary>
+    [HttpPost("orders/{id:int}/items/{itemId:int}/qty/{qty}")]
+    public async Task<IActionResult> ChangeItemQty(int id, int itemId, decimal qty, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new ChangeOrderItemQtyCommand(id, itemId, qty), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>حذف یک ردیف از سفارش (فقط ردیف ارسال‌نشده به آشپزخانه).</summary>
+    [HttpDelete("orders/{id:int}/items/{itemId:int}")]
+    public async Task<IActionResult> RemoveItem(int id, int itemId, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new RemoveOrderItemCommand(id, itemId), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>تنظیم یادداشت آشپزخانه‌ی یک ردیف.</summary>
+    [HttpPost("orders/{id:int}/items/{itemId:int}/notes")]
+    public async Task<IActionResult> SetItemNotes(int id, int itemId, [FromBody] string? notes, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new SetOrderItemNotesCommand(id, itemId, notes), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>ارسال ردیف‌های در انتظار به آشپزخانه (ساخت رسید آشپزخانه).</summary>
     [HttpPost("orders/{id:int}/send-to-kitchen")]
     public async Task<IActionResult> SendToKitchen(int id, CancellationToken ct)

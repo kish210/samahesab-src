@@ -139,6 +139,47 @@ public class AddOrderItemCommandHandler : IRequestHandler<AddOrderItemCommand, R
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ویرایش تعداد / حذف / یادداشت ردیف سفارش (#34)
+// ─────────────────────────────────────────────────────────────────────────────
+public record ChangeOrderItemQtyCommand(int OrderId, int ItemId, decimal Quantity) : IRequest<Result>;
+public record RemoveOrderItemCommand(int OrderId, int ItemId) : IRequest<Result>;
+public record SetOrderItemNotesCommand(int OrderId, int ItemId, string? Notes) : IRequest<Result>;
+
+public class EditOrderItemCommandHandler :
+    IRequestHandler<ChangeOrderItemQtyCommand, Result>,
+    IRequestHandler<RemoveOrderItemCommand, Result>,
+    IRequestHandler<SetOrderItemNotesCommand, Result>
+{
+    private readonly IRestaurantOrderRepository _orders;
+    private readonly IUnitOfWork _uow;
+    public EditOrderItemCommandHandler(IRestaurantOrderRepository orders, IUnitOfWork uow)
+    { _orders = orders; _uow = uow; }
+
+    public async Task<Result> Handle(ChangeOrderItemQtyCommand req, CancellationToken ct)
+        => await Apply(req.OrderId, o => o.ChangeItemQuantity(req.ItemId, req.Quantity), ct);
+
+    public async Task<Result> Handle(RemoveOrderItemCommand req, CancellationToken ct)
+        => await Apply(req.OrderId, o => o.RemoveItem(req.ItemId), ct);
+
+    public async Task<Result> Handle(SetOrderItemNotesCommand req, CancellationToken ct)
+        => await Apply(req.OrderId, o => o.SetItemNotes(req.ItemId, req.Notes), ct);
+
+    private async Task<Result> Apply(int orderId, Action<RestaurantOrder> change, CancellationToken ct)
+    {
+        var order = await _orders.GetWithItemsAsync(orderId, ct);
+        if (order is null) return Result.Failure("سفارش یافت نشد.");
+        try
+        {
+            change(order);
+            _orders.Update(order);
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex) { return Result.Failure(ex.GetBaseException().Message); }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ارسال ردیف‌های در انتظار به آشپزخانه (ساخت رسید آشپزخانه)
 // ─────────────────────────────────────────────────────────────────────────────
 public record SendOrderToKitchenCommand(int OrderId) : IRequest<Result<int>>;

@@ -73,6 +73,26 @@ public class RestaurantOrder : AuditableEntity
         Recalculate();
     }
 
+    /// <summary>تغییر تعداد یک ردیف؛ اگر به صفر یا کمتر برسد، ردیف حذف می‌شود. جمع سفارش بازمحاسبه می‌شود.</summary>
+    public void ChangeItemQuantity(int itemId, decimal quantity)
+    {
+        EnsureEditable();
+        var item = Items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new InvalidOperationException("ردیف یافت نشد.");
+        if (quantity <= 0) { RemoveItem(itemId); return; }
+        item.ChangeQuantity(quantity);
+        Recalculate();
+    }
+
+    /// <summary>یادداشت آشپزخانه‌ی یک ردیف را تنظیم می‌کند.</summary>
+    public void SetItemNotes(int itemId, string? notes)
+    {
+        EnsureEditable();
+        var item = Items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new InvalidOperationException("ردیف یافت نشد.");
+        item.SetNotes(notes);
+    }
+
     /// <summary>ردیف‌های در انتظار را به آشپزخانه ارسال می‌کند و رویداد ساخت رسید آشپزخانه را منتشر می‌کند.</summary>
     public IReadOnlyList<RestaurantOrderItem> SendToKitchen(int kitchenTicketId)
     {

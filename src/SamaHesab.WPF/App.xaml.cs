@@ -275,6 +275,32 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_VOUCHER") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "حسابدار", new[] { "ADMIN" }, Array.Empty<string>());
+            var vvm = _host.Services.GetRequiredService<ViewModels.Accounting.VoucherEditViewModel>();
+            await vvm.LoadAsync();
+            // چند ردیف نمونه برای دیدن گرید و نوار تراز
+            var accs = vvm.LeafAccounts;
+            if (accs.Count >= 2)
+            {
+                vvm.NewAccountId = accs[0].Id; vvm.NewDescription = "دریافت نقدی صندوق"; vvm.NewDebit = 285600; vvm.NewCredit = 0; vvm.AddRowCommand.Execute(null);
+                vvm.NewAccountId = accs[1].Id; vvm.NewDescription = "فروش طبق فاکتور F000054"; vvm.NewDebit = 0; vvm.NewCredit = 261100; vvm.AddRowCommand.Execute(null);
+                if (accs.Count >= 3) { vvm.NewAccountId = accs[2].Id; vvm.NewDescription = "مالیات ۹٪"; vvm.NewDebit = 0; vvm.NewCredit = 24500; vvm.AddRowCommand.Execute(null); }
+            }
+            vvm.Description = "بابت فروش نقدی و تسویه فاکتور F000054";
+            var vview = new Views.Accounting.VoucherEditView { DataContext = vvm };
+            var vwin = new Window { Content = vview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            vwin.Show(); await Task.Delay(1500); vwin.UpdateLayout();
+            var vdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(vdir);
+            var vrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            vrtb.Render(vwin);
+            var venc = new System.Windows.Media.Imaging.PngBitmapEncoder(); venc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(vrtb));
+            using (var vfs = System.IO.File.Create(System.IO.Path.Combine(vdir, "voucher.png"))) venc.Save(vfs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_RESTAURANT") == "1")
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())

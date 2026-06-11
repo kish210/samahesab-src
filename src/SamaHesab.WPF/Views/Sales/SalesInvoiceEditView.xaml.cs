@@ -7,7 +7,12 @@ namespace SamaHesab.WPF.Views.Sales;
 
 public partial class SalesInvoiceEditView : UserControl
 {
-    public SalesInvoiceEditView() => InitializeComponent();
+    public SalesInvoiceEditView()
+    {
+        InitializeComponent();
+        // ورود کیبوردمحور: فوکوس روی نوار بارکد هنگام باز شدن فرم
+        Loaded += (_, _) => BarcodeBox.Focus();
+    }
 
     private async void AddCustomer_Click(object sender, RoutedEventArgs e)
     {

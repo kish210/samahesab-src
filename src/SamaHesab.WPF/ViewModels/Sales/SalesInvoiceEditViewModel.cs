@@ -28,6 +28,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private string? _dueDate;
     [ObservableProperty] private string? _description;
     [ObservableProperty] private string _productSearch = string.Empty;
+    [ObservableProperty] private string _barcodeInput = string.Empty;   // ورود سریع کیبوردمحور (بارکد/کد)
     [ObservableProperty] private decimal _addQty = 1;
     [ObservableProperty] private decimal _addUnitPrice;
     [ObservableProperty] private decimal _addDiscountPct;
@@ -182,6 +183,35 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         // کار #۳۹: ثبت استفاده‌ی کالا برای «کالاهای پرتکرار»
         _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", product.Id, product.Name));
     }
+
+    /// <summary>ورود سریع: اسکن/تایپ بارکد یا کد کالا + Enter → ردیف فوراً افزوده می‌شود (سرویس یکپارچهٔ بارکد #۲۷). فوکوس برای ورود پیوسته حفظ می‌شود.</summary>
+    [RelayCommand]
+    private async Task ProcessBarcodeAsync()
+    {
+        if (string.IsNullOrWhiteSpace(BarcodeInput)) return;
+        var code = BarcodeInput.Trim();
+        var hit = await _mediator.Send(new SamaHesab.Application.Common.Barcode.ResolveBarcodeQuery(code));
+        if (hit == null)
+        {
+            // اگر بارکد نبود، یک جستجوی نام انجام بده
+            var found = await _productRepository.SearchAsync(_currentUser.CompanyId ?? 1, code);
+            if (found.Count == 1)
+            {
+                var p = found[0];
+                AddToCart(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
+                BarcodeInput = string.Empty;
+                return;
+            }
+            await _dialogService.ShowWarningAsync($"کالا با کد «{code}» یافت نشد.");
+            BarcodeInput = string.Empty;
+            return;
+        }
+        AddToCart(new ProductSearchResult(hit.ProductId, hit.Code, hit.Name, code, hit.SalePrice, hit.TaxRate));
+        BarcodeInput = string.Empty;
+    }
+
+    /// <summary>دکمه‌های پنل تسویه: تعیین روش پرداخت (نقد/کارت‌خوان/چک/نسیه).</summary>
+    [RelayCommand] private void SetPay(string? method) { if (!string.IsNullOrEmpty(method)) PaymentType = method!; }
 
     [RelayCommand] private void RemoveItem(SalesInvoiceItemRow? i) { if (i != null) { InvoiceItems.Remove(i); RecalculateTotals(); } }
 

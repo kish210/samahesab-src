@@ -249,12 +249,12 @@ public partial class App : System.Windows.Application
             M(4,"زرشک‌پلو با مرغ",290000); M(5,"قورمه‌سبزی",240000); M(6,"میگو سوخاری",520000);
             M(7,"سالاد فصل",85000); M(8,"دوغ محلی",45000); M(9,"نوشابه",35000);
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(1,"۱",2,"آزاد",0,null));
-            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(2,"۲",4,"فعال",1,12));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(2,"۲",4,"فعال",1,12, 840000));
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(3,"۳",4,"آزاد",0,null));
-            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(4,"۴",6,"فعال",1,13));
-            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(5,"۵",4,"فعال",1,14));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(4,"۴",6,"فعال",1,13, 1520000));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(5,"۵",4,"فعال",1,14, 1273800));
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(6,"۶",2,"صورتحساب",3,15));
-            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(7,"۷",8,"فعال",1,16));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(7,"۷",8,"فعال",1,16, 3240000));
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(8,"۸",4,"آزاد",0,null));
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(9,"۹",2,"آزاد",0,null));
             wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(10,"۱۰",4,"صورتحساب",3,17));
@@ -394,7 +394,7 @@ public partial class App : System.Windows.Application
             cvm.Address = "تهران، بازار قطعات، پلاک ۱۲";
             cvm.Balance = 78000000; cvm.CreditLimit = 120000000; cvm.UnlimitedCredit = false;
             cvm.CreditPercent = 65; cvm.CreditPercentLabel = SamaHesab.WPF.Converters.NumberFormatConverter.ToPersian("65٪");
-            cvm.TotalSales = 1240000000; cvm.InvoiceCount = 24; cvm.AveragePerInvoice = 51666000; cvm.LoyaltyPoints = 1850;
+            cvm.TotalSales = 1240000000; cvm.InvoiceCount = 24; cvm.AveragePerInvoice = 51666000; cvm.LoyaltyPoints = 1850; cvm.SettlementDays = 22;
             cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/03/13","F000052","فاکتور فروش — ۸ قلم قطعات",48200000,0,78000000,"بد"));
             cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/03/05","RC-0114","دریافت چک — ملت ۴۵۶۱۲۳",0,45000000,29800000,"بد"));
             cvm.Ledger.Add(new ViewModels.CRM.LedgerRow("1405/02/28","F000048","فاکتور فروش — لاستیک و باتری",36400000,0,74800000,"بد"));

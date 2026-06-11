@@ -324,7 +324,9 @@ public partial class WaiterTable : ObservableObject
     public string Status { get; }
     public int StatusCode { get; }   // 0=Free 1=Occupied 2=Reserved 3=Billing
     public int? CurrentOrderId { get; }
+    public decimal OpenAmount { get; }            // R17: مبلغ سفارش بازِ میز (۰ = نمایش متن وضعیت)
+    public bool ShowAmount => OpenAmount > 0;     // برای کارت میز
 
-    public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId)
-    { Id = id; Name = name; Capacity = capacity; Status = status; StatusCode = statusCode; CurrentOrderId = currentOrderId; }
+    public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId, decimal openAmount = 0)
+    { Id = id; Name = name; Capacity = capacity; Status = status; StatusCode = statusCode; CurrentOrderId = currentOrderId; OpenAmount = openAmount; }
 }

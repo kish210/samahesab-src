@@ -174,8 +174,8 @@
                             <TextBlock Text="{Binding InvoiceCount, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
                     <Border Grid.Column="4" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                        <StackPanel><TextBlock Text="میانگین هر فاکتور" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
-                            <TextBlock Text="{Binding AveragePerInvoice, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="مهلت تسویه (روز)" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding SettlementDays, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
                     <Border Grid.Column="6" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
                         <StackPanel><TextBlock Text="امتیاز وفاداری" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
@@ -191,6 +191,7 @@
                         <TextBlock Text="فاکتورها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="16,0"/>
                         <TextBlock Text="چک‌ها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                         <TextBlock Text="تماس‌ها و پیگیری" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <TextBlock Text="اسناد ضمیمه" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     </StackPanel>
                 </Border>
 

@@ -153,7 +153,15 @@
                                         <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
                                         <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" Foreground="{StaticResource ErpTextMuted}"/>
+                                    <!-- R17: مبلغ سفارش باز برای میز فعال؛ در غیر این صورت متن وضعیت -->
+                                    <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal"
+                                                Visibility="{Binding ShowAmount, Converter={StaticResource BoolVis}}">
+                                        <TextBlock Text="{Binding OpenAmount, Converter={StaticResource Num}}" FontSize="12.5" FontWeight="Bold"
+                                                   Foreground="{StaticResource ErpBlue700}" FlowDirection="LeftToRight"/>
+                                        <TextBlock Text=" ریال" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Bottom"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" Foreground="{StaticResource ErpTextMuted}"
+                                               Visibility="{Binding ShowAmount, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
                                 </Grid>
                             </Button>
                         </DataTemplate>

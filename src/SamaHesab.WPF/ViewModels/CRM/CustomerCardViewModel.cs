@@ -46,6 +46,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private int _invoiceCount;
     [ObservableProperty] private decimal _averagePerInvoice;
     [ObservableProperty] private int _loyaltyPoints;
+    [ObservableProperty] private int _settlementDays;      // R16: مهلت/میانگین تسویه (روز)
     [ObservableProperty] private string? _lastInvoiceDate;
 
     // ── گردش حساب ──
@@ -94,6 +95,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             NationalCode = c.NationalCode; EconomicCode = c.EconomicCode;
             Address = string.Join("، ", new[] { c.Province, c.City, c.Address }.Where(s => !string.IsNullOrWhiteSpace(s)));
             LoyaltyPoints = c.LoyaltyPoints;
+            SettlementDays = c.CreditDays;        // R16: مهلت تسویه (روز)
             StatusLabel = c.IsActive ? "فعال" : "غیرفعال";
 
             // اعتبار

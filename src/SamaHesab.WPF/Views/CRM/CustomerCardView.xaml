@@ -9,28 +9,18 @@
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
-        <SolidColorBrush x:Key="Blue100" Color="#DCE3F2"/>
-        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
-        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
-        <SolidColorBrush x:Key="Line2" Color="#F0F1F3"/>
-        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
-        <SolidColorBrush x:Key="Strong" Color="#1F2937"/>
-        <SolidColorBrush x:Key="Danger" Color="#C2403A"/>
-        <SolidColorBrush x:Key="Danger50" Color="#FBEAE9"/>
-        <SolidColorBrush x:Key="Danger700" Color="#9B2C27"/>
-        <SolidColorBrush x:Key="Success700" Color="#1E7A4D"/>
 
         <!-- دکمه‌ی تولبار -->
         <Style x:Key="TBtn" TargetType="Button">
             <Setter Property="Height" Value="34"/><Setter Property="Padding" Value="14,0"/>
             <Setter Property="Margin" Value="0,0,6,0"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FontSize" Value="12.5"/><Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="{StaticResource Strong}"/>
+            <Setter Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" CornerRadius="7" Background="{TemplateBinding Background}"
-                                BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                                BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -41,7 +31,7 @@
             </Setter>
         </Style>
         <Style x:Key="TBtnPrimary" TargetType="Button" BasedOn="{StaticResource TBtn}">
-            <Setter Property="Background" Value="{StaticResource Blue700}"/>
+            <Setter Property="Background" Value="{StaticResource ErpBlue700}"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
         <!-- اقدام سریع -->
@@ -57,19 +47,19 @@
         </Grid.RowDefinitions>
 
         <!-- ═══ تولبار ═══ -->
-        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1"
+        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1"
                 CornerRadius="8" Padding="8,6" Margin="0,0,0,10">
             <DockPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource TBtnPrimary}" Content="✎  ویرایش" Command="{Binding EditCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="🧾  فاکتور جدید" Command="{Binding NewInvoiceCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="💵  دریافت وجه" Command="{Binding ReceiptCommand}"/>
-                    <Rectangle Width="1" Fill="{StaticResource Line}" Margin="4,5"/>
+                    <Rectangle Width="1" Fill="{StaticResource ErpBorder}" Margin="4,5"/>
                     <Button Style="{StaticResource TBtn}" Content="🖨  صورت‌حساب (F8)" Command="{Binding PrintStatementCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="✉  پیامک مانده" Command="{Binding SmsBalanceCommand}"/>
                 </StackPanel>
                 <Border DockPanel.Dock="Left" HorizontalAlignment="Left" Background="#E7F3EC" CornerRadius="6" Padding="10,4">
-                    <TextBlock VerticalAlignment="Center" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource Success700}">
+                    <TextBlock VerticalAlignment="Center" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource ErpSuccess700}">
                         <Run Text="●"/><Run Text="{Binding StatusLabel, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding GroupLabel, Mode=OneWay}"/>
                     </TextBlock>
                 </Border>
@@ -87,64 +77,64 @@
             <!-- ── ستون شناسنامه ── -->
             <StackPanel Grid.Column="0">
                 <!-- کارت هویت -->
-                <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="14">
+                <Border Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="14">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="46" Height="46" CornerRadius="10" Background="{StaticResource Blue100}">
-                                <TextBlock Text="{Binding Initials}" Foreground="{StaticResource Blue700}" FontWeight="Bold"
+                            <Border Width="46" Height="46" CornerRadius="10" Background="{StaticResource ErpBlue100}">
+                                <TextBlock Text="{Binding Initials}" Foreground="{StaticResource ErpBlue700}" FontWeight="Bold"
                                            FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Name}" FontSize="14.5" FontWeight="Bold" Foreground="{StaticResource Strong}"/>
-                                <TextBlock FontSize="11.5" Foreground="{StaticResource Muted}">
+                                <TextBlock Text="{Binding Name}" FontSize="14.5" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
+                                <TextBlock FontSize="11.5" Foreground="{StaticResource ErpTextMuted}">
                                     <Run Text="کد: "/><Run Text="{Binding Code, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding GroupLabel, Mode=OneWay}"/>
                                 </TextBlock>
                             </StackPanel>
                         </StackPanel>
-                        <Rectangle Height="1" Fill="{StaticResource Line2}" Margin="0,11"/>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}" Margin="0,11"/>
 
                         <!-- KV ها -->
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="موبایل" Foreground="{StaticResource Muted}" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Mobile}" Foreground="{StaticResource Strong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
-                        <Rectangle Height="1" Fill="{StaticResource Line2}"/>
+                            <TextBlock Text="موبایل" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Mobile}" Foreground="{StaticResource ErpTextStrong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="تلفن" Foreground="{StaticResource Muted}" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Phone}" Foreground="{StaticResource Strong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
-                        <Rectangle Height="1" Fill="{StaticResource Line2}"/>
+                            <TextBlock Text="تلفن" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Phone}" Foreground="{StaticResource ErpTextStrong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="شناسه/کد ملی" Foreground="{StaticResource Muted}" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding NationalCode}" Foreground="{StaticResource Strong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
-                        <Rectangle Height="1" Fill="{StaticResource Line2}"/>
+                            <TextBlock Text="شناسه/کد ملی" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding NationalCode}" Foreground="{StaticResource ErpTextStrong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="کد اقتصادی" Foreground="{StaticResource Muted}" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding EconomicCode}" Foreground="{StaticResource Strong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
-                        <Rectangle Height="1" Fill="{StaticResource Line2}"/>
+                            <TextBlock Text="کد اقتصادی" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding EconomicCode}" Foreground="{StaticResource ErpTextStrong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="آدرس" Foreground="{StaticResource Muted}" FontSize="12"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Address}" Foreground="{StaticResource Strong}" FontSize="11"
+                            <TextBlock Text="آدرس" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Address}" Foreground="{StaticResource ErpTextStrong}" FontSize="11"
                                        TextWrapping="Wrap" TextAlignment="Left" Margin="8,0,0,0"/></Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- کارت مانده/اعتبار -->
-                <Border Background="{StaticResource Danger50}" BorderBrush="#E8C5C3" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,10,0,0">
+                <Border Background="{StaticResource ErpDanger50}" BorderBrush="#E8C5C3" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,10,0,0">
                     <StackPanel>
-                        <TextBlock Text="مانده حساب (بدهکار)" FontSize="11" Foreground="{StaticResource Danger700}"/>
+                        <TextBlock Text="مانده حساب (بدهکار)" FontSize="11" Foreground="{StaticResource ErpDanger700}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                             <TextBlock Text="{Binding Balance, Converter={StaticResource Num}}" FontSize="20" FontWeight="Bold"
-                                       Foreground="{StaticResource Danger700}" FlowDirection="LeftToRight"/>
-                            <TextBlock Text=" ریال" FontSize="12" Foreground="{StaticResource Danger700}" VerticalAlignment="Bottom" Margin="3,0,0,3"/>
+                                       Foreground="{StaticResource ErpDanger700}" FlowDirection="LeftToRight"/>
+                            <TextBlock Text=" ریال" FontSize="12" Foreground="{StaticResource ErpDanger700}" VerticalAlignment="Bottom" Margin="3,0,0,3"/>
                         </StackPanel>
                         <ProgressBar Height="5" Margin="0,7,0,0" Minimum="0" Maximum="100" Value="{Binding CreditPercent}"
-                                     Background="White" Foreground="{StaticResource Danger}" BorderThickness="0"/>
+                                     Background="White" Foreground="{StaticResource ErpDanger500}" BorderThickness="0"/>
                         <Grid Margin="0,4,0,0">
-                            <TextBlock FontSize="11" Foreground="{StaticResource Muted}">
+                            <TextBlock FontSize="11" Foreground="{StaticResource ErpTextMuted}">
                                 <Run Text="سقف اعتبار: "/><Run Text="{Binding CreditLimit, Mode=OneWay, Converter={StaticResource Num}}"/>
                             </TextBlock>
-                            <TextBlock HorizontalAlignment="Left" Text="{Binding CreditPercentLabel}" FontSize="11" Foreground="{StaticResource Muted}"/>
+                            <TextBlock HorizontalAlignment="Left" Text="{Binding CreditPercentLabel}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                         </Grid>
-                        <Border Background="{StaticResource Danger}" CornerRadius="4" Padding="8,2" Margin="0,7,0,0" HorizontalAlignment="Right"
+                        <Border Background="{StaticResource ErpDanger500}" CornerRadius="4" Padding="8,2" Margin="0,7,0,0" HorizontalAlignment="Right"
                                 Visibility="{Binding IsOverCredit, Converter={StaticResource BoolVis}}">
                             <TextBlock Text="⚠ عبور از سقف اعتبار" Foreground="White" FontSize="10.5" FontWeight="Bold"/>
                         </Border>
@@ -175,48 +165,48 @@
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                        <StackPanel><TextBlock Text="جمع خرید امسال" FontSize="11" Foreground="{StaticResource Muted}"/>
-                            <TextBlock Text="{Binding TotalSales, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource Strong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
+                    <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                        <StackPanel><TextBlock Text="جمع خرید امسال" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding TotalSales, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                        <StackPanel><TextBlock Text="تعداد فاکتور" FontSize="11" Foreground="{StaticResource Muted}"/>
-                            <TextBlock Text="{Binding InvoiceCount, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource Strong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
+                    <Border Grid.Column="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                        <StackPanel><TextBlock Text="تعداد فاکتور" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding InvoiceCount, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
-                    <Border Grid.Column="4" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                        <StackPanel><TextBlock Text="میانگین هر فاکتور" FontSize="11" Foreground="{StaticResource Muted}"/>
-                            <TextBlock Text="{Binding AveragePerInvoice, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource Strong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
+                    <Border Grid.Column="4" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                        <StackPanel><TextBlock Text="میانگین هر فاکتور" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding AveragePerInvoice, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
-                    <Border Grid.Column="6" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                        <StackPanel><TextBlock Text="امتیاز وفاداری" FontSize="11" Foreground="{StaticResource Muted}"/>
+                    <Border Grid.Column="6" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                        <StackPanel><TextBlock Text="امتیاز وفاداری" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                             <TextBlock Text="{Binding LoyaltyPoints, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="#B18A5A" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
                 </Grid>
 
                 <!-- minitabs -->
-                <Border Grid.Row="1" Background="#EDEEF1" BorderBrush="{StaticResource Line}" BorderThickness="1,1,1,0"
+                <Border Grid.Row="1" Background="#EDEEF1" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1,1,1,0"
                         CornerRadius="8,8,0,0" Margin="0,10,0,0">
                     <StackPanel Orientation="Horizontal">
-                        <Border Background="White" CornerRadius="8,8,0,0" Padding="16,8"><TextBlock Text="گردش حساب" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource Blue700}"/></Border>
-                        <TextBlock Text="فاکتورها" FontSize="12" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="16,0"/>
-                        <TextBlock Text="چک‌ها" FontSize="12" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <TextBlock Text="تماس‌ها و پیگیری" FontSize="12" Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <Border Background="White" CornerRadius="8,8,0,0" Padding="16,8"><TextBlock Text="گردش حساب" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ErpBlue700}"/></Border>
+                        <TextBlock Text="فاکتورها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="16,0"/>
+                        <TextBlock Text="چک‌ها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <TextBlock Text="تماس‌ها و پیگیری" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     </StackPanel>
                 </Border>
 
                 <!-- گرید گردش حساب -->
-                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="0,0,8,8">
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8">
                     <DockPanel>
                         <!-- جمع پایین -->
-                        <Border DockPanel.Dock="Bottom" Background="#F6F7F9" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0">
+                        <Border DockPanel.Dock="Bottom" Background="#F6F7F9" BorderBrush="{StaticResource ErpBorder}" BorderThickness="0,1,0,0" Padding="0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="120"/><ColumnDefinition Width="120"/><ColumnDefinition Width="130"/><ColumnDefinition Width="70"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="جمع گردش" FontWeight="Bold" FontSize="12" Margin="12,8" Foreground="{StaticResource Strong}"/>
+                                <TextBlock Grid.Column="0" Text="جمع گردش" FontWeight="Bold" FontSize="12" Margin="12,8" Foreground="{StaticResource ErpTextStrong}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding LedgerTotalDebit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="12" Margin="8,8" TextAlignment="Left" FlowDirection="LeftToRight"/>
-                                <TextBlock Grid.Column="2" Text="{Binding LedgerTotalCredit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="12" Margin="8,8" TextAlignment="Left" FlowDirection="LeftToRight" Foreground="{StaticResource Success700}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding LedgerTotalCredit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="12" Margin="8,8" TextAlignment="Left" FlowDirection="LeftToRight" Foreground="{StaticResource ErpSuccess700}"/>
                                 <TextBlock Grid.Column="3" Text="{Binding LedgerClosing, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="12" Margin="8,8" TextAlignment="Left" FlowDirection="LeftToRight"/>
                                 <TextBlock Grid.Column="4"/>
                             </Grid>
@@ -225,16 +215,16 @@
                         <DataGrid ItemsSource="{Binding Ledger}" AutoGenerateColumns="False" HeadersVisibility="Column"
                                   GridLinesVisibility="All" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
                                   RowHeight="30" FontSize="12" Background="White" BorderThickness="0"
-                                  HorizontalGridLinesBrush="{StaticResource Line2}" VerticalGridLinesBrush="{StaticResource Line2}"
+                                  HorizontalGridLinesBrush="{StaticResource ErpGray100}" VerticalGridLinesBrush="{StaticResource ErpGray100}"
                                   AlternatingRowBackground="#FAFBFC" RowBackground="White">
                             <DataGrid.ColumnHeaderStyle>
                                 <Style TargetType="DataGridColumnHeader">
                                     <Setter Property="Background" Value="#F6F7F9"/>
-                                    <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
                                     <Setter Property="FontSize" Value="11.5"/>
                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                     <Setter Property="Padding" Value="8,6"/>
-                                    <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
                                     <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Right"/>
                                 </Style>

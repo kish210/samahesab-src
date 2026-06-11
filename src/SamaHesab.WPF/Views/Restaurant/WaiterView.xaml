@@ -9,28 +9,17 @@
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:NullToVisibilityConverter x:Key="NullVis"/>
         <conv:NumberFormatConverter x:Key="Num"/>
-        <SolidColorBrush x:Key="Blue50" Color="#EEF2FB"/>
-        <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>
-        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
-        <SolidColorBrush x:Key="Gold500" Color="#B18A5A"/>
-        <SolidColorBrush x:Key="Gold50" Color="#FBF4E9"/>
-        <SolidColorBrush x:Key="Gold700" Color="#8A6A3E"/>
-        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
-        <SolidColorBrush x:Key="Line2" Color="#F0F1F3"/>
-        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
-        <SolidColorBrush x:Key="Strong" Color="#1F2937"/>
-        <SolidColorBrush x:Key="Success" Color="#2E7D52"/>
 
         <!-- چیپ سالن / دسته -->
         <Style x:Key="Chip" TargetType="Button">
             <Setter Property="Height" Value="38"/><Setter Property="Padding" Value="16,0"/>
             <Setter Property="Margin" Value="0,0,7,0"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FontSize" Value="13"/><Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource Strong}"/>
+            <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                        <Border CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -47,7 +36,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" CornerRadius="11" Background="{TemplateBinding Background}"
-                                BorderBrush="{StaticResource Line}" BorderThickness="1.5" Padding="11">
+                                BorderBrush="{StaticResource ErpBorder}" BorderThickness="1.5" Padding="11">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -59,18 +48,18 @@
                             </DataTrigger>
                             <!-- 1=فعال (آبی) -->
                             <DataTrigger Binding="{Binding StatusCode}" Value="1">
-                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Blue600}"/>
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Blue50}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource ErpBlue600}"/>
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource ErpBlue50}"/>
                             </DataTrigger>
                             <!-- 2=رزرو (طلایی) -->
                             <DataTrigger Binding="{Binding StatusCode}" Value="2">
-                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Gold500}"/>
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Gold50}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource ErpGold500}"/>
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource ErpGold50}"/>
                             </DataTrigger>
                             <!-- 3=صورتحساب (طلایی) -->
                             <DataTrigger Binding="{Binding StatusCode}" Value="3">
-                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Gold500}"/>
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource Gold50}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource ErpGold500}"/>
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource ErpGold50}"/>
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -86,12 +75,12 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="11,8">
+                        <Border x:Name="bd" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" Padding="11,8">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="#9DB0DA"/></Trigger>
-                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="bd" Property="Background" Value="{StaticResource Blue50}"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="bd" Property="Background" Value="{StaticResource ErpBlue50}"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -102,7 +91,7 @@
         <Style x:Key="Stepper" TargetType="Button">
             <Setter Property="Width" Value="28"/><Setter Property="Height" Value="28"/>
             <Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="15"/>
-            <Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+            <Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
         </Style>
     </UserControl.Resources>
 
@@ -152,19 +141,19 @@
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="#E5E7EB"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding StatusCode}" Value="1"><Setter Property="Background" Value="{StaticResource Blue600}"/></DataTrigger>
-                                                    <DataTrigger Binding="{Binding StatusCode}" Value="2"><Setter Property="Background" Value="{StaticResource Gold500}"/></DataTrigger>
-                                                    <DataTrigger Binding="{Binding StatusCode}" Value="3"><Setter Property="Background" Value="{StaticResource Gold500}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding StatusCode}" Value="1"><Setter Property="Background" Value="{StaticResource ErpBlue600}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding StatusCode}" Value="2"><Setter Property="Background" Value="{StaticResource ErpGold500}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding StatusCode}" Value="3"><Setter Property="Background" Value="{StaticResource ErpGold500}"/></DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                         <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     </Border>
                                     <StackPanel VerticalAlignment="Top" Margin="0,2,0,0">
-                                        <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource Strong}"/>
-                                        <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource Muted}"/>
+                                        <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
+                                        <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" Foreground="{StaticResource Muted}"/>
+                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" Foreground="{StaticResource ErpTextMuted}"/>
                                 </Grid>
                             </Button>
                         </DataTemplate>
@@ -197,10 +186,10 @@
                                     CommandParameter="{Binding}">
                                 <DockPanel>
                                     <TextBlock DockPanel.Dock="Top" Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{StaticResource Strong}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                                               Foreground="{StaticResource ErpTextStrong}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                        <TextBlock Text="{Binding Price, Converter={StaticResource Num}}" FontSize="12.5" FontWeight="Bold" Foreground="{StaticResource Blue700}" FlowDirection="LeftToRight"/>
-                                        <TextBlock Text=" ریال" FontSize="11" Foreground="{StaticResource Muted}"/>
+                                        <TextBlock Text="{Binding Price, Converter={StaticResource Num}}" FontSize="12.5" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" FlowDirection="LeftToRight"/>
+                                        <TextBlock Text=" ریال" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                                     </StackPanel>
                                 </DockPanel>
                             </Button>
@@ -218,14 +207,14 @@
             </Grid.RowDefinitions>
 
             <!-- کارت سفارش -->
-            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10">
+            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- هدر آبی -->
-                    <Border Grid.Row="0" Background="{StaticResource Blue700}" CornerRadius="10,10,0,0" Padding="14,11">
+                    <Border Grid.Row="0" Background="{StaticResource ErpBlue700}" CornerRadius="10,10,0,0" Padding="14,11">
                         <DockPanel>
                             <TextBlock Text="{Binding CurrentTableName, StringFormat='میز {0}'}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"
                                        Visibility="{Binding ShowOrder, Converter={StaticResource BoolVis}}"/>
@@ -245,7 +234,7 @@
                         <ItemsControl ItemsSource="{Binding OrderLines}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{StaticResource Line2}" BorderThickness="0,0,0,1" Padding="13,8">
+                                    <Border BorderBrush="{StaticResource ErpGray100}" BorderThickness="0,0,0,1" Padding="13,8">
                                         <DockPanel>
                                             <!-- مبلغ -->
                                             <TextBlock DockPanel.Dock="Left" Text="{Binding LineTotal, Converter={StaticResource Num}}" Width="80"
@@ -260,12 +249,12 @@
                                             </StackPanel>
                                             <!-- یادداشت آشپزخانه -->
                                             <Button DockPanel.Dock="Left" Width="26" Height="26" Content="✎" FontSize="13" Cursor="Hand"
-                                                    Background="White" BorderBrush="{StaticResource Line}" ToolTip="یادداشت آشپزخانه"
+                                                    Background="White" BorderBrush="{StaticResource ErpBorder}" ToolTip="یادداشت آشپزخانه"
                                                     Command="{Binding DataContext.EditNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                             <!-- نام + یادداشت -->
                                             <StackPanel VerticalAlignment="Center" Margin="6,0,0,0">
-                                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource Strong}"/>
-                                                <TextBlock Text="{Binding Notes}" FontSize="10.5" Foreground="{StaticResource Muted}"
+                                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource ErpTextStrong}"/>
+                                                <TextBlock Text="{Binding Notes}" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}"
                                                            Visibility="{Binding Notes, Converter={StaticResource NullVis}}"/>
                                             </StackPanel>
                                         </DockPanel>
@@ -277,12 +266,12 @@
 
                     <!-- جمع‌ها -->
                     <StackPanel Grid.Row="2">
-                        <DockPanel Margin="14,5"><TextBlock Text="جمع اقلام" FontSize="12" Foreground="{StaticResource Muted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                        <DockPanel Margin="14,3"><TextBlock Text="مالیات و خدمات" FontSize="12" Foreground="{StaticResource Muted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding ServiceTax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                        <Border Background="#F1F2F4" Padding="14,11" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
+                        <DockPanel Margin="14,5"><TextBlock Text="جمع اقلام" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                        <DockPanel Margin="14,3"><TextBlock Text="مالیات و خدمات" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding ServiceTax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                        <Border Background="#F1F2F4" Padding="14,11" BorderBrush="{StaticResource ErpBorder}" BorderThickness="0,1,0,0">
                             <DockPanel>
-                                <TextBlock Text="جمع کل" FontSize="13" FontWeight="Bold" Foreground="{StaticResource Strong}" VerticalAlignment="Center"/>
-                                <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" FontSize="21" FontWeight="Bold" Foreground="{StaticResource Blue700}" FlowDirection="LeftToRight"/>
+                                <TextBlock Text="جمع کل" FontSize="13" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" VerticalAlignment="Center"/>
+                                <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" FontSize="21" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" FlowDirection="LeftToRight"/>
                             </DockPanel>
                         </Border>
                     </StackPanel>
@@ -292,14 +281,14 @@
             <!-- دکمه‌ها -->
             <Grid Grid.Row="1" Margin="0,10,0,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Button Grid.Row="0" Height="52" Background="{StaticResource Success}" Foreground="White" BorderThickness="0" Cursor="Hand"
+                <Button Grid.Row="0" Height="52" Background="{StaticResource ErpSuccess500}" Foreground="White" BorderThickness="0" Cursor="Hand"
                         FontSize="15" FontWeight="Bold" Content="🍳  ارسال به آشپزخانه (KOT)" Command="{Binding SendToKitchenCommand}"/>
                 <Grid Grid.Row="1" Margin="0,7,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Height="46" Background="White" BorderBrush="{StaticResource Line}" Cursor="Hand" FontWeight="SemiBold" Content="🖨  صورتحساب" Command="{Binding BillCommand}"/>
-                    <Button Grid.Column="2" Height="46" Background="White" BorderBrush="{StaticResource Line}" Cursor="Hand" FontWeight="SemiBold" Content="⇄  انتقال میز" Command="{Binding TransferTableCommand}"/>
+                    <Button Grid.Column="0" Height="46" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" FontWeight="SemiBold" Content="🖨  صورتحساب" Command="{Binding BillCommand}"/>
+                    <Button Grid.Column="2" Height="46" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" FontWeight="SemiBold" Content="⇄  انتقال میز" Command="{Binding TransferTableCommand}"/>
                 </Grid>
-                <Button Grid.Row="2" Height="50" Margin="0,7,0,0" Background="{StaticResource Blue700}" Foreground="White" BorderThickness="0" Cursor="Hand"
+                <Button Grid.Row="2" Height="50" Margin="0,7,0,0" Background="{StaticResource ErpBlue700}" Foreground="White" BorderThickness="0" Cursor="Hand"
                         FontSize="15" FontWeight="Bold" Content="💳  تسویه و پرداخت" Command="{Binding SettleCommand}"/>
             </Grid>
         </Grid>

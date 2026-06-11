@@ -4,73 +4,61 @@
              xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft"
-             Background="#F4F5F7">
+             Background="{StaticResource ErpAppBg}">
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
-        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
-        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
-        <SolidColorBrush x:Key="Line2" Color="#F0F1F3"/>
-        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
-        <SolidColorBrush x:Key="Strong" Color="#1F2937"/>
-        <SolidColorBrush x:Key="Success" Color="#16A34A"/>
-        <Style x:Key="KV" TargetType="DockPanel">
-            <Setter Property="Margin" Value="0,6"/>
-        </Style>
+        <Style x:Key="KV" TargetType="DockPanel"><Setter Property="Margin" Value="0,6"/></Style>
     </UserControl.Resources>
 
     <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Width="460" Margin="0,24,0,0">
-        <Border Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12">
+        <Border Style="{StaticResource ErpGbox}" CornerRadius="12">
             <StackPanel Margin="22,18">
                 <DockPanel>
-                    <TextBlock Text="صندوق فروش — شیفت" FontSize="18" FontWeight="Bold" Foreground="{StaticResource Blue700}"/>
-                    <Button DockPanel.Dock="Left" Content="بروزرسانی ⟳ (X)" Padding="10,5" FontSize="12" Cursor="Hand"
-                            Background="White" BorderBrush="{StaticResource Line}" Command="{Binding RefreshCommand}"
+                    <TextBlock Text="صندوق فروش — شیفت" FontSize="18" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}"/>
+                    <Button DockPanel.Dock="Left" Style="{StaticResource ErpBtnSecondary}" Content="بروزرسانی ⟳ (X)" Padding="10,0" FontSize="12"
+                            Command="{Binding RefreshCommand}"
                             Visibility="{Binding HasOpenShift, Converter={StaticResource BoolVis}}"/>
                 </DockPanel>
-                <Rectangle Height="1" Fill="{StaticResource Line2}" Margin="0,14"/>
+                <Rectangle Height="1" Fill="{StaticResource ErpGray100}" Margin="0,14"/>
 
                 <!-- ═══ صندوق بسته: باز کردن ═══ -->
                 <StackPanel Visibility="{Binding HasOpenShift, Converter={StaticResource BoolVis}, ConverterParameter=Invert}">
-                    <TextBlock Text="صندوق بسته است. برای شروع، موجودی اولیه را وارد کنید." Foreground="{StaticResource Muted}" FontSize="13" TextWrapping="Wrap"/>
-                    <TextBlock Text="موجودی اولیه (ریال)" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,14,0,5"/>
-                    <Border Background="#F8F9FB" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
-                        <TextBox Text="{Binding NewFloat, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent"
-                                 Padding="12,9" FontSize="16" FontWeight="Bold" FlowDirection="LeftToRight" TextAlignment="Right"/>
-                    </Border>
-                    <Button Content="باز کردن صندوق" Height="46" Margin="0,16,0,0" Cursor="Hand" FontSize="15" FontWeight="Bold"
-                            Background="{StaticResource Blue700}" Foreground="White" BorderThickness="0" Command="{Binding OpenShiftCommand}"/>
+                    <TextBlock Text="صندوق بسته است. برای شروع، موجودی اولیه را وارد کنید." Foreground="{StaticResource ErpTextMuted}" FontSize="13" TextWrapping="Wrap"/>
+                    <TextBlock Text="موجودی اولیه (ریال)" Style="{StaticResource ErpFieldLabel}" Margin="0,14,0,5"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="40" Text="{Binding NewFloat, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16" FontWeight="Bold" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                    <Button Style="{StaticResource ErpBtnPrimary}" Content="باز کردن صندوق" Height="46" Margin="0,16,0,0" FontSize="15" FontWeight="Bold"
+                            Command="{Binding OpenShiftCommand}"/>
                 </StackPanel>
 
                 <!-- ═══ صندوق باز: گزارش X/Z ═══ -->
                 <StackPanel Visibility="{Binding HasOpenShift, Converter={StaticResource BoolVis}}">
-                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="موجودی اولیه" Foreground="{StaticResource Muted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding OpeningFloat, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="فروش نقدی" Foreground="{StaticResource Muted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding CashSales, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="فروش کارت‌خوان" Foreground="{StaticResource Muted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding CardSales, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="تعداد فروش" Foreground="{StaticResource Muted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding SalesCount, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                    <Border Background="#EEF2FB" CornerRadius="8" Padding="12,10" Margin="0,8">
+                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="موجودی اولیه" Foreground="{StaticResource ErpTextMuted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding OpeningFloat, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="فروش نقدی" Foreground="{StaticResource ErpTextMuted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding CashSales, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="فروش کارت‌خوان" Foreground="{StaticResource ErpTextMuted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding CardSales, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Style="{StaticResource KV}"><TextBlock Text="تعداد فروش" Foreground="{StaticResource ErpTextMuted}" FontSize="13"/><TextBlock DockPanel.Dock="Left" Text="{Binding SalesCount, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <Border Background="{StaticResource ErpBlue50}" CornerRadius="8" Padding="12,10" Margin="0,8">
                         <DockPanel>
-                            <TextBlock Text="نقد مورد انتظار در صندوق" FontWeight="Bold" Foreground="{StaticResource Strong}" FontSize="13"/>
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding ExpectedCash, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource Blue700}" FlowDirection="LeftToRight"/>
+                            <TextBlock Text="نقد مورد انتظار در صندوق" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}" FontSize="13"/>
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding ExpectedCash, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource ErpBlue700}" FlowDirection="LeftToRight"/>
                         </DockPanel>
                     </Border>
 
-                    <Rectangle Height="1" Fill="{StaticResource Line2}" Margin="0,8"/>
-                    <TextBlock Text="شمارش نقد واقعی (ریال)" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,4,0,5"/>
-                    <Border Background="#F8F9FB" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8">
-                        <TextBox Text="{Binding CountedCash, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Background="Transparent"
-                                 Padding="12,9" FontSize="16" FontWeight="Bold" FlowDirection="LeftToRight" TextAlignment="Right"/>
-                    </Border>
-                    <Button Content="بستن صندوق و صدور گزارش Z" Height="46" Margin="0,14,0,0" Cursor="Hand" FontSize="15" FontWeight="Bold"
-                            Background="#C2403A" Foreground="White" BorderThickness="0" Command="{Binding CloseShiftCommand}"/>
+                    <Rectangle Height="1" Fill="{StaticResource ErpGray100}" Margin="0,8"/>
+                    <TextBlock Text="شمارش نقد واقعی (ریال)" Style="{StaticResource ErpFieldLabel}" Margin="0,4,0,5"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="40" Text="{Binding CountedCash, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16" FontWeight="Bold" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                    <Button Style="{StaticResource ErpBtnDanger}" Content="بستن صندوق و صدور گزارش Z" Height="46" Margin="0,14,0,0" FontSize="15" FontWeight="Bold"
+                            Command="{Binding CloseShiftCommand}"/>
                 </StackPanel>
 
                 <!-- ═══ نتیجه‌ی بستن (Z) ═══ -->
-                <Border Background="#E7F3EC" BorderBrush="#BfE0CC" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,16,0,0"
+                <Border Style="{StaticResource ErpSumBarOk}" Margin="0,16,0,0"
                         Visibility="{Binding ShowClosedSummary, Converter={StaticResource BoolVis}}">
                     <StackPanel>
-                        <TextBlock Text="✓ شیفت بسته شد — گزارش Z صادر شد" FontWeight="Bold" Foreground="{StaticResource Success}" FontSize="14"/>
-                        <TextBlock Text="{Binding VarianceLabel}" Foreground="{StaticResource Strong}" FontSize="13" Margin="0,6,0,0" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                        <TextBlock Text="✓ شیفت بسته شد — گزارش Z صادر شد" FontWeight="Bold" Foreground="{StaticResource ErpSuccess700}" FontSize="14"/>
+                        <TextBlock Text="{Binding VarianceLabel}" Foreground="{StaticResource ErpTextStrong}" FontSize="13" Margin="0,6,0,0" FlowDirection="LeftToRight" TextAlignment="Right"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

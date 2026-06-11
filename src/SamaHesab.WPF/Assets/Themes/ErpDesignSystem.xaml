@@ -1,0 +1,308 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         سماع‌حساب — پریمیتیوهای دیزاین‌سیستم (مرجع: design-system/styles.css + erp.css)
+         همهٔ کلیدها با پیشوند Erp تا با تم موجود تداخل نکنند. StaticResource، تم‌ناپذیر.
+         رنگ ۸۰٪ خاکستری / ۱۵٪ برند / ۵٪ وضعیت — هیچ رنگ خارج پالت.
+         ============================================================ -->
+
+    <!-- ── Brand blue ── -->
+    <SolidColorBrush x:Key="ErpBlue50"  Color="#EEF1F7"/>
+    <SolidColorBrush x:Key="ErpBlue100" Color="#DCE2EE"/>
+    <SolidColorBrush x:Key="ErpBlue200" Color="#BAC5DD"/>
+    <SolidColorBrush x:Key="ErpBlue400" Color="#6E83AE"/>
+    <SolidColorBrush x:Key="ErpBlue600" Color="#4B5F97"/>
+    <SolidColorBrush x:Key="ErpBlue700" Color="#324A7A"/>
+    <SolidColorBrush x:Key="ErpBlue800" Color="#283A60"/>
+    <SolidColorBrush x:Key="ErpBlue900" Color="#1B2843"/>
+    <!-- ── Gold accent (5%) ── -->
+    <SolidColorBrush x:Key="ErpGold50"  Color="#F8F3EC"/>
+    <SolidColorBrush x:Key="ErpGold500" Color="#B18A5A"/>
+    <SolidColorBrush x:Key="ErpGold600" Color="#936F45"/>
+    <SolidColorBrush x:Key="ErpGold700" Color="#6F5333"/>
+    <!-- ── Cool grays (80%) ── -->
+    <SolidColorBrush x:Key="ErpWhite"   Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ErpGray50"  Color="#F6F8FB"/>
+    <SolidColorBrush x:Key="ErpGray100" Color="#EEF1F6"/>
+    <SolidColorBrush x:Key="ErpGray150" Color="#E7EBF2"/>
+    <SolidColorBrush x:Key="ErpGray200" Color="#E0E5EE"/>
+    <SolidColorBrush x:Key="ErpGray300" Color="#CCD4E0"/>
+    <SolidColorBrush x:Key="ErpGray400" Color="#A7B1C2"/>
+    <SolidColorBrush x:Key="ErpGray500" Color="#7B8699"/>
+    <SolidColorBrush x:Key="ErpGray700" Color="#3F4859"/>
+    <SolidColorBrush x:Key="ErpGray900" Color="#161C2A"/>
+    <!-- ── Status (5%) ── -->
+    <SolidColorBrush x:Key="ErpSuccess50"  Color="#E9F5EE"/>
+    <SolidColorBrush x:Key="ErpSuccess500" Color="#2E7D52"/>
+    <SolidColorBrush x:Key="ErpSuccess700" Color="#1F5A3A"/>
+    <SolidColorBrush x:Key="ErpWarning50"  Color="#FBF1DD"/>
+    <SolidColorBrush x:Key="ErpWarning700" Color="#8F5F12"/>
+    <SolidColorBrush x:Key="ErpDanger50"   Color="#FBECEB"/>
+    <SolidColorBrush x:Key="ErpDanger500"  Color="#C2403A"/>
+    <SolidColorBrush x:Key="ErpDanger700"  Color="#8E2A26"/>
+    <!-- ── Semantic ── -->
+    <SolidColorBrush x:Key="ErpAppBg"       Color="#F6F8FB"/>
+    <SolidColorBrush x:Key="ErpBorder"      Color="#E0E5EE"/>
+    <SolidColorBrush x:Key="ErpBorderStrong" Color="#CCD4E0"/>
+    <SolidColorBrush x:Key="ErpTextStrong"  Color="#161C2A"/>
+    <SolidColorBrush x:Key="ErpTextBody"    Color="#3F4859"/>
+    <SolidColorBrush x:Key="ErpTextMuted"   Color="#7B8699"/>
+
+    <!-- ============================================================
+         دکمه‌ها (ارتفاع ۳۲، شعاع ۶) — primary/secondary/ghost/gold/danger
+         ============================================================ -->
+    <Style x:Key="ErpBtnBase" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpTextBody}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" CornerRadius="6" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ErpBtnPrimary" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Setter Property="Background" Value="{StaticResource ErpBlue600}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpBlue700}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpBtnSecondary" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Setter Property="Background" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorderStrong}"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpGray50}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpBtnGhost" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpGray100}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpBtnGold" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Setter Property="Background" Value="{StaticResource ErpGold500}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpGold600}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpBtnDanger" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Setter Property="Background" Value="{StaticResource ErpDanger500}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpDanger700}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpBtnSuccess" TargetType="Button" BasedOn="{StaticResource ErpBtnBase}">
+        <Setter Property="Background" Value="{StaticResource ErpSuccess500}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{StaticResource ErpSuccess700}"/></Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ============================================================
+         ورودی‌ها (ارتفاع ۳۲، شعاع ۶، border-strong، فوکوس آبی)
+         ============================================================ -->
+    <Style x:Key="ErpInput" TargetType="TextBox">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="9,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
+        <Setter Property="Background" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorderStrong}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="bd" CornerRadius="6" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource ErpBlue600}"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Background" Value="{StaticResource ErpGray100}"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- لیبل کوچک بالای/کنار فیلد -->
+    <Style x:Key="ErpFieldLabel" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <!-- ============================================================
+         گروه‌باکس (gbox): قاب سفید + هدر خاکستری‌روشن
+         ============================================================ -->
+    <Style x:Key="ErpGbox" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style x:Key="ErpGboxHeader" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpGray50}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="CornerRadius" Value="8,8,0,0"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="12,0"/>
+    </Style>
+    <Style x:Key="ErpGboxTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- نوار ورود سریع (entry-strip): پس‌زمینهٔ آبی‌روشن -->
+    <Style x:Key="ErpEntryStrip" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpBlue50}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBlue100}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="10,8"/>
+    </Style>
+
+    <!-- ============================================================
+         گرید فشرده (dgrid): ردیف ۳۰px، زبرا، هاور آبی، انتخاب آبی‌پررنگ، خط‌کشی
+         ============================================================ -->
+    <Style x:Key="ErpColumnHeader" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource ErpGray100}"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpGray500}"/>
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="9,0"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorderStrong}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ErpCell" TargetType="DataGridCell">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="9,0"/>
+        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+        <Setter Property="Foreground" Value="{StaticResource ErpTextBody}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <!-- انتخاب: پس‌زمینهٔ سلول شفاف می‌ماند تا رنگ ردیف (آبی‌۱۰۰) دیده شود -->
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpRow" TargetType="DataGridRow">
+        <Setter Property="Background" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="Height" Value="30"/>
+        <Style.Triggers>
+            <Trigger Property="AlternationIndex" Value="1">
+                <Setter Property="Background" Value="{StaticResource ErpGray50}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource ErpBlue50}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource ErpBlue100}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpDataGrid" TargetType="DataGrid">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="GridLinesVisibility" Value="All"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource ErpGray100}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{StaticResource ErpGray150}"/>
+        <Setter Property="Background" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="RowBackground" Value="{StaticResource ErpWhite}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="RowHeight" Value="30"/>
+        <Setter Property="AlternationCount" Value="2"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+        <Setter Property="ColumnHeaderStyle" Value="{StaticResource ErpColumnHeader}"/>
+        <Setter Property="CellStyle" Value="{StaticResource ErpCell}"/>
+        <Setter Property="RowStyle" Value="{StaticResource ErpRow}"/>
+    </Style>
+
+    <!-- ============================================================
+         نوار جمع/تراز (sumbar): سبز=تراز، قرمز=نامتوازن
+         ============================================================ -->
+    <Style x:Key="ErpSumBarOk" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpSuccess50}"/>
+        <Setter Property="BorderBrush" Value="#BFDDC9"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="14,8"/>
+    </Style>
+    <Style x:Key="ErpSumBarBad" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpDanger50}"/>
+        <Setter Property="BorderBrush" Value="#E8C5C3"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="14,8"/>
+    </Style>
+
+    <!-- ============================================================
+         چیپ میانبر F-key (کنار دکمه‌ها)
+         ============================================================ -->
+    <Style x:Key="ErpFKey" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ErpGray100}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="4,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
+    </Style>
+
+</ResourceDictionary>

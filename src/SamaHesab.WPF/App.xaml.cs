@@ -416,6 +416,23 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── Capture the ERP shell only (dev only) — تأیید پوسته در برابر طرح ───
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_SHELL") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+            var w = _host.Services.GetRequiredService<MainWindow>();
+            w.WindowState = WindowState.Normal; w.Width = 1500; w.Height = 820;
+            w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            w.Show(); await Task.Delay(2600); w.UpdateLayout();
+            var sdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(sdir);
+            var srtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            srtb.Render(w);
+            var senc = new System.Windows.Media.Imaging.PngBitmapEncoder(); senc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(srtb));
+            using (var sfs = System.IO.File.Create(System.IO.Path.Combine(sdir, "shell.png"))) senc.Save(sfs);
+            Shutdown(); return;
+        }
+
         // ─── Capture screenshots of every screen (dev only) ───────────────────
         if (Environment.GetEnvironmentVariable("SAMA_SHOTS") == "1")
         {

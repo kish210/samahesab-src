@@ -257,14 +257,14 @@
             </MenuItem>
         </Menu>
 
-        <!-- ═══ Workspace: ریل آیکونی عمودی (چپ) + RadDocking (MDI) ═══ -->
+        <!-- ═══ Workspace: ریل آیکونی عمودی (راست، طبق design-system) + RadDocking (MDI) ═══ -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>      <!-- محتوا (راست در RTL) -->
-                <ColumnDefinition Width="Auto"/>   <!-- ریل آیکونی (چپ در RTL) -->
+                <ColumnDefinition Width="Auto"/>   <!-- ریل آیکونی (راست در RTL — مطابق طرح) -->
+                <ColumnDefinition Width="*"/>      <!-- محتوا (چپ در RTL) -->
             </Grid.ColumnDefinitions>
 
-            <telerik:RadDocking Grid.Column="0" x:Name="docking" Margin="2"
+            <telerik:RadDocking Grid.Column="1" x:Name="docking" Margin="2"
                                 Close="Docking_Close" BorderThickness="0" HasDocumentHost="True">
                 <telerik:RadDocking.DocumentHost>
                     <telerik:RadSplitContainer>
@@ -273,8 +273,8 @@
                 </telerik:RadDocking.DocumentHost>
             </telerik:RadDocking>
 
-            <!-- ریل آیکونی برند (مرجع: design-system) -->
-            <Border Grid.Column="1" Width="56" Background="{DynamicResource SidebarBackground}">
+            <!-- ریل آیکونی برند (راست، مرجع: design-system) -->
+            <Border Grid.Column="0" Width="56" Background="{DynamicResource SidebarBackground}">
                 <Border.Resources>
                     <Style x:Key="RailBtn" TargetType="Button">
                         <Setter Property="Background" Value="Transparent"/>

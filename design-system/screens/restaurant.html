@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — رستوران</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="app.css" />
+<style>
+  body { overflow: hidden; }
+  .resto { display: grid; grid-template-columns: 360px 1fr; height: 100vh; background: var(--gray-100); }
+  /* ORDER PANEL (right in RTL) */
+  .order { background: var(--white); border-inline-start: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: -4px 0 16px rgba(21,35,63,0.04); }
+  .order-top { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .seg-type { display: flex; gap: 6px; margin-bottom: 12px; }
+  .seg-type button { flex: 1; height: 40px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13.5px; font-weight: 600; color: var(--text-body); cursor: pointer; }
+  .seg-type button.active { background: var(--blue-600); color: #fff; border-color: var(--blue-600); }
+  .order-meta { display: flex; gap: 8px; }
+  .order-meta .mf { flex: 1; }
+  .order-meta .mf label { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+  .order-meta .mf .v { height: 36px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .order-items { flex: 1; overflow-y: auto; padding: 8px 12px; }
+  .oi { display: flex; align-items: center; gap: 10px; padding: 11px 6px; border-bottom: 1px solid var(--gray-100); }
+  .oi .nm { font-size: 13.5px; font-weight: 500; color: var(--text-strong); }
+  .oi .unit { font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .oi .qty { display: inline-flex; align-items: center; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; }
+  .oi .qty button { width: 30px; height: 32px; border: none; background: var(--gray-50); font-size: 17px; cursor: pointer; color: var(--text-body); }
+  .oi .qty span { width: 30px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .oi .sum { margin-inline-start: auto; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 13px; min-width: 80px; text-align: left; }
+  .order-foot { border-top: 1px solid var(--border); padding: 14px 18px; }
+  .sline { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: var(--text-body); }
+  .sline .v { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+  .grand { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 12px; border-top: 2px dashed var(--gray-200); margin-top: 5px; }
+  .grand .v { font-size: 26px; font-weight: 800; color: var(--blue-700); font-variant-numeric: tabular-nums; }
+  .grand .l { font-size: 14px; font-weight: 600; }
+  .act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .act-grid .full { grid-column: 1 / 3; }
+  .abtn { height: 50px; border-radius: var(--radius-md); border: none; font-family: var(--font-sans); font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .abtn.pay { background: var(--success-500); color: #fff; box-shadow: 0 5px 14px rgba(46,125,82,0.28); }
+  .abtn.kot { background: var(--gold-500); color: #fff; }
+  .abtn.print { background: var(--white); color: var(--text-body); border: 1.5px solid var(--border-strong); }
+  .abtn.clear { background: var(--white); color: var(--danger-500); border: 1.5px solid var(--border-strong); }
+  /* MENU (left in RTL) */
+  .menu { display: flex; flex-direction: column; min-height: 0; }
+  .menu-top { padding: 14px 18px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+  .tables-row { display: flex; gap: 8px; }
+  .tbl-btn { width: 46px; height: 40px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-strong); background: #fff; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; font-family: var(--font-sans); position: relative; }
+  .tbl-btn.busy { background: var(--danger-50); border-color: #EFC9C7; color: var(--danger-700); }
+  .tbl-btn.active { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
+  .tbl-btn.free { color: var(--success-600); }
+  .cats { display: flex; gap: 8px; padding: 12px 18px 4px; overflow-x: auto; }
+  .cat-chip { flex: none; height: 38px; padding: 0 18px; border-radius: var(--radius-pill); border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13.5px; font-weight: 600; color: var(--text-body); cursor: pointer; white-space: nowrap; }
+  .cat-chip.active { background: var(--blue-600); color: #fff; border-color: var(--blue-600); }
+  .mgrid { flex: 1; overflow-y: auto; padding: 14px 18px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; align-content: start; }
+  .mtile { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: all var(--dur-fast) var(--ease); box-shadow: var(--shadow-xs); }
+  .mtile:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--blue-200); }
+  .mtile:active { background: var(--blue-50); }
+  .mtile .thumb { height: 78px; display: flex; align-items: center; justify-content: center; }
+  .mtile .thumb svg { width: 30px; height: 30px; opacity: .9; }
+  .mtile .info { padding: 10px 12px; }
+  .mtile .mn { font-size: 13.5px; font-weight: 600; color: var(--text-strong); line-height: 1.3; }
+  .mtile .mp { font-size: 13.5px; font-weight: 700; color: var(--blue-600); font-variant-numeric: tabular-nums; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="resto" data-screen-label="Restaurant">
+  <!-- ORDER -->
+  <aside class="order">
+    <div class="order-top">
+      <div class="seg-type">
+        <button class="active">سالن</button>
+        <button>بیرون‌بر</button>
+        <button>پیک</button>
+      </div>
+      <div class="order-meta">
+        <div class="mf"><label>میز</label><div class="v" style="color:var(--blue-700)">۵</div></div>
+        <div class="mf"><label>نفرات</label><div class="v">۴</div></div>
+        <div class="mf"><label>گارسون</label><div class="v" style="font-size:12px;font-weight:500">سعید</div></div>
+      </div>
+    </div>
+    <div class="order-items" id="order"></div>
+    <div class="order-foot">
+      <div class="sline"><span>جمع فاکتور</span><span class="v">۳٬۸۰۰٬۰۰۰</span></div>
+      <div class="sline"><span>سرویس ۱۰٪</span><span class="v">۳۸۰٬۰۰۰</span></div>
+      <div class="sline"><span>مالیات ۹٪</span><span class="v">۳۴۲٬۰۰۰</span></div>
+      <div class="grand"><span class="l">قابل پرداخت</span><span class="v">۴٬۵۲۲٬۰۰۰</span></div>
+      <div class="act-grid">
+        <button class="abtn kot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6a3 3 0 0 0 6 0V2M9 2v20M17 2c-1.2.8-2 2.5-2 5 0 1.7.8 2.7 2 3v12"/></svg>ارسال آشپزخانه</button>
+        <button class="abtn print"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>پیش‌فاکتور</button>
+        <button class="abtn pay full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>پرداخت و تسویه (F12)</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MENU -->
+  <section class="menu">
+    <div class="menu-top">
+      <span style="font-size:13px;font-weight:600;color:var(--text-muted)">میزها:</span>
+      <div class="tables-row">
+        <button class="tbl-btn free">۱</button>
+        <button class="tbl-btn busy">۲</button>
+        <button class="tbl-btn busy">۳</button>
+        <button class="tbl-btn free">۴</button>
+        <button class="tbl-btn active">۵</button>
+        <button class="tbl-btn free">۶</button>
+        <button class="tbl-btn busy">۷</button>
+        <button class="tbl-btn free">۸</button>
+      </div>
+      <div class="spacer"></div>
+      <span style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:5px"><i style="width:9px;height:9px;border-radius:3px;background:var(--success-500);display:inline-block"></i>آزاد</span>
+        <span style="display:inline-flex;align-items:center;gap:5px"><i style="width:9px;height:9px;border-radius:3px;background:var(--danger-400, #d9736a);display:inline-block"></i>اشغال</span>
+      </span>
+    </div>
+    <div class="cats">
+      <button class="cat-chip active">همه</button>
+      <button class="cat-chip">پیش‌غذا</button>
+      <button class="cat-chip">غذای اصلی</button>
+      <button class="cat-chip">دریایی</button>
+      <button class="cat-chip">نوشیدنی سرد</button>
+      <button class="cat-chip">نوشیدنی گرم</button>
+    </div>
+    <div class="mgrid" id="mgrid"></div>
+  </section>
+</div>
+
+<script src="shell.js"></script>
+<script>
+  const order = [
+    ['چلوکباب کوبیده','۱٬۲۵۰٬۰۰۰',2,'۲٬۵۰۰٬۰۰۰'],
+    ['جوجه‌کباب','۱٬۱۵۰٬۰۰۰',1,'۱٬۱۵۰٬۰۰۰'],
+    ['دوغ','۹۰٬۰۰۰',1,'۹۰٬۰۰۰'],
+    ['سالاد سزار','۳۲۰٬۰۰۰',1,'۳۲۰٬۰۰۰'],
+  ];
+  document.getElementById('order').innerHTML = order.map(o => `
+    <div class="oi">
+      <div style="flex:1"><div class="nm">${o[0]}</div><div class="unit">${o[1]} ریال</div></div>
+      <span class="qty"><button>+</button><span>${o[2].toLocaleString('fa-IR')}</span><button>−</button></span>
+      <span class="sum">${o[3]}</span>
+    </div>`).join('');
+
+  const food = '<svg viewBox="0 0 24 24" fill="none" stroke="#B58A3C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a8 8 0 0 1-16 0M5 11a7 7 0 0 1 14 0M12 3v2"/></svg>';
+  const sea = '<svg viewBox="0 0 24 24" fill="none" stroke="#34538E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12c0-4 3-7 8-7 0 5-3 9-8 9zM6 12l-3 3M6 12c0 3 2 5 5 5"/><circle cx="11" cy="8" r=".6" fill="#34538E"/></svg>';
+  const drink = '<svg viewBox="0 0 24 24" fill="none" stroke="#34538E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12l-1.5 16h-9zM5 4h14M9 9h6"/></svg>';
+  const hot = '<svg viewBox="0 0 24 24" fill="none" stroke="#97702F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM17 10h2a2 2 0 0 1 0 4h-2M7 5c-.5-1 .5-2 0-3M11 5c-.5-1 .5-2 0-3"/></svg>';
+  const bg = c => `background:${c}`;
+  // [name, price, icon, thumbBg]
+  const menu = [
+    ['زیتون پرورده','۱۵۰٬۰۰۰',food,'var(--gold-50)'],['سالاد سزار','۳۲۰٬۰۰۰',food,'var(--gold-50)'],['سوپ جو','۱۸۰٬۰۰۰',food,'var(--gold-50)'],
+    ['چلوکباب کوبیده','۱٬۲۵۰٬۰۰۰',food,'var(--blue-50)'],['جوجه‌کباب','۱٬۱۵۰٬۰۰۰',food,'var(--blue-50)'],['چلو خورشت قیمه','۹۸۰٬۰۰۰',food,'var(--blue-50)'],
+    ['ماهی کامل خلیج فارس','۲٬۴۰۰٬۰۰۰',sea,'var(--blue-50)'],['میگو سوخاری','۱٬۸۵۰٬۰۰۰',sea,'var(--blue-50)'],['قلیه میگو','۲٬۱۰۰٬۰۰۰',sea,'var(--blue-50)'],
+    ['نوشابه','۹۰٬۰۰۰',drink,'var(--gray-50)'],['دوغ','۹۰٬۰۰۰',drink,'var(--gray-50)'],['آب‌معدنی','۵۰٬۰۰۰',drink,'var(--gray-50)'],['چای','۷۰٬۰۰۰',hot,'var(--gold-50)'],['قهوه','۱۸۰٬۰۰۰',hot,'var(--gold-50)'],['نسکافه','۱۶۰٬۰۰۰',hot,'var(--gold-50)'],
+  ];
+  document.getElementById('mgrid').innerHTML = menu.map(m => `
+    <div class="mtile">
+      <div class="thumb" style="${bg(m[3])}">${m[2]}</div>
+      <div class="info"><div class="mn">${m[0]}</div><div class="mp">${m[1]} <span style="font-size:10px;font-weight:400;color:var(--text-muted)">ریال</span></div></div>
+    </div>`).join('');
+</script>
+</body>
+</html>

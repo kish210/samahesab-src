@@ -1,0 +1,130 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="مدیریت چک" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — مدیریت چک</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .chq-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .chq-stats .w { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+  .chq-stats .w:hover { border-color: var(--blue-300); }
+  .chq-stats .w.on { border-color: var(--blue-600); box-shadow: var(--ring-focus); }
+  .chq-stats .l { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .chq-stats .l i { width: 8px; height: 8px; border-radius: 99px; }
+  .chq-stats .v { font-size: 16px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; margin-top: 3px; }
+  .chq-stats .m { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+  .fltbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .due-soon td { background: #FBF4EA !important; }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Cheque Management">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M12 11v6M9 14h6"/></svg>چک جدید<span class="fk">F2</span></button>
+        <span class="sep"></span>
+        <button class="tbtn confirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>وصول</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M15 6l6 6-6 6"/></svg>واگذاری به بانک</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>در جریان وصول</button>
+        <button class="tbtn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>برگشت چک</button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>چاپ<span class="fk">F8</span></button>
+        <div class="end">
+          <span style="font-size:11.5px;color:var(--text-muted)">سررسید هفته جاری: <b style="color:var(--warning-700)">۳ فقره · ۸۳م ریال</b></span>
+        </div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <!-- آمار وضعیت -->
+        <div class="chq-stats">
+          <div class="w on"><div class="l"><i style="background:var(--blue-600)"></i>همه چک‌ها</div><div class="v">۱۸ فقره</div><div class="m">۳۲۸٬۵۰۰٬۰۰۰ ریال</div></div>
+          <div class="w"><div class="l"><i style="background:var(--warning-500)"></i>در جریان وصول</div><div class="v">۵ فقره</div><div class="m">۱۲۴٬۰۰۰٬۰۰۰ ریال</div></div>
+          <div class="w"><div class="l"><i style="background:var(--blue-400)"></i>نزد صندوق</div><div class="v">۶ فقره</div><div class="m">۹۸٬۵۰۰٬۰۰۰ ریال</div></div>
+          <div class="w"><div class="l"><i style="background:var(--success-500)"></i>وصول‌شده (ماه)</div><div class="v">۶ فقره</div><div class="m">۹۵٬۰۰۰٬۰۰۰ ریال</div></div>
+          <div class="w"><div class="l"><i style="background:var(--danger-500)"></i>برگشتی</div><div class="v">۱ فقره</div><div class="m">۱۱٬۰۰۰٬۰۰۰ ریال</div></div>
+        </div>
+
+        <!-- فیلتر -->
+        <div class="fltbar">
+          <div class="chip active">دریافتنی</div>
+          <div class="chip">پرداختنی</div>
+          <span style="width:1px;height:20px;background:var(--border)"></span>
+          <select class="select-c" style="width:150px"><option>همه بانک‌ها</option><option>ملت</option><option>صادرات</option><option>ملی</option></select>
+          <input class="input-c num" style="width:130px" placeholder="از تاریخ" value="1405/01/01" />
+          <input class="input-c num" style="width:130px" placeholder="تا تاریخ" value="1405/06/31" />
+          <div class="input-group" style="width:240px"><input class="input-c" placeholder="جستجوی شماره چک / صادرکننده…" /></div>
+          <div class="spacer" style="flex:1"></div>
+          <span style="font-size:11.5px;color:var(--text-muted)">۱۸ نتیجه</span>
+        </div>
+
+        <!-- گرید چک‌ها -->
+        <div class="dgrid-wrap" style="flex:1">
+          <table class="dgrid">
+            <thead>
+              <tr>
+                <th style="width:36px" class="c">#</th>
+                <th style="width:95px">شماره چک</th>
+                <th style="width:90px">بانک</th>
+                <th>صادرکننده / در وجه</th>
+                <th style="width:85px">سررسید</th>
+                <th style="width:60px" class="c">مانده تا سررسید</th>
+                <th style="width:125px" class="num">مبلغ (ریال)</th>
+                <th style="width:95px" class="c">وضعیت</th>
+                <th style="width:95px">بابت</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr><td colspan="6">جمع چک‌های فیلترشده</td><td class="num">۳۲۸٬۵۰۰٬۰۰۰</td><td colspan="2"></td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'treasury',
+    menu: 'خزانه‌داری',
+    tabs: [['میز کار','workspace.html'],['مدیریت چک','cheques.html',true],['حساب‌های بانکی','#']],
+    status: { form: 'مدیریت چک', extra: '۱۸ فقره فعال' }
+  });
+  // [num, bank, issuer, due, daysLeft, amount, stCls, stLb, ref, dueSoon]
+  const rows = [
+    ['۴۵۶۱۲۳','ملت','بازرگانی پارس خودرو','۱۴۰۵/۰۳/۱۸','۳ روز','۴۵٬۰۰۰٬۰۰۰','a','در جریان','F000052',1],
+    ['۷۸۹۴۵۲','صادرات','شرکت آلفا تجارت','۱۴۰۵/۰۳/۲۰','۵ روز','۲۸٬۰۰۰٬۰۰۰','a','در جریان','F000051',1],
+    ['۱۲۳۸۸۷','ملی','رستوران دریا','۱۴۰۵/۰۳/۲۱','۶ روز','۱۰٬۰۰۰٬۰۰۰','b','نزد صندوق','F000049',1],
+    ['۵۵۴۲۱۹','تجارت','علی احمدی','۱۴۰۵/۰۴/۰۵','۲۱ روز','۱۸٬۵۰۰٬۰۰۰','b','نزد صندوق','F000047',0],
+    ['۹۹۱۲۳۴','ملت','فروشگاه کیش رتیل','۱۴۰۵/۰۴/۱۰','۲۶ روز','۳۲٬۰۰۰٬۰۰۰','a','واگذار به بانک','F000045',0],
+    ['۶۶۲۸۴۱','پاسارگاد','بازرگانی پارس خودرو','۱۴۰۵/۰۴/۱۵','۳۱ روز','۴۰٬۰۰۰٬۰۰۰','b','نزد صندوق','F000044',0],
+    ['۳۳۷۲۹۰','صادرات','حمل و نقل آریا','۱۴۰۵/۰۲/۲۸','—','۱۱٬۰۰۰٬۰۰۰','r','برگشتی','F000038',0],
+    ['۸۸۱۰۴۵','ملی','شرکت آلفا تجارت','۱۴۰۵/۰۲/۲۵','—','۲۵٬۰۰۰٬۰۰۰','g','وصول شد','F000036',0],
+    ['۲۱۴۸۶۳','ملت','علی احمدی','۱۴۰۵/۰۲/۲۰','—','۱۵٬۰۰۰٬۰۰۰','g','وصول شد','F000033',0],
+  ];
+  document.getElementById('rows').innerHTML = rows.map((r,i)=>`
+    <tr class="${i===0?'sel':''} ${r[9]?'due-soon':''}">
+      <td class="c mut">${i+1}</td>
+      <td class="num strong">${r[0]}</td>
+      <td>${r[1]}</td>
+      <td class="strong">${r[2]}</td>
+      <td class="num mut">${r[3]}</td>
+      <td class="c ${r[9]?'strong':'mut'}" style="${r[9]?'color:var(--warning-700)':''}">${r[4]}</td>
+      <td class="num strong">${r[5]}</td>
+      <td class="c"><span class="st ${r[6]}"><i></i>${r[7]}</span></td>
+      <td class="num mut">${r[8]}</td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

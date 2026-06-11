@@ -1,0 +1,150 @@
+/* ============================================================
+   SamaHesab — ERP Shell (dense, operational)
+   سبک: سپیدار / SAP Business One / Dynamics BC — نه SaaS
+   چیدمان: سایدبار ۶۰px (هاور→۲۲۰px) + تاپ‌بار ۵۶px +
+   تب اسناد باز + تولبار + محتوا + نوار وضعیت
+   ============================================================ */
+
+html, body { height: 100%; overflow: hidden; }
+body { font-size: 13px; line-height: 19px; }
+
+.erp { display: flex; flex-direction: column; height: 100vh; }
+
+/* ---------- TOP BAR (56px) ---------- */
+.erp-top { height: var(--topbar-h); flex: none; background: var(--blue-700); display: flex; align-items: center; padding: 0 12px; gap: 14px; color: #fff; }
+.erp-top .brand { display: flex; align-items: center; gap: 9px; padding-inline-end: 6px; }
+.erp-top .brand .mark { width: 30px; height: 30px; border-radius: 7px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.erp-top .brand .nm { font-size: 14px; font-weight: 700; }
+.erp-top .brand .ver { font-size: 10px; color: var(--blue-200); }
+.erp-menu { display: flex; align-items: center; gap: 2px; }
+.erp-menu > button { background: transparent; border: none; color: rgba(255,255,255,.85); font-family: var(--font-sans); font-size: 13px; font-weight: 500; padding: 7px 11px; border-radius: 6px; cursor: pointer; }
+.erp-menu > button:hover { background: rgba(255,255,255,.10); color: #fff; }
+.erp-menu > button.active { background: rgba(255,255,255,.16); color: #fff; }
+.erp-top .search { margin-inline-start: auto; width: 300px; max-width: 30%; position: relative; }
+.erp-top .search input { width: 100%; height: 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.10); color: #fff; font-family: var(--font-sans); font-size: 12.5px; padding: 0 34px 0 12px; }
+.erp-top .search input::placeholder { color: rgba(255,255,255,.55); }
+.erp-top .search input:focus { outline: none; background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.35); }
+.erp-top .search svg { position: absolute; inset-inline-start: 10px; top: 8px; width: 16px; height: 16px; color: rgba(255,255,255,.6); }
+.erp-top .tb-ic { width: 34px; height: 34px; border-radius: 6px; border: none; background: transparent; color: rgba(255,255,255,.8); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+.erp-top .tb-ic:hover { background: rgba(255,255,255,.10); color: #fff; }
+.erp-top .tb-ic svg { width: 18px; height: 18px; }
+.erp-top .tb-ic .ping { position: absolute; top: 6px; inset-inline-end: 6px; width: 7px; height: 7px; border-radius: 999px; background: var(--gold-400); border: 1.5px solid var(--blue-700); }
+.erp-top .user { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+.erp-top .user:hover { background: rgba(255,255,255,.10); }
+.erp-top .user .av { width: 28px; height: 28px; border-radius: 999px; background: var(--gold-500); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.erp-top .user .un { font-size: 12px; font-weight: 600; line-height: 1.2; }
+.erp-top .user .ur { font-size: 10px; color: var(--blue-200); line-height: 1.2; }
+
+/* ---------- BODY ROW ---------- */
+.erp-body { flex: 1; display: flex; min-height: 0; }
+
+/* ---------- SIDEBAR (60 → 220 on hover) ---------- */
+.erp-side { width: var(--sidebar-w-collapsed); flex: none; background: var(--blue-900); display: flex; flex-direction: column; transition: width 160ms var(--ease); overflow: hidden; z-index: 30; }
+.erp-side:hover { width: var(--sidebar-w); box-shadow: 8px 0 24px rgba(27,40,67,.25); }
+[dir="rtl"] .erp-side:hover { box-shadow: -8px 0 24px rgba(27,40,67,.25); }
+.erp-side .nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 10px; }
+.erp-side .ni { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 10px; border-radius: 7px; color: rgba(255,255,255,.72); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; margin-bottom: 2px; position: relative; text-decoration: none; }
+.erp-side .ni:hover { background: rgba(255,255,255,.08); color: #fff; text-decoration: none; }
+.erp-side .ni.active { background: rgba(255,255,255,.13); color: #fff; }
+.erp-side .ni.active::before { content: ""; position: absolute; inset-inline-start: -10px; top: 8px; bottom: 8px; width: 3px; border-radius: 99px; background: var(--gold-400); }
+.erp-side .ni svg { width: 20px; height: 20px; flex: none; }
+.erp-side .ni .lb { opacity: 0; transition: opacity 120ms; }
+.erp-side:hover .ni .lb { opacity: 1; }
+.erp-side .sep { height: 1px; background: rgba(255,255,255,.08); margin: 8px 4px; }
+
+/* ---------- MAIN COLUMN ---------- */
+.erp-main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+/* ---------- MDI TABSTRIP (اسناد باز) ---------- */
+.erp-tabs { height: var(--tabstrip-h); flex: none; background: var(--gray-150); border-bottom: 1px solid var(--border-strong); display: flex; align-items: flex-end; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.erp-tabs .dt { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 6px 6px 0 0; font-size: 12px; font-weight: 500; color: var(--text-muted); background: transparent; border: 1px solid transparent; border-bottom: none; cursor: pointer; white-space: nowrap; }
+.erp-tabs .dt:hover { background: rgba(255,255,255,.6); color: var(--text-body); }
+.erp-tabs .dt.on { background: var(--bg-app); border-color: var(--border-strong); color: var(--blue-700); font-weight: 600; margin-bottom: -1px; padding-bottom: 1px; }
+.erp-tabs .dt .x { width: 16px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 13px; line-height: 1; }
+.erp-tabs .dt .x:hover { background: var(--gray-200); color: var(--text-body); }
+.erp-tabs .add { width: 26px; height: 26px; margin-bottom: 2px; border: none; border-radius: 6px; background: transparent; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+.erp-tabs .add:hover { background: rgba(255,255,255,.7); }
+
+/* ---------- TOOLBAR ---------- */
+.erp-toolbar { height: var(--toolbar-h); flex: none; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 10px; gap: 2px; overflow-x: auto; }
+.erp-toolbar .tbtn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border: none; border-radius: 6px; background: transparent; color: var(--text-body); font-family: var(--font-sans); font-size: 12.5px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.erp-toolbar .tbtn:hover { background: var(--bg-hover); }
+.erp-toolbar .tbtn svg { width: 17px; height: 17px; }
+.erp-toolbar .tbtn .fk { font-size: 10px; color: var(--text-muted); background: var(--gray-100); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; line-height: 15px; }
+.erp-toolbar .tbtn.primary { color: var(--blue-700); }
+.erp-toolbar .tbtn.primary svg { color: var(--blue-600); }
+.erp-toolbar .tbtn.confirm { color: var(--success-700); }
+.erp-toolbar .tbtn.confirm svg { color: var(--success-500); }
+.erp-toolbar .tbtn.danger { color: var(--danger-700); }
+.erp-toolbar .tbtn.danger svg { color: var(--danger-500); }
+.erp-toolbar .sep { width: 1px; height: 22px; background: var(--border); margin: 0 6px; flex: none; }
+.erp-toolbar .end { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ---------- CONTENT ---------- */
+.erp-content { flex: 1; overflow: auto; min-height: 0; padding: 10px; }
+.erp-content.no-pad { padding: 0; }
+
+/* ---------- STATUS BAR ---------- */
+.erp-status { height: var(--statusbar-h); flex: none; background: var(--blue-700); color: rgba(255,255,255,.85); display: flex; align-items: center; padding: 0 12px; gap: 0; font-size: 11px; }
+.erp-status .si { display: flex; align-items: center; gap: 6px; padding: 0 11px; border-inline-start: 1px solid rgba(255,255,255,.14); height: 16px; }
+.erp-status .si:first-child { border-inline-start: none; padding-inline-start: 0; }
+.erp-status .si b { font-weight: 600; color: #fff; }
+.erp-status .ok-dot { width: 7px; height: 7px; border-radius: 99px; background: #6FCF97; }
+.erp-status .grow { flex: 1; }
+
+/* ============================================================
+   DENSE FORM + GRID PRIMITIVES
+   ============================================================ */
+
+/* پنل/گروه‌باکس */
+.gbox { background: var(--white); border: 1px solid var(--border); border-radius: 8px; }
+.gbox .gh { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--gray-50); border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600; color: var(--blue-700); }
+.gbox .gh .tools { margin-inline-start: auto; display: flex; gap: 4px; }
+.gbox .gb { padding: 10px 12px; }
+
+/* فرم فشرده: لیبل کنار فیلد */
+.frow { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.frow > label { width: 86px; flex: none; font-size: 12px; color: var(--text-muted); text-align: start; }
+.frow > label .req { color: var(--danger-500); }
+.fgrid { display: grid; gap: 8px 18px; }
+.input-c, .select-c { height: var(--control-h); font-size: 12.5px; padding: 0 9px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; color: var(--text-strong); font-family: var(--font-sans); width: 100%; min-width: 0; }
+.input-c:focus, .select-c:focus { outline: none; border-color: var(--blue-600); box-shadow: var(--ring-focus); }
+.input-c:disabled { background: var(--gray-100); color: var(--text-muted); }
+.input-c.num { text-align: left; direction: ltr; font-variant-numeric: tabular-nums; }
+
+/* گرید فشرده با خطوط کامل (سبک ERP ایرانی) */
+.dgrid-wrap { background: #fff; border: 1px solid var(--border-strong); border-radius: 8px; overflow: auto; }
+table.dgrid { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.dgrid th, .dgrid td { border-inline-end: 1px solid var(--gray-150); }
+.dgrid th:last-child, .dgrid td:last-child { border-inline-end: none; }
+.dgrid thead th { height: 32px; padding: 0 9px; background: var(--gray-100); border-bottom: 1px solid var(--border-strong); font-size: 11.5px; font-weight: 600; color: var(--gray-600); text-align: start; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+.dgrid thead th .flt { color: var(--gray-400); font-size: 9px; margin-inline-start: 4px; }
+.dgrid tbody td { height: var(--row-h); padding: 0 9px; border-bottom: 1px solid var(--gray-100); color: var(--text-body); white-space: nowrap; }
+.dgrid tbody tr:hover td { background: var(--blue-50); }
+.dgrid tbody tr.sel td { background: var(--blue-100); box-shadow: inset 0 -1px 0 var(--blue-200); }
+.dgrid tbody tr:nth-child(even) td { background: var(--gray-50); }
+.dgrid tbody tr:nth-child(even):hover td { background: var(--blue-50); }
+.dgrid tbody tr.sel:nth-child(even) td { background: var(--blue-100); }
+.dgrid .num { text-align: end; direction: ltr; }
+.dgrid .c { text-align: center; }
+.dgrid .strong { color: var(--text-strong); font-weight: 600; }
+.dgrid .mut { color: var(--text-muted); }
+.dgrid tfoot td { height: 32px; padding: 0 9px; background: var(--gray-100); border-top: 2px solid var(--border-strong); font-weight: 700; color: var(--text-strong); }
+
+/* بج وضعیت ریز */
+.st { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.st i { width: 6px; height: 6px; border-radius: 99px; background: currentColor; }
+.st.g { background: var(--success-50); color: var(--success-700); }
+.st.a { background: var(--warning-50); color: var(--warning-700); }
+.st.r { background: var(--danger-50); color: var(--danger-700); }
+.st.b { background: var(--blue-50); color: var(--blue-700); }
+.st.n { background: var(--gray-150); color: var(--gray-600); }
+
+/* نوار جمع/تراز پایین فرم */
+.sumbar { display: flex; align-items: center; gap: 18px; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; }
+.sumbar.ok { background: var(--success-50); border: 1px solid #BFDDC9; color: var(--success-700); }
+.sumbar.bad { background: var(--danger-50); border: 1px solid #E8C5C3; color: var(--danger-700); }
+.sumbar .s { display: flex; align-items: baseline; gap: 6px; }
+.sumbar .s .l { font-size: 11px; opacity: .75; }
+.sumbar .s .v { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.sumbar .grow { flex: 1; }

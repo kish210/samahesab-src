@@ -1,0 +1,56 @@
+<!-- @dsCard group="Spacing" viewport="900x640" name="Spacing, Radius & Elevation" subtitle="4px grid · soft premium elevation" -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SamaHesab — Spacing</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { padding: 32px; background: var(--white); }
+  .wrap { max-width: 840px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-600); margin-bottom: 6px; }
+  h1 { font-size: 27px; margin-bottom: 4px; }
+  .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin: 0 0 12px; }
+  .group { margin-bottom: 30px; }
+  .space-row { display: flex; align-items: center; gap: 16px; padding: 5px 0; }
+  .space-row .lab { width: 84px; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .space-row .bar { height: 16px; background: var(--blue-300); border-radius: 3px; }
+  .radii { display: flex; gap: 18px; flex-wrap: wrap; }
+  .radii .r { text-align: center; }
+  .radii .r .box { width: 84px; height: 64px; background: var(--blue-50); border: 1.5px solid var(--blue-300); }
+  .radii .r .lab { font-size: 11px; color: var(--text-muted); margin-top: 7px; }
+  .elev { display: flex; gap: 20px; flex-wrap: wrap; }
+  .elev .e { width: 150px; height: 92px; background: #fff; border-radius: var(--radius-lg); display: flex; align-items: flex-end; padding: 12px; font-size: 11px; color: var(--text-muted); border: 1px solid var(--gray-100); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">SamaHesab Brand</div>
+  <h1>Spacing, Radius &amp; Elevation</h1>
+  <p class="sub">A strict 4px grid keeps dense ERP screens aligned. Elevation is soft and low-spread — premium, never heavy.</p>
+
+  <div class="group">
+    <h2>Spacing scale (4px base)</h2>
+    <div id="spaces"></div>
+  </div>
+  <div class="group">
+    <h2>Corner radius</h2>
+    <div class="radii" id="radii"></div>
+  </div>
+  <div class="group">
+    <h2>Elevation</h2>
+    <div class="elev" id="elev"></div>
+  </div>
+</div>
+<script>
+  const spaces = [['space-1',4],['space-2',8],['space-3',12],['space-4',16],['space-5',20],['space-6',24],['space-8',32],['space-10',40],['space-12',48],['space-16',64]];
+  document.getElementById('spaces').innerHTML = spaces.map(([n,px])=>`<div class="space-row"><span class="lab">${n.replace('space-','')} · ${px}px</span><div class="bar" style="width:${px}px"></div></div>`).join('');
+  const radii = [['xs','--radius-xs'],['sm','--radius-sm'],['md','--radius-md'],['lg','--radius-lg'],['xl','--radius-xl']];
+  document.getElementById('radii').innerHTML = radii.map(([n,v])=>`<div class="r"><div class="box" style="border-radius:var(${v})"></div><div class="lab">${n}</div></div>`).join('');
+  const elev = [['xs','--shadow-xs'],['sm','--shadow-sm'],['md','--shadow-md'],['lg','--shadow-lg'],['xl','--shadow-xl']];
+  document.getElementById('elev').innerHTML = elev.map(([n,v])=>`<div class="e" style="box-shadow:var(${v})">shadow-${n}</div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="فاکتور فروش" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!-- @startingPoint section="ERP Screens" subtitle="فاکتور فروش" viewport="1280x720" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — فاکتور فروش</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .inv-head { display: grid; grid-template-columns: 110px 130px 1.6fr 1fr 1fr 130px; gap: 8px 10px; }
+  .inv-head label { font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+  .cust-info { display: flex; gap: 16px; align-items: center; font-size: 11.5px; color: var(--text-muted); padding-top: 6px; }
+  .cust-info b { color: var(--text-strong); font-variant-numeric: tabular-nums; }
+  .cust-info .warn { color: var(--danger-500); font-weight: 600; }
+  .inv-layout { display: flex; gap: 10px; flex: 1; min-height: 0; }
+  .inv-left { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .inv-side { width: 270px; flex: none; display: flex; flex-direction: column; gap: 10px; }
+  .pay-sum { background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .pay-sum .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; font-size: 12.5px; border-bottom: 1px solid var(--gray-100); }
+  .pay-sum .row .v { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-strong); direction: ltr; }
+  .pay-sum .total { background: var(--blue-700); color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .pay-sum .total .l { font-size: 12px; opacity: .85; }
+  .pay-sum .total .v { font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
+  .pay-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .pay-btns .pb { height: 44px; border-radius: 7px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; color: var(--text-body); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .pay-btns .pb:hover { border-color: var(--blue-400); background: var(--blue-50); }
+  .pay-btns .pb svg { width: 17px; height: 17px; color: var(--blue-600); }
+  .pay-btns .pb.main { grid-column: 1 / -1; background: var(--success-500); border-color: var(--success-500); color: #fff; height: 48px; font-size: 14px; }
+  .pay-btns .pb.main svg { color: #fff; }
+  .pay-btns .pb.main:hover { background: var(--success-700); }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Sales Invoice">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M12 11v6M9 14h6"/></svg>جدید<span class="fk">F2</span></button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>ذخیره<span class="fk">F7</span></button>
+        <button class="tbtn confirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>قطعی + سند<span class="fk">F9</span></button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>چاپ<span class="fk">F8</span></button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>پیش‌فاکتور</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v3"/></svg>برگشت از فروش</button>
+        <div class="end">
+          <span class="st a"><i></i>پیش‌نویس</span>
+          <span style="font-size:11.5px;color:var(--text-muted)">فاکتور <b style="color:var(--text-strong)">F000055</b></span>
+        </div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <!-- هدر فاکتور -->
+        <div class="gbox">
+          <div class="gh">مشخصات فاکتور</div>
+          <div class="gb">
+            <div class="inv-head">
+              <div><label>شماره</label><input class="input-c num" value="F000055" disabled /></div>
+              <div><label>تاریخ <span style="color:var(--danger-500)">*</span></label><input class="input-c num" value="1405/03/15" /></div>
+              <div><label>مشتری <span style="color:var(--danger-500)">*</span></label><input class="input-c" value="بازرگانی پارس خودرو — ۲۰۰۱۲" /></div>
+              <div><label>انبار</label><select class="select-c"><option>انبار مرکزی</option><option>انبار فروشگاه</option></select></div>
+              <div><label>نوع فروش</label><select class="select-c"><option>عمده</option><option>خرده</option><option>همکار</option></select></div>
+              <div><label>تسویه</label><select class="select-c"><option>نسیه ۳۰ روزه</option><option>نقدی</option><option>چک</option></select></div>
+            </div>
+            <div class="cust-info">
+              <span>مانده حساب: <b class="warn">۷۸٬۰۰۰٬۰۰۰ بد</b></span>
+              <span>سقف اعتبار: <b>۱۲۰٬۰۰۰٬۰۰۰</b></span>
+              <span>آخرین خرید: <b>۱۴۰۵/۰۳/۱۳</b></span>
+              <span>ویزیتور: <b>حسین کریمی</b></span>
+              <a href="customer-card.html" style="font-size:11.5px">کارت مشتری ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="inv-layout">
+          <div class="inv-left">
+            <!-- ردیف ورود کالا -->
+            <div class="entry-strip" style="display:grid;grid-template-columns:110px 1.8fr 90px 120px 90px 120px 70px;gap:8px;align-items:end;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:8px;padding:8px 10px">
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">بارکد / کد</label><input class="input-c num" placeholder="اسکن کنید…" /></div>
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">نام کالا</label><input class="input-c" value="روغن موتور ۵ لیتری بهران" /></div>
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">تعداد</label><input class="input-c num" value="5" /></div>
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">فی (عمده)</label><input class="input-c num" value="980,000" /></div>
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">تخفیف ٪</label><input class="input-c num" value="2" /></div>
+              <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">جمع ردیف</label><input class="input-c num" value="4,802,000" disabled /></div>
+              <button class="btn btn-primary" style="height:32px;font-size:12px">افزودن ⏎</button>
+            </div>
+
+            <!-- گرید اقلام -->
+            <div class="dgrid-wrap" style="flex:1">
+              <table class="dgrid">
+                <thead>
+                  <tr>
+                    <th style="width:36px" class="c">#</th>
+                    <th style="width:70px">کد</th>
+                    <th>نام کالا</th>
+                    <th style="width:64px" class="num">تعداد</th>
+                    <th style="width:60px" class="c">واحد</th>
+                    <th style="width:110px" class="num">فی</th>
+                    <th style="width:80px" class="num">تخفیف</th>
+                    <th style="width:90px" class="num">مالیات ۹٪</th>
+                    <th style="width:120px" class="num">جمع ردیف</th>
+                    <th style="width:36px"></th>
+                  </tr>
+                </thead>
+                <tbody id="items"></tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3">جمع — ۴ قلم</td>
+                    <td class="num">۱۸</td><td></td><td></td>
+                    <td class="num">۳۸۶٬۰۰۰</td>
+                    <td class="num">۱٬۲۸۹٬۷۰۰</td>
+                    <td class="num">۱۵٬۶۱۹٬۷۰۰</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- پنل تسویه -->
+          <div class="inv-side">
+            <div class="pay-sum">
+              <div class="row"><span>جمع اقلام</span><span class="v">۱۴٬۷۱۶٬۰۰۰</span></div>
+              <div class="row"><span>تخفیف سطری</span><span class="v" style="color:var(--danger-500)">−۳۸۶٬۰۰۰</span></div>
+              <div class="row"><span>تخفیف کلی</span><span class="v"><input class="input-c num" value="0" style="width:90px;height:26px;font-size:12px" /></span></div>
+              <div class="row"><span>مالیات بر ارزش افزوده ۹٪</span><span class="v">۱٬۲۸۹٬۷۰۰</span></div>
+              <div class="row"><span>هزینه حمل</span><span class="v"><input class="input-c num" value="0" style="width:90px;height:26px;font-size:12px" /></span></div>
+              <div class="total"><span class="l">مبلغ قابل پرداخت</span><span class="v">۱۵٬۶۱۹٬۷۰۰</span></div>
+            </div>
+            <div class="pay-btns">
+              <button class="pb main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>ثبت نهایی فاکتور — F9</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>دریافت نقد</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/></svg>کارت‌خوان</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M6 9h6M6 12.5h4"/><path d="m14 13.5 2 2 4-4"/></svg>دریافت چک</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>نسیه (در حساب)</button>
+            </div>
+            <div class="gbox">
+              <div class="gh">توضیحات فاکتور</div>
+              <div class="gb"><textarea class="input-c" style="height:60px;padding:7px 9px;resize:none" placeholder="یادداشت داخلی…"></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'sales',
+    menu: 'فروش',
+    tabs: [['میز کار','workspace.html'],['فاکتور فروش F000055','sales-invoice.html',true],['ثبت سند ۱۴۰۵۸۳','voucher.html']],
+    status: { form: 'فاکتور فروش', extra: 'F000055 · پیش‌نویس' }
+  });
+
+  const items = [
+    [1,'K1001','روغن موتور ۵ لیتری بهران','۵','عدد','۹۸۰٬۰۰۰','۹۸٬۰۰۰','۴۳۲٬۱۸۰','۵٬۲۳۴٬۱۸۰'],
+    [2,'K1004','باتری ۶۰ آمپر سپاهان','۲','عدد','۲٬۶۰۰٬۰۰۰','۱۰۴٬۰۰۰','۴۵۸٬۶۴۰','۵٬۵۵۴٬۶۴۰'],
+    [3,'K1002','فیلتر روغن پراید','۱۰','عدد','۶۰٬۰۰۰','۱۲٬۰۰۰','۵۲٬۹۲۰','۶۴۰٬۹۲۰'],
+    [4,'K1005','شمع موتور NGK','۱','جعبه','۴۹۰٬۰۰۰','۱۷۲٬۰۰۰','۳۴۵٬۹۶۰','۴٬۱۸۹٬۹۶۰'],
+  ];
+  document.getElementById('items').innerHTML = items.map((r,i)=>`
+    <tr class="${i===0?'sel':''}">
+      <td class="c mut">${r[0]}</td><td class="num mut">${r[1]}</td>
+      <td class="strong">${r[2]}</td>
+      <td class="num">${r[3]}</td><td class="c mut">${r[4]}</td>
+      <td class="num">${r[5]}</td><td class="num" style="color:var(--danger-500)">${r[6]}</td>
+      <td class="num mut">${r[7]}</td><td class="num strong">${r[8]}</td>
+      <td class="c"><span style="color:var(--gray-400);cursor:pointer">✕</span></td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

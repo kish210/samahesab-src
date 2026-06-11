@@ -1,0 +1,126 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="انتقال بین انبار" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — انتقال بین انبار</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .tr-head { display: grid; grid-template-columns: 110px 130px 1fr 1fr 1.4fr; gap: 8px 10px; }
+  .tr-head label { font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+  .wh-flow { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 8px; }
+  .wh-flow .wh { flex: 1; background: #fff; border: 1px solid var(--border-strong); border-radius: 7px; padding: 9px 12px; }
+  .wh-flow .wh .l { font-size: 10.5px; color: var(--text-muted); }
+  .wh-flow .wh .n { font-size: 13px; font-weight: 700; color: var(--text-strong); margin-top: 1px; }
+  .wh-flow .wh .m { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .wh-flow .arr { color: var(--blue-600); flex: none; }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Inventory Transfer">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M12 11v6M9 14h6"/></svg>جدید<span class="fk">F2</span></button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>ذخیره<span class="fk">F7</span></button>
+        <button class="tbtn confirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>تأیید انتقال<span class="fk">F9</span></button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>چاپ حواله<span class="fk">F8</span></button>
+        <div class="end"><span class="st a"><i></i>در انتظار تأیید</span><span style="font-size:11.5px;color:var(--text-muted)">حواله <b style="color:var(--text-strong)">TR-00041</b></span></div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <div class="gbox">
+          <div class="gh">مشخصات حواله انتقال</div>
+          <div class="gb" style="display:flex;flex-direction:column;gap:10px">
+            <div class="tr-head">
+              <div><label>شماره حواله</label><input class="input-c num" value="TR-00041" disabled /></div>
+              <div><label>تاریخ <span style="color:var(--danger-500)">*</span></label><input class="input-c num" value="1405/03/15" /></div>
+              <div><label>تحویل‌دهنده</label><select class="select-c"><option>مهدی رضایی — انباردار مرکزی</option></select></div>
+              <div><label>تحویل‌گیرنده</label><select class="select-c"><option>سعید نوری — انباردار فروشگاه</option></select></div>
+              <div><label>شرح</label><input class="input-c" value="شارژ موجودی فروشگاه برای آخر هفته" /></div>
+            </div>
+            <div class="wh-flow">
+              <div class="wh"><div class="l">انبار مبدأ</div><div class="n">انبار مرکزی</div><div class="m">۲۷ قلم · ارزش ۸۴۲٫۵م ریال</div></div>
+              <svg class="arr" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+              <div class="wh"><div class="l">انبار مقصد</div><div class="n">انبار فروشگاه</div><div class="m">۱۸ قلم · ارزش ۲۱۰٫۳م ریال</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ردیف ورود -->
+        <div style="display:grid;grid-template-columns:110px 1.8fr 110px 90px 110px 70px;gap:8px;align-items:end;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:8px;padding:8px 10px">
+          <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">بارکد / کد</label><input class="input-c num" placeholder="اسکن کنید…" /></div>
+          <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">نام کالا</label><input class="input-c" value="لنت ترمز جلو پژو ۲۰۶" /></div>
+          <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">موجودی مبدأ</label><input class="input-c num" value="6" disabled /></div>
+          <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">تعداد انتقال</label><input class="input-c num" value="3" /></div>
+          <div><label style="font-size:11px;color:var(--blue-700);display:block;margin-bottom:3px;font-weight:600">سریال / بچ</label><input class="input-c" placeholder="—" /></div>
+          <button class="btn btn-primary" style="height:32px;font-size:12px">افزودن ⏎</button>
+        </div>
+
+        <div class="dgrid-wrap" style="flex:1">
+          <table class="dgrid">
+            <thead>
+              <tr>
+                <th style="width:36px" class="c">#</th>
+                <th style="width:70px">کد</th>
+                <th>نام کالا</th>
+                <th style="width:64px" class="c">واحد</th>
+                <th style="width:100px" class="num">موجودی مبدأ</th>
+                <th style="width:100px" class="num">تعداد انتقال</th>
+                <th style="width:110px" class="num">مانده پس از انتقال</th>
+                <th style="width:120px" class="num">ارزش (ریال)</th>
+                <th style="width:36px"></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr><td colspan="5">جمع — ۳ قلم</td><td class="num">۱۳</td><td></td><td class="num">۵٬۲۹۵٬۰۰۰</td><td></td></tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="sumbar ok">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <b>موجودی همه اقلام کافی است</b>
+          <div class="grow"></div>
+          <div class="s"><span class="l">اقلام</span><span class="v">۳</span></div>
+          <div class="s"><span class="l">تعداد کل</span><span class="v">۱۳</span></div>
+          <div class="s"><span class="l">ارزش انتقال</span><span class="v">۵٬۲۹۵٬۰۰۰</span></div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'inventory',
+    menu: 'انبار',
+    tabs: [['میز کار','workspace.html'],['کاردکس کالا','#'],['انتقال بین انبار TR-00041','inventory-transfer.html',true]],
+    status: { form: 'انتقال بین انبار', extra: 'TR-00041 · در انتظار تأیید' }
+  });
+  const rows = [
+    [1,'K1007','لنت ترمز جلو پژو ۲۰۶','عدد','۶','۳','۳','۶۳۰٬۰۰۰'],
+    [2,'K1002','فیلتر روغن پراید','عدد','۳۴','۸','۲۶','۳۶۰٬۰۰۰'],
+    [3,'K1003','لاستیک ۱۷۵/۷۰R13 بارز','حلقه','۸','۲','۶','۴٬۳۰۵٬۰۰۰'],
+  ];
+  document.getElementById('rows').innerHTML = rows.map((r,i)=>`
+    <tr class="${i===0?'sel':''}">
+      <td class="c mut">${r[0]}</td><td class="num mut">${r[1]}</td>
+      <td class="strong">${r[2]}</td><td class="c mut">${r[3]}</td>
+      <td class="num">${r[4]}</td><td class="num strong">${r[5]}</td>
+      <td class="num">${r[6]}</td><td class="num">${r[7]}</td>
+      <td class="c"><span style="color:var(--gray-400);cursor:pointer">✕</span></td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

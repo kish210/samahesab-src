@@ -1,0 +1,79 @@
+<!-- @dsCard group="Colors" viewport="900x680" name="Color System" subtitle="Logo-derived palette — 80% neutral / 15% brand / 5% status" -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SamaHesab — Colors</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { padding: 32px; background: var(--white); }
+  .wrap { max-width: 840px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-600); margin-bottom: 6px; }
+  h1 { font-size: 27px; margin-bottom: 4px; }
+  .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+  .group { margin-bottom: 26px; }
+  .group h2 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+  .scale { display: grid; grid-template-columns: repeat(10, 1fr); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+  .scale.short { grid-template-columns: repeat(8, 1fr); }
+  .sw { height: 64px; display: flex; flex-direction: column; justify-content: flex-end; padding: 7px 8px; }
+  .sw .n { font-size: 10px; font-weight: 600; }
+  .sw .h { font-size: 9px; opacity: .85; font-variant-numeric: tabular-nums; }
+  .lite { color: var(--gray-800); }
+  .dark { color: rgba(255,255,255,.95); }
+  .role { display: flex; gap: 12px; flex-wrap: wrap; }
+  .rolecard { flex: 1; min-width: 150px; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .rolecard .bar { height: 48px; }
+  .rolecard .meta { padding: 8px 10px; }
+  .rolecard .meta .t { font-size: 12px; font-weight: 600; color: var(--text-strong); }
+  .rolecard .meta .d { font-size: 11px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">SamaHesab Brand</div>
+  <h1>Color System</h1>
+  <p class="sub">Sampled from the SamaHesab logo. Used sparingly: most surfaces are neutral, brand blue carries identity and primary actions, gold is a rare premium accent.</p>
+
+  <div class="group">
+    <h2>Brand Blue — primary identity & actions</h2>
+    <div class="scale" id="blue"></div>
+  </div>
+  <div class="group">
+    <h2>Gold — accent (≈5%, never for large fills)</h2>
+    <div class="scale short" id="gold"></div>
+  </div>
+  <div class="group">
+    <h2>Neutral — surfaces, text, borders (≈80%)</h2>
+    <div class="scale" id="gray"></div>
+  </div>
+  <div class="group">
+    <h2>Status</h2>
+    <div class="role" id="status"></div>
+  </div>
+</div>
+<script>
+  const css = getComputedStyle(document.documentElement);
+  const v = n => css.getPropertyValue(n).trim();
+  function isDark(hex){ const c=hex.replace('#',''); const r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16); return (0.299*r+0.587*g+0.114*b) < 150; }
+  function scale(id, name, steps){
+    const el = document.getElementById(id);
+    el.innerHTML = steps.map(s => {
+      const hex = v(`--${name}-${s}`);
+      return `<div class="sw ${isDark(hex)?'dark':'lite'}" style="background:${hex}"><span class="n">${s}</span><span class="h">${hex}</span></div>`;
+    }).join('');
+  }
+  scale('blue','blue',[50,100,200,300,400,500,600,700,800,900]);
+  scale('gold','gold',[50,100,200,300,400,500,600,700]);
+  scale('gray','gray',[50,100,200,300,400,500,600,700,800,900]);
+  const status = [
+    ['Success','--success-500','Posted / In stock'],
+    ['Warning','--warning-500','Pending / Low stock'],
+    ['Danger','--danger-500','Overdue / Error'],
+    ['Info','--blue-600','Neutral notice'],
+  ];
+  document.getElementById('status').innerHTML = status.map(([t,c,d])=>`
+    <div class="rolecard"><div class="bar" style="background:${v(c)}"></div><div class="meta"><div class="t">${t}</div><div class="d">${d}</div></div></div>`).join('');
+</script>
+</body>
+</html>

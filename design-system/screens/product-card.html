@@ -1,0 +1,147 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="کارت کالا" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — کارت کالا</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .pc-form { display: grid; grid-template-columns: 100px 1fr; gap: 7px 9px; align-items: center; }
+  .pc-form label { font-size: 11.5px; color: var(--text-muted); }
+  .minitabs { display: flex; gap: 1px; background: var(--gray-150); border: 1px solid var(--border-strong); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
+  .minitabs button { flex: none; padding: 8px 16px; border: none; background: transparent; font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; }
+  .minitabs button.on { background: #fff; color: var(--blue-700); font-weight: 600; }
+  .stk { display: flex; gap: 10px; }
+  .stk .w { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .stk .w .l { font-size: 11px; color: var(--text-muted); }
+  .stk .w .v { font-size: 17px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .stk .w .m { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+  .stk .w.low { border-color: #E8C5C3; background: var(--danger-50); }
+  .stk .w.low .v { color: var(--danger-700); }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Product Card">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>ذخیره<span class="fk">F7</span></button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2.5" width="8" height="5" rx="1"/><rect x="4" y="7.5" width="16" height="13" rx="2"/><path d="M8 12h8M8 16h5"/></svg>کپی کالا</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 9l2.5-5h13L21 9"/><path d="M10 13h4"/></svg>کاردکس</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="16" rx="1"/><rect x="14" y="4" width="6" height="10" rx="1"/><path d="M7 8h.01M17 8h.01"/></svg>چاپ بارکد</button>
+        <span class="sep"></span>
+        <button class="tbtn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>غیرفعال</button>
+        <div class="end"><span class="st g"><i></i>فعال</span><span style="font-size:11.5px;color:var(--text-muted)">کد <b style="color:var(--text-strong)">K1001</b></span></div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <!-- موجودی انبارها -->
+        <div class="stk">
+          <div class="w"><div class="l">موجودی کل</div><div class="v">۱۲ عدد</div><div class="m">نقطه سفارش: ۵</div></div>
+          <div class="w"><div class="l">انبار مرکزی</div><div class="v">۹ عدد</div><div class="m">قفسه A-12</div></div>
+          <div class="w low"><div class="l">انبار فروشگاه</div><div class="v">۳ عدد</div><div class="m">زیر حد مطلوب (۵)</div></div>
+          <div class="w"><div class="l">میانگین بهای تمام‌شده</div><div class="v">۸۰۰٬۰۰۰</div><div class="m">روش: میانگین موزون</div></div>
+          <div class="w"><div class="l">فروش ۳۰ روز اخیر</div><div class="v">۲۳ عدد</div><div class="m">≈ روزی ۰٫۸ عدد</div></div>
+        </div>
+
+        <!-- سه ستون مشخصات -->
+        <div class="pc-grid">
+          <div class="gbox">
+            <div class="gh">مشخصات اصلی</div>
+            <div class="gb pc-form">
+              <label>کد کالا</label><input class="input-c num" value="K1001" disabled />
+              <label>نام کالا <span style="color:var(--danger-500)">*</span></label><input class="input-c" value="روغن موتور ۵ لیتری بهران" />
+              <label>گروه</label><select class="select-c"><option>روغن و فیلتر</option><option>قطعات خودرو</option></select>
+              <label>برند</label><input class="input-c" value="بهران" />
+              <label>واحد اصلی</label><select class="select-c"><option>عدد</option><option>جعبه</option><option>لیتر</option></select>
+              <label>بارکد</label><input class="input-c num" value="6260100100013" />
+            </div>
+          </div>
+          <div class="gbox">
+            <div class="gh">قیمت‌گذاری</div>
+            <div class="gb pc-form">
+              <label>قیمت خرید</label><input class="input-c num" value="800,000" />
+              <label>فروش خرده</label><input class="input-c num" value="1,050,000" />
+              <label>فروش عمده</label><input class="input-c num" value="980,000" />
+              <label>قیمت همکار</label><input class="input-c num" value="930,000" />
+              <label>٪ سود خرده</label><input class="input-c num" value="31.2" disabled />
+              <label>مشمول مالیات</label><select class="select-c"><option>بله — ۹٪</option><option>معاف</option></select>
+            </div>
+          </div>
+          <div class="gbox">
+            <div class="gh">انبار و کنترل</div>
+            <div class="gb pc-form">
+              <label>انبار پیش‌فرض</label><select class="select-c"><option>انبار مرکزی</option></select>
+              <label>نقطه سفارش</label><input class="input-c num" value="5" />
+              <label>حداکثر موجودی</label><input class="input-c num" value="40" />
+              <label>کنترل سریال</label><select class="select-c"><option>ندارد</option><option>سریال</option><option>بچ</option></select>
+              <label>تأمین‌کننده اصلی</label><input class="input-c" value="پخش قطعات بهران" />
+              <label>مدت تأمین</label><input class="input-c num" value="3 روز" />
+            </div>
+          </div>
+        </div>
+
+        <!-- کاردکس -->
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div class="minitabs">
+            <button class="on">کاردکس (گردش کالا)</button>
+            <button>تاریخچه قیمت</button>
+            <button>تأمین‌کنندگان</button>
+            <button>تصاویر</button>
+          </div>
+          <div class="dgrid-wrap" style="flex:1;border-radius:0 0 8px 8px;border-top:none">
+            <table class="dgrid">
+              <thead>
+                <tr>
+                  <th style="width:80px">تاریخ</th>
+                  <th style="width:95px">سند</th>
+                  <th>شرح</th>
+                  <th style="width:90px">انبار</th>
+                  <th style="width:70px" class="num">ورود</th>
+                  <th style="width:70px" class="num">خروج</th>
+                  <th style="width:70px" class="num">مانده</th>
+                  <th style="width:110px" class="num">فی</th>
+                </tr>
+              </thead>
+              <tbody id="kardex"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'inventory',
+    menu: 'انبار',
+    tabs: [['میز کار','workspace.html'],['لیست کالاها','products.html'],['کارت کالا — K1001','product-card.html',true]],
+    status: { form: 'کارت کالا', extra: 'K1001 · روغن موتور بهران' }
+  });
+  const kardex = [
+    ['۱۴۰۵/۰۳/۱۵','F000055','فروش به پارس خودرو','مرکزی','','۵','۱۲','۹۸۰٬۰۰۰'],
+    ['۱۴۰۵/۰۳/۱۲','TR-00040','انتقال به فروشگاه','مرکزی','','۳','۱۷','—'],
+    ['۱۴۰۵/۰۳/۱۰','PF000019','خرید از پخش بهران','مرکزی','۲۰','','۲۰','۸۰۰٬۰۰۰'],
+    ['۱۴۰۵/۰۳/۰۸','F000049','فروش خرده صندوق','فروشگاه','','۲','۰','۱٬۰۵۰٬۰۰۰'],
+    ['۱۴۰۵/۰۳/۰۲','ADJ-0007','تعدیل انبارگردانی','مرکزی','۱','','۲','—'],
+  ];
+  document.getElementById('kardex').innerHTML = kardex.map((r,i)=>`
+    <tr class="${i===0?'sel':''}">
+      <td class="num mut">${r[0]}</td><td class="num">${r[1]}</td><td>${r[2]}</td><td class="mut">${r[3]}</td>
+      <td class="num" style="color:var(--success-700)">${r[4]||'·'}</td>
+      <td class="num" style="color:var(--danger-500)">${r[5]||'·'}</td>
+      <td class="num strong">${r[6]}</td><td class="num mut">${r[7]}</td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

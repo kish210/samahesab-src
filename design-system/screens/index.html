@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — مجموعه طراحی صفحات</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { background: var(--gray-50); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 36px 28px 80px; }
+  .head { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .head .mark { width: 50px; height: 50px; border-radius: 12px; background: linear-gradient(135deg, var(--blue-500), var(--blue-700)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 24px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+  h1 { font-size: 26px; font-weight: 800; color: var(--text-strong); }
+  .sub { color: var(--text-muted); font-size: 14px; }
+  .swatches { display: flex; gap: 8px; margin: 22px 0 30px; flex-wrap: wrap; }
+  .sw { display: flex; align-items: center; gap: 9px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+  .sw .dot { width: 26px; height: 26px; border-radius: 7px; }
+  .sw .t { font-size: 12px; font-weight: 600; color: var(--text-strong); }
+  .sw .h { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .sech { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); margin: 30px 0 14px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card2 { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-decoration: none; transition: box-shadow 140ms, transform 140ms, border-color 140ms; display: flex; flex-direction: column; }
+  .card2:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); border-color: var(--blue-300); text-decoration: none; }
+  .card2 .thumb { aspect-ratio: 16/10; background: var(--gray-100); overflow: hidden; border-bottom: 1px solid var(--border); }
+  .card2 .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .card2 .meta { padding: 12px 14px; }
+  .card2 .meta .t { font-size: 14px; font-weight: 700; color: var(--text-strong); }
+  .card2 .meta .d { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .card2 .meta .tag { display: inline-block; margin-top: 8px; font-size: 10.5px; font-weight: 600; color: var(--blue-700); background: var(--blue-50); padding: 2px 8px; border-radius: 99px; }
+  .card2 .meta .tag.touch { color: var(--gold-700); background: var(--gold-50); }
+  .note { margin-top: 30px; padding: 16px 18px; background: #fff; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-body); line-height: 1.7; }
+  .note b { color: var(--text-strong); }
+  .note code { background: var(--gray-100); padding: 1px 6px; border-radius: 4px; font-size: 12px; font-family: var(--font-num); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="mark">س</div>
+    <div>
+      <h1>سماع‌حساب — مجموعه طراحی رابط</h1>
+      <div class="sub">ری‌دیزاین ERP سازمانی · سبک سپیدار / SAP Business One · کاملاً RTL</div>
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="sw"><span class="dot" style="background:#4B5F97"></span><div><div class="t">آبی اصلی</div><div class="h">#4B5F97</div></div></div>
+    <div class="sw"><span class="dot" style="background:#324A7A"></span><div><div class="t">سرمه‌ای</div><div class="h">#324A7A</div></div></div>
+    <div class="sw"><span class="dot" style="background:#B18A5A"></span><div><div class="t">طلایی</div><div class="h">#B18A5A</div></div></div>
+    <div class="sw"><span class="dot" style="background:#1B2843"></span><div><div class="t">سایدبار</div><div class="h">#1B2843</div></div></div>
+    <div class="sw"><span class="dot" style="background:#F6F8FB;border:1px solid var(--border)"></span><div><div class="t">پس‌زمینه</div><div class="h">خنثی ۸۰٪</div></div></div>
+  </div>
+
+  <div class="sech">صفحات عملیاتی (اولویت اصلی)</div>
+  <div class="grid" id="ops"></div>
+
+  <div class="sech">میز کار و فهرست‌ها</div>
+  <div class="grid" id="lists"></div>
+
+  <div class="note">
+    <b>راهنمای توسعه‌دهنده:</b> هر کارت به نسخه‌ی تعاملی <code>.html</code> لینک است. تصاویر <code>png/</code> و سند کامل UX در <code>handoff/ux-prompt.md</code> + تقسیم کار در <code>handoff/todo.rm</code> قرار دارند.
+    رنگ‌ها فقط از لوگو: <b>#4B5F97 / #324A7A / #B18A5A</b>. فونت <b>Vazirmatn</b>. همه‌ی مبالغ tabular و فارسی.
+  </div>
+</div>
+
+<script>
+  const ops = [
+    ['ثبت سند','voucher.html','01-ثبت-سند','هدر + ردیف ورود + گرید + نوار تراز زنده','core'],
+    ['فاکتور فروش','sales-invoice.html','02-فاکتور-فروش','اطلاعات اعتباری مشتری + پنل تسویه','core'],
+    ['انتقال بین انبار','inventory-transfer.html','03-انتقال-بین-انبار','مبدأ→مقصد + کنترل کسری موجودی','core'],
+    ['کارت مشتری','customer-card.html','04-کارت-مشتری','نمای ۳۶۰° + گردش حساب','core'],
+    ['کارت کالا','product-card.html','05-کارت-کالا','چند انبار + چند قیمت + کاردکس','core'],
+    ['مدیریت چک','cheques.html','06-مدیریت-چک','چرخه‌ی وضعیت + هشدار سررسید','core'],
+    ['صندوق فروش (POS)','pos.html','07-صندوق-فروش-POS','لمسی · دکمه‌های بزرگ','touch'],
+  ];
+  const lists = [
+    ['میز کار','workspace.html','00-میز-کار','راه‌انداز فرم‌ها + کارهای امروز','core'],
+    ['اسناد حسابداری','accounting-docs.html','08-اسناد-حسابداری','لیست + پیش‌نمایش سند','core'],
+  ];
+  const card = ([t,href,img,d,tag]) => `
+    <a class="card2" href="${href}">
+      <div class="thumb"><img src="../png/${img}.png" alt="${t}" loading="lazy" /></div>
+      <div class="meta"><div class="t">${t}</div><div class="d">${d}</div>
+        <span class="tag ${tag==='touch'?'touch':''}">${tag==='touch'?'لمسی':'عملیاتی'}</span></div>
+    </a>`;
+  document.getElementById('ops').innerHTML = ops.map(card).join('');
+  document.getElementById('lists').innerHTML = lists.map(card).join('');
+</script>
+</body>
+</html>

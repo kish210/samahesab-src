@@ -1,0 +1,163 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="ثبت سند" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!-- @startingPoint section="ERP Screens" subtitle="ثبت سند" viewport="1280x720" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — ثبت سند حسابداری</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .vh-grid { display: grid; grid-template-columns: 110px 130px 130px 150px 1fr 170px; gap: 8px 10px; align-items: center; }
+  .vh-grid label { font-size: 11.5px; color: var(--text-muted); display: block; margin-bottom: 3px; }
+  .entry-strip { display: grid; grid-template-columns: 90px 1.6fr 1.2fr 1.4fr 130px 130px 70px; gap: 8px; align-items: end; background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 8px; padding: 8px 10px; }
+  .entry-strip label { font-size: 11px; color: var(--blue-700); display: block; margin-bottom: 3px; font-weight: 600; }
+  .ta { position: relative; }
+  .ta .menu { position: absolute; top: calc(100% + 3px); inset-inline-start: 0; min-width: 320px; background: #fff; border: 1px solid var(--border-strong); border-radius: 7px; box-shadow: var(--shadow-lg); z-index: 40; overflow: hidden; }
+  .ta .menu .hd { padding: 5px 10px; font-size: 10.5px; color: var(--text-muted); background: var(--gray-50); border-bottom: 1px solid var(--border); }
+  .ta .menu .it { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; font-size: 12.5px; }
+  .ta .menu .it:hover, .ta .menu .it.hl { background: var(--blue-50); }
+  .ta .menu .it .code { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 11.5px; width: 52px; }
+  .ta .menu .it .bal { margin-inline-start: auto; font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; direction: ltr; }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Voucher Entry">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M12 11v6M9 14h6"/></svg>جدید<span class="fk">F2</span></button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>ذخیره<span class="fk">F7</span></button>
+        <button class="tbtn confirm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>قطعی‌سازی<span class="fk">F9</span></button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2.5" width="8" height="5" rx="1"/><rect x="4" y="7.5" width="16" height="13" rx="2"/><path d="M8 12h8M8 16h5"/></svg>کپی سند</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 12l4-4M3 12l4 4"/></svg>سند معکوس</button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>چاپ<span class="fk">F8</span></button>
+        <button class="tbtn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>حذف</button>
+        <div class="end">
+          <span style="font-size:11.5px;color:var(--text-muted)">سند <b style="color:var(--text-strong)">۸۳ از ۸۳</b></span>
+          <button class="tbtn" style="padding:0 7px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg></button>
+          <button class="tbtn" style="padding:0 7px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <!-- هدر سند -->
+        <div class="gbox">
+          <div class="gh">مشخصات سند<span class="st a" style="margin-inline-start:8px"><i></i>پیش‌نویس</span>
+            <div class="tools"><span style="font-size:11px;color:var(--text-muted)">آخرین ذخیره: ۱۰:۲۲</span></div>
+          </div>
+          <div class="gb">
+            <div class="vh-grid">
+              <div><label>شماره سند</label><input class="input-c num" value="140583" disabled /></div>
+              <div><label>تاریخ <span style="color:var(--danger-500)">*</span></label><input class="input-c num" value="1405/03/15" /></div>
+              <div><label>نوع سند</label><select class="select-c"><option>عمومی</option><option>دریافت</option><option>پرداخت</option><option>افتتاحیه</option></select></div>
+              <div><label>مرکز هزینه</label><select class="select-c"><option>شعبه مرکزی</option><option>فروشگاه قطعات</option><option>رستوران</option></select></div>
+              <div><label>شرح سند</label><input class="input-c" value="بابت فروش نقدی و تسویه فاکتور F000054" /></div>
+              <div><label>ارجاع</label><input class="input-c" placeholder="شماره فاکتور / قرارداد" value="F000054" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ردیف ورود سریع -->
+        <div class="entry-strip">
+          <div><label>کد حساب</label><input class="input-c num" value="10101" /></div>
+          <div class="ta">
+            <label>نام حساب</label>
+            <input class="input-c" id="acc" value="صندوق" autocomplete="off" />
+            <div class="menu" id="acc-menu">
+              <div class="hd">↑↓ حرکت · Enter انتخاب · F4 درخت حساب‌ها</div>
+              <div class="it hl"><span class="code">۱۰۱۰۱</span><span>صندوق فروشگاه</span><span class="bal">۱۲٬۴۵۰٬۰۰۰</span></div>
+              <div class="it"><span class="code">۱۰۱۰۲</span><span>صندوق رستوران</span><span class="bal">۳٬۲۰۰٬۰۰۰</span></div>
+              <div class="it"><span class="code">۱۰۲۰۱</span><span>بانک ملت — جاری ۱۲۳۴</span><span class="bal">۸۴٬۱۰۰٬۰۰۰</span></div>
+            </div>
+          </div>
+          <div><label>تفصیلی</label><select class="select-c"><option>—</option><option>قطعات خودرو</option><option>رستوران</option></select></div>
+          <div><label>شرح ردیف</label><input class="input-c" value="دریافت نقدی صندوق" /></div>
+          <div><label>بدهکار</label><input class="input-c num" value="285,600" /></div>
+          <div><label>بستانکار</label><input class="input-c num" value="0" /></div>
+          <button class="btn btn-primary" style="height:32px;font-size:12px">افزودن ⏎</button>
+        </div>
+
+        <!-- گرید ردیف‌ها -->
+        <div class="dgrid-wrap" style="flex:1">
+          <table class="dgrid">
+            <thead>
+              <tr>
+                <th style="width:40px" class="c">#</th>
+                <th style="width:70px">کد<span class="flt">▼</span></th>
+                <th>نام حساب<span class="flt">▼</span></th>
+                <th style="width:110px">تفصیلی</th>
+                <th>شرح ردیف</th>
+                <th style="width:120px" class="num">بدهکار</th>
+                <th style="width:120px" class="num">بستانکار</th>
+                <th style="width:36px"></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5">جمع — ۳ ردیف</td>
+                <td class="num">۲۸۵٬۶۰۰</td>
+                <td class="num">۲۸۵٬۶۰۰</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- نوار تراز -->
+        <div class="sumbar ok">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <b>سند تراز است</b>
+          <div class="grow"></div>
+          <div class="s"><span class="l">جمع بدهکار</span><span class="v">۲۸۵٬۶۰۰</span></div>
+          <div class="s"><span class="l">جمع بستانکار</span><span class="v">۲۸۵٬۶۰۰</span></div>
+          <div class="s"><span class="l">اختلاف</span><span class="v" style="color:var(--success-500)">۰</span></div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'accounting',
+    menu: 'حسابداری',
+    tabs: [['میز کار','workspace.html'],['اسناد حسابداری','accounting-docs.html'],['ثبت سند ۱۴۰۵۸۳','voucher.html',true],['دفتر کل','#']],
+    status: { form: 'ثبت سند', extra: 'سند ۱۴۰۵۸۳ · پیش‌نویس' }
+  });
+
+  const rows = [
+    [1,'۱۰۱۰۱','صندوق فروشگاه','—','دریافت نقدی صندوق','۲۸۵٬۶۰۰',''],
+    [2,'۴۰۱۰۱','فروش کالا','قطعات خودرو','فروش طبق فاکتور F000054','','۲۶۱٬۱۰۰'],
+    [3,'۲۴۰۱۱','مالیات بر ارزش افزوده','—','مالیات ۹٪ فاکتور F000054','','۲۴٬۵۰۰'],
+  ];
+  document.getElementById('rows').innerHTML = rows.map((r,i) => `
+    <tr class="${i===0?'sel':''}">
+      <td class="c mut">${r[0]}</td>
+      <td class="num mut">${r[1]}</td>
+      <td class="strong">${r[2]}</td>
+      <td class="mut">${r[3]}</td>
+      <td>${r[4]}</td>
+      <td class="num strong">${r[5]||'<span class=mut style=color:var(--gray-300)>۰</span>'}</td>
+      <td class="num strong">${r[6]||'<span class=mut style=color:var(--gray-300)>۰</span>'}</td>
+      <td class="c"><span style="color:var(--gray-400);cursor:pointer">✕</span></td>
+    </tr>`).join('');
+
+  // type-ahead فقط هنگام فوکوس
+  const acc = document.getElementById('acc'), menu = document.getElementById('acc-menu');
+  menu.style.display = 'none';
+  acc.addEventListener('focus', () => menu.style.display = 'block');
+  acc.addEventListener('blur', () => setTimeout(() => menu.style.display = 'none', 150));
+</script>
+</body>
+</html>

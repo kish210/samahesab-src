@@ -1,0 +1,51 @@
+<!-- @dsCard group="Components" viewport="900x460" name="Cards, Stats & Table" subtitle="Surfaces, KPI tiles and dense data table" -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Data Display</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { padding: 32px; background: var(--gray-50); }
+  .wrap { max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div id="table"></div>
+</div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../_ds_bundle.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const e = React.createElement;
+    const { StatCard, Card, Badge } = window.DesignSystem_53d3bd;
+    ReactDOM.createRoot(document.getElementById('stats')).render(e(React.Fragment, null,
+      e(StatCard, { label: 'Net sales (MTD)', value: '۸٫۴', unit: 'B Rial', delta: '+12.4%', footer: 'vs last month' }),
+      e(StatCard, { label: 'Receivables', value: '۲٫۱', unit: 'B Rial', delta: '-3.1%', footer: 'overdue 14d' }),
+      e(StatCard, { label: 'Gross margin', value: '۳۱٫۶', unit: '%', delta: '+0.8pt', accent: true }),
+    ));
+    const rows = [
+      ['INV-1042', 'Pars Trading Co.', 'Posted', 'green', '۴۸٬۲۰۰٬۰۰۰'],
+      ['INV-1041', 'Aria Foods', 'Pending', 'amber', '۱۲٬۹۵۰٬۰۰۰'],
+      ['INV-1040', 'Kish Retail', 'Overdue', 'red', '۷٬۳۰۰٬۰۰۰'],
+    ];
+    const table = e(Card, { title: 'Recent invoices' },
+      e('div', { className: 'table-wrap', style: { border: 'none', borderRadius: 0 } },
+        e('table', { className: 'tbl tbl-zebra' },
+          e('thead', null, e('tr', null,
+            e('th', null, 'Invoice'), e('th', null, 'Customer'), e('th', null, 'Status'), e('th', { className: 'num' }, 'Amount'))),
+          e('tbody', null, rows.map(r => e('tr', { key: r[0] },
+            e('td', { className: 'strong' }, r[0]),
+            e('td', null, r[1]),
+            e('td', null, e(Badge, { tone: r[3], dot: true }, r[2])),
+            e('td', { className: 'num' }, r[4])))))));
+    ReactDOM.createRoot(document.getElementById('table')).render(table);
+  });
+</script>
+</body>
+</html>

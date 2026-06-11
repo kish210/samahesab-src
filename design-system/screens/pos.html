@@ -1,0 +1,167 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="صندوق فروش (POS)" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!-- @startingPoint section="ERP Screens" subtitle="صندوق فروش (POS)" viewport="1280x720" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — صندوق فروش</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  /* POS لمسی است؛ سایدبار جمع و چگالی بالاتر از فرم‌ها */
+  .pos { display: flex; gap: 10px; flex: 1; min-height: 0; }
+  .pos-right { flex: 1.5; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .pos-left { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 360px; max-width: 430px; }
+  .cats { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+  .cats .cat { flex: none; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--text-body); cursor: pointer; }
+  .cats .cat.on { background: var(--blue-700); border-color: var(--blue-700); color: #fff; }
+  .pgrid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; align-content: start; }
+  .pitem { background: #fff; border: 1px solid var(--border); border-radius: 9px; padding: 10px 11px; min-height: 76px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; transition: border-color 80ms; user-select: none; }
+  .pitem:hover { border-color: var(--blue-400); }
+  .pitem:active { background: var(--blue-50); transform: scale(.985); }
+  .pitem .n { font-size: 12.5px; font-weight: 600; color: var(--text-strong); line-height: 17px; }
+  .pitem .p { font-size: 12px; color: var(--blue-700); font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 6px; }
+  .pitem .s { font-size: 10px; color: var(--text-muted); }
+  .pitem.low .s { color: var(--danger-500); font-weight: 600; }
+  .cart { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--border-strong); border-radius: 9px; overflow: hidden; min-height: 0; }
+  .cart .hd { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--gray-50); border-bottom: 1px solid var(--border); font-size: 12.5px; font-weight: 700; color: var(--blue-700); }
+  .cart .hd .cust { margin-inline-start: auto; font-size: 11.5px; font-weight: 500; color: var(--text-muted); }
+  .cart .rows { flex: 1; overflow-y: auto; }
+  .crow { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid var(--gray-100); }
+  .crow .nm { flex: 1; min-width: 0; }
+  .crow .nm .t { font-size: 12.5px; font-weight: 600; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .crow .nm .u { font-size: 10.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .qty { display: flex; align-items: center; gap: 2px; }
+  .qty button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border-strong); background: #fff; font-size: 15px; cursor: pointer; color: var(--text-body); }
+  .qty button:active { background: var(--blue-50); }
+  .qty .q { width: 32px; text-align: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .crow .amt { width: 86px; text-align: end; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-strong); direction: ltr; }
+  .totals { border-top: 1px solid var(--border); }
+  .totals .r { display: flex; justify-content: space-between; padding: 5px 14px; font-size: 12px; color: var(--text-muted); }
+  .totals .r .v { font-variant-numeric: tabular-nums; color: var(--text-body); font-weight: 600; direction: ltr; }
+  .totals .grand { background: var(--blue-700); color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .totals .grand .l { font-size: 13px; }
+  .totals .grand .v { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
+  .paygrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+  .paygrid .pb { height: 56px; border-radius: 9px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 700; color: var(--text-body); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .paygrid .pb svg { width: 19px; height: 19px; color: var(--blue-600); }
+  .paygrid .pb:active { transform: scale(.98); }
+  .paygrid .pb.cash { grid-column: 1 / -1; height: 62px; background: var(--success-500); border-color: var(--success-500); color: #fff; font-size: 16px; flex-direction: row; gap: 9px; }
+  .paygrid .pb.cash svg { color: #fff; width: 22px; height: 22px; }
+  .paygrid .pb.cash:hover { background: var(--success-700); }
+  .fnrow { display: flex; gap: 7px; }
+  .fnrow .fb { flex: 1; height: 40px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 11.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+  .fnrow .fb:hover { color: var(--text-body); border-color: var(--gray-400); }
+  .fnrow .fb.warn { color: var(--danger-700); }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="POS Cash Register">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <div class="pos">
+          <!-- سبد / فاکتور جاری -->
+          <div class="pos-left">
+            <div class="cart">
+              <div class="hd">
+                فاکتور صندوق #۱۰۴۲
+                <span class="cust">مشتری: <b style="color:var(--text-strong)">متفرقه</b> · صندوقدار: مریم صادقی</span>
+              </div>
+              <div class="rows" id="cart"></div>
+              <div class="totals">
+                <div class="r"><span>جمع اقلام (۴)</span><span class="v">2,499,000</span></div>
+                <div class="r"><span>تخفیف</span><span class="v" style="color:var(--danger-500)">-49,000</span></div>
+                <div class="r"><span>مالیات ۹٪</span><span class="v">220,500</span></div>
+                <div class="grand"><span class="l">مبلغ قابل پرداخت</span><span class="v">2,670,500</span></div>
+              </div>
+            </div>
+            <div class="paygrid">
+              <button class="pb cash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>پرداخت نقدی — Enter</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/></svg>کارت‌خوان</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>نسیه</button>
+              <button class="pb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>ترکیبی</button>
+            </div>
+            <div class="fnrow">
+              <button class="fb">تعلیق فاکتور — F4</button>
+              <button class="fb">بازیابی — F5</button>
+              <button class="fb">تخفیف کلی — F6</button>
+              <button class="fb warn">ابطال — Esc</button>
+            </div>
+          </div>
+
+          <!-- کالاها -->
+          <div class="pos-right">
+            <div style="display:flex;gap:8px">
+              <div class="input-group" style="flex:1">
+                <input class="input-c" style="height:44px;font-size:14px" placeholder="🔍  اسکن بارکد یا جستجوی کالا…  (F1)" autofocus />
+              </div>
+            </div>
+            <div class="cats">
+              <button class="cat on">پرفروش</button>
+              <button class="cat">روغن و فیلتر</button>
+              <button class="cat">باتری</button>
+              <button class="cat">لاستیک</button>
+              <button class="cat">لوازم برقی</button>
+              <button class="cat">تسمه و لنت</button>
+              <button class="cat">متفرقه</button>
+            </div>
+            <div class="pgrid" id="pgrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'pos',
+    menu: 'فروش',
+    tabs: [['صندوق فروش #۱۰۴۲','pos.html',true],['گزارش صندوق','#']],
+    status: { form: 'صندوق فروش', extra: 'شیفت صبح · مریم صادقی' }
+  });
+
+  const cart = [
+    ['روغن موتور ۵ لیتری بهران','۱ × ۱٬۰۵۰٬۰۰۰','1','1,050,000'],
+    ['فیلتر روغن پراید','۲ × ۶۸٬۰۰۰','2','136,000'],
+    ['شمع موتور NGK','۴ × ۵۵٬۰۰۰','4','220,000'],
+    ['باتری ۶۰ آمپر سپاهان','۱ × ۲٬۷۵۰٬۰۰۰ − تخفیف','1','1,093,000'],
+  ];
+  document.getElementById('cart').innerHTML = cart.map(c => `
+    <div class="crow">
+      <div class="nm"><div class="t">${c[0]}</div><div class="u">${c[1]}</div></div>
+      <div class="qty"><button>−</button><span class="q">${c[2]}</span><button>+</button></div>
+      <div class="amt">${c[3]}</div>
+    </div>`).join('');
+
+  const prods = [
+    ['روغن موتور ۵ل بهران','۱٬۰۵۰٬۰۰۰','۱۲ موجود',0],
+    ['فیلتر روغن پراید','۶۸٬۰۰۰','۳۴ موجود',0],
+    ['باتری ۶۰A سپاهان','۲٬۷۵۰٬۰۰۰','۶ موجود',0],
+    ['شمع موتور NGK','۵۵٬۰۰۰','۱۸ موجود — کم',1],
+    ['لاستیک ۱۷۵/۷۰ بارز','۲٬۲۵۰٬۰۰۰','۸ موجود',0],
+    ['تسمه تایم تیبا','۱۷۵٬۰۰۰','۱۲ موجود',0],
+    ['لنت ترمز ۲۰۶','۲۹۵٬۰۰۰','۶ موجود',0],
+    ['ضدیخ ۴ لیتری','۱۴۰٬۰۰۰','۱۵ موجود',0],
+    ['برف‌پاک‌کن ۲۴″','۱۳۰٬۰۰۰','۱۱ موجود — کم',1],
+    ['فیلتر هوا','۹۸٬۰۰۰','۲۲ موجود',0],
+    ['روغن ترمز DOT4','۸۲٬۰۰۰','۱۴ موجود',0],
+    ['چراغ جلو پراید','۴۵۰٬۰۰۰','۹ موجود',0],
+  ];
+  document.getElementById('pgrid').innerHTML = prods.map(p => `
+    <div class="pitem ${p[3]?'low':''}">
+      <div class="n">${p[0]}</div>
+      <div><div class="p">${p[1]} ریال</div><div class="s">${p[2]}</div></div>
+    </div>`).join('');
+</script>
+</body>
+</html>

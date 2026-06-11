@@ -6,6 +6,7 @@ using SamaHesab.Application.Inventory.Commands;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
@@ -25,8 +26,18 @@ public partial class StockTransferViewModel : BaseViewModel
     [ObservableProperty] private string _transferDate = string.Empty;
     [ObservableProperty] private string? _description;
 
+    [ObservableProperty] private int _lineCount;
+    [ObservableProperty] private decimal _totalQty;
+
     public List<WarehousePick> Warehouses { get; private set; } = new();
     public List<ProductPick> Products { get; private set; } = new();
+    public ObservableCollection<TransferLineRow> Lines { get; } = new();
+
+    public string FromWarehouseName => Warehouses.FirstOrDefault(w => w.Id == FromWarehouseId)?.Name ?? "—";
+    public string ToWarehouseName => Warehouses.FirstOrDefault(w => w.Id == ToWarehouseId)?.Name ?? "—";
+
+    partial void OnFromWarehouseIdChanged(int value) => OnPropertyChanged(nameof(FromWarehouseName));
+    partial void OnToWarehouseIdChanged(int value) => OnPropertyChanged(nameof(ToWarehouseName));
 
     public StockTransferViewModel(IMediator mediator, IWarehouseRepository warehouseRepo,
         IProductRepository productRepo, ICurrentUserService currentUser,
@@ -52,24 +63,65 @@ public partial class StockTransferViewModel : BaseViewModel
         OnPropertyChanged(nameof(Products));
     }
 
+    /// <summary>افزودن کالای انتخاب‌شده به فهرست ردیف‌های انتقال.</summary>
+    [RelayCommand]
+    private void AddLine()
+    {
+        if (SelectedProduct == null) { _ = _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
+        if (Quantity <= 0) { _ = _dialogService.ShowErrorAsync("مقدار باید بزرگتر از صفر باشد."); return; }
+        var existing = Lines.FirstOrDefault(l => l.ProductId == SelectedProduct.Id);
+        if (existing != null) existing.Qty += Quantity;
+        else Lines.Add(new TransferLineRow(SelectedProduct.Id, Lines.Count + 1, SelectedProduct.Display, Quantity));
+        SelectedProduct = null; Quantity = 1;
+        Recalc();
+    }
+
+    [RelayCommand]
+    private void RemoveLine(TransferLineRow? row)
+    {
+        if (row == null) return;
+        Lines.Remove(row);
+        var n = 1; foreach (var l in Lines) l.RowNumber = n++;
+        Recalc();
+    }
+
+    private void Recalc() { LineCount = Lines.Count; TotalQty = Lines.Sum(l => l.Qty); }
+
+    /// <summary>ثبت همه‌ی ردیف‌ها: برای هر قلم یک انتقال انبار.</summary>
     [RelayCommand]
     private async Task TransferAsync()
     {
-        if (SelectedProduct == null) { await _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
+        if (Lines.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیف اضافه کنید."); return; }
         if (FromWarehouseId == ToWarehouseId) { await _dialogService.ShowErrorAsync("انبار مبدأ و مقصد یکسان است."); return; }
         await ExecuteAsync(async () =>
         {
-            var result = await _mediator.Send(new TransferStockCommand(
-                FromWarehouseId, ToWarehouseId, SelectedProduct.Id, Quantity, TransferDate, Description));
-            if (result.Succeeded)
+            int ok = 0; string? lastErr = null;
+            foreach (var l in Lines.ToList())
             {
-                await _dialogService.ShowSuccessAsync("انتقال انبار با موفقیت ثبت شد.");
-                Quantity = 1; SelectedProduct = null; Description = null;
+                var result = await _mediator.Send(new TransferStockCommand(
+                    FromWarehouseId, ToWarehouseId, l.ProductId, l.Qty, TransferDate, Description));
+                if (result.Succeeded) ok++; else lastErr = result.ErrorMessage;
             }
-            else await _dialogService.ShowErrorAsync(result.ErrorMessage);
+            if (ok == Lines.Count)
+            {
+                await _dialogService.ShowSuccessAsync($"انتقال {ok} قلم با موفقیت ثبت شد.");
+                Lines.Clear(); Description = null; Recalc();
+            }
+            else await _dialogService.ShowErrorAsync($"{ok} قلم ثبت شد؛ خطا: {lastErr}");
         }, "در حال ثبت انتقال...");
     }
 }
 
 public record WarehousePick(int Id, string Name);
 public record ProductPick(int Id, string Display);
+
+public partial class TransferLineRow : ObservableObject
+{
+    public int ProductId { get; }
+    public string Display { get; }
+    [ObservableProperty] private int _rowNumber;
+    [ObservableProperty] private decimal _qty;
+
+    public TransferLineRow(int productId, int rowNumber, string display, decimal qty)
+    { ProductId = productId; _rowNumber = rowNumber; Display = display; _qty = qty; }
+}

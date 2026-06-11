@@ -209,6 +209,7 @@
                                 <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees"/>
                                 <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary"/>
                                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
+                                <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
                                 <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
                                 <Separator/>

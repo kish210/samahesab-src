@@ -1,0 +1,66 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Settings.ModulesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="12" MaxWidth="720" HorizontalAlignment="Right">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="مدیریت ماژول‌ها" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="سماع‌حساب یک پلتفرم ERP ماژولار است. ماژول‌های هسته همیشه فعال‌اند؛ ماژول‌های اختیاری را می‌توانید روشن/خاموش کنید. با خاموش‌کردن یک ماژول، منوها و صفحات آن دیده نمی‌شوند."
+                       TextWrapping="Wrap" Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- ماژول‌های هسته -->
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="ماژول‌های هسته (همیشه فعال)" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,8"/>
+                <ItemsControl ItemsSource="{Binding CoreModules}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource PrimaryAccentLight}" CornerRadius="999" Padding="12,4" Margin="0,0,8,8">
+                                <TextBlock Text="{Binding StringFormat='✓ {0}'}" Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ماژول‌های اختیاری -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="10" Padding="14,10">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="ماژول‌های اختیاری" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,8"/>
+                <ItemsControl ItemsSource="{Binding OptionalModules}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="0,9">
+                                <DockPanel>
+                                    <CheckBox DockPanel.Dock="Right" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                               FontSize="13.5" Foreground="{DynamicResource PrimaryText}"/>
+                                </DockPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DockPanel>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,12,0,0">
+            <Button Content="ذخیره ماژول‌ها" Command="{Binding SaveCommand}"
+                    Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0"
+                    Padding="20,9" Cursor="Hand" FontWeight="SemiBold"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

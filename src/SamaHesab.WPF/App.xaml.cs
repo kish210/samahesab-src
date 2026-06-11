@@ -99,6 +99,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<Services.ApiClient>();
                 services.AddSingleton<Services.ModuleService>();
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
+                services.AddSingleton<IModuleService, ModuleService>();   // سیستم ماژولار
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();
@@ -140,6 +141,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<AttendanceViewModel>();
                 services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
+                services.AddTransient<ModulesViewModel>();
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
                 services.AddTransient<UserManagementViewModel>();

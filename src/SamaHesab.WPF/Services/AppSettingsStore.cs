@@ -29,6 +29,7 @@ public static class AppSettingsStore
         public string? Theme { get; set; }
         public PrintSettings? Print { get; set; }
         public ApiSettings? Api { get; set; }
+        public Dictionary<string, bool>? Modules { get; set; }
     }
 
     private static Model Load()
@@ -102,6 +103,16 @@ public static class AppSettingsStore
     {
         var m = Load();
         m.Api = settings;
+        Save(m);
+    }
+
+    /// <summary>وضعیت فعال‌بودن ماژول‌های اختیاری (کلید→روشن/خاموش).</summary>
+    public static Dictionary<string, bool> GetModules() => Load().Modules ?? new();
+
+    public static void SaveModules(Dictionary<string, bool> modules)
+    {
+        var m = Load();
+        m.Modules = modules;
         Save(m);
     }
 }

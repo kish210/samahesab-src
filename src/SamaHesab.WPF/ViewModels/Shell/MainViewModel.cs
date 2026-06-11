@@ -91,6 +91,7 @@ public partial class MainViewModel : BaseViewModel
             ["Reports"]         = ("گزارش‌ها",            sp => sp.GetRequiredService<ReportsViewModel>()),
             ["FinancialReports"]= ("گزارش‌های مالی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
+            ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
         };
 

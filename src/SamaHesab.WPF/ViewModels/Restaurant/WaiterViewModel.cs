@@ -195,10 +195,29 @@ public partial class WaiterViewModel : BaseViewModel
         await ReloadOrderAsync();
     }
 
-    /// <summary>انتقال میز — نیازمند endpoint انتقال سفارش (فاز بعد).</summary>
+    /// <summary>انتقال سفارش جاری به میز دیگر (شماره‌ی میز مقصد را می‌پرسد).</summary>
     [RelayCommand]
     private async Task TransferTableAsync()
-        => await _dialogService.ShowInfoAsync("انتقال میز در نسخه‌ی بعدی API افزوده می‌شود.");
+    {
+        if (CurrentOrderId == 0) { await _dialogService.ShowWarningAsync("ابتدا یک میز را باز کنید."); return; }
+        var name = await _dialogService.PromptAsync("شماره/نام میز مقصد را وارد کنید:", "انتقال میز");
+        if (string.IsNullOrWhiteSpace(name)) return;
+        var dest = AllTables().FirstOrDefault(t => t.Name == name!.Trim());
+        if (dest == null) { await _dialogService.ShowErrorAsync($"میز «{name}» یافت نشد."); return; }
+        if (dest.Id == 0) { await _dialogService.ShowErrorAsync("میز مقصد نامعتبر است."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var (ok, error) = await _api.MoveOrderTableAsync(CurrentOrderId, dest.Id);
+            if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در انتقال میز."); return; }
+            CurrentTableName = dest.Name;
+            await LoadHallsAsync();
+            await _dialogService.ShowSuccessAsync($"سفارش به میز {dest.Name} منتقل شد.");
+        }, "در حال انتقال میز...");
+    }
+
+    private IEnumerable<WaiterTable> AllTables()
+        => Halls.SelectMany(h => h.Tables.Select(t =>
+            new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId)));
 
     /// <summary>چاپ صورتحساب میز.</summary>
     [RelayCommand]

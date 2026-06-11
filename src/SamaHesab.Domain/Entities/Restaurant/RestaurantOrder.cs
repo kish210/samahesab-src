@@ -93,6 +93,20 @@ public class RestaurantOrder : AuditableEntity
         item.SetNotes(notes);
     }
 
+    /// <summary>انتقال سفارش به میز دیگر (آزادسازی میز قبلی و اشغال میز جدید در هندلر انجام می‌شود).</summary>
+    public void MoveToTable(int newTableId)
+    {
+        if (Status is RestaurantOrderStatus.Settled or RestaurantOrderStatus.Cancelled)
+            throw new InvalidOperationException("سفارش تسویه/لغوشده قابل انتقال نیست.");
+        if (OrderType != RestaurantOrderType.DineIn)
+            throw new InvalidOperationException("فقط سفارش سالن قابل انتقال میز است.");
+        TableId = newTableId;
+        UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>تخصیص/تغییر گارسون سفارش.</summary>
+    public void AssignWaiter(int waiterId) { WaiterId = waiterId; UpdatedAt = DateTime.Now; }
+
     /// <summary>ردیف‌های در انتظار را به آشپزخانه ارسال می‌کند و رویداد ساخت رسید آشپزخانه را منتشر می‌کند.</summary>
     public IReadOnlyList<RestaurantOrderItem> SendToKitchen(int kitchenTicketId)
     {

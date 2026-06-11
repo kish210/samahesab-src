@@ -180,6 +180,55 @@ public class EditOrderItemCommandHandler :
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// انتقال سفارش به میز دیگر (#36)
+// ─────────────────────────────────────────────────────────────────────────────
+public record MoveOrderTableCommand(int OrderId, int NewTableId) : IRequest<Result>;
+
+public class MoveOrderTableCommandHandler : IRequestHandler<MoveOrderTableCommand, Result>
+{
+    private readonly IRestaurantOrderRepository _orders;
+    private readonly IRepository<DiningTable> _tables;
+    private readonly IUnitOfWork _uow;
+    public MoveOrderTableCommandHandler(IRestaurantOrderRepository orders, IRepository<DiningTable> tables, IUnitOfWork uow)
+    { _orders = orders; _tables = tables; _uow = uow; }
+
+    public async Task<Result> Handle(MoveOrderTableCommand req, CancellationToken ct)
+    {
+        var order = await _orders.GetWithItemsAsync(req.OrderId, ct);
+        if (order is null) return Result.Failure("سفارش یافت نشد.");
+        var dest = await _tables.GetByIdAsync(req.NewTableId, ct);
+        if (dest is null) return Result.Failure("میز مقصد یافت نشد.");
+        if (dest.Status == TableStatus.Occupied && dest.CurrentOrderId is not null && dest.CurrentOrderId != order.Id)
+            return Result.Failure("میز مقصد سفارش باز دارد.");
+        var oldTableId = order.TableId;
+
+        await _uow.BeginTransactionAsync(ct);
+        try
+        {
+            order.MoveToTable(req.NewTableId);
+            _orders.Update(order);
+
+            if (oldTableId is not null && oldTableId != req.NewTableId)
+            {
+                var old = await _tables.GetByIdAsync(oldTableId.Value, ct);
+                if (old is not null) { old.Free(); _tables.Update(old); }
+            }
+            dest.Occupy(order.Id);
+            _tables.Update(dest);
+
+            await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            await _uow.RollbackTransactionAsync(ct);
+            return Result.Failure(ex.GetBaseException().Message);
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ارسال ردیف‌های در انتظار به آشپزخانه (ساخت رسید آشپزخانه)
 // ─────────────────────────────────────────────────────────────────────────────
 public record SendOrderToKitchenCommand(int OrderId) : IRequest<Result<int>>;

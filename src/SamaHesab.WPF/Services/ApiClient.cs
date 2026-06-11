@@ -209,6 +209,16 @@ public class ApiClient
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
 
+    public async Task<(bool ok, string? error)> MoveOrderTableAsync(int orderId, int newTableId)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/orders/{orderId}/move-table/{newTableId}", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در انتقال میز.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
     public async Task<(bool ok, string? error)> SendToKitchenAsync(int orderId)
     {
         try

@@ -127,4 +127,30 @@ public class RestaurantTests
         // ردیف ارسال‌شده دیگر Pending نیست → ویرایش تعداد مجاز نیست
         Assert.Throws<InvalidOperationException>(() => o.ChangeItemQuantity(itemId: 0, quantity: 3));
     }
+
+    // ─── #36: انتقال میز ───
+    [Fact]
+    public void MoveToTable_Changes_TableId()
+    {
+        var o = DineInOrder();   // tableId=5
+        o.MoveToTable(7);
+        Assert.Equal(7, o.TableId);
+    }
+
+    [Fact]
+    public void MoveToTable_Throws_When_Settled()
+    {
+        var o = DineInOrder();
+        o.AddItem(Item("چلوکباب", 1, 1000));
+        o.Settle(1, 1000);
+        Assert.Throws<InvalidOperationException>(() => o.MoveToTable(7));
+    }
+
+    [Fact]
+    public void AssignWaiter_Sets_Waiter()
+    {
+        var o = DineInOrder();
+        o.AssignWaiter(42);
+        Assert.Equal(42, o.WaiterId);
+    }
 }

@@ -75,7 +75,7 @@
 - [x] **FND-1** — پالت رنگ برند در تم (`Dark.xaml`/`Light.xaml`) ✅ + سوئیپ ۱۷ View
 - [~] **FND-2** — فونت Vazirmatn پیش‌فرض (در Styles.xaml روی TextBlock/TextBox هست؛ بررسی پوشش کامل کنترل‌ها)
 - [ ] **FND-3** — استایل کنترل‌ها طبق `components.css`: دکمه (primary/secondary/ghost/danger) · input · select · بج `.st` · `.gbox` · گرید فشرده `.dgrid` (ردیف ۳۰px)
-- [ ] **FND-4** — پوسته‌ی Shell: تاپ‌بار ۵۶px · سایدبار ۶۰→۲۲۰px · تب MDI ۳۴px · تولبار ۴۲px · استتوس ۲۶px (مرجع `screens/erp.css`+`erp-shell.js`)
+- [~] **FND-4** — پوسته‌ی Shell: ✅ **سایدبار آیکونی عمودی چپ (navy ۵۶px)** اضافه شد (۹ آیکون متصل به ناوبری) · تب MDI با × از Telerik موجود · باقی: عرض/ابعاد دقیق تاپ‌بار، تب ۳۴px
 - [ ] **FND-5** — کامپوننت‌های مشترک: ردیف ورود سریع (Enter→گرید) · type-ahead حساب/کالا · نوار جمع/تراز · تقویم شمسی · فرمت عدد فارسی tabular
 
 ### 👤 Claude 1 (من) — حسابداری · خزانه · انبار

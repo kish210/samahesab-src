@@ -257,15 +257,78 @@
             </MenuItem>
         </Menu>
 
-        <!-- ═══ Workspace: Telerik RadDocking (full width MDI) ═══ -->
-        <telerik:RadDocking Grid.Row="2" x:Name="docking" Margin="2"
-                            Close="Docking_Close" BorderThickness="0" HasDocumentHost="True">
-            <telerik:RadDocking.DocumentHost>
-                <telerik:RadSplitContainer>
-                    <telerik:RadPaneGroup x:Name="docGroup"/>
-                </telerik:RadSplitContainer>
-            </telerik:RadDocking.DocumentHost>
-        </telerik:RadDocking>
+        <!-- ═══ Workspace: ریل آیکونی عمودی (چپ) + RadDocking (MDI) ═══ -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>      <!-- محتوا (راست در RTL) -->
+                <ColumnDefinition Width="Auto"/>   <!-- ریل آیکونی (چپ در RTL) -->
+            </Grid.ColumnDefinitions>
+
+            <telerik:RadDocking Grid.Column="0" x:Name="docking" Margin="2"
+                                Close="Docking_Close" BorderThickness="0" HasDocumentHost="True">
+                <telerik:RadDocking.DocumentHost>
+                    <telerik:RadSplitContainer>
+                        <telerik:RadPaneGroup x:Name="docGroup"/>
+                    </telerik:RadSplitContainer>
+                </telerik:RadDocking.DocumentHost>
+            </telerik:RadDocking>
+
+            <!-- ریل آیکونی برند (مرجع: design-system) -->
+            <Border Grid.Column="1" Width="56" Background="{DynamicResource SidebarBackground}">
+                <Border.Resources>
+                    <Style x:Key="RailBtn" TargetType="Button">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="46"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Command" Value="{Binding NavigateCommand}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="rb" Background="{TemplateBinding Background}" CornerRadius="8" Margin="8,3">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="rb" Property="Background" Value="{DynamicResource SidebarActiveBg}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Border.Resources>
+                <StackPanel VerticalAlignment="Top" Margin="0,6">
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="Dashboard" ToolTip="میز کار">
+                        <materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="Vouchers" ToolTip="اسناد حسابداری">
+                        <materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="SalesInvoice" ToolTip="فروش">
+                        <materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="PurchaseInvoice" ToolTip="خرید">
+                        <materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="Products" ToolTip="انبار">
+                        <materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="POS" ToolTip="صندوق فروش">
+                        <materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="ChequeBoard" ToolTip="مدیریت چک">
+                        <materialDesign:PackIcon Kind="Bank" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="Customers" ToolTip="اشخاص">
+                        <materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                    <Button Style="{StaticResource RailBtn}" CommandParameter="Reports" ToolTip="گزارش‌ها">
+                        <materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" Foreground="{DynamicResource SidebarText}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
         <!-- ═══ Status bar ═══ -->
         <Border Grid.Row="3" Background="{DynamicResource SidebarBackground}" Height="28">
             <DockPanel LastChildFill="False" Margin="14,0">

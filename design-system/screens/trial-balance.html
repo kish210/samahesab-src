@@ -1,0 +1,127 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x720" name="تراز آزمایشی" subtitle="صفحه عملیاتی سماع‌حساب" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — تراز آزمایشی</title>
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="erp.css" />
+<style>
+  .fltbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lvl { display: inline-flex; background: var(--gray-100); border-radius: 7px; padding: 3px; gap: 2px; }
+  .lvl button { border: none; background: transparent; font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text-muted); padding: 5px 12px; border-radius: 5px; cursor: pointer; }
+  .lvl button.on { background: #fff; color: var(--blue-700); box-shadow: var(--shadow-xs); font-weight: 600; }
+  .grp-row td { background: var(--blue-50) !important; font-weight: 700; color: var(--blue-800) !important; }
+</style>
+</head>
+<body>
+<div class="erp" data-screen-label="Trial Balance">
+  <header class="erp-top" id="erp-top"></header>
+  <div class="erp-body">
+    <aside class="erp-side" id="erp-side"></aside>
+    <div class="erp-main">
+      <div class="erp-tabs" id="erp-tabs"></div>
+      <div class="erp-toolbar">
+        <button class="tbtn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>محاسبه مجدد<span class="fk">F5</span></button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 9h7M8 13h7"/></svg>دفتر کل</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>دفتر معین</button>
+        <span class="sep"></span>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>خروجی اکسل</button>
+        <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>چاپ<span class="fk">F8</span></button>
+        <div class="end"><span class="st g"><i></i>تراز</span><span style="font-size:11.5px;color:var(--text-muted)">دوره ۱۴۰۵</span></div>
+      </div>
+
+      <div class="erp-content" style="display:flex;flex-direction:column;gap:10px">
+        <div class="fltbar">
+          <span style="font-size:12px;color:var(--text-muted)">سطح:</span>
+          <div class="lvl"><button>کل</button><button class="on">کل + معین</button><button>معین</button><button>تفصیلی</button></div>
+          <span style="width:1px;height:20px;background:var(--border)"></span>
+          <input class="input-c num" style="width:120px" value="1405/01/01" />
+          <span style="color:var(--text-muted)">تا</span>
+          <input class="input-c num" style="width:120px" value="1405/03/15" />
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-body)"><input type="checkbox" checked /> حذف حساب‌های بی‌گردش</label>
+          <div class="spacer" style="flex:1"></div>
+          <span style="font-size:11.5px;color:var(--text-muted)">۸ گروه · ۲۴ حساب</span>
+        </div>
+
+        <div class="dgrid-wrap" style="flex:1">
+          <table class="dgrid">
+            <thead>
+              <tr>
+                <th style="width:90px">کد حساب</th>
+                <th>عنوان حساب</th>
+                <th style="width:130px" class="num">گردش بدهکار</th>
+                <th style="width:130px" class="num">گردش بستانکار</th>
+                <th style="width:130px" class="num">مانده بدهکار</th>
+                <th style="width:130px" class="num">مانده بستانکار</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">جمع کل</td>
+                <td class="num">۲٬۴۸۶٬۳۰۰٬۰۰۰</td>
+                <td class="num">۲٬۴۸۶٬۳۰۰٬۰۰۰</td>
+                <td class="num">۱٬۳۲۴٬۸۰۰٬۰۰۰</td>
+                <td class="num">۱٬۳۲۴٬۸۰۰٬۰۰۰</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="sumbar ok">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <b>تراز است — جمع بدهکار و بستانکار برابر است</b>
+          <div class="grow"></div>
+          <div class="s"><span class="l">جمع گردش</span><span class="v">۲٬۴۸۶٬۳۰۰٬۰۰۰</span></div>
+          <div class="s"><span class="l">جمع مانده</span><span class="v">۱٬۳۲۴٬۸۰۰٬۰۰۰</span></div>
+          <div class="s"><span class="l">اختلاف</span><span class="v" style="color:var(--success-500)">۰</span></div>
+        </div>
+      </div>
+
+      <footer class="erp-status" id="erp-status"></footer>
+    </div>
+  </div>
+</div>
+
+<script src="erp-shell.js"></script>
+<script>
+  ErpShell.mount({
+    active: 'accounting',
+    menu: 'گزارشات',
+    tabs: [['میز کار','workspace.html'],['اسناد حسابداری','accounting-docs.html'],['تراز آزمایشی','trial-balance.html',true]],
+    status: { form: 'تراز آزمایشی', extra: 'سطح کل + معین' }
+  });
+  // [code, title, gd, gc, bd, bc, isGroup]
+  const rows = [
+    ['۱۰۰۰۰','دارایی‌های جاری','','','','',1],
+    ['۱۰۱۰۱','صندوق فروشگاه','۳۴۲٬۵۰۰٬۰۰۰','۳۳۰٬۰۵۰٬۰۰۰','۱۲٬۴۵۰٬۰۰۰','',0],
+    ['۱۰۱۰۲','صندوق رستوران','۸۸٬۲۰۰٬۰۰۰','۸۵٬۰۰۰٬۰۰۰','۳٬۲۰۰٬۰۰۰','',0],
+    ['۱۰۲۰۱','بانک ملت — جاری','۴۲۰٬۰۰۰٬۰۰۰','۳۳۵٬۹۰۰٬۰۰۰','۸۴٬۱۰۰٬۰۰۰','',0],
+    ['۱۰۳۰۱','حساب‌های دریافتنی','۲۸۶٬۵۰۰٬۰۰۰','۱۵۲٬۹۰۰٬۰۰۰','۱۳۳٬۶۰۰٬۰۰۰','',0],
+    ['۱۰۴۰۱','موجودی کالا','۲۴۰٬۰۰۰٬۰۰۰','۵۲٬۵۰۰٬۰۰۰','۱۸۷٬۵۰۰٬۰۰۰','',0],
+    ['۲۰۰۰۰','بدهی‌های جاری','','','','',1],
+    ['۲۰۱۰۱','حساب‌های پرداختنی','۱۴۸٬۰۰۰٬۰۰۰','۲۰۸٬۰۰۰٬۰۰۰','','۶۰٬۰۰۰٬۰۰۰',0],
+    ['۲۴۰۱۱','مالیات بر ارزش افزوده','۳۲٬۰۰۰٬۰۰۰','۶۸٬۵۰۰٬۰۰۰','','۳۶٬۵۰۰٬۰۰۰',0],
+    ['۴۰۰۰۰','درآمدها','','','','',1],
+    ['۴۰۱۰۱','فروش کالا','۲۴٬۰۰۰٬۰۰۰','۶۲۸٬۰۰۰٬۰۰۰','','۶۰۴٬۰۰۰٬۰۰۰',0],
+    ['۵۰۰۰۰','هزینه‌ها','','','','',1],
+    ['۵۰۱۰۱','بهای تمام‌شده کالای فروش','۳۸۲٬۰۰۰٬۰۰۰','','۳۸۲٬۰۰۰٬۰۰۰','',0],
+    ['۵۰۲۰۱','حقوق و دستمزد','۳۱۰٬۰۰۰٬۰۰۰','','۳۱۰٬۰۰۰٬۰۰۰','',0],
+    ['۵۰۳۰۱','هزینه‌های عمومی','۱۸٬۴۰۰٬۰۰۰','۲٬۰۰۰٬۰۰۰','۱۶٬۴۰۰٬۰۰۰','',0],
+  ];
+  document.getElementById('rows').innerHTML = rows.map(r => r[6] ? `
+    <tr class="grp-row"><td class="num">${r[0]}</td><td colspan="5">${r[1]}</td></tr>` : `
+    <tr>
+      <td class="num mut">${r[0]}</td>
+      <td>${r[1]}</td>
+      <td class="num">${r[2]||'·'}</td>
+      <td class="num">${r[3]||'·'}</td>
+      <td class="num strong">${r[4]||'·'}</td>
+      <td class="num strong">${r[5]||'·'}</td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

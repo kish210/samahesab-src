@@ -54,6 +54,9 @@
   <div class="sech">صفحات عملیاتی (اولویت اصلی)</div>
   <div class="grid" id="ops"></div>
 
+  <div class="sech">گزارش‌های مالی</div>
+  <div class="grid" id="reports"></div>
+
   <div class="sech">میز کار و فهرست‌ها</div>
   <div class="grid" id="lists"></div>
 
@@ -71,7 +74,13 @@
     ['کارت مشتری','customer-card.html','04-کارت-مشتری','نمای ۳۶۰° + گردش حساب','core'],
     ['کارت کالا','product-card.html','05-کارت-کالا','چند انبار + چند قیمت + کاردکس','core'],
     ['مدیریت چک','cheques.html','06-مدیریت-چک','چرخه‌ی وضعیت + هشدار سررسید','core'],
+    ['فاکتور خرید','purchase-invoice.html','09-فاکتور-خرید','تأمین‌کننده + بروزرسانی قیمت فروش','core'],
     ['صندوق فروش (POS)','pos.html','07-صندوق-فروش-POS','لمسی · دکمه‌های بزرگ','touch'],
+    ['رستوران','restaurant.html','11-رستوران','نقشه میز + منو + KOT','touch'],
+  ];
+  const reports = [
+    ['تراز آزمایشی','trial-balance.html','10-تراز-آزمایشی','چند سطحی + کنترل تراز','core'],
+    ['دفتر کل / معین','general-ledger.html','12-دفتر-کل','درخت حساب + گردش حساب','core'],
   ];
   const lists = [
     ['میز کار','workspace.html','00-میز-کار','راه‌انداز فرم‌ها + کارهای امروز','core'],
@@ -84,6 +93,7 @@
         <span class="tag ${tag==='touch'?'touch':''}">${tag==='touch'?'لمسی':'عملیاتی'}</span></div>
     </a>`;
   document.getElementById('ops').innerHTML = ops.map(card).join('');
+  document.getElementById('reports').innerHTML = reports.map(card).join('');
   document.getElementById('lists').innerHTML = lists.map(card).join('');
 </script>
 </body>

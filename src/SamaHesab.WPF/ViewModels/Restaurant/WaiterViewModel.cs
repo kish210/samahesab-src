@@ -30,7 +30,9 @@ public partial class WaiterViewModel : BaseViewModel
     [ObservableProperty] private int _selectedCategoryId = -1;
     [ObservableProperty] private string _quickSearch = string.Empty;
     [ObservableProperty] private decimal _subTotal;
+    [ObservableProperty] private decimal _serviceTax;      // مالیات و خدمات (جمع کل − جمع اقلام)
     [ObservableProperty] private decimal _grandTotal;
+    [ObservableProperty] private int _currentSeats;
     [ObservableProperty] private string _statusText = string.Empty;
 
     private List<MenuTile> _allMenu = new();
@@ -101,6 +103,7 @@ public partial class WaiterViewModel : BaseViewModel
             }
             CurrentOrderId = orderId;
             CurrentTableName = table.Name;
+            CurrentSeats = table.Capacity;
             if (_allMenu.Count == 0) await LoadMenuAsync();
             await ReloadOrderAsync();
             ShowOrder = true;
@@ -114,9 +117,10 @@ public partial class WaiterViewModel : BaseViewModel
         if (o == null) return;
         OrderNumber = o.OrderNumber;
         foreach (var i in o.Items)
-            OrderLines.Add(new WaiterOrderLine(i.Id, i.ProductName, i.Quantity, i.UnitPrice, i.LineTotal, i.Status, i.Notes));
+            OrderLines.Add(new WaiterOrderLine(i.Id, i.ProductId, i.ProductName, i.Quantity, i.UnitPrice, i.LineTotal, i.Status, i.Notes));
         SubTotal = o.SubTotal;
         GrandTotal = o.GrandTotal;
+        ServiceTax = o.GrandTotal - o.SubTotal;
     }
 
     private void ApplyCategory()
@@ -146,6 +150,34 @@ public partial class WaiterViewModel : BaseViewModel
         var (ok, error) = await _api.AddOrderItemAsync(CurrentOrderId, tile.Id, tile.Name, 1, tile.Price);
         if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در افزودن آیتم."); return; }
         await ReloadOrderAsync();
+    }
+
+    /// <summary>افزایش تعداد یک ردیف سفارش (همان کالا را دوباره به سفارش می‌افزاید).</summary>
+    [RelayCommand]
+    private async Task IncLineAsync(WaiterOrderLine? line)
+    {
+        if (line == null || CurrentOrderId == 0) return;
+        var (ok, error) = await _api.AddOrderItemAsync(CurrentOrderId, line.ProductId, line.Name, 1, line.UnitPrice);
+        if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در افزودن."); return; }
+        await ReloadOrderAsync();
+    }
+
+    /// <summary>کاهش تعداد ردیف — نیازمند endpoint حذف/کاهش آیتم (فاز بعد).</summary>
+    [RelayCommand]
+    private async Task DecLineAsync(WaiterOrderLine? line)
+        => await _dialogService.ShowInfoAsync("کاهش/حذف ردیف سفارش در نسخه‌ی بعدی API افزوده می‌شود.");
+
+    /// <summary>انتقال میز — نیازمند endpoint انتقال سفارش (فاز بعد).</summary>
+    [RelayCommand]
+    private async Task TransferTableAsync()
+        => await _dialogService.ShowInfoAsync("انتقال میز در نسخه‌ی بعدی API افزوده می‌شود.");
+
+    /// <summary>چاپ صورتحساب میز.</summary>
+    [RelayCommand]
+    private async Task BillAsync()
+    {
+        if (CurrentOrderId == 0 || !OrderLines.Any()) { await _dialogService.ShowWarningAsync("سفارشی برای صورتحساب نیست."); return; }
+        await _dialogService.ShowInfoAsync($"در حال آماده‌سازی صورتحساب میز {CurrentTableName} — مبلغ {GrandTotal:N0} ریال…");
     }
 
     [RelayCommand]
@@ -189,7 +221,7 @@ public partial class WaiterViewModel : BaseViewModel
 }
 
 public record WaiterHall(int Id, string Name, List<ApiTable> Tables);
-public record WaiterOrderLine(int Id, string Name, decimal Qty, decimal UnitPrice, decimal LineTotal, string Status, string? Notes);
+public record WaiterOrderLine(int Id, int ProductId, string Name, decimal Qty, decimal UnitPrice, decimal LineTotal, string Status, string? Notes);
 
 public partial class WaiterTable : ObservableObject
 {

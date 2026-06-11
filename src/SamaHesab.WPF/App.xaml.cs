@@ -233,6 +233,47 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_WAITERDEMO") == "1")
+        {
+            var wvm = _host.Services.GetRequiredService<ViewModels.Restaurant.WaiterViewModel>();
+            // داده‌ی نمونه مستقل از API — مطابق restaurant.html v2
+            wvm.Categories.Add(new ViewModels.POS.CategoryTile(-1, "غذای اصلی"));
+            wvm.Categories.Add(new ViewModels.POS.CategoryTile(2, "کباب"));
+            wvm.Categories.Add(new ViewModels.POS.CategoryTile(3, "پیش‌غذا"));
+            wvm.Categories.Add(new ViewModels.POS.CategoryTile(4, "نوشیدنی"));
+            wvm.Categories.Add(new ViewModels.POS.CategoryTile(5, "دسر"));
+            void M(int id, string n, decimal p) => wvm.MenuItems.Add(new ViewModels.POS.MenuTile(id, "K" + id, n, p, 1, 9));
+            M(1,"چلوکباب کوبیده",280000); M(2,"چلوکباب برگ",480000); M(3,"جوجه‌کباب",320000);
+            M(4,"زرشک‌پلو با مرغ",290000); M(5,"قورمه‌سبزی",240000); M(6,"میگو سوخاری",520000);
+            M(7,"سالاد فصل",85000); M(8,"دوغ محلی",45000); M(9,"نوشابه",35000);
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(1,"۱",2,"آزاد",0,null));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(2,"۲",4,"فعال",1,12));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(3,"۳",4,"آزاد",0,null));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(4,"۴",6,"فعال",1,13));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(5,"۵",4,"فعال",1,14));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(6,"۶",2,"صورتحساب",3,15));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(7,"۷",8,"فعال",1,16));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(8,"۸",4,"آزاد",0,null));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(9,"۹",2,"آزاد",0,null));
+            wvm.Tables.Add(new ViewModels.Restaurant.WaiterTable(10,"۱۰",4,"صورتحساب",3,17));
+            wvm.OrderLines.Add(new ViewModels.Restaurant.WaiterOrderLine(1,2,"چلوکباب برگ",1,480000,480000,"در انتظار","بدون پیاز"));
+            wvm.OrderLines.Add(new ViewModels.Restaurant.WaiterOrderLine(2,3,"جوجه‌کباب",2,320000,640000,"در انتظار",null));
+            wvm.OrderLines.Add(new ViewModels.Restaurant.WaiterOrderLine(3,7,"سالاد فصل",1,85000,85000,"در انتظار",null));
+            wvm.OrderLines.Add(new ViewModels.Restaurant.WaiterOrderLine(4,8,"دوغ محلی",2,45000,90000,"در انتظار",null));
+            wvm.CurrentTableName = "۵"; wvm.CurrentSeats = 4; wvm.OrderNumber = "R-1042";
+            wvm.SubTotal = 1158000; wvm.ServiceTax = 115800; wvm.GrandTotal = 1273800; wvm.ShowOrder = true;
+            wvm.StatusText = "شیفت شام · گارسون مجید";
+            var wview = new Views.Restaurant.WaiterView { DataContext = wvm };
+            var wwin = new Window { Content = wview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            wwin.Show(); await Task.Delay(1400); wwin.UpdateLayout();
+            var wdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(wdir);
+            var wrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            wrtb.Render(wwin);
+            var wenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); wenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(wrtb));
+            using (var wfs = System.IO.File.Create(System.IO.Path.Combine(wdir, "waiter.png"))) wenc.Save(wfs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_WAREHOUSE") == "1")
         {
             var s = Services.AppSettingsStore.GetApiSettings();

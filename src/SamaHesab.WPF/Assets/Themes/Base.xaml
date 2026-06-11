@@ -6,19 +6,27 @@
     <FontFamily x:Key="VazirFont">pack://application:,,,/Assets/Fonts/#Vazirmatn</FontFamily>
     <FontFamily x:Key="IranSansFont">pack://application:,,,/Assets/Fonts/#IRANSansX</FontFamily>
 
-    <!-- Font Sizes -->
+    <!-- Font Sizes — مقیاس تایپ دیزاین‌سیستم (compact enterprise) -->
     <sys:Double x:Key="FontSizeXS">11</sys:Double>
-    <sys:Double x:Key="FontSizeSM">12</sys:Double>
-    <sys:Double x:Key="FontSizeMD">13</sys:Double>
-    <sys:Double x:Key="FontSizeLG">15</sys:Double>
-    <sys:Double x:Key="FontSizeXL">18</sys:Double>
-    <sys:Double x:Key="FontSizeXXL">24</sys:Double>
+    <sys:Double x:Key="FontSizeSM">12.5</sys:Double>
+    <sys:Double x:Key="FontSizeMD">14</sys:Double>
+    <sys:Double x:Key="FontSizeLG">17</sys:Double>
+    <sys:Double x:Key="FontSizeXL">20</sys:Double>
+    <sys:Double x:Key="FontSizeXXL">25</sys:Double>
 
-    <!-- Corner Radius -->
-    <CornerRadius x:Key="RadiusSM">4</CornerRadius>
+    <!-- Control / layout dimensions (دیزاین‌سیستم) -->
+    <sys:Double x:Key="ControlHeight">32</sys:Double>
+    <sys:Double x:Key="ControlHeightSm">26</sys:Double>
+    <sys:Double x:Key="ControlHeightLg">38</sys:Double>
+    <sys:Double x:Key="GridRowHeight">30</sys:Double>
+    <sys:Double x:Key="TopbarHeight">56</sys:Double>
+    <sys:Double x:Key="StatusbarHeight">26</sys:Double>
+
+    <!-- Corner Radius — radius-sm=6 / md=8 / lg=12 / xl=16 / pill -->
+    <CornerRadius x:Key="RadiusSM">6</CornerRadius>
     <CornerRadius x:Key="RadiusMD">8</CornerRadius>
     <CornerRadius x:Key="RadiusLG">12</CornerRadius>
     <CornerRadius x:Key="RadiusXL">16</CornerRadius>
-    <CornerRadius x:Key="RadiusFull">24</CornerRadius>
+    <CornerRadius x:Key="RadiusFull">999</CornerRadius>
 
 </ResourceDictionary>

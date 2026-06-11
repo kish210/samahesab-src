@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.POS;     // reuse CategoryTile / MenuTile
 using SamaHesab.WPF.ViewModels.Shell;
@@ -15,6 +16,8 @@ namespace SamaHesab.WPF.ViewModels.Restaurant;
 public partial class WaiterViewModel : BaseViewModel
 {
     private readonly ApiClient _api;
+    private readonly IPrintService _print;
+    private readonly IPersianCalendarService _calendar;
 
     public ObservableCollection<WaiterHall> Halls { get; } = new();
     public ObservableCollection<WaiterTable> Tables { get; } = new();
@@ -37,10 +40,11 @@ public partial class WaiterViewModel : BaseViewModel
 
     private List<MenuTile> _allMenu = new();
 
-    public WaiterViewModel(ApiClient api, IDialogService dialogService, INavigationService navigationService)
+    public WaiterViewModel(ApiClient api, IPrintService print, IPersianCalendarService calendar,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _api = api;
+        _api = api; _print = print; _calendar = calendar;
     }
 
     public override async Task LoadAsync()
@@ -219,25 +223,67 @@ public partial class WaiterViewModel : BaseViewModel
         => Halls.SelectMany(h => h.Tables.Select(t =>
             new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId)));
 
-    /// <summary>چاپ صورتحساب میز.</summary>
+    /// <summary>چاپ صورتحساب میز روی پرینتر حرارتی (۸۰م م).</summary>
     [RelayCommand]
     private async Task BillAsync()
     {
         if (CurrentOrderId == 0 || !OrderLines.Any()) { await _dialogService.ShowWarningAsync("سفارشی برای صورتحساب نیست."); return; }
-        await _dialogService.ShowInfoAsync($"در حال آماده‌سازی صورتحساب میز {CurrentTableName} — مبلغ {GrandTotal:N0} ریال…");
+        try
+        {
+            int row = 1;
+            var lines = OrderLines.Select(l => new PrintLine(
+                row++, "", l.Name + (string.IsNullOrWhiteSpace(l.Notes) ? "" : $" ({l.Notes})"),
+                l.Qty, l.UnitPrice, 0, l.LineTotal)).ToList();
+            var data = new PrintDocumentData(
+                DocTitle: "صورتحساب رستوران",
+                Number: OrderNumber,
+                Date: _calendar.GetCurrentPersianDate(),
+                PartyLabel: "میز", PartyName: CurrentTableName,
+                Lines: lines,
+                SubTotal: SubTotal, Discount: 0, Tax: ServiceTax, Shipping: 0,
+                GrandTotal: GrandTotal, Paid: 0, Remain: GrandTotal,
+                Description: $"تعداد نفرات: {CurrentSeats}");
+            _print.PrintReceipt(data);
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در چاپ صورتحساب: " + ex.Message); }
     }
 
     [RelayCommand]
     private async Task SendToKitchenAsync()
     {
         if (CurrentOrderId == 0) return;
+        // عکس‌برداری از ردیف‌های فعلی برای چاپ تیکت آشپزخانه پیش از تغییر وضعیت
+        var snapshot = OrderLines.ToList();
         await ExecuteAsync(async () =>
         {
             var (ok, error) = await _api.SendToKitchenAsync(CurrentOrderId);
             if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در ارسال به آشپزخانه."); return; }
+            PrintKitchenTicket(snapshot);   // best-effort (بدون قیمت)
             await ReloadOrderAsync();
             await _dialogService.ShowSuccessAsync("سفارش به آشپزخانه ارسال شد.");
         }, "در حال ارسال به آشپزخانه...");
+    }
+
+    /// <summary>چاپ تیکت آشپزخانه (KOT) — فقط نام و تعداد، بدون قیمت. خطا مانع ارسال نمی‌شود.</summary>
+    private void PrintKitchenTicket(IReadOnlyList<WaiterOrderLine> items)
+    {
+        try
+        {
+            if (items.Count == 0) return;
+            int row = 1;
+            var lines = items.Select(l => new PrintLine(
+                row++, "", l.Name + (string.IsNullOrWhiteSpace(l.Notes) ? "" : $" — {l.Notes}"),
+                l.Qty, 0, 0, 0)).ToList();
+            var data = new PrintDocumentData(
+                DocTitle: "تیکت آشپزخانه (KOT)",
+                Number: OrderNumber, Date: _calendar.GetCurrentPersianDate(),
+                PartyLabel: "میز", PartyName: CurrentTableName, Lines: lines,
+                SubTotal: 0, Discount: 0, Tax: 0, Shipping: 0,
+                GrandTotal: 0, Paid: 0, Remain: 0,
+                Description: $"تعداد نفرات: {CurrentSeats}");
+            _print.PrintReceipt(data);
+        }
+        catch { /* عدم وجود پرینتر نباید جلوی ارسال به آشپزخانه را بگیرد */ }
     }
 
     [RelayCommand]

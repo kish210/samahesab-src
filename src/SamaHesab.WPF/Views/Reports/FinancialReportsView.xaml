@@ -6,7 +6,7 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <Grid Margin="3">
+    <Grid Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -46,7 +46,7 @@
         <!-- ═══ Trial Balance ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsTrial, Converter={StaticResource BoolVis}}">
-            <telerik:RadGridView ItemsSource="{Binding TrialRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+            <telerik:RadGridView ItemsSource="{Binding TrialRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="26"
                                  IsReadOnly="True" ShowColumnFooters="True" ShowGroupPanel="False">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="کد حساب" DataMemberBinding="{Binding Code}" Width="150"/>
@@ -65,7 +65,7 @@
         <!-- ═══ General / Detailed Ledger ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsLedger, Converter={StaticResource BoolVis}}">
-            <telerik:RadGridView ItemsSource="{Binding LedgerRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+            <telerik:RadGridView ItemsSource="{Binding LedgerRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="26"
                                  IsReadOnly="True" ShowColumnFooters="True" ShowGroupPanel="True">
                 <telerik:RadGridView.Columns>
                     <telerik:GridViewDataColumn Header="تاریخ" DataMemberBinding="{Binding Date}" Width="110"/>
@@ -83,7 +83,7 @@
         <!-- ═══ Profit & Loss ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsProfitLoss, Converter={StaticResource BoolVis}}">
-            <telerik:RadGridView ItemsSource="{Binding PlRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+            <telerik:RadGridView ItemsSource="{Binding PlRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="26"
                                  IsReadOnly="True" ShowGroupPanel="True">
                 <telerik:RadGridView.GroupDescriptors>
                     <telerik:GroupDescriptor Member="Kind"/>
@@ -102,7 +102,7 @@
         <!-- ═══ Balance Sheet ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsBalanceSheet, Converter={StaticResource BoolVis}}">
-            <telerik:RadGridView ItemsSource="{Binding BalanceRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
+            <telerik:RadGridView ItemsSource="{Binding BalanceRows}" AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="26"
                                  IsReadOnly="True" ShowGroupPanel="True">
                 <telerik:RadGridView.GroupDescriptors>
                     <telerik:GroupDescriptor Member="Section"/>

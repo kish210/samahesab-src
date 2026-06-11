@@ -45,6 +45,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _invoiceDiscount;
     [ObservableProperty] private decimal _commissionPercent;
 
+    // ── اطلاعات اعتباری مشتری (طبق design-system: نوار زیر هدر فاکتور) ──
+    [ObservableProperty] private bool _hasCustomerInfo;
+    [ObservableProperty] private decimal _customerBalance;
+    [ObservableProperty] private decimal _customerCreditLimit;
+    [ObservableProperty] private bool _customerUnlimitedCredit;
+    [ObservableProperty] private bool _isOverCredit;
+
     [ObservableProperty] private ProductSearchResult? _selectedProductItem;
 
     public ObservableCollection<SalesInvoiceItemRow> InvoiceItems { get; } = new();
@@ -228,6 +235,31 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     partial void OnShippingChanged(decimal value) => RecalculateTotals();
     partial void OnOtherCostsChanged(decimal value) => RecalculateTotals();
     partial void OnPaidAmountChanged(decimal value) => RemainAmount = GrandTotal - value;
+
+    /// <summary>با انتخاب مشتری، وضعیت اعتبار (مانده/سقف) را از Application می‌خواند و نوار اطلاعات را پر می‌کند.</summary>
+    partial void OnSelectedCustomerIdChanged(int value)
+    {
+        if (value <= 0) { HasCustomerInfo = false; return; }
+        _ = LoadCustomerCreditAsync(value);
+    }
+
+    private async Task LoadCustomerCreditAsync(int customerId)
+    {
+        try
+        {
+            var dto = await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetCustomerCreditQuery(customerId));
+            if (dto is null) { HasCustomerInfo = false; return; }
+            CustomerBalance = dto.Balance;
+            CustomerCreditLimit = dto.CreditLimit;
+            CustomerUnlimitedCredit = dto.CreditLimit <= 0;     // سقف۰ = نامحدود
+            IsOverCredit = dto.IsOverLimit;
+            HasCustomerInfo = true;
+        }
+        catch { HasCustomerInfo = false; }
+    }
+
+    /// <summary>دکمه‌های پنل تسویه: تعیین روش پرداخت (نقد/کارت‌خوان/چک/نسیه).</summary>
+    [RelayCommand] private void SetPayment(string? method) { if (!string.IsNullOrEmpty(method)) PaymentType = method!; }
 }
 
 public partial class SalesInvoiceItemRow : ObservableObject

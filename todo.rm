@@ -97,6 +97,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **C2-1 فاکتور فروش طبق design-system v2 (کلود ۲)**: نوار «اطلاعات اعتباری مشتری» (مانده/سقف اعتبار/هشدار عبور از سقف) با `GetCustomerCreditQuery` هنگام انتخاب مشتری + دکمه‌ی تعیین روش پرداخت + ارقام فارسی در خلاصه‌ی مالی/نوار پرداخت + ارقام فارسی مانده در کارت مشتری. Build سبز. · مانده‌ی بستهٔ من: کارت ۳۶۰° مشتری (C2-2) + رستوران v2 (C2-4).
 - **2026-06-10** — **اعمال دیزاین‌سیستم روی WPF**: پالت برند (`Dark.xaml`/`Light.xaml`) → آبی #4B5F97 · سرمه‌ای #324A7A · سایدبار #1B2843 · طلایی #B18A5A + سوئیپ رنگ‌های tailwind در ۱۷ View به برند (byte-safe، فارسی سالم). Build سبز.
 - **2026-06-10** — **کارهای #۱۰+#۱۱ — فاکتور تکرارشونده + زمان‌بند (P3)**: `RecurringInvoice`/`Line` + `database/18_RecurringInvoices.sql` + Save/List/GenerateDue (catch-up) + `RecurringDocumentSchedulerService` + endpointها (`/api/sales/recurring*`) + ۴ تست (۱۱۰ سبز)
 - **2026-06-10** — **کار #۱۲ — سفارش خرید (PurchaseOrder)**: موجودیت + EF + `database/15_PurchaseOrders.sql` + `CreatePurchaseOrderFromReorderCommand` (خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها + ۴ تست (۱۰۱ سبز)

@@ -8,6 +8,11 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+    </UserControl.Resources>
+
     <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>   <!-- toolbar + customer (top) -->
@@ -17,7 +22,8 @@
         </Grid.RowDefinitions>
 
         <!-- ═══ Top: actions + customer header ═══ -->
-        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
+        <StackPanel Grid.Row="0">
+        <Border Style="{StaticResource ErpToolbar}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>   <!-- actions -->
@@ -68,6 +74,30 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <!-- اطلاعات اعتباری مشتری (طبق design-system: مانده / سقف اعتبار / هشدار عبور از سقف) -->
+        <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="0,0,0,1" Padding="12,5"
+                Visibility="{Binding HasCustomerInfo, Converter={StaticResource BoolVis}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="مانده حساب:" Foreground="{DynamicResource SecondaryText}" FontSize="11.5" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding CustomerBalance, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="11.5"
+                           FlowDirection="LeftToRight" VerticalAlignment="Center" Margin="5,0,2,0"
+                           Foreground="{DynamicResource DangerColor}"/>
+                <TextBlock Text="سقف اعتبار:" Foreground="{DynamicResource SecondaryText}" FontSize="11.5" VerticalAlignment="Center" Margin="18,0,0,0"/>
+                <TextBlock Text="{Binding CustomerCreditLimit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="11.5"
+                           FlowDirection="LeftToRight" VerticalAlignment="Center" Margin="5,0,0,0"
+                           Visibility="{Binding CustomerUnlimitedCredit, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                <TextBlock Text="نامحدود" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="5,0,0,0"
+                           Foreground="{DynamicResource SecondaryText}"
+                           Visibility="{Binding CustomerUnlimitedCredit, Converter={StaticResource BoolVis}}"/>
+                <Border Background="{DynamicResource DangerColor}" CornerRadius="4" Padding="8,2" Margin="18,0,0,0"
+                        Visibility="{Binding IsOverCredit, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="⚠ عبور از سقف اعتبار" Foreground="White" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                </Border>
+            </StackPanel>
+        </Border>
+        </StackPanel>
 
         <!-- ═══ Add-item line (keyboard: search product → Enter) ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="6,5">
@@ -171,16 +201,16 @@
                             <ComboBox Grid.Column="1" Style="{StaticResource BaseComboBox}" Height="28" ItemsSource="{Binding PriceLevels}" SelectedItem="{Binding PriceLevel}"/>
                         </Grid>
                         <Separator Margin="0,6"/>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف ردیف‌ها" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, StringFormat={}{0:#,##0}}" Foreground="{DynamicResource DangerColor}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, StringFormat={}{0:#,##0}}"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف ردیف‌ها" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, Converter={StaticResource Num}}" FlowDirection="LeftToRight" Foreground="{DynamicResource DangerColor}"/></DockPanel>
+                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding Shipping}" Mask="n0" Height="28"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف مبلغی" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding InvoiceDiscount}" Mask="n0" Height="28"/></DockPanel>
                         <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="پورسانت ٪" Foreground="{DynamicResource SecondaryText}"/><telerik:RadMaskedNumericInput DockPanel.Dock="Left" Width="120" Value="{Binding CommissionPercent}" Mask="n2" Height="28"/></DockPanel>
                         <Separator Margin="0,8"/>
                         <DockPanel Margin="0,3">
                             <TextBlock DockPanel.Dock="Right" Text="قابل پرداخت" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" FlowDirection="LeftToRight" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
                         </DockPanel>
                     </StackPanel>
                 </DockPanel>
@@ -206,7 +236,7 @@
                     <TextBlock Text="سررسید" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
                     <TextBox Text="{Binding DueDate}" Width="95"/>
                     <TextBlock Text="مانده" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                    <TextBlock Text="{Binding RemainAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding RemainAmount, Converter={StaticResource Num}}" FlowDirection="LeftToRight" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- post button -->

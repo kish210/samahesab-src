@@ -119,6 +119,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<PurchaseInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceListViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.StockTransferViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.StockCountViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<PosViewModel>();
@@ -341,6 +342,26 @@ public partial class App : System.Windows.Application
             vrtb.Render(vwin);
             var venc = new System.Windows.Media.Imaging.PngBitmapEncoder(); venc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(vrtb));
             using (var vfs = System.IO.File.Create(System.IO.Path.Combine(vdir, "voucher.png"))) venc.Save(vfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_STOCKCOUNT") == "1")
+        {
+            var cvm = _host.Services.GetRequiredService<ViewModels.Inventory.StockCountViewModel>();
+            cvm.Date = "1405/03/21"; cvm.SessionId = 14; cvm.IsStarted = true; cvm.VarianceCount = 3;
+            cvm.Lines.Add(new ViewModels.Inventory.StockCountRow(1, "روغن موتور ۵ لیتری بهران", 120) { CountedQty = 118 });
+            cvm.Lines.Add(new ViewModels.Inventory.StockCountRow(2, "فیلتر روغن پراید", 300) { CountedQty = 300 });
+            cvm.Lines.Add(new ViewModels.Inventory.StockCountRow(3, "لاستیک ۱۷۵/۷۰R۱۳", 64) { CountedQty = 60 });
+            cvm.Lines.Add(new ViewModels.Inventory.StockCountRow(4, "باتری ۶۰ آمپر سپاهان", 45) { CountedQty = 47 });
+            cvm.Lines.Add(new ViewModels.Inventory.StockCountRow(5, "شمع موتور NGK", 210) { CountedQty = 210 });
+            var sview = new Views.Inventory.StockCountView { DataContext = cvm };
+            var swin = new Window { Content = sview, Width = 1200, Height = 760, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            swin.Show(); await Task.Delay(1200); swin.UpdateLayout();
+            var sdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(sdir);
+            var srtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1200, 760, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            srtb.Render(swin);
+            var senc = new System.Windows.Media.Imaging.PngBitmapEncoder(); senc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(srtb));
+            using (var sfs = System.IO.File.Create(System.IO.Path.Combine(sdir, "stockcount.png"))) senc.Save(sfs);
             Shutdown(); return;
         }
 

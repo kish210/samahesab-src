@@ -226,6 +226,7 @@
                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
                 <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
                 <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
+                <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
                 <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
                 <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
             </MenuItem>

@@ -43,6 +43,7 @@
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:ProductListViewModel}"><vi:ProductListView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:StockTransferViewModel}"><vi:StockTransferView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:StockCountViewModel}"><vi:StockCountView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:KardexViewModel}"><vi:KardexView/></DataTemplate>
 
     <!-- Sales -->

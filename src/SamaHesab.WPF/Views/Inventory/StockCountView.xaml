@@ -1,0 +1,104 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Inventory.StockCountView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="#F4F5F7">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
+        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
+        <SolidColorBrush x:Key="Line2" Color="#F0F1F3"/>
+        <SolidColorBrush x:Key="Muted" Color="#6B7280"/>
+        <SolidColorBrush x:Key="Strong" Color="#1F2937"/>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- toolbar -->
+            <RowDefinition Height="*"/>       <!-- grid -->
+            <RowDefinition Height="Auto"/>   <!-- footer -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══ نوار شروع ═══ -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,0,0,10">
+            <DockPanel>
+                <TextBlock Text="انبارگردانی سندی" FontSize="17" FontWeight="Bold" Foreground="{StaticResource Blue700}" VerticalAlignment="Center"/>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="انبار" Foreground="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox Width="180" Height="32" ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedWarehouseId}" IsEnabled="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                    <TextBlock Text="تاریخ" Foreground="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                    <TextBox Text="{Binding Date}" Width="100" Height="32" VerticalContentAlignment="Center"/>
+                    <Button Content="شروع شمارش" Height="34" Padding="16,0" Margin="12,0,0,0" Cursor="Hand" FontWeight="Bold"
+                            Background="{StaticResource Blue700}" Foreground="White" BorderThickness="0" Command="{Binding StartCommand}"
+                            Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                    <Border Background="#EEF2FB" CornerRadius="6" Padding="10,5" Margin="12,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
+                        <TextBlock VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource Blue700}" FontWeight="SemiBold">
+                            <Run Text="سند #"/><Run Text="{Binding SessionId, Mode=OneWay}"/><Run Text="  ·  مغایرت: "/><Run Text="{Binding VarianceCount, Mode=OneWay}"/><Run Text=" قلم"/>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ گرید شمارش ═══ -->
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10">
+            <DataGrid ItemsSource="{Binding Lines}" AutoGenerateColumns="False" HeadersVisibility="Column"
+                      GridLinesVisibility="All" CanUserAddRows="False" CanUserDeleteRows="False"
+                      RowHeight="32" FontSize="13" Background="White" BorderThickness="0"
+                      HorizontalGridLinesBrush="{StaticResource Line2}" VerticalGridLinesBrush="{StaticResource Line2}"
+                      AlternatingRowBackground="#FAFBFC" RowBackground="White">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F6F7F9"/>
+                        <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="8,7"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="موجودی سیستم" Binding="{Binding SystemQty, Converter={StaticResource Num}}" Width="140" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="شمارش" Binding="{Binding CountedQty, UpdateSourceTrigger=PropertyChanged}" Width="130">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="مغایرت" Binding="{Binding Variance, Converter={StaticResource Num}}" Width="120" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/>
+                                <Setter Property="Margin" Value="6,0"/><Setter Property="FontWeight" Value="Bold"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Variance}" Value="0"><Setter Property="Foreground" Value="{StaticResource Muted}"/></DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ═══ پایین ═══ -->
+        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="10" Padding="12,9" Margin="0,10,0,0"
+                Visibility="{Binding IsStarted, Converter={StaticResource BoolVis}}">
+            <DockPanel>
+                <TextBlock Text="{Binding ResultText}" Foreground="#16A34A" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Content="ثبت شمارش‌ها" Height="38" Padding="18,0" Cursor="Hand" FontWeight="SemiBold"
+                            Background="White" BorderBrush="{StaticResource Line}" Command="{Binding SaveCountsCommand}"/>
+                    <Button Content="قطعی‌سازی و تعدیل موجودی" Height="38" Padding="18,0" Margin="8,0,0,0" Cursor="Hand" FontWeight="Bold"
+                            Background="#16A34A" Foreground="White" BorderThickness="0" Command="{Binding PostCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

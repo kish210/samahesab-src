@@ -29,6 +29,12 @@ public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, d
 public record ApiWarehouse(int Id, string Name);
 public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
 
+// ── Stock count / انبارگردانی (#28) DTOs ──
+public record ApiStockCount(int Id, int WarehouseId, string Date, string Status,
+    int LineCount, int VarianceCount, List<ApiStockCountLine> Lines);
+public record ApiStockCountLine(int ProductId, string ProductName, decimal SystemQty,
+    decimal CountedQty, decimal Variance);
+
 /// <summary>
 /// HTTP client used by the POS / restaurant kiosk apps to talk to the central
 /// SamaHesab Web API (never the database directly). Configured from ApiSettings.
@@ -212,6 +218,49 @@ public class ApiClient
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
+
+    // ── Stock count / انبارگردانی (#28) ──
+    public async Task<(bool ok, int sessionId, string? error)> StartStockCountAsync(int warehouseId, string date)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("/api/stockcount/start", new { warehouseId, date });
+            if (!resp.IsSuccessStatusCode) return (false, 0, await ReadErrorAsync(resp) ?? "خطا در شروع انبارگردانی.");
+            var body = await resp.Content.ReadFromJsonAsync<StartCountResponse>();
+            return (true, body?.SessionId ?? 0, null);
+        }
+        catch (Exception ex) { return (false, 0, ex.GetBaseException().Message); }
+    }
+    private record StartCountResponse(int SessionId);
+
+    public async Task<ApiStockCount?> GetStockCountAsync(int sessionId)
+    {
+        try { return await _http.GetFromJsonAsync<ApiStockCount>($"/api/stockcount/{sessionId}"); }
+        catch { return null; }
+    }
+
+    public async Task<(bool ok, string? error)> SetStockCountLineAsync(int sessionId, int productId, decimal countedQty)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync($"/api/stockcount/{sessionId}/count", new { productId, countedQty });
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت شمارش.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, int adjusted, decimal variance, string? error)> PostStockCountAsync(int sessionId)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/stockcount/{sessionId}/post", null);
+            if (!resp.IsSuccessStatusCode) return (false, 0, 0, await ReadErrorAsync(resp) ?? "خطا در قطعی‌سازی.");
+            var body = await resp.Content.ReadFromJsonAsync<PostCountResponse>();
+            return (true, body?.AdjustedItems ?? 0, body?.TotalVariance ?? 0, null);
+        }
+        catch (Exception ex) { return (false, 0, 0, ex.GetBaseException().Message); }
+    }
+    private record PostCountResponse(int AdjustedItems, decimal TotalVariance);
 
     // ── POS shift / صندوق (#30/#31) ──
     public async Task<ApiShiftSummary?> GetCurrentShiftAsync()

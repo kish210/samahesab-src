@@ -239,7 +239,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             voucher.Post(_currentUser.UserId ?? 1);
         _voucherRepository.Update(voucher);
 
-        invoice.SetVoucher(voucher.Id);
+        // کار #۲۵: فاکتور فروشِ نهایی‌شده باید Posted شود (نه Draft) — هم‌راستا با فاکتور خرید.
+        // در غیر این صورت در تحلیل‌ها/گزارش‌ها به‌عنوان پیش‌نویس نادیده گرفته می‌شود.
+        invoice.Post(_currentUser.UserId ?? 1, voucher.Id);
         _invoiceRepository.Update(invoice);
 
         // ── Sales-rep commission → expense voucher ──

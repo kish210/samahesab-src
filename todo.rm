@@ -44,7 +44,7 @@
 22. 🔧 UI انتخاب الگوی سند (Voucher Templates)
 23. 🔧 UI تعریف/اجرای اسناد تکرارشونده
 24. ⬜ UI سند برگشتی + بستن سال مالی
-25. ⬜ Post خودکار اسناد فروش/خرید (الان Draft می‌مانند)
+25. ✅ Post خودکار اسناد فروش/خرید (کلود ۲): فاکتور خرید از قبل `invoice.Post(voucherId)` می‌کرد؛ فاکتور فروش فقط `SetVoucher` می‌زد و **Draft** می‌ماند (در نتیجه از تحلیل‌ها/گزارش‌هایی که Draft را کنار می‌گذارند حذف می‌شد). اصلاح: `CreateSalesInvoiceCommand` اکنون `invoice.Post(userId, voucherId)` می‌زند → وضعیت Posted + لینک سند + رویداد `SalesInvoicePostedEvent`. ۳ تست قرارداد وضعیت (۱۵۷ سبز).
 26. ✅ اصلاح گروه‌بندی درآمد/هزینه (کلود ۲): کلاس خالص `AccountClassifier` طبق نمودار واقعی (۱،۲=دارایی · ۳،۴=بدهی · ۵=سرمایه · ۶=درآمد · ۷،۸،۹=هزینه) جایگزین Seg0 غلط در سود/زیان و ترازنامه + ۹ تست (۱۲۹ سبز)
 27. ⬜ اسکن بارکد یکپارچه (سرویس مشترک: رسید/حواله/POS/شمارش)
 28. ✅ انبارگردانی سندی (شمارش گروهی + گزارش مغایرت) (کلود ۲): بک‌اند `StockCountSession`/`Line` + `Inv` (`database/14_StockCount.sql`) + Start/Count/Post (تبدیل مغایرت به تعدیل + سند خودکار) + `GetStockCountQuery` + `/api/stockcount/*` + ۵ تست. **+UI:** `StockCountViewModel`+`StockCountView` (انتخاب انبار/شروع، گرید شمارش با مغایرت زنده، ثبت شمارش‌ها، قطعی‌سازی) + متدهای ApiClient + منوی انبار→انبارگردانی.
@@ -97,6 +97,7 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-11** — **کار #۲۵ — Post خودکار فاکتور فروش (کلود ۲)**: رفع باگ — فاکتور فروش پس از ساخت Draft می‌ماند (سند پست می‌شد ولی فاکتور نه) و از تحلیل‌ها حذف می‌شد. اکنون `invoice.Post(userId, voucherId)` → Posted + رویداد. ۳ تست (۱۵۷ سبز).
 - **2026-06-11** — **کار #۳۹ — اتصال «مشتریان اخیر/کالای محبوب» به فاکتور فروش (کلود ۲)**: نوار چیپ «مشتریان اخیر» در `SalesInvoiceEditView` (از `GetRecentItemsQuery("customer")`) + ثبت `TouchRecentItemCommand` هنگام انتخاب مشتری و افزودن کالا (entityType: customer/product). منبع واحد سرویس Favorites. · اتصال POS فاز بعد.
 - **2026-06-11** — **پریمیتیوهای دیزاین‌سیستم + مهاجرت صفحات (کلود ۲)**: `ErpDesignSystem.xaml` (توکن‌ها + دکمه/ورودی/gbox/dgrid/sumbar) و مهاجرت ShiftView/CustomerCardView/WaiterView/PosView/StockCountView به آن.
 - **2026-06-11** — **کار #۲۸ — UI انبارگردانی سندی (کلود ۲)**: `StockCountViewModel`+`StockCountView` (انتخاب انبار + شروع شمارش، گرید کالا/موجودی سیستم/شمارش/مغایرت با مغایرت زنده، «ثبت شمارش‌ها» و «قطعی‌سازی و تعدیل موجودی») + متدهای ApiClient (`StartStockCount`/`GetStockCount`/`SetStockCountLine`/`PostStockCount`) + DI/DataTemplate/منوی انبار→انبارگردانی + هارنس `SAMA_SHOT_STOCKCOUNT`. Build سبز.

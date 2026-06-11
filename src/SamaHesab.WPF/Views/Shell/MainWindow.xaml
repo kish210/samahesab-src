@@ -29,7 +29,7 @@
         <!-- دکمه‌ی منوی تاپ‌بار (سفید روی آبی) -->
         <Style x:Key="TopMenuBtn" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#E6ECF7"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FontSize" Value="13"/>
@@ -76,7 +76,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Height" Value="42"/>
-            <Setter Property="Foreground" Value="#B8C4DC"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Command" Value="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"/>
             <Setter Property="Template">

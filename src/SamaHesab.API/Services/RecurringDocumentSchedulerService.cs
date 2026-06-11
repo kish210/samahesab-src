@@ -46,11 +46,11 @@ public class RecurringDocumentSchedulerService : BackgroundService
         var today = TodayPersian();
 
         var v = await mediator.Send(new GenerateDueRecurringVouchersCommand(today), ct);
-        if (v.Succeeded)
+        if (v.Succeeded && v.Value is not null)
             _logger.LogInformation("[Recurring] اسناد تکرارشونده تولیدشده: {Count}", v.Value.Generated);
 
         var i = await mediator.Send(new GenerateDueRecurringInvoicesCommand(today), ct);
-        if (i.Succeeded)
+        if (i.Succeeded && i.Value is not null)
             _logger.LogInformation("[Recurring] فاکتورهای تکرارشونده تولیدشده: {Count}", i.Value.Generated);
     }
 

@@ -93,7 +93,20 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="44"/>
                 <DataGridTextColumn Header="نام کالا" Binding="{Binding Display}" Width="*"/>
-                <DataGridTextColumn Header="تعداد انتقال" Binding="{Binding Qty, StringFormat='{}{0:#,##0}'}" Width="140"/>
+                <DataGridTextColumn Header="موجودی مبدأ" Binding="{Binding SourceStock, StringFormat='{}{0:#,##0}'}" Width="110"/>
+                <DataGridTextColumn Header="تعداد انتقال" Binding="{Binding Qty, StringFormat='{}{0:#,##0}'}" Width="120"/>
+                <DataGridTextColumn Header="مانده پس از انتقال" Binding="{Binding RemainingAfter, StringFormat='{}{0:#,##0}'}" Width="130">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsShortage}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTemplateColumn Header="حذف" Width="60">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

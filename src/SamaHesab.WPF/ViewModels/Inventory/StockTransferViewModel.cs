@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Commands;
+using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -16,6 +17,7 @@ public partial class StockTransferViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private readonly IWarehouseRepository _warehouseRepo;
     private readonly IProductRepository _productRepo;
+    private readonly IRepository<StockItem> _stockRepo;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -36,16 +38,34 @@ public partial class StockTransferViewModel : BaseViewModel
     public string FromWarehouseName => Warehouses.FirstOrDefault(w => w.Id == FromWarehouseId)?.Name ?? "—";
     public string ToWarehouseName => Warehouses.FirstOrDefault(w => w.Id == ToWarehouseId)?.Name ?? "—";
 
-    partial void OnFromWarehouseIdChanged(int value) => OnPropertyChanged(nameof(FromWarehouseName));
+    partial void OnFromWarehouseIdChanged(int value)
+    {
+        OnPropertyChanged(nameof(FromWarehouseName));
+        _ = RefreshSourceStockAsync();   // موجودی مبدأ ردیف‌ها با تغییر انبار به‌روز شود
+    }
     partial void OnToWarehouseIdChanged(int value) => OnPropertyChanged(nameof(ToWarehouseName));
 
+    private async Task RefreshSourceStockAsync()
+    {
+        foreach (var l in Lines.ToList())
+            l.SourceStock = await SourceStockAsync(l.ProductId);
+    }
+
     public StockTransferViewModel(IMediator mediator, IWarehouseRepository warehouseRepo,
-        IProductRepository productRepo, ICurrentUserService currentUser,
+        IProductRepository productRepo, IRepository<StockItem> stockRepo, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _warehouseRepo = warehouseRepo; _productRepo = productRepo;
-        _currentUser = currentUser; _calendar = calendar;
+        _stockRepo = stockRepo; _currentUser = currentUser; _calendar = calendar;
+    }
+
+    /// <summary>موجودی کالا در انبار مبدأ.</summary>
+    private async Task<decimal> SourceStockAsync(int productId)
+    {
+        var fromWh = FromWarehouseId;
+        var items = await _stockRepo.FindAsync(s => s.ProductId == productId && s.WarehouseId == fromWh);
+        return items.Sum(s => s.Quantity);
     }
 
     public override async Task LoadAsync()
@@ -63,15 +83,19 @@ public partial class StockTransferViewModel : BaseViewModel
         OnPropertyChanged(nameof(Products));
     }
 
-    /// <summary>افزودن کالای انتخاب‌شده به فهرست ردیف‌های انتقال.</summary>
+    /// <summary>افزودن کالای انتخاب‌شده به فهرست ردیف‌های انتقال (با واکشی موجودی مبدأ).</summary>
     [RelayCommand]
-    private void AddLine()
+    private async Task AddLineAsync()
     {
-        if (SelectedProduct == null) { _ = _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
-        if (Quantity <= 0) { _ = _dialogService.ShowErrorAsync("مقدار باید بزرگتر از صفر باشد."); return; }
+        if (SelectedProduct == null) { await _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
+        if (Quantity <= 0) { await _dialogService.ShowErrorAsync("مقدار باید بزرگتر از صفر باشد."); return; }
         var existing = Lines.FirstOrDefault(l => l.ProductId == SelectedProduct.Id);
         if (existing != null) existing.Qty += Quantity;
-        else Lines.Add(new TransferLineRow(SelectedProduct.Id, Lines.Count + 1, SelectedProduct.Display, Quantity));
+        else
+        {
+            var src = await SourceStockAsync(SelectedProduct.Id);
+            Lines.Add(new TransferLineRow(SelectedProduct.Id, Lines.Count + 1, SelectedProduct.Display, Quantity, src));
+        }
         SelectedProduct = null; Quantity = 1;
         Recalc();
     }
@@ -93,6 +117,8 @@ public partial class StockTransferViewModel : BaseViewModel
     {
         if (Lines.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیف اضافه کنید."); return; }
         if (FromWarehouseId == ToWarehouseId) { await _dialogService.ShowErrorAsync("انبار مبدأ و مقصد یکسان است."); return; }
+        var over = Lines.FirstOrDefault(l => l.IsShortage);
+        if (over != null) { await _dialogService.ShowErrorAsync($"موجودی مبدأ برای «{over.Display}» کافی نیست (موجودی {over.SourceStock:#,##0}، درخواست {over.Qty:#,##0})."); return; }
         await ExecuteAsync(async () =>
         {
             int ok = 0; string? lastErr = null;
@@ -121,7 +147,16 @@ public partial class TransferLineRow : ObservableObject
     public string Display { get; }
     [ObservableProperty] private int _rowNumber;
     [ObservableProperty] private decimal _qty;
+    [ObservableProperty] private decimal _sourceStock;
 
-    public TransferLineRow(int productId, int rowNumber, string display, decimal qty)
-    { ProductId = productId; _rowNumber = rowNumber; Display = display; _qty = qty; }
+    /// <summary>مانده‌ی انبار مبدأ پس از انتقال.</summary>
+    public decimal RemainingAfter => SourceStock - Qty;
+    /// <summary>درخواست بیش از موجودی مبدأ؟</summary>
+    public bool IsShortage => Qty > SourceStock;
+
+    partial void OnQtyChanged(decimal value) { OnPropertyChanged(nameof(RemainingAfter)); OnPropertyChanged(nameof(IsShortage)); }
+    partial void OnSourceStockChanged(decimal value) { OnPropertyChanged(nameof(RemainingAfter)); OnPropertyChanged(nameof(IsShortage)); }
+
+    public TransferLineRow(int productId, int rowNumber, string display, decimal qty, decimal sourceStock)
+    { ProductId = productId; _rowNumber = rowNumber; Display = display; _qty = qty; _sourceStock = sourceStock; }
 }

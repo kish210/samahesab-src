@@ -123,6 +123,8 @@ public partial class VoucherListViewModel : BaseViewModel
             TotalCount = result.TotalCount;
             TotalDebit = Vouchers.Sum(v => v.TotalDebit);
             TotalCredit = Vouchers.Sum(v => v.TotalCredit);
+            // master-detail: همیشه یک سند انتخاب باشد تا پنل پیش‌نمایش پر بماند
+            SelectedVoucher = Vouchers.FirstOrDefault();
         }, "در حال جستجو...");
     }
 

@@ -104,6 +104,7 @@ public partial class MainViewModel : BaseViewModel
             ["BankRecon"]       = ("مغایرت‌گیری بانکی",   sp => sp.GetRequiredService<BankReconciliationViewModel>()),
             ["Products"]        = ("مدیریت کالا",         sp => sp.GetRequiredService<ProductListViewModel>()),
             ["BatchSerial"]     = ("بچ و سریال",          sp => sp.GetRequiredService<BatchSerialViewModel>()),
+            ["InventoryReport"] = ("گزارش انبار",          sp => sp.GetRequiredService<InventoryReportViewModel>()),
             ["ProductEdit"]     = ("ویرایش کالا",         sp => sp.GetRequiredService<ProductEditViewModel>()),
             ["Warehouses"]      = ("انبارها",              sp => sp.GetRequiredService<WarehouseViewModel>()),
             ["StockAdjust"]     = ("تعدیل موجودی",        sp => sp.GetRequiredService<StockAdjustViewModel>()),

@@ -119,6 +119,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<BatchSerialViewModel>();
+                services.AddTransient<InventoryReportViewModel>();
                 services.AddTransient<ProductEditViewModel>();
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();
@@ -476,6 +477,15 @@ public partial class App : System.Windows.Application
             br2.Branches.Add(new Application.Settings.Commands.BranchDto(3, "003", "شعبهٔ مشهد", "مشهد، احمدآباد", "051-38007788", "آقای موسوی", false, false));
             br2.SelectedBranch = br2.Branches[1];
             await Shot(new Views.Settings.BranchManagementView { DataContext = br2 }, "branches.png", 1100, 640);
+
+            // REP-INV — گزارش موجودی/ارزش انبار
+            var ir = _host.Services.GetRequiredService<ViewModels.Inventory.InventoryReportViewModel>();
+            ir.Warehouses.Add(new ViewModels.Inventory.InvWarehousePick(null, "همهٔ انبارها"));
+            ir.Rows.Add(new Application.Inventory.Queries.StockRow(1, "K-1001", "لپ‌تاپ ایسوس", 12, 38_000_000, 456_000_000));
+            ir.Rows.Add(new Application.Inventory.Queries.StockRow(2, "K-1002", "ماوس بی‌سیم", 340, 850_000, 289_000_000));
+            ir.Rows.Add(new Application.Inventory.Queries.StockRow(3, "K-2010", "کاغذ A4", 1500, 220_000, 330_000_000));
+            ir.TotalValue = 1_075_000_000; ir.ItemCount = 3;
+            await Shot(new Views.Inventory.InventoryReportView { DataContext = ir }, "inventory_report.png", 1100, 640);
 
             Shutdown(); return;
         }

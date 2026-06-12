@@ -155,18 +155,18 @@
                         <RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="ماندهٔ ابتدای دوره" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CfOpening, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CfOpening, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="جریان نقد فعالیت‌های عملیاتی" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CfOperating, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CfOperating, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="جریان نقد فعالیت‌های سرمایه‌گذاری" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CfInvesting, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CfInvesting, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="جریان نقد فعالیت‌های تأمین مالی" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CfFinancing, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CfFinancing, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
                     <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Margin="0,2"/>
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="خالص تغییر وجه نقد" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CfNetChange, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CfNetChange, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="ماندهٔ پایان دوره" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CfClosing, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CfClosing, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
                 </Grid>
             </StackPanel>
         </Border>
@@ -177,25 +177,25 @@
                 <!-- trial/ledger totals -->
                 <StackPanel Orientation="Horizontal" Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}">
                     <TextBlock Text="جمع بدهکار:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding TotalDebit, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding TotalDebit, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="جمع بستانکار:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding TotalCredit, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalCredit, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <!-- P&L totals -->
                 <StackPanel Orientation="Horizontal" Visibility="{Binding IsProfitLoss, Converter={StaticResource BoolVis}}">
                     <TextBlock Text="جمع درآمد:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding RevenueTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding RevenueTotal, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="جمع هزینه:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding ExpenseTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding ExpenseTotal, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="سود (زیان) خالص:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding NetProfit, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding NetProfit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
                 </StackPanel>
                 <!-- Balance-sheet totals -->
                 <StackPanel Orientation="Horizontal" Visibility="{Binding IsBalanceSheet, Converter={StaticResource BoolVis}}">
                     <TextBlock Text="جمع دارایی‌ها:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding TotalAssets, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding TotalAssets, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="جمع بدهی‌ها + سرمایه:" Style="{StaticResource ErpInlineLabel}"/>
-                    <TextBlock Text="{Binding TotalLiabEquity, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource WarningColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="{Binding TotalLiabEquity, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource WarningColor}" VerticalAlignment="Center" Margin="0,0,16,0"/>
                     <TextBlock Text="وضعیت تراز:" Style="{StaticResource ErpInlineLabel}"/>
                     <TextBlock VerticalAlignment="Center" FontWeight="Bold">
                         <TextBlock.Style>

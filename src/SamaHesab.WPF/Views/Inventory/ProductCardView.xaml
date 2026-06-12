@@ -48,7 +48,7 @@
                 <StackPanel Margin="12,8">
                     <TextBlock Text="موجودی کل" Style="{StaticResource PcLabel}"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding TotalStock, StringFormat='{}{0:#,##0}'}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}"/>
+                        <TextBlock Text="{Binding TotalStock, Converter={StaticResource Num}}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}"/>
                         <TextBlock Text=" واحد" FontSize="11" VerticalAlignment="Bottom" Margin="3,0,0,3" Foreground="{DynamicResource MutedText}"/>
                     </StackPanel>
                     <TextBlock Text="{Binding ReorderPoint, StringFormat='نقطه سفارش: {0:#,##0}'}" Style="{StaticResource PcLabel}"/>
@@ -61,7 +61,7 @@
                         <Border Style="{StaticResource ErpGbox}" Width="150" Margin="0,0,6,0">
                             <StackPanel Margin="12,8">
                                 <TextBlock Text="{Binding WarehouseName}" Style="{StaticResource PcLabel}"/>
-                                <TextBlock Text="{Binding Quantity, StringFormat='{}{0:#,##0}'}" FontSize="20" FontWeight="Bold">
+                                <TextBlock Text="{Binding Quantity, Converter={StaticResource Num}}" FontSize="20" FontWeight="Bold">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PcValue}">
                                             <Style.Triggers>
@@ -93,9 +93,9 @@
             <Border Style="{StaticResource ErpGbox}" Margin="3,0">
                 <StackPanel Margin="12,8">
                     <TextBlock Text="قیمت‌گذاری" Style="{StaticResource ErpGboxTitle}"/>
-                    <Grid><TextBlock Text="قیمت خرید" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding PurchasePrice, StringFormat='{}{0:#,##0}'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="فروش خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="فروش عمده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding WholesalePrice, StringFormat='{}{0:#,##0}'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="قیمت خرید" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding PurchasePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="فروش خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding SalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="فروش عمده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding WholesalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
                     <Grid><TextBlock Text="٪ سود خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding RetailMarginPct, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left" Foreground="{DynamicResource SuccessColor}"/></Grid>
                     <Grid><TextBlock Text="مالیات" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding TaxRate, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
                 </StackPanel>
@@ -103,9 +103,9 @@
             <Border Style="{StaticResource ErpGbox}" Margin="3,0,0,0">
                 <StackPanel Margin="12,8">
                     <TextBlock Text="انبار و کنترل" Style="{StaticResource ErpGboxTitle}"/>
-                    <Grid><TextBlock Text="نقطه سفارش" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding ReorderPoint, StringFormat='{}{0:#,##0}', FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="حداقل موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MinStock, StringFormat='{}{0:#,##0}'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="حداکثر موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MaxStock, StringFormat='{}{0:#,##0}', FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="نقطه سفارش" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding ReorderPoint, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="حداقل موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MinStock, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <Grid><TextBlock Text="حداکثر موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MaxStock, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
                     <Grid><TextBlock Text="کنترل سریال/بچ" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding Tracking}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
                 </StackPanel>
             </Border>
@@ -122,10 +122,10 @@
                         <DataGridTextColumn Header="نوع" Binding="{Binding Type}" Width="90"/>
                         <DataGridTextColumn Header="سند" Binding="{Binding DocumentNumber}" Width="100"/>
                         <DataGridTextColumn Header="شرح" Binding="{Binding Notes}" Width="*"/>
-                        <DataGridTextColumn Header="ورود" Binding="{Binding In, StringFormat='{}{0:#,##0}'}" Width="80"/>
-                        <DataGridTextColumn Header="خروج" Binding="{Binding Out, StringFormat='{}{0:#,##0}'}" Width="80"/>
-                        <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat='{}{0:#,##0}'}" Width="90"/>
-                        <DataGridTextColumn Header="فی" Binding="{Binding UnitCost, StringFormat='{}{0:#,##0}'}" Width="110"/>
+                        <DataGridTextColumn Header="ورود" Binding="{Binding In, Converter={StaticResource Num}}" Width="80"/>
+                        <DataGridTextColumn Header="خروج" Binding="{Binding Out, Converter={StaticResource Num}}" Width="80"/>
+                        <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="90"/>
+                        <DataGridTextColumn Header="فی" Binding="{Binding UnitCost, Converter={StaticResource Num}}" Width="110"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </DockPanel>

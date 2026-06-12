@@ -93,9 +93,9 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="44"/>
                 <DataGridTextColumn Header="نام کالا" Binding="{Binding Display}" Width="*"/>
-                <DataGridTextColumn Header="موجودی مبدأ" Binding="{Binding SourceStock, StringFormat='{}{0:#,##0}'}" Width="110"/>
-                <DataGridTextColumn Header="تعداد انتقال" Binding="{Binding Qty, StringFormat='{}{0:#,##0}'}" Width="120"/>
-                <DataGridTextColumn Header="مانده پس از انتقال" Binding="{Binding RemainingAfter, StringFormat='{}{0:#,##0}'}" Width="130">
+                <DataGridTextColumn Header="موجودی مبدأ" Binding="{Binding SourceStock, Converter={StaticResource Num}}" Width="110"/>
+                <DataGridTextColumn Header="تعداد انتقال" Binding="{Binding Qty, Converter={StaticResource Num}}" Width="120"/>
+                <DataGridTextColumn Header="مانده پس از انتقال" Binding="{Binding RemainingAfter, Converter={StaticResource Num}}" Width="130">
                     <DataGridTextColumn.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Style.Triggers>
@@ -129,7 +129,7 @@
                     <TextBlock Text="اقلام:" Foreground="{DynamicResource MutedText}" FontSize="12" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding LineCount}" FontWeight="Bold" Margin="4,0,16,0" VerticalAlignment="Center"/>
                     <TextBlock Text="تعداد کل:" Foreground="{DynamicResource MutedText}" FontSize="12" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding TotalQty, StringFormat='{}{0:#,##0}'}" FontWeight="Bold" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalQty, Converter={StaticResource Num}}" FontWeight="Bold" Margin="4,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
             </DockPanel>
         </Border>

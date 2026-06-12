@@ -104,7 +104,7 @@
                     <Grid Margin="0,0,0,8">
                         <TextBlock Text="مانده حساب:" FontWeight="Bold" FontFamily="{StaticResource VazirFont}"
                                    Foreground="{DynamicResource PrimaryText}"/>
-                        <TextBlock Text="{Binding SelectedAccountBalance, StringFormat='{}{0:N0} ریال'}"
+                        <TextBlock Text="{Binding SelectedAccountBalance, Converter={StaticResource Num}, ConverterParameter=ریال}"
                                    HorizontalAlignment="Left" FontWeight="Bold" FontSize="18"
                                    Foreground="{DynamicResource WarningColor}"
                                    FontFamily="{StaticResource VazirFont}"/>

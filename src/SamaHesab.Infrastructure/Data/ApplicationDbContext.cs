@@ -144,6 +144,25 @@ public class ApplicationDbContext : DbContext
             b.ToTable("StockTransactions", "Inv");
             b.HasKey(t => t.Id);
         });
+        // بچ و سریال (عمق انبار — INV-1): جداول Inv.Batches/Serials از قبل در SQL هست.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.Batch>(b =>
+        {
+            b.ToTable("Batches", "Inv");
+            b.Property(x => x.BatchNumber).IsRequired().HasMaxLength(50);
+            b.Property(x => x.ProductionDate).HasMaxLength(10);
+            b.Property(x => x.ExpiryDate).HasMaxLength(10);
+            b.Property(x => x.Quantity).HasColumnType("decimal(18,4)");
+            b.Property(x => x.PurchasePrice).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.ProductId, x.BatchNumber }).IsUnique();
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.Serial>(b =>
+        {
+            b.ToTable("Serials", "Inv");
+            b.Property(x => x.SerialNumber).IsRequired().HasMaxLength(100);
+            b.Property(x => x.Status).HasConversion(new SerialStatusToPersianConverter()).HasMaxLength(20);
+            b.Property(x => x.PurchasePrice).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.ProductId, x.SerialNumber }).IsUnique();
+        });
         modelBuilder.Entity<Customer>().ToTable("Customers", "Crm");
         modelBuilder.Entity<Supplier>().ToTable("Suppliers", "Crm");
         modelBuilder.Entity<SalesInvoice>().ToTable("SalesInvoices", "Sal");

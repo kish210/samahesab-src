@@ -71,3 +71,25 @@ public class ChequeTypeToPersianConverter : ValueConverter<ChequeType, string>
         s => s == "پرداختی" ? ChequeType.Paid : ChequeType.Received)
     { }
 }
+
+public class SerialStatusToPersianConverter : ValueConverter<SerialStatus, string>
+{
+    public SerialStatusToPersianConverter() : base(
+        v => ToPersian(v),
+        s => FromPersian(s))
+    { }
+
+    private static string ToPersian(SerialStatus v) => v switch
+    {
+        SerialStatus.Sold => "فروخته شده",
+        SerialStatus.Defective => "معیوب",
+        _ => "موجود"
+    };
+
+    private static SerialStatus FromPersian(string s) => s switch
+    {
+        "فروخته شده" => SerialStatus.Sold,
+        "معیوب" => SerialStatus.Defective,
+        _ => SerialStatus.Available
+    };
+}

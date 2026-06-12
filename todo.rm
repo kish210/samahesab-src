@@ -46,6 +46,9 @@
 - جزئیات کارهای claim‌شده زیر بخش «Phase-1 Backlog» (در حال تکمیل) می‌آید.
 
 ### 📋 Phase-1 Backlog (claim‌شده)
+- [~] **TR-1 (خزانه/جریان وجوه)** 🔒C1 — صورت جریان وجوه نقد:
+  - [x] گام۱: ✅ موتور خالص `CashFlowEngine` + `CashFlowClassifier` (نقد=1-01؛ سرمایه‌گذاری=گروه ۲؛ تأمین‌مالی=گروه ۴/۵+۳-۰۶/۳-۰۷؛ بقیه عملیاتی) + ۷ تست + `GetCashFlowQuery` (مانده اول/آخر دوره + فیلتر شعبه). ۱۸۵ تست سبز.
+  - [ ] گام۲: UI صورت جریان وجوه (به‌عنوان نوع گزارش در گزارش‌های مالی + خروجی اکسل/PDF).
 - [~] **INV-1 (عمق انبار)** 🔒C1 — بچ/سریال/انقضا/FIFO:
   - [x] گام۱: ✅ persist `Batch`/`Serial` در EF (Inv schema) + `SerialStatusToPersianConverter` + CQRS مدیریت (GetBatches/SaveBatch/GetSerials/SaveSerial) + کوئری انقضا (`GetExpiringBatches`) + `BatchSerialController` (API).
   - [x] گام۲: ✅ صفحهٔ WPF `BatchSerial` (تب بچ‌ها/سریال‌ها/رو به انقضا + انتخابگر کالا + فرم ثبت بچ/سریال) + منوی «بچ و سریال (انقضا)» زیر انبار. رندر تأییدشده (screenshot/batch_serial.png).

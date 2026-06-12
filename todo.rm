@@ -43,11 +43,11 @@
 12. ✅ P4/P12 — موجودیت `PurchaseOrder`/`Item` (schema Pur، `database/15_PurchaseOrders.sql`) + `CreatePurchaseOrderFromReorderCommand` (ساخت خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها (`/api/purchase/orders`, `/orders/from-reorder`) + ۴ تست
 13. ✅ P6 — موتور گردش‌کار/تأیید: `ApprovalWorkflow` (ماشین‌وضعیت خالص Draft→Pending→Approved/Rejected→Reopen) + ۶ تست · اتصال به سند/PO (نیاز به فیلد وضعیت تأیید) بعداً
 14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
-15. 🔧 P7 — تکمیل پوشش API: افزوده شد دریافتنی/پرداختنی (`/api/treasury/receivables|payables`) + تابلوی چک و تغییر وضعیت (`/api/cheques/board`, `/api/cheques/{id}/status`) · مغایرت بانکی نیاز به Query دفتر بانک دارد (بعداً)
+15. ✅ P7 — تکمیل پوشش API: دریافتنی/پرداختنی (`/api/treasury/receivables|payables`) + تابلوی چک و تغییر وضعیت (`/api/cheques/board`, `/api/cheques/{id}/status`) + ✅ Query دفتر بانک مغایرت‌گیری (`GetBankLedgerQuery`، R4)
 16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
 17. 🔨 UI داشبورد نقش‌محور (WPF) — **کلود ۲ گرفت (کمک به بستهٔ ۱)**
 18. ✅ UI تابلوی چک (کلود ۲): `ChequeBoardViewModel`+`ChequeBoardView` (مرتب بر اساس سررسید، رنگ سررسیدگذشته/امروز، دکمه‌های «وصول»/«برگشت») با `GetChequeBoardQuery`+`ChangeChequeStatusCommand`؛ منو «تابلوی چک»
-19. 🔨 UI مغایرت‌گیری بانکی — **کلود ۲ گرفت**
+19. ✅ UI مغایرت‌گیری بانکی (کلود ۱، R4): `GetBankLedgerQuery` (دفتر بانک از آرتیکل حساب کلِ بانک) + `BankReconciliationView/VM` (بارگذاری دفتر، paste صورت‌حساب CSV→`BankStatementParser`، تطبیق خودکار→`BankReconciliation.AutoMatch`، سه گرید منطبق/نامنطبق) + ماندگاری سبک `bank-recon.json`. روی موتورِ کامیت 31ea2fd ساخته شد (C2 قبلاً «گرفت» ولی UI تولید نشد؛ R-plan به C1 سپرد).
 20. ✅ UI فهرست دریافتنی/پرداختنی + ثبت سریع (کلود ۲): `ReceivablesViewModel`+`ReceivablesView` (دو گرید بدهکار/بستانکار + «وصول/پرداخت کامل» یک‌کلیکی + «مبلغ دلخواه») با `CreateReceiptCommand`/`CreatePaymentCommand`؛ منو «دریافتنی/پرداختنی». Build سبز، ۱۰۶ تست
 
 ### بستهٔ کلود ۲ (۲۱–۴۰)
@@ -197,6 +197,14 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-12** — **بستهٔ بهره‌وری حسابداری C1 (کلود ۱)** — تکمیل لِین R-plan + پاک‌سازی:
+  - **R6** — صفحهٔ «عملیات پایان دوره» (`EndOfPeriod`): سند برگشتی (`ReverseVoucherCommand`) + بستن سال مالی با سند افتتاحیهٔ اختیاری و نمایش سود/زیان (`CloseFiscalYearCommand`). منو: حسابداری.
+  - **R7** — ارقام فارسی در داشبورد/میزکار: همهٔ KPIها و مبالغ از `NumberFormatConverter` (با پسوند ریال/فقره/قلم از `ConverterParameter`) + رفع هم‌پوشانی هدر «اسناد اخیر».
+  - **R5** — صفحهٔ «بهره‌وری سند» (`VoucherProductivity`): الگوهای سند + ساخت از الگو + اسناد تکرارشونده (تعریف/تولید سررسیدشده). type-ahead حساب #۲۱ از قبل در `VoucherEditView` بود.
+  - **R4 / #۱۹** — مغایرت‌گیری بانکی: `GetBankLedgerQuery` (دفتر بانک) + صفحهٔ `BankReconciliation` (بارگذاری دفتر، paste CSV→`BankStatementParser`، تطبیق خودکار→`BankReconciliation.AutoMatch`، سه گرید) + ماندگاری سبک `bank-recon.json`. منو: خزانه‌داری.
+  - **P5** — اتصال خروجی اکسل (CSV با BOM) و چاپ/PDF (HTML راست‌چین) به گزارش‌های مالی از طریق `ReportExporter`؛ ذخیره در `My Documents\SamaHesab\گزارش‌ها`.
+  - **اصلاحات حسابداری** — حذف متدهای مردهٔ `Seg0` (سود‌وزیان/ترازنامه از `AccountClassifier` نفرِ دوم استفاده می‌کنند) + **رفع باگ کدهای حساب M11 گردشگری** (درآمد ۴→۶-۰۱-۰۰۲، بهای‌تمام‌شده ۵→۷-۰۱-۰۰۱، کمیسیون ۵→۸-۱۱) که با نمودار واقعی ناسازگار بود.
+  - کل solution سبز (۰ هشدار)، ۱۷۱ تست سبز.
 - **2026-06-11** — **🧩 آغاز فاز ماژولار + تقسیم کار (کلود ۲)**: `ModuleService` (فعال/غیرفعال ماژول‌ها با persistence) + صفحهٔ «مدیریت ماژول‌ها» (هسته قفل، اختیاری‌ها سوییچ) ساخته شد (M1/M2). تقسیم کار M1..M12 بین کلود ۱/۲ در todo نوشته شد (قاعدهٔ ضدتداخل: گیتِ MainWindow/MainViewModel فقط کلود ۲).
 - **2026-06-11** — **انبارگردانی → workflow بارکدِ انباردار (بهره‌وری ERP، کلود ۲)**: نوار اسکن بارکدِ پررنگ در `StockCountView` (هر اسکن = +۱ شمارشِ ردیفِ کالا، از `ApiClient.ResolveBarcodeAsync` #۲۷، Enter-محور) + بازخورد لحظه‌ای (نام کالا/شمارش). `BarcodeInput`/`ScanInfo`/`ScanCommand` در VM.
 - **2026-06-11** — **R18 فاکتور فروش → Invoice Workspace (بهره‌وری ERP، کلود ۲)**: تبدیل از «فرم» به «فضای کاری»: ورود کیبوردمحور با بارکد (فوکوس خودکار + Enter→افزودن فوری از سرویس بارکد #۲۷)، گریدِ کالا مرکز صفحه، پنل تسویهٔ کناری (جمع/تخفیف/مالیات + قابل‌پرداخت + دکمه‌های نقد/کارت/چک/نسیه + ثبت نهایی F9)، حاشیه‌های فشرده. `BarcodeInput`/`ProcessBarcodeCommand`/`SetPayCommand` در VM.

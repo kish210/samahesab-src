@@ -118,6 +118,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Settings.BranchManagementViewModel>();
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
+                services.AddTransient<BatchSerialViewModel>();
                 services.AddTransient<ProductEditViewModel>();
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();
@@ -457,6 +458,16 @@ public partial class App : System.Windows.Application
             sec.Users.Add(new Application.Security.Commands.SecurityUserDto(1, "admin", "مدیر سیستم", true, new[] { 1 }));
             sec.Users.Add(new Application.Security.Commands.SecurityUserDto(2, "hesabdar", "علی حسابدار", true, new[] { 2 }));
             await Shot(new Views.Security.SecurityManagementView { DataContext = sec }, "security.png", 1150, 680);
+
+            // INV-1 — بچ و سریال
+            var bs = _host.Services.GetRequiredService<ViewModels.Inventory.BatchSerialViewModel>();
+            bs.Batches.Add(new Application.Inventory.Commands.BatchDto(1, 1, "B-1404-001", "1404/01/10", "1404/09/10", 120, 85000, null));
+            bs.Batches.Add(new Application.Inventory.Commands.BatchDto(2, 1, "B-1404-002", "1404/02/01", "1404/04/01", 40, 86000, null));
+            bs.Serials.Add(new Application.Inventory.Commands.SerialDto(1, 1, null, "SN-AX-0001", "موجود", 1200000, "1404/02/15", null));
+            bs.Serials.Add(new Application.Inventory.Commands.SerialDto(2, 1, null, "SN-AX-0002", "فروخته شده", 1200000, "1404/02/15", "1404/03/05"));
+            bs.Expiring.Add(new Application.Inventory.Commands.ExpiringBatchDto(2, 1, "B-1404-002", "1404/04/01", 40, false));
+            bs.Expiring.Add(new Application.Inventory.Commands.ExpiringBatchDto(3, 2, "B-1403-099", "1403/12/20", 15, true));
+            await Shot(new Views.Inventory.BatchSerialView { DataContext = bs }, "batch_serial.png", 1150, 680);
 
             Shutdown(); return;
         }

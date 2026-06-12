@@ -48,7 +48,7 @@
 ### 📋 Phase-1 Backlog (claim‌شده)
 - [~] **INV-1 (عمق انبار)** 🔒C1 — بچ/سریال/انقضا/FIFO:
   - [x] گام۱: ✅ persist `Batch`/`Serial` در EF (Inv schema) + `SerialStatusToPersianConverter` + CQRS مدیریت (GetBatches/SaveBatch/GetSerials/SaveSerial) + کوئری انقضا (`GetExpiringBatches`) + `BatchSerialController` (API).
-  - [ ] گام۲: UI مدیریت بچ/سریال + گزارش کالاهای رو به انقضا.
+  - [x] گام۲: ✅ صفحهٔ WPF `BatchSerial` (تب بچ‌ها/سریال‌ها/رو به انقضا + انتخابگر کالا + فرم ثبت بچ/سریال) + منوی «بچ و سریال (انقضا)» زیر انبار. رندر تأییدشده (screenshot/batch_serial.png).
   - [ ] گام۳ (هماهنگی C2): ساخت بچ/سریال در ثبت خرید + مصرف در فروش + ادغام FIFO در مسیر خروج.
 - [x] **MB-1 (چندشعبه)** ✅C1 — multi-branch (کامل):
   - [x] گام۱: ✅ مدیریت شعبه (CRUD): `GetBranchesQuery`/`SaveBranchCommand`/`ToggleBranchCommand` + `BranchesController` (API) + صفحهٔ WPF `BranchManagement` + منوی «مدیریت شعب» زیر سیستم + ثبت `Branch` در DbContext (Cfg.Branches).

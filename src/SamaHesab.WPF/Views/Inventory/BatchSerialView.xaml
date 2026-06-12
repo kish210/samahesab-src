@@ -1,0 +1,145 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Inventory.BatchSerialView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <Style x:Key="ILabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="11.5"/><Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="IInput" TargetType="TextBox">
+            <Setter Property="Padding" Value="7,5"/><Setter Property="Margin" Value="0,0,0,9"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+        </Style>
+        <Style x:Key="IPrimary" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource PrimaryAccent}"/>
+            <Setter Property="Foreground" Value="White"/><Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,7"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="IGrid" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/><Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="HeadersVisibility" Value="Column"/><Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="RowHeight" Value="28"/><Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CanUserAddRows" Value="False"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="بچ و سریال (عمق انبار)" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="مدیریت بچ (با تاریخ انقضا) و سریالِ کالاها و گزارش کالاهای رو به انقضا."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- انتخابگر کالا -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="کالا:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,8,0"/>
+            <ComboBox Width="320" Height="30" ItemsSource="{Binding Products}" DisplayMemberPath="Display"
+                      SelectedValuePath="Id" SelectedValue="{Binding SelectedProductId}"/>
+        </StackPanel>
+
+        <TabControl Grid.Row="2" Background="Transparent" BorderThickness="0">
+            <!-- بچ‌ها -->
+            <TabItem Header="بچ‌ها">
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Grid.Column="0" Style="{StaticResource IGrid}" ItemsSource="{Binding Batches}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="شمارهٔ بچ" Binding="{Binding BatchNumber}" Width="*"/>
+                            <DataGridTextColumn Header="تولید" Binding="{Binding ProductionDate}" Width="90"/>
+                            <DataGridTextColumn Header="انقضا" Binding="{Binding ExpiryDate}" Width="90"/>
+                            <DataGridTextColumn Header="موجودی" Binding="{Binding Quantity, Converter={StaticResource Num}}" Width="90"/>
+                            <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, Converter={StaticResource Num}}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Grid.Column="2" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                            BorderThickness="1" CornerRadius="10" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="بچ جدید" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,10"/>
+                            <TextBlock Text="شمارهٔ بچ" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding BatchNumber}" Style="{StaticResource IInput}"/>
+                            <TextBlock Text="تاریخ تولید (۱۴۰۴/۰۱/۰۱)" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding ProductionDate}" Style="{StaticResource IInput}"/>
+                            <TextBlock Text="تاریخ انقضا" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding ExpiryDate}" Style="{StaticResource IInput}"/>
+                            <TextBlock Text="موجودی اولیه" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding BatchQuantity}" Style="{StaticResource IInput}"/>
+                            <TextBlock Text="قیمت خرید واحد" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding BatchPurchasePrice}" Style="{StaticResource IInput}"/>
+                            <Button Content="ثبت بچ" Style="{StaticResource IPrimary}" HorizontalAlignment="Left"
+                                    Command="{Binding AddBatchCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- سریال‌ها -->
+            <TabItem Header="سریال‌ها">
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Grid.Column="0" Style="{StaticResource IGrid}" ItemsSource="{Binding Serials}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="شمارهٔ سریال" Binding="{Binding SerialNumber}" Width="*"/>
+                            <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="100"/>
+                            <DataGridTextColumn Header="تاریخ خرید" Binding="{Binding PurchaseDate}" Width="100"/>
+                            <DataGridTextColumn Header="تاریخ فروش" Binding="{Binding SaleDate}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Grid.Column="2" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                            BorderThickness="1" CornerRadius="10" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="سریال جدید" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,10"/>
+                            <TextBlock Text="شمارهٔ سریال" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding SerialNumber}" Style="{StaticResource IInput}"/>
+                            <TextBlock Text="قیمت خرید" Style="{StaticResource ILabel}"/>
+                            <TextBox Text="{Binding SerialPurchasePrice}" Style="{StaticResource IInput}"/>
+                            <Button Content="ثبت سریال" Style="{StaticResource IPrimary}" HorizontalAlignment="Left"
+                                    Command="{Binding AddSerialCommand}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- رو به انقضا -->
+            <TabItem Header="رو به انقضا">
+                <DockPanel Margin="0,10,0,0">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="افق (روز):" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,8,0"/>
+                        <TextBox Text="{Binding ExpiryHorizon}" Width="70" Padding="6,4"
+                                 Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                                 BorderBrush="{DynamicResource BorderColor}"/>
+                        <Button Content="نمایش" Style="{StaticResource IPrimary}" Margin="8,0,0,0"
+                                Command="{Binding LoadExpiringCommand}"/>
+                    </StackPanel>
+                    <DataGrid Style="{StaticResource IGrid}" ItemsSource="{Binding Expiring}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="کالا (شناسه)" Binding="{Binding ProductId, Converter={StaticResource Num}}" Width="100"/>
+                            <DataGridTextColumn Header="شمارهٔ بچ" Binding="{Binding BatchNumber}" Width="*"/>
+                            <DataGridTextColumn Header="تاریخ انقضا" Binding="{Binding ExpiryDate}" Width="110"/>
+                            <DataGridTextColumn Header="موجودی" Binding="{Binding Quantity, Converter={StaticResource Num}}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="منقضی شده" Binding="{Binding IsExpired}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

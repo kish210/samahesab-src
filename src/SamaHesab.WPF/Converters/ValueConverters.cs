@@ -83,9 +83,11 @@ public class NumberFormatConverter : IValueConverter
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is decimal d) return ToPersian(d.ToString("N0"));
-        if (value is double dbl) return ToPersian(dbl.ToString("N0"));
-        if (value is int i) return ToPersian(i.ToString("N0"));
+        // پسوند اختیاری از ConverterParameter (مثلاً «ریال»/«فقره»/«قلم»)
+        var suffix = parameter is string s && s.Length > 0 ? " " + s : string.Empty;
+        if (value is decimal d) return ToPersian(d.ToString("N0")) + suffix;
+        if (value is double dbl) return ToPersian(dbl.ToString("N0")) + suffix;
+        if (value is int i) return ToPersian(i.ToString("N0")) + suffix;
         return value?.ToString() ?? string.Empty;
     }
 

@@ -7,7 +7,8 @@ using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.Application.Security.Commands;
 
-public record AuthResult(int UserId, int CompanyId, int BranchId, string Username, string FullName, string[] Roles);
+public record AuthResult(int UserId, int CompanyId, int BranchId, string Username, string FullName,
+    string[] Roles, string[] Permissions);
 
 public record AuthenticateCommand(int CompanyId, string Username, string Password, string? IpAddress = null)
     : IRequest<Result<AuthResult>>;
@@ -17,9 +18,13 @@ public class AuthenticateCommandHandler : IRequestHandler<AuthenticateCommand, R
     private readonly IRepository<User> _users;
     private readonly IRepository<AuditLog> _audit;
     private readonly IUnitOfWork _uow;
+    private readonly IRepository<Role> _roles;
+    private readonly IRepository<RolePermission> _rolePerms;
+    private readonly IRepository<UserRole> _userRoles;
 
-    public AuthenticateCommandHandler(IRepository<User> users, IRepository<AuditLog> audit, IUnitOfWork uow)
-    { _users = users; _audit = audit; _uow = uow; }
+    public AuthenticateCommandHandler(IRepository<User> users, IRepository<AuditLog> audit, IUnitOfWork uow,
+        IRepository<Role> roles, IRepository<RolePermission> rolePerms, IRepository<UserRole> userRoles)
+    { _users = users; _audit = audit; _uow = uow; _roles = roles; _rolePerms = rolePerms; _userRoles = userRoles; }
 
     public async Task<Result<AuthResult>> Handle(AuthenticateCommand req, CancellationToken ct)
     {
@@ -49,9 +54,29 @@ public class AuthenticateCommandHandler : IRequestHandler<AuthenticateCommand, R
             "Sec.Users", user.Id.ToString(), null, req.IpAddress), ct);
         await _uow.SaveChangesAsync(ct);
 
-        // Role mapping is simplified for now; the seeded admin gets the ADMIN role.
-        var roles = user.Username == "admin" ? new[] { "ADMIN" } : Array.Empty<string>();
+        // نقش‌ها و مجوزهای واقعیِ کاربر (RBAC).
+        var myUserRoles = await _userRoles.FindAsync(ur => ur.UserId == user.Id, ct);
+        var roleIds = myUserRoles.Select(ur => ur.RoleId).Distinct().ToList();
+
+        string[] roles;
+        string[] permissions;
+        if (roleIds.Count > 0)
+        {
+            var allRoles = await _roles.FindAsync(r => roleIds.Contains(r.Id) && r.IsActive, ct);
+            roles = allRoles.Select(r => r.Code).Distinct().ToArray();
+            var activeRoleIds = allRoles.Select(r => r.Id).ToList();
+            var perms = await _rolePerms.FindAsync(p => activeRoleIds.Contains(p.RoleId), ct);
+            permissions = perms.Select(p => p.PermissionCode).Distinct().ToArray();
+        }
+        else if (user.Username == "admin")
+        {
+            // fallback سازگار: ادمینِ seedنشده همچنان دسترسی کامل دارد.
+            roles = new[] { "ADMIN" };
+            permissions = new[] { PermissionCatalog.Wildcard };
+        }
+        else { roles = Array.Empty<string>(); permissions = Array.Empty<string>(); }
+
         return Result<AuthResult>.Success(new AuthResult(
-            user.Id, user.CompanyId, user.BranchId ?? 1, user.Username, user.FullName, roles));
+            user.Id, user.CompanyId, user.BranchId ?? 1, user.Username, user.FullName, roles, permissions));
     }
 }

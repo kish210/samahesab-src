@@ -49,6 +49,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<FiscalYear> FiscalYears { get; set; }
     public DbSet<CostCenter> CostCenters { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Security.Role> Roles { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Security.RolePermission> RolePermissions { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Security.UserRole> UserRoles { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.CashShift> CashShifts { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.HeldSale> HeldSales { get; set; }
@@ -202,6 +205,27 @@ public class ApplicationDbContext : DbContext
             b.Property(l => l.Credit).HasPrecision(18, 2);
         });
         modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
+
+        // ─── امنیت/RBAC: نقش · مجوز نقش · نقش کاربر — schema Sec ─────────────────────
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Security.Role>(b =>
+        {
+            b.ToTable("Roles", "Sec");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(50);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            b.HasMany(x => x.Permissions).WithOne().HasForeignKey(p => p.RoleId).OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Security.RolePermission>(b =>
+        {
+            b.ToTable("RolePermissions", "Sec");
+            b.Property(x => x.PermissionCode).IsRequired().HasMaxLength(100);
+            b.HasIndex(x => new { x.RoleId, x.PermissionCode }).IsUnique();
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Security.UserRole>(b =>
+        {
+            b.ToTable("UserRoles", "Sec");
+            b.HasIndex(x => new { x.UserId, x.RoleId }).IsUnique();
+        });
 
         // ─── ابعاد حسابداری (هستهٔ ERP): سال مالی · مرکز هزینه · پروژه — schema Acc ───
         modelBuilder.Entity<FiscalYear>(b =>

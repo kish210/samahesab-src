@@ -37,16 +37,18 @@ public class GenerateTourismVoucherCommandHandler
         IAccountRepository accounts, IVoucherRepository vouchers)
     { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; }
 
-    // نگاشت نقش → کد حساب (با fallback به حساب‌های پایه‌ی موجود)
+    // نگاشت نقش → کد حساب، مطابقِ نمودار حساب‌های واقعی (database/07_DefaultChartOfAccounts.sql)
+    // و سازگار با AccountClassifier: ۱=دارایی، ۳=بدهی، ۶=درآمد، ۷=بهای‌تمام‌شده، ۸=هزینهٔ عملیاتی.
+    // (با fallback به حساب‌های والدِ موجود.)
     private static readonly Dictionary<TourismAccountRole, string[]> Codes = new()
     {
-        [TourismAccountRole.Cash]              = new[] { "1-01-001" },
-        [TourismAccountRole.Receivable]        = new[] { "1-03-001", "1-01-001" },
-        [TourismAccountRole.TourismRevenue]    = new[] { "4-02", "4-01" },
-        [TourismAccountRole.TourismCost]       = new[] { "5-03", "5-01" },
-        [TourismAccountRole.SupplierPayable]   = new[] { "3-01-001" },
-        [TourismAccountRole.CommissionExpense] = new[] { "5-04", "5-02", "5-01" },
-        [TourismAccountRole.CommissionPayable] = new[] { "3-02-001", "3-01-001" },
+        [TourismAccountRole.Cash]              = new[] { "1-01-001", "1-01" },                     // صندوق
+        [TourismAccountRole.Receivable]        = new[] { "1-03-001", "1-03", "1-01-001" },         // دریافتنی مشتریان
+        [TourismAccountRole.TourismRevenue]    = new[] { "6-01-002", "6-01-001", "6-03", "6-01" }, // درآمد فروش خدمات
+        [TourismAccountRole.TourismCost]       = new[] { "7-01-001", "7-01" },                     // بهای تمام‌شدهٔ خدمات
+        [TourismAccountRole.SupplierPayable]   = new[] { "3-01-001", "3-01" },                     // پرداختنی تأمین‌کنندگان
+        [TourismAccountRole.CommissionExpense] = new[] { "8-11", "8-08", "8-01" },                 // هزینهٔ عملیاتی (کمیسیون)
+        [TourismAccountRole.CommissionPayable] = new[] { "3-01-002", "3-01-001", "3-01" },         // پرداختنی سایر
     };
 
     public async Task<Result<int>> Handle(GenerateTourismVoucherCommand req, CancellationToken ct)

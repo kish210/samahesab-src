@@ -101,8 +101,6 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
     public GetBalanceSheetQueryHandler(IVoucherRepository v, IAccountRepository a, ICurrentUserService u)
     { _vouchers = v; _accounts = a; _currentUser = u; }
 
-    private static string Seg0(string code) => (code ?? "").Split('-').FirstOrDefault() ?? "";
-
     public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
@@ -158,8 +156,6 @@ public class GetProfitLossQueryHandler : IRequestHandler<GetProfitLossQuery, Pro
 
     public GetProfitLossQueryHandler(IVoucherRepository v, IAccountRepository a, ICurrentUserService u)
     { _vouchers = v; _accounts = a; _currentUser = u; }
-
-    private static string Seg0(string code) => (code ?? "").Split('-').FirstOrDefault() ?? "";
 
     public async Task<ProfitLossDto> Handle(GetProfitLossQuery req, CancellationToken ct)
     {

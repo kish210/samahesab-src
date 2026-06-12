@@ -86,6 +86,7 @@ public partial class MainViewModel : BaseViewModel
             ["Receivables"]     = ("دریافتنی/پرداختنی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>()),
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),
+            ["AccDimensions"]   = ("ابعاد حسابداری",      sp => sp.GetRequiredService<AccountingDimensionsViewModel>()),
             ["VoucherTools"]    = ("بهره‌وری سند",        sp => sp.GetRequiredService<VoucherProductivityViewModel>()),
             ["BankAccounts"]    = ("حساب‌های بانکی",      sp => sp.GetRequiredService<BankAccountViewModel>()),
             ["BankRecon"]       = ("مغایرت‌گیری بانکی",   sp => sp.GetRequiredService<BankReconciliationViewModel>()),

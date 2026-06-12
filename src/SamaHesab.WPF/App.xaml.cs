@@ -113,6 +113,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<EndOfPeriodViewModel>();
                 services.AddTransient<VoucherProductivityViewModel>();
                 services.AddTransient<BankReconciliationViewModel>();
+                services.AddTransient<AccountingDimensionsViewModel>();
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<ProductEditViewModel>();
@@ -431,6 +432,16 @@ public partial class App : System.Windows.Application
             br.UnmatchedStatement.Add(new Application.Accounting.StatementLine("1404/03/15", -2_300_000, "برداشت کارت"));
             br.MatchedCount = 2; br.UnmatchedLedgerCount = 1; br.UnmatchedStatementCount = 1;
             await Shot(new Views.Accounting.BankReconciliationView { DataContext = br }, "bank_recon.png", 1200, 720);
+
+            // CE-1 — ابعاد حسابداری (سال مالی/مرکز هزینه/پروژه)
+            var dim = _host.Services.GetRequiredService<ViewModels.Accounting.AccountingDimensionsViewModel>();
+            dim.FiscalYears.Add(new Application.Accounting.Dimensions.FiscalYearDto(1, "۱۴۰۳", "1403/01/01", "1403/12/30", true, false));
+            dim.FiscalYears.Add(new Application.Accounting.Dimensions.FiscalYearDto(2, "۱۴۰۴", "1404/01/01", "1404/12/29", false, true));
+            dim.CostCenters.Add(new Application.Accounting.Dimensions.CostCenterDto(1, "100", "اداری", null, true));
+            dim.CostCenters.Add(new Application.Accounting.Dimensions.CostCenterDto(2, "200", "فروش", null, true));
+            dim.Projects.Add(new Application.Accounting.Dimensions.ProjectDto(1, "PRJ-01", "احداث انبار مرکزی", "1404/02/01", "1404/10/01", 4_500_000_000, false, true));
+            dim.FyTitle = "۱۴۰۴"; dim.FyStart = "1404/01/01"; dim.FyEnd = "1404/12/29";
+            await Shot(new Views.Accounting.AccountingDimensionsView { DataContext = dim }, "acc_dimensions.png", 1100, 660);
 
             Shutdown(); return;
         }

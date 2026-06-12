@@ -307,14 +307,80 @@
                 <ColumnDefinition Width="*"/>      <!-- محتوا -->
             </Grid.ColumnDefinitions>
 
-            <telerik:RadDocking Grid.Column="1" x:Name="docking" Margin="2"
-                                Close="Docking_Close" BorderThickness="0" HasDocumentHost="True">
-                <telerik:RadDocking.DocumentHost>
-                    <telerik:RadSplitContainer>
-                        <telerik:RadPaneGroup x:Name="docGroup"/>
-                    </telerik:RadSplitContainer>
-                </telerik:RadDocking.DocumentHost>
-            </telerik:RadDocking>
+            <!-- ═══ تب‌های MDI (WPF خالص، بدون Telerik) — عینِ .erp-tabs ═══ -->
+            <TabControl Grid.Column="1" Background="{StaticResource ErpAppBg}" BorderThickness="0"
+                        ItemsSource="{Binding OpenTabs}" SelectedItem="{Binding SelectedTab}">
+                <!-- پوستهٔ TabControl: نوار تب ۳۴px با اسکرول افقی + ناحیهٔ محتوا -->
+                <TabControl.Template>
+                    <ControlTemplate TargetType="TabControl">
+                        <DockPanel>
+                            <Border DockPanel.Dock="Top" Height="34" Background="{StaticResource ErpGray150}"
+                                    BorderBrush="{StaticResource ErpBorderStrong}" BorderThickness="0,0,0,1">
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Padding="8,0,8,0">
+                                    <TabPanel IsItemsHost="True" VerticalAlignment="Bottom"/>
+                                </ScrollViewer>
+                            </Border>
+                            <Border Background="{StaticResource ErpAppBg}">
+                                <ContentPresenter ContentSource="SelectedContent"/>
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </TabControl.Template>
+                <!-- محتوای هر تب: VM → View از طریق DataTemplates -->
+                <TabControl.ContentTemplate>
+                    <DataTemplate><ContentControl Content="{Binding Content}"/></DataTemplate>
+                </TabControl.ContentTemplate>
+                <!-- چرومِ هر تب مطابق .erp-tabs .dt -->
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border x:Name="dt" Height="30" Margin="0,0,2,0" Padding="12,0" CornerRadius="6,6,0,0"
+                                            Background="Transparent" BorderThickness="1,1,1,0" BorderBrush="Transparent" VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock x:Name="tabText" Text="{Binding Title}" FontSize="12" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource ErpTextMuted}"/>
+                                            <Button Margin="8,0,0,0" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                                    Command="{Binding DataContext.CloseTabCommand, RelativeSource={RelativeSource AncestorType=TabControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Visibility="{Binding CanClose, Converter={StaticResource BoolVis}}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="cb" Width="16" Height="16" CornerRadius="4" Background="{TemplateBinding Background}">
+                                                            <TextBlock Text="✕" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="cb" Property="Background" Value="{StaticResource ErpGray150}"/></Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="dt" Property="Background" Value="{StaticResource ErpAppBg}"/>
+                                            <Setter TargetName="dt" Property="BorderBrush" Value="{StaticResource ErpBorderStrong}"/>
+                                            <Setter TargetName="dt" Property="Margin" Value="0,0,2,-1"/>
+                                            <Setter TargetName="tabText" Property="Foreground" Value="{StaticResource ErpBlue700}"/>
+                                            <Setter TargetName="tabText" Property="FontWeight" Value="SemiBold"/>
+                                        </Trigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter TargetName="dt" Property="Background" Value="#99FFFFFF"/>
+                                            <Setter TargetName="tabText" Property="Foreground" Value="{StaticResource ErpTextStrong}"/>
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.ItemContainerStyle>
+            </TabControl>
 
             <!-- سایدبارِ هاوری: ۶۰px جمع‌شده (فقط آیکون)، با hover به ۲۲۰px باز و روی محتوا overlay می‌شود -->
             <Border x:Name="SideNav" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right"

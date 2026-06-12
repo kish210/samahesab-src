@@ -156,6 +156,7 @@
                                 <MenuItem Header="تابلوی چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
                                 <MenuItem Header="دریافتنی/پرداختنی" Command="{Binding NavigateCommand}" CommandParameter="Receivables"/>
                                 <MenuItem Header="حساب‌های بانکی" Command="{Binding NavigateCommand}" CommandParameter="BankAccounts"/>
+                                <MenuItem Header="مغایرت‌گیری بانکی" Command="{Binding NavigateCommand}" CommandParameter="BankRecon"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

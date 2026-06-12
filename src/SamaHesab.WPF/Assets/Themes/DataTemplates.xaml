@@ -40,6 +40,7 @@
     <DataTemplate DataType="{x:Type acc:ChequeBoardViewModel}"><va:ChequeBoardView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:EndOfPeriodViewModel}"><va:EndOfPeriodView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:VoucherProductivityViewModel}"><va:VoucherProductivityView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:BankReconciliationViewModel}"><va:BankReconciliationView/></DataTemplate>
 
     <!-- Inventory -->
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>

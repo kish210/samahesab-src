@@ -26,4 +26,19 @@ public class Batch : BaseEntity
 
     public bool IsExpired(string todayPersianDate) =>
         !string.IsNullOrEmpty(ExpiryDate) && string.Compare(ExpiryDate, todayPersianDate) < 0;
+
+    /// <summary>افزایش موجودی بچ (هنگام رسید/خرید).</summary>
+    public void Increase(decimal qty)
+    {
+        if (qty < 0) throw new ArgumentException("مقدار افزایش نمی‌تواند منفی باشد.");
+        Quantity += qty;
+    }
+
+    /// <summary>کاهش موجودی بچ (هنگام حواله/فروش). از موجودی بیشتر مجاز نیست.</summary>
+    public void Decrease(decimal qty)
+    {
+        if (qty < 0) throw new ArgumentException("مقدار کاهش نمی‌تواند منفی باشد.");
+        if (qty > Quantity) throw new InvalidOperationException("موجودی بچ کافی نیست.");
+        Quantity -= qty;
+    }
 }

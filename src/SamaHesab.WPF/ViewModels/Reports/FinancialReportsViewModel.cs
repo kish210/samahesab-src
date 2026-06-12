@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Reports.Export;
 using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -23,6 +24,8 @@ public partial class FinancialReportsViewModel : BaseViewModel
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
     [ObservableProperty] private int? _selectedAccountId;
+    [ObservableProperty] private int? _selectedCostCenterId;
+    [ObservableProperty] private int? _selectedProjectId;
 
     [ObservableProperty] private bool _isTrial = true;
     [ObservableProperty] private bool _isLedger;
@@ -45,6 +48,8 @@ public partial class FinancialReportsViewModel : BaseViewModel
     public ObservableCollection<PlDisplayRow> PlRows { get; } = new();
     public ObservableCollection<BalanceDisplayRow> BalanceRows { get; } = new();
     public List<AccountPick> Accounts { get; private set; } = new();
+    public List<CostCenterDto> CostCenters { get; private set; } = new();
+    public List<ProjectDto> Projects { get; private set; } = new();
 
     public FinancialReportsViewModel(IMediator mediator, IAccountRepository accountRepo,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
@@ -66,6 +71,13 @@ public partial class FinancialReportsViewModel : BaseViewModel
         Accounts = accs.Where(a => a.IsLeaf).OrderBy(a => a.Code)
             .Select(a => new AccountPick(a.Id, $"{a.Code} - {a.Name}")).ToList();
         OnPropertyChanged(nameof(Accounts));
+
+        // ابعاد تحلیلی برای فیلتر گزارش (هستهٔ ERP)
+        CostCenters = await _mediator.Send(new GetCostCentersQuery(ActiveOnly: true));
+        OnPropertyChanged(nameof(CostCenters));
+        Projects = await _mediator.Send(new GetProjectsQuery(ActiveOnly: true));
+        OnPropertyChanged(nameof(Projects));
+
         await RunAsync();
     }
 
@@ -86,7 +98,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             if (IsTrial)
             {
                 TrialRows.Clear();
-                var rows = await _mediator.Send(new GetTrialBalanceQuery(FromDate, ToDate));
+                var rows = await _mediator.Send(new GetTrialBalanceQuery(FromDate, ToDate, SelectedCostCenterId, SelectedProjectId));
                 foreach (var r in rows) TrialRows.Add(r);
                 TotalDebit = rows.Sum(r => r.Debit);
                 TotalCredit = rows.Sum(r => r.Credit);
@@ -94,7 +106,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             else if (IsLedger)
             {
                 LedgerRows.Clear();
-                var rows = await _mediator.Send(new GetGeneralLedgerQuery(FromDate, ToDate, SelectedAccountId));
+                var rows = await _mediator.Send(new GetGeneralLedgerQuery(FromDate, ToDate, SelectedAccountId, SelectedCostCenterId, SelectedProjectId));
                 foreach (var r in rows) LedgerRows.Add(r);
                 TotalDebit = rows.Sum(r => r.Debit);
                 TotalCredit = rows.Sum(r => r.Credit);

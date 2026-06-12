@@ -147,6 +147,7 @@
                             <ColumnDefinition Width="150"/><ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="160"/><ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="160"/><ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0"><TextBlock Style="{StaticResource Lbl}" Text="شماره سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherNumber}" IsReadOnly="True" Background="#F3F4F6"/></StackPanel>
@@ -156,7 +157,9 @@
                         <StackPanel Grid.Column="6"><TextBlock Style="{StaticResource Lbl}" Text="مرکز هزینه"/>
                             <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedCostCenterId}"/></StackPanel>
                         <StackPanel Grid.Column="8"><TextBlock Style="{StaticResource Lbl}" Text="شرح سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding Description}"/></StackPanel>
-                        <StackPanel Grid.Column="10"><TextBlock Style="{StaticResource Lbl}" Text="ارجاع"/><TextBox Style="{StaticResource InputC}" Text="{Binding Reference}"/></StackPanel>
+                        <StackPanel Grid.Column="10"><TextBlock Style="{StaticResource Lbl}" Text="پروژه"/>
+                            <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedProjectId}"/></StackPanel>
+                        <StackPanel Grid.Column="12"><TextBlock Style="{StaticResource Lbl}" Text="ارجاع"/><TextBox Style="{StaticResource InputC}" Text="{Binding Reference}"/></StackPanel>
                     </Grid>
                 </StackPanel>
             </Border>

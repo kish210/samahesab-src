@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Accounting.Commands;
+using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -25,8 +26,11 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     [ObservableProperty] private string _voucherDate = string.Empty;
     [ObservableProperty] private int _selectedVoucherTypeId = 9;
     [ObservableProperty] private int? _selectedCostCenterId;
+    [ObservableProperty] private int? _selectedProjectId;
     [ObservableProperty] private string? _description;
     [ObservableProperty] private string? _reference;
+
+    private int _fiscalYearId = 1;   // از سال مالیِ فعال در LoadAsync پر می‌شود
 
     // New row input
     [ObservableProperty] private int _newRowNumber = 1;
@@ -47,6 +51,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     public List<VoucherTypeItem> VoucherTypes { get; private set; } = new();
     public List<VoucherAccountItem> LeafAccounts { get; private set; } = new();
     public List<CostCenterItem> CostCenters { get; private set; } = new();
+    public List<CostCenterItem> Projects { get; private set; } = new();
 
     public VoucherEditViewModel(IMediator mediator, IAccountRepository accountRepo,
         IVoucherRepository voucherRepo, ICurrentUserService currentUser,
@@ -69,17 +74,23 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         };
         OnPropertyChanged(nameof(VoucherTypes));
 
-        CostCenters = new List<CostCenterItem>
-        {
-            new(1,"اداری"),new(2,"فروش"),new(3,"تولید"),new(4,"توزیع"),
-        };
+        // مراکز هزینه و پروژه‌های واقعی (هستهٔ ERP — جایگزین لیست هاردکد)
+        var ccs = await _mediator.Send(new GetCostCentersQuery(ActiveOnly: true));
+        CostCenters = ccs.Select(c => new CostCenterItem(c.Id, $"{c.Code} - {c.Name}")).ToList();
         OnPropertyChanged(nameof(CostCenters));
+
+        var prs = await _mediator.Send(new GetProjectsQuery(ActiveOnly: true));
+        Projects = prs.Select(p => new CostCenterItem(p.Id, $"{p.Code} - {p.Name}")).ToList();
+        OnPropertyChanged(nameof(Projects));
+
+        // سال مالیِ فعال (برای قفل دوره). اگر تعریف نشده باشد، ۱ می‌ماند.
+        var years = await _mediator.Send(new GetFiscalYearsQuery());
+        var active = years.FirstOrDefault(y => y.IsActive && !y.IsClosed) ?? years.FirstOrDefault(y => !y.IsClosed);
+        if (active is not null) _fiscalYearId = active.Id;
 
         var accounts = await _accountRepo.GetLeafAccountsAsync(_currentUser.CompanyId ?? 1);
         LeafAccounts = accounts.Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList();
         OnPropertyChanged(nameof(LeafAccounts));
-
-        await Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -196,15 +207,17 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         {
             var cmd = new CreateVoucherCommand(
                 BranchId: _currentUser.BranchId ?? 1,
-                FiscalYearId: 1,
+                FiscalYearId: _fiscalYearId,
                 VoucherDate: VoucherDate,
                 VoucherTypeId: SelectedVoucherTypeId,
                 Description: Description,
                 Reference: Reference,
                 CurrencyId: null,
                 ExchangeRate: 1,
+                // بُعدِ سرتیترِ سند (مرکز هزینه/پروژه) روی همهٔ ردیف‌ها اعمال می‌شود
                 Items: Items.Select(r => new VoucherItemDto(
-                    r.RowNumber, r.AccountId, r.Debit, r.Credit, r.Description, null, null)).ToList()
+                    r.RowNumber, r.AccountId, r.Debit, r.Credit, r.Description,
+                    SelectedCostCenterId, SelectedProjectId)).ToList()
             );
             var result = await _mediator.Send(cmd);
             if (result.Succeeded)

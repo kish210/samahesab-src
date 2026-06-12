@@ -31,6 +31,20 @@
                           ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id"
                           SelectedValue="{Binding SelectedAccountId}" IsEditable="True" IsFilteringEnabled="True"
                           CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True" EmptyText="همه حساب‌ها..."/>
+                <TextBlock Text="مرکز هزینه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"
+                           Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"/>
+                <telerik:RadComboBox Width="170" Height="30"
+                          Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"
+                          ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                          SelectedValue="{Binding SelectedCostCenterId}" IsEditable="True" IsFilteringEnabled="True"
+                          CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True" EmptyText="همه مراکز..."/>
+                <TextBlock Text="پروژه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"
+                           Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"/>
+                <telerik:RadComboBox Width="170" Height="30"
+                          Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"
+                          ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                          SelectedValue="{Binding SelectedProjectId}" IsEditable="True" IsFilteringEnabled="True"
+                          CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True" EmptyText="همه پروژه‌ها..."/>
                 <Button Style="{StaticResource PrimaryButton}" Height="30" Padding="16,0" Margin="12,0,0,0" Command="{Binding RunCommand}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Magnify" Width="16" Height="16" VerticalAlignment="Center"/>

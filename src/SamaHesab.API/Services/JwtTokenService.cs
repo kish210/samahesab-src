@@ -6,7 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace SamaHesab.API.Services;
 
-public record AuthenticatedUser(int UserId, int CompanyId, int BranchId, string Username, string FullName, string[] Roles);
+public record AuthenticatedUser(int UserId, int CompanyId, int BranchId, string Username, string FullName,
+    string[] Roles, string[] Permissions);
 public record TokenPair(string AccessToken, string RefreshToken, DateTime ExpiresAt);
 
 public class JwtTokenService
@@ -33,6 +34,7 @@ public class JwtTokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        claims.AddRange(user.Permissions.Select(p => new Claim("perm", p)));
 
         var token = new JwtSecurityToken(
             issuer: jwt["Issuer"], audience: jwt["Audience"],

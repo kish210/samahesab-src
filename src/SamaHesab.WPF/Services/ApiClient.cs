@@ -6,7 +6,8 @@ namespace SamaHesab.WPF.Services;
 
 public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
 public record ApiGroup(int Id, string Name);
-public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName, string[] Roles);
+public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
+    string[] Roles, string[]? Permissions = null);
 
 // ── Restaurant (v2) DTOs — match the Application-layer query DTOs ──
 public record ApiHall(int Id, string Name, int DisplayOrder, List<ApiTable> Tables);

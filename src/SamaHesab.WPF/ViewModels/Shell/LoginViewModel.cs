@@ -87,13 +87,14 @@ public partial class LoginViewModel : ObservableObject
                 ((CurrentUserService)_currentUser).SetCurrentUser(
                     me?.UserId ?? 1, me?.CompanyId ?? SelectedCompanyId, me?.BranchId ?? 1,
                     me?.Username ?? Username, me?.FullName ?? Username,
-                    me?.Roles ?? new[] { "ADMIN" }, Array.Empty<string>());
+                    me?.Roles ?? new[] { "ADMIN" }, me?.Permissions ?? Array.Empty<string>());
 
                 Authenticated?.Invoke();
                 return;
             }
 
-            int userId = 1; int branchId = 1; string fullName = Username; List<string> roles = new();
+            int userId = 1; int branchId = 1; string fullName = Username;
+            List<string> roles = new(); List<string> permissions = new();
 
             try
             {
@@ -103,6 +104,7 @@ public partial class LoginViewModel : ObservableObject
                 {
                     userId = result.Value.UserId; branchId = result.Value.BranchId;
                     fullName = result.Value.FullName; roles = result.Value.Roles.ToList();
+                    permissions = result.Value.Permissions.ToList();
                 }
                 else { HasError = true; ErrorMessage = result.ErrorMessage; return; }
             }
@@ -111,11 +113,11 @@ public partial class LoginViewModel : ObservableObject
                 // Offline resilience: if the DB is unreachable, allow the built-in admin.
                 if (!((Username == "admin" && Password == "admin123") || (Username == "admin" && Password == "1234")))
                 { HasError = true; ErrorMessage = "عدم دسترسی به پایگاه داده و اعتبارسنجی ناموفق."; return; }
-                fullName = "مدیر سیستم"; roles = new List<string> { "ADMIN" };
+                fullName = "مدیر سیستم"; roles = new List<string> { "ADMIN" }; permissions = new List<string> { "*" };
             }
 
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,
-                fullName, roles, new List<string>());
+                fullName, roles, permissions);
 
             var mainWindow = App.GetService<Views.Shell.MainWindow>();
             mainWindow.Show();

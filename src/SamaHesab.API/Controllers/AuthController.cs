@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
 
         var u = result.Value;
         return Ok(IssueAndStore(new AuthenticatedUser(
-            u.UserId, u.CompanyId, u.BranchId, u.Username, u.FullName, u.Roles)));
+            u.UserId, u.CompanyId, u.BranchId, u.Username, u.FullName, u.Roles, u.Permissions)));
     }
 
     /// <summary>Exchange a valid refresh token for a new access+refresh pair (rotation).</summary>
@@ -83,6 +83,7 @@ public class AuthController : ControllerBase
         _currentUser.BranchId,
         _currentUser.Username,
         _currentUser.FullName,
-        Roles = _currentUser.GetRoles()
+        Roles = _currentUser.GetRoles(),
+        Permissions = User.FindAll("perm").Select(c => c.Value).ToArray()
     });
 }

@@ -28,7 +28,12 @@ public class HttpCurrentUserService : ICurrentUserService
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
     public bool HasPermission(string moduleCode, string featureCode, string action)
-        => GetRoles().Contains("ADMIN") || (User?.HasClaim("perm", $"{moduleCode}.{featureCode}.{action}") ?? false);
+    {
+        if (GetRoles().Contains("ADMIN")) return true;
+        var granted = User?.FindAll("perm").Select(c => c.Value) ?? Enumerable.Empty<string>();
+        return SamaHesab.Application.Common.Security.PermissionCatalog.Grants(
+            granted, $"{moduleCode}.{featureCode}.{action}");
+    }
 
     public IEnumerable<string> GetRoles() =>
         User?.FindAll(ClaimTypes.Role).Select(c => c.Value) ?? Enumerable.Empty<string>();

@@ -47,7 +47,8 @@ public class CurrentUserService : ICurrentUserService
     {
         if (_roles.Contains("ADMIN")) return true;
         var key = $"{moduleCode}.{featureCode}.{action}";
-        return _permissions.Contains(key);
+        // پشتیبانی از «*» و wildcardِ ماژول (مثل «Treasury.*») از طریق کاتالوگ مجوز.
+        return SamaHesab.Application.Common.Security.PermissionCatalog.Grants(_permissions, key);
     }
 
     public IEnumerable<string> GetRoles() => _roles;

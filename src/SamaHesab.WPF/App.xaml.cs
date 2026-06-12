@@ -469,6 +469,14 @@ public partial class App : System.Windows.Application
             bs.Expiring.Add(new Application.Inventory.Commands.ExpiringBatchDto(3, 2, "B-1403-099", "1403/12/20", 15, true));
             await Shot(new Views.Inventory.BatchSerialView { DataContext = bs }, "batch_serial.png", 1150, 680);
 
+            // MB-1 — مدیریت شعب
+            var br2 = _host.Services.GetRequiredService<ViewModels.Settings.BranchManagementViewModel>();
+            br2.Branches.Add(new Application.Settings.Commands.BranchDto(1, "001", "دفتر مرکزی", "تهران، خیابان ولیعصر", "021-88001122", "آقای رضایی", true, true));
+            br2.Branches.Add(new Application.Settings.Commands.BranchDto(2, "002", "شعبهٔ اصفهان", "اصفهان، چهارباغ", "031-32004455", "خانم کریمی", false, true));
+            br2.Branches.Add(new Application.Settings.Commands.BranchDto(3, "003", "شعبهٔ مشهد", "مشهد، احمدآباد", "051-38007788", "آقای موسوی", false, false));
+            br2.SelectedBranch = br2.Branches[1];
+            await Shot(new Views.Settings.BranchManagementView { DataContext = br2 }, "branches.png", 1100, 640);
+
             Shutdown(); return;
         }
 

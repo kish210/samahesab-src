@@ -221,6 +221,8 @@
                                 <MenuItem Header="میز کار / داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
                                 <MenuItem Header="امنیت و دسترسی (نقش‌ها/کاربران)" Command="{Binding NavigateCommand}" CommandParameter="Security"
                                           Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
+                                <MenuItem Header="مدیریت شعب" Command="{Binding NavigateCommand}" CommandParameter="Branches"
+                                          Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>

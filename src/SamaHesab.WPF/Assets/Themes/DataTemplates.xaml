@@ -45,6 +45,7 @@
     <DataTemplate DataType="{x:Type acc:BankReconciliationViewModel}"><va:BankReconciliationView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:AccountingDimensionsViewModel}"><va:AccountingDimensionsView/></DataTemplate>
     <DataTemplate DataType="{x:Type sec:SecurityManagementViewModel}"><vsec:SecurityManagementView/></DataTemplate>
+    <DataTemplate DataType="{x:Type cfg:BranchManagementViewModel}"><vcfg:BranchManagementView/></DataTemplate>
 
     <!-- Inventory -->
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>

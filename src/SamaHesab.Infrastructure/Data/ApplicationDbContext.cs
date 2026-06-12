@@ -255,6 +255,13 @@ public class ApplicationDbContext : DbContext
         });
 
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.Branch>(b =>
+        {
+            b.ToTable("Branches", "Cfg");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(100);
+            b.Ignore(x => x.Company);
+        });
         modelBuilder.Entity<SamaHesab.Domain.Entities.POS.CashShift>(b =>
         {
             b.ToTable("CashShifts", "Pos");

@@ -98,6 +98,7 @@ public partial class MainViewModel : BaseViewModel
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),
             ["AccDimensions"]   = ("ابعاد حسابداری",      sp => sp.GetRequiredService<AccountingDimensionsViewModel>()),
             ["Security"]        = ("امنیت و دسترسی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>()),
+            ["Branches"]        = ("مدیریت شعب",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.BranchManagementViewModel>()),
             ["VoucherTools"]    = ("بهره‌وری سند",        sp => sp.GetRequiredService<VoucherProductivityViewModel>()),
             ["BankAccounts"]    = ("حساب‌های بانکی",      sp => sp.GetRequiredService<BankAccountViewModel>()),
             ["BankRecon"]       = ("مغایرت‌گیری بانکی",   sp => sp.GetRequiredService<BankReconciliationViewModel>()),

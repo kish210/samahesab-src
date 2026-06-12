@@ -47,15 +47,18 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
     private readonly IVoucherRepository _voucherRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public CreateVoucherCommandHandler(
         IVoucherRepository voucherRepository,
         IUnitOfWork unitOfWork,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        IRepository<FiscalYear> fiscalYears)
     {
         _voucherRepository = voucherRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
+        _fiscalYears = fiscalYears;
     }
 
     public async Task<Result<int>> Handle(CreateVoucherCommand request, CancellationToken ct)
@@ -63,6 +66,19 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
         try
         {
             var companyId = _currentUser.CompanyId!.Value;
+
+            // قفل دوره: اگر سال مالی تعریف شده باشد، بسته‌بودن/خارج‌از‌بازه‌بودن مسدود می‌شود.
+            // (نبودِ رکورد سال مالی برای نصب‌های قدیمی مجاز است تا چیزی نشکند.)
+            var fy = await _fiscalYears.GetByIdAsync(request.FiscalYearId, ct);
+            if (fy is not null)
+            {
+                if (fy.IsClosed)
+                    return Result<int>.Failure($"سال مالی «{fy.Title}» بسته شده است؛ ثبت سند مجاز نیست.");
+                if (!fy.Contains(request.VoucherDate))
+                    return Result<int>.Failure(
+                        $"تاریخ سند ({request.VoucherDate}) خارج از بازهٔ سال مالی «{fy.Title}» ({fy.StartDate} تا {fy.EndDate}) است.");
+            }
+
             var voucherNumber = await _voucherRepository.GetNextNumberAsync(companyId, ct);
 
             var voucher = Voucher.Create(

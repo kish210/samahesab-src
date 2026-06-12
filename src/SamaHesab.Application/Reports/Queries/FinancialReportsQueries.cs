@@ -13,7 +13,9 @@ public record ProfitLossDto(decimal Revenue, decimal Expense, decimal NetProfit,
     List<PlLine> Revenues, List<PlLine> Expenses);
 
 // ── Trial Balance ────────────────────────────────────────────────────────────
-public record GetTrialBalanceQuery(string FromDate, string ToDate) : IRequest<List<TrialBalanceRow>>;
+// فیلتر اختیاری بُعد: مرکز هزینه / پروژه (هستهٔ ERP — تفکیک تحلیلی).
+public record GetTrialBalanceQuery(string FromDate, string ToDate,
+    int? CostCenterId = null, int? ProjectId = null) : IRequest<List<TrialBalanceRow>>;
 
 public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, List<TrialBalanceRow>>
 {
@@ -32,6 +34,8 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
         var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
 
         var rows = vouchers.SelectMany(v => v.Items)
+            .Where(i => (req.CostCenterId == null || i.CostCenterId == req.CostCenterId)
+                     && (req.ProjectId == null || i.ProjectId == req.ProjectId))
             .GroupBy(i => i.AccountId)
             .Select(g =>
             {
@@ -47,7 +51,8 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
 }
 
 // ── General / Detailed Ledger ────────────────────────────────────────────────
-public record GetGeneralLedgerQuery(string FromDate, string ToDate, int? AccountId) : IRequest<List<LedgerRow>>;
+public record GetGeneralLedgerQuery(string FromDate, string ToDate, int? AccountId,
+    int? CostCenterId = null, int? ProjectId = null) : IRequest<List<LedgerRow>>;
 
 public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, List<LedgerRow>>
 {
@@ -67,7 +72,9 @@ public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuer
 
         var lines = vouchers
             .SelectMany(v => v.Items.Select(i => (v.VoucherDate, v.VoucherNumber, Item: i)))
-            .Where(x => req.AccountId == null || x.Item.AccountId == req.AccountId)
+            .Where(x => (req.AccountId == null || x.Item.AccountId == req.AccountId)
+                     && (req.CostCenterId == null || x.Item.CostCenterId == req.CostCenterId)
+                     && (req.ProjectId == null || x.Item.ProjectId == req.ProjectId))
             .OrderBy(x => x.VoucherDate).ThenBy(x => x.VoucherNumber)
             .ToList();
 

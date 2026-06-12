@@ -140,9 +140,14 @@
                             <DataGridTemplateColumn Header="نوع" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="4" Padding="7,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border CornerRadius="4" Padding="7,0" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource ErpBlue50}"/><Style.Triggers><DataTrigger Binding="{Binding VoucherTypeName}" Value="عمومی"><Setter Property="Background" Value="{StaticResource ErpGray150}"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                            <TextBlock Text="{Binding VoucherTypeName}" FontSize="10.5" FontWeight="SemiBold"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Style.Triggers><DataTrigger Binding="{Binding VoucherTypeName}" Value="عمومی"><Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="6" Height="6" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                    <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{StaticResource ErpBlue700}"/><Style.Triggers><DataTrigger Binding="{Binding VoucherTypeName}" Value="عمومی"><Setter Property="Fill" Value="{StaticResource ErpTextMuted}"/></DataTrigger></Style.Triggers></Style></Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding VoucherTypeName}" FontSize="11" FontWeight="SemiBold"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Style.Triggers><DataTrigger Binding="{Binding VoucherTypeName}" Value="عمومی"><Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                                            </StackPanel>
                                         </Border>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -156,9 +161,14 @@
                             <DataGridTemplateColumn Header="وضعیت" Width="86">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="4" Padding="7,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border CornerRadius="4" Padding="7,0" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource ErpSuccess50}"/><Style.Triggers><DataTrigger Binding="{Binding StatusName}" Value="پیش‌نویس"><Setter Property="Background" Value="{StaticResource ErpWarning50}"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                            <TextBlock Text="{Binding StatusName}" FontSize="10.5" FontWeight="SemiBold"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource ErpSuccess700}"/><Style.Triggers><DataTrigger Binding="{Binding StatusName}" Value="پیش‌نویس"><Setter Property="Foreground" Value="{StaticResource ErpWarning700}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="6" Height="6" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                    <Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{StaticResource ErpSuccess700}"/><Style.Triggers><DataTrigger Binding="{Binding StatusName}" Value="پیش‌نویس"><Setter Property="Fill" Value="{StaticResource ErpWarning700}"/></DataTrigger></Style.Triggers></Style></Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock Text="{Binding StatusName}" FontSize="11" FontWeight="SemiBold"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource ErpSuccess700}"/><Style.Triggers><DataTrigger Binding="{Binding StatusName}" Value="پیش‌نویس"><Setter Property="Foreground" Value="{StaticResource ErpWarning700}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                                            </StackPanel>
                                         </Border>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

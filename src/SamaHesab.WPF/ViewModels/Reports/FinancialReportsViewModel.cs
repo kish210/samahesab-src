@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
@@ -121,7 +122,74 @@ public partial class FinancialReportsViewModel : BaseViewModel
         }, "در حال تهیه گزارش...");
     }
 
-    [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی چاپ گزارش...");
+    /// <summary>جدول گزارشِ جاری را برای خروجی‌گیری می‌سازد (ارقام با جداکنندهٔ هزارگان).</summary>
+    private ReportTable BuildTable()
+    {
+        string N(decimal d) => d.ToString("N0");
+        if (IsTrial)
+            return new ReportTable("تراز آزمایشی",
+                new[] { "کد حساب", "نام حساب", "بدهکار", "بستانکار", "مانده" },
+                TrialRows.Select(r => new[] { r.Code, r.Name, N(r.Debit), N(r.Credit), N(r.Balance) }).ToList());
+        if (IsLedger)
+            return new ReportTable("دفتر کل / معین",
+                new[] { "تاریخ", "شماره سند", "کد حساب", "نام حساب", "شرح", "بدهکار", "بستانکار", "مانده" },
+                LedgerRows.Select(r => new[] { r.Date, r.VoucherNumber, r.Code, r.Name, r.Description ?? "",
+                    N(r.Debit), N(r.Credit), N(r.Balance) }).ToList());
+        if (IsProfitLoss)
+            return new ReportTable("سود و زیان",
+                new[] { "نوع", "کد حساب", "نام حساب", "مبلغ" },
+                PlRows.Select(r => new[] { r.Kind, r.Code, r.Name, N(r.Amount) }).ToList());
+        return new ReportTable("ترازنامه",
+            new[] { "بخش", "کد حساب", "نام حساب", "مبلغ" },
+            BalanceRows.Select(r => new[] { r.Section, r.Code, r.Name, N(r.Amount) }).ToList());
+    }
+
+    private bool HasRows() =>
+        (IsTrial && TrialRows.Count > 0) || (IsLedger && LedgerRows.Count > 0) ||
+        (IsProfitLoss && PlRows.Count > 0) || (IsBalanceSheet && BalanceRows.Count > 0);
+
+    private string SaveTo(string ext, string content)
+    {
+        var dir = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+        System.IO.Directory.CreateDirectory(dir);
+        var name = $"{SelectedReportType}_{DateTime.Now:yyyyMMdd_HHmmss}.{ext}";
+        var path = System.IO.Path.Combine(dir, name);
+        // UTF-8 با BOM تا اکسل/مرورگر فارسی را درست نشان دهد
+        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        return path;
+    }
+
+    private void OpenFile(string path)
+        => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+
+    /// <summary>خروجی CSV (باز در اکسل).</summary>
+    [RelayCommand]
+    private async Task ExportCsvAsync()
+    {
+        if (!HasRows()) { await _dialogService.ShowWarningAsync("ابتدا گزارش را تهیه کنید."); return; }
+        try
+        {
+            var path = SaveTo("csv", ReportExporter.ToCsv(BuildTable()));
+            OpenFile(path);
+            await _dialogService.ShowSuccessAsync($"خروجی اکسل ذخیره شد:\n{path}");
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    /// <summary>خروجی HTML راست‌چین — برای چاپ یا تبدیل به PDF در مرورگر.</summary>
+    [RelayCommand]
+    private async Task PrintAsync()
+    {
+        if (!HasRows()) { await _dialogService.ShowWarningAsync("ابتدا گزارش را تهیه کنید."); return; }
+        try
+        {
+            var path = SaveTo("html", ReportExporter.ToHtml(BuildTable()));
+            OpenFile(path);   // مرورگر باز می‌شود؛ کاربر با Ctrl+P → ذخیره به‌صورت PDF
+            await _dialogService.ShowInfoAsync("گزارش در مرورگر باز شد. برای PDF از «چاپ ← ذخیره به‌صورت PDF» استفاده کنید.");
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
 }
 
 public record AccountPick(int Id, string Display);

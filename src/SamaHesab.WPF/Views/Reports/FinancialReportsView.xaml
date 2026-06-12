@@ -142,6 +142,35 @@
             </telerik:RadGridView>
         </Border>
 
+        <!-- ═══ Cash Flow ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}"
+                Visibility="{Binding IsCashFlow, Converter={StaticResource BoolVis}}">
+            <StackPanel Margin="24,18" MaxWidth="620" HorizontalAlignment="Right">
+                <TextBlock Text="صورت جریان وجوه نقد" FontSize="15" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,14"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/>
+                        <RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="ماندهٔ ابتدای دوره" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CfOpening, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="جریان نقد فعالیت‌های عملیاتی" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CfOperating, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="جریان نقد فعالیت‌های سرمایه‌گذاری" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CfInvesting, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="جریان نقد فعالیت‌های تأمین مالی" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CfFinancing, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Margin="0,2"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="خالص تغییر وجه نقد" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CfNetChange, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="ماندهٔ پایان دوره" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CfClosing, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
         <!-- ═══ Footer totals ═══ -->
         <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,2">

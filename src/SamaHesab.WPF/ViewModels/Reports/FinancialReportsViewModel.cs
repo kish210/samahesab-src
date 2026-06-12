@@ -35,7 +35,16 @@ public partial class FinancialReportsViewModel : BaseViewModel
     [ObservableProperty] private bool _isLedger;
     [ObservableProperty] private bool _isProfitLoss;
     [ObservableProperty] private bool _isBalanceSheet;
+    [ObservableProperty] private bool _isCashFlow;
     [ObservableProperty] private bool _showDrCrTotals = true;
+
+    // صورت جریان وجوه نقد
+    [ObservableProperty] private decimal _cfOperating;
+    [ObservableProperty] private decimal _cfInvesting;
+    [ObservableProperty] private decimal _cfFinancing;
+    [ObservableProperty] private decimal _cfNetChange;
+    [ObservableProperty] private decimal _cfOpening;
+    [ObservableProperty] private decimal _cfClosing;
 
     [ObservableProperty] private decimal _totalDebit;
     [ObservableProperty] private decimal _totalCredit;
@@ -46,7 +55,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
     [ObservableProperty] private decimal _totalLiabEquity;
     [ObservableProperty] private bool _balanceOk;
 
-    public List<string> ReportTypes { get; } = new() { "تراز آزمایشی", "دفتر کل / معین", "سود و زیان", "ترازنامه" };
+    public List<string> ReportTypes { get; } = new() { "تراز آزمایشی", "دفتر کل / معین", "سود و زیان", "ترازنامه", "صورت جریان وجوه" };
     public ObservableCollection<TrialBalanceRow> TrialRows { get; } = new();
     public ObservableCollection<LedgerRow> LedgerRows { get; } = new();
     public ObservableCollection<PlDisplayRow> PlRows { get; } = new();
@@ -97,6 +106,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
         IsLedger = value == "دفتر کل / معین";
         IsProfitLoss = value == "سود و زیان";
         IsBalanceSheet = value == "ترازنامه";
+        IsCashFlow = value == "صورت جریان وجوه";
         ShowDrCrTotals = IsTrial || IsLedger;
     }
 
@@ -129,7 +139,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
                 foreach (var l in pl.Expenses) PlRows.Add(new PlDisplayRow("هزینه", l.Code, l.Name, l.Amount));
                 RevenueTotal = pl.Revenue; ExpenseTotal = pl.Expense; NetProfit = pl.NetProfit;
             }
-            else // Balance sheet
+            else if (IsBalanceSheet)
             {
                 BalanceRows.Clear();
                 var bs = await _mediator.Send(new GetBalanceSheetQuery(FromDate, ToDate, SelectedBranchId));
@@ -140,6 +150,12 @@ public partial class FinancialReportsViewModel : BaseViewModel
                 TotalLiabEquity = bs.TotalLiabilities + bs.TotalEquity;
                 NetProfit = bs.NetProfit;
                 BalanceOk = bs.IsBalanced;
+            }
+            else // Cash flow
+            {
+                var cf = await _mediator.Send(new GetCashFlowQuery(FromDate, ToDate, SelectedBranchId));
+                CfOperating = cf.Operating; CfInvesting = cf.Investing; CfFinancing = cf.Financing;
+                CfNetChange = cf.NetChange; CfOpening = cf.OpeningCash; CfClosing = cf.ClosingCash;
             }
         }, "در حال تهیه گزارش...");
     }
@@ -161,6 +177,18 @@ public partial class FinancialReportsViewModel : BaseViewModel
             return new ReportTable("سود و زیان",
                 new[] { "نوع", "کد حساب", "نام حساب", "مبلغ" },
                 PlRows.Select(r => new[] { r.Kind, r.Code, r.Name, N(r.Amount) }).ToList());
+        if (IsCashFlow)
+            return new ReportTable("صورت جریان وجوه نقد",
+                new[] { "بخش", "مبلغ" },
+                new List<string[]>
+                {
+                    new[] { "ماندهٔ ابتدای دوره", N(CfOpening) },
+                    new[] { "جریان نقد عملیاتی", N(CfOperating) },
+                    new[] { "جریان نقد سرمایه‌گذاری", N(CfInvesting) },
+                    new[] { "جریان نقد تأمین مالی", N(CfFinancing) },
+                    new[] { "خالص تغییر وجه نقد", N(CfNetChange) },
+                    new[] { "ماندهٔ پایان دوره", N(CfClosing) },
+                });
         return new ReportTable("ترازنامه",
             new[] { "بخش", "کد حساب", "نام حساب", "مبلغ" },
             BalanceRows.Select(r => new[] { r.Section, r.Code, r.Name, N(r.Amount) }).ToList());
@@ -168,7 +196,8 @@ public partial class FinancialReportsViewModel : BaseViewModel
 
     private bool HasRows() =>
         (IsTrial && TrialRows.Count > 0) || (IsLedger && LedgerRows.Count > 0) ||
-        (IsProfitLoss && PlRows.Count > 0) || (IsBalanceSheet && BalanceRows.Count > 0);
+        (IsProfitLoss && PlRows.Count > 0) || (IsBalanceSheet && BalanceRows.Count > 0) ||
+        IsCashFlow;
 
     private string SaveTo(string ext, string content)
     {

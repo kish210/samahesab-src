@@ -23,6 +23,11 @@ public class ApplicationDbContext : DbContext
     private readonly int _companyId;
     private readonly bool _tenantFilterEnabled;
 
+    // ── Multi-branch (MB-1 گام۲): جداسازیِ secure-by-default دادهٔ شعبه ──
+    // کاربرِ دارای مجوز «Security.AllBranches» (یا ADMIN) همهٔ شعب را می‌بیند؛ بقیه فقط شعبهٔ خود را.
+    private readonly int _branchId;
+    private readonly bool _branchScopeEnabled;
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher,
         ICurrentUserService? currentUser = null)
         : base(options)
@@ -31,7 +36,19 @@ public class ApplicationDbContext : DbContext
         _companyId = currentUser?.CompanyId ?? 0;
         // وقتی کاربری احراز نشده (seeding/ورود/سرویس‌های پس‌زمینه) فیلتر غیرفعال است تا چیزی نشکند.
         _tenantFilterEnabled = _companyId > 0;
+
+        _branchId = currentUser?.BranchId ?? 0;
+        var seesAllBranches = currentUser?.HasPermission("Security", "AllBranches", "") ?? true;
+        // فقط وقتی کاربرِ احرازشده‌ای هست که مجوز همه‌شعبه ندارد، فیلتر شعبه فعال می‌شود.
+        _branchScopeEnabled = _tenantFilterEnabled && _branchId > 0 && !seesAllBranches;
     }
+
+    /// <summary>فیلتر ترکیبیِ شرکت + شعبه برای موجودیت‌های شعبه‌ای (مثل سند).</summary>
+    private void ApplyTenantAndBranchFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : AuditableEntity, IBranchScoped
+        => modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(e => (!_tenantFilterEnabled || e.CompanyId == _companyId)
+                              && (!_branchScopeEnabled || e.BranchId == _branchId));
 
     private void ApplyTenantFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : AuditableEntity
         => modelBuilder.Entity<TEntity>()
@@ -335,6 +352,9 @@ public class ApplicationDbContext : DbContext
                 applyTenant.MakeGenericMethod(et.ClrType).Invoke(this, new object[] { modelBuilder });
             }
         }
+
+        // فیلتر ترکیبیِ شرکت+شعبه روی موجودیت‌های شعبه‌ای — جایگزینِ فیلترِ فقط-شرکت بالا.
+        ApplyTenantAndBranchFilter<Voucher>(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

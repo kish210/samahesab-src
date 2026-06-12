@@ -38,6 +38,7 @@ public static class PermissionCatalog
         new("Reports.Export", "گزارش‌ها", "خروجی اکسل/PDF"),
         // امنیت/تنظیمات
         new("Security.Manage", "امنیت", "مدیریت کاربران و نقش‌ها"),
+        new("Security.AllBranches", "امنیت", "دسترسی به دادهٔ همهٔ شعب (نه فقط شعبهٔ خود)"),
         new("Settings.Manage", "تنظیمات", "تنظیمات سیستم و ماژول‌ها"),
     };
 

@@ -4,7 +4,7 @@ using SamaHesab.Domain.Events;
 
 namespace SamaHesab.Domain.Entities.Accounting;
 
-public class Voucher : AuditableEntity
+public class Voucher : AuditableEntity, IBranchScoped
 {
     public int BranchId { get; private set; }
     public int FiscalYearId { get; private set; }

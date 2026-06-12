@@ -48,7 +48,7 @@
 ### 📋 Phase-1 Backlog (claim‌شده)
 - [~] **MB-1 (چندشعبه)** 🔒C1 — multi-branch:
   - [x] گام۱: ✅ مدیریت شعبه (CRUD): `GetBranchesQuery`/`SaveBranchCommand`/`ToggleBranchCommand` + `BranchesController` (API) + صفحهٔ WPF `BranchManagement` + منوی «مدیریت شعب» زیر سیستم + ثبت `Branch` در DbContext (Cfg.Branches).
-  - [ ] گام۲: جداسازی/امنیت دادهٔ شعبه (کاربرِ بدون مجوز «همه‌شعبه» فقط دادهٔ شعبهٔ خود را ببیند) + مجوز `Security.AllBranches`.
+  - [~] گام۲: ✅ جداسازی دادهٔ شعبه (secure-by-default): `IBranchScoped` + فیلتر سراسریِ ترکیبیِ شرکت+شعبه در DbContext (کاربرِ بدون `Security.AllBranches`/ADMIN فقط شعبهٔ خود) + مجوز `Security.AllBranches`. **فعلاً روی `Voucher`** (لِین حسابداری). · باقی: گسترش به فروش/خرید/انبار با هماهنگی C2.
   - [ ] گام۳: گزارش per-branch (انتخابگر شعبه در گزارش‌ها) + انتقال بین‌شعبه.
 - [x] **SEC-1 (امنیت/RBAC)** ✅C1 — نقش‌ها و مجوزهای دانه‌ریز (کامل):
   - [ ] گام۱: موجودیت `Role`/`RolePermission`/`UserRole` + EF + SQL + `PermissionCatalog` ثابت + اتصال `AuthenticateCommand` (بارگذاری نقش/مجوز واقعی) + seed نقش ADMIN.

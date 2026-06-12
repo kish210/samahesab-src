@@ -15,7 +15,7 @@ public record ProfitLossDto(decimal Revenue, decimal Expense, decimal NetProfit,
 // ── Trial Balance ────────────────────────────────────────────────────────────
 // فیلتر اختیاری بُعد: مرکز هزینه / پروژه (هستهٔ ERP — تفکیک تحلیلی).
 public record GetTrialBalanceQuery(string FromDate, string ToDate,
-    int? CostCenterId = null, int? ProjectId = null) : IRequest<List<TrialBalanceRow>>;
+    int? CostCenterId = null, int? ProjectId = null, int? BranchId = null) : IRequest<List<TrialBalanceRow>>;
 
 public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, List<TrialBalanceRow>>
 {
@@ -31,7 +31,8 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
+        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
+            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
 
         var rows = vouchers.SelectMany(v => v.Items)
             .Where(i => (req.CostCenterId == null || i.CostCenterId == req.CostCenterId)
@@ -52,7 +53,7 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
 
 // ── General / Detailed Ledger ────────────────────────────────────────────────
 public record GetGeneralLedgerQuery(string FromDate, string ToDate, int? AccountId,
-    int? CostCenterId = null, int? ProjectId = null) : IRequest<List<LedgerRow>>;
+    int? CostCenterId = null, int? ProjectId = null, int? BranchId = null) : IRequest<List<LedgerRow>>;
 
 public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, List<LedgerRow>>
 {
@@ -68,7 +69,8 @@ public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuer
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
+        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
+            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
 
         var lines = vouchers
             .SelectMany(v => v.Items.Select(i => (v.VoucherDate, v.VoucherNumber, Item: i)))
@@ -97,7 +99,7 @@ public record BalanceSheetDto(
     List<BalanceSheetLine> Assets, List<BalanceSheetLine> Liabilities, List<BalanceSheetLine> Equity,
     decimal TotalAssets, decimal TotalLiabilities, decimal TotalEquity, decimal NetProfit, bool IsBalanced);
 
-public record GetBalanceSheetQuery(string FromDate, string ToDate) : IRequest<BalanceSheetDto>;
+public record GetBalanceSheetQuery(string FromDate, string ToDate, int? BranchId = null) : IRequest<BalanceSheetDto>;
 
 public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
 {
@@ -113,7 +115,8 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
+        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
+            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
 
         var assets = new Dictionary<int, decimal>();   // group 1: debit - credit
         var liab   = new Dictionary<int, decimal>();   // group 3: credit - debit
@@ -153,7 +156,7 @@ public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery,
 }
 
 // ── Profit & Loss ────────────────────────────────────────────────────────────
-public record GetProfitLossQuery(string FromDate, string ToDate) : IRequest<ProfitLossDto>;
+public record GetProfitLossQuery(string FromDate, string ToDate, int? BranchId = null) : IRequest<ProfitLossDto>;
 
 public class GetProfitLossQueryHandler : IRequestHandler<GetProfitLossQuery, ProfitLossDto>
 {
@@ -169,7 +172,8 @@ public class GetProfitLossQueryHandler : IRequestHandler<GetProfitLossQuery, Pro
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct);
+        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
+            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
 
         // طبق نمودار واقعی: گروه ۶ = درآمد، گروه‌های ۷/۸/۹ = هزینه (AccountClassifier).
         var revenue = new Dictionary<int, decimal>();

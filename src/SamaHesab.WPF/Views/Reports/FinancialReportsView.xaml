@@ -45,6 +45,10 @@
                           ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id"
                           SelectedValue="{Binding SelectedProjectId}" IsEditable="True" IsFilteringEnabled="True"
                           CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True" EmptyText="همه پروژه‌ها..."/>
+                <TextBlock Text="شعبه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
+                <ComboBox Style="{StaticResource BaseComboBox}" Width="160" Height="30"
+                          ItemsSource="{Binding Branches}" DisplayMemberPath="Display" SelectedValuePath="Id"
+                          SelectedValue="{Binding SelectedBranchId}"/>
                 <Button Style="{StaticResource PrimaryButton}" Height="30" Padding="16,0" Margin="12,0,0,0" Command="{Binding RunCommand}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Magnify" Width="16" Height="16" VerticalAlignment="Center"/>

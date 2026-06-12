@@ -5,6 +5,7 @@ using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Reports.Export;
 using SamaHesab.Application.Reports.Queries;
+using SamaHesab.Application.Settings.Commands;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -24,6 +25,9 @@ public partial class FinancialReportsViewModel : BaseViewModel
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
     [ObservableProperty] private int? _selectedAccountId;
+    [ObservableProperty] private int? _selectedBranchId;   // null = همهٔ شعب
+
+    public ObservableCollection<BranchPick> Branches { get; } = new();
     [ObservableProperty] private int? _selectedCostCenterId;
     [ObservableProperty] private int? _selectedProjectId;
 
@@ -78,6 +82,12 @@ public partial class FinancialReportsViewModel : BaseViewModel
         Projects = await _mediator.Send(new GetProjectsQuery(ActiveOnly: true));
         OnPropertyChanged(nameof(Projects));
 
+        Branches.Clear();
+        Branches.Add(new BranchPick(null, "همهٔ شعب"));
+        foreach (var b in await _mediator.Send(new GetBranchesQuery()))
+            Branches.Add(new BranchPick(b.Id, $"{b.Code} - {b.Name}"));
+        SelectedBranchId = null;
+
         await RunAsync();
     }
 
@@ -98,7 +108,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             if (IsTrial)
             {
                 TrialRows.Clear();
-                var rows = await _mediator.Send(new GetTrialBalanceQuery(FromDate, ToDate, SelectedCostCenterId, SelectedProjectId));
+                var rows = await _mediator.Send(new GetTrialBalanceQuery(FromDate, ToDate, SelectedCostCenterId, SelectedProjectId, SelectedBranchId));
                 foreach (var r in rows) TrialRows.Add(r);
                 TotalDebit = rows.Sum(r => r.Debit);
                 TotalCredit = rows.Sum(r => r.Credit);
@@ -106,7 +116,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             else if (IsLedger)
             {
                 LedgerRows.Clear();
-                var rows = await _mediator.Send(new GetGeneralLedgerQuery(FromDate, ToDate, SelectedAccountId, SelectedCostCenterId, SelectedProjectId));
+                var rows = await _mediator.Send(new GetGeneralLedgerQuery(FromDate, ToDate, SelectedAccountId, SelectedCostCenterId, SelectedProjectId, SelectedBranchId));
                 foreach (var r in rows) LedgerRows.Add(r);
                 TotalDebit = rows.Sum(r => r.Debit);
                 TotalCredit = rows.Sum(r => r.Credit);
@@ -114,7 +124,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             else if (IsProfitLoss)
             {
                 PlRows.Clear();
-                var pl = await _mediator.Send(new GetProfitLossQuery(FromDate, ToDate));
+                var pl = await _mediator.Send(new GetProfitLossQuery(FromDate, ToDate, SelectedBranchId));
                 foreach (var l in pl.Revenues) PlRows.Add(new PlDisplayRow("درآمد", l.Code, l.Name, l.Amount));
                 foreach (var l in pl.Expenses) PlRows.Add(new PlDisplayRow("هزینه", l.Code, l.Name, l.Amount));
                 RevenueTotal = pl.Revenue; ExpenseTotal = pl.Expense; NetProfit = pl.NetProfit;
@@ -122,7 +132,7 @@ public partial class FinancialReportsViewModel : BaseViewModel
             else // Balance sheet
             {
                 BalanceRows.Clear();
-                var bs = await _mediator.Send(new GetBalanceSheetQuery(FromDate, ToDate));
+                var bs = await _mediator.Send(new GetBalanceSheetQuery(FromDate, ToDate, SelectedBranchId));
                 foreach (var l in bs.Assets) BalanceRows.Add(new BalanceDisplayRow("دارایی", l.Code, l.Name, l.Amount));
                 foreach (var l in bs.Liabilities) BalanceRows.Add(new BalanceDisplayRow("بدهی", l.Code, l.Name, l.Amount));
                 foreach (var l in bs.Equity) BalanceRows.Add(new BalanceDisplayRow("حقوق صاحبان سهام", l.Code, l.Name, l.Amount));
@@ -205,5 +215,6 @@ public partial class FinancialReportsViewModel : BaseViewModel
 }
 
 public record AccountPick(int Id, string Display);
+public record BranchPick(int? Id, string Display);
 public record PlDisplayRow(string Kind, string Code, string Name, decimal Amount);
 public record BalanceDisplayRow(string Section, string Code, string Name, decimal Amount);

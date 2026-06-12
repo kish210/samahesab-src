@@ -46,6 +46,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
     public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
+    public DbSet<FiscalYear> FiscalYears { get; set; }
+    public DbSet<CostCenter> CostCenters { get; set; }
+    public DbSet<Project> Projects { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.CashShift> CashShifts { get; set; }
     public DbSet<SamaHesab.Domain.Entities.POS.HeldSale> HeldSales { get; set; }
@@ -199,6 +202,34 @@ public class ApplicationDbContext : DbContext
             b.Property(l => l.Credit).HasPrecision(18, 2);
         });
         modelBuilder.Entity<RecurringVoucher>().ToTable("RecurringVouchers", "Acc");
+
+        // ─── ابعاد حسابداری (هستهٔ ERP): سال مالی · مرکز هزینه · پروژه — schema Acc ───
+        modelBuilder.Entity<FiscalYear>(b =>
+        {
+            b.ToTable("FiscalYears", "Acc");
+            b.Property(x => x.Title).IsRequired().HasMaxLength(50);
+            b.Property(x => x.StartDate).IsRequired().HasMaxLength(10);
+            b.Property(x => x.EndDate).IsRequired().HasMaxLength(10);
+            b.HasIndex(x => new { x.CompanyId, x.Title }).IsUnique();
+        });
+        modelBuilder.Entity<CostCenter>(b =>
+        {
+            b.ToTable("CostCenters", "Acc");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(30);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            b.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
+        });
+        modelBuilder.Entity<Project>(b =>
+        {
+            b.ToTable("Projects", "Acc");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(30);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(150);
+            b.Property(x => x.StartDate).HasMaxLength(10);
+            b.Property(x => x.EndDate).HasMaxLength(10);
+            b.Property(x => x.Budget).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
+        });
+
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
         modelBuilder.Entity<SamaHesab.Domain.Entities.POS.CashShift>(b =>
         {

@@ -110,6 +110,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ChequeListViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>();
                 services.AddTransient<ChequeBoardViewModel>();
+                services.AddTransient<EndOfPeriodViewModel>();
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<ProductEditViewModel>();

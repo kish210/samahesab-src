@@ -143,6 +143,8 @@
                                 <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
                                 <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
                                 <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
+                                <Separator/>
+                                <MenuItem Header="عملیات پایان دوره" Command="{Binding NavigateCommand}" CommandParameter="EndOfPeriod"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

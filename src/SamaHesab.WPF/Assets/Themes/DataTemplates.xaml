@@ -38,6 +38,7 @@
     <DataTemplate DataType="{x:Type acc:ChartOfAccountsViewModel}"><va:ChartOfAccountsView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:ChequeListViewModel}"><va:ChequeListView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:ChequeBoardViewModel}"><va:ChequeBoardView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:EndOfPeriodViewModel}"><va:EndOfPeriodView/></DataTemplate>
 
     <!-- Inventory -->
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>

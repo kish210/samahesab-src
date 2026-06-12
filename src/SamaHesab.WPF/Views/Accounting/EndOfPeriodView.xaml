@@ -1,0 +1,158 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Accounting.EndOfPeriodView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <conv:NullToVisibilityConverter x:Key="NullVis"/>
+        <Style x:Key="EopLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="EopInput" TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+        </Style>
+        <Style x:Key="EopCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16,14"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="12" MaxWidth="960" HorizontalAlignment="Right">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                <TextBlock Text="عملیات پایان دوره" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+                <TextBlock Text="صدور سند برگشتی (معکوس) برای اسناد قطعی و بستن سال مالی (سند اختتامیه و افتتاحیه)."
+                           TextWrapping="Wrap" Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1.3*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ── سند برگشتی ── -->
+                <Border Grid.Column="0" Style="{StaticResource EopCard}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="سند برگشتی (معکوس)" FontWeight="SemiBold" FontSize="14"
+                                   Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="شناسهٔ سند مبدأ" Style="{StaticResource EopLabel}"/>
+                        <TextBox Text="{Binding ReverseVoucherId}" Style="{StaticResource EopInput}"/>
+
+                        <TextBlock Text="تاریخ سند برگشتی" Style="{StaticResource EopLabel}"/>
+                        <TextBox Text="{Binding ReverseDate}" Style="{StaticResource EopInput}"/>
+
+                        <TextBlock Text="شرح (اختیاری)" Style="{StaticResource EopLabel}"/>
+                        <TextBox Text="{Binding ReverseDescription}" Style="{StaticResource EopInput}"/>
+
+                        <Button Content="صدور سند برگشتی" Command="{Binding ReverseCommand}"
+                                Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0"
+                                Padding="16,8" Cursor="Hand" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+
+                        <TextBlock Text="{Binding ReverseResult}" Foreground="{DynamicResource SecondaryText}"
+                                   FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"
+                                   Visibility="{Binding ReverseResult, Converter={StaticResource NullVis}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── بستن سال مالی ── -->
+                <Border Grid.Column="2" Style="{StaticResource EopCard}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="بستن سال مالی" FontWeight="SemiBold" FontSize="14"
+                                   Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="شناسهٔ سال مالی" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding FiscalYearId}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="تاریخ سند اختتامیه" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding ClosingDate}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="از تاریخ" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding FromDate}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="تا تاریخ" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding ToDate}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <CheckBox Content="صدور سند افتتاحیهٔ سال بعد (انتقال مانده‌های دائمی)"
+                                  IsChecked="{Binding GenerateOpening}" Margin="0,2,0,10"
+                                  Foreground="{DynamicResource PrimaryText}"/>
+
+                        <Grid Visibility="{Binding GenerateOpening, Converter={StaticResource BoolVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="شناسهٔ سال مالی بعد" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding NextFiscalYearId}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="تاریخ سند افتتاحیه" Style="{StaticResource EopLabel}"/>
+                                <TextBox Text="{Binding OpeningDate}" Style="{StaticResource EopInput}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Button Content="بستن سال مالی" Command="{Binding CloseFiscalYearCommand}"
+                                Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0"
+                                Padding="16,8" Cursor="Hand" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+
+                        <!-- نتیجهٔ بستن دوره -->
+                        <Border Background="{DynamicResource PrimaryAccentLight}" CornerRadius="8" Padding="12,10" Margin="0,12,0,0"
+                                Visibility="{Binding HasCloseResult, Converter={StaticResource BoolVis}}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding CloseResultMessage}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryAccentDark}" Margin="0,0,0,6"/>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
+                                           Text="{Binding ResultRevenue, StringFormat='جمع درآمد: {0:N0} ریال'}"/>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
+                                           Text="{Binding ResultExpense, StringFormat='جمع هزینه: {0:N0} ریال'}"/>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
+                                           Text="{Binding ResultClosingVoucherId, StringFormat='شناسهٔ سند اختتامیه: {0}'}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -8,6 +8,7 @@
     <UserControl.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:NullToVisibilityConverter x:Key="NullVis"/>
+        <conv:NumberFormatConverter x:Key="Num"/>
         <Style x:Key="EopLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
             <Setter Property="FontSize" Value="12"/>
@@ -142,12 +143,15 @@
                             <StackPanel>
                                 <TextBlock Text="{Binding CloseResultMessage}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryAccentDark}" Margin="0,0,0,6"/>
-                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
-                                           Text="{Binding ResultRevenue, StringFormat='جمع درآمد: {0:N0} ریال'}"/>
-                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
-                                           Text="{Binding ResultExpense, StringFormat='جمع هزینه: {0:N0} ریال'}"/>
-                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12"
-                                           Text="{Binding ResultClosingVoucherId, StringFormat='شناسهٔ سند اختتامیه: {0}'}"/>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12">
+                                    <Run Text="جمع درآمد: "/><Run Text="{Binding ResultRevenue, Converter={StaticResource Num}}"/><Run Text=" ریال"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12">
+                                    <Run Text="جمع هزینه: "/><Run Text="{Binding ResultExpense, Converter={StaticResource Num}}"/><Run Text=" ریال"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryAccentDark}" FontSize="12">
+                                    <Run Text="شناسهٔ سند اختتامیه: "/><Run Text="{Binding ResultClosingVoucherId, Converter={StaticResource Num}}"/>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
                     </StackPanel>

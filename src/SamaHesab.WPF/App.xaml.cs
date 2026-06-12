@@ -385,6 +385,56 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // ── شات‌های صفحات حسابداری کلود ۱ (R4/R5/R6) — رندر بدون DB با دادهٔ نمونه ──
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_C1") == "1")
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;   // بستن پنجره‌ها نباید اپ را زودتر خاموش کند
+            async Task Shot(System.Windows.FrameworkElement view, string file, int w, int h)
+            {
+                var win = new Window { Content = view, Width = w, Height = h, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+                win.Show(); await Task.Delay(1200); win.UpdateLayout();
+                var dir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "screenshot");
+                System.IO.Directory.CreateDirectory(dir);
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(w, h, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtb.Render(win);
+                var enc = new System.Windows.Media.Imaging.PngBitmapEncoder(); enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+                using var fs = System.IO.File.Create(System.IO.Path.Combine(dir, file)); enc.Save(fs);
+                win.Close();
+            }
+
+            // R6 — عملیات پایان دوره
+            var eop = _host.Services.GetRequiredService<ViewModels.Accounting.EndOfPeriodViewModel>();
+            eop.ReverseDate = "1404/03/22"; eop.FiscalYearId = 1; eop.FromDate = "1404/01/01"; eop.ToDate = "1404/12/29";
+            eop.ClosingDate = "1404/12/29"; eop.OpeningDate = "1405/01/01";
+            eop.HasCloseResult = true; eop.ResultRevenue = 8_450_000_000; eop.ResultExpense = 5_900_000_000;
+            eop.ResultNetProfit = 2_550_000_000; eop.ResultClosingVoucherId = 412; eop.CloseResultMessage = "سود دوره: ۲٬۵۵۰٬۰۰۰٬۰۰۰ ریال";
+            await Shot(new Views.Accounting.EndOfPeriodView { DataContext = eop }, "eop.png", 1000, 640);
+
+            // R5 — بهره‌وری سند (الگو + تکرارشونده)
+            var vp = _host.Services.GetRequiredService<ViewModels.Accounting.VoucherProductivityViewModel>();
+            vp.CreateDate = "1404/03/22"; vp.RecurringStartDate = "1404/04/01";
+            vp.Templates.Add(new Application.Accounting.Queries.VoucherTemplateDto(1, "اجارهٔ ماهانهٔ دفتر", "هزینهٔ ثابت", 2, 50_000_000, 50_000_000));
+            vp.Templates.Add(new Application.Accounting.Queries.VoucherTemplateDto(2, "حقوق پرسنل", null, 4, 320_000_000, 320_000_000));
+            vp.Recurring.Add(new Application.Accounting.Queries.RecurringVoucherDto(1, 1, "اجارهٔ دفتر", "ماهانه", "1404/04/01", "1404/03/01"));
+            vp.Recurring.Add(new Application.Accounting.Queries.RecurringVoucherDto(2, 2, "حقوق", "ماهانه", "1404/04/01", null));
+            await Shot(new Views.Accounting.VoucherProductivityView { DataContext = vp }, "voucher_tools.png", 1100, 640);
+
+            // R4 — مغایرت‌گیری بانکی
+            var br = _host.Services.GetRequiredService<ViewModels.Accounting.BankReconciliationViewModel>();
+            br.BankAccounts.Add(new ViewModels.Accounting.BankAccountOption(1, "بانک ملت — ۱۲۳۴۵۶"));
+            br.SelectedBankAccountId = 1; br.FromDate = "1404/01/01"; br.ToDate = "1404/03/22";
+            br.StatementText = "1404/03/10,5000000\n1404/03/15,-2300000\n1404/03/18,7800000";
+            br.LedgerCount = 12; br.LastReconInfo = "آخرین تطبیق: 1404/02/31 — 8 ردیف تطبیق‌شدهٔ ماندگار"; br.HasResult = true;
+            br.Matched.Add(new ViewModels.Accounting.ReconMatchRow("1404/03/10", 5_000_000, "واریز نقدی مشتری", "TRX-901"));
+            br.Matched.Add(new ViewModels.Accounting.ReconMatchRow("1404/03/18", 7_800_000, "تسویهٔ فاکتور ۲۲۰", "TRX-944"));
+            br.UnmatchedLedger.Add(new Application.Accounting.Queries.BankLedgerLineDto(55, "1404/03/12", 1_200_000, "کارمزد بانکی"));
+            br.UnmatchedStatement.Add(new Application.Accounting.StatementLine("1404/03/15", -2_300_000, "برداشت کارت"));
+            br.MatchedCount = 2; br.UnmatchedLedgerCount = 1; br.UnmatchedStatementCount = 1;
+            await Shot(new Views.Accounting.BankReconciliationView { DataContext = br }, "bank_recon.png", 1200, 720);
+
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_SHIFT") == "1")
         {
             var svm = _host.Services.GetRequiredService<ViewModels.POS.ShiftViewModel>();

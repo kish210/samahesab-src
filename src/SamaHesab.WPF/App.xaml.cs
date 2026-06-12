@@ -140,11 +140,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<AttendanceViewModel>();
                 services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
-<<<<<<< Updated upstream
                 services.AddTransient<ModulesViewModel>();
-=======
-                services.AddTransient<SamaHesab.WPF.ViewModels.Settings.ModuleSettingsViewModel>();
->>>>>>> Stashed changes
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
                 services.AddTransient<UserManagementViewModel>();
@@ -374,8 +370,8 @@ public partial class App : System.Windows.Application
 
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_MODULES") == "1")
         {
-            var mvm = _host.Services.GetRequiredService<ViewModels.Settings.ModuleSettingsViewModel>();
-            var mview = new Views.Settings.ModuleSettingsView { DataContext = mvm };
+            var mvm = _host.Services.GetRequiredService<ViewModels.Settings.ModulesViewModel>();
+            var mview = new Views.Settings.ModulesView { DataContext = mvm };
             var mwin = new Window { Content = mview, Width = 1100, Height = 720, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
             mwin.Show(); await Task.Delay(1200); mwin.UpdateLayout();
             var mdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(mdir);

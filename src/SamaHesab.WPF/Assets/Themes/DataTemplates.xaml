@@ -22,7 +22,9 @@
                     xmlns:vrep="clr-namespace:SamaHesab.WPF.Views.Reports"
                     xmlns:vcfg="clr-namespace:SamaHesab.WPF.Views.Settings"
                     xmlns:tr="clr-namespace:SamaHesab.WPF.ViewModels.Treasury"
-                    xmlns:vtr="clr-namespace:SamaHesab.WPF.Views.Treasury">
+                    xmlns:vtr="clr-namespace:SamaHesab.WPF.Views.Treasury"
+                    xmlns:sec="clr-namespace:SamaHesab.WPF.ViewModels.Security"
+                    xmlns:vsec="clr-namespace:SamaHesab.WPF.Views.Security">
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
@@ -42,6 +44,7 @@
     <DataTemplate DataType="{x:Type acc:VoucherProductivityViewModel}"><va:VoucherProductivityView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:BankReconciliationViewModel}"><va:BankReconciliationView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:AccountingDimensionsViewModel}"><va:AccountingDimensionsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sec:SecurityManagementViewModel}"><vsec:SecurityManagementView/></DataTemplate>
 
     <!-- Inventory -->
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>

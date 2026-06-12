@@ -114,6 +114,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<VoucherProductivityViewModel>();
                 services.AddTransient<BankReconciliationViewModel>();
                 services.AddTransient<AccountingDimensionsViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>();
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<ProductEditViewModel>();
@@ -442,6 +443,19 @@ public partial class App : System.Windows.Application
             dim.Projects.Add(new Application.Accounting.Dimensions.ProjectDto(1, "PRJ-01", "احداث انبار مرکزی", "1404/02/01", "1404/10/01", 4_500_000_000, false, true));
             dim.FyTitle = "۱۴۰۴"; dim.FyStart = "1404/01/01"; dim.FyEnd = "1404/12/29";
             await Shot(new Views.Accounting.AccountingDimensionsView { DataContext = dim }, "acc_dimensions.png", 1100, 660);
+
+            // SEC-1 — امنیت و دسترسی (نقش‌ها/مجوزها)
+            var sec = _host.Services.GetRequiredService<ViewModels.Security.SecurityManagementViewModel>();
+            sec.Roles.Add(new Application.Security.Commands.RoleDto(1, "ADMIN", "مدیر سیستم", true, true, new[] { "*" }));
+            sec.Roles.Add(new Application.Security.Commands.RoleDto(2, "ACCOUNTANT", "حسابدار", false, true,
+                new[] { "Accounting.Voucher.View", "Accounting.Voucher.Create", "Reports.View" }));
+            sec.SelectedRole = sec.Roles[1];
+            foreach (var p in Application.Common.Security.PermissionCatalog.All)
+                sec.Permissions.Add(new ViewModels.Security.PermCheck(p.Code, p.Module, p.Label)
+                { IsChecked = p.Code.StartsWith("Accounting.Voucher") || p.Code == "Reports.View" });
+            sec.Users.Add(new Application.Security.Commands.SecurityUserDto(1, "admin", "مدیر سیستم", true, new[] { 1 }));
+            sec.Users.Add(new Application.Security.Commands.SecurityUserDto(2, "hesabdar", "علی حسابدار", true, new[] { 2 }));
+            await Shot(new Views.Security.SecurityManagementView { DataContext = sec }, "security.png", 1150, 680);
 
             Shutdown(); return;
         }

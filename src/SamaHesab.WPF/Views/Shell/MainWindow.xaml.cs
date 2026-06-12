@@ -30,6 +30,7 @@ public partial class MainWindow : MetroWindow
     {
         if (sender is System.Windows.Controls.Button b && b.ContextMenu is not null)
         {
+            b.ContextMenu.DataContext = DataContext;   // تا آیتم‌ها به پرچم‌های ماژول bind شوند
             b.ContextMenu.PlacementTarget = b;
             b.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             b.ContextMenu.IsOpen = true;

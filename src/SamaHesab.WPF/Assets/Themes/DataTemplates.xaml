@@ -74,7 +74,11 @@
 
     <!-- Settings -->
     <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>
+<<<<<<< Updated upstream
     <DataTemplate DataType="{x:Type cfg:ModulesViewModel}"><vcfg:ModulesView/></DataTemplate>
+=======
+    <DataTemplate DataType="{x:Type cfg:ModuleSettingsViewModel}"><vcfg:ModuleSettingsView/></DataTemplate>
+>>>>>>> Stashed changes
     <DataTemplate DataType="{x:Type cfg:BackupViewModel}"><vcfg:BackupView/></DataTemplate>
 
     <!-- ── Placeholder for screens still under construction ── -->

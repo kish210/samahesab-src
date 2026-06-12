@@ -17,6 +17,7 @@
 
     <mah:MetroWindow.Resources>
         <conv:NavActiveToVisibilityConverter x:Key="NavActive"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
 
         <!-- آیتم‌های فهرست بازشونده‌ی منوی بالا: متن تیره روی پس‌زمینه‌ی روشن (خوانا) -->
         <Style TargetType="MenuItem">
@@ -168,8 +169,8 @@
                             <ContextMenu>
                                 <MenuItem Header="فاکتور فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
                                 <MenuItem Header="لیست فاکتورها" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
-                                <MenuItem Header="صندوق فروش" Command="{Binding NavigateCommand}" CommandParameter="POS"/>
-                                <MenuItem Header="صندوق / شیفت (Z/X)" Command="{Binding NavigateCommand}" CommandParameter="CashShift"/>
+                                <MenuItem Header="صندوق فروش" Command="{Binding NavigateCommand}" CommandParameter="POS" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
+                                <MenuItem Header="صندوق / شیفت (Z/X)" Command="{Binding NavigateCommand}" CommandParameter="CashShift" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
@@ -206,14 +207,31 @@
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="میز کار / داشبورد" Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
-                                <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees"/>
-                                <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary"/>
+                                <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
+                                <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
+                                <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
                                 <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
                                 <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
                                 <Separator/>
                                 <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <!-- M4: منوی گردشگری فقط وقتی ماژول فعال است ظاهر می‌شود -->
+                    <Button Style="{StaticResource TopMenuBtn}" Content="گردشگری" Click="TopMenu_Click"
+                            Visibility="{Binding TourismEnabled, Converter={StaticResource BoolVis}}">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="رزروها" Command="{Binding NavigateCommand}" CommandParameter="TourismBookings"/>
+                                <MenuItem Header="تورها" Command="{Binding NavigateCommand}" CommandParameter="TourismTours"/>
+                                <MenuItem Header="هتل‌ها" Command="{Binding NavigateCommand}" CommandParameter="TourismHotels"/>
+                                <MenuItem Header="پروازها" Command="{Binding NavigateCommand}" CommandParameter="TourismFlights"/>
+                                <MenuItem Header="ترانسفر" Command="{Binding NavigateCommand}" CommandParameter="TourismTransfer"/>
+                                <MenuItem Header="واچرها" Command="{Binding NavigateCommand}" CommandParameter="TourismVouchers"/>
+                                <MenuItem Header="کمیسیون‌ها" Command="{Binding NavigateCommand}" CommandParameter="TourismCommissions"/>
+                                <MenuItem Header="گزارشات گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismReports"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
@@ -301,7 +319,8 @@
                     <Button Style="{StaticResource SideItem}" CommandParameter="ChequeBoard">
                         <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="Bank" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="POS">
+                    <Button Style="{StaticResource SideItem}" CommandParameter="POS"
+                            Visibility="{Binding DataContext.PosEnabled, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}, Converter={StaticResource BoolVis}}">
                         <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Customers">

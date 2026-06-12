@@ -140,7 +140,11 @@ public partial class App : System.Windows.Application
                 services.AddTransient<AttendanceViewModel>();
                 services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
+<<<<<<< Updated upstream
                 services.AddTransient<ModulesViewModel>();
+=======
+                services.AddTransient<SamaHesab.WPF.ViewModels.Settings.ModuleSettingsViewModel>();
+>>>>>>> Stashed changes
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
                 services.AddTransient<UserManagementViewModel>();
@@ -365,6 +369,20 @@ public partial class App : System.Windows.Application
             srtb.Render(swin);
             var senc = new System.Windows.Media.Imaging.PngBitmapEncoder(); senc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(srtb));
             using (var sfs = System.IO.File.Create(System.IO.Path.Combine(sdir, "stockcount.png"))) senc.Save(sfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_MODULES") == "1")
+        {
+            var mvm = _host.Services.GetRequiredService<ViewModels.Settings.ModuleSettingsViewModel>();
+            var mview = new Views.Settings.ModuleSettingsView { DataContext = mvm };
+            var mwin = new Window { Content = mview, Width = 1100, Height = 720, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft };
+            mwin.Show(); await Task.Delay(1200); mwin.UpdateLayout();
+            var mdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(mdir);
+            var mrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1100, 720, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            mrtb.Render(mwin);
+            var menc = new System.Windows.Media.Imaging.PngBitmapEncoder(); menc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(mrtb));
+            using (var mfs = System.IO.File.Create(System.IO.Path.Combine(mdir, "modules.png"))) menc.Save(mfs);
             Shutdown(); return;
         }
 
@@ -693,6 +711,7 @@ public partial class App : System.Windows.Application
             ("Salary","19_حقوق"), ("Attendance","20_حضور_غیاب"),
             ("Reports","21_گزارشها"), ("Settings","22_تنظیمات"), ("Backup","23_پشتیبانگیری"),
             ("FinancialReports","24_گزارشهای_مالی"), ("StockTransfer","25_انتقال_انبار"), ("Kardex","26_کاردکس"),
+            ("Modules","27_مدیریت_ماژولها"),
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

@@ -24,7 +24,24 @@ public partial class MainViewModel : BaseViewModel
     private readonly IServiceProvider _services;
     private readonly IPersianCalendarService _calendar;
     private readonly ICurrentUserService _currentUser;
+    private readonly ModuleService _modules;
     private readonly DispatcherTimer _clockTimer;
+
+    // ── M3: پرچم‌های ماژول (برای نمایش/پنهان منو و سایدبار) ──
+    public bool PosEnabled => _modules.IsEnabled(ModuleService.Pos);
+    public bool RestaurantEnabled => _modules.IsEnabled(ModuleService.Restaurant);
+    public bool TourismEnabled => _modules.IsEnabled(ModuleService.Tourism);
+    public bool HrEnabled => _modules.IsEnabled(ModuleService.Hr);
+    public bool CrmEnabled => _modules.IsEnabled(ModuleService.Crm);
+    public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
+
+    // نقشهٔ «کلید صفحه → ماژولِ اختیاری» (صفحات خارج از این نقشه = هسته، همیشه مجاز)
+    private static readonly Dictionary<string, string> _pageModule = new()
+    {
+        ["POS"] = ModuleService.Pos, ["CashShift"] = ModuleService.Pos,
+        ["Employees"] = ModuleService.Hr, ["EmployeeEdit"] = ModuleService.Hr,
+        ["Salary"] = ModuleService.Hr, ["Attendance"] = ModuleService.Hr,
+    };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
     [ObservableProperty] private WorkspaceTab? _selectedTab;
@@ -49,12 +66,15 @@ public partial class MainViewModel : BaseViewModel
         IPersianCalendarService calendar,
         ICurrentUserService currentUser,
         IDialogService dialogService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ModuleService modules)
         : base(dialogService, navigationService)
     {
         _services = services;
         _calendar = calendar;
         _currentUser = currentUser;
+        _modules = modules;
+        _modules.Changed += () => System.Windows.Application.Current?.Dispatcher.Invoke(RaiseModuleFlags);
 
         _pages = new Dictionary<string, (string, Func<IServiceProvider, BaseViewModel>)>
         {
@@ -91,7 +111,11 @@ public partial class MainViewModel : BaseViewModel
             ["Reports"]         = ("گزارش‌ها",            sp => sp.GetRequiredService<ReportsViewModel>()),
             ["FinancialReports"]= ("گزارش‌های مالی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
+<<<<<<< Updated upstream
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
+=======
+            ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.ModuleSettingsViewModel>()),
+>>>>>>> Stashed changes
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
         };
 
@@ -118,9 +142,23 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private async Task NavigateAsync(string page) => await NavigateToAsync(page);
 
+    private void RaiseModuleFlags()
+    {
+        OnPropertyChanged(nameof(PosEnabled)); OnPropertyChanged(nameof(RestaurantEnabled));
+        OnPropertyChanged(nameof(TourismEnabled)); OnPropertyChanged(nameof(HrEnabled));
+        OnPropertyChanged(nameof(CrmEnabled)); OnPropertyChanged(nameof(HotelEnabled));
+    }
+
     private async Task NavigateToAsync(string page, object? parameter = null)
     {
         if (!_pages.TryGetValue(page, out var entry)) return;
+
+        // M3: گیتِ ماژول — اگر صفحه به ماژولِ خاموش تعلق دارد، بازنشو
+        if (_pageModule.TryGetValue(page, out var mod) && !_modules.IsEnabled(mod))
+        {
+            await _dialogService.ShowInfoAsync("این بخش به ماژولی تعلق دارد که غیرفعال است. از «تنظیمات → مدیریت ماژول‌ها» آن را فعال کنید.");
+            return;
+        }
 
         // Activate the tab if it is already open
         var existing = OpenTabs.FirstOrDefault(t => t.Key == page);

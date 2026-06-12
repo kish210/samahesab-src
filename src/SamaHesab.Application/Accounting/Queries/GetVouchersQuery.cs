@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
+using SamaHesab.Domain.Entities.Security;
 using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.Application.Accounting.Queries;
@@ -25,18 +26,22 @@ public record VoucherListDto(
     decimal TotalDebit,
     decimal TotalCredit,
     string? Description,
-    bool IsBalanced
+    bool IsBalanced,
+    string UserName = "—"
 );
 
 public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedResult<VoucherListDto>>
 {
     private readonly IVoucherRepository _voucherRepository;
     private readonly ICurrentUserService _currentUser;
+    private readonly IRepository<User> _users;
 
-    public GetVouchersQueryHandler(IVoucherRepository voucherRepository, ICurrentUserService currentUser)
+    public GetVouchersQueryHandler(IVoucherRepository voucherRepository, ICurrentUserService currentUser,
+        IRepository<User> users)
     {
         _voucherRepository = voucherRepository;
         _currentUser = currentUser;
+        _users = users;
     }
 
     public async Task<PagedResult<VoucherListDto>> Handle(GetVouchersQuery request, CancellationToken ct)
@@ -63,11 +68,20 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
                 || (v.Description != null && v.Description.Contains(request.SearchText)));
 
         var total = query.Count();
-        var items = query
+        var paged = query
             .OrderByDescending(v => v.VoucherDate)
             .ThenByDescending(v => v.VoucherNumber)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
+            .ToList();
+
+        // نام کاربرِ ثبت‌کننده (CreatedByUserId → نام) — «—» اگر ثبت نشده باشد.
+        var userIds = paged.Where(v => v.CreatedByUserId.HasValue).Select(v => v.CreatedByUserId!.Value).Distinct().ToList();
+        var userNames = userIds.Count > 0
+            ? (await _users.FindAsync(u => userIds.Contains(u.Id), ct)).ToDictionary(u => u.Id, u => u.FullName)
+            : new Dictionary<int, string>();
+
+        var items = paged
             .Select(v => new VoucherListDto(
                 v.Id,
                 v.VoucherNumber,
@@ -77,7 +91,8 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
                 v.Items.Sum(i => i.Debit),
                 v.Items.Sum(i => i.Credit),
                 v.Description,
-                v.IsBalanced()
+                v.IsBalanced(),
+                v.CreatedByUserId.HasValue && userNames.TryGetValue(v.CreatedByUserId.Value, out var n) ? n : "—"
             ))
             .ToList();
 

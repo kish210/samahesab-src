@@ -489,14 +489,14 @@ public partial class App : System.Windows.Application
 
             // accounting-docs — تطبیق با design-system (VoucherListView)
             var vl = _host.Services.GetRequiredService<ViewModels.Accounting.VoucherListViewModel>();
-            void AddV(string num, string date, string type, string st, string desc, decimal amt)
+            void AddV(string num, string date, string type, string st, string desc, decimal amt, string user)
                 => vl.Vouchers.Add(new Application.Accounting.Queries.VoucherListDto(
-                    vl.Vouchers.Count + 1, num, date, type, st, amt, amt, desc, true));
-            AddV("۱۴۰۵۸۳", "1405/03/15", "عمومی", "پیش‌نویس", "فروش نقدی و تسویه فاکتور F000054", 285_600);
-            AddV("۱۴۰۵۸۲", "1405/03/14", "فروش", "قطعی", "فاکتور فروش F000053 — علی احمدی", 54_500);
-            AddV("۱۴۰۵۸۱", "1405/03/14", "دریافت", "قطعی", "دریافت چک از پارس خودرو", 45_000_000);
-            AddV("۱۴۰۵۸۰", "1405/03/13", "پرداخت", "قطعی", "پرداخت حقوق خرداد", 310_000_000);
-            AddV("۱۴۰۵۷۹", "1405/03/13", "فروش", "قطعی", "فاکتور فروش F000052 — پارس خودرو", 48_200_000);
+                    vl.Vouchers.Count + 1, num, date, type, st, amt, amt, desc, true, user));
+            AddV("۱۴۰۵۸۳", "1405/03/15", "عمومی", "پیش‌نویس", "فروش نقدی و تسویه فاکتور F000054", 285_600, "ر.مرادی");
+            AddV("۱۴۰۵۸۲", "1405/03/14", "فروش", "قطعی", "فاکتور فروش F000053 — علی احمدی", 54_500, "ر.مرادی");
+            AddV("۱۴۰۵۸۱", "1405/03/14", "دریافت", "قطعی", "دریافت چک از پارس خودرو", 45_000_000, "م.رضایی");
+            AddV("۱۴۰۵۸۰", "1405/03/13", "پرداخت", "قطعی", "پرداخت حقوق خرداد", 310_000_000, "ر.مرادی");
+            AddV("۱۴۰۵۷۹", "1405/03/13", "فروش", "قطعی", "فاکتور فروش F000052 — پارس خودرو", 48_200_000, "س.نوری");
             vl.TotalCount = 83; vl.TotalDebit = 2_486_300_000;
             vl.SelectedVoucher = vl.Vouchers[0];
             vl.PreviewLines.Add(new ViewModels.Accounting.VoucherPreviewLine("صندوق فروشگاه", 285_600, 0));

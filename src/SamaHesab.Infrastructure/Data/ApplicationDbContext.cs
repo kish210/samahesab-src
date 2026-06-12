@@ -364,7 +364,10 @@ public class ApplicationDbContext : DbContext
             if (typeof(SamaHesab.Domain.Common.AuditableEntity).IsAssignableFrom(et.ClrType))
             {
                 var eb = modelBuilder.Entity(et.ClrType);
-                eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.CreatedByUserId));
+                // ستون CreatedByUserId در همهٔ جدول‌ها وجود ندارد؛ نادیده گرفته می‌شود.
+                // استثنا: Acc.Vouchers این ستون را دارد (برای نمایش «کاربرِ» ثبت‌کننده در فهرست اسناد).
+                if (et.ClrType != typeof(Voucher))
+                    eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.CreatedByUserId));
                 eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.UpdatedByUserId));
 
                 // multi-tenant global query filter (scoped to current company)

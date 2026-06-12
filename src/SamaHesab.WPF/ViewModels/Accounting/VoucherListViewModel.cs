@@ -46,6 +46,28 @@ public partial class VoucherListViewModel : BaseViewModel
         new(3, "دائمی")
     };
 
+    // کمبوی «نوع سند» (مطابق accounting-docs.html)
+    public List<StatusItem> TypeOptions { get; } = new()
+    {
+        new(null, "همه انواع"),
+        new(9, "عمومی"),
+        new(11, "دریافت"),
+        new(10, "پرداخت"),
+        new(3, "فروش"),
+        new(4, "خرید"),
+    };
+    [ObservableProperty] private int? _selectedTypeId;
+
+    partial void OnSelectedTypeIdChanged(int? value) => _ = SearchAsync();
+
+    /// <summary>چیپ‌های وضعیت (همه/قطعی/پیش‌نویس) — null=همه.</summary>
+    [RelayCommand]
+    private async Task FilterStatusAsync(string? status)
+    {
+        SelectedStatus = status switch { "قطعی" => 2, "پیش‌نویس" => 1, _ => (int?)null };
+        await SearchAsync();
+    }
+
     public VoucherListViewModel(
         IMediator mediator,
         ICurrentUserService currentUser,
@@ -112,6 +134,7 @@ public partial class VoucherListViewModel : BaseViewModel
                 FiscalYearId: FiscalYearId,
                 FromDate: FromDate,
                 ToDate: ToDate,
+                VoucherTypeId: SelectedTypeId,
                 Status: SelectedStatus,
                 SearchText: SearchText);
 

@@ -97,9 +97,8 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<INavigationService, NavigationService>();
                 services.AddSingleton<IPrintService, PrintService>();
                 services.AddSingleton<Services.ApiClient>();
-                services.AddSingleton<Services.ModuleService>();
+                services.AddSingleton<ModuleService>();   // سیستم ماژولار (واحد)
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
-                services.AddSingleton<IModuleService, ModuleService>();   // سیستم ماژولار
 
                 // ViewModels
                 services.AddTransient<MainViewModel>();

@@ -10,30 +10,27 @@ namespace SamaHesab.WPF.ViewModels.Settings;
 /// <summary>تنظیمات → مدیریت ماژول‌ها: فعال/غیرفعال‌سازی ماژول‌های اختیاری پلتفرم.</summary>
 public partial class ModulesViewModel : BaseViewModel
 {
-    private readonly IModuleService _modules;
+    private readonly ModuleService _modules;
 
     public ObservableCollection<ModuleToggle> OptionalModules { get; } = new();
 
     /// <summary>ماژول‌های هسته — همیشه فعال، غیرقابل‌خاموش‌کردن.</summary>
-    public List<string> CoreModules { get; } = new()
-    {
-        "حسابداری", "خزانه‌داری", "فروش", "خرید", "انبار", "اشخاص (مشتری/تأمین‌کننده)", "گزارش‌ها"
-    };
+    public List<string> CoreModules { get; }
 
-    public ModulesViewModel(IModuleService modules, IDialogService dialogService, INavigationService navigationService)
+    public ModulesViewModel(ModuleService modules, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _modules = modules;
+        CoreModules = _modules.CoreModules.Select(m => m.Name).ToList();
         foreach (var m in _modules.OptionalModules)
-            OptionalModules.Add(new ModuleToggle(m.Key, m.Title, _modules.IsEnabled(m.Key)));
+            OptionalModules.Add(new ModuleToggle(m.Key, m.Name, _modules.IsEnabled(m.Key)));
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
         foreach (var t in OptionalModules)
-            _modules.SetEnabled(t.Key, t.IsEnabled);
-        _modules.Save();
+            _modules.SetEnabled(t.Key, t.IsEnabled);   // SetEnabled خودش ذخیره می‌کند
         await _dialogService.ShowSuccessAsync(
             "ماژول‌ها ذخیره شد. منوها و صفحات مطابق ماژول‌های فعال به‌روزرسانی می‌شوند.");
     }

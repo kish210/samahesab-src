@@ -102,7 +102,7 @@
 11. ✅ P3 — زمان‌بند خودکار: `RecurringDocumentSchedulerService` (BackgroundService روزانه، تولید اسناد+فاکتورهای تکرارشونده‌ی سررسیدشده) — ثبت در DI · (تفکیک per-company بعداً)
 12. ✅ P4/P12 — موجودیت `PurchaseOrder`/`Item` (schema Pur، `database/15_PurchaseOrders.sql`) + `CreatePurchaseOrderFromReorderCommand` (ساخت خودکار از نقطه‌ی سفارش) + `GetPurchaseOrdersQuery` + endpointها (`/api/purchase/orders`, `/orders/from-reorder`) + ۴ تست
 13. ✅ P6 — موتور گردش‌کار/تأیید: `ApprovalWorkflow` (ماشین‌وضعیت خالص Draft→Pending→Approved/Rejected→Reopen) + ۶ تست · اتصال به سند/PO (نیاز به فیلد وضعیت تأیید) بعداً
-14. ✅ P7 — Swagger/OpenAPI با احراز Bearer از قبل فعال (`/swagger`) · نسخه‌بندی URL اختیاری بعداً
+14. ✅ P7 — Swagger/OpenAPI با احراز Bearer (`/swagger`) + **تکمیل پوشش API فاز۱ (کلود ۱)**: `AccountingDimensionsController` (سال‌مالی/مرکزهزینه/پروژه CRUD) + `ReportDataController` (دادهٔ JSONِ تراز/دفترکل/سود‌وزیان/ترازنامه/جریان‌وجوه/ارزش‌انبار) + قبلاً Security/Branches/BatchSerial. · نسخه‌بندی URL اختیاری بعداً
 15. ✅ P7 — تکمیل پوشش API: دریافتنی/پرداختنی (`/api/treasury/receivables|payables`) + تابلوی چک و تغییر وضعیت (`/api/cheques/board`, `/api/cheques/{id}/status`) + ✅ Query دفتر بانک مغایرت‌گیری (`GetBankLedgerQuery`، R4)
 16. ✅ CI روی GitHub Actions: `.github/workflows/ci.yml` بازنویسی شد (Ubuntu، build+test پروژه‌ی تست با منبع nuget.org، آپلود نتایج trx) — WPF/Telerik کنار گذاشته شد
 17. 🔨 UI داشبورد نقش‌محور (WPF) — **کلود ۲ گرفت (کمک به بستهٔ ۱)**

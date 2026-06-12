@@ -48,7 +48,7 @@
 ### 📋 Phase-1 Backlog (claim‌شده)
 - [~] **SEC-1 (امنیت/RBAC)** 🔒C1 — نقش‌ها و مجوزهای دانه‌ریز:
   - [ ] گام۱: موجودیت `Role`/`RolePermission`/`UserRole` + EF + SQL + `PermissionCatalog` ثابت + اتصال `AuthenticateCommand` (بارگذاری نقش/مجوز واقعی) + seed نقش ADMIN.
-  - [~] گام۲: ✅ claimهای `perm` در JWT + `AuthenticatedUser.Permissions` + `/api/auth/login` و `/me` مجوزها را برمی‌گردانند + WPF (`ApiMe`/LoginViewModel) مجوزها را از API می‌خواند و در `CurrentUserService` می‌ریزد + `HasPermission` با wildcard (`PermissionCatalog.Grants`) در هر دو سمت. · باقی: گیت منو بر اساس مجوز.
+  - [x] گام۲: ✅ claimهای `perm` در JWT + مجوزها در login/me + WPF مجوزها را از API می‌خواند + `HasPermission` با wildcard + **گیت منوهای هسته** (حسابداری/خزانه/فروش/خرید/انبار/اشخاص/گزارش) بر اساس `Can*` در `MainViewModel`.
   - [ ] گام۳: UI مدیریت نقش‌ها (تخصیص مجوز) + تخصیص نقش به کاربر + فهرست کاربران.
 - [x] **CE-1 (مرکز هزینه/پروژه/سال مالی)** ✅C1 — عمق حسابداری (کامل):
   - [x] گام۱: موجودیت‌های `FiscalYear`/`CostCenter`/`Project` + EF config + DbSet + `database/19_AccountingDimensions.sql` (ستون‌های CostCenterId/ProjectId از قبل روی VoucherItem بود).

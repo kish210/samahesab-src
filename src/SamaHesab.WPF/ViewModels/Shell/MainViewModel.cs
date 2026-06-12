@@ -35,6 +35,16 @@ public partial class MainViewModel : BaseViewModel
     public bool CrmEnabled => _modules.IsEnabled(ModuleService.Crm);
     public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
 
+    // ── دسترسی منو بر اساس مجوز (RBAC). ADMIN/«*» همه را true می‌کند. ──
+    public bool CanAccounting => _currentUser.HasPermission("Accounting", "Voucher", "View");
+    public bool CanTreasury   => _currentUser.HasPermission("Treasury", "View", "");
+    public bool CanSales      => _currentUser.HasPermission("Sales", "Invoice", "View");
+    public bool CanPurchase   => _currentUser.HasPermission("Purchase", "Invoice", "View");
+    public bool CanInventory  => _currentUser.HasPermission("Inventory", "View", "");
+    public bool CanCustomers  => _currentUser.HasPermission("Customers", "View", "");
+    public bool CanReports    => _currentUser.HasPermission("Reports", "View", "");
+    public bool CanSecurity   => _currentUser.HasPermission("Security", "Manage", "");
+
     // نقشهٔ «کلید صفحه → ماژولِ اختیاری» (صفحات خارج از این نقشه = هسته، همیشه مجاز)
     private static readonly Dictionary<string, string> _pageModule = new()
     {
@@ -133,6 +143,7 @@ public partial class MainViewModel : BaseViewModel
         CurrentUserName = _currentUser.FullName ?? "کاربر";
         CurrentUserRole = string.Join(", ", _currentUser.GetRoles());
         TodayPersianDate = _calendar.GetCurrentPersianDate();
+        RaiseAccessFlags();   // منوها بر اساس مجوزِ کاربرِ واردشده
         await NavigateToAsync("Dashboard");
     }
 
@@ -141,6 +152,14 @@ public partial class MainViewModel : BaseViewModel
 
     [RelayCommand]
     private async Task NavigateAsync(string page) => await NavigateToAsync(page);
+
+    private void RaiseAccessFlags()
+    {
+        OnPropertyChanged(nameof(CanAccounting)); OnPropertyChanged(nameof(CanTreasury));
+        OnPropertyChanged(nameof(CanSales)); OnPropertyChanged(nameof(CanPurchase));
+        OnPropertyChanged(nameof(CanInventory)); OnPropertyChanged(nameof(CanCustomers));
+        OnPropertyChanged(nameof(CanReports)); OnPropertyChanged(nameof(CanSecurity));
+    }
 
     private void RaiseModuleFlags()
     {

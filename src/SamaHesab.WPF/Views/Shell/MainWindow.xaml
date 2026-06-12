@@ -137,7 +137,8 @@
 
                 <!-- منو (دکمه‌های بازشونده) -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource TopMenuBtn}" Content="حسابداری" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="حسابداری" Click="TopMenu_Click"
+                            Visibility="{Binding CanAccounting, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
@@ -150,7 +151,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="خزانه‌داری" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="خزانه‌داری" Click="TopMenu_Click"
+                            Visibility="{Binding CanTreasury, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="مدیریت چک" Command="{Binding NavigateCommand}" CommandParameter="Cheques"/>
@@ -161,7 +163,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="خرید" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="خرید" Click="TopMenu_Click"
+                            Visibility="{Binding CanPurchase, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
@@ -169,7 +172,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="فروش" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="فروش" Click="TopMenu_Click"
+                            Visibility="{Binding CanSales, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="فاکتور فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
@@ -179,7 +183,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="انبار" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="انبار" Click="TopMenu_Click"
+                            Visibility="{Binding CanInventory, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
@@ -192,7 +197,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="اشخاص" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="اشخاص" Click="TopMenu_Click"
+                            Visibility="{Binding CanCustomers, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
@@ -200,7 +206,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="گزارشات" Click="TopMenu_Click">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="گزارشات" Click="TopMenu_Click"
+                            Visibility="{Binding CanReports, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>

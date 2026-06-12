@@ -46,7 +46,9 @@ public class CurrentUserService : ICurrentUserService
     public bool HasPermission(string moduleCode, string featureCode, string action)
     {
         if (_roles.Contains("ADMIN")) return true;
-        var key = $"{moduleCode}.{featureCode}.{action}";
+        // کلید از بخش‌های غیرخالی ساخته می‌شود تا کدهای ۲ و ۳ بخشیِ کاتالوگ سازگار بمانند.
+        var key = string.Join('.', new[] { moduleCode, featureCode, action }
+            .Where(s => !string.IsNullOrEmpty(s)));
         // پشتیبانی از «*» و wildcardِ ماژول (مثل «Treasury.*») از طریق کاتالوگ مجوز.
         return SamaHesab.Application.Common.Security.PermissionCatalog.Grants(_permissions, key);
     }

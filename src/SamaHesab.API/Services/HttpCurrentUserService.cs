@@ -31,8 +31,9 @@ public class HttpCurrentUserService : ICurrentUserService
     {
         if (GetRoles().Contains("ADMIN")) return true;
         var granted = User?.FindAll("perm").Select(c => c.Value) ?? Enumerable.Empty<string>();
-        return SamaHesab.Application.Common.Security.PermissionCatalog.Grants(
-            granted, $"{moduleCode}.{featureCode}.{action}");
+        var key = string.Join('.', new[] { moduleCode, featureCode, action }
+            .Where(s => !string.IsNullOrEmpty(s)));
+        return SamaHesab.Application.Common.Security.PermissionCatalog.Grants(granted, key);
     }
 
     public IEnumerable<string> GetRoles() =>

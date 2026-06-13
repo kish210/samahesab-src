@@ -6,6 +6,11 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft"
              Background="{StaticResource ErpAppBg}">
+    <!-- میان‌برهای کیبورد (OPT-2): F2=سند جدید · Enter=باز کردنِ سندِ انتخاب‌شده -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding NewVoucherCommand}"/>
+        <KeyBinding Key="Return" Command="{Binding EditVoucherCommand}"/>
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
@@ -122,6 +127,10 @@
                         </DockPanel>
                     </Border>
                     <DataGrid ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}" Style="{StaticResource ErpDataGrid}" IsReadOnly="True">
+                        <DataGrid.InputBindings>
+                            <!-- دابل‌کلیک روی ردیف = باز کردنِ سند (OPT-2) -->
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditVoucherCommand}"/>
+                        </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="34">
                                 <DataGridTemplateColumn.CellTemplate>

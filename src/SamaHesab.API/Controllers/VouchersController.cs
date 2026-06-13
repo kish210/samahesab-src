@@ -14,6 +14,13 @@ public class VouchersController : ControllerBase
     private readonly IMediator _mediator;
     public VouchersController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>فهرستِ صفحه‌بندی‌شدهٔ اسناد (فیلتر: بازهٔ تاریخ/نوع/وضعیت/جستجو).</summary>
+    [HttpGet]
+    public async Task<IActionResult> List([FromQuery] int fiscalYearId, [FromQuery] string? fromDate,
+        [FromQuery] string? toDate, [FromQuery] int? typeId, [FromQuery] int? status,
+        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int size = 50, CancellationToken ct = default)
+        => Ok(await _mediator.Send(new GetVouchersQuery(fiscalYearId, fromDate, toDate, typeId, status, search, page, size), ct));
+
     /// <summary>Create a (draft) accounting voucher.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVoucherCommand command, CancellationToken ct)

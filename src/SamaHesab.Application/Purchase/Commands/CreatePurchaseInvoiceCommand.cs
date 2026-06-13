@@ -62,6 +62,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Purchase.PurchaseInvoice> _invoiceRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
+    private readonly IMediator _mediator;
 
     public CreatePurchaseInvoiceCommandHandler(
         IUnitOfWork unitOfWork,
@@ -71,7 +72,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IAccountRepository accountRepository,
         IVoucherRepository voucherRepository,
         IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository,
-        IRepository<Domain.Entities.Inventory.StockTransaction> ledger)
+        IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
+        IMediator mediator)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -81,6 +83,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _voucherRepository = voucherRepository;
         _invoiceRepository = invoiceRepository;
         _ledger = ledger;
+        _mediator = mediator;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
@@ -127,6 +130,18 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                     await _stockRepository.AddAsync(stockItem, ct);
                 else
                     _stockRepository.Update(stockItem);
+
+                // ── بچ/سریال (INV-1 گام۳): رسیدِ بچ هنگام خرید ──
+                // اگر برای این ردیف شمارهٔ بچ وارد شده، موجودیِ بچ هم‌زمان با موجودیِ انبار افزوده می‌شود
+                // (SaveChanges را فراخواننده در همین تراکنش انجام می‌دهد).
+                if (!string.IsNullOrWhiteSpace(item.BatchNumber))
+                {
+                    var batchRes = await _mediator.Send(new Inventory.Commands.ReceiveBatchCommand(
+                        item.ProductId, item.BatchNumber!, item.Quantity,
+                        item.ProductionDate, item.ExpiryDate, item.UnitPrice), ct);
+                    if (!batchRes.Succeeded)
+                        throw new InvalidOperationException(batchRes.ErrorMessage);
+                }
 
                 // kardex ledger entry (inflow)
                 await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(

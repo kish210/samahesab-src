@@ -70,6 +70,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
     private readonly IRepository<Domain.Entities.CRM.Customer> _customers;
+    private readonly IMediator _mediator;
 
     public CreateSalesInvoiceCommandHandler(
         IRepository<SalesInvoice> invoiceRepository,
@@ -81,7 +82,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IAccountRepository accountRepository,
         IVoucherRepository voucherRepository,
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
-        IRepository<Domain.Entities.CRM.Customer> customers)
+        IRepository<Domain.Entities.CRM.Customer> customers,
+        IMediator mediator)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
@@ -93,6 +95,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _voucherRepository = voucherRepository;
         _ledger = ledger;
         _customers = customers;
+        _mediator = mediator;
     }
 
     public async Task<Result<int>> Handle(CreateSalesInvoiceCommand request, CancellationToken ct)
@@ -157,6 +160,23 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                     var unitCost = stock.AverageCost;
                     stock.RemoveStock(dto.Quantity);
                     _stockRepository.Update(stock);
+
+                    // ── بچ/سریال (INV-1 گام۳): حواله/فروشِ بچ و سریالِ انتخاب‌شده ──
+                    // SaveChanges را فراخواننده در همین تراکنش انجام می‌دهد؛ خطا → rollback کل فاکتور.
+                    if (dto.BatchId.HasValue)
+                    {
+                        var issueRes = await _mediator.Send(new Inventory.Commands.IssueBatchCommand(
+                            dto.BatchId.Value, dto.Quantity), ct);
+                        if (!issueRes.Succeeded)
+                            throw new InvalidOperationException(issueRes.ErrorMessage);
+                    }
+                    if (dto.SerialId.HasValue)
+                    {
+                        var serialRes = await _mediator.Send(new Inventory.Commands.SellSerialCommand(
+                            dto.SerialId.Value, request.InvoiceDate), ct);
+                        if (!serialRes.Succeeded)
+                            throw new InvalidOperationException(serialRes.ErrorMessage);
+                    }
 
                     // kardex ledger entry (outflow)
                     await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(

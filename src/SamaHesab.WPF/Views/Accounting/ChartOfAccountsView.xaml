@@ -65,7 +65,38 @@
 
             <!-- Account Detail Panel -->
             <Border Grid.Column="1" Background="{DynamicResource SurfaceBackground}" Padding="20">
-                <StackPanel Visibility="{Binding HasSelectedAccount, Converter={StaticResource BoolVis}}">
+              <Grid>
+                <!-- فرمِ ایجاد/ویرایشِ حساب (هستهٔ ERP) -->
+                <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="{Binding EditTitle}" FontSize="16" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,0,16"/>
+                    <TextBlock Text="کد حساب" FontSize="11.5" Foreground="{DynamicResource SecondaryText}" Margin="0,0,0,3"/>
+                    <TextBox Text="{Binding EditCode, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,10"
+                             IsEnabled="{Binding IsNewAccount}" VerticalContentAlignment="Center"/>
+                    <TextBlock Text="نام حساب" FontSize="11.5" Foreground="{DynamicResource SecondaryText}" Margin="0,0,0,3"/>
+                    <TextBox Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,10"
+                             VerticalContentAlignment="Center"/>
+                    <TextBlock Text="ماهیت" FontSize="11.5" Foreground="{DynamicResource SecondaryText}" Margin="0,0,0,3"/>
+                    <ComboBox ItemsSource="{Binding NatureOptions}" SelectedItem="{Binding EditNature}" Height="32" Margin="0,0,0,10"/>
+                    <TextBlock Text="نوع حساب" FontSize="11.5" Foreground="{DynamicResource SecondaryText}" Margin="0,0,0,3"/>
+                    <ComboBox ItemsSource="{Binding AccountTypeOptions}" SelectedItem="{Binding EditAccountType}" Height="32" Margin="0,0,0,10"
+                              IsEnabled="{Binding IsNewAccount}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10"
+                                Visibility="{Binding IsNewAccount, Converter={StaticResource BoolVis}}">
+                        <TextBlock Text="زیرمجموعهٔ: " FontSize="11.5" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding EditParentInfo}" FontSize="11.5" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="ذخیره" Style="{StaticResource PrimaryButton}" Height="36" Width="110"
+                                Command="{Binding SaveAccountCommand}"/>
+                        <Button Content="انصراف" Height="36" Width="90" Margin="8,0,0,0" Cursor="Hand"
+                                Command="{Binding CancelEditCommand}"
+                                Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                                BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ShowDetail, Converter={StaticResource BoolVis}}">
                     <TextBlock Text="مشخصات حساب" FontSize="16" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryText}"
                                FontFamily="{StaticResource VazirFont}" Margin="0,0,0,20"/>
@@ -114,6 +145,7 @@
                             Height="38" Margin="0,16,0,0"
                             Command="{Binding ViewLedgerCommand}"/>
                 </StackPanel>
+              </Grid>
             </Border>
         </Grid>
     </Grid>

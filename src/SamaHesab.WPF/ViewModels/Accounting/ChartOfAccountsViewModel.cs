@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -41,6 +42,14 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
     [ObservableProperty] private string _editNature = "بدهکار";
     [ObservableProperty] private string _editAccountType = "دارایی";
     [ObservableProperty] private int? _editParentId;
+    [ObservableProperty] private bool _isEditing;          // نمایشِ فرمِ ویرایش/ایجاد
+    [ObservableProperty] private bool _isNewAccount;        // ایجاد (true) یا ویرایش (false)
+    [ObservableProperty] private bool _showDetail;          // جزئیاتِ فقط‌خواندنی (= انتخاب‌شده و درحالِ‌ویرایش‌نبودن)
+    [ObservableProperty] private string _editParentInfo = "—"; // والدِ نمایشی در فرم
+    [ObservableProperty] private string _editTitle = "حساب جدید";
+
+    public List<string> NatureOptions { get; } = new() { "بدهکار", "بستانکار" };
+    public List<string> AccountTypeOptions { get; } = new() { "دارایی", "بدهی", "سرمایه", "درآمد", "هزینه" };
 
     public ObservableCollection<AccountTreeNode> RootAccounts { get; } = new();
 
@@ -164,18 +173,58 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         }
     }
 
+    /// <summary>ورود به حالتِ ایجاد: حسابِ جدید به‌عنوان زیرمجموعهٔ حسابِ انتخاب‌شده (در صورت وجود).</summary>
     [RelayCommand]
-    private async Task AddAccountAsync()
+    private void AddAccount()
     {
-        await _dialogService.ShowInfoAsync("فرم ایجاد حساب جدید در نسخه کامل پیاده‌سازی می‌شود.");
+        IsNewAccount = true;
+        IsEditing = true;
+        EditTitle = "حساب جدید";
+        EditCode = string.Empty;
+        EditName = string.Empty;
+        EditNature = "بدهکار";
+        EditAccountType = SelectedAccount?.Nature is not null ? EditAccountType : "دارایی";
+        EditParentId = SelectedAccount?.Id;
+        EditParentInfo = SelectedAccount is null ? "— (حسابِ سطحِ گروه)" : $"{SelectedAccount.Code} — {SelectedAccount.Name}";
     }
 
+    /// <summary>ورود به حالتِ ویرایشِ حسابِ انتخاب‌شده.</summary>
     [RelayCommand]
     private async Task EditAccountAsync()
     {
         if (SelectedAccount == null) { await _dialogService.ShowWarningAsync("یک حساب انتخاب کنید."); return; }
-        await _dialogService.ShowInfoAsync($"ویرایش حساب: {SelectedAccount.Name}");
+        IsNewAccount = false;
+        IsEditing = true;
+        EditTitle = $"ویرایشِ حساب {SelectedAccount.Code}";
+        EditCode = SelectedAccount.Code;
+        EditName = SelectedAccount.Name;
+        EditNature = SelectedAccount.Nature == "Credit" ? "بستانکار" : (SelectedAccount.Nature == "Debit" ? "بدهکار" : SelectedAccount.Nature);
+        EditParentInfo = "—";
     }
+
+    /// <summary>ذخیرهٔ حسابِ جدید/ویرایش‌شده (هستهٔ ERP — `SaveAccountCommand`).</summary>
+    [RelayCommand]
+    private async Task SaveAccountAsync()
+    {
+        if (string.IsNullOrWhiteSpace(EditCode) || string.IsNullOrWhiteSpace(EditName))
+        { await _dialogService.ShowErrorAsync("کد و نامِ حساب الزامی است."); return; }
+
+        await ExecuteAsync(async () =>
+        {
+            var cmd = new SaveAccountCommand(
+                Id: IsNewAccount ? null : SelectedAccount?.Id,
+                Code: EditCode.Trim(), Name: EditName.Trim(), Nature: EditNature,
+                AccountType: EditAccountType, ParentId: IsNewAccount ? EditParentId : null, Description: null);
+            var res = await _mediator.Send(cmd);
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync(IsNewAccount ? "حساب ایجاد شد." : "حساب ویرایش شد.");
+            IsEditing = false;
+            await LoadAsync();
+        }, "در حال ذخیرهٔ حساب...");
+    }
+
+    [RelayCommand]
+    private void CancelEdit() => IsEditing = false;
 
     [RelayCommand]
     private async Task DeleteAccountAsync()
@@ -195,4 +244,6 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
     }
 
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();
+    partial void OnIsEditingChanged(bool value) => ShowDetail = HasSelectedAccount && !value;
+    partial void OnHasSelectedAccountChanged(bool value) => ShowDetail = value && !IsEditing;
 }

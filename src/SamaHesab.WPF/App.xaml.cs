@@ -119,6 +119,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<BatchSerialViewModel>();
                 services.AddTransient<InventoryReportViewModel>();
+                services.AddTransient<ViewModels.Inventory.PriceListViewModel>();   // کارِ ۷ — مدیریت لیست‌قیمت
                 services.AddTransient<ProductEditViewModel>();
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();

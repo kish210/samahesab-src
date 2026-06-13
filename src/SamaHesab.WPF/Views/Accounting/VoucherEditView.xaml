@@ -76,6 +76,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#F0F3F9"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Opacity" Value="0.45"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -105,7 +106,8 @@
                 <Button Style="{StaticResource TBtn}" Command="{Binding SaveCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="ذخیره"/><Border Style="{StaticResource Fk}"><TextBlock Text="F7" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding PostCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6">
+                <Button Style="{StaticResource TBtn}" Command="{Binding PostCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6"
+                        IsEnabled="{Binding IsBalanced}" ToolTip="سند باید تراز باشد تا قطعی شود">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="قطعی‌سازی" Foreground="#15803D"/><Border Style="{StaticResource Fk}" Background="#C9E9D2"><TextBlock Text="F9" FontSize="10.5" Foreground="#15803D"/></Border></StackPanel>
                 </Button>
                 <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>

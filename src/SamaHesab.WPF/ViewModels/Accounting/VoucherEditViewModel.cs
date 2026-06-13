@@ -4,6 +4,7 @@ using MediatR;
 using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Accounting.Dimensions;
+using SamaHesab.Application.Common.Favorites;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -53,6 +54,9 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     public List<CostCenterItem> CostCenters { get; private set; } = new();
     public List<CostCenterItem> Projects { get; private set; } = new();
 
+    /// <summary>چیپ‌های دسترسیِ سریع به حساب: پرکاربرد (سنجاق‌شده) + اخیر — کیبوردمحور/تک‌کلیک (Recent/Favorite Accounts).</summary>
+    public ObservableCollection<AccountChip> QuickAccounts { get; } = new();
+
     public VoucherEditViewModel(IMediator mediator, IAccountRepository accountRepo,
         IVoucherRepository voucherRepo, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IDialogService dialogService,
@@ -91,6 +95,21 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         var accounts = await _accountRepo.GetLeafAccountsAsync(_currentUser.CompanyId ?? 1);
         LeafAccounts = accounts.Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList();
         OnPropertyChanged(nameof(LeafAccounts));
+
+        await LoadQuickAccountsAsync();
+    }
+
+    /// <summary>بارگذاریِ حساب‌های پرکاربرد (سنجاق‌شده) + اخیر برای نوارِ دسترسیِ سریع.</summary>
+    private async Task LoadQuickAccountsAsync()
+    {
+        QuickAccounts.Clear();
+        var pinned = await _mediator.Send(new GetPinnedItemsQuery("account"));
+        var recent = await _mediator.Send(new GetRecentItemsQuery("account", 8));
+        var seen = new HashSet<int>();
+        foreach (var p in pinned)
+            if (seen.Add(p.EntityId)) QuickAccounts.Add(new AccountChip(p.EntityId, p.Label, true));
+        foreach (var r in recent)
+            if (seen.Add(r.EntityId)) QuickAccounts.Add(new AccountChip(r.EntityId, r.Label, false));
     }
 
     [RelayCommand]
@@ -115,9 +134,39 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         Items.Add(row);
         Recalculate();
 
+        // ثبتِ حساب در «اخیر» (برای دسترسیِ سریعِ دفعهٔ بعد) — بدون انتظار.
+        _ = TouchAccountAsync(row.AccountId, $"{row.AccountCode} — {row.AccountName}");
+
         // Reset input
         NewRowNumber++;
         NewAccountId = null; NewDescription = null; NewDebit = 0; NewCredit = 0;
+    }
+
+    private async Task TouchAccountAsync(int accountId, string label)
+    {
+        try
+        {
+            await _mediator.Send(new TouchRecentItemCommand("account", accountId, label));
+            await LoadQuickAccountsAsync();
+        }
+        catch { /* ثبتِ اخیر حیاتی نیست */ }
+    }
+
+    /// <summary>انتخابِ حساب از چیپِ دسترسیِ سریع → پر کردنِ ردیفِ ورودی (تک‌کلیک، بدونِ جست‌وجو).</summary>
+    [RelayCommand]
+    private void PickAccount(AccountChip? chip)
+    {
+        if (chip is null) return;
+        NewAccountId = chip.AccountId;
+    }
+
+    /// <summary>سنجاق/برداشتنِ سنجاقِ حساب (پرکاربرد/Favorite).</summary>
+    [RelayCommand]
+    private async Task TogglePinAccount(AccountChip? chip)
+    {
+        if (chip is null) return;
+        await _mediator.Send(new SetPinnedItemCommand("account", chip.AccountId, chip.Label, !chip.Pinned));
+        await LoadQuickAccountsAsync();
     }
 
     /// <summary>
@@ -261,6 +310,10 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     [RelayCommand]
     private void Cancel() => _navigationService.NavigateTo("Vouchers");
 
+    /// <summary>دسترسیِ مستقیم به الگوها/اسنادِ تکرارشونده (بهره‌وری سند) — OPT-1.</summary>
+    [RelayCommand]
+    private void Templates() => _navigationService.NavigateTo("VoucherTools");
+
     [RelayCommand]
     private void New()
     {
@@ -307,4 +360,7 @@ public record VoucherAccountItem(int Id, string Code, string Name)
     public string Display => $"{Code} — {Name}";
 }
 public record CostCenterItem(int Id, string Name);
+
+/// <summary>چیپِ دسترسیِ سریع به حساب (اخیر/پرکاربرد).</summary>
+public record AccountChip(int AccountId, string Label, bool Pinned);
 

@@ -113,6 +113,7 @@
                 <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>
                 <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}"><TextBlock Text="کپی سند"/></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}"><TextBlock Text="سند معکوس"/></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding TemplatesCommand}" ToolTip="الگوها و اسنادِ تکرارشونده"><TextBlock Text="الگو / تکراری"/></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PrintCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
@@ -167,6 +168,61 @@
 
             <!-- ردیف ورود سریع (entry-strip) -->
             <Border Grid.Row="1" Background="{StaticResource EntryBg}" BorderBrush="{StaticResource EntryBorder}" BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,10">
+              <StackPanel>
+                <!-- نوارِ حساب‌های اخیر/پرکاربرد: تک‌کلیک = پر کردنِ حساب · ★ = سنجاق (Favorite) -->
+                <DockPanel Margin="0,0,0,8">
+                    <DockPanel.Style>
+                        <Style TargetType="DockPanel">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding QuickAccounts.Count}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Style>
+                    <TextBlock DockPanel.Dock="Right" Text="دسترسی سریع:" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource Blue700}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <ItemsControl ItemsSource="{Binding QuickAccounts}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="11" BorderThickness="1" Margin="0,0,5,4" Padding="2,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Setter Property="BorderBrush" Value="#CFDAEF"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Pinned}" Value="True">
+                                                    <Setter Property="Background" Value="#FBF6EE"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource Gold500}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Command="{Binding DataContext.TogglePinAccountCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                                Padding="4,0" ToolTip="سنجاق/برداشتنِ مورد‌علاقه">
+                                            <TextBlock FontSize="12">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="☆"/><Setter Property="Foreground" Value="#9CA3AF"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Pinned}" Value="True"><Setter Property="Text" Value="★"/><Setter Property="Foreground" Value="{StaticResource Gold500}"/></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                        <Button Command="{Binding DataContext.PickAccountCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" Content="{Binding Label}" Background="Transparent" BorderThickness="0"
+                                                Cursor="Hand" FontSize="11.5" Padding="2,3,8,3" Foreground="{StaticResource TextStrong}"
+                                                ToolTip="انتخابِ حساب برای ردیفِ ورودی"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DockPanel>
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="90"/><ColumnDefinition Width="8"/>
@@ -217,6 +273,7 @@
                             Background="{StaticResource Blue600}" Foreground="White" BorderThickness="0"
                             Content="افزودن ⏎" Command="{Binding AddRowCommand}"/>
                 </Grid>
+              </StackPanel>
             </Border>
 
             <!-- گرید ردیف‌ها -->

@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          Global Style Overrides
@@ -266,25 +265,21 @@
          ERP DENSITY SYSTEM  (shared dense controls — commercial-ERP look)
     ═══════════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Dense data grid for the whole app.
-         IMPORTANT: MUST be BasedOn the Telerik default RadGridView style. With the
-         NoXaml themes the ControlTemplate is supplied by the implicit theme style;
-         assigning a keyed Style WITHOUT BasedOn replaces it and the grid renders
-         completely blank (no headers, no rows). -->
-    <Style x:Key="ErpGrid" TargetType="telerik:RadGridView"
-           BasedOn="{StaticResource {x:Type telerik:RadGridView}}">
+    <!-- Dense data grid for the whole app (WPF DataGrid). -->
+    <Style x:Key="ErpGrid" TargetType="DataGrid">
         <Setter Property="AutoGenerateColumns" Value="False"/>
-        <Setter Property="ShowGroupPanel" Value="False"/>
-        <Setter Property="RowIndicatorVisibility" Value="Collapsed"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="GridLinesVisibility" Value="All"/>
         <Setter Property="RowHeight" Value="28"/>
         <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
         <Setter Property="FontSize" Value="12"/>
     </Style>
 
     <!-- Editable dense grid (invoice / voucher entry lines) -->
-    <Style x:Key="ErpEditGrid" TargetType="telerik:RadGridView" BasedOn="{StaticResource ErpGrid}">
+    <Style x:Key="ErpEditGrid" TargetType="DataGrid" BasedOn="{StaticResource ErpGrid}">
         <Setter Property="IsReadOnly" Value="False"/>
-        <Setter Property="ShowColumnFooters" Value="True"/>
         <Setter Property="RowHeight" Value="30"/>
     </Style>
 

@@ -2,7 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
@@ -57,23 +56,23 @@
 
         <!-- ═══ Expanded dense grid (25+ rows visible) ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <telerik:RadGridView x:Name="grid"
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" x:Name="grid"
                                  ItemsSource="{Binding Products}"
                                  SelectedItem="{Binding SelectedProduct}"
-                                 AutoGenerateColumns="False" RowIndicatorVisibility="Collapsed" RowHeight="28"
-                                 IsReadOnly="True" ShowSearchPanel="True"
-                                 ShowGroupPanel="True" GroupRenderMode="Flat"
-                                 FilteringMode="Popup">
-                <telerik:RadGridView.Columns>
-                    <telerik:GridViewDataColumn Header="کد" DataMemberBinding="{Binding Code}" Width="90"/>
-                    <telerik:GridViewDataColumn Header="بارکد" DataMemberBinding="{Binding Barcode}" Width="130"/>
-                    <telerik:GridViewDataColumn Header="نام کالا" DataMemberBinding="{Binding Name}" Width="2*"/>
-                    <telerik:GridViewDataColumn Header="قیمت خرید" DataMemberBinding="{Binding PurchasePrice}" DataFormatString="{}{0:#,##0}" Width="120"/>
-                    <telerik:GridViewDataColumn Header="قیمت فروش" DataMemberBinding="{Binding SalePrice}" DataFormatString="{}{0:#,##0}" Width="120"/>
-                    <telerik:GridViewDataColumn Header="قیمت عمده" DataMemberBinding="{Binding WholesalePrice}" DataFormatString="{}{0:#,##0}" Width="120"/>
-                    <telerik:GridViewDataColumn Header="حداقل موجودی" DataMemberBinding="{Binding MinStock}" DataFormatString="{}{0:#,##0}" Width="110"/>
-                    <telerik:GridViewDataColumn Header="وضعیت" DataMemberBinding="{Binding IsActive}" Width="90">
-                        <telerik:GridViewDataColumn.CellTemplate>
+                                 RowHeight="28"
+                                
+                                
+                                >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
+                    <DataGridTextColumn Header="بارکد" Binding="{Binding Barcode}" Width="130"/>
+                    <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="2*"/>
+                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, StringFormat={}{0:#,##0}}" Width="120"/>
+                    <DataGridTextColumn Header="قیمت فروش" Binding="{Binding SalePrice, StringFormat={}{0:#,##0}}" Width="120"/>
+                    <DataGridTextColumn Header="قیمت عمده" Binding="{Binding WholesalePrice, StringFormat={}{0:#,##0}}" Width="120"/>
+                    <DataGridTextColumn Header="حداقل موجودی" Binding="{Binding MinStock, StringFormat={}{0:#,##0}}" Width="110"/>
+                    <DataGridTemplateColumn Header="وضعیت" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Center">
                                     <Border.Style>
@@ -102,10 +101,10 @@
                                     </TextBlock>
                                 </Border>
                             </DataTemplate>
-                        </telerik:GridViewDataColumn.CellTemplate>
-                    </telerik:GridViewDataColumn>
-                </telerik:RadGridView.Columns>
-            </telerik:RadGridView>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </Border>
 
         <!-- ═══ Slim footer ═══ -->

@@ -32,17 +32,6 @@
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="Telerik.Windows.Controls.Data.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.Docking.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.GridView.Export.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.GridView.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.Input.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.Navigation.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Controls.RibbonView.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Themes.Crystal.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Themes.Fluent.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Themes.Office2019.for.Wpf" Version="2025.2.521" />
-    <PackageReference Include="Telerik.Windows.Themes.Windows11.for.Wpf" Version="2025.2.521" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Fonts\**\*" />

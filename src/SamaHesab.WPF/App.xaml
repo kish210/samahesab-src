@@ -18,9 +18,6 @@
                 <!-- ─── Material Design ↔ MahApps integration ───────────────── -->
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Defaults.xaml"/>
 
-                <!-- Telerik theme dictionaries are merged at runtime by ThemeManager
-                     (so the theme can be switched live). -->
-
                 <!-- ─── Sama Hesab custom theme (LAST → wins for existing views) ─ -->
                 <ResourceDictionary Source="Assets/Themes/Base.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/Dark.xaml"/>

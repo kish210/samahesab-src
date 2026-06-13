@@ -1,7 +1,6 @@
 <UserControl x:Class="SamaHesab.WPF.Views.Inventory.ProductCardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
@@ -35,10 +34,10 @@
                 </Border>
                 <TextBlock DockPanel.Dock="Left" Text="{Binding Code, StringFormat='کد {0}'}" VerticalAlignment="Center"
                            Margin="10,0" Foreground="{DynamicResource MutedText}" FontSize="12"/>
-                <telerik:RadComboBox ItemsSource="{Binding Products}" DisplayMemberPath="Display"
-                          SelectedItem="{Binding SelectedProduct}" IsEditable="True" IsFilteringEnabled="True"
-                          TextSearchMode="Contains" CanAutocompleteSelectItems="True" OpenDropDownOnFocus="True"
-                          EmptyText="کد یا نام کالا…" Height="32" Width="360" HorizontalAlignment="Right" Margin="0"/>
+                <ComboBox ItemsSource="{Binding Products}" DisplayMemberPath="Display"
+                          SelectedItem="{Binding SelectedProduct}" IsEditable="True"
+                         
+                          Height="32" Width="360" HorizontalAlignment="Right" Margin="0"/>
             </DockPanel>
         </Border>
 

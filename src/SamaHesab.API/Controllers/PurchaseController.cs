@@ -24,6 +24,16 @@ public class PurchaseController : ControllerBase
             : BadRequest(new { message = result.ErrorMessage });
     }
 
+    /// <summary>مرجوعی خرید (C2-C): خروج کالا از انبار (بازگشت به تأمین‌کننده) + سند حسابداری معکوس.</summary>
+    [HttpPost("returns")]
+    public async Task<IActionResult> Return([FromBody] CreatePurchaseReturnCommand command, CancellationToken ct)
+    {
+        var result = await _mediator.Send(command, ct);
+        return result.Succeeded
+            ? Ok(new { returnInvoiceId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
+
     /// <summary>فهرست سفارش‌های خرید (اختیاری: فیلتر وضعیت).</summary>
     [HttpGet("orders")]
     public async Task<IActionResult> Orders([FromQuery] string? status, CancellationToken ct)

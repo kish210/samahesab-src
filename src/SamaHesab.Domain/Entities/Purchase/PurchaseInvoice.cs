@@ -90,4 +90,6 @@ public class PurchaseInvoice : AuditableEntity
     }
 
     public void SetVoucher(int voucherId) { VoucherId = voucherId; UpdatedAt = DateTime.Now; }
+
+    public void SetReturnedFrom(int originalInvoiceId) { ReturnedFromId = originalInvoiceId; UpdatedAt = DateTime.Now; }
 }

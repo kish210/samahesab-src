@@ -123,6 +123,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();
                 services.AddTransient<SalesInvoiceListViewModel>();
+                services.AddTransient<ViewModels.Sales.SalesReportViewModel>();   // کارِ ۸ — گزارش فروش
                 services.AddTransient<SalesInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceListViewModel>();

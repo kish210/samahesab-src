@@ -177,6 +177,7 @@
                             <ContextMenu>
                                 <MenuItem Header="فاکتور فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
                                 <MenuItem Header="لیست فاکتورها" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
+                                <MenuItem Header="گزارش فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
                                 <MenuItem Header="صندوق فروش" Command="{Binding NavigateCommand}" CommandParameter="POS" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="صندوق / شیفت (Z/X)" Command="{Binding NavigateCommand}" CommandParameter="CashShift" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
                             </ContextMenu>

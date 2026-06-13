@@ -21,8 +21,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Warehouses}" RowHeight="28"
-                                >
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Warehouses}" RowHeight="28">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100"/>
                     <DataGridTextColumn Header="نام انبار" Binding="{Binding Name}" Width="2*"/>

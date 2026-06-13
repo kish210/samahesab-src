@@ -236,11 +236,12 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         if (ok) await _dialogService.ShowSuccessAsync("حساب حذف شد.");
     }
 
+    /// <summary>مشاهدهٔ دفتر کلِ حسابِ انتخاب‌شده (ناوبری به گزارش‌های مالی با پارامترِ حساب).</summary>
     [RelayCommand]
-    private async Task ViewLedgerAsync()
+    private void ViewLedger()
     {
         if (SelectedAccount == null) return;
-        await _dialogService.ShowInfoAsync($"دفتر کل حساب: {SelectedAccount.Name}");
+        _navigationService.NavigateTo("FinancialReports", SelectedAccount.Id);
     }
 
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();

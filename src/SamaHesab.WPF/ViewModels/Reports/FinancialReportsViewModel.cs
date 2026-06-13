@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Reports;
 
-public partial class FinancialReportsViewModel : BaseViewModel
+public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly IAccountRepository _accountRepo;
@@ -98,6 +98,17 @@ public partial class FinancialReportsViewModel : BaseViewModel
         SelectedBranchId = null;
 
         await RunAsync();
+    }
+
+    /// <summary>ورود با پارامترِ شناسهٔ حساب → بازکردنِ «دفتر کل» همان حساب (از نمودار حساب‌ها).</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is int accountId && accountId > 0)
+        {
+            SelectedReportType = "دفتر کل / معین";   // → IsLedger=true
+            SelectedAccountId = accountId;
+            await RunAsync();
+        }
     }
 
     partial void OnSelectedReportTypeChanged(string value)

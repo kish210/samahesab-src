@@ -12,27 +12,26 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Toolbar -->
+        <!-- Toolbar (تنها نوار اکشن — دکمهٔ ذخیرهٔ تکراریِ پایین حذف شد، OPT-8) -->
         <Border Grid.Row="0" Background="{DynamicResource RibbonBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="12,8">
+                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="10,5">
             <StackPanel Orientation="Horizontal">
-                <Button Content="💾 ذخیره" Style="{StaticResource PrimaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding SaveCommand}"/>
-                <Button Content="❌ انصراف" Style="{StaticResource SecondaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding CancelCommand}"/>
+                <Button Content="💾 ذخیره" Style="{StaticResource PrimaryButton}" Height="30" Margin="0,0,6,0" Command="{Binding SaveCommand}"/>
+                <Button Content="❌ انصراف" Style="{StaticResource SecondaryButton}" Height="30" Margin="0,0,6,0" Command="{Binding CancelCommand}"/>
                 <Separator Width="1" Background="{DynamicResource BorderColor}" Margin="10,4"/>
-                <Button Content="📱 ارسال SMS تولد" Style="{StaticResource SecondaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding SendBirthdaySmsCommand}"/>
-                <Button Content="📋 صورتحساب" Style="{StaticResource SecondaryButton}" Height="36" Command="{Binding PrintStatementCommand}"/>
+                <Button Content="📱 ارسال SMS تولد" Style="{StaticResource SecondaryButton}" Height="30" Margin="0,0,6,0" Command="{Binding SendBirthdaySmsCommand}"/>
+                <Button Content="📋 صورتحساب" Style="{StaticResource SecondaryButton}" Height="30" Command="{Binding PrintStatementCommand}"/>
             </StackPanel>
         </Border>
 
         <!-- Main Form -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="20">
+            <StackPanel Margin="14,10">
 
                 <!-- Type Selector -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="نوع مشتری:" Foreground="{DynamicResource SecondaryText}"
                                    FontFamily="{StaticResource VazirFont}" VerticalAlignment="Center" Margin="0,0,16,0"/>
@@ -46,67 +45,67 @@
                 </Border>
 
                 <!-- Identity -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                     <StackPanel>
-                        <TextBlock Text="اطلاعات هویتی" FontWeight="Bold" FontSize="14"
+                        <TextBlock Text="اطلاعات هویتی" FontWeight="Bold" FontSize="12.5"
                                    Foreground="{DynamicResource PrimaryText}"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,16"/>
+                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="کد مشتری *"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Code}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding Code}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <!-- Personal fields -->
                             <StackPanel Grid.Column="2" Visibility="{Binding IsPersonal, Converter={StaticResource BoolVis}}">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="نام *"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding FirstName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding FirstName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="4" Visibility="{Binding IsPersonal, Converter={StaticResource BoolVis}}">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="نام خانوادگی *"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding LastName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding LastName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <!-- Company fields -->
                             <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Visibility="{Binding IsCompany, Converter={StaticResource BoolVis}}">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="نام شرکت *"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding CompanyName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding CompanyName}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
 
-                        <Grid Margin="0,12,0,0">
+                        <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="کد ملی"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding NationalCode}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding NationalCode}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="2" Visibility="{Binding IsCompany, Converter={StaticResource BoolVis}}">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="کد اقتصادی"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding EconomicCode}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding EconomicCode}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="تاریخ تولد"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding BirthDate}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding BirthDate}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
@@ -114,84 +113,84 @@
                 </Border>
 
                 <!-- Contact Info -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                     <StackPanel>
-                        <TextBlock Text="اطلاعات تماس" FontWeight="Bold" FontSize="14"
+                        <TextBlock Text="اطلاعات تماس" FontWeight="Bold" FontSize="12.5"
                                    Foreground="{DynamicResource PrimaryText}"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,16"/>
+                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="موبایل"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Mobile}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                                    <TextBox Text="{Binding Mobile}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="تلفن"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Phone}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                                    <TextBox Text="{Binding Phone}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="ایمیل"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Email}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                                    <TextBox Text="{Binding Email}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight" TextAlignment="Right"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
-                        <Grid Margin="0,12,0,0">
+                        <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="استان"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Province}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding Province}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="شهر"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding City}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding City}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
-                        <StackPanel Margin="0,12,0,0">
+                        <StackPanel Margin="0,8,0,0">
                             <TextBlock Style="{StaticResource FormLabel}" Text="آدرس کامل"/>
                             <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                <TextBox Text="{Binding Address}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                <TextBox Text="{Binding Address}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}" Height="46" TextWrapping="Wrap" AcceptsReturn="True"/>
                             </Border>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- Financial Settings -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                     <StackPanel>
-                        <TextBlock Text="تنظیمات مالی و اعتباری" FontWeight="Bold" FontSize="14"
+                        <TextBlock Text="تنظیمات مالی و اعتباری" FontWeight="Bold" FontSize="12.5"
                                    Foreground="{DynamicResource PrimaryText}"
-                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,16"/>
+                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="سقف اعتبار (ریال)"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding CreditLimit, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding CreditLimit, StringFormat='{}{0:N0}'}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="مهلت اعتبار (روز)"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding CreditDays}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding CreditDays}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
@@ -203,13 +202,13 @@
                             <StackPanel Grid.Column="6">
                                 <TextBlock Style="{StaticResource FormLabel}" Text="تخفیف ثابت (%)"/>
                                 <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
-                                    <TextBox Text="{Binding Discount}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                    <TextBox Text="{Binding Discount}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
                                 </Border>
                             </StackPanel>
                         </Grid>
 
                         <!-- Balance Display -->
-                        <Border Background="{DynamicResource SurfaceBackground}" CornerRadius="8" Padding="16,12" Margin="0,16,0,0">
+                        <Border Background="{DynamicResource SurfaceBackground}" CornerRadius="8" Padding="10,7" Margin="0,8,0,0">
                             <Grid>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="مانده حساب: " Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" VerticalAlignment="Center"/>
@@ -240,27 +239,18 @@
                 <!-- Notes -->
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="یادداشت‌ها" FontWeight="Bold" FontSize="14"
+                        <TextBlock Text="یادداشت‌ها" FontWeight="Bold" FontSize="12.5"
                                    Foreground="{DynamicResource PrimaryText}"
                                    FontFamily="{StaticResource VazirFont}" Margin="0,0,0,12"/>
                         <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
                             <TextBox Text="{Binding Notes}" Background="Transparent" BorderThickness="0"
-                                     Foreground="{DynamicResource PrimaryText}" Padding="10,8"
-                                     FontFamily="{StaticResource VazirFont}" Height="80"
+                                     Foreground="{DynamicResource PrimaryText}" Padding="8,4"
+                                     FontFamily="{StaticResource VazirFont}" Height="56"
                                      TextWrapping="Wrap" AcceptsReturn="True"/>
                         </Border>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </ScrollViewer>
-
-        <!-- Status Bar -->
-        <Border Grid.Row="2" Background="{DynamicResource SurfaceBackground}"
-                BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,1,0,0" Padding="16,8">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="💾 ذخیره مشتری" Style="{StaticResource PrimaryButton}" Height="38" Margin="0,0,8,0" Command="{Binding SaveCommand}"/>
-                <Button Content="❌ انصراف" Style="{StaticResource SecondaryButton}" Height="38" Command="{Binding CancelCommand}"/>
-            </StackPanel>
-        </Border>
     </Grid>
 </UserControl>

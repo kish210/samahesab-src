@@ -56,13 +56,10 @@
 
         <!-- ═══ Expanded dense grid (25+ rows visible) ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" x:Name="grid"
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" x:Name="grid"
                                  ItemsSource="{Binding Products}"
                                  SelectedItem="{Binding SelectedProduct}"
-                                 RowHeight="28"
-                                
-                                
-                                >
+                                 RowHeight="28">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
                     <DataGridTextColumn Header="بارکد" Binding="{Binding Barcode}" Width="130"/>
@@ -116,7 +113,7 @@
                     <Run Text="   |   فعال:"/>
                     <Run Text="{Binding ActiveCount}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}"/>
                 </TextBlock>
-                <TextBlock DockPanel.Dock="Left" Text="برای گروه‌بندی، عنوان ستون را به نوار بالای جدول بکشید."
+                <TextBlock DockPanel.Dock="Left" Text="Enter=جستجو · دابل‌کلیک=ویرایش"
                            FontSize="11" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
             </DockPanel>
         </Border>

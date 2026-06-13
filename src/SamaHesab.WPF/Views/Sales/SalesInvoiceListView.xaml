@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SamaHesab.WPF.Views.Sales.SalesInvoiceListView"
+<UserControl x:Class="SamaHesab.WPF.Views.Sales.SalesInvoiceListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -37,7 +37,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Invoices}"
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Invoices}"
                                 
                                 
                                  FontFamily="{StaticResource VazirFont}">
@@ -48,7 +48,7 @@
                     <DataGridTextColumn Header="مبلغ کل" Binding="{Binding Total, StringFormat={}{0:#,##0}}" Width="140"/>
                     <DataGridTextColumn Header="پرداختی" Binding="{Binding Paid, StringFormat={}{0:#,##0}}" Width="130"/>
                     <DataGridTextColumn Header="مانده" Binding="{Binding Remain, StringFormat={}{0:#,##0}}" Width="130"/>
-                    <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="100"/>
+                    <DataGridTemplateColumn Header="وضعیت" Width="100" CellTemplate="{StaticResource ErpStatusChipTemplate}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

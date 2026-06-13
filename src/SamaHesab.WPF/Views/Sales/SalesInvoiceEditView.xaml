@@ -154,7 +154,7 @@
 
                 <!-- گرید اقلام (مرکز صفحه، چگالی بالا) -->
                 <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
-                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
+                    <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                               RowHeight="27" GridLinesVisibility="Both"
                              
                               FontFamily="{StaticResource VazirFont}" BorderThickness="0">

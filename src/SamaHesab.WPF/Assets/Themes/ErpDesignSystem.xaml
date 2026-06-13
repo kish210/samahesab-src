@@ -305,4 +305,46 @@
         <Setter Property="Margin" Value="6,0,0,0"/>
     </Style>
 
+    <!-- ============================================================
+         چیپِ وضعیتِ نقطه‌دار (st): سبز=قطعی/فعال، کهربایی=پیش‌نویس، قرمز=لغو
+         قالبِ مشترک؛ به فیلدِ `Status` (متنِ فارسی) bind می‌شود. مرجع: VoucherListView
+         ============================================================ -->
+    <DataTemplate x:Key="ErpStatusChipTemplate">
+        <Border CornerRadius="4" Padding="7,0" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{StaticResource ErpSuccess50}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="پیش‌نویس"><Setter Property="Background" Value="{StaticResource ErpWarning50}"/></DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="لغو شده"><Setter Property="Background" Value="{StaticResource ErpDanger50}"/></DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Ellipse Width="6" Height="6" Margin="0,0,5,0" VerticalAlignment="Center">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{StaticResource ErpSuccess700}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="پیش‌نویس"><Setter Property="Fill" Value="{StaticResource ErpWarning700}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="لغو شده"><Setter Property="Fill" Value="{StaticResource ErpDanger700}"/></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource ErpSuccess700}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="پیش‌نویس"><Setter Property="Foreground" Value="{StaticResource ErpWarning700}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="لغو شده"><Setter Property="Foreground" Value="{StaticResource ErpDanger700}"/></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
 </ResourceDictionary>

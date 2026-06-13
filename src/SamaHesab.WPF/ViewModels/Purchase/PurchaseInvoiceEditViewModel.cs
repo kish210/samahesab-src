@@ -44,6 +44,11 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _remainAmount;
     [ObservableProperty] private string _paymentType = "نقدی";
 
+    // OPT-6: ماندهٔ تأمین‌کنندهٔ انتخابی + موجودیِ کالای نوارِ ورود
+    [ObservableProperty] private decimal _supplierBalance;
+    [ObservableProperty] private bool _hasSupplierInfo;
+    [ObservableProperty] private decimal _entryOnHand;
+
     public ObservableCollection<PurchaseInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
     public List<ProductSearchResult> AllProducts { get; private set; } = new();
@@ -54,11 +59,14 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
 
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepository;
     private readonly IWarehouseRepository _warehouseRepository;
+    private readonly IStockItemRepository _stockRepository;
+    private Dictionary<int, decimal> _onHand = new();
 
     public PurchaseInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         IProductRepository productRepository,
         IRepository<SamaHesab.Domain.Entities.CRM.Supplier> supplierRepository,
         IWarehouseRepository warehouseRepository,
+        IStockItemRepository stockRepository,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar)
         : base(dialogService, navigationService)
@@ -66,6 +74,38 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
         _supplierRepository = supplierRepository; _warehouseRepository = warehouseRepository;
+        _stockRepository = stockRepository;
+    }
+
+    private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
+
+    private async Task LoadStockForWarehouseAsync()
+    {
+        try
+        {
+            if (SelectedWarehouseId <= 0) { _onHand = new(); return; }
+            var items = await _stockRepository.GetByWarehouseAsync(SelectedWarehouseId);
+            _onHand = items.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
+        }
+        catch { _onHand = new(); }
+    }
+
+    partial void OnSelectedWarehouseIdChanged(int value) => _ = ReloadStockAsync();
+    private async Task ReloadStockAsync()
+    {
+        await LoadStockForWarehouseAsync();
+        foreach (var row in InvoiceItems) row.StockOnHand = OnHandOf(row.ProductId);
+        if (SelectedProductItem != null) EntryOnHand = OnHandOf(SelectedProductItem.Id);
+    }
+
+    partial void OnSelectedProductItemChanged(ProductSearchResult? value)
+        => EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
+
+    partial void OnSelectedSupplierIdChanged(int value)
+    {
+        var s = Suppliers.FirstOrDefault(x => x.Id == value);
+        HasSupplierInfo = s != null;
+        SupplierBalance = s?.Balance ?? 0;
     }
 
     public override async Task LoadAsync()
@@ -74,13 +114,14 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         var companyId = _currentUser.CompanyId ?? 1;
 
         var suppliers = await _supplierRepository.FindAsync(s => s.CompanyId == companyId && s.IsActive);
-        Suppliers = suppliers.Select(s => new SupplierItem(s.Id, s.FullName, s.Mobile ?? "")).ToList();
+        Suppliers = suppliers.Select(s => new SupplierItem(s.Id, s.FullName, s.Mobile ?? "", s.Balance)).ToList();
         OnPropertyChanged(nameof(Suppliers));
 
         var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+        await LoadStockForWarehouseAsync();
 
         var products = await _productRepository.SearchAsync(companyId, "");
         AllProducts = products.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
@@ -117,7 +158,8 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
             ProductCode = product.Code, ProductName = product.Name,
             Quantity = AddQty, UnitPrice = AddUnitPrice,
             DiscountPct = AddDiscountPct, TaxPct = AddTaxPct,
-            BatchNumber = AddBatchNumber, ProductionDate = AddProductionDate, ExpiryDate = AddExpiryDate
+            BatchNumber = AddBatchNumber, ProductionDate = AddProductionDate, ExpiryDate = AddExpiryDate,
+            StockOnHand = OnHandOf(product.Id)
         };
         row.Recalculate();
         row.PropertyChanged += (_, _) => RecalculateTotals();
@@ -195,6 +237,7 @@ public partial class PurchaseInvoiceItemRow : ObservableObject
     [ObservableProperty] private decimal _discountAmount;
     [ObservableProperty] private decimal _taxAmount;
     [ObservableProperty] private decimal _netAmount;
+    [ObservableProperty] private decimal _stockOnHand;   // OPT-6: موجودیِ انبار
 
     partial void OnQuantityChanged(decimal value) => Recalculate();
     partial void OnUnitPriceChanged(decimal value) => Recalculate();
@@ -211,6 +254,6 @@ public partial class PurchaseInvoiceItemRow : ObservableObject
     }
 }
 
-public record SupplierItem(int Id, string Name, string? Mobile);
+public record SupplierItem(int Id, string Name, string? Mobile, decimal Balance = 0);
 public record WarehouseItem(int Id, string Name);
 public record ProductSearchResult(int Id, string Code, string Name, string? Barcode, decimal Price, decimal TaxRate);

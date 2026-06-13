@@ -210,7 +210,7 @@
 
         <!-- ═══ گرید ═══ -->
         <Border Grid.Row="3" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Background="White">
-            <DataGrid ItemsSource="{Binding Cheques}" AutoGenerateColumns="False" IsReadOnly="True"
+            <DataGrid ItemsSource="{Binding Cheques}" SelectedItem="{Binding SelectedCheque}" AutoGenerateColumns="False" IsReadOnly="True"
                       HeadersVisibility="Column" CanUserAddRows="False" Background="White"
                       GridLinesVisibility="All" HorizontalGridLinesBrush="#EDEFF3" VerticalGridLinesBrush="#EDEFF3"
                       RowBackground="White" AlternatingRowBackground="{StaticResource Zebra}" RowHeight="30" FontSize="12.5"

@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -15,11 +17,13 @@ public partial class ChequeListViewModel : BaseViewModel
     private readonly IChequeRepository _chequeRepository;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IMediator _mediator;
 
     // فیلترها (سمتِ کلاینت روی لیستِ بارگذاری‌شده تا کارت/چیپ/جستجو لحظه‌ای باشد)
     [ObservableProperty] private string _statusFilter = "همه";   // کلیدِ کارتِ انتخاب‌شده
     [ObservableProperty] private string _typeFilter = "دریافتی"; // چیپ دریافتنی/پرداختنی
     [ObservableProperty] private string? _searchText;
+    [ObservableProperty] private ChequeListRow? _selectedCheque; // ردیفِ انتخاب‌شدهٔ گرید
 
     // جمع‌های نوار پایین
     [ObservableProperty] private int _totalCount;
@@ -39,12 +43,14 @@ public partial class ChequeListViewModel : BaseViewModel
     public ObservableCollection<ChequeListRow> Cheques { get; } = new();
 
     public ChequeListViewModel(IChequeRepository chequeRepository, ICurrentUserService currentUser,
-        IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
+        IPersianCalendarService calendar, IMediator mediator,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _chequeRepository = chequeRepository;
         _currentUser = currentUser;
         _calendar = calendar;
+        _mediator = mediator;
     }
 
     public override async Task LoadAsync()
@@ -111,9 +117,45 @@ public partial class ChequeListViewModel : BaseViewModel
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private void NewCheque() { }
-    [RelayCommand] private async Task ClearChequeAsync() => await _dialogService.ShowInfoAsync("وصول چک ثبت شد.");
-    [RelayCommand] private async Task TransferChequeAsync() => await _dialogService.ShowInfoAsync("واگذاری چک به بانک ثبت شد.");
-    [RelayCommand] private async Task ReturnChequeAsync() => await _dialogService.ShowInfoAsync("برگشت چک ثبت شد.");
+
+    /// <summary>وصولِ چکِ انتخاب‌شده (سند حسابداری خودکار در `ChangeChequeStatusCommand`).</summary>
+    [RelayCommand]
+    private async Task ClearChequeAsync()
+    {
+        if (SelectedCheque is not { } c) { await _dialogService.ShowErrorAsync("ابتدا یک چک را از لیست انتخاب کنید."); return; }
+        if (!await _dialogService.ConfirmAsync($"وصول چک {c.Number} به مبلغ {c.Amount:#,##0} ریال؟", "وصول چک")) return;
+        await ChangeStatusAsync(c.Id, ChequeAction.Clear, null, "وصول چک ثبت شد.");
+    }
+
+    /// <summary>واگذاریِ چکِ انتخاب‌شده به بانک.</summary>
+    [RelayCommand]
+    private async Task TransferChequeAsync()
+    {
+        if (SelectedCheque is not { } c) { await _dialogService.ShowErrorAsync("ابتدا یک چک را از لیست انتخاب کنید."); return; }
+        if (!await _dialogService.ConfirmAsync($"چک {c.Number} به بانک واگذار شود؟", "واگذاری به بانک")) return;
+        await ChangeStatusAsync(c.Id, ChequeAction.Transfer, null, "واگذاری چک به بانک ثبت شد.");
+    }
+
+    /// <summary>برگشتِ چکِ انتخاب‌شده (با علت).</summary>
+    [RelayCommand]
+    private async Task ReturnChequeAsync()
+    {
+        if (SelectedCheque is not { } c) { await _dialogService.ShowErrorAsync("ابتدا یک چک را از لیست انتخاب کنید."); return; }
+        var reason = await _dialogService.ShowInputAsync($"علت برگشت چک {c.Number}:", "برگشت چک");
+        if (string.IsNullOrWhiteSpace(reason)) return;
+        await ChangeStatusAsync(c.Id, ChequeAction.Return, reason, "برگشت چک ثبت شد.");
+    }
+
+    private async Task ChangeStatusAsync(int id, ChequeAction action, string? reason, string okMsg)
+    {
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new ChangeChequeStatusCommand(id, action, _calendar.GetCurrentPersianDate(), reason));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync(okMsg);
+            await LoadAsync();   // آمار/گرید پس از تغییر وضعیت تازه‌سازی می‌شود
+        }, "در حال ثبت...");
+    }
 }
 
 /// <summary>سطرِ نمایشِ چک با مشتقاتِ UI (کلیدِ وضعیت/نوع، رنگِ چیپ، مانده تا سررسید).</summary>

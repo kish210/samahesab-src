@@ -38,9 +38,9 @@
 - [x] **۵.** ✅ مرجوعی خرید — `CreatePurchaseReturnCommand` + `POST /api/purchase/returns` + ۴ تست — commit `c259ec0`.
 - [x] ✅C2@21:45 **۶.** مانده/تسویهٔ تأمین‌کننده — `GetSupplierStatementQuery` (صورت‌حسابِ غلتان: فاکتور خرید↑ / پرداخت↓ / مرجوعی↓) + `SuppliersController` (`GET /api/suppliers/{id}/statement` و فهرستِ مانده) + ۴ تست (۲۱۱ سبز). تسویه/پرداخت از قبل در `CreatePaymentCommand` بود (سند + کاهشِ مانده + تخصیصِ FIFO به فاکتورهای باز).
 - [ ] **۷.** UI لیست‌قیمت و قواعد تخفیف (سطح‌قیمت/تخفیفِ پلکانی) روی فاکتور فروش/خرید.
-- [~] 🔒C2@01:30 **۸.** صفحات گزارشِ فروش/خرید (مشابه `FinancialReports`/`InventoryReport` با `ReportExporter`). (=C2-D)
-  - [x] ✅ **گزارش فروش** — `SalesReportView`+`SalesReportViewModel` روی کوئری‌های تحلیلِ موجود (`GetTopCustomers`/`GetSalesTrend`/`GetProfitAnalysis`): سه نوعِ گزارش (مشتریان برتر/کالای پرفروش/روند ماهانه) + بازهٔ تاریخ + خلاصهٔ فروش/سود/حاشیه + خروجی اکسل/PDF (`ReportExporter`). ثبت در DI/nav/DataTemplate/منوی «فروش→گزارش فروش». build سبز.
-  - [ ] گزارش خرید (نیاز به کوئری‌های تحلیلِ خرید — بک‌اند فعلاً ندارد؛ گام بعد).
+- [x] ✅C2@01:50 **۸.** صفحات گزارشِ فروش/خرید — **کامل**.
+  - [x] ✅ **گزارش فروش** — `SalesReportView/VM` روی `GetTopCustomers`/`GetSalesTrend`/`GetProfitAnalysis`: مشتریان برتر/کالای پرفروش/روند ماهانه + بازهٔ تاریخ + خلاصهٔ فروش/سود/حاشیه + اکسل/PDF. منوی «فروش→گزارش فروش».
+  - [x] ✅ **گزارش خرید** — `PurchaseReportView/VM` روی `GetTopSuppliers` (موجود) + `GetPurchaseTrendQuery` (جدید): تأمین‌کنندگان برتر/روند ماهانه + خلاصهٔ جمعِ خرید + اکسل/PDF. منوی «خرید→گزارش خرید». ۲۱۴ تست سبز.
 
 ### 💻 دستهٔ «ج» — مشتری/CRM (مالک: لپ‌تاپ / کلود ۲)
 - [ ] **۹.** تاریخچه/یادداشت/پیوستِ مشتری (موجودیت + CQRS + UI در کارت مشتری).

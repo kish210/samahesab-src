@@ -1,0 +1,62 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Purchase.PurchaseReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="گزارش خرید" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="تأمین‌کنندگانِ برتر · روندِ ماهانه — بر پایهٔ فاکتورهای خریدِ قطعی‌شده."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="گزارش:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,8,0"/>
+            <ComboBox Width="180" Height="30" ItemsSource="{Binding ReportTypes}" SelectedItem="{Binding ReportType}"/>
+            <TextBlock Text="از تاریخ:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="14,0,6,0"/>
+            <TextBox Width="100" Height="30" Text="{Binding FromDate}" VerticalContentAlignment="Center" Padding="6,0"
+                     FlowDirection="LeftToRight" TextAlignment="Center"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+            <TextBlock Text="تا:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="8,0,6,0"/>
+            <TextBox Width="100" Height="30" Text="{Binding ToDate}" VerticalContentAlignment="Center" Padding="6,0"
+                     FlowDirection="LeftToRight" TextAlignment="Center"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Padding="16,6" Cursor="Hand"
+                    Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0" FontWeight="SemiBold"/>
+            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
+                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+            <Button Content="چاپ / PDF" Command="{Binding PrintCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
+                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+        </StackPanel>
+
+        <DataGrid x:Name="grid" Grid.Row="2" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="28" FontSize="12.5"
+                  Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
+                  CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}"/>
+
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="تعدادِ فاکتور:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding InvoiceCount, Converter={StaticResource Num}}" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center" Margin="6,0,24,0"/>
+                <TextBlock Text="جمعِ خرید:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalPurchases, Converter={StaticResource Num}, ConverterParameter=ریال}"
+                           FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

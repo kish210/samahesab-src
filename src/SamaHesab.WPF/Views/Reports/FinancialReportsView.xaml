@@ -28,21 +28,21 @@
                 <ComboBox Width="240" Height="30"
                           Visibility="{Binding IsLedger, Converter={StaticResource BoolVis}}"
                           ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id"
-                          SelectedValue="{Binding SelectedAccountId}" IsEditable="True"
+                          SelectedValue="{Binding SelectedAccountId}" IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
                          />
                 <TextBlock Text="مرکز هزینه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"
                            Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"/>
                 <ComboBox Width="170" Height="30"
                           Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"
                           ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id"
-                          SelectedValue="{Binding SelectedCostCenterId}" IsEditable="True"
+                          SelectedValue="{Binding SelectedCostCenterId}" IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Name"
                          />
                 <TextBlock Text="پروژه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"
                            Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"/>
                 <ComboBox Width="170" Height="30"
                           Visibility="{Binding ShowDrCrTotals, Converter={StaticResource BoolVis}}"
                           ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id"
-                          SelectedValue="{Binding SelectedProjectId}" IsEditable="True"
+                          SelectedValue="{Binding SelectedProjectId}" IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Name"
                          />
                 <TextBlock Text="شعبه" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="160" Height="30"

@@ -214,8 +214,12 @@
                                         </Button>
                                         <Button Command="{Binding DataContext.PickAccountCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}" Content="{Binding Label}" Background="Transparent" BorderThickness="0"
-                                                Cursor="Hand" FontSize="11.5" Padding="2,3,8,3" Foreground="{StaticResource TextStrong}"
+                                                Cursor="Hand" FontSize="11.5" Padding="2,3,2,3" Foreground="{StaticResource TextStrong}"
                                                 ToolTip="انتخابِ حساب برای ردیفِ ورودی"/>
+                                        <!-- ماندهٔ جاریِ حساب (دیدِ سریع، LTR) -->
+                                        <TextBlock Text="{Binding Balance, Converter={StaticResource Num}}" FontSize="10.5"
+                                                   Foreground="{StaticResource TextMuted}" FlowDirection="LeftToRight"
+                                                   VerticalAlignment="Center" Margin="2,0,8,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

@@ -6,6 +6,7 @@ using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Favorites;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
@@ -57,6 +58,9 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     /// <summary>چیپ‌های دسترسیِ سریع به حساب: پرکاربرد (سنجاق‌شده) + اخیر — کیبوردمحور/تک‌کلیک (Recent/Favorite Accounts).</summary>
     public ObservableCollection<AccountChip> QuickAccounts { get; } = new();
 
+    // ماندهٔ هر حساب (از تراز آزمایشی) برای نمایش کنار چیپ‌های دسترسیِ سریع — OPT-1.
+    private readonly Dictionary<int, decimal> _accountBalances = new();
+
     public VoucherEditViewModel(IMediator mediator, IAccountRepository accountRepo,
         IVoucherRepository voucherRepo, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IDialogService dialogService,
@@ -96,6 +100,17 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         LeafAccounts = accounts.Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList();
         OnPropertyChanged(nameof(LeafAccounts));
 
+        // ماندهٔ حساب‌ها برای نمایش کنار چیپِ دسترسیِ سریع (OPT-1) — از تراز آزمایشی (Code→مانده).
+        _accountBalances.Clear();
+        try
+        {
+            var tb = await _mediator.Send(new GetTrialBalanceQuery("1400/01/01", "1410/12/29"));
+            var balByCode = tb.GroupBy(r => r.Code).ToDictionary(g => g.Key, g => g.Sum(r => r.Balance));
+            foreach (var a in accounts)
+                if (balByCode.TryGetValue(a.Code, out var b)) _accountBalances[a.Id] = b;
+        }
+        catch { /* مانده اختیاری است */ }
+
         await LoadQuickAccountsAsync();
     }
 
@@ -107,10 +122,12 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         var recent = await _mediator.Send(new GetRecentItemsQuery("account", 8));
         var seen = new HashSet<int>();
         foreach (var p in pinned)
-            if (seen.Add(p.EntityId)) QuickAccounts.Add(new AccountChip(p.EntityId, p.Label, true));
+            if (seen.Add(p.EntityId)) QuickAccounts.Add(new AccountChip(p.EntityId, p.Label, true) { Balance = Bal(p.EntityId) });
         foreach (var r in recent)
-            if (seen.Add(r.EntityId)) QuickAccounts.Add(new AccountChip(r.EntityId, r.Label, false));
+            if (seen.Add(r.EntityId)) QuickAccounts.Add(new AccountChip(r.EntityId, r.Label, false) { Balance = Bal(r.EntityId) });
     }
+
+    private decimal Bal(int accountId) => _accountBalances.TryGetValue(accountId, out var b) ? b : 0m;
 
     [RelayCommand]
     private void AddRow()
@@ -361,6 +378,9 @@ public record VoucherAccountItem(int Id, string Code, string Name)
 }
 public record CostCenterItem(int Id, string Name);
 
-/// <summary>چیپِ دسترسیِ سریع به حساب (اخیر/پرکاربرد).</summary>
-public record AccountChip(int AccountId, string Label, bool Pinned);
+/// <summary>چیپِ دسترسیِ سریع به حساب (اخیر/پرکاربرد) — با ماندهٔ جاری برای دیدِ سریع.</summary>
+public record AccountChip(int AccountId, string Label, bool Pinned)
+{
+    public decimal Balance { get; init; }
+}
 

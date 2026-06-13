@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -15,7 +17,7 @@ public partial class AccountTreeNode : ObservableObject
     public string Name { get; init; } = string.Empty;
     public int Level { get; init; }
     public string Nature { get; init; } = string.Empty;
-    public decimal Balance { get; init; }
+    [ObservableProperty] private decimal _balance;   // از تراز آزمایشی پر و به والدها roll-up می‌شود
     public bool IsLeaf { get; init; }
     public ObservableCollection<AccountTreeNode> Children { get; } = new();
 }
@@ -26,6 +28,7 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
     private readonly IAccountRepository _accountRepo;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private AccountTreeNode? _selectedAccount;
@@ -42,13 +45,14 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
     public ObservableCollection<AccountTreeNode> RootAccounts { get; } = new();
 
     public ChartOfAccountsViewModel(IAccountRepository accountRepo,
-        ICurrentUserService currentUser, IPersianCalendarService calendar,
+        ICurrentUserService currentUser, IPersianCalendarService calendar, IMediator mediator,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _accountRepo = accountRepo;
         _currentUser = currentUser;
         _calendar = calendar;
+        _mediator = mediator;
     }
 
     public override async Task LoadAsync()
@@ -58,14 +62,30 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
             var all = await _accountRepo.GetByCompanyAsync(_currentUser.CompanyId ?? 1);
             RootAccounts.Clear();
 
+            // ── جستجوی کد/نام (OPT-4): فقط حساب‌های منطبق + نیاکانشان نمایش داده می‌شوند ──
+            var term = (SearchText ?? string.Empty).Trim();
+            var included = all.Select(a => a.Id).ToHashSet();
+            if (term.Length > 0)
+            {
+                var parentOf = all.ToDictionary(a => a.Id, a => a.ParentId);
+                included = new HashSet<int>();
+                foreach (var a in all.Where(a => a.Code.Contains(term) || a.Name.Contains(term)))
+                {
+                    var id = (int?)a.Id;
+                    while (id.HasValue && included.Add(id.Value))
+                        id = parentOf.TryGetValue(id.Value, out var p) ? p : null;
+                }
+            }
+            var visible = all.Where(a => included.Contains(a.Id)).ToList();
+
             // Build tree
-            var dict = all.ToDictionary(a => a.Id, a => new AccountTreeNode
+            var dict = visible.ToDictionary(a => a.Id, a => new AccountTreeNode
             {
                 Id = a.Id, Code = a.Code, Name = a.Name,
                 Level = (int)a.Level, Nature = a.Nature.ToString(), IsLeaf = a.IsLeaf
             });
 
-            foreach (var a in all)
+            foreach (var a in visible)
             {
                 if (a.ParentId.HasValue && dict.TryGetValue(a.ParentId.Value, out var parent))
                     parent.Children.Add(dict[a.Id]);
@@ -73,10 +93,33 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
                     RootAccounts.Add(dict[a.Id]);
             }
 
-            // If no accounts, add sample tree
-            if (!RootAccounts.Any()) BuildSampleAccounts();
+            // If no accounts at all, add sample tree
+            if (!all.Any()) { BuildSampleAccounts(); return; }
+
+            // ── مانده‌ی واقعیِ هر حساب از تراز آزمایشی (Code→مانده) + roll-up به والدها (الگوی ERP) ──
+            try
+            {
+                var tb = await _mediator.Send(new GetTrialBalanceQuery("1400/01/01", "1410/12/29"));
+                var balMap = tb.GroupBy(r => r.Code).ToDictionary(g => g.Key, g => g.Sum(r => r.Balance));
+                foreach (var root in RootAccounts) AssignBalance(root, balMap);
+            }
+            catch { /* مانده اختیاری است؛ اگر داده نبود درخت بدون مانده نمایش داده می‌شود */ }
 
         }, "در حال بارگذاری نمودار حساب‌ها...");
+    }
+
+    /// <summary>مانده‌ی برگ = از تراز آزمایشی؛ مانده‌ی والد = جمعِ فرزندان (roll-up).</summary>
+    private static decimal AssignBalance(AccountTreeNode node, System.Collections.Generic.Dictionary<string, decimal> map)
+    {
+        if (node.Children.Count == 0)
+            node.Balance = map.TryGetValue(node.Code, out var b) ? b : 0m;
+        else
+        {
+            decimal sum = 0m;
+            foreach (var c in node.Children) sum += AssignBalance(c, map);
+            node.Balance = sum;
+        }
+        return node.Balance;
     }
 
     private void BuildSampleAccounts()
@@ -114,7 +157,7 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         HasSelectedAccount = node != null;
         if (node != null)
         {
-            SelectedAccountBalance = 12_500_000; // Load from DB
+            SelectedAccountBalance = node.Balance; // مانده‌ی واقعیِ محاسبه‌شده (از تراز آزمایشی)
             EditCode = node.Code;
             EditName = node.Name;
             EditNature = node.Nature;

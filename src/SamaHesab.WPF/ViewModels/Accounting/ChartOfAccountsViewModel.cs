@@ -167,11 +167,15 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         if (node != null)
         {
             SelectedAccountBalance = node.Balance; // مانده‌ی واقعیِ محاسبه‌شده (از تراز آزمایشی)
-            EditCode = node.Code;
-            EditName = node.Name;
-            EditNature = node.Nature;
         }
     }
+
+    /// <summary>نگاشتِ ماهیتِ حساب به برچسبِ فارسیِ کمبو (Debit/Credit → بدهکار/بستانکار).</summary>
+    private static string NatureFa(string? nature) => nature switch
+    {
+        "Credit" or "بستانکار" => "بستانکار",
+        _ => "بدهکار"
+    };
 
     /// <summary>ورود به حالتِ ایجاد: حسابِ جدید به‌عنوان زیرمجموعهٔ حسابِ انتخاب‌شده (در صورت وجود).</summary>
     [RelayCommand]
@@ -182,8 +186,8 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         EditTitle = "حساب جدید";
         EditCode = string.Empty;
         EditName = string.Empty;
-        EditNature = "بدهکار";
-        EditAccountType = SelectedAccount?.Nature is not null ? EditAccountType : "دارایی";
+        EditNature = NatureFa(SelectedAccount?.Nature);   // پیش‌فرض: هم‌ماهیتِ والد
+        EditAccountType = "دارایی";
         EditParentId = SelectedAccount?.Id;
         EditParentInfo = SelectedAccount is null ? "— (حسابِ سطحِ گروه)" : $"{SelectedAccount.Code} — {SelectedAccount.Name}";
     }
@@ -198,7 +202,7 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         EditTitle = $"ویرایشِ حساب {SelectedAccount.Code}";
         EditCode = SelectedAccount.Code;
         EditName = SelectedAccount.Name;
-        EditNature = SelectedAccount.Nature == "Credit" ? "بستانکار" : (SelectedAccount.Nature == "Debit" ? "بدهکار" : SelectedAccount.Nature);
+        EditNature = NatureFa(SelectedAccount.Nature);
         EditParentInfo = "—";
     }
 

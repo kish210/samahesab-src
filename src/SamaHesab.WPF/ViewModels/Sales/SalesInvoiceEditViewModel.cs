@@ -68,13 +68,20 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
     private readonly IWarehouseRepository _warehouseRepository;
+    private readonly IStockItemRepository _stockRepository;
 
     private readonly IPrintService _printService;
+
+    /// <summary>موجودیِ انبارِ انتخابی به‌ازای هر کالا (OPT-5: نمایشِ موجودی هنگام فروش).</summary>
+    private Dictionary<int, decimal> _onHand = new();
+    /// <summary>موجودیِ کالایِ نوارِ ورود (کالای انتخاب/اسکن‌شده).</summary>
+    [ObservableProperty] private decimal _entryOnHand;
 
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         IProductRepository productRepository,
         IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepository,
         IWarehouseRepository warehouseRepository,
+        IStockItemRepository stockRepository,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
         IPrintService printService)
@@ -83,8 +90,34 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
         _customerRepository = customerRepository; _warehouseRepository = warehouseRepository;
+        _stockRepository = stockRepository;
         _printService = printService;
     }
+
+    /// <summary>OPT-5: بارگذاریِ موجودیِ انبارِ انتخابی (productId→qty) برای نمایشِ سریعِ موجودی.</summary>
+    private async Task LoadStockForWarehouseAsync()
+    {
+        try
+        {
+            if (SelectedWarehouseId <= 0) { _onHand = new(); return; }
+            var items = await _stockRepository.GetByWarehouseAsync(SelectedWarehouseId);
+            _onHand = items.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
+        }
+        catch { _onHand = new(); }
+    }
+
+    private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
+
+    partial void OnSelectedWarehouseIdChanged(int value) => _ = ReloadStockAsync();
+    private async Task ReloadStockAsync()
+    {
+        await LoadStockForWarehouseAsync();
+        foreach (var row in InvoiceItems) row.StockOnHand = OnHandOf(row.ProductId);
+        if (SelectedProductItem != null) EntryOnHand = OnHandOf(SelectedProductItem.Id);
+    }
+
+    partial void OnSelectedProductItemChanged(ProductSearchResult? value)
+        => EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
 
     private PrintDocumentData BuildPrintData()
     {
@@ -108,6 +141,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+        await LoadStockForWarehouseAsync();
 
         var prods = await _productRepository.SearchAsync(companyId, "");
         AllProducts = prods.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
@@ -173,7 +207,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                 RowNumber = InvoiceItems.Count + 1, ProductId = product.Id,
                 ProductCode = product.Code, ProductName = product.Name,
                 Quantity = AddQty, UnitPrice = AddUnitPrice,
-                DiscountPct = AddDiscountPct, TaxPct = AddTaxPct
+                DiscountPct = AddDiscountPct, TaxPct = AddTaxPct,
+                StockOnHand = OnHandOf(product.Id)
             };
             row.Recalculate(); row.PropertyChanged += (_, _) => RecalculateTotals();
             InvoiceItems.Add(row);
@@ -331,8 +366,13 @@ public partial class SalesInvoiceItemRow : ObservableObject
     [ObservableProperty] private decimal _discountAmount;
     [ObservableProperty] private decimal _taxAmount;
     [ObservableProperty] private decimal _netAmount;
+    [ObservableProperty] private decimal _stockOnHand;   // OPT-5: موجودیِ انبار
 
-    partial void OnQuantityChanged(decimal value) => Recalculate();
+    /// <summary>OPT-5: کسریِ موجودی — مقدارِ درخواستی بیش از موجودیِ انبار است.</summary>
+    public bool IsShort => StockOnHand < Quantity;
+    partial void OnStockOnHandChanged(decimal value) => OnPropertyChanged(nameof(IsShort));
+
+    partial void OnQuantityChanged(decimal value) { Recalculate(); OnPropertyChanged(nameof(IsShort)); }
     partial void OnUnitPriceChanged(decimal value) => Recalculate();
     partial void OnDiscountPctChanged(decimal value) => Recalculate();
     partial void OnTaxPctChanged(decimal value) => Recalculate();

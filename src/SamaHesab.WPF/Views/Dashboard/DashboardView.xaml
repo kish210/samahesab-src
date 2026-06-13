@@ -178,6 +178,7 @@
                                     Command="{Binding NavigateToCommand}" CommandParameter="Vouchers"
                                     Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryAccent}" Cursor="Hand"/>
                         </DockPanel>
+                      <Grid>
                         <DataGrid ItemsSource="{Binding RecentInvoices}" AutoGenerateColumns="False" IsReadOnly="True"
                                   HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
                                   Background="Transparent" BorderThickness="0" CanUserAddRows="False"
@@ -190,6 +191,21 @@
                                 <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="90"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                        <!-- حالتِ خالیِ بامعنا -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,24">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers><DataTrigger Binding="{Binding RecentInvoices.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="📄" FontSize="22" HorizontalAlignment="Center" Opacity="0.5"/>
+                            <TextBlock Text="هنوز سند/فاکتوری ثبت نشده است." FontSize="12" Foreground="{DynamicResource MutedText}" Margin="0,4,0,0"/>
+                            <Button Content="＋ ثبت سند جدید (F2)" Command="{Binding NavigateToCommand}" CommandParameter="VoucherEdit"
+                                    Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryAccent}" Cursor="Hand"
+                                    FontSize="11.5" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                      </Grid>
                     </DockPanel>
                 </Border>
             </Grid>
@@ -205,6 +221,15 @@
                 <Border Grid.Row="0" Style="{StaticResource GBox}">
                     <DockPanel Margin="2,2,2,8">
                         <TextBlock DockPanel.Dock="Top" Text="کارهای امروز" Style="{StaticResource GHead}"/>
+                        <TextBlock DockPanel.Dock="Bottom" Text="✓ کارِ معوقی نیست — همه‌چیز مرتب است." FontSize="12"
+                                   Foreground="{DynamicResource SuccessColor}" Margin="12,6">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers><DataTrigger Binding="{Binding Alerts.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <ItemsControl ItemsSource="{Binding Alerts}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -228,6 +253,15 @@
                 <Border Grid.Row="1" Style="{StaticResource GBox}" Margin="0,8,0,0">
                     <DockPanel Margin="2,2,2,6">
                         <TextBlock DockPanel.Dock="Top" Text="سررسید چک‌های نزدیک" Style="{StaticResource GHead}"/>
+                        <TextBlock DockPanel.Dock="Bottom" Text="چکی در سررسیدِ نزدیک نیست." FontSize="12"
+                                   Foreground="{DynamicResource MutedText}" Margin="12,6">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers><DataTrigger Binding="{Binding ChequesDue.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding ChequesDue}">
                                 <ItemsControl.ItemTemplate>

@@ -318,7 +318,13 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         if (_editingId == 0) { await _dialogService.ShowErrorAsync("ابتدا سند را ذخیره کنید."); return; }
         var ok = await _dialogService.ConfirmAsync("آیا سند برگشت داده شود؟ این عملیات یک سند معکوس ایجاد می‌کند.");
         if (!ok) return;
-        await _dialogService.ShowSuccessAsync("سند برگشت صادر شد.");
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new ReverseVoucherCommand(
+                _editingId, _calendar.GetCurrentPersianDate(), $"سند معکوسِ سند {VoucherNumber}"));
+            if (res.Succeeded) await _dialogService.ShowSuccessAsync($"سند معکوس با موفقیت ثبت شد (شناسه {res.Value}).");
+            else await _dialogService.ShowErrorAsync(res.ErrorMessage);
+        }, "در حال صدور سند معکوس...");
     }
 
     [RelayCommand]

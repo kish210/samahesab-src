@@ -17,6 +17,7 @@ public class VoucherRepository : GenericRepository<Voucher>, IVoucherRepository
         int companyId, int fiscalYearId, string fromDate, string toDate, CancellationToken ct = default)
     {
         return await DbSet
+            .Include(v => v.Items)   // لازم برای جمعِ بدهکار/بستانکار و تشخیص توازن در لیستِ اسناد
             .Where(v => v.CompanyId == companyId && v.FiscalYearId == fiscalYearId
                 && string.Compare(v.VoucherDate, fromDate) >= 0
                 && string.Compare(v.VoucherDate, toDate) <= 0)

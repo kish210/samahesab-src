@@ -45,6 +45,14 @@
 - **C2:** فروش (لیست‌قیمت/تخفیف/مانده) · خرید (مرجوعی/مانده/تسویهٔ تأمین‌کننده) · مشتریان (تاریخچه/یادداشت/پیوست) · صفحات گزارش فروش/خرید · بهره‌وری همان فرم‌ها.
 - جزئیات کارهای claim‌شده زیر بخش «Phase-1 Backlog» (در حال تکمیل) می‌آید.
 
+### 🤝 کارهای کلود ۲ (پس از نشستِ UI/Telerik — لطفاً `git pull` و هماهنگ شو)
+> ⚠️ **در این نشست Telerik از کلِ پروژه حذف شد** و همهٔ گریدها/کمبوها به WPF خالص تبدیل شدند (RadGridView→DataGrid، RadComboBox→ComboBox، RadMaskedNumericInput→TextBox). فایل‌های لِین تو (فروش/خرید/POS/رستوران/CRM/HR) هم خودکار تبدیل شدند — **منطق دست‌نخورده، فقط کنترل‌ها عوض شدند.** بعد از pull حتماً `dotnet build` بگیر (سبز است) و صفحاتت را یک‌بار باز کن.
+- [ ] **C2-A — صیقلِ گریدهای تبدیل‌شده به DataGrid (لِین تو):** صفحاتِ فروش/خرید/POS/CRM/HR که از RadGridView به `DataGrid` تبدیل شده‌اند، استایلِ دیزاین‌سیستم را کامل ندارند. استایلِ `ErpGrid`/`ErpDataGrid` + زبرا + خط‌کشی + چیپِ نقطه‌دارِ `.st` (مثل `VoucherListView`/accounting-docs) را اعمال کن. مرجع: `screen­shot/accounting_docs.png` و `VoucherListView.xaml`.
+- [ ] **C2-B — اتصال بچ/سریال در ثبت خرید/فروش (INV-1 گام۳):** تک‌خط‌های زیر را در `CreatePurchaseInvoiceCommand`/`CreateSalesInvoiceCommand` اضافه کن (سمتِ انبارش آماده است — `ReceiveBatch`/`IssueBatch`/`SellSerial`Command). جزئیات در بلوک INV-1 پایین. + ادغام هزینه‌گذاری FIFO در مسیر خروج (`FifoCostEngine` موجود).
+- [ ] **C2-C — عمقِ خرید/فروش هسته (طبق تحلیل شکاف فاز ۱):** مرجوعی خرید · مانده/تسویهٔ تأمین‌کننده · UI لیست‌قیمت و قواعد تخفیف · تاریخچه/یادداشت/پیوستِ مشتری.
+- [ ] **C2-D — صفحات گزارشِ فروش/خرید** (مشابه الگوی `FinancialReports`/`InventoryReport` با خروجی `ReportExporter`).
+> RadComboBoxهای type-ahead (مثل انتخاب حساب در `VoucherEditView`) حالا `ComboBox` ساده‌اند؛ فیلترِ contains را از دست داده‌اند — اگر type-ahead مهم است، `ComboBox` با `IsTextSearchEnabled`/`IsEditable` یا یک Popup سفارشی بازسازی شود (FND-5 مشترک).
+
 ### 📋 Phase-1 Backlog (claim‌شده)
 - [x] **REP-INV (گزارش انبار)** ✅C1 — گزارش موجودی/ارزش‌گذاری انبار:
   - [x] `GetInventoryValuationQuery` (همهٔ انبارها/انبار خاص، تجمیع per-product به میانگین موزون، جمع ارزش) + صفحهٔ WPF `InventoryReport` (انتخابگر انبار + جستجو + گرید + فوتر تعداد/ارزش کل) + خروجی اکسل/PDF (`ReportExporter`) + منوی انبار. رندر تأییدشده (screenshot/inventory_report.png).
@@ -257,6 +265,11 @@
 ---
 
 ## تغییرات اخیر (Changelog)
+- **2026-06-13** — **UI/پوسته + حذف کاملِ Telerik (کلود ۱، به‌درخواست کاربر)**:
+  - **تطبیق دقیق `accounting-docs.html`**: تولبار با آیکون‌های برداری (PackIcon) و برچسب دقیق (سند جدید F2/ویرایش/دفترکل/تراز/خروجی اکسل/چاپ F8) + حذف دکمهٔ اضافیِ «قطعی» · فیلتر با سرچِ آیکون‌دار + کمبوی «همه انواع» (فیلتر نوعِ کاربردی) + چیپ‌های قرص‌وار وضعیت · **چیپ‌های نوع/وضعیت با نقطهٔ رنگیِ `.st`** · ستون **چک‌باکس** و **کاربر** (`VoucherListDto.UserName` + join + فعال‌کردن `CreatedByUserId` فقط برای Voucher).
+  - **سایدبارِ هاوریِ جمع‌شونده** ۶۰↔۲۲۰px (انیمیشن ۱۶۰ms، overlay) مطابق `.erp-side`.
+  - **یکدست‌سازیِ ارقام فارسی**: کانورتر `Num` سراسری در App.xaml + سوییپ صفحات حسابداری/گزارش/انبار.
+  - **🔥 حذف کاملِ Telerik از پروژه**: RadDocking→`TabControl` خالص (تب‌های MDI مطابق `.erp-tabs`) · RadGridView→`DataGrid` · GridViewDataColumn→DataGrid*Column · RadComboBox→`ComboBox` · RadMaskedNumericInput→`TextBox` (۲۳ View) · ThemeManager → no-op · حذف ۱۱ پکیج Telerik + منبعِ `TelerikLocal` از NuGet.config (**دیگر وابستگی به `H:\` نیست → build روی هر ماشین**). اسکریپت‌ها در `tools/detelerik*.py`. build کامل سبز، ۱۹۵ تست سبز. ⚠️ **صفحاتِ لِین کلود ۲ هم تبدیل شدند (فقط کنترل‌ها، منطق دست‌نخورده) — کلود ۲ پس از pull build بگیرد و صفحاتش را صیقل دهد (بخش «کارهای کلود ۲» بالای فایل).**
 - **2026-06-12** — **بستهٔ بهره‌وری حسابداری C1 (کلود ۱)** — تکمیل لِین R-plan + پاک‌سازی:
   - **R6** — صفحهٔ «عملیات پایان دوره» (`EndOfPeriod`): سند برگشتی (`ReverseVoucherCommand`) + بستن سال مالی با سند افتتاحیهٔ اختیاری و نمایش سود/زیان (`CloseFiscalYearCommand`). منو: حسابداری.
   - **R7** — ارقام فارسی در داشبورد/میزکار: همهٔ KPIها و مبالغ از `NumberFormatConverter` (با پسوند ریال/فقره/قلم از `ConverterParameter`) + رفع هم‌پوشانی هدر «اسناد اخیر».

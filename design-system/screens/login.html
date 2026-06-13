@@ -1,3 +1,4 @@
+<!-- @dsCard group="ERP Screens" viewport="1280x800" name="ورود به سیستم" subtitle="صفحه لاگین سماع‌حساب" -->
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -6,102 +7,104 @@
 <title>سماع‌حساب — ورود به سیستم</title>
 <link rel="stylesheet" href="../styles.css" />
 <style>
-  body { height: 100vh; overflow: hidden; }
-  .login { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
-  /* FORM SIDE */
-  .form-side { background: var(--gray-900); display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; }
-  .form-card { width: 100%; max-width: 380px; }
-  .form-card h1 { color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 6px; }
-  .form-card .lead { color: var(--gray-400); font-size: 14px; margin-bottom: 34px; }
-  .lf { margin-bottom: 18px; }
-  .lf label { display: block; font-size: 13px; font-weight: 500; color: var(--gray-300); margin-bottom: 7px; }
-  .lf .lwrap { position: relative; display: flex; align-items: center; }
-  .lf .lwrap svg { position: absolute; inset-inline-start: 14px; width: 18px; height: 18px; color: var(--gray-500); }
-  .lf input, .lf select { width: 100%; height: 48px; padding: 0 44px; font-family: var(--font-sans); font-size: 14.5px; color: #fff; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-md); transition: all var(--dur) var(--ease); }
-  .lf input::placeholder { color: var(--gray-500); }
-  .lf input:focus, .lf select:focus { outline: none; border-color: var(--blue-400); background: rgba(255,255,255,0.08); box-shadow: 0 0 0 3px rgba(92,125,190,0.2); }
-  .lf select { appearance: none; }
-  .lf select option { background: var(--gray-800); }
-  .lrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
-  .lcheck { display: flex; align-items: center; gap: 8px; color: var(--gray-300); font-size: 13px; cursor: pointer; }
-  .lcheck .box { width: 18px; height: 18px; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 5px; background: var(--blue-600); display: flex; align-items: center; justify-content: center; }
-  .login-btn { width: 100%; height: 50px; border: none; border-radius: var(--radius-md); background: var(--blue-600); color: #fff; font-family: var(--font-sans); font-size: 16px; font-weight: 600; cursor: pointer; transition: background var(--dur) var(--ease); box-shadow: 0 8px 20px rgba(52,83,142,0.35); }
-  .login-btn:hover { background: var(--blue-500); }
-  .form-foot { position: absolute; bottom: 24px; inset-inline-start: 0; inset-inline-end: 0; text-align: center; }
-  .form-foot a { color: var(--gray-500); font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; }
-  .form-foot .ver { color: var(--gray-600); font-size: 11.5px; margin-top: 8px; }
-  /* BRAND SIDE */
-  .brand-side { background: linear-gradient(150deg, var(--blue-700) 0%, var(--blue-900) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; position: relative; overflow: hidden; }
-  .brand-side .blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.04); }
-  .brand-side .b1 { width: 360px; height: 360px; top: -120px; inset-inline-end: -90px; }
-  .brand-side .b2 { width: 260px; height: 260px; bottom: -80px; inset-inline-start: -60px; background: rgba(181,138,60,0.06); }
-  .logo-card { width: 220px; height: 150px; background: #fff; border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 50px rgba(0,0,0,0.25); margin-bottom: 30px; position: relative; z-index: 2; }
-  .brand-side h2 { color: #fff; font-size: 34px; font-weight: 800; margin-bottom: 8px; z-index: 2; }
-  .brand-side .tag { color: var(--blue-200); font-size: 15px; margin-bottom: 40px; z-index: 2; }
-  .feats { z-index: 2; display: flex; flex-direction: column; gap: 16px; }
-  .feat { display: flex; align-items: center; gap: 14px; color: rgba(255,255,255,0.92); font-size: 14.5px; }
-  .feat .fi { width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; }
-  .feat .fi svg { width: 19px; height: 19px; color: var(--gold-300); }
-  .brand-side .credit { position: absolute; bottom: 24px; color: var(--blue-200); font-size: 12.5px; z-index: 2; text-align: center; }
+  html, body { height: 100%; }
+  body { margin: 0; display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(110% 80% at 50% -10%, rgba(75,95,151,.30), transparent 60%),
+      linear-gradient(160deg, var(--blue-900) 0%, #1F2F50 100%); }
+  body::before { content: ""; position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.4px);
+    background-size: 24px 24px; }
+
+  .card { position: relative; width: 360px; background: #fff; border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(8,14,28,.45); padding: 32px 32px 24px; }
+
+  .head { text-align: center; margin-bottom: 24px; }
+  .mark { width: 52px; height: 52px; border-radius: 13px; background: var(--blue-700); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px;
+    margin: 0 auto 14px; box-shadow: 0 6px 16px rgba(50,74,122,.35); }
+  .head h1 { font-size: 19px; font-weight: 800; color: var(--text-strong); }
+  .head .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+
+  .lform { display: flex; flex-direction: column; gap: 13px; }
+  .lfield label { display: block; font-size: 12px; font-weight: 500; color: var(--text-body); margin-bottom: 6px; }
+  .lwrap { position: relative; }
+  .lwrap .ic { position: absolute; inset-inline-start: 12px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--gray-400); pointer-events: none; }
+  .lwrap .eye { position: absolute; inset-inline-end: 11px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--gray-400); cursor: pointer; background: none; border: none; padding: 0; }
+  .lwrap input, .lwrap select { width: 100%; height: 44px; border: 1px solid var(--border-strong); border-radius: 9px;
+    background: #fff; color: var(--text-strong); font-family: var(--font-sans); font-size: 13.5px; padding: 0 38px; }
+  .lwrap input::placeholder { color: var(--gray-400); }
+  .lwrap input:hover, .lwrap select:hover { border-color: var(--gray-400); }
+  .lwrap input:focus, .lwrap select:focus { outline: none; border-color: var(--blue-600); box-shadow: var(--ring-focus); }
+  .lwrap select { appearance: none; cursor: pointer; }
+  .lwrap .chev { position: absolute; inset-inline-end: 13px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--gray-400); pointer-events: none; }
+
+  .lrow { display: flex; align-items: center; justify-content: space-between; margin-top: 1px; }
+  .lremember { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-body); cursor: pointer; user-select: none; }
+  .lremember .box { width: 16px; height: 16px; border-radius: 4px; background: var(--blue-600); display: flex; align-items: center; justify-content: center; }
+  .lremember .box svg { width: 10px; height: 10px; color: #fff; }
+  .lrow a { font-size: 12px; color: var(--text-link); font-weight: 500; }
+
+  .lsubmit { height: 46px; border: none; border-radius: 9px; background: var(--blue-600); color: #fff;
+    font-family: var(--font-sans); font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 6px;
+    display: flex; align-items: center; justify-content: center; gap: 8px; transition: background var(--dur) var(--ease); }
+  .lsubmit:hover { background: var(--blue-700); }
+  .lsubmit svg { width: 18px; height: 18px; }
+
+  .foot { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--gray-100); }
+  .foot b { color: var(--text-body); font-weight: 600; }
 </style>
 </head>
 <body>
-<div class="login" data-screen-label="Login">
-  <!-- FORM -->
-  <div class="form-side">
-    <div class="form-card">
-      <h1>ورود به سیستم</h1>
-      <p class="lead">برای ادامه، اطلاعات حساب کاربری خود را وارد کنید.</p>
-
-      <div class="lf">
-        <label>شرکت / شعبه</label>
-        <div class="lwrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/><path d="M9 9v.01M9 12v.01M9 15v.01"/></svg>
-          <select><option>شعبه مرکزی — سماع رایانه کیش</option><option>فروشگاه قطعات</option><option>رستوران دریا</option></select>
-        </div>
-      </div>
-      <div class="lf">
-        <label>نام کاربری</label>
-        <div class="lwrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
-          <input type="text" placeholder="نام کاربری" value="admin" />
-        </div>
-      </div>
-      <div class="lf">
-        <label>رمز عبور</label>
-        <div class="lwrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-          <input type="password" placeholder="••••••••" value="123456" />
-        </div>
-      </div>
-
-      <div class="lrow">
-        <label class="lcheck"><span class="box"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>مرا به خاطر بسپار</label>
-        <a href="#" style="color:var(--blue-400);font-size:13px">فراموشی رمز؟</a>
-      </div>
-
-      <a href="manager-dashboard.html" class="login-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none">ورود به سیستم</a>
-    </div>
-    <div class="form-foot">
-      <a href="#"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>تنظیمات اتصال به پایگاه داده</a>
-      <div class="ver">نسخه ۱٫۰٫۰ · © ۱۴۰۵ سماع رایانه کیش</div>
-    </div>
+<div class="card" data-screen-label="Login">
+  <div class="head">
+    <div class="mark">س</div>
+    <h1>ورود به سماع‌حساب</h1>
+    <div class="sub">سامانه جامع مدیریت مالی و کسب‌وکار</div>
   </div>
 
-  <!-- BRAND -->
-  <div class="brand-side">
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-    <div class="logo-card"><img src="../assets/logo.jpg" alt="سماع‌حساب" style="max-width:78%;max-height:70%;object-fit:contain" /></div>
-    <h2>سما حساب</h2>
-    <p class="tag">سامانه جامع مدیریت مالی و کسب‌وکار</p>
-    <div class="feats">
-      <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg></span>حسابداری دوطرفه و گزارش‌های مالی</div>
-      <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 7.3 12 3l8.7 4.3v9.4L12 21l-8.7-4.3z"/><path d="M3.3 7.3 12 11.6l8.7-4.3M12 21v-9.4"/></svg></span>مدیریت انبار، خرید و فروش</div>
-      <div class="feat"><span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5z"/><path d="M9 12l2 2 4-4"/></svg></span>امنیت و کنترل دسترسی کاربران</div>
+  <form class="lform" onsubmit="return false">
+    <div class="lfield">
+      <label>شرکت</label>
+      <div class="lwrap">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M10 21v-3h4v3"/></svg>
+        <select>
+          <option>شرکت اول — شعبه مرکزی</option>
+          <option>فروشگاه قطعات خودرو</option>
+          <option>رستوران دریا</option>
+        </select>
+        <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+      </div>
     </div>
-    <div class="credit">سماع رایانه کیش · kishwifi.com</div>
-  </div>
+
+    <div class="lfield">
+      <label>نام کاربری</label>
+      <div class="lwrap">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+        <input type="text" value="admin" />
+      </div>
+    </div>
+
+    <div class="lfield">
+      <label>رمز عبور</label>
+      <div class="lwrap">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <input type="password" value="123456789" id="pw" />
+        <button type="button" class="eye" onclick="var p=document.getElementById('pw');p.type=p.type==='password'?'text':'password'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="lrow">
+      <label class="lremember"><span class="box"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"/></svg></span>مرا به خاطر بسپار</label>
+      <a href="#">فراموشی رمز؟</a>
+    </div>
+
+    <button class="lsubmit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>ورود به سیستم</button>
+  </form>
+
+  <div class="foot"><b>سماع رایانه کیش</b> · نسخه ۱٫۰٫۰</div>
 </div>
 </body>
 </html>

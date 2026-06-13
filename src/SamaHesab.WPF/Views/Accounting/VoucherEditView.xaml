@@ -185,9 +185,8 @@
                         <ComboBox x:Name="AccCombo" Height="32"
                                   ItemsSource="{Binding LeafAccounts}" DisplayMemberPath="Display"
                                   SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
-                                  IsEditable="True"
-                                 
-                                 >
+                                  IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+                                  StaysOpenOnEdit="True">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">

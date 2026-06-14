@@ -23,7 +23,6 @@ AppUpdatesURL={#MyAppURL}/updates
 DefaultDirName={autopf}\SamaHesab
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=License.rtf
 OutputDir=Output
 OutputBaseFilename=SamaHesab_Setup_v{#MyAppVersion}
 SetupIconFile=..\src\SamaHesab.WPF\app.ico
@@ -51,23 +50,17 @@ Name: "desktopicon";    Description: "ایجاد میانبر روی دسکتا�
 Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار وظیفه"; GroupDescription: "میانبرها:"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-; Main Application
-Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; برنامهٔ دسکتاپ (خودکفا — شاملِ رانتایم؛ SamaHesab.exe + لانچرها)
+Source: "..\dist\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; سرورِ Web API (خودکفا) — برای نصبِ تک‌سیستمی (سرور+کلاینت روی یک دستگاه)
+Source: "..\dist\api\*"; DestDir: "{app}\server"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; User Guide (PDF) — مطابقِ آیکونِ «راهنمای کاربر»
 Source: "..\docs\SamaHesab-UserGuide.pdf"; DestDir: "{app}\docs"; DestName: "UserGuide.pdf"; Flags: ignoreversion
 
-; SQL Scripts
-Source: "..\database\01_CreateDatabase.sql"; DestDir: "{app}\database"; Flags: ignoreversion
-Source: "..\database\02_CreateTables.sql";   DestDir: "{app}\database"; Flags: ignoreversion
-Source: "..\database\03_CreateIndexes.sql";  DestDir: "{app}\database"; Flags: ignoreversion
-Source: "..\database\04_CreateViews.sql";    DestDir: "{app}\database"; Flags: ignoreversion
-Source: "..\database\05_StoredProcedures.sql"; DestDir: "{app}\database"; Flags: ignoreversion
-Source: "..\database\06_SeedData.sql";       DestDir: "{app}\database"; Flags: ignoreversion
-
-; Redistributables
-Source: "prerequisites\dotnet-9.0-runtime-win-x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "prerequisites\vcredist_x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+; اسکریپت‌های پایگاه‌داده (همهٔ مهاجرت‌ها ۰۱..۲۲ — برای اجرای دستی روی SQL Server)
+Source: "..\database\*.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
@@ -77,20 +70,7 @@ Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
-; Install .NET 9 Runtime
-Filename: "{tmp}\dotnet-9.0-runtime-win-x64.exe"; Parameters: "/passive /norestart"; \
-  StatusMsg: "در حال نصب .NET 9 Runtime..."; \
-  Check: not IsDotNetInstalled
-
-; Install VC++ Redistributable
-Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/passive /norestart"; \
-  StatusMsg: "در حال نصب Visual C++ Redistributable..."
-
-; Initialize Database
-Filename: "{app}\SamaHesab.DbSetup.exe"; Parameters: "--init --server . --database SamaHesab"; \
-  StatusMsg: "در حال راه‌اندازی پایگاه داده..."; \
-  WorkingDir: "{app}"; Flags: runasoriginaluser
-
+; build خودکفاست؛ نیازی به نصبِ .NET/VC++ نیست. راه‌اندازیِ دستیِ پایگاه‌داده از پوشهٔ database.
 ; Launch Application
 Filename: "{app}\{#MyAppExeName}"; Description: "راه‌اندازی {#MyAppName}"; \
   Flags: nowait postinstall skipifsilent; WorkingDir: "{app}"
@@ -170,10 +150,6 @@ begin
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
-var
-  ConnectionString: String;
-  IniFile: TIniFile;
-  AppSettingsPath: String;
 begin
   Result := True;
 
@@ -200,33 +176,33 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  AppSettingsPath: String;
-  Content: String;
-  FileHandle: Integer;
+  ApiSettingsPath, Srv, Content: String;
 begin
   if CurStep = ssPostInstall then
   begin
-    // Write connection string to appsettings.json
-    AppSettingsPath := ExpandConstant('{app}\appsettings.json');
-
-    if FileExists(AppSettingsPath) then
+    // نوشتنِ رشتهٔ اتصال در appsettings سرورِ API (نه برنامهٔ دسکتاپ که از طریق API کار می‌کند)
+    ApiSettingsPath := ExpandConstant('{app}\server\appsettings.json');
+    if FileExists(ApiSettingsPath) then
     begin
+      Srv := ServerName;
+      StringChangeEx(Srv, '\', '\\', True);   // فرار دادنِ بک‌اسلش برای JSON
       Content :=
         '{' + #13#10 +
+        '  "Urls": "http://0.0.0.0:5080",' + #13#10 +
         '  "ConnectionStrings": {' + #13#10 +
-        '    "DefaultConnection": "Server=' + ServerName + ';Database=' + DatabaseName +
-            ';Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=False;"' + #13#10 +
+        '    "DefaultConnection": "Server=' + Srv + ';Database=' + DatabaseName +
+            ';Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"' + #13#10 +
         '  },' + #13#10 +
-        '  "Backup": {' + #13#10 +
-        '    "Path": "' + ExpandConstant('{app}') + '\\backup"' + #13#10 +
+        '  "Jwt": {' + #13#10 +
+        '    "Issuer": "SamaHesab", "Audience": "SamaHesabClients",' + #13#10 +
+        '    "Key": "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_KEY_AT_LEAST_32_CHARS_LONG_1404",' + #13#10 +
+        '    "AccessTokenMinutes": 60, "RefreshTokenDays": 14' + #13#10 +
         '  },' + #13#10 +
-        '  "Logging": {' + #13#10 +
-        '    "LogLevel": { "Default": "Information" }' + #13#10 +
-        '  },' + #13#10 +
-        '  "App": { "Version": "2.0.0", "DefaultTheme": "Dark" }' + #13#10 +
+        '  "Sms": { "Provider": "null" },' + #13#10 +
+        '  "Logging": { "LogLevel": { "Default": "Information", "Microsoft.AspNetCore": "Warning" } },' + #13#10 +
+        '  "AllowedHosts": "*"' + #13#10 +
         '}';
-
-      SaveStringToFile(AppSettingsPath, Content, False);
+      SaveStringToFile(ApiSettingsPath, Content, False);
     end;
   end;
 end;

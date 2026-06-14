@@ -11,10 +11,12 @@
         <KeyBinding Key="F1" Command="{Binding NewSaleCommand}"/>
         <KeyBinding Key="F12" Command="{Binding CheckoutCommand}"/>
         <KeyBinding Key="F8" Command="{Binding PrintReceiptCommand}"/>
+        <KeyBinding Key="F4" Command="{Binding HoldSaleCommand}"/>
     </UserControl.InputBindings>
 
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
 
         <!-- تایل کالا -->
         <Style x:Key="PItem" TargetType="Button">
@@ -139,8 +141,55 @@
             <!-- ردیف توابع -->
             <Grid Grid.Row="2" Margin="0,7,0,0">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" Content="تعلیق فاکتور F4"/>
-                <Button Grid.Column="2" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" Content="بازیابی F5"/>
+                <!-- U11 — تعلیق فاکتور (Hold) -->
+                <Button Grid.Column="0" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"
+                        Content="تعلیق فاکتور F4" Command="{Binding HoldSaleCommand}"/>
+                <!-- U11 — بازیابی/فراخوان (Recall) با پاپ‌آپِ فهرستِ معلق -->
+                <ToggleButton Grid.Column="2" x:Name="RecallToggle" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="بازیابی F5" VerticalAlignment="Center"/>
+                        <Border Margin="6,0,0,0" CornerRadius="9" Background="{StaticResource ErpBlue600}" Padding="6,1" MinWidth="18"
+                                Visibility="{Binding HasHeldSales, Converter={StaticResource BoolVis}}">
+                            <TextBlock Text="{Binding HeldSales.Count}" Foreground="White" FontSize="10.5" FontWeight="Bold" TextAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </ToggleButton>
+                <Popup PlacementTarget="{Binding ElementName=RecallToggle}" Placement="Top" StaysOpen="False" AllowsTransparency="True"
+                       IsOpen="{Binding IsChecked, ElementName=RecallToggle}">
+                    <Border Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="9" Width="360" Margin="6"
+                            SnapsToDevicePixels="True">
+                        <Border.Effect><DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.22" Color="#334155"/></Border.Effect>
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="فاکتورهای معلق" FontWeight="Bold" FontSize="12.5" Foreground="{StaticResource ErpBlue700}" Margin="12,10,12,6"/>
+                            <TextBlock Grid.Row="0" Text="موردی نیست" FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" Margin="12,34,0,0"
+                                       Visibility="{Binding HasHeldSales, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
+                            <ScrollViewer Grid.Row="1" MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding HeldSales}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F0F1F3" BorderThickness="0,0,0,1" Padding="12,8">
+                                                <DockPanel>
+                                                    <Button DockPanel.Dock="Left" Content="✕" Width="28" Height="28" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" Cursor="Hand"
+                                                            Command="{Binding DataContext.DeleteHeldCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                    <Button DockPanel.Dock="Left" Content="فراخوان" Width="72" Height="28" Margin="0,0,6,0" Background="{StaticResource ErpBlue600}" Foreground="White" BorderThickness="0" Cursor="Hand"
+                                                            Command="{Binding DataContext.RecallSaleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Label}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Total, Converter={StaticResource Num}}" FontSize="10.5" Foreground="{StaticResource ErpBlue700}" FlowDirection="LeftToRight"/>
+                                                            <TextBlock Text="{Binding CreatedAt, StringFormat=' · {0:HH:mm}'}" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Popup>
                 <Button Grid.Column="4" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="ابطال Esc" Command="{Binding NewSaleCommand}"/>
             </Grid>
         </Grid>

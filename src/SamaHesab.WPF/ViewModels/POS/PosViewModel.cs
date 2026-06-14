@@ -42,6 +42,10 @@ public partial class PosViewModel : BaseViewModel
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
     public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };
 
+    // U11 — فاکتورهای معلق (Hold/Recall، کار #۳۳). فهرستِ فاکتورهای پارک‌شده برای فراخوانِ بعدی.
+    public ObservableCollection<HeldSaleRow> HeldSales { get; } = new();
+    [ObservableProperty] private bool _hasHeldSales;
+
     // شبکه‌ی کالاهای لمسی + دسته‌بندی (طبق طرح pos.html)
     public ObservableCollection<PosCategoryTile> Categories { get; } = new();
     public ObservableCollection<PosProductTile> Products { get; } = new();
@@ -93,6 +97,7 @@ public partial class PosViewModel : BaseViewModel
         }
 
         await LoadFavoritesAsync();
+        await LoadHeldSalesAsync();
         ApplyFilter();
     }
 
@@ -215,6 +220,104 @@ public partial class PosViewModel : BaseViewModel
     [RelayCommand] private void RemoveItem(PosCartItem? item) { if (item != null) { CartItems.Remove(item); RecalculateTotals(); } }
     [RelayCommand] private void ClearCart() { CartItems.Clear(); RecalculateTotals(); }
 
+    // ── U11 — تعلیق/فراخوانِ فاکتور (Hold/Recall، #۳۳) ──────────────────────────
+    private record HeldLine(int ProductId, string Code, string Name, decimal Quantity, decimal UnitPrice, decimal TaxRate);
+    private record HeldCart(List<HeldLine> Items, decimal Discount, int? CustomerId, string? CustomerName);
+
+    private async Task LoadHeldSalesAsync()
+    {
+        try
+        {
+            List<HeldSaleRow> rows;
+            if (UseApi)
+                rows = (await _api.GetHeldSalesAsync()).Select(h => new HeldSaleRow(h.Id, h.Label, h.Total, h.CreatedAt)).ToList();
+            else
+                rows = (await _mediator.Send(new SamaHesab.Application.POS.GetHeldSalesQuery()))
+                    .Select(h => new HeldSaleRow(h.Id, h.Label, h.Total, h.CreatedAt)).ToList();
+            HeldSales.Clear();
+            foreach (var r in rows) HeldSales.Add(r);
+            HasHeldSales = HeldSales.Count > 0;
+        }
+        catch { /* بهره‌وری؛ نبودش نباید صندوق را خراب کند */ }
+    }
+
+    /// <summary>سبدِ فعلی را پارک می‌کند تا بعداً فراخوان شود (مثلاً مشتری چیزی جا گذاشته).</summary>
+    [RelayCommand]
+    private async Task HoldSaleAsync()
+    {
+        if (!CartItems.Any()) { await _dialogService.ShowWarningAsync("سبد خرید خالی است."); return; }
+        var label = SelectedCustomerName is { Length: > 0 } cn
+            ? cn
+            : $"فاکتور {DateTime.Now:HH:mm} ({CartItems.Count} قلم)";
+        var cart = new HeldCart(
+            CartItems.Select(i => new HeldLine(i.ProductId, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.TaxRate)).ToList(),
+            Discount, SelectedCustomerId, SelectedCustomerName);
+        var payload = System.Text.Json.JsonSerializer.Serialize(cart);
+
+        bool ok; string? error;
+        if (UseApi) { (ok, _, error) = await _api.HoldSaleAsync(label, payload, GrandTotal); }
+        else
+        {
+            var r = await _mediator.Send(new SamaHesab.Application.POS.HoldSaleCommand(label, payload, GrandTotal));
+            ok = r.Succeeded; error = r.ErrorMessage;
+        }
+        if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در تعلیق فاکتور."); return; }
+
+        NewSale();
+        await LoadHeldSalesAsync();
+    }
+
+    /// <summary>فاکتورِ معلق را به سبد بازمی‌گرداند و از فهرستِ معلق حذف می‌کند.</summary>
+    [RelayCommand]
+    private async Task RecallSaleAsync(HeldSaleRow? row)
+    {
+        if (row == null) return;
+        if (CartItems.Any())
+        {
+            var ok = await _dialogService.ConfirmAsync("سبد فعلی خالی و با فاکتور معلق جایگزین شود؟");
+            if (!ok) return;
+        }
+
+        SamaHesab.Application.POS.HeldSaleDetailDto? detail = null;
+        string? payload = null;
+        if (UseApi) { var d = await _api.GetHeldSaleAsync(row.Id); payload = d?.Payload; }
+        else { detail = await _mediator.Send(new SamaHesab.Application.POS.GetHeldSaleQuery(row.Id)); payload = detail?.Payload; }
+        if (string.IsNullOrWhiteSpace(payload)) { await _dialogService.ShowErrorAsync("فاکتور معلق یافت نشد."); await LoadHeldSalesAsync(); return; }
+
+        HeldCart? cart;
+        try { cart = System.Text.Json.JsonSerializer.Deserialize<HeldCart>(payload); }
+        catch { cart = null; }
+        if (cart == null) { await _dialogService.ShowErrorAsync("دادهٔ فاکتور معلق نامعتبر است."); return; }
+
+        CartItems.Clear();
+        foreach (var l in cart.Items)
+        {
+            var item = new PosCartItem(l.ProductId, l.Code, l.Name, l.Quantity, l.UnitPrice, l.TaxRate);
+            item.PropertyChanged += (_, _) => RecalculateTotals();
+            CartItems.Add(item);
+        }
+        Discount = cart.Discount;
+        SelectedCustomerId = cart.CustomerId;
+        SelectedCustomerName = cart.CustomerName;
+        RecalculateTotals();
+
+        // پس از فراخوان، رکوردِ معلق پاک می‌شود (یک‌بارمصرف).
+        if (UseApi) await _api.DeleteHeldSaleAsync(row.Id);
+        else await _mediator.Send(new SamaHesab.Application.POS.DeleteHeldSaleCommand(row.Id));
+        await LoadHeldSalesAsync();
+    }
+
+    /// <summary>حذفِ یک فاکتور معلق بدونِ فراخوان.</summary>
+    [RelayCommand]
+    private async Task DeleteHeldAsync(HeldSaleRow? row)
+    {
+        if (row == null) return;
+        if (!await _dialogService.ConfirmAsync($"فاکتور معلق «{row.Label}» حذف شود؟")) return;
+        if (UseApi) await _api.DeleteHeldSaleAsync(row.Id);
+        else await _mediator.Send(new SamaHesab.Application.POS.DeleteHeldSaleCommand(row.Id));
+        await LoadHeldSalesAsync();
+    }
+
     private void RecalculateTotals()
     {
         SubTotal   = CartItems.Sum(i => i.Quantity * i.UnitPrice);
@@ -325,3 +428,4 @@ public partial class PosCartItem : ObservableObject
 
 public record PosCategoryTile(int Id, string Name);
 public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId);
+public record HeldSaleRow(int Id, string Label, decimal Total, DateTime CreatedAt);

@@ -33,6 +33,10 @@ public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, d
 // ── Favorites / بهره‌وری (آیتم‌های اخیر و سنجاق‌شده) DTO — match Application ItemRefDto ──
 public record ApiItemRef(int EntityId, string Label, bool Pinned, int UseCount);
 
+// ── Held sales / فاکتورهای معلق POS (#33) DTOs ──
+public record ApiHeldSale(int Id, string Label, decimal Total, DateTime CreatedAt);
+public record ApiHeldSaleDetail(int Id, string Label, string Payload, decimal Total);
+
 // ── Warehouse (v2 — Phase 2) DTOs ──
 public record ApiWarehouse(int Id, string Name);
 public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
@@ -149,6 +153,41 @@ public class ApiClient
     {
         try { await _http.PostAsJsonAsync("/api/favorites/touch", new { entityType, entityId, label }); }
         catch { /* بهره‌وری؛ شکستش نباید فروش را متوقف کند */ }
+    }
+
+    // ── Held sales / فاکتورهای معلق POS (#33) ──
+    public async Task<List<ApiHeldSale>> GetHeldSalesAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiHeldSale>>("/api/heldsales") ?? new(); }
+        catch { return new(); }
+    }
+
+    public async Task<ApiHeldSaleDetail?> GetHeldSaleAsync(int id)
+    {
+        try { return await _http.GetFromJsonAsync<ApiHeldSaleDetail>($"/api/heldsales/{id}"); }
+        catch { return null; }
+    }
+
+    public async Task<(bool ok, int id, string? error)> HoldSaleAsync(string label, string payload, decimal total)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("/api/heldsales", new { label, payload, total });
+            if (!resp.IsSuccessStatusCode) return (false, 0, await ReadErrorAsync(resp) ?? "خطا در تعلیق فاکتور.");
+            var doc = await resp.Content.ReadFromJsonAsync<Dictionary<string, int>>();
+            return (true, doc != null && doc.TryGetValue("heldSaleId", out var id) ? id : 0, null);
+        }
+        catch (Exception ex) { return (false, 0, ex.GetBaseException().Message); }
+    }
+
+    public async Task<(bool ok, string? error)> DeleteHeldSaleAsync(int id)
+    {
+        try
+        {
+            var resp = await _http.DeleteAsync($"/api/heldsales/{id}");
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در حذف فاکتور معلق.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

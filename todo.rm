@@ -43,7 +43,7 @@
   - [x] ✅ **گزارش خرید** — `PurchaseReportView/VM` روی `GetTopSuppliers` (موجود) + `GetPurchaseTrendQuery` (جدید): تأمین‌کنندگان برتر/روند ماهانه + خلاصهٔ جمعِ خرید + اکسل/PDF. منوی «خرید→گزارش خرید». ۲۱۴ تست سبز.
 
 ### 💻 دستهٔ «ج» — مشتری/CRM (مالک: لپ‌تاپ / کلود ۲)
-- [ ] **۹.** تاریخچه/یادداشت/پیوستِ مشتری (موجودیت + CQRS + UI در کارت مشتری).
+- [x] ✅C2@03:05 **۹.** تاریخچه/یادداشت/پیوستِ مشتری — **کامل**. تاریخچه (گردش‌حساب) و یادداشت از قبل بود؛ **پیوست** افزوده شد: موجودیتِ `CustomerAttachment` + جدولِ `Crm.CustomerAttachments` (در `02_CreateTables` و مهاجرتِ idempotent `database/22_CustomerAttachments.sql`) + DbSet/ToTable + `Add/DeleteCustomerAttachmentCommand` + `GetCustomerAttachmentsQuery` + پنلِ «اسناد ضمیمه» در کارت مشتری (افزودن با OpenFileDialog→کپی در `%AppData%/SamaHesab/attachments` + باز کردن + حذف). solution سبز، ۲۱۶ تست.
 - [x] ✅C2@02:40 **۱۰.** تکمیل کارت مشتری — **کامل**. ✅ KPI «چک در جریان» (از `Cheque.PartyId/Received/InProcess`). ✅ **فیلدهای «شخص رابط» و «ویزیتور»**: روی `Customer` (+`SetContactPerson`) + ستون‌های SQL (در `02_CreateTables.sql` و مهاجرتِ idempotent `database/21_CustomerContactFields.sql`) + ورودی در فرمِ ویرایشِ مشتری + دو ردیفِ KV در کارتِ مشتری. EF با convention مپ می‌کند. solution سبز، ۲۱۶ تست.
 
 ### 💻 دستهٔ «د» — انبار/بارکد (مالک: لپ‌تاپ / کلود ۲)

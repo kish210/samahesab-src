@@ -142,9 +142,94 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
                 LedgerTotalCredit = st.Value.TotalCredit;
                 LedgerClosing = st.Value.ClosingBalance;
             }
+            await ReloadAttachmentsAsync(customerId);
             HasData = true;
         }, "در حال بارگذاری کارت مشتری...");
     }
+
+    // ── کارِ ۹: اسنادِ ضمیمهٔ مشتری (فایل در AppData، متادیتا در DB) ──
+    public ObservableCollection<SamaHesab.Application.CRM.Queries.CustomerAttachmentDto> Attachments { get; } = new();
+
+    private async Task ReloadAttachmentsAsync(int customerId)
+    {
+        Attachments.Clear();
+        foreach (var a in await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetCustomerAttachmentsQuery(customerId)))
+            Attachments.Add(a);
+    }
+
+    private static string AttachmentsDir(int companyId, int customerId)
+    {
+        var dir = System.IO.Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+            "SamaHesab", "attachments", companyId.ToString(), customerId.ToString());
+        System.IO.Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    [RelayCommand]
+    private async Task AddAttachmentAsync()
+    {
+        if (CustomerId <= 0) return;
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "انتخاب فایلِ ضمیمه",
+            Filter = "همهٔ فایل‌ها|*.*",
+            Multiselect = true
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        await ExecuteAsync(async () =>
+        {
+            var companyId = _currentUser.CompanyId ?? 1;
+            var dir = AttachmentsDir(companyId, CustomerId);
+            foreach (var src in dlg.FileNames)
+            {
+                try
+                {
+                    var info = new System.IO.FileInfo(src);
+                    var dest = System.IO.Path.Combine(dir, $"{System.Guid.NewGuid():N}_{info.Name}");
+                    System.IO.File.Copy(src, dest, overwrite: false);
+                    await _mediator.Send(new SamaHesab.Application.CRM.Commands.AddCustomerAttachmentCommand(
+                        CustomerId, info.Name, dest, GuessContentType(info.Extension), info.Length,
+                        _calendar.GetCurrentPersianDate()));
+                }
+                catch (System.Exception ex) { await _dialogService.ShowErrorAsync($"خطا در افزودن «{System.IO.Path.GetFileName(src)}»: {ex.Message}"); }
+            }
+            await ReloadAttachmentsAsync(CustomerId);
+        }, "در حال افزودنِ پیوست...");
+    }
+
+    [RelayCommand]
+    private async Task OpenAttachmentAsync(SamaHesab.Application.CRM.Queries.CustomerAttachmentDto? a)
+    {
+        if (a is null) return;
+        if (!System.IO.File.Exists(a.StoredPath)) { await _dialogService.ShowErrorAsync("فایل یافت نشد (احتمالاً جابه‌جا/حذف شده)."); return; }
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(a.StoredPath) { UseShellExecute = true }); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    [RelayCommand]
+    private async Task DeleteAttachmentAsync(SamaHesab.Application.CRM.Queries.CustomerAttachmentDto? a)
+    {
+        if (a is null) return;
+        if (!await _dialogService.ConfirmAsync($"حذفِ «{a.FileName}»؟")) return;
+        var res = await _mediator.Send(new SamaHesab.Application.CRM.Commands.DeleteCustomerAttachmentCommand(a.Id));
+        if (res.Succeeded)
+        {
+            try { if (!string.IsNullOrEmpty(res.Value) && System.IO.File.Exists(res.Value)) System.IO.File.Delete(res.Value); } catch { /* فایلِ فیزیکی اختیاری */ }
+            await ReloadAttachmentsAsync(CustomerId);
+        }
+        else await _dialogService.ShowErrorAsync(res.ErrorMessage);
+    }
+
+    private static string GuessContentType(string ext) => ext.ToLowerInvariant() switch
+    {
+        ".pdf" => "application/pdf",
+        ".jpg" or ".jpeg" => "image/jpeg", ".png" => "image/png",
+        ".xlsx" or ".xls" => "application/vnd.ms-excel",
+        ".docx" or ".doc" => "application/msword",
+        _ => "application/octet-stream"
+    };
 
     private static string BuildInitials(string name)
     {

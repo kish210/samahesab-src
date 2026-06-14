@@ -83,6 +83,7 @@ public class ApplicationDbContext : DbContext
 
     // CRM
     public DbSet<Customer> Customers { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.CRM.CustomerAttachment> CustomerAttachments { get; set; }
     public DbSet<Supplier> Suppliers { get; set; }
 
     // Sales
@@ -164,6 +165,7 @@ public class ApplicationDbContext : DbContext
             b.HasIndex(x => new { x.ProductId, x.SerialNumber }).IsUnique();
         });
         modelBuilder.Entity<Customer>().ToTable("Customers", "Crm");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.CRM.CustomerAttachment>().ToTable("CustomerAttachments", "Crm");
         modelBuilder.Entity<Supplier>().ToTable("Suppliers", "Crm");
         modelBuilder.Entity<SalesInvoice>().ToTable("SalesInvoices", "Sal");
         modelBuilder.Entity<SalesInvoiceItem>().ToTable("SalesInvoiceItems", "Sal");

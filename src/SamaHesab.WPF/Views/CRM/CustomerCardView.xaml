@@ -164,6 +164,7 @@
                     <RowDefinition Height="Auto"/>   <!-- KPI -->
                     <RowDefinition Height="Auto"/>   <!-- minitabs -->
                     <RowDefinition Height="*"/>       <!-- grid -->
+                    <RowDefinition Height="Auto"/>   <!-- اسناد ضمیمه (کارِ ۹) -->
                 </Grid.RowDefinitions>
 
                 <!-- KPI ها -->
@@ -263,6 +264,45 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
+                </Border>
+
+                <!-- ── اسناد ضمیمه (کارِ ۹) ── -->
+                <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Margin="0,8,0,0" Padding="10,8">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,6">
+                            <Button DockPanel.Dock="Left" HorizontalAlignment="Left" Style="{StaticResource ErpBtnGhost}" Height="26" Padding="9,0"
+                                    Command="{Binding AddAttachmentCommand}" Content="＋ افزودن فایل"/>
+                            <TextBlock Text="اسناد ضمیمه" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <ItemsControl ItemsSource="{Binding Attachments}" MaxHeight="120">
+                            <ItemsControl.Template>
+                                <ControlTemplate TargetType="ItemsControl">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer>
+                                </ControlTemplate>
+                            </ItemsControl.Template>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource ErpGray100}" BorderThickness="0,0,0,1" Padding="2,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding FileName}" FontSize="12" Foreground="{StaticResource ErpTextStrong}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding UploadedAt}" FontSize="10" Foreground="{StaticResource ErpTextMuted}" FlowDirection="LeftToRight"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2" Style="{StaticResource ErpBtnGhost}" Height="24" Padding="8,0" Margin="4,0,0,0" Content="باز کردن"
+                                                    Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                            <Button Grid.Column="3" Style="{StaticResource ErpBtnGhost}" Height="24" Padding="8,0" Margin="4,0,0,0" Content="حذف"
+                                                    Foreground="{StaticResource ErpDanger500}"
+                                                    Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Grid>

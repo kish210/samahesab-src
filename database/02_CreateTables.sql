@@ -546,6 +546,22 @@ CREATE TABLE Crm.Customers (
     UpdatedAt       DATETIME2,
     UNIQUE(CompanyId, Code)
 );
+GO
+
+-- اسنادِ ضمیمهٔ مشتری (کارِ ۹) — فایل در سیستم‌فایلِ محلی، متادیتا اینجا
+CREATE TABLE Crm.CustomerAttachments (
+    Id              INT IDENTITY(1,1) PRIMARY KEY,
+    CompanyId       INT NOT NULL REFERENCES Cfg.Companies(Id),
+    CustomerId      INT NOT NULL REFERENCES Crm.Customers(Id) ON DELETE CASCADE,
+    FileName        NVARCHAR(260) NOT NULL,
+    StoredPath      NVARCHAR(500) NOT NULL,
+    ContentType     NVARCHAR(100),
+    FileSize        BIGINT NOT NULL DEFAULT 0,
+    UploadedAt      NVARCHAR(10) NOT NULL,
+    Description     NVARCHAR(500),
+    CreatedAt       DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt       DATETIME2
+);
 
 CREATE TABLE Crm.CustomerContacts (
     Id          INT IDENTITY(1,1) PRIMARY KEY,

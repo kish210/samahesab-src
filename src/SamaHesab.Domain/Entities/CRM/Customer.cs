@@ -31,6 +31,8 @@ public class Customer : AuditableEntity
     public decimal Balance { get; private set; }
     public bool IsActive { get; private set; } = true;
     public string? Notes { get; private set; }
+    public string? ContactPerson { get; private set; }   // شخصِ رابط
+    public string? Visitor { get; private set; }          // ویزیتور/بازاریاب
 
     public ICollection<CustomerContact> Contacts { get; private set; } = new List<CustomerContact>();
 
@@ -99,6 +101,11 @@ public class Customer : AuditableEntity
     public void SetDetails(string? nationalCode, string? economicCode, int? groupId, string? notes)
     {
         NationalCode = nationalCode; EconomicCode = economicCode; GroupId = groupId; Notes = notes;
+        UpdatedAt = DateTime.Now;
+    }
+    public void SetContactPerson(string? contactPerson, string? visitor)
+    {
+        ContactPerson = contactPerson; Visitor = visitor;
         UpdatedAt = DateTime.Now;
     }
     public void UpdateNames(string? firstName, string? lastName, string? companyName)

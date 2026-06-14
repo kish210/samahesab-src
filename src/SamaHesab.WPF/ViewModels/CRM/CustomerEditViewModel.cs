@@ -38,6 +38,8 @@ public partial class CustomerEditViewModel : BaseViewModel
     [ObservableProperty] private int _loyaltyPoints;
     [ObservableProperty] private decimal _balance;
     [ObservableProperty] private string? _notes;
+    [ObservableProperty] private string? _contactPerson;   // کارِ ۱۰: شخصِ رابط
+    [ObservableProperty] private string? _visitor;          // کارِ ۱۰: ویزیتور
     [ObservableProperty] private bool _isPersonal = true;
     [ObservableProperty] private bool _isCompany;
 
@@ -81,6 +83,7 @@ public partial class CustomerEditViewModel : BaseViewModel
                 entity.UpdateContactInfo(Phone, Mobile, Email, Province, City, Address, PostalCode);
                 entity.UpdateCreditTerms(CreditLimit, CreditDays, PriceLevel, Discount);
                 entity.SetDetails(NationalCode, EconomicCode, GroupId, Notes);
+                entity.SetContactPerson(ContactPerson, Visitor);
                 if (!string.IsNullOrWhiteSpace(BirthDate)) entity.SetBirthDate(BirthDate!);
 
                 await _customerRepo.AddAsync(entity);

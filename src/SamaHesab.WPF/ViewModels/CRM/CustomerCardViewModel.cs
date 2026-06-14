@@ -31,6 +31,8 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private string? _phone;
     [ObservableProperty] private string? _nationalCode;
     [ObservableProperty] private string? _economicCode;
+    [ObservableProperty] private string? _contactPerson;   // کارِ ۱۰: شخصِ رابط
+    [ObservableProperty] private string? _visitor;          // کارِ ۱۰: ویزیتور
     [ObservableProperty] private string? _address;
     [ObservableProperty] private string _statusLabel = "فعال";
 
@@ -96,6 +98,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             GroupLabel = string.IsNullOrWhiteSpace(c.PriceLevel) ? c.CustomerType : $"{c.CustomerType} · {c.PriceLevel}";
             Mobile = c.Mobile; Phone = c.Phone;
             NationalCode = c.NationalCode; EconomicCode = c.EconomicCode;
+            ContactPerson = c.ContactPerson; Visitor = c.Visitor;
             Address = string.Join("، ", new[] { c.Province, c.City, c.Address }.Where(s => !string.IsNullOrWhiteSpace(s)));
             LoyaltyPoints = c.LoyaltyPoints;
             SettlementDays = c.CreditDays;        // R16: مهلت تسویه (روز)

@@ -159,6 +159,23 @@
                                 </Border>
                             </StackPanel>
                         </Grid>
+                        <!-- کارِ ۱۰: شخصِ رابط + ویزیتور -->
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="شخص رابط"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding ContactPerson}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="ویزیتور / بازاریاب"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding Visitor}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,4" FontFamily="{StaticResource VazirFont}"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
                         <StackPanel Margin="0,8,0,0">
                             <TextBlock Style="{StaticResource FormLabel}" Text="آدرس کامل"/>
                             <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">

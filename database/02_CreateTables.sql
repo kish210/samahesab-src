@@ -540,6 +540,8 @@ CREATE TABLE Crm.Customers (
     Balance         DECIMAL(18,2) NOT NULL DEFAULT 0,
     IsActive        BIT NOT NULL DEFAULT 1,
     Notes           NVARCHAR(2000),
+    ContactPerson   NVARCHAR(100),   -- شخصِ رابط
+    Visitor         NVARCHAR(100),   -- ویزیتور/بازاریاب
     CreatedAt       DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt       DATETIME2,
     UNIQUE(CompanyId, Code)

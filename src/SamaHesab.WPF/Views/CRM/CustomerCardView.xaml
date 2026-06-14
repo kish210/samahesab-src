@@ -110,6 +110,15 @@
                             <TextBlock Text="کد اقتصادی" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
                             <TextBlock Grid.Column="1" Text="{Binding EconomicCode}" Foreground="{StaticResource ErpTextStrong}" FontSize="12" FlowDirection="LeftToRight"/></Grid>
                         <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
+                        <!-- کارِ ۱۰: شخص رابط + ویزیتور -->
+                        <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="شخص رابط" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ContactPerson}" Foreground="{StaticResource ErpTextStrong}" FontSize="12"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
+                        <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="ویزیتور" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Visitor}" Foreground="{StaticResource ErpTextStrong}" FontSize="12"/></Grid>
+                        <Rectangle Height="1" Fill="{StaticResource ErpGray100}"/>
                         <Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <TextBlock Text="آدرس" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
                             <TextBlock Grid.Column="1" Text="{Binding Address}" Foreground="{StaticResource ErpTextStrong}" FontSize="11"

@@ -130,12 +130,52 @@
                                 Command="{Binding LoadExpiringCommand}"/>
                     </StackPanel>
                     <DataGrid Style="{StaticResource IGrid}" ItemsSource="{Binding Expiring}">
+                        <!-- T16: هایلایتِ ردیف — منقضی=قرمز، رو به انقضا=کهربایی -->
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="#FFF7ED"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                        <Setter Property="Background" Value="#FDE8E8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="کالا (شناسه)" Binding="{Binding ProductId, Converter={StaticResource Num}}" Width="100"/>
                             <DataGridTextColumn Header="شمارهٔ بچ" Binding="{Binding BatchNumber}" Width="*"/>
                             <DataGridTextColumn Header="تاریخ انقضا" Binding="{Binding ExpiryDate}" Width="110"/>
                             <DataGridTextColumn Header="موجودی" Binding="{Binding Quantity, Converter={StaticResource Num}}" Width="100"/>
-                            <DataGridCheckBoxColumn Header="منقضی شده" Binding="{Binding IsExpired}" Width="90"/>
+                            <DataGridTemplateColumn Header="وضعیت" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="4" Padding="8,2" HorizontalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#FEF3C7"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsExpired}" Value="True"><Setter Property="Background" Value="#FDE8E8"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontSize="10.5" FontWeight="Bold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="رو به انقضا"/>
+                                                        <Setter Property="Foreground" Value="#B45309"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsExpired}" Value="True">
+                                                                <Setter Property="Text" Value="منقضی"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>

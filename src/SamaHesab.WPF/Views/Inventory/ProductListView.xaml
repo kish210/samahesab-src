@@ -100,6 +100,17 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <!-- T16: هشدارِ کسریِ موجودی (زیرِ حداقل) -->
+                    <DataGridTemplateColumn Header="هشدار" Width="80" IsReadOnly="True">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4" Background="#FDE8E8" Padding="7,2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Visibility="{Binding IsLowStock, Converter={StaticResource BoolVis}}">
+                                    <TextBlock Text="⚠ کسری" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -112,6 +123,8 @@
                     <Run Text="{Binding TotalCount}" FontWeight="Bold"/>
                     <Run Text="   |   فعال:"/>
                     <Run Text="{Binding ActiveCount}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}"/>
+                    <Run Text="   |   زیرِ حداقل:"/>
+                    <Run Text="{Binding LowStockCount}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/>
                 </TextBlock>
                 <TextBlock DockPanel.Dock="Left" Text="Enter=جستجو · دابل‌کلیک=ویرایش"
                            FontSize="11" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>

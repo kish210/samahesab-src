@@ -19,6 +19,7 @@ public partial class ProductListViewModel : BaseViewModel
     [ObservableProperty] private bool _showInactive;
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private int _activeCount;
+    [ObservableProperty] private int _lowStockCount;   // T16 — تعدادِ کالاهای زیرِ حداقل
     [ObservableProperty] private Product? _selectedProduct;
 
     public ObservableCollection<ProductListItem> Products { get; } = new();
@@ -65,17 +66,21 @@ public partial class ProductListViewModel : BaseViewModel
         else
             products = await _productRepository.GetAllAsync();
 
+        // T16 — کالاهای زیرِ حداقلِ موجودی (برای بجِ هشدارِ کسری).
+        var lowStockIds = (await _productRepository.GetLowStockAsync(companyId)).Select(p => p.Id).ToHashSet();
+
         Products.Clear();
         foreach (var p in products)
         {
             Products.Add(new ProductListItem(
                 p.Id, p.Code, p.Barcode ?? "", p.Name,
                 p.SalePrice, p.PurchasePrice, p.WholesalePrice,
-                p.MinStock, p.IsActive));
+                p.MinStock, p.IsActive, lowStockIds.Contains(p.Id)));
         }
 
         TotalCount = Products.Count;
         ActiveCount = Products.Count(p => p.IsActive);
+        LowStockCount = Products.Count(p => p.IsLowStock);
     }
 
     [RelayCommand]
@@ -125,6 +130,6 @@ public partial class ProductListViewModel : BaseViewModel
 public record ProductListItem(
     int Id, string Code, string Barcode, string Name,
     decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
-    decimal MinStock, bool IsActive);
+    decimal MinStock, bool IsActive, bool IsLowStock = false);
 
 public record ProductGroupItem(int Id, string Name);

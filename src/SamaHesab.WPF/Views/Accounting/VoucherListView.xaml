@@ -53,12 +53,12 @@
         <!-- ═══ تولبار فشرده ═══ -->
         <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="6,3" Margin="0,0,0,5">
             <DockPanel>
-                <!-- سند جدید (primary) -->
-                <Button DockPanel.Dock="Right" Style="{StaticResource ErpBtnPrimary}" Height="28" Padding="11,0" Margin="0,0,5,0" Command="{Binding NewVoucherCommand}">
+                <!-- سند جدید (primary) — طبق طرح: دکمهٔ ghostِ تولبار با متن/آیکونِ آبی (نه آبیِ پُر) -->
+                <Button DockPanel.Dock="Right" Style="{StaticResource TBtn}" Margin="0,0,5,0" Command="{Binding NewVoucherCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileDocumentPlusOutline" Width="16" Height="16" VerticalAlignment="Center"/>
-                        <TextBlock Text="سند جدید" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                        <Border CornerRadius="3" Background="#33FFFFFF" Padding="4,0" Margin="6,0,0,0"><TextBlock Text="F2" FontSize="9.5" Foreground="White" VerticalAlignment="Center"/></Border>
+                        <materialDesign:PackIcon Kind="FileDocumentPlusOutline" Width="16" Height="16" VerticalAlignment="Center" Foreground="{StaticResource ErpBlue600}"/>
+                        <TextBlock Text="سند جدید" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="SemiBold" Foreground="{StaticResource ErpBlue700}"/>
+                        <Border CornerRadius="4" Background="{StaticResource ErpGray150}" Padding="4,0" Margin="6,0,0,0"><TextBlock Text="F2" FontSize="9.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center"/></Border>
                     </StackPanel>
                 </Button>
                 <Button DockPanel.Dock="Right" Style="{StaticResource TBtn}" Command="{Binding EditVoucherCommand}">

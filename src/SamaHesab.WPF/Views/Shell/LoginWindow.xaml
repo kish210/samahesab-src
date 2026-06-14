@@ -120,7 +120,15 @@
                             <ComboBox Background="Transparent" BorderThickness="0" Foreground="White"
                                       ItemsSource="{Binding Companies}" DisplayMemberPath="Name" SelectedValuePath="Id"
                                       SelectedValue="{Binding SelectedCompanyId}" Padding="4,11"
-                                      FontFamily="{StaticResource VazirFont}"/>
+                                      FontFamily="{StaticResource VazirFont}">
+                                <!-- T9: آیتم‌های لیستِ بازشو روی پاپ‌آپِ روشن، متنِ تیره تا خوانا باشند (نه سفیدِ ناخوانا) -->
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Foreground" Value="#1B2843"/>
+                                        <Setter Property="FontFamily" Value="{StaticResource VazirFont}"/>
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
                         </DockPanel>
                     </Border>
 
@@ -189,7 +197,7 @@
                             Background="Transparent" Foreground="#6E83AE" BorderThickness="0" FontSize="13" Cursor="Hand"
                             FontFamily="{StaticResource VazirFont}" Click="ConnectionSettings_Click"/>
 
-                    <TextBlock Text="نسخه ۱.۰.۰  |  © ۱۴۰۴ سماع رایانه کیش" Foreground="#475569"
+                    <TextBlock Text="نسخه ۱.۰.۰  |  © ۱۴۰۴ سماع رایانه کیش" Foreground="#64748B"
                                FontFamily="{StaticResource VazirFont}" FontSize="11"
                                HorizontalAlignment="Center" Margin="0,14,0,0"/>
                 </StackPanel>

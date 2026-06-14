@@ -50,7 +50,7 @@
 - [x] ✅C2 **T6.** U11 — **Hold/Recall در POS**: `HoldSaleCommand` (سریال‌سازیِ JSONِ سبد→پارک)، `RecallSaleCommand` (بازگردانی + حذفِ یک‌بارمصرف)، `DeleteHeldCommand`؛ دکمهٔ «تعلیق F4» + پاپ‌آپِ «بازیابی» با بَجِ شمارش. متدهای heldsales به `ApiClient`. build سبز. (commit `bf72bda`)
 - [x] ✅C2 **T7.** U7 — **رزرو میز + تخصیص گارسون** (کامل): `SetTableReservationCommand` + `AssignWaiterCommand` + `GetWaitersQuery`؛ API (`tables/{id}/reserve/{bool}`، `orders/{id}/waiter/{id}`، `restaurant/waiters`)؛ `ApiClient.ReserveTableAsync/AssignWaiterAsync/GetWaitersAsync`؛ دکمهٔ تاگلِ «رزرو/لغو رزرو» روی کارتِ میز + **انتخابگرِ گارسون در هدرِ سفارش** (تخصیصِ فوری). build سبز، ۲۳۰ تست. (commits `3461464`، `c79dada`)
 - [x] ✅C2 **T8.** U8 — **زمانِ سپری‌شدهٔ میز + وضعیتِ سطح‌آیتم**: `TableDto.OccupiedSince` از `OpenedAt` سفارش؛ `ElapsedText` + تایمرِ ۳۰ثانیه‌ایِ VM (بدونِ فراخوانِ سرور)؛ بجِ رنگیِ وضعیتِ آشپزخانهٔ هر ردیف در پنلِ سفارش. build سبز، ۲۲۵ تست. (commit `685e392`)
-- [ ] **T9.** بازبینیِ **خوانایی متنِ فرمِ لاگین** (در صورتِ گزارشِ مجددِ کاربر؛ رندرِ فعلی خوانا بود) — منتظرِ گزارشِ کاربر.
+- [x] ✅C2 **T9.** بازبینیِ **خوانایی فرمِ لاگین**: با رندرِ `SAMA_SHOT_LOGIN` تأیید شد همهٔ متن‌ها خوانا هستند. دو سخت‌سازی: (۱) `ItemContainerStyle` با Foregroundِ تیره روی **کمبوی شرکت** تا آیتم‌های لیستِ بازشو روی پاپ‌آپِ روشن ناخوانا (سفیدِ روی سفید) نباشند؛ (۲) روشن‌ترکردنِ کنتراستِ فوترِ نسخه (`#475569`→`#64748B`). build سبز. (commit بعدی)
 
 ### 🤝 مشترک / فاز بعد
 - [ ] **T10.** U13 — **ردیفِ ورودِ سریعِ مشترک** (Enter→گرید) برای فرم‌های سند/فاکتور.

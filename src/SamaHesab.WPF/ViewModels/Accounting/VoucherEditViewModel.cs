@@ -6,6 +6,7 @@ using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Favorites;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Application.Reports.Queries;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -327,8 +328,36 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         }, "در حال صدور سند معکوس...");
     }
 
+    /// <summary>چاپِ سند: تولیدِ خروجیِ HTMLِ راست‌چینِ قابل‌چاپ و بازکردنِ آن (از موتورِ `ReportExporter`).</summary>
     [RelayCommand]
-    private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی چاپ سند...");
+    private async Task PrintAsync()
+    {
+        if (!Items.Any()) { await _dialogService.ShowErrorAsync("سندی برای چاپ وجود ندارد."); return; }
+        try
+        {
+            var headers = new[] { "ردیف", "کد حساب", "نام حساب", "شرح", "بدهکار", "بستانکار" };
+            var rows = Items.Select(r => new[]
+            {
+                r.RowNumber.ToString(), r.AccountCode, r.AccountName, r.Description ?? "",
+                r.Debit.ToString("#,##0"), r.Credit.ToString("#,##0")
+            }).ToList();
+            rows.Add(new[] { "", "", "", "جمع", TotalDebit.ToString("#,##0"), TotalCredit.ToString("#,##0") });
+
+            var title = $"سند حسابداری {VoucherNumber} — تاریخ {VoucherDate}"
+                        + (string.IsNullOrWhiteSpace(Description) ? "" : $" — {Description}");
+            var html = ReportExporter.ToHtml(new ReportTable(title, headers, rows));
+
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"سند_{VoucherNumber}_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+
+            await _dialogService.ShowSuccessAsync($"سند برای چاپ آماده شد:\n{path}");
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
 
     [RelayCommand]
     private void Cancel() => _navigationService.NavigateTo("Vouchers");

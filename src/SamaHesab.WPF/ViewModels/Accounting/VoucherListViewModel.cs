@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -156,7 +157,39 @@ public partial class VoucherListViewModel : BaseViewModel
 
     [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports");
     [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports");
-    [RelayCommand] private async Task ExportAsync() => await _dialogService.ShowInfoAsync("خروجی اکسلِ اسناد فیلترشده در حال آماده‌سازی…");
+
+    /// <summary>جدولِ گزارشِ لیستِ اسنادِ فیلترشده (مشترکِ خروجی اکسل/چاپ).</summary>
+    private ReportTable BuildListTable()
+    {
+        var headers = new[] { "شماره", "تاریخ", "نوع", "وضعیت", "بدهکار", "بستانکار", "کاربر", "شرح" };
+        var rows = Vouchers.Select(v => new[]
+        {
+            v.VoucherNumber, v.VoucherDate, v.VoucherTypeName, v.StatusName,
+            v.TotalDebit.ToString("#,##0"), v.TotalCredit.ToString("#,##0"), v.UserName, v.Description ?? ""
+        }).ToList();
+        rows.Add(new[] { "", "", "", "جمع", TotalDebit.ToString("#,##0"), TotalCredit.ToString("#,##0"), "", "" });
+        return new ReportTable($"فهرست اسناد حسابداری ({FromDate} تا {ToDate})", headers, rows);
+    }
+
+    private string SaveAndOpen(string ext, string content)
+    {
+        var dir = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+        System.IO.Directory.CreateDirectory(dir);
+        var path = System.IO.Path.Combine(dir, $"اسناد_{DateTime.Now:yyyyMMdd_HHmmss}.{ext}");
+        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        return path;
+    }
+
+    /// <summary>خروجیِ اکسل (CSV) از فهرستِ اسنادِ فیلترشده.</summary>
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        if (Vouchers.Count == 0) { await _dialogService.ShowWarningAsync("سندی برای خروجی وجود ندارد."); return; }
+        try { var p = SaveAndOpen("csv", ReportExporter.ToCsv(BuildListTable())); await _dialogService.ShowSuccessAsync($"خروجی اکسل ذخیره شد:\n{p}"); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
 
     [RelayCommand]
     private void EditVoucher()
@@ -192,11 +225,13 @@ public partial class VoucherListViewModel : BaseViewModel
         });
     }
 
+    /// <summary>چاپِ فهرستِ اسنادِ فیلترشده (HTML راست‌چینِ قابل‌چاپ).</summary>
     [RelayCommand]
     private async Task PrintVoucherAsync()
     {
-        if (SelectedVoucher == null) return;
-        await _dialogService.ShowInfoAsync("در حال آماده‌سازی چاپ سند...");
+        if (Vouchers.Count == 0) { await _dialogService.ShowWarningAsync("سندی برای چاپ وجود ندارد."); return; }
+        try { var p = SaveAndOpen("html", ReportExporter.ToHtml(BuildListTable())); await _dialogService.ShowSuccessAsync($"فهرست برای چاپ آماده شد:\n{p}"); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 }
 

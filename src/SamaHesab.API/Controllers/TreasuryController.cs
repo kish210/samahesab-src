@@ -30,6 +30,16 @@ public class TreasuryController : ControllerBase
         return r.Succeeded ? Ok(new { voucherId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
 
+    /// <summary>سندِ تسویهٔ بین‌شعبه (انتقالِ وجه بین دو شعبه — دو سندِ قطعیِ متوازن با حساب فی‌مابین).</summary>
+    [HttpPost("interbranch-transfer")]
+    public async Task<IActionResult> InterBranchTransfer([FromBody] CreateInterBranchTransferCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded
+            ? Ok(new { fromVoucherId = r.Value!.FromVoucherId, toVoucherId = r.Value.ToVoucherId, reference = r.Value.Reference })
+            : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>فهرست دریافتنی‌ها (مشتریان بدهکار، مرتب بر مبلغ).</summary>
     [HttpGet("receivables")]
     public async Task<IActionResult> Receivables([FromQuery] int max, CancellationToken ct)

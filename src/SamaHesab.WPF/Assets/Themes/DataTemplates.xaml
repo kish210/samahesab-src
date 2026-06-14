@@ -28,6 +28,7 @@
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tr:InterBranchTransferViewModel}"><vtr:InterBranchTransferView/></DataTemplate>
 
     <!-- Dashboard -->
     <DataTemplate DataType="{x:Type dash:DashboardViewModel}">

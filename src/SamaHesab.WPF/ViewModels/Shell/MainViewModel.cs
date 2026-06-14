@@ -94,6 +94,7 @@ public partial class MainViewModel : BaseViewModel
             ["ChartOfAccounts"] = ("نمودار حساب‌ها",      sp => sp.GetRequiredService<ChartOfAccountsViewModel>()),
             ["Cheques"]         = ("مدیریت چک",           sp => sp.GetRequiredService<ChequeListViewModel>()),
             ["Receivables"]     = ("دریافتنی/پرداختنی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>()),
+            ["InterBranch"]     = ("تسویهٔ بین‌شعبه",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>()),
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),
             ["AccDimensions"]   = ("ابعاد حسابداری",      sp => sp.GetRequiredService<AccountingDimensionsViewModel>()),

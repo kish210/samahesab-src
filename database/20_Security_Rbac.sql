@@ -18,8 +18,26 @@ CREATE TABLE Sec.Roles (
     UpdatedAt  DATETIME2
 );
 GO
+-- سازگاری با drift: اگر Sec.Roles از اسکیمای قدیمیِ 02_CreateTables ساخته شده باشد،
+-- ستون‌های CompanyId/UpdatedAt را ندارد → ایندکس و seedِ زیر می‌شکند. idempotent ALTER:
+IF OBJECT_ID('Sec.Roles','U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH('Sec.Roles','CompanyId') IS NULL ALTER TABLE Sec.Roles ADD CompanyId INT NOT NULL DEFAULT 1;
+    IF COL_LENGTH('Sec.Roles','UpdatedAt') IS NULL ALTER TABLE Sec.Roles ADD UpdatedAt DATETIME2 NULL;
+END
+GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_Roles_Company_Code')
     CREATE UNIQUE INDEX UX_Roles_Company_Code ON Sec.Roles(CompanyId, Code);
+GO
+
+-- drop legacy: جدول‌های نگاشتِ RBACِ قدیمی (از 02_CreateTables) مدلِ ناسازگار با EF دارند
+-- (RolePermissions: PermissionId+بیت‌فلگ بدونِ Id/PermissionCode · UserRoles: بدونِ Id).
+-- چون کدِ فعلی از آن‌ها استفاده نمی‌کند (و seedِ زیر دوباره می‌سازد)، با اسکیمای جدید بازساخته می‌شوند.
+IF OBJECT_ID('Sec.RolePermissions','U') IS NOT NULL AND COL_LENGTH('Sec.RolePermissions','PermissionCode') IS NULL
+    DROP TABLE Sec.RolePermissions;
+GO
+IF OBJECT_ID('Sec.UserRoles','U') IS NOT NULL AND COL_LENGTH('Sec.UserRoles','Id') IS NULL
+    DROP TABLE Sec.UserRoles;
 GO
 
 IF OBJECT_ID('Sec.RolePermissions', 'U') IS NULL

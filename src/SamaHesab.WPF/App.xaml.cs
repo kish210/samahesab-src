@@ -178,6 +178,12 @@ public partial class App : System.Windows.Application
                 Log.Information("اتصال پایگاه داده: {Ok}", ok ? "برقرار" : "ناموفق");
                 if (ok)
                 {
+                    // مهاجرت‌های افزایشیِ DB را idempotent اجرا کن تا DBِ کاربر هیچ‌وقت از اسکیما عقب نماند
+                    // (ریشهٔ کرش‌های «Invalid column/object name»). فقط اسکریپت‌های 11+ و یک‌بار هرکدام.
+                    await SamaHesab.Infrastructure.Data.DatabaseMigrator.RunAsync(
+                        Services.AppSettingsStore.GetConnectionString(),
+                        msg => Log.Information("[DB-migrate] {Msg}", msg));
+
                     // Ensure a default admin exists so DB-backed login works on a fresh DB.
                     await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
                 }

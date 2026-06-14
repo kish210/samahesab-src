@@ -6,6 +6,10 @@
     <RootNamespace>SamaHesab.Infrastructure</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- اسکریپت‌های مهاجرتِ DB به‌صورتِ منبعِ توکار (برای DatabaseMigratorِ زمانِ استارت‌آپ) -->
+    <EmbeddedResource Include="..\..\database\*.sql" Link="database\%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\SamaHesab.Application\SamaHesab.Application.csproj" />
     <ProjectReference Include="..\SamaHesab.Domain\SamaHesab.Domain.csproj" />
   </ItemGroup>

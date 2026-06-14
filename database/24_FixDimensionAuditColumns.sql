@@ -28,6 +28,8 @@ BEGIN
 END
 GO
 
+-- توجه (C2 @2026-06-14): جدولِ FiscalYears در اسکیمای **Cfg** است نه Acc؛ بلوکِ قبلی
+-- (Acc.FiscalYears) هیچ‌گاه اجرا نمی‌شد. هر دو اسکیمای ممکن پوشش داده شد تا idempotent بماند.
 IF OBJECT_ID('Acc.FiscalYears','U') IS NOT NULL
 BEGIN
     IF COL_LENGTH('Acc.FiscalYears','StartDate') IS NULL ALTER TABLE Acc.FiscalYears ADD StartDate NVARCHAR(10) NOT NULL DEFAULT '';
@@ -36,6 +38,17 @@ BEGIN
     IF COL_LENGTH('Acc.FiscalYears','IsActive')  IS NULL ALTER TABLE Acc.FiscalYears ADD IsActive  BIT NOT NULL DEFAULT 1;
     IF COL_LENGTH('Acc.FiscalYears','CreatedAt') IS NULL ALTER TABLE Acc.FiscalYears ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE();
     IF COL_LENGTH('Acc.FiscalYears','UpdatedAt') IS NULL ALTER TABLE Acc.FiscalYears ADD UpdatedAt DATETIME2 NULL;
+END
+GO
+
+IF OBJECT_ID('Cfg.FiscalYears','U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH('Cfg.FiscalYears','StartDate') IS NULL ALTER TABLE Cfg.FiscalYears ADD StartDate NVARCHAR(10) NOT NULL DEFAULT '';
+    IF COL_LENGTH('Cfg.FiscalYears','EndDate')   IS NULL ALTER TABLE Cfg.FiscalYears ADD EndDate   NVARCHAR(10) NOT NULL DEFAULT '';
+    IF COL_LENGTH('Cfg.FiscalYears','IsClosed')  IS NULL ALTER TABLE Cfg.FiscalYears ADD IsClosed  BIT NOT NULL DEFAULT 0;
+    IF COL_LENGTH('Cfg.FiscalYears','IsActive')  IS NULL ALTER TABLE Cfg.FiscalYears ADD IsActive  BIT NOT NULL DEFAULT 1;
+    IF COL_LENGTH('Cfg.FiscalYears','CreatedAt') IS NULL ALTER TABLE Cfg.FiscalYears ADD CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE();
+    IF COL_LENGTH('Cfg.FiscalYears','UpdatedAt') IS NULL ALTER TABLE Cfg.FiscalYears ADD UpdatedAt DATETIME2 NULL;
 END
 GO
 

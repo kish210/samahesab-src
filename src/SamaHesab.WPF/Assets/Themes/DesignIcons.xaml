@@ -67,4 +67,5 @@
     <PathGeometry x:Key="IcLines" Figures="M3,6 H21 M3,12 H21 M3,18 H21"/>
     <PathGeometry x:Key="IcDownload" Figures="M12,3 V15 m0,0 4,-4 m-4,4 -4,-4 M4,17 V19 a2,2 0 0 0 2,2 H18 a2,2 0 0 0 2,-2 V17"/>
     <PathGeometry x:Key="IcPrinter" Figures="M6,9 V3 H18 V9 M6,18 H4 a2,2 0 0 1 -2,-2 V13 a2,2 0 0 1 2,-2 H20 a2,2 0 0 1 2,2 V16 a2,2 0 0 1 -2,2 H18 M6,14 H18 V21 H6 z"/>
+    <PathGeometry x:Key="IcSave" Figures="M19,21 H5 a2,2 0 0 1 -2,-2 V5 a2,2 0 0 1 2,-2 H16 L21,8 V19 a2,2 0 0 1 -2,2 z M17,21 V13 H7 V21 M7,3 V8 H15"/>
 </ResourceDictionary>

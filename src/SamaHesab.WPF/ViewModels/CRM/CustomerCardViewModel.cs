@@ -17,6 +17,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
 {
     private readonly IMediator _mediator;
     private readonly IRepository<Customer> _customers;
+    private readonly IRepository<SamaHesab.Domain.Entities.Accounting.Cheque> _cheques;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -47,6 +48,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private decimal _averagePerInvoice;
     [ObservableProperty] private int _loyaltyPoints;
     [ObservableProperty] private int _settlementDays;      // R16: مهلت/میانگین تسویه (روز)
+    [ObservableProperty] private decimal _chequeInProgress;  // R16/کارِ۱۰: مجموعِ چکِ دریافتیِ در جریانِ مشتری
     [ObservableProperty] private string? _lastInvoiceDate;
 
     // ── گردش حساب ──
@@ -57,11 +59,12 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private bool _hasData;
 
     public CustomerCardViewModel(IMediator mediator, IRepository<Customer> customers,
+        IRepository<SamaHesab.Domain.Entities.Accounting.Cheque> cheques,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _customers = customers;
+        _mediator = mediator; _customers = customers; _cheques = cheques;
         _currentUser = currentUser; _calendar = calendar;
     }
 
@@ -97,6 +100,12 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             LoyaltyPoints = c.LoyaltyPoints;
             SettlementDays = c.CreditDays;        // R16: مهلت تسویه (روز)
             StatusLabel = c.IsActive ? "فعال" : "غیرفعال";
+
+            // R16/کارِ ۱۰: چکِ دریافتیِ در جریانِ این مشتری (بدونِ تغییرِ اسکیما — از PartyId/Status)
+            var inProc = await _cheques.FindAsync(ch => ch.PartyId == customerId
+                && ch.ChequeType == SamaHesab.Domain.Enums.ChequeType.Received
+                && ch.Status == SamaHesab.Domain.Enums.ChequeStatus.InProcess);
+            ChequeInProgress = inProc.Sum(x => x.Amount);
 
             // اعتبار
             var credit = await _mediator.Send(new GetCustomerCreditQuery(customerId));

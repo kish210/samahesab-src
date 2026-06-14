@@ -163,6 +163,7 @@
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
@@ -180,6 +181,10 @@
                     <Border Grid.Column="6" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
                         <StackPanel><TextBlock Text="امتیاز وفاداری" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
                             <TextBlock Text="{Binding LoyaltyPoints, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="#B18A5A" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
+                    </Border>
+                    <Border Grid.Column="8" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                        <StackPanel><TextBlock Text="چک در جریان" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding ChequeInProgress, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold" Foreground="{StaticResource ErpWarning700}" FlowDirection="LeftToRight" Margin="0,3,0,0"/></StackPanel>
                     </Border>
                 </Grid>
 

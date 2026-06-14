@@ -1,14 +1,14 @@
 ﻿; =============================================================================
 ; SAMA HESAB ERP - Inno Setup Installer Script
 ; سامانه جامع سما حساب - اسکریپت نصب
-; Version 1.0.0
+; Version 2.0.0
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "1.0.0"
+#define MyAppVersion   "2.0.0"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
-#define MyAppExeName   "SamaHesab.WPF.exe"
+#define MyAppExeName   "SamaHesab.exe"
 #define MyAppId        "{{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 
 [Setup]
@@ -220,7 +220,7 @@ begin
         '  "Logging": {' + #13#10 +
         '    "LogLevel": { "Default": "Information" }' + #13#10 +
         '  },' + #13#10 +
-        '  "App": { "Version": "1.0.0", "DefaultTheme": "Dark" }' + #13#10 +
+        '  "App": { "Version": "2.0.0", "DefaultTheme": "Dark" }' + #13#10 +
         '}';
 
       SaveStringToFile(AppSettingsPath, Content, False);

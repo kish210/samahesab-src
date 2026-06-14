@@ -344,6 +344,20 @@ public partial class WaiterViewModel : BaseViewModel
         catch { /* عدم وجود پرینتر نباید جلوی ارسال به آشپزخانه را بگیرد */ }
     }
 
+    /// <summary>T15 — تقسیمِ صورت‌حساب: جمعِ کل را بین n نفر مساوی تقسیم و سهمِ هر نفر را نشان می‌دهد.</summary>
+    [RelayCommand]
+    private async Task SplitBillAsync()
+    {
+        if (CurrentOrderId == 0 || GrandTotal <= 0) { await _dialogService.ShowWarningAsync("سفارشی برای تقسیم نیست."); return; }
+        var def = Math.Max(1, CurrentSeats).ToString();
+        var input = await _dialogService.PromptAsync("صورت‌حساب بین چند نفر تقسیم شود؟", "تقسیم صورت‌حساب", def);
+        if (string.IsNullOrWhiteSpace(input)) return;
+        if (!int.TryParse(input.Trim(), out var n) || n < 1) { await _dialogService.ShowErrorAsync("تعداد نفرات نامعتبر است."); return; }
+        var perHead = Math.Ceiling(GrandTotal / n);
+        await _dialogService.ShowInfoAsync(
+            $"جمع کل: {GrandTotal:N0} ریال\nتعداد نفرات: {n}\nسهمِ هر نفر: {perHead:N0} ریال");
+    }
+
     [RelayCommand]
     private async Task SettleAsync()
     {

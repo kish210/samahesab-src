@@ -215,22 +215,58 @@ public class ConnectionSettingsWindow : Window
     private async Task TestAsync()
     {
         _status.Foreground = Brushes.Khaki;
-        _status.Text = "در حال آزمایش اتصال...";
-        var cs = BuildConnectionString();
+        _status.Text = "در حال آزمایش دسترس‌پذیریِ سرور...";
+
+        // فقط «دسترس‌پذیریِ سرور» را با آدرس/نامِ سرور بررسی می‌کنیم — نیازی به نام‌کاربری/رمز نیست.
+        // به master وصل می‌شویم؛ اگر سرور پاسخ دهد (حتی با خطای احراز هویت) یعنی آدرس/نام درست است.
+        var b = new SqlConnectionStringBuilder
+        {
+            DataSource = _server.Text.Trim(),
+            InitialCatalog = "master",
+            TrustServerCertificate = true,
+            Encrypt = false,
+            ConnectTimeout = 5
+        };
+        if (_winAuth.IsChecked == true || string.IsNullOrWhiteSpace(_user.Text))
+        {
+            b.IntegratedSecurity = true;   // بدونِ user/pass
+        }
+        else
+        {
+            b.UserID = _user.Text.Trim();
+            b.Password = _password.Password;
+        }
+
         try
         {
             await Task.Run(() =>
             {
-                using var conn = new SqlConnection(cs);
+                using var conn = new SqlConnection(b.ConnectionString);
                 conn.Open();
             });
             _status.Foreground = Brushes.LightGreen;
-            _status.Text = "✅ اتصال با موفقیت برقرار شد.";
+            _status.Text = "✅ سرور در دسترس است و اتصال برقرار شد.";
+        }
+        catch (SqlException ex)
+        {
+            // خطاهای احراز هویت/دیتابیس یعنی سرور پاسخ داده ⇒ آدرس/نامِ سرور درست است.
+            bool reachable = ex.Number is 18456 or 18452 or 4060 or 916 or 40615 or 233;
+            if (reachable)
+            {
+                _status.Foreground = Brushes.LightGreen;
+                _status.Text = "✅ سرور در دسترس است (آدرس/نامِ سرور درست است). " +
+                               "برای ورود، نام‌کاربری و رمز را در فرمِ لاگین وارد کنید.";
+            }
+            else
+            {
+                _status.Foreground = Brushes.IndianRed;
+                _status.Text = "❌ سرور در دسترس نیست (آدرس/نامِ سرور را بررسی کنید): " + ex.Message;
+            }
         }
         catch (Exception ex)
         {
             _status.Foreground = Brushes.IndianRed;
-            _status.Text = "❌ خطا در اتصال: " + ex.Message;
+            _status.Text = "❌ خطا در آزمایش: " + ex.Message;
         }
     }
 

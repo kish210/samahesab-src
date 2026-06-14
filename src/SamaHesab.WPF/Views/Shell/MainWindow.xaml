@@ -17,6 +17,7 @@
     <mah:MetroWindow.Resources>
         <conv:NavActiveToVisibilityConverter x:Key="NavActive"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
 
         <!-- آیتم‌های فهرست بازشونده‌ی منوی بالا: متن تیره روی پس‌زمینه‌ی روشن (خوانا) -->
         <Style TargetType="MenuItem">
@@ -279,20 +280,22 @@
                     </Grid>
                 </Border>
 
-                <!-- آیکون‌ها -->
+                <!-- آیکون‌ها (مطابق طرح: ماشین‌حساب · راهنما · اعلان‌ها با نقطهٔ پینگ) -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource TbIc}" Command="{Binding OpenCalculatorCommand}" ToolTip="ماشین حساب">
                         <materialDesign:PackIcon Kind="Calculator" Width="19" Height="19"/>
                     </Button>
-                    <Button Style="{StaticResource TbIc}" Command="{Binding ShowMessagesCommand}" ToolTip="پیام‌ها">
-                        <materialDesign:Badged Badge="{Binding MessageCount}" BadgeColorZoneMode="SecondaryMid">
-                            <materialDesign:PackIcon Kind="EmailOutline" Width="19" Height="19"/>
-                        </materialDesign:Badged>
+                    <Button Style="{StaticResource TbIc}" ToolTip="راهنما">
+                        <materialDesign:PackIcon Kind="HelpCircleOutline" Width="19" Height="19"/>
                     </Button>
                     <Button Style="{StaticResource TbIc}" Command="{Binding ShowNotificationsCommand}" ToolTip="اعلان‌ها">
-                        <materialDesign:Badged Badge="{Binding NotificationCount}" BadgeColorZoneMode="SecondaryMid">
-                            <materialDesign:PackIcon Kind="BellOutline" Width="19" Height="19"/>
-                        </materialDesign:Badged>
+                        <Grid Width="22" Height="22">
+                            <materialDesign:PackIcon Kind="BellOutline" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <!-- نقطهٔ پینگِ ساده (به‌جای بج عددی) -->
+                            <Ellipse Width="7" Height="7" Fill="{StaticResource ErpGold500}" Stroke="{StaticResource ErpBlue700}" StrokeThickness="1.5"
+                                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,1,0"
+                                     Visibility="{Binding NotificationCount, Converter={StaticResource GtzVis}}"/>
+                        </Grid>
                     </Button>
                 </StackPanel>
 

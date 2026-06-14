@@ -68,6 +68,7 @@
     <DataTemplate DataType="{x:Type pur:PurchaseReportViewModel}"><vpur:PurchaseReportView/></DataTemplate>
 
     <!-- Purchase -->
+    <DataTemplate DataType="{x:Type pur:SupplierStatementViewModel}"><vpur:SupplierStatementView/></DataTemplate>
     <DataTemplate DataType="{x:Type pur:PurchaseInvoiceEditViewModel}"><vpur:PurchaseInvoiceEditView/></DataTemplate>
 
     <!-- POS -->

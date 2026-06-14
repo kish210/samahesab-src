@@ -1,0 +1,82 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Purchase.SupplierStatementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="{StaticResource ErpAppBg}">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+    </UserControl.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- نوار انتخاب -->
+            <RowDefinition Height="*"/>      <!-- گرید -->
+            <RowDefinition Height="Auto"/>   <!-- فوتر جمع -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══ نوار: تأمین‌کننده + بازهٔ تاریخ ═══ -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,0,0,6">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IcBook}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" Stroke="{StaticResource ErpBlue700}"/>
+                    <TextBlock Text="صورت‌حساب تأمین‌کننده" FontSize="14" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBlock Text="تأمین‌کننده" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Width="240" Height="28" ItemsSource="{Binding Suppliers}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                              SelectedValue="{Binding SelectedSupplierId}" IsEditable="True"/>
+                    <TextBlock Text="از" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="92" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    <TextBlock Text="تا" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,4,0"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="92" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    <Button Style="{StaticResource ErpBtnPrimary}" Height="28" Padding="16,0" Margin="10,0,0,0" Content="نمایش" Command="{Binding RunCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ گرید تراکنش‌ها با ماندهٔ غلتان ═══ -->
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      ItemsSource="{Binding Rows}" RowHeight="28" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="100"/>
+                    <DataGridTextColumn Header="نوع سند" Binding="{Binding DocType}" Width="110"/>
+                    <DataGridTextColumn Header="شماره" Binding="{Binding DocNumber}" Width="110"/>
+                    <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat={}{0:#,##0}}" Width="120">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat={}{0:#,##0}}" Width="120">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="130">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ═══ فوتر جمع ═══ -->
+        <Border Grid.Row="2" Background="{StaticResource ErpBlue700}" CornerRadius="6" Padding="12,8" Margin="0,6,0,0"
+                Visibility="{Binding HasData, Converter={StaticResource BoolVis}}">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding SupplierName}" Foreground="White" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="جمع بدهکار:" Foreground="#BAC5DD" FontSize="11.5" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalDebit, Converter={StaticResource Num}}" Foreground="White" FontWeight="Bold" FlowDirection="LeftToRight" Margin="4,0,16,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="جمع بستانکار:" Foreground="#BAC5DD" FontSize="11.5" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalCredit, Converter={StaticResource Num}}" Foreground="White" FontWeight="Bold" FlowDirection="LeftToRight" Margin="4,0,16,0" VerticalAlignment="Center"/>
+                    <Border Background="#33FFFFFF" CornerRadius="5" Padding="10,3">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="ماندهٔ نهایی:" Foreground="White" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ClosingBalance, Converter={StaticResource Num}}" Foreground="White" FontWeight="Bold" FontSize="15" FlowDirection="LeftToRight" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

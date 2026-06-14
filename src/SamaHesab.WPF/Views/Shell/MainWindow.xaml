@@ -197,6 +197,7 @@
                                 <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
                                 <MenuItem Header="لیست خریدها" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoiceList"/>
                                 <MenuItem Header="گزارش خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseReport"/>
+                                <MenuItem Header="صورت‌حساب تأمین‌کننده" Command="{Binding NavigateCommand}" CommandParameter="SupplierStatement"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

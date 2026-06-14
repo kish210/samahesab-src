@@ -115,17 +115,22 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         await LoadQuickAccountsAsync();
     }
 
-    /// <summary>بارگذاریِ حساب‌های پرکاربرد (سنجاق‌شده) + اخیر برای نوارِ دسترسیِ سریع.</summary>
+    /// <summary>بارگذاریِ حساب‌های پرکاربرد (سنجاق‌شده) + اخیر برای نوارِ دسترسیِ سریع.
+    /// قابلیتِ اختیاری است؛ اگر جدولِ Favorites نبود/خطا داد، صفحهٔ سند نباید کرش کند.</summary>
     private async Task LoadQuickAccountsAsync()
     {
         QuickAccounts.Clear();
-        var pinned = await _mediator.Send(new GetPinnedItemsQuery("account"));
-        var recent = await _mediator.Send(new GetRecentItemsQuery("account", 8));
-        var seen = new HashSet<int>();
-        foreach (var p in pinned)
-            if (seen.Add(p.EntityId)) QuickAccounts.Add(new AccountChip(p.EntityId, p.Label, true) { Balance = Bal(p.EntityId) });
-        foreach (var r in recent)
-            if (seen.Add(r.EntityId)) QuickAccounts.Add(new AccountChip(r.EntityId, r.Label, false) { Balance = Bal(r.EntityId) });
+        try
+        {
+            var pinned = await _mediator.Send(new GetPinnedItemsQuery("account"));
+            var recent = await _mediator.Send(new GetRecentItemsQuery("account", 8));
+            var seen = new HashSet<int>();
+            foreach (var p in pinned)
+                if (seen.Add(p.EntityId)) QuickAccounts.Add(new AccountChip(p.EntityId, p.Label, true) { Balance = Bal(p.EntityId) });
+            foreach (var r in recent)
+                if (seen.Add(r.EntityId)) QuickAccounts.Add(new AccountChip(r.EntityId, r.Label, false) { Balance = Bal(r.EntityId) });
+        }
+        catch { /* دسترسیِ سریع اختیاری است — نبودِ داده/جدول نباید فرمِ سند را از کار بیندازد */ }
     }
 
     private decimal Bal(int accountId) => _accountBalances.TryGetValue(accountId, out var b) ? b : 0m;

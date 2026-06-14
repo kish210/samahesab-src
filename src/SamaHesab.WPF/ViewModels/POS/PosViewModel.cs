@@ -49,6 +49,11 @@ public partial class PosViewModel : BaseViewModel
     [ObservableProperty] private string _quickSearch = string.Empty;
     private List<PosProductTile> _allProducts = new();
 
+    // U9 — کالاهای محبوب/پرتکرار (سنجاق‌شده‌ها اول، سپس اخیرها) برای دسترسی سریع در صندوق.
+    // دستهٔ مجازیِ id=-2 «⭐ محبوب» این فهرست را نمایش می‌دهد.
+    private const int FavoriteCategoryId = -2;
+    private List<int> _favoriteIds = new();
+
     private readonly System.Windows.Threading.DispatcherTimer _timer;
 
     public PosViewModel(IProductRepository productRepo,
@@ -86,14 +91,51 @@ public partial class PosViewModel : BaseViewModel
             try { foreach (var g in (await _groupRepo.FindAsync(g => g.CompanyId == companyId)).OrderBy(g => g.Code)) Categories.Add(new PosCategoryTile(g.Id, g.Name)); }
             catch { }
         }
+
+        await LoadFavoritesAsync();
         ApplyFilter();
+    }
+
+    /// <summary>U9 — بارگذاریِ کالاهای محبوب/اخیر؛ اگر آیتمی بود، دستهٔ «⭐ محبوب» به ابتدا افزوده می‌شود.</summary>
+    private async Task LoadFavoritesAsync()
+    {
+        try
+        {
+            List<int> pinned, recent;
+            if (UseApi)
+            {
+                pinned = (await _api.GetPinnedItemsAsync("product")).Select(i => i.EntityId).ToList();
+                recent = (await _api.GetRecentItemsAsync("product", 16)).Select(i => i.EntityId).ToList();
+            }
+            else
+            {
+                pinned = (await _mediator.Send(new SamaHesab.Application.Common.Favorites.GetPinnedItemsQuery("product"))).Select(i => i.EntityId).ToList();
+                recent = (await _mediator.Send(new SamaHesab.Application.Common.Favorites.GetRecentItemsQuery("product", 16))).Select(i => i.EntityId).ToList();
+            }
+            // سنجاق‌شده‌ها اول، سپس اخیرها — بدونِ تکرار، و فقط کالاهایی که واقعاً در فهرست هستند.
+            var valid = _allProducts.Select(p => p.Id).ToHashSet();
+            _favoriteIds = pinned.Concat(recent).Distinct().Where(valid.Contains).ToList();
+            if (_favoriteIds.Count > 0 && Categories.All(c => c.Id != FavoriteCategoryId))
+                Categories.Insert(1, new PosCategoryTile(FavoriteCategoryId, "⭐ محبوب"));
+        }
+        catch { /* بهره‌وری؛ نبودش نباید صندوق را خراب کند */ }
     }
 
     private void ApplyFilter()
     {
         Products.Clear();
-        IEnumerable<PosProductTile> q = _allProducts;
-        if (SelectedCategoryId != -1) q = q.Where(p => p.GroupId == SelectedCategoryId);
+        IEnumerable<PosProductTile> q;
+        if (SelectedCategoryId == FavoriteCategoryId)
+        {
+            // ترتیبِ محبوب‌ها حفظ شود (سنجاق‌شده‌ها اول).
+            var rank = _favoriteIds.Select((id, idx) => (id, idx)).ToDictionary(x => x.id, x => x.idx);
+            q = _allProducts.Where(p => rank.ContainsKey(p.Id)).OrderBy(p => rank[p.Id]);
+        }
+        else
+        {
+            q = _allProducts;
+            if (SelectedCategoryId != -1) q = q.Where(p => p.GroupId == SelectedCategoryId);
+        }
         if (!string.IsNullOrWhiteSpace(QuickSearch))
             q = q.Where(p => p.Name.Contains(QuickSearch) || p.Code.Contains(QuickSearch));
         foreach (var p in q.Take(60)) Products.Add(p);
@@ -122,6 +164,14 @@ public partial class PosViewModel : BaseViewModel
             CartItems.Add(item);
         }
         RecalculateTotals();
+        TouchProduct(tile.Id, tile.Name);   // U9 — ثبت استفاده تا فهرستِ «محبوب» به‌روز بماند
+    }
+
+    /// <summary>U9 — ثبتِ best-effortِ استفاده از کالا (به‌روزرسانیِ فهرستِ اخیر/محبوب). فروش را بلاک نمی‌کند.</summary>
+    private void TouchProduct(int productId, string name)
+    {
+        if (UseApi) _ = _api.TouchRecentAsync("product", productId, name);
+        else _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", productId, name));
     }
 
     [RelayCommand] private void IncItem(PosCartItem? i) { if (i != null) { i.Quantity++; i.Recalculate(); RecalculateTotals(); } }
@@ -158,6 +208,7 @@ public partial class PosViewModel : BaseViewModel
             CartItems.Add(item);
         }
         RecalculateTotals();
+        TouchProduct(hit.Value.Id, hit.Value.Name);   // U9
         BarcodeInput = string.Empty;
     }
 

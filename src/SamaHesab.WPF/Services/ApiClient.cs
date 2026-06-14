@@ -30,6 +30,9 @@ public record ApiBarcodeHit(int ProductId, string Code, string Name, decimal Sal
 public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, decimal CardSales,
     int SalesCount, decimal ExpectedCash, decimal CountedCash, decimal Variance);
 
+// ── Favorites / بهره‌وری (آیتم‌های اخیر و سنجاق‌شده) DTO — match Application ItemRefDto ──
+public record ApiItemRef(int EntityId, string Label, bool Pinned, int UseCount);
+
 // ── Warehouse (v2 — Phase 2) DTOs ──
 public record ApiWarehouse(int Id, string Name);
 public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
@@ -126,6 +129,26 @@ public class ApiClient
             return (false, 0, err?.message ?? $"خطای سرور ({(int)resp.StatusCode})");
         }
         catch (Exception ex) { return (false, 0, ex.GetBaseException().Message); }
+    }
+
+    // ── Favorites / بهره‌وری (#38 پشتیبان) — آیتم‌های اخیر/سنجاق‌شده‌ی هر نوع ──
+    public async Task<List<ApiItemRef>> GetRecentItemsAsync(string entityType, int top = 10)
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiItemRef>>($"/api/favorites/recent/{entityType}?top={top}") ?? new(); }
+        catch { return new(); }
+    }
+
+    public async Task<List<ApiItemRef>> GetPinnedItemsAsync(string entityType)
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiItemRef>>($"/api/favorites/pinned/{entityType}") ?? new(); }
+        catch { return new(); }
+    }
+
+    /// <summary>ثبت استفاده از یک آیتم (به‌روزرسانی فهرست اخیر/شمارش استفاده). best-effort.</summary>
+    public async Task TouchRecentAsync(string entityType, int entityId, string label)
+    {
+        try { await _http.PostAsJsonAsync("/api/favorites/touch", new { entityType, entityId, label }); }
+        catch { /* بهره‌وری؛ شکستش نباید فروش را متوقف کند */ }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

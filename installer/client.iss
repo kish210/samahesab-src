@@ -70,18 +70,22 @@ begin
     'آدرس سرور را به‌صورت http://آی‌پی‌سرور:5080 وارد کنید. ' +
     'بعداً هم می‌توانید از دکمه‌ی «تنظیمات اتصال به سرور» در صفحه‌ی ورود آن را تغییر دهید.');
   ServerPage.Add('آدرس سرور (Base URL):', False);
+  ServerPage.Add('شناسهٔ شعبهٔ این کلاینت (عدد):', False);
   ServerPage.Values[0] := 'http://192.168.1.10:5080';
+  ServerPage.Values[1] := '1';
 end;
 
 // پس از نصب: نوشتن آدرس سرور در تنظیمات کاربر تا کلاینت بداند به کجا وصل شود
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  Dir, Url, Json: String;
+  Dir, Url, Branch, Json: String;
 begin
   if CurStep = ssPostInstall then
   begin
     Url := ServerPage.Values[0];
     StringChangeEx(Url, '\', '\\', True);
+    Branch := Trim(ServerPage.Values[1]);
+    if Branch = '' then Branch := '1';
     Dir := ExpandConstant('{userappdata}\SamaHesab');
     ForceDirectories(Dir);
     // فقط اگر تنظیمات از قبل وجود ندارد بنویس تا پیکربندی موجود پاک نشود
@@ -91,7 +95,8 @@ begin
       Json :=
         '{' + #13#10 +
         '  "Api": {' + #13#10 +
-        '    "BaseUrl": "' + Url + '"' + #13#10 +
+        '    "BaseUrl": "' + Url + '",' + #13#10 +
+        '    "BranchId": ' + Branch + #13#10 +
         '  }' + #13#10 +
         '}';
       SaveStringToFile(Dir + '\settings.user.json', Json, False);

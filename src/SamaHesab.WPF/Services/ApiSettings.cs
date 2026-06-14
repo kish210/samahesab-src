@@ -11,4 +11,5 @@ public class ApiSettings
     public string Password { get; set; } = "admin123";
     public int CustomerId { get; set; } = 1;   // walk-in customer
     public int WarehouseId { get; set; } = 1;   // default warehouse
+    public int BranchId { get; set; } = 1;      // شعبهٔ پیش‌فرضِ این نصب (از نصاب نوشته می‌شود)
 }

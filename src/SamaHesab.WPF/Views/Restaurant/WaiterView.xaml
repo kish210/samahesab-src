@@ -111,19 +111,27 @@
                 <RowDefinition Height="Auto"/>   <!-- menu grid -->
             </Grid.RowDefinitions>
 
-            <!-- تب سالن‌ها -->
-            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,10">
-                <ItemsControl ItemsSource="{Binding Halls}">
-                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Style="{StaticResource Chip}" Content="{Binding Name}"
-                                    Command="{Binding DataContext.SelectHallCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                    CommandParameter="{Binding}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <!-- تب سالن‌ها + راهنمای رنگِ وضعیت (OPT-12) -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <Ellipse Width="9" Height="9" Fill="#B7C0CC"/><TextBlock Text="آزاد" FontSize="11" Foreground="#64748B" Margin="3,0,10,0" VerticalAlignment="Center"/>
+                    <Ellipse Width="9" Height="9" Fill="#4B5F97"/><TextBlock Text="فعال" FontSize="11" Foreground="#64748B" Margin="3,0,10,0" VerticalAlignment="Center"/>
+                    <Ellipse Width="9" Height="9" Fill="#B18A5A"/><TextBlock Text="رزرو" FontSize="11" Foreground="#64748B" Margin="3,0,10,0" VerticalAlignment="Center"/>
+                    <Ellipse Width="9" Height="9" Fill="#C0392B"/><TextBlock Text="پیش‌حساب" FontSize="11" Foreground="#64748B" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Halls}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource Chip}" Content="{Binding Name}"
+                                        Command="{Binding DataContext.SelectHallCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
 
             <!-- شبکه‌ی میزها -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

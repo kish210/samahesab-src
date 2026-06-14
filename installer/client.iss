@@ -39,8 +39,11 @@ Name: "desktopicon"; Description: "ایجاد میانبر صندوق روی د�
 [Files]
 ; فقط برنامه‌ی کلاینت (شامل SamaHesab.exe + pos.exe + restoran.exe + رانتایم)
 Source: "..\dist\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; راهنمای کاربر (PDF)
+Source: "..\docs\SamaHesab-UserGuide.pdf"; DestDir: "{app}"; DestName: "راهنمای کاربر.pdf"; Flags: ignoreversion
 
 [Icons]
+Name: "{group}\راهنمای کاربر";              Filename: "{app}\راهنمای کاربر.pdf"; WorkingDir: "{app}"
 Name: "{group}\صندوق فروشگاه";              Filename: "{app}\{#AppExe}"; Parameters: "--pos";        WorkingDir: "{app}"
 Name: "{group}\صندوق رستوران";              Filename: "{app}\{#AppExe}"; Parameters: "--restaurant"; WorkingDir: "{app}"
 Name: "{group}\صندوق گارسون";              Filename: "{app}\{#AppExe}"; Parameters: "--waiter"; WorkingDir: "{app}"

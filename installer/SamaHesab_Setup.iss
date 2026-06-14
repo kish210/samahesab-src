@@ -54,6 +54,9 @@ Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار و�
 ; Main Application
 Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
+; User Guide (PDF) — مطابقِ آیکونِ «راهنمای کاربر»
+Source: "..\docs\SamaHesab-UserGuide.pdf"; DestDir: "{app}\docs"; DestName: "UserGuide.pdf"; Flags: ignoreversion
+
 ; SQL Scripts
 Source: "..\database\01_CreateDatabase.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 Source: "..\database\02_CreateTables.sql";   DestDir: "{app}\database"; Flags: ignoreversion

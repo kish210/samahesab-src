@@ -157,7 +157,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                         throw new InvalidOperationException(
                             $"موجودی کافی برای «{product.Name}» در انبار وجود ندارد (موجودی: {stock?.Quantity ?? 0}).");
 
-                    var unitCost = stock.AverageCost;
+                    // U10: بهای خروج برای کالاهای روشِ FIFO از لایه‌های کاردکس؛ وگرنه میانگین.
+                    var unitCost = await ComputeIssueUnitCostAsync(companyId, dto.ProductId,
+                        request.WarehouseId, dto.Quantity, stock.AverageCost, product.ValuationMethod, ct);
                     stock.RemoveStock(dto.Quantity);
                     _stockRepository.Update(stock);
 
@@ -200,6 +202,30 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             await _unitOfWork.RollbackTransactionAsync(ct);
             return Result<int>.Failure(ex.GetBaseException().Message);
         }
+    }
+
+    /// <summary>
+    /// U10 — بهای تمام‌شدهٔ یک خروج به روشِ FIFO: هزینهٔ نهاییِ مصرفِ <paramref name="qty"/> واحد
+    /// از روی لایه‌های موجود در کاردکس (StockTransactions) با موتورِ خالصِ <see cref="Inventory.FifoCostEngine"/>.
+    /// برای کالاهای میانگین‌وزنی (یا نبودِ لایه) همان <paramref name="fallbackAverage"/> برگردانده می‌شود.
+    /// </summary>
+    private async Task<decimal> ComputeIssueUnitCostAsync(int companyId, int productId, int warehouseId,
+        decimal qty, decimal fallbackAverage, Domain.Enums.ValuationMethod method, CancellationToken ct)
+    {
+        if (method != Domain.Enums.ValuationMethod.FIFO || qty <= 0) return fallbackAverage;
+
+        var prior = await _ledger.FindAsync(
+            t => t.CompanyId == companyId && t.ProductId == productId && t.WarehouseId == warehouseId, ct);
+        var movements = prior.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id)
+            .Select(t => (t.Quantity, t.UnitCost)).ToList();
+        if (movements.Count == 0) return fallbackAverage;
+
+        // هزینهٔ نهاییِ این خروج = هزینهٔ تجمعیِ پس از افزودنِ آن منهای پیش از آن.
+        var before = Inventory.FifoCostEngine.Compute(movements).IssuedCost;
+        movements.Add((-qty, 0));
+        var after = Inventory.FifoCostEngine.Compute(movements).IssuedCost;
+        var marginal = after - before;
+        return marginal > 0 ? System.Math.Round(marginal / qty, 4) : fallbackAverage;
     }
 
     private async Task TryCreateSalesVoucherAsync(SalesInvoice invoice, int companyId,

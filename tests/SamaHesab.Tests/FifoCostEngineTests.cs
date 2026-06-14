@@ -44,4 +44,28 @@ public class FifoCostEngineTests
         Assert.Equal(0, v.IssuedCost);
         Assert.Equal(0, v.RemainingQty);
     }
+
+    // U10 — قراردادِ «بهای نهاییِ یک خروج» که CreateSalesInvoiceCommand استفاده می‌کند:
+    // marginal = Compute(prior + thisIssue).IssuedCost − Compute(prior).IssuedCost
+    [Fact]
+    public void Marginal_Issue_Cost_Spans_Layers()
+    {
+        var prior = new System.Collections.Generic.List<(decimal, decimal)> { (10, 100), (10, 200) };
+        var before = FifoCostEngine.Compute(prior).IssuedCost;          // ۰ (هنوز خروجی نیست)
+        var after = FifoCostEngine.Compute(new[] { (10m, 100m), (10m, 200m), (-15m, 0m) }).IssuedCost;
+        var marginal = after - before;                                  // 10*100 + 5*200 = 2000
+        Assert.Equal(2000, marginal);
+        Assert.Equal(133.3333m, System.Math.Round(marginal / 15m, 4));  // بهای واحدِ خروج (همانندِ command)
+    }
+
+    [Fact]
+    public void Marginal_Issue_Cost_After_Prior_Issue()
+    {
+        // قبلاً ۳ واحد خارج شده؛ خروجِ جدیدِ ۹ واحد باید از لایه‌های باقی‌مانده محاسبه شود.
+        var prior = new[] { (10m, 100m), (10m, 200m), (-3m, 0m) };       // issued=300، باقی: 7@100 + 10@200
+        var before = FifoCostEngine.Compute(prior).IssuedCost;          // 300
+        var with = new System.Collections.Generic.List<(decimal, decimal)>(prior) { (-9m, 0m) };
+        var after = FifoCostEngine.Compute(with).IssuedCost;            // 300 + (7*100 + 2*200) = 300+1100
+        Assert.Equal(1100, after - before);                            // بهای ۹ واحدِ جدید
+    }
 }

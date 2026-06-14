@@ -39,12 +39,17 @@ public partial class WaiterViewModel : BaseViewModel
     [ObservableProperty] private string _statusText = string.Empty;
 
     private List<MenuTile> _allMenu = new();
+    private readonly System.Windows.Threading.DispatcherTimer _elapsedTimer;
 
     public WaiterViewModel(ApiClient api, IPrintService print, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _api = api; _print = print; _calendar = calendar;
+        // U8 — تازه‌سازیِ زمانِ سپری‌شدهٔ میزها هر ۳۰ ثانیه (بدون فراخوانِ سرور).
+        _elapsedTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _elapsedTimer.Tick += (_, _) => { foreach (var t in Tables) t.RefreshElapsed(); };
+        _elapsedTimer.Start();
     }
 
     public override async Task LoadAsync()
@@ -81,7 +86,7 @@ public partial class WaiterViewModel : BaseViewModel
         Tables.Clear();
         if (SelectedHall == null) return;
         foreach (var t in SelectedHall.Tables.OrderBy(t => t.Name))
-            Tables.Add(new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId));
+            Tables.Add(new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId, 0, t.OccupiedSince));
     }
 
     [RelayCommand]
@@ -135,7 +140,7 @@ public partial class WaiterViewModel : BaseViewModel
         if (o == null) return;
         OrderNumber = o.OrderNumber;
         foreach (var i in o.Items)
-            OrderLines.Add(new WaiterOrderLine(i.Id, i.ProductId, i.ProductName, i.Quantity, i.UnitPrice, i.LineTotal, i.Status, i.Notes));
+            OrderLines.Add(new WaiterOrderLine(i.Id, i.ProductId, i.ProductName, i.Quantity, i.UnitPrice, i.LineTotal, i.Status, i.Notes, i.StatusCode));
         SubTotal = o.SubTotal;
         GrandTotal = o.GrandTotal;
         ServiceTax = o.GrandTotal - o.SubTotal;
@@ -235,7 +240,7 @@ public partial class WaiterViewModel : BaseViewModel
 
     private IEnumerable<WaiterTable> AllTables()
         => Halls.SelectMany(h => h.Tables.Select(t =>
-            new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId)));
+            new WaiterTable(t.Id, t.Name, t.Capacity, t.Status, t.StatusCode, t.CurrentOrderId, 0, t.OccupiedSince)));
 
     /// <summary>چاپ صورتحساب میز روی پرینتر حرارتی (۸۰م م).</summary>
     [RelayCommand]
@@ -328,7 +333,7 @@ public partial class WaiterViewModel : BaseViewModel
 }
 
 public record WaiterHall(int Id, string Name, List<ApiTable> Tables);
-public record WaiterOrderLine(int Id, int ProductId, string Name, decimal Qty, decimal UnitPrice, decimal LineTotal, string Status, string? Notes);
+public record WaiterOrderLine(int Id, int ProductId, string Name, decimal Qty, decimal UnitPrice, decimal LineTotal, string Status, string? Notes, int StatusCode = 0);
 
 public partial class WaiterTable : ObservableObject
 {
@@ -344,6 +349,22 @@ public partial class WaiterTable : ObservableObject
     public bool CanToggleReserve => StatusCode == 0 || StatusCode == 2;
     public string ReserveLabel => StatusCode == 2 ? "لغو رزرو" : "رزرو";
 
-    public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId, decimal openAmount = 0)
-    { Id = id; Name = name; Capacity = capacity; Status = status; StatusCode = statusCode; CurrentOrderId = currentOrderId; OpenAmount = openAmount; }
+    // U8 — مدتِ سپری‌شده از بازشدنِ میز (برای میزِ مشغول/در حال تسویه).
+    public DateTime? OccupiedSince { get; }
+    public bool ShowElapsed => OccupiedSince is not null && (StatusCode == 1 || StatusCode == 3);
+    public string ElapsedText
+    {
+        get
+        {
+            if (OccupiedSince is not DateTime since) return string.Empty;
+            var mins = (int)Math.Max(0, (DateTime.Now - since).TotalMinutes);
+            return mins < 60 ? $"⏱ {mins} دقیقه" : $"⏱ {mins / 60}:{mins % 60:D2} ساعت";
+        }
+    }
+    /// <summary>U8 — تازه‌سازیِ نمایشِ زمانِ سپری‌شده (توسطِ تایمرِ VM فراخوانی می‌شود).</summary>
+    public void RefreshElapsed() { OnPropertyChanged(nameof(ElapsedText)); }
+
+    public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId,
+        decimal openAmount = 0, DateTime? occupiedSince = null)
+    { Id = id; Name = name; Capacity = capacity; Status = status; StatusCode = statusCode; CurrentOrderId = currentOrderId; OpenAmount = openAmount; OccupiedSince = occupiedSince; }
 }

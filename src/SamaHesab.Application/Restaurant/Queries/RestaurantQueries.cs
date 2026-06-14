@@ -12,14 +12,16 @@ public record GetHallsWithTablesQuery() : IRequest<List<HallDto>>;
 
 public record HallDto(int Id, string Name, int DisplayOrder, List<TableDto> Tables);
 public record TableDto(int Id, int HallId, string Name, int Capacity, string Status,
-    int StatusCode, int? CurrentOrderId, int PositionX, int PositionY);
+    int StatusCode, int? CurrentOrderId, int PositionX, int PositionY, DateTime? OccupiedSince);
 
 public class GetHallsWithTablesQueryHandler : IRequestHandler<GetHallsWithTablesQuery, List<HallDto>>
 {
     private readonly IRepository<Hall> _halls;
     private readonly IRepository<DiningTable> _tables;
-    public GetHallsWithTablesQueryHandler(IRepository<Hall> halls, IRepository<DiningTable> tables)
-    { _halls = halls; _tables = tables; }
+    private readonly IRestaurantOrderRepository _orders;
+    public GetHallsWithTablesQueryHandler(IRepository<Hall> halls, IRepository<DiningTable> tables,
+        IRestaurantOrderRepository orders)
+    { _halls = halls; _tables = tables; _orders = orders; }
 
     private static readonly Dictionary<TableStatus, string> StatusFa = new()
     {
@@ -31,13 +33,19 @@ public class GetHallsWithTablesQueryHandler : IRequestHandler<GetHallsWithTables
     {
         var halls = await _halls.FindAsync(h => h.IsActive, ct);
         var tables = await _tables.FindAsync(t => t.IsActive, ct);
+        // U8 — زمانِ بازشدنِ سفارشِ هر میز (برای نمایشِ مدتِ سپری‌شده روی کارتِ میز).
+        var openOrders = await _orders.FindAsync(
+            o => o.Status != RestaurantOrderStatus.Settled && o.Status != RestaurantOrderStatus.Cancelled, ct);
+        var openedByOrderId = openOrders.ToDictionary(o => o.Id, o => o.OpenedAt);
+
         return halls.OrderBy(h => h.DisplayOrder).Select(h => new HallDto(
             h.Id, h.Name, h.DisplayOrder,
             tables.Where(t => t.HallId == h.Id)
                   .OrderBy(t => t.Name)
                   .Select(t => new TableDto(t.Id, t.HallId, t.Name, t.Capacity,
                       StatusFa.GetValueOrDefault(t.Status, "?"), (int)t.Status,
-                      t.CurrentOrderId, t.PositionX, t.PositionY))
+                      t.CurrentOrderId, t.PositionX, t.PositionY,
+                      t.CurrentOrderId is int oid && openedByOrderId.TryGetValue(oid, out var at) ? at : null))
                   .ToList()
         )).ToList();
     }

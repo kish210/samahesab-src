@@ -12,7 +12,7 @@ public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, st
 // ── Restaurant (v2) DTOs — match the Application-layer query DTOs ──
 public record ApiHall(int Id, string Name, int DisplayOrder, List<ApiTable> Tables);
 public record ApiTable(int Id, int HallId, string Name, int Capacity, string Status,
-    int StatusCode, int? CurrentOrderId, int PositionX, int PositionY);
+    int StatusCode, int? CurrentOrderId, int PositionX, int PositionY, DateTime? OccupiedSince = null);
 public record ApiOrder(int Id, string OrderNumber, string OrderType, string Status, int? TableId,
     int GuestCount, decimal SubTotal, decimal Discount, decimal ServiceCharge, decimal Tax,
     decimal Tip, decimal GrandTotal, decimal PaidAmount, List<ApiOrderItem> Items);

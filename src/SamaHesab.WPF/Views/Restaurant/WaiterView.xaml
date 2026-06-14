@@ -167,6 +167,9 @@
                                     <StackPanel VerticalAlignment="Top" Margin="0,2,0,0">
                                         <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
                                         <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                                        <!-- U8: مدتِ سپری‌شده از بازشدنِ میز -->
+                                        <TextBlock Text="{Binding ElapsedText}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource ErpGold500}" FlowDirection="LeftToRight"
+                                                   Visibility="{Binding ShowElapsed, Converter={StaticResource BoolVis}}"/>
                                     </StackPanel>
                                     <!-- R17: مبلغ سفارش باز برای میز فعال؛ در غیر این صورت متن وضعیت -->
                                     <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal"
@@ -274,9 +277,26 @@
                                             <Button DockPanel.Dock="Left" Width="26" Height="26" Content="✎" FontSize="13" Cursor="Hand"
                                                     Background="White" BorderBrush="{StaticResource ErpBorder}" ToolTip="یادداشت آشپزخانه"
                                                     Command="{Binding DataContext.EditNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
-                                            <!-- نام + یادداشت -->
+                                            <!-- نام + یادداشت + وضعیتِ آشپزخانهٔ سطح‌آیتم (U8) -->
                                             <StackPanel VerticalAlignment="Center" Margin="6,0,0,0">
-                                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource ErpTextStrong}"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource ErpTextStrong}" VerticalAlignment="Center"/>
+                                                    <!-- بجِ وضعیت: در انتظار=خاکستری، آشپزخانه/درحال=آبی، آماده/سرو=طلایی -->
+                                                    <Border CornerRadius="99" Padding="7,1" Margin="6,0,0,0" VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#E5E7EB"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding StatusCode}" Value="1"><Setter Property="Background" Value="{StaticResource ErpBlue600}"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding StatusCode}" Value="2"><Setter Property="Background" Value="{StaticResource ErpBlue600}"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding StatusCode}" Value="3"><Setter Property="Background" Value="{StaticResource ErpGold500}"/></DataTrigger>
+                                                                    <DataTrigger Binding="{Binding StatusCode}" Value="4"><Setter Property="Background" Value="{StaticResource ErpGold500}"/></DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding Status}" FontSize="9.5" FontWeight="Bold" Foreground="White"/>
+                                                    </Border>
+                                                </StackPanel>
                                                 <TextBlock Text="{Binding Notes}" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}"
                                                            Visibility="{Binding Notes, Converter={StaticResource NullVis}}"/>
                                             </StackPanel>

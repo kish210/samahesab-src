@@ -155,7 +155,7 @@
                             <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0"><TextBlock Style="{StaticResource Lbl}" Text="شماره سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherNumber}" IsReadOnly="True" Background="#F3F4F6"/></StackPanel>
-                        <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Lbl}" Text="تاریخ *"/><ctl:PersianDatePicker PersianDate="{Binding VoucherDate, Mode=TwoWay}" Height="32"/></StackPanel>
+                        <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Lbl}" Text="تاریخ *"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherDate}"/></StackPanel>
                         <StackPanel Grid.Column="4"><TextBlock Style="{StaticResource Lbl}" Text="نوع سند"/>
                             <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding VoucherTypes}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedVoucherTypeId}"/></StackPanel>
                         <StackPanel Grid.Column="6"><TextBlock Style="{StaticResource Lbl}" Text="مرکز هزینه"/>
@@ -182,8 +182,10 @@
                     </DockPanel.Style>
                     <TextBlock DockPanel.Dock="Right" Text="دسترسی سریع:" FontSize="11" FontWeight="SemiBold"
                                Foreground="{StaticResource Blue700}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <!-- نوارِ افقیِ امن (ScrollViewer به‌جای WrapPanel — رفعِ احتمالِ حلقهٔ اندازه‌گیری/کرش) -->
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{Binding QuickAccounts}">
-                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="11" BorderThickness="1" Margin="0,0,5,4" Padding="2,0">
@@ -227,6 +229,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    </ScrollViewer>
                 </DockPanel>
 
                 <Grid>

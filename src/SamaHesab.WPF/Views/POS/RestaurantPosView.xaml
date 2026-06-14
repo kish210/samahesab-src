@@ -45,7 +45,7 @@
                     <TextBox Text="{Binding People}" Width="60" Height="32"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                    <materialDesign:PackIcon Kind="Magnify" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
+                    <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/>
                     <TextBox Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" Width="260" Margin="6,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding CurrentTime}" Style="{StaticResource ErpInlineLabel}" Margin="14,0,0,0"/>
                     <Button Content="⚙ سرور" Height="32" Margin="14,0,0,0" Style="{StaticResource SecondaryButton}"
@@ -129,7 +129,7 @@
                                     <DataTemplate>
                                         <Button Width="30" Height="26" Background="Transparent" BorderThickness="0"
                                                 Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}">
-                                            <materialDesign:PackIcon Kind="DeleteOutline" Foreground="{DynamicResource DangerColor}" Width="18" Height="18"/>
+                                            <Path Data="{StaticResource IcTrash}" Style="{StaticResource ErpToolSvg}" Stroke="{DynamicResource DangerColor}" Width="18" Height="18"/>
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -160,7 +160,7 @@
                         <!-- actions -->
                         <StackPanel Grid.Column="1" Width="150">
                             <Button Height="64" Background="{DynamicResource DangerColor}" Foreground="White" BorderThickness="0" Command="{Binding CheckoutCommand}">
-                                <StackPanel><materialDesign:PackIcon Kind="CheckBold" Width="24" Height="24" HorizontalAlignment="Center"/><TextBlock Text="پرداخت (F12)" TextAlignment="Center" FontWeight="Bold"/></StackPanel>
+                                <StackPanel><Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Width="24" Height="24" HorizontalAlignment="Center" Stroke="White"/><TextBlock Text="پرداخت (F12)" TextAlignment="Center" FontWeight="Bold"/></StackPanel>
                             </Button>
                             <Grid Margin="0,6,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>

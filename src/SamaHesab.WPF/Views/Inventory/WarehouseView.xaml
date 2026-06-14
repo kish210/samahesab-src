@@ -15,7 +15,7 @@
         <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Style="{StaticResource ErpToolButton}" Command="{Binding RefreshCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" TextAlignment="Center"/></StackPanel>
+                    <StackPanel><Path Data="{StaticResource IcRefresh}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" TextAlignment="Center"/></StackPanel>
                 </Button>
             </StackPanel>
         </Border>

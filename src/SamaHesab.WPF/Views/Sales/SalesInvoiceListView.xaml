@@ -19,21 +19,21 @@
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
                     <Border Width="28" Height="28" CornerRadius="6" Background="#DCE2EE">
-                        <materialDesign:PackIcon Kind="FormatListBulletedSquare" Width="17" Height="17"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Path Data="{StaticResource IcLines}" Style="{StaticResource ErpToolSvg}" Width="17" Height="17"
+                              Stroke="{DynamicResource PrimaryAccent}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="لیست فاکتورهای فروش" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding NewInvoiceCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="CartPlus" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="فاکتور جدید" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcPlusBox}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="فاکتور جدید" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding PrintCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding ExportExcelCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="MicrosoftExcel" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="خروجی اکسل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcExcel}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="خروجی اکسل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
                     </Button>
                 </StackPanel>
             </DockPanel>

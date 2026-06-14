@@ -23,15 +23,15 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding SaveCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="ذخیرهٔ قیمت‌ها" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcSave}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="ذخیرهٔ قیمت‌ها" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding RunSearchCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بازخوانی" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcRefresh}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="بازخوانی" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
+                    <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" VerticalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/>
                     <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Width="280" Margin="6,0" VerticalAlignment="Center">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding RunSearchCommand}"/></TextBox.InputBindings>
                     </TextBox>
@@ -42,7 +42,7 @@
         <!-- bulk apply strip -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="8,6">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <materialDesign:PackIcon Kind="Percent" Width="18" Height="18" VerticalAlignment="Center" Foreground="{DynamicResource WarningColor}"/>
+                <Path Data="{StaticResource IcPercent}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" VerticalAlignment="Center" Stroke="{DynamicResource WarningColor}"/>
                 <TextBlock Text="اعمالِ گروهی روی سطح:" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="150" Height="30" ItemsSource="{Binding PriceLevels}" SelectedItem="{Binding SelectedPriceLevel}"/>
                 <TextBlock Text="درصدِ تغییر (٪):" Style="{StaticResource ErpInlineLabel}" Margin="14,0,6,0"/>

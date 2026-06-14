@@ -32,16 +32,16 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewInvoiceCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="FilePlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="PrinterOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <materialDesign:PackIcon Kind="TruckOutline" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource WarningColor}"/>
+                    <Path Data="{StaticResource IcTruck}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource WarningColor}"/>
                     <TextBlock Text="تأمین‌کننده" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
                     <ComboBox ItemsSource="{Binding Suppliers}" Width="320"
                               DisplayMemberPath="Name" SelectedValuePath="Id"
@@ -130,7 +130,7 @@
                 <StackPanel Grid.Column="7" Margin="3,0" VerticalAlignment="Bottom">
                     <Button Style="{StaticResource PrimaryButton}" Height="32" Padding="16,0" Command="{Binding AddSelectedProductCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Plus" Width="16" Height="16" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource IcPlus}" Style="{StaticResource ErpToolSvg}" Width="16" Height="16" VerticalAlignment="Center" Stroke="White"/>
                             <TextBlock Text="افزودن" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12"/>
                         </StackPanel>
                     </Button>
@@ -167,7 +167,7 @@
                                     <Button Style="{StaticResource ErpToolButton}" Width="34" Height="26"
                                             Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding}">
-                                        <materialDesign:PackIcon Kind="DeleteOutline" Width="16" Height="16" Foreground="{DynamicResource DangerColor}"/>
+                                        <Path Data="{StaticResource IcTrash}" Style="{StaticResource ErpToolSvg}" Width="16" Height="16" Stroke="{DynamicResource DangerColor}"/>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -211,7 +211,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <materialDesign:PackIcon Kind="CashMultiple" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource WarningColor}"/>
+                    <Path Data="{StaticResource IcCash}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource WarningColor}"/>
                     <TextBlock Text="نحوه پرداخت" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
                     <ComboBox Style="{StaticResource BaseComboBox}" Width="120" Height="30" ItemsSource="{Binding PaymentTypes}" SelectedItem="{Binding PaymentType}"/>
                     <TextBlock Text="پرداختی" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
@@ -224,7 +224,7 @@
 
                 <Button Grid.Column="2" Style="{StaticResource SuccessButton}" Height="40" Padding="24,0" Command="{Binding PostInvoiceCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="CheckCircle" Width="20" Height="20" VerticalAlignment="Center"/>
+                        <Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="White"/>
                         <TextBlock Text="ثبت قطعی فاکتور خرید" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
                     </StackPanel>
                 </Button>

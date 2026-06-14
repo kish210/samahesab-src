@@ -79,4 +79,14 @@
     <PathGeometry x:Key="IcTemplate" Figures="M8,2 H16 a2,2 0 0 1 2,2 V20 a2,2 0 0 1 -2,2 H8 a2,2 0 0 1 -2,-2 V4 a2,2 0 0 1 2,-2 z M9,7 H15 M9,11 H15 M9,15 H13"/>
     <PathGeometry x:Key="IcTrash"    Figures="M3,6 H21 M8,6 V4 a2,2 0 0 1 2,-2 H14 a2,2 0 0 1 2,2 V6 m3,0 V20 a2,2 0 0 1 -2,2 H7 a2,2 0 0 1 -2,-2 V6 M10,11 V17 M14,11 V17"/>
     <PathGeometry x:Key="IcRefresh"  Figures="M21,12 a9,9 0 1 1 -2.6,-6.4 M21,3 V8 H16"/>
+
+    <!-- ── تولبارِ فروش/خرید/POS/مشتری/انبار (افزودهٔ C2 — T4) ── -->
+    <PathGeometry x:Key="IcPlus"       Figures="M12,5 V19 M5,12 H19"/>
+    <PathGeometry x:Key="IcPlusBox"    Figures="M5,3 H19 a2,2 0 0 1 2,2 V19 a2,2 0 0 1 -2,2 H5 a2,2 0 0 1 -2,-2 V5 a2,2 0 0 1 2,-2 z M12,8 V16 M8,12 H16"/>
+    <PathGeometry x:Key="IcPercent"    Figures="M19,5 L5,19 M6.5,6.5 a1.5,1.5 0 1 0 0.01,0 M17.5,17.5 a1.5,1.5 0 1 0 0.01,0"/>
+    <PathGeometry x:Key="IcClipboard"  Figures="M9,4 H7 a2,2 0 0 0 -2,2 V20 a2,2 0 0 0 2,2 H17 a2,2 0 0 0 2,-2 V6 a2,2 0 0 0 -2,-2 H15 M9,4 a1,1 0 0 1 1,-1 H14 a1,1 0 0 1 1,1 V5 a1,1 0 0 1 -1,1 H10 a1,1 0 0 1 -1,-1 z M8.5,11 H15.5 M8.5,15 H13.5"/>
+    <PathGeometry x:Key="IcCash"       Figures="M2.5,7 H18.5 V16 H2.5 z M5.5,16 V18 H21.5 V9 H18.5 M10.5,11.5 a2,2 0 1 1 0,0.01"/>
+    <PathGeometry x:Key="IcUserPlus"   Figures="M14,20 a6,6 0 0 0 -12,0 M8,12 a3.5,3.5 0 1 0 0,-7 a3.5,3.5 0 0 0 0,7 z M18,8 V14 M21,11 H15"/>
+    <PathGeometry x:Key="IcTruck"      Figures="M2.5,6 H14 V15.5 H2.5 z M14,9 H17.5 L21,12.5 V15.5 H14 z M7,18 a1.8,1.8 0 1 0 0,-0.01 M17,18 a1.8,1.8 0 1 0 0,-0.01"/>
+    <PathGeometry x:Key="IcExcel"      Figures="M14,3 V7 a1,1 0 0 0 1,1 H19 M17,21 H7 a2,2 0 0 1 -2,-2 V5 a2,2 0 0 1 2,-2 H14 L19,8 V19 a2,2 0 0 1 -2,2 z M9,12 L15,18 M15,12 L9,18"/>
 </ResourceDictionary>

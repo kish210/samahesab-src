@@ -18,15 +18,15 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewCustomerCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="AccountPlusOutline" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/><TextBlock Text="مشتری جدید" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcUserPlus}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="مشتری جدید" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding ExportCommand}">
-                        <StackPanel><materialDesign:PackIcon Kind="MicrosoftExcel" Width="18" Height="18" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="اکسل" TextAlignment="Center"/></StackPanel>
+                        <StackPanel><Path Data="{StaticResource IcExcel}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="اکسل" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <materialDesign:PackIcon Kind="Magnify" Width="18" Height="18" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/>
+                    <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" VerticalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="6,0" VerticalAlignment="Center">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding SearchCommand}"/></TextBox.InputBindings>
                     </TextBox>

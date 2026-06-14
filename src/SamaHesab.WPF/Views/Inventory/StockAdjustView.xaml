@@ -16,14 +16,14 @@
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
                     <Border Width="40" Height="40" CornerRadius="8" Background="#DCE2EE">
-                        <materialDesign:PackIcon Kind="SwapHorizontal" Width="22" Height="22"
-                                                 Foreground="{DynamicResource PrimaryAccent}"
-                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Path Data="{StaticResource IcSwap}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22"
+                              Stroke="{DynamicResource PrimaryAccent}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="تعدیل موجودی" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 </StackPanel>
                 <Button DockPanel.Dock="Left" Style="{StaticResource ToolbarButton}" Command="{Binding SaveCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="ContentSaveOutline" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/><TextBlock Text="ذخیره تعدیل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    <StackPanel><Path Data="{StaticResource IcSave}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="ذخیره تعدیل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
                 </Button>
             </DockPanel>
         </Border>

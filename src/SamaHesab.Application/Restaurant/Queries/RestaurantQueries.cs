@@ -1,9 +1,33 @@
 using MediatR;
+using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Domain.Entities.HRM;
 using SamaHesab.Domain.Entities.Restaurant;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.Application.Restaurant.Queries;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// U7 — فهرستِ گارسون‌ها (کارمندانِ فعال) برای انتخابگرِ تخصیصِ گارسون
+// ─────────────────────────────────────────────────────────────────────────────
+public record WaiterDto(int Id, string Name);
+public record GetWaitersQuery() : IRequest<List<WaiterDto>>;
+
+public class GetWaitersQueryHandler : IRequestHandler<GetWaitersQuery, List<WaiterDto>>
+{
+    private readonly IRepository<Employee> _employees;
+    private readonly ICurrentUserService _user;
+    public GetWaitersQueryHandler(IRepository<Employee> employees, ICurrentUserService user)
+    { _employees = employees; _user = user; }
+
+    public async Task<List<WaiterDto>> Handle(GetWaitersQuery request, CancellationToken ct)
+    {
+        var companyId = _user.CompanyId ?? 1;
+        var emps = await _employees.FindAsync(e => e.CompanyId == companyId && e.IsActive, ct);
+        return emps.Select(e => new WaiterDto(e.Id, (e.FirstName + " " + e.LastName).Trim()))
+                   .OrderBy(w => w.Name).ToList();
+    }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // صفحه‌ی گارسون: سالن‌ها و میزها با وضعیت‌شان

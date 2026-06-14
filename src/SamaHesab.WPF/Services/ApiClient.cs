@@ -22,6 +22,9 @@ public record ApiKitchenTicket(int Id, string TicketNumber, int OrderId, string?
     string Status, int StatusCode, DateTime CreatedAt, List<ApiKitchenItem> Items);
 public record ApiKitchenItem(int Id, string ProductName, decimal Quantity, string Status, string? Notes);
 
+// ── Waiter (U7) DTO ──
+public record ApiWaiter(int Id, string Name);
+
 // ── Unified barcode (#27) DTO ──
 public record ApiBarcodeHit(int ProductId, string Code, string Name, decimal SalePrice,
     decimal TaxRate, int? GroupId, bool Weighted, decimal? EmbeddedValue);
@@ -395,6 +398,13 @@ public class ApiClient
             return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تخصیص گارسون.");
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    /// <summary>U7 — فهرستِ گارسون‌ها (کارمندانِ فعال).</summary>
+    public async Task<List<ApiWaiter>> GetWaitersAsync()
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiWaiter>>("/api/restaurant/waiters") ?? new(); }
+        catch { return new(); }
     }
 
     public async Task<(bool ok, string? error)> SendToKitchenAsync(int orderId)

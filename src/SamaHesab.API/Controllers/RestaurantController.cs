@@ -124,4 +124,9 @@ public class RestaurantController : ControllerBase
         var r = await _mediator.Send(new AssignWaiterCommand(id, waiterId), ct);
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>فهرستِ گارسون‌ها (کارمندانِ فعال) برای انتخابگرِ تخصیصِ گارسون (U7).</summary>
+    [HttpGet("waiters")]
+    public async Task<IActionResult> Waiters(CancellationToken ct)
+        => Ok(await _mediator.Send(new SamaHesab.Application.Restaurant.Queries.GetWaitersQuery(), ct));
 }

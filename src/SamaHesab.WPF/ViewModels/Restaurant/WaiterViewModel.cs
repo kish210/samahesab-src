@@ -21,6 +21,9 @@ public partial class WaiterViewModel : BaseViewModel
 
     public ObservableCollection<WaiterHall> Halls { get; } = new();
     public ObservableCollection<WaiterTable> Tables { get; } = new();
+    // U7 — فهرستِ گارسون‌ها برای انتخابگرِ تخصیص روی سفارشِ باز.
+    public ObservableCollection<ApiWaiter> Waiters { get; } = new();
+    [ObservableProperty] private ApiWaiter? _selectedWaiter;
     public ObservableCollection<CategoryTile> Categories { get; } = new();
     public ObservableCollection<MenuTile> MenuItems { get; } = new();
     public ObservableCollection<WaiterOrderLine> OrderLines { get; } = new();
@@ -56,6 +59,10 @@ public partial class WaiterViewModel : BaseViewModel
     {
         await LoadHallsAsync();
         if (_allMenu.Count == 0) await LoadMenuAsync();
+        if (Waiters.Count == 0)
+        {
+            foreach (var w in await _api.GetWaitersAsync()) Waiters.Add(w);
+        }
     }
 
     private async Task LoadHallsAsync()
@@ -131,6 +138,19 @@ public partial class WaiterViewModel : BaseViewModel
             if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در رزرو میز."); return; }
             await LoadHallsAsync();
         }, reserve ? "در حال رزرو میز..." : "در حال لغو رزرو...");
+    }
+
+    // U7 — انتخابِ گارسون از کمبو روی سفارشِ باز → تخصیصِ فوری.
+    partial void OnSelectedWaiterChanged(ApiWaiter? value)
+    {
+        if (value == null || CurrentOrderId == 0) return;
+        _ = AssignSelectedWaiterAsync(value);
+    }
+    private async Task AssignSelectedWaiterAsync(ApiWaiter w)
+    {
+        var (ok, error) = await _api.AssignWaiterAsync(CurrentOrderId, w.Id);
+        if (!ok) await _dialogService.ShowErrorAsync(error ?? "خطا در تخصیص گارسون.");
+        else StatusText = $"گارسونِ میز {CurrentTableName}: {w.Name}";
     }
 
     private async Task ReloadOrderAsync()
@@ -324,6 +344,7 @@ public partial class WaiterViewModel : BaseViewModel
     {
         ShowOrder = false;
         CurrentOrderId = 0;
+        SelectedWaiter = null;   // U7 — برای سفارشِ بعدی پاک شود (هندلر با گاردِ null تخصیص نمی‌دهد)
         OrderLines.Clear();
         await LoadHallsAsync();
     }

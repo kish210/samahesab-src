@@ -229,6 +229,66 @@ public class MoveOrderTableCommandHandler : IRequestHandler<MoveOrderTableComman
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// رزرو/لغوِ رزروِ میز (U7) — میزِ آزاد را رزرو می‌کند یا رزرو را برمی‌دارد
+// ─────────────────────────────────────────────────────────────────────────────
+public record SetTableReservationCommand(int TableId, bool Reserved) : IRequest<Result>;
+
+public class SetTableReservationCommandHandler : IRequestHandler<SetTableReservationCommand, Result>
+{
+    private readonly IRepository<DiningTable> _tables;
+    private readonly IUnitOfWork _uow;
+    public SetTableReservationCommandHandler(IRepository<DiningTable> tables, IUnitOfWork uow)
+    { _tables = tables; _uow = uow; }
+
+    public async Task<Result> Handle(SetTableReservationCommand req, CancellationToken ct)
+    {
+        var table = await _tables.GetByIdAsync(req.TableId, ct);
+        if (table is null) return Result.Failure("میز یافت نشد.");
+        try
+        {
+            if (req.Reserved)
+            {
+                if (table.Status == TableStatus.Reserved) return Result.Success();
+                table.Reserve();
+            }
+            else
+            {
+                if (table.Status != TableStatus.Reserved) return Result.Failure("این میز رزرو نیست.");
+                table.Free();
+            }
+            _tables.Update(table);
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex) { return Result.Failure(ex.GetBaseException().Message); }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// تخصیص/تغییرِ گارسونِ یک سفارشِ باز (U7)
+// ─────────────────────────────────────────────────────────────────────────────
+public record AssignWaiterCommand(int OrderId, int WaiterId) : IRequest<Result>;
+
+public class AssignWaiterCommandHandler : IRequestHandler<AssignWaiterCommand, Result>
+{
+    private readonly IRestaurantOrderRepository _orders;
+    private readonly IUnitOfWork _uow;
+    public AssignWaiterCommandHandler(IRestaurantOrderRepository orders, IUnitOfWork uow)
+    { _orders = orders; _uow = uow; }
+
+    public async Task<Result> Handle(AssignWaiterCommand req, CancellationToken ct)
+    {
+        if (req.WaiterId <= 0) return Result.Failure("گارسون نامعتبر است.");
+        var order = await _orders.GetByIdAsync(req.OrderId, ct);
+        if (order is null) return Result.Failure("سفارش یافت نشد.");
+        order.AssignWaiter(req.WaiterId);
+        _orders.Update(order);
+        await _uow.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ارسال ردیف‌های در انتظار به آشپزخانه (ساخت رسید آشپزخانه)
 // ─────────────────────────────────────────────────────────────────────────────
 public record SendOrderToKitchenCommand(int OrderId) : IRequest<Result<int>>;

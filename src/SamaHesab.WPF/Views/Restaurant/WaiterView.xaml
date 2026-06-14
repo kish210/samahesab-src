@@ -157,6 +157,13 @@
                                         </Border.Style>
                                         <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     </Border>
+                                    <!-- U7: تاگلِ رزرو/لغو روی میزِ آزاد یا رزرو -->
+                                    <Button HorizontalAlignment="Left" VerticalAlignment="Top" Padding="7,1" Height="20" FontSize="9.5" FontWeight="SemiBold"
+                                            Margin="0,22,0,0" Cursor="Hand" Background="White" Foreground="{StaticResource ErpGold500}" BorderBrush="{StaticResource ErpGold500}"
+                                            Content="{Binding ReserveLabel}"
+                                            Visibility="{Binding CanToggleReserve, Converter={StaticResource BoolVis}}"
+                                            Command="{Binding DataContext.ReserveTableCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
                                     <StackPanel VerticalAlignment="Top" Margin="0,2,0,0">
                                         <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
                                         <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>

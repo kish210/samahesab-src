@@ -375,6 +375,28 @@ public class ApiClient
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
     }
 
+    /// <summary>U7 — رزرو/لغوِ رزروِ میز.</summary>
+    public async Task<(bool ok, string? error)> ReserveTableAsync(int tableId, bool reserved)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/tables/{tableId}/reserve/{(reserved ? "true" : "false")}", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در رزرو میز.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    /// <summary>U7 — تخصیص/تغییرِ گارسونِ سفارش.</summary>
+    public async Task<(bool ok, string? error)> AssignWaiterAsync(int orderId, int waiterId)
+    {
+        try
+        {
+            var resp = await _http.PostAsync($"/api/restaurant/orders/{orderId}/waiter/{waiterId}", null);
+            return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در تخصیص گارسون.");
+        }
+        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
     public async Task<(bool ok, string? error)> SendToKitchenAsync(int orderId)
     {
         try

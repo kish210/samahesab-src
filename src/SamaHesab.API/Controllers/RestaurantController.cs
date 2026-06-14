@@ -108,4 +108,20 @@ public class RestaurantController : ControllerBase
         var r = await _mediator.Send(cmd with { OrderId = id }, ct);
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>رزرو/لغوِ رزروِ میز (U7). reserved=true رزرو، false لغو رزرو.</summary>
+    [HttpPost("tables/{tableId:int}/reserve/{reserved:bool}")]
+    public async Task<IActionResult> ReserveTable(int tableId, bool reserved, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new SetTableReservationCommand(tableId, reserved), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>تخصیص/تغییرِ گارسونِ یک سفارشِ باز (U7).</summary>
+    [HttpPost("orders/{id:int}/waiter/{waiterId:int}")]
+    public async Task<IActionResult> AssignWaiter(int id, int waiterId, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new AssignWaiterCommand(id, waiterId), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
 }

@@ -114,6 +114,20 @@ public partial class WaiterViewModel : BaseViewModel
         }, "در حال باز کردن میز...");
     }
 
+    /// <summary>U7 — رزرو یا لغوِ رزروِ میز (تاگل). میزِ آزاد رزرو می‌شود؛ میزِ رزرو آزاد می‌شود.</summary>
+    [RelayCommand]
+    private async Task ReserveTableAsync(WaiterTable? table)
+    {
+        if (table == null) return;
+        var reserve = table.StatusCode != 2;   // 2=Reserved → لغو؛ غیرِ آن → رزرو
+        await ExecuteAsync(async () =>
+        {
+            var (ok, error) = await _api.ReserveTableAsync(table.Id, reserve);
+            if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در رزرو میز."); return; }
+            await LoadHallsAsync();
+        }, reserve ? "در حال رزرو میز..." : "در حال لغو رزرو...");
+    }
+
     private async Task ReloadOrderAsync()
     {
         var o = await _api.GetOrderAsync(CurrentOrderId);
@@ -326,6 +340,9 @@ public partial class WaiterTable : ObservableObject
     public int? CurrentOrderId { get; }
     public decimal OpenAmount { get; }            // R17: مبلغ سفارش بازِ میز (۰ = نمایش متن وضعیت)
     public bool ShowAmount => OpenAmount > 0;     // برای کارت میز
+    // U7 — تاگلِ رزرو فقط روی میزِ آزاد (0) یا رزرو (2) معنا دارد (نه مشغول/تسویه).
+    public bool CanToggleReserve => StatusCode == 0 || StatusCode == 2;
+    public string ReserveLabel => StatusCode == 2 ? "لغو رزرو" : "رزرو";
 
     public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId, decimal openAmount = 0)
     { Id = id; Name = name; Capacity = capacity; Status = status; StatusCode = statusCode; CurrentOrderId = currentOrderId; OpenAmount = openAmount; }

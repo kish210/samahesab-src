@@ -39,7 +39,12 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}">
+                                <!-- متنِ سفید: استایلِ محلیِ TextBlock بر استایلِ روشنِ MaterialDesign غلبه می‌کند -->
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock"><Setter Property="Foreground" Value="White"/></Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/><Setter Property="Foreground" Value="White"/></Trigger>
@@ -93,7 +98,11 @@
                                         </MultiBinding>
                                     </Rectangle.Visibility>
                                 </Rectangle>
-                                <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+                                <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}">
+                                    <ContentPresenter.Resources>
+                                        <Style TargetType="TextBlock"><Setter Property="Foreground" Value="White"/></Style>
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -386,7 +395,7 @@
             </TabControl>
 
             <!-- سایدبارِ هاوری: ۶۰px جمع‌شده (فقط آیکون)، با hover به ۲۲۰px باز و روی محتوا overlay می‌شود -->
-            <Border x:Name="SideNav" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right"
+            <Border x:Name="SideNav" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left"
                     Width="60" ClipToBounds="True" Panel.ZIndex="50" Background="{StaticResource ErpBlue900}">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.28" Color="#1B2843"/>
@@ -409,36 +418,36 @@
                 </Border.Triggers>
                 <StackPanel VerticalAlignment="Top" Margin="0,10">
                     <Button Style="{StaticResource SideItem}" CommandParameter="Dashboard">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Vouchers">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="SalesInvoice">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="PurchaseInvoice">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Products">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="ChequeBoard">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="Bank" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="Bank" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="POS"
                             Visibility="{Binding DataContext.PosEnabled, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}, Converter={StaticResource BoolVis}}">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Customers">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Reports">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Rectangle Height="1" Fill="#14FFFFFF" Margin="14,8"/>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Settings">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CogOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CogOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                 </StackPanel>
             </Border>

@@ -113,6 +113,15 @@
 
             <!-- تب سالن‌ها + راهنمای رنگِ وضعیت (OPT-12) -->
             <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                <!-- T14: سفارشِ غیرِسالن (بیرون‌بر/پیک) -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <Button Content="🥡  بیرون‌بر" Height="32" Padding="12,0" Margin="0,0,6,0" Cursor="Hand" FontSize="12.5" FontWeight="SemiBold"
+                            Background="White" Foreground="{StaticResource ErpBlue700}" BorderBrush="{StaticResource ErpBlue600}"
+                            Command="{Binding OpenTakeawayCommand}"/>
+                    <Button Content="🛵  پیک" Height="32" Padding="12,0" Cursor="Hand" FontSize="12.5" FontWeight="SemiBold"
+                            Background="White" Foreground="{StaticResource ErpBlue700}" BorderBrush="{StaticResource ErpBlue600}"
+                            Command="{Binding OpenDeliveryCommand}"/>
+                </StackPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
                     <Ellipse Width="9" Height="9" Fill="#B7C0CC"/><TextBlock Text="آزاد" FontSize="11" Foreground="#64748B" Margin="3,0,10,0" VerticalAlignment="Center"/>
                     <Ellipse Width="9" Height="9" Fill="#4B5F97"/><TextBlock Text="فعال" FontSize="11" Foreground="#64748B" Margin="3,0,10,0" VerticalAlignment="Center"/>

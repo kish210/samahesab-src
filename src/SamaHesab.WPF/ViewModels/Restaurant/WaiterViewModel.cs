@@ -126,6 +126,25 @@ public partial class WaiterViewModel : BaseViewModel
         }, "در حال باز کردن میز...");
     }
 
+    // T14 — سفارشِ غیرِسالن: بیرون‌بر (Takeaway=1) و پیک (Delivery=2) بدونِ میز.
+    [RelayCommand] private Task OpenTakeaway() => OpenNonDineInAsync(1, "بیرون‌بر");
+    [RelayCommand] private Task OpenDelivery() => OpenNonDineInAsync(2, "پیک");
+
+    private async Task OpenNonDineInAsync(int orderType, string label)
+    {
+        await ExecuteAsync(async () =>
+        {
+            var (ok, id, error) = await _api.OpenOrderAsync(orderType, null, 1);
+            if (!ok) { await _dialogService.ShowErrorAsync(error ?? $"خطا در باز کردن سفارشِ {label}."); return; }
+            CurrentOrderId = id;
+            CurrentTableName = label;
+            CurrentSeats = 1;
+            if (_allMenu.Count == 0) await LoadMenuAsync();
+            await ReloadOrderAsync();
+            ShowOrder = true;
+        }, $"در حال باز کردن سفارشِ {label}...");
+    }
+
     /// <summary>U7 — رزرو یا لغوِ رزروِ میز (تاگل). میزِ آزاد رزرو می‌شود؛ میزِ رزرو آزاد می‌شود.</summary>
     [RelayCommand]
     private async Task ReserveTableAsync(WaiterTable? table)

@@ -31,7 +31,7 @@ public record ApiBarcodeHit(int ProductId, string Code, string Name, decimal Sal
 
 // ── POS shift (#30/#31) DTO ──
 public record ApiShiftSummary(int Id, decimal OpeningFloat, decimal CashSales, decimal CardSales,
-    int SalesCount, decimal ExpectedCash, decimal CountedCash, decimal Variance);
+    int SalesCount, decimal ExpectedCash, decimal CountedCash, decimal Variance, int? VarianceVoucherId = null);
 
 // ── Favorites / بهره‌وری (آیتم‌های اخیر و سنجاق‌شده) DTO — match Application ItemRefDto ──
 public record ApiItemRef(int EntityId, string Label, bool Pinned, int UseCount);

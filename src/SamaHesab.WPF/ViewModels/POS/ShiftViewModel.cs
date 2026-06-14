@@ -74,6 +74,8 @@ public partial class ShiftViewModel : BaseViewModel
             ClosedVariance = summary.Variance;
             VarianceLabel = summary.Variance == 0 ? "بدون مغایرت"
                 : summary.Variance > 0 ? $"اضافه: {summary.Variance:N0}" : $"کسری: {-summary.Variance:N0}";
+            if (summary.VarianceVoucherId is int vid)   // T18: سندِ مغایرتِ خودکار
+                VarianceLabel += $" — سند #{vid}";
             ShowClosedSummary = true;
             HasOpenShift = false;
             CountedCash = 0; NewFloat = 0;

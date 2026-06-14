@@ -190,14 +190,14 @@
 
                 <!-- گرید اقلام (مرکز صفحه، چگالی بالا) -->
                 <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
-                    <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
+                    <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                               RowHeight="27" GridLinesVisibility="All"
                              
                               FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="38"/>
-                            <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="80"/>
-                            <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*"/>
+                            <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="38" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="80" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                             <DataGridTemplateColumn Header="موجودی" Width="70">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -218,11 +218,19 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="72"/>
-                            <DataGridTextColumn Header="فی" Binding="{Binding UnitPrice, StringFormat={}{0:#,##0}}" Width="105"/>
-                            <DataGridTextColumn Header="٪" Binding="{Binding DiscountPct}" Width="48"/>
-                            <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="64"/>
-                            <DataGridTextColumn Header="مبلغ خالص" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="125"/>
+                            <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="72">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="فی" Binding="{Binding UnitPrice}" Width="105">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="٪" Binding="{Binding DiscountPct}" Width="48">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="64">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="مبلغ خالص" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="125" IsReadOnly="True"/>
                             <DataGridTemplateColumn Width="38">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

@@ -146,21 +146,29 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Style="{StaticResource ErpCardPanel}" Padding="0">
-                <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
+                <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                           RowHeight="28"
                           GridLinesVisibility="All">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ردیف" Binding="{Binding RowNumber}" Width="48"/>
-                        <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="90"/>
-                        <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*"/>
-                        <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, StringFormat={}{0:#,##0}}" Width="72"/>
-                        <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="80"/>
-                        <DataGridTextColumn Header="قیمت خرید" Binding="{Binding UnitPrice, StringFormat={}{0:#,##0}}" Width="110"/>
-                        <DataGridTextColumn Header="تخفیف ٪" Binding="{Binding DiscountPct}" Width="70"/>
-                        <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="70"/>
+                        <DataGridTextColumn Header="ردیف" Binding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="90" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, StringFormat={}{0:#,##0}}" Width="72" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="80">
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="قیمت خرید" Binding="{Binding UnitPrice}" Width="110">
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="تخفیف ٪" Binding="{Binding DiscountPct}" Width="70">
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="70">
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTextColumn Header="بچ/سری" Binding="{Binding BatchNumber}" Width="100"/>
                         <DataGridTextColumn Header="انقضا" Binding="{Binding ExpiryDate}" Width="90"/>
-                        <DataGridTextColumn Header="مبلغ خالص" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130"/>
+                        <DataGridTextColumn Header="مبلغ خالص" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True"/>
                         <DataGridTemplateColumn Header="حذف" Width="50">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

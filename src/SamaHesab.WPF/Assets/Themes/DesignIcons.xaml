@@ -68,4 +68,14 @@
     <PathGeometry x:Key="IcDownload" Figures="M12,3 V15 m0,0 4,-4 m-4,4 -4,-4 M4,17 V19 a2,2 0 0 0 2,2 H18 a2,2 0 0 0 2,-2 V17"/>
     <PathGeometry x:Key="IcPrinter" Figures="M6,9 V3 H18 V9 M6,18 H4 a2,2 0 0 1 -2,-2 V13 a2,2 0 0 1 2,-2 H20 a2,2 0 0 1 2,2 V16 a2,2 0 0 1 -2,2 H18 M6,14 H18 V21 H6 z"/>
     <PathGeometry x:Key="IcSave" Figures="M19,21 H5 a2,2 0 0 1 -2,-2 V5 a2,2 0 0 1 2,-2 H16 L21,8 V19 a2,2 0 0 1 -2,2 z M17,21 V13 H7 V21 M7,3 V8 H15"/>
+
+    <!-- ── تولبارِ حسابداری/خزانه/چک (افزودهٔ C1 — T2) ── -->
+    <PathGeometry x:Key="IcCheck"    Figures="M22,11.1 V12 a10,10 0 1 1 -5.9,-9.1 M22,4 L12,14.01 L9,11"/>
+    <PathGeometry x:Key="IcCopy"     Figures="M9,9 H20 a1,1 0 0 1 1,1 V21 a1,1 0 0 1 -1,1 H9 a1,1 0 0 1 -1,-1 V10 a1,1 0 0 1 1,-1 z M5,15 H4 a1,1 0 0 1 -1,-1 V3 a1,1 0 0 1 1,-1 H15 a1,1 0 0 1 1,1 V5"/>
+    <PathGeometry x:Key="IcSwap"     Figures="M16,3 L21,7.5 L16,12 M21,7.5 H4 M8,21 L3,16.5 L8,12 M3,16.5 H20"/>
+    <PathGeometry x:Key="IcClose"    Figures="M18,6 L6,18 M6,6 L18,18"/>
+    <PathGeometry x:Key="IcTransfer" Figures="M4,12 H20 M14,6 L20,12 L14,18"/>
+    <PathGeometry x:Key="IcUndo"     Figures="M9,14 L4,9 L9,4 M4,9 H15 a5,5 0 0 1 0,10 H11"/>
+    <PathGeometry x:Key="IcTemplate" Figures="M8,2 H16 a2,2 0 0 1 2,2 V20 a2,2 0 0 1 -2,2 H8 a2,2 0 0 1 -2,-2 V4 a2,2 0 0 1 2,-2 z M9,7 H15 M9,11 H15 M9,15 H13"/>
+    <PathGeometry x:Key="IcTrash"    Figures="M3,6 H21 M8,6 V4 a2,2 0 0 1 2,-2 H14 a2,2 0 0 1 2,2 V6 m3,0 V20 a2,2 0 0 1 -2,2 H7 a2,2 0 0 1 -2,-2 V6 M10,11 V17 M14,11 V17"/>
 </ResourceDictionary>

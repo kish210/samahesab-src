@@ -15,7 +15,7 @@
         <!-- ═══ Toolbar / filters ═══ -->
         <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <materialDesign:PackIcon Kind="FileChartOutline" Width="20" Height="20" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryAccent}"/>
+                <Path Data="{StaticResource IcReports}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" Stroke="{DynamicResource PrimaryAccent}"/>
                 <TextBlock Text="گزارش" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="170" Height="30"
                           ItemsSource="{Binding ReportTypes}" SelectedItem="{Binding SelectedReportType}"/>
@@ -50,18 +50,18 @@
                           SelectedValue="{Binding SelectedBranchId}"/>
                 <Button Style="{StaticResource PrimaryButton}" Height="30" Padding="16,0" Margin="12,0,0,0" Command="{Binding RunCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Magnify" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}"/>
                         <TextBlock Text="نمایش" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Style="{StaticResource SecondaryButton}" Height="30" Padding="12,0" Margin="6,0,0,0" Command="{Binding ExportCsvCommand}" ToolTip="خروجی اکسل (CSV)">
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileExcelOutline" Width="16" Height="16" VerticalAlignment="Center"/>
+                        <Path Data="{StaticResource IcDownload}" Style="{StaticResource ErpToolSvg}"/>
                         <TextBlock Text="اکسل" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Style="{StaticResource SecondaryButton}" Height="30" Padding="12,0" Margin="6,0,0,0" Command="{Binding PrintCommand}" ToolTip="چاپ / خروجی PDF">
-                    <materialDesign:PackIcon Kind="PrinterOutline" Width="16" Height="16"/>
+                    <Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}"/>
                 </Button>
             </StackPanel>
         </Border>

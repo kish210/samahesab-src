@@ -15,7 +15,7 @@
 
 ### 🖥 لِینِ pc / C1
 - [~] **T1.** 🛑 رفعِ نهاییِ کرشِ «ثبت سند» — C1 نوارِ چیپ را به ScrollViewerِ امن تغییر داد؛ منتظرِ تأییدِ C2 روی دادهٔ واقعی. اگر باز کرش کرد، C2 stack-trace می‌فرستد.
-- [ ] **T2.** مهاجرتِ آیکونِ تولبارهای **حسابداری/خزانه/گزارش‌های مالی/چک/دفترکل/تراز** از `PackIcon` به SVG (`DesignIcons.xaml` آماده).
+- [x] ✅C1 **T2.** مهاجرتِ آیکونِ تولبارها از `PackIcon` به SVG — **کامل** برای ۵ ویوِ لِینِ من: `VoucherEditView` (۸ دکمه)، `VoucherListView`، `ChequeListView`، `ChartOfAccountsView`، `FinancialReportsView`. ۸ آیکونِ نبوده به `DesignIcons.xaml` افزوده شد (`IcCheck/IcCopy/IcSwap/IcClose/IcTransfer/IcUndo/IcTemplate/IcTrash`) با استایلِ مشترکِ `ErpToolSvg`. رندر بصری تأیید شد (`screenshot/accounting_docs.png`). build سبز، ۲۲۵ تست. (pc)
 - [ ] **T3.** U13 — **type-ahead حساب** با Popup مشترک (لِینِ حسابداری؛ کالا را C2).
 
 ### 💻 لِینِ لپ‌تاپ / C2

@@ -103,23 +103,23 @@
         <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="8,6">
             <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource TBtn}" Command="{Binding NewCommand}" Background="{StaticResource Blue600}" Foreground="White" BorderBrush="{StaticResource Blue600}">
-                    <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileDocumentPlusOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="جدید"/><Border Style="{StaticResource Fk}" Background="#5E6FA8"><TextBlock Text="F2" FontSize="10.5" Foreground="White"/></Border></StackPanel>
+                    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Stroke="White" Margin="0,0,5,0"/><TextBlock Text="جدید"/><Border Style="{StaticResource Fk}" Background="#5E6FA8"><TextBlock Text="F2" FontSize="10.5" Foreground="White"/></Border></StackPanel>
                 </Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding SaveCommand}">
-                    <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ContentSaveOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="ذخیره"/><Border Style="{StaticResource Fk}"><TextBlock Text="F7" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
+                    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSave}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="ذخیره"/><Border Style="{StaticResource Fk}"><TextBlock Text="F7" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PostCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6"
                         IsEnabled="{Binding IsBalanced}" ToolTip="سند باید تراز باشد تا قطعی شود">
-                    <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CheckCircleOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#15803D"/><TextBlock Text="قطعی‌سازی" Foreground="#15803D"/><Border Style="{StaticResource Fk}" Background="#C9E9D2"><TextBlock Text="F9" FontSize="10.5" Foreground="#15803D"/></Border></StackPanel>
+                    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Stroke="#15803D" Margin="0,0,5,0"/><TextBlock Text="قطعی‌سازی" Foreground="#15803D"/><Border Style="{StaticResource Fk}" Background="#C9E9D2"><TextBlock Text="F9" FontSize="10.5" Foreground="#15803D"/></Border></StackPanel>
                 </Button>
                 <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>
-                <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}"><StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ContentCopy" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="کپی سند"/></StackPanel></Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}"><StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="SwapHorizontal" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="سند معکوس"/></StackPanel></Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding TemplatesCommand}" ToolTip="الگوها و اسنادِ تکرارشونده"><StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileMultipleOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="الگو / تکراری"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCopy}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="کپی سند"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSwap}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="سند معکوس"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding TemplatesCommand}" ToolTip="الگوها و اسنادِ تکرارشونده"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcTemplate}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="الگو / تکراری"/></StackPanel></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PrintCommand}">
-                    <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="PrinterOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
+                    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding CancelCommand}" Foreground="#B91C1C" BorderBrush="#E6BcBc"><StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CloseCircleOutline" Width="15" Height="15" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBlock Text="انصراف"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding CancelCommand}" Foreground="#B91C1C" BorderBrush="#E6BcBc"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcClose}" Style="{StaticResource ErpToolSvg}" Stroke="#B91C1C" Margin="0,0,5,0"/><TextBlock Text="انصراف"/></StackPanel></Button>
             </StackPanel>
         </Border>
 

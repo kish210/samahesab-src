@@ -188,9 +188,37 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                         "SalesInvoice", invoice.Id, null), ct);
                 }
             }
+            // ── برگشت از فروش (مرجوعی): افزایشِ موجودیِ انبار + ورودِ کاردکس ──
+            else if (request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
+            {
+                foreach (var dto in request.Items)
+                {
+                    var product = await _productRepository.GetByIdAsync(dto.ProductId, ct);
+                    if (product == null || product.ProductType != Domain.Enums.ProductType.Product) continue;
+
+                    var stock = await _stockRepository.GetByProductAndWarehouseAsync(dto.ProductId, request.WarehouseId, ct);
+                    var unitCost = stock?.AverageCost ?? product.PurchasePrice;
+                    if (stock == null)
+                    {
+                        stock = Domain.Entities.Inventory.StockItem.Create(dto.ProductId, request.WarehouseId);
+                        await _stockRepository.AddAsync(stock, ct);
+                    }
+                    stock.AddStock(dto.Quantity, unitCost);
+                    _stockRepository.Update(stock);
+
+                    await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
+                        companyId, request.BranchId, "ورود برگشت از فروش", invoiceNumber, request.InvoiceDate,
+                        dto.ProductId, request.WarehouseId, +dto.Quantity, unitCost,
+                        stock.Quantity, stock.Quantity * stock.AverageCost,
+                        "SalesReturn", invoice.Id, null), ct);
+                }
+            }
 
             // ── Automatic accounting voucher ──
-            await TryCreateSalesVoucherAsync(invoice, companyId, request, ct);
+            if (request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
+                await TryCreateSalesReturnVoucherAsync(invoice, companyId, request, ct);
+            else
+                await TryCreateSalesVoucherAsync(invoice, companyId, request, ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
@@ -226,6 +254,70 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         var after = Inventory.FifoCostEngine.Compute(movements).IssuedCost;
         var marginal = after - before;
         return marginal > 0 ? System.Math.Round(marginal / qty, 4) : fallbackAverage;
+    }
+
+    /// <summary>
+    /// سندِ خودکارِ «برگشت از فروش» — معکوسِ سندِ فروش: بدهکار کردنِ درآمدِ فروش و مالیات،
+    /// بستانکار کردنِ صندوق/بانک (بازپرداخت) یا حساب دریافتنیِ مشتری.
+    /// </summary>
+    private async Task TryCreateSalesReturnVoucherAsync(SalesInvoice invoice, int companyId,
+        CreateSalesInvoiceCommand request, CancellationToken ct)
+    {
+        if (invoice.InvoiceType != Domain.Enums.InvoiceType.SaleReturn || invoice.GrandTotal <= 0) return;
+
+        var receivable = await _accountRepository.GetByCodeAsync(companyId, "1-03-001", ct);
+        var sales = await _accountRepository.GetByCodeAsync(companyId, "6-01-001", ct);
+        var vat = await _accountRepository.GetByCodeAsync(companyId, "3-04-001", ct);
+        if (receivable == null || sales == null) return; // chart not set up → skip silently
+
+        var number = await _voucherRepository.GetNextNumberAsync(companyId, ct);
+        var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
+            number, request.InvoiceDate, 3 /*Sale*/, $"سند خودکار برگشت از فروش {invoice.InvoiceNumber}", invoice.InvoiceNumber);
+
+        var discount = request.InvoiceDiscount > 0 ? request.InvoiceDiscount : 0;
+        var grand = invoice.GrandTotal - discount;
+        if (grand < 0) grand = 0;
+        var salesAmount = grand - invoice.TotalTax;
+        if (salesAmount < 0) salesAmount = 0;
+
+        // مبلغِ بازپرداختیِ نقد/بانک؛ مابقی از حساب دریافتنیِ مشتری کسر می‌شود.
+        var refunded = request.PaidAmount > 0 ? System.Math.Min(request.PaidAmount, grand) : 0;
+        var remain = grand - refunded;
+
+        int row = 1;
+        // بدهکار: برگشت از فروش (کاهشِ درآمد) + مالیات
+        voucher.AddItem(VoucherItem.Create(0, row++, sales.Id, salesAmount, 0, "برگشت از فروش"));
+        if (invoice.TotalTax > 0 && vat != null)
+            voucher.AddItem(VoucherItem.Create(0, row++, vat.Id, invoice.TotalTax, 0, "برگشتِ مالیات بر ارزش افزوده"));
+
+        // بستانکار: بازپرداختِ نقد/بانک + کاهشِ مطالبه از مشتری
+        if (refunded > 0)
+        {
+            var payCode = request.PaymentMethod switch
+            {
+                "نقدی" => "1-01-001",
+                "چک"   => "1-04-001",
+                "بانک" => "1-02-001",
+                _       => "1-01-001"
+            };
+            var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)
+                         ?? await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
+            if (payAcc != null)
+                voucher.AddItem(VoucherItem.Create(0, row++, payAcc.Id, 0, refunded, $"بازپرداخت وجه ({request.PaymentMethod})"));
+            else remain = grand;
+        }
+        if (remain > 0)
+            voucher.AddItem(VoucherItem.Create(0, row++, receivable.Id, 0, remain, $"برگشت از فروش {invoice.InvoiceNumber}"));
+
+        await _voucherRepository.AddAsync(voucher, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        if (voucher.CanPost())
+            voucher.Post(_currentUser.UserId ?? 1);
+        _voucherRepository.Update(voucher);
+
+        invoice.Post(_currentUser.UserId ?? 1, voucher.Id);
+        _invoiceRepository.Update(invoice);
     }
 
     private async Task TryCreateSalesVoucherAsync(SalesInvoice invoice, int companyId,

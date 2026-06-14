@@ -39,6 +39,14 @@ public partial class PosViewModel : BaseViewModel
     [ObservableProperty] private string _currentTime = string.Empty;
     [ObservableProperty] private string _receiptNumber = string.Empty;
 
+    // T13 — حالتِ مرجوعی (برگشت از فروش): سبد به‌جای فروش، برگشت ثبت می‌کند (افزایشِ موجودی + بازپرداخت).
+    [ObservableProperty] private bool _isReturnMode;
+    public string CheckoutLabel => IsReturnMode ? "ثبت برگشت / بازپرداخت" : "پرداخت نقدی — Enter";
+    public string ReturnToggleLabel => IsReturnMode ? "حالت فروش" : "مرجوعی / برگشت";
+    partial void OnIsReturnModeChanged(bool value)
+    { OnPropertyChanged(nameof(CheckoutLabel)); OnPropertyChanged(nameof(ReturnToggleLabel)); }
+    [RelayCommand] private void ToggleReturnMode() => IsReturnMode = !IsReturnMode;
+
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
     public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };
 
@@ -333,13 +341,41 @@ public partial class PosViewModel : BaseViewModel
     private async Task CheckoutAsync()
     {
         if (!CartItems.Any()) { await _dialogService.ShowWarningAsync("سبد خرید خالی است."); return; }
-        if (PaymentMode == "نقدی" && CashReceived < GrandTotal) { await _dialogService.ShowErrorAsync("مبلغ دریافتی کافی نیست."); return; }
+        // مرجوعی فعلاً فقط در حالتِ محلی (دسکتاپِ یکپارچه) پشتیبانی می‌شود.
+        if (IsReturnMode && UseApi) { await _dialogService.ShowWarningAsync("ثبتِ برگشت در حالتِ صندوقِ مستقل فعلاً پشتیبانی نمی‌شود."); return; }
+        // در فروشِ نقدی، دریافتی باید کافی باشد؛ در مرجوعی این کنترل لازم نیست (بازپرداخت است).
+        if (!IsReturnMode && PaymentMode == "نقدی" && CashReceived < GrandTotal) { await _dialogService.ShowErrorAsync("مبلغ دریافتی کافی نیست."); return; }
 
         await ExecuteAsync(async () =>
         {
-            var paid = PaymentMode == "نقدی" ? GrandTotal : CashReceived;
             var method = PaymentMode == "کارتخوان" ? "بانک" : "نقدی";
             int invoiceId;
+
+            if (IsReturnMode)
+            {
+                // برگشت از فروش: موجودی برمی‌گردد + سندِ معکوس + بازپرداختِ کاملِ مبلغ.
+                var cmd = new CreateSalesInvoiceCommand(
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    InvoiceDate: _calendar.GetCurrentPersianDate(),
+                    CustomerId: SelectedCustomerId ?? 1,
+                    WarehouseId: 1,
+                    InvoiceType: SamaHesab.Domain.Enums.InvoiceType.SaleReturn,
+                    PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "برگشت از فروش صندوق (POS)",
+                    Shipping: 0, OtherCosts: 0,
+                    Items: CartItems.Select(i => new SalesInvoiceItemDto(
+                        i.ProductId, i.Quantity, i.UnitPrice, 0, i.TaxRate, null, null, null)).ToList(),
+                    InvoiceDiscount: Discount,
+                    PaidAmount: GrandTotal,   // کلِ مبلغ بازپرداخت می‌شود
+                    PaymentMethod: method);
+                var result = await _mediator.Send(cmd);
+                if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+                _lastInvoiceId = result.Value;
+                await _dialogService.ShowSuccessAsync($"برگشت ثبت شد (فاکتور #{result.Value}).\nبازپرداخت: {GrandTotal:N0} ریال");
+                NewSale();
+                return;
+            }
+
+            var paid = PaymentMode == "نقدی" ? GrandTotal : CashReceived;
 
             if (UseApi)
             {
@@ -375,7 +411,7 @@ public partial class PosViewModel : BaseViewModel
             try { _printService.PrintReceipt(BuildReceiptData()); } catch { /* چاپ اختیاری */ }
             await _dialogService.ShowSuccessAsync($"فروش ثبت شد (فاکتور #{invoiceId}).\nباقیمانده: {Change:N0} ریال");
             NewSale();
-        }, "در حال صدور فاکتور...");
+        }, IsReturnMode ? "در حال ثبت برگشت..." : "در حال صدور فاکتور...");
     }
 
     private PrintDocumentData BuildReceiptData()

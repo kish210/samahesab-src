@@ -127,10 +127,38 @@
 
             <!-- دکمه‌های پرداخت -->
             <Grid Grid.Row="1" Margin="0,10,0,0">
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Button Grid.Row="0" Height="62" Background="#16A34A" Foreground="White" BorderThickness="0" Cursor="Hand"
-                        FontSize="16" FontWeight="Bold" Content="پرداخت نقدی — Enter" Command="{Binding CheckoutCommand}"/>
-                <Grid Grid.Row="1" Margin="0,7,0,0">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <!-- T13: تاگلِ حالتِ مرجوعی/برگشت -->
+                <ToggleButton Grid.Row="0" Height="34" Margin="0,0,0,7" Cursor="Hand" FontWeight="SemiBold" FontSize="12.5"
+                              IsChecked="{Binding IsReturnMode}" Content="{Binding ReturnToggleLabel}">
+                    <ToggleButton.Style>
+                        <Style TargetType="ToggleButton">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="Foreground" Value="#B45309"/>
+                            <Setter Property="BorderBrush" Value="#FBBF24"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Background" Value="#B45309"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                </ToggleButton>
+                <Button Grid.Row="1" Height="62" Foreground="White" BorderThickness="0" Cursor="Hand"
+                        FontSize="16" FontWeight="Bold" Content="{Binding CheckoutLabel}" Command="{Binding CheckoutCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#16A34A"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReturnMode}" Value="True">
+                                    <Setter Property="Background" Value="#DC2626"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Grid Grid.Row="2" Margin="0,7,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Height="52" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="کارت‌خوان" FontWeight="SemiBold"/>
                     <Button Grid.Column="2" Height="52" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="نسیه" FontWeight="SemiBold"/>

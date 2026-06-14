@@ -30,6 +30,8 @@ public partial class WarehouseClientViewModel : BaseViewModel
     [ObservableProperty] private bool _isReceive = true;     // برای نمایش ستون بهای واحد
     [ObservableProperty] private bool _isTransfer;            // برای نمایش انتخاب انبار مقصد
     [ObservableProperty] private string _statusText = string.Empty;
+    [ObservableProperty] private string _barcodeInput = string.Empty;   // اسکنِ بارکدِ یکپارچه (#۲۷)
+    [ObservableProperty] private string _scanInfo = string.Empty;
 
     public WarehouseClientViewModel(ApiClient api, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
@@ -76,6 +78,20 @@ public partial class WarehouseClientViewModel : BaseViewModel
             Cart.Add(line);
         }
         Recalculate();
+    }
+
+    /// <summary>اسکن/تایپِ بارکد یا کدِ کالا (#۲۷) + Enter → افزودنِ مستقیم به سبدِ رسید/حواله/انتقال.</summary>
+    [RelayCommand]
+    private async Task ScanBarcodeAsync()
+    {
+        var code = BarcodeInput?.Trim() ?? "";
+        BarcodeInput = string.Empty;
+        if (string.IsNullOrEmpty(code)) return;
+        if (SelectedWarehouse is null) { ScanInfo = "ابتدا انبار را انتخاب کنید."; return; }
+        var hit = await _api.ResolveBarcodeAsync(code);
+        if (hit is null) { ScanInfo = $"یافت نشد: {code}"; return; }
+        AddProduct(new WhProductTile(hit.ProductId, hit.Code, hit.Name, hit.SalePrice));
+        ScanInfo = $"✓ {hit.Name}";
     }
 
     [RelayCommand] private void Inc(WhCartLine? l) { if (l is not null) { l.Qty++; Recalculate(); } }

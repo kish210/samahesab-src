@@ -91,9 +91,22 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Grid.Row="0" Height="42" FontSize="15" VerticalContentAlignment="Center" Padding="8,0"
-                         Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}"
-                         Tag="جست‌وجوی کالا یا بارکد…"/>
+                <StackPanel Grid.Row="0">
+                    <!-- #۲۷: اسکنِ بارکدِ یکپارچه → افزودنِ مستقیم به سبد -->
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding ScanInfo}" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource SuccessColor}"/>
+                        <TextBox x:Name="BarcodeBox" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"
+                                 FlowDirection="LeftToRight"
+                                 Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}"
+                                 Tag="اسکن بارکد یا کد کالا + Enter…">
+                            <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding ScanBarcodeCommand}"/></TextBox.InputBindings>
+                        </TextBox>
+                    </DockPanel>
+                    <TextBox Height="42" FontSize="15" VerticalContentAlignment="Center" Padding="8,0" Margin="0,8,0,0"
+                             Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="جست‌وجوی کالا یا بارکد…"/>
+                </StackPanel>
 
                 <ScrollViewer Grid.Row="1" MaxHeight="240" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
                     <ItemsControl ItemsSource="{Binding SearchResults}">

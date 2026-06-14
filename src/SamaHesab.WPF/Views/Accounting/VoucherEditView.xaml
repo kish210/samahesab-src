@@ -250,7 +250,7 @@
                         <TextBlock Text="نام حساب" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Blue700}" Margin="2,0,2,3"/>
                         <!-- جستجوی هوشمند حساب: تایپِ کد یا نام (contains) فیلتر می‌کند — کیبوردمحور (PD-2) -->
                         <ComboBox x:Name="AccCombo" Height="32"
-                                  ItemsSource="{Binding LeafAccounts}" DisplayMemberPath="Display"
+                                  ItemsSource="{Binding LeafAccounts}"
                                   SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
                                   IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
                                   StaysOpenOnEdit="True">

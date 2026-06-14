@@ -24,6 +24,7 @@
                 <ResourceDictionary Source="Assets/Themes/Colors.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/Styles.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/ErpDesignSystem.xaml"/>
+                <ResourceDictionary Source="Assets/Themes/DesignIcons.xaml"/>
                 <ResourceDictionary Source="Assets/Themes/DataTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 

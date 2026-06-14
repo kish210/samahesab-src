@@ -76,6 +76,23 @@
             </Setter>
         </Style>
 
+        <!-- آیکونِ برداریِ طراح (stroke outline) برای تاپ‌بار -->
+        <Style x:Key="TopSvgIcon" TargetType="Path">
+            <Setter Property="Stroke" Value="#CFD9EC"/>
+            <Setter Property="Fill" Value="{x:Null}"/>
+            <Setter Property="StrokeThickness" Value="1.7"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Width" Value="18"/><Setter Property="Height" Value="18"/>
+            <Setter Property="StrokeStartLineCap" Value="Round"/>
+            <Setter Property="StrokeEndLineCap" Value="Round"/>
+            <Setter Property="StrokeLineJoin" Value="Round"/>
+        </Style>
+        <!-- آیکونِ برداریِ سفیدِ سایدبار -->
+        <Style x:Key="SideSvgIcon" TargetType="Path" BasedOn="{StaticResource TopSvgIcon}">
+            <Setter Property="Stroke" Value="White"/>
+            <Setter Property="Width" Value="21"/><Setter Property="Height" Value="21"/>
+        </Style>
+
         <!-- آیتم سایدبار: آیکون + لیبل + نوار طلاییِ فعال -->
         <Style x:Key="SideItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -273,7 +290,7 @@
                         BorderBrush="#2EFFFFFF" BorderThickness="1">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <materialDesign:PackIcon Grid.Column="0" Kind="Magnify" Width="16" Height="16" Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#9FB0D0"/>
+                        <Path Grid.Column="0" Data="{StaticResource IcSearch}" Style="{StaticResource TopSvgIcon}" Stroke="#9FB0D0" Width="15" Height="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
                                  Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" Padding="8,0"
                                  materialDesign:HintAssist.Hint="جستجو در همه‌جا…  Ctrl+K" materialDesign:HintAssist.Foreground="#8294B6"/>
@@ -283,14 +300,14 @@
                 <!-- آیکون‌ها (مطابق طرح: ماشین‌حساب · راهنما · اعلان‌ها با نقطهٔ پینگ) -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource TbIc}" Command="{Binding OpenCalculatorCommand}" ToolTip="ماشین حساب">
-                        <materialDesign:PackIcon Kind="Calculator" Width="19" Height="19"/>
+                        <Path Data="{StaticResource IcCalc}" Style="{StaticResource TopSvgIcon}"/>
                     </Button>
                     <Button Style="{StaticResource TbIc}" ToolTip="راهنما">
-                        <materialDesign:PackIcon Kind="HelpCircleOutline" Width="19" Height="19"/>
+                        <Path Data="{StaticResource IcHelp}" Style="{StaticResource TopSvgIcon}"/>
                     </Button>
                     <Button Style="{StaticResource TbIc}" Command="{Binding ShowNotificationsCommand}" ToolTip="اعلان‌ها">
                         <Grid Width="22" Height="22">
-                            <materialDesign:PackIcon Kind="BellOutline" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource IcBell}" Style="{StaticResource TopSvgIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <!-- نقطهٔ پینگِ ساده (به‌جای بج عددی) -->
                             <Ellipse Width="7" Height="7" Fill="{StaticResource ErpGold500}" Stroke="{StaticResource ErpBlue700}" StrokeThickness="1.5"
                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,1,0"
@@ -421,36 +438,36 @@
                 </Border.Triggers>
                 <StackPanel VerticalAlignment="Top" Margin="0,10">
                     <Button Style="{StaticResource SideItem}" CommandParameter="Dashboard">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="HomeOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcHome}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Vouchers">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileDocumentOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcAccounting}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="SalesInvoice">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CartOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSales}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="PurchaseInvoice">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="TruckOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPurchasing}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Products">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="PackageVariant" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcInventory}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="ChequeBoard">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="Bank" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcTreasury}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="POS"
                             Visibility="{Binding DataContext.PosEnabled, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}, Converter={StaticResource BoolVis}}">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CreditCardOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPos}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Customers">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="AccountGroupOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPeople}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Reports">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="ChartBar" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcReports}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                     <Rectangle Height="1" Fill="#14FFFFFF" Margin="14,8"/>
                     <Button Style="{StaticResource SideItem}" CommandParameter="Settings">
-                        <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="CogOutline" Width="22" Height="22" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSettings}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
                 </StackPanel>
             </Border>

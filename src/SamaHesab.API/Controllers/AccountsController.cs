@@ -28,4 +28,14 @@ public class AccountsController : ControllerBase
             ? Ok(new { accountId = result.Value })
             : BadRequest(new { message = result.ErrorMessage });
     }
+
+    /// <summary>حذفِ حساب (تنها اگر نه تراکنش دارد نه زیرحساب).</summary>
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new DeleteAccountCommand(id), ct);
+        return result.Succeeded
+            ? Ok(new { deleted = true })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
 }

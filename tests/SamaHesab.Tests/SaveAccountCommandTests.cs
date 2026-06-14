@@ -31,7 +31,7 @@ public class SaveAccountCommandTests
         public void Update(Account e) { }
 
         public Task<List<Account>> GetByCompanyAsync(int companyId, CancellationToken ct = default) => Task.FromResult(Items.ToList());
-        public Task<List<Account>> GetChildrenAsync(int parentId, CancellationToken ct = default) => Task.FromResult(new List<Account>());
+        public Task<List<Account>> GetChildrenAsync(int parentId, CancellationToken ct = default) => Task.FromResult(Items.Where(a => a.ParentId == parentId).ToList());
         public Task<List<Account>> GetLeafAccountsAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Account>());
         public Task<bool> HasTransactionsAsync(int accountId, CancellationToken ct = default) => Task.FromResult(false);
         public Task<decimal> GetBalanceAsync(int accountId, CancellationToken ct = default) => Task.FromResult(0m);
@@ -108,5 +108,34 @@ public class SaveAccountCommandTests
         Assert.True(res.Succeeded);
         Assert.Equal("فروش کالا", repo.Items[0].Name);
         Assert.Equal(AccountNature.Credit, repo.Items[0].Nature);
+    }
+
+    [Fact]
+    public async Task Delete_Clean_Account_Removes_It()
+    {
+        var repo = new FakeAccountRepo();
+        await repo.AddAsync(Account.Create(1, "5-09", "هزینهٔ متفرقه", AccountLevel.Subsidiary, AccountNature.Debit, "هزینه"));
+        var id = repo.Items[0].Id;
+        var sut = new DeleteAccountCommandHandler(repo, new FakeUow());
+
+        var res = await sut.Handle(new DeleteAccountCommand(id), default);
+
+        Assert.True(res.Succeeded);
+        Assert.Empty(repo.Items);
+    }
+
+    [Fact]
+    public async Task Delete_Account_With_Children_Fails()
+    {
+        var repo = new FakeAccountRepo();
+        await repo.AddAsync(Account.Create(1, "1-01", "دارایی‌های جاری", AccountLevel.General, AccountNature.Debit, "دارایی"));
+        var parentId = repo.Items[0].Id;
+        await repo.AddAsync(Account.Create(1, "1-01-001", "صندوق", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی", parentId));
+        var sut = new DeleteAccountCommandHandler(repo, new FakeUow());
+
+        var res = await sut.Handle(new DeleteAccountCommand(parentId), default);
+
+        Assert.False(res.Succeeded);
+        Assert.Equal(2, repo.Items.Count);   // چیزی حذف نشد
     }
 }

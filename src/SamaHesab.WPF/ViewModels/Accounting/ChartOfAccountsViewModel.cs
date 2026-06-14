@@ -234,10 +234,15 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
     private async Task DeleteAccountAsync()
     {
         if (SelectedAccount == null) { await _dialogService.ShowWarningAsync("یک حساب انتخاب کنید."); return; }
-        var hasTransactions = await _accountRepo.HasTransactionsAsync(SelectedAccount.Id);
-        if (hasTransactions) { await _dialogService.ShowErrorAsync("این حساب دارای تراکنش است و قابل حذف نیست."); return; }
-        var ok = await _dialogService.ConfirmAsync($"آیا حساب '{SelectedAccount.Name}' حذف شود؟");
-        if (ok) await _dialogService.ShowSuccessAsync("حساب حذف شد.");
+        if (!await _dialogService.ConfirmAsync($"آیا حساب '{SelectedAccount.Name}' حذف شود؟")) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new DeleteAccountCommand(SelectedAccount.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync("حساب حذف شد.");
+            HasSelectedAccount = false; SelectedAccount = null;
+            await LoadAsync();
+        }, "در حال حذفِ حساب...");
     }
 
     /// <summary>مشاهدهٔ دفتر کلِ حسابِ انتخاب‌شده (ناوبری به گزارش‌های مالی با پارامترِ حساب).</summary>

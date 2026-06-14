@@ -37,7 +37,7 @@
 - [x] ✅C1 **U5.** نصاب — **کامل**. آیکونِ اختصاصیِ `app.ico` + `ApplicationIcon`/`SetupIconFile` در هر سه نصاب + نسخه→۲.۰.۰ + راهنمای PDF + BranchId در نصب. ✅ **Inno Setup با winget نصب شد و نصاب‌های v2 کامپایل شدند:** `installer/Output/client.exe` (کلاینت/POS، ۵۹MB) و `installer/Output/SamaHesab_Server_Setup.exe` (سرور، ۹۷MB) — هر دو self-contained. (نامِ خروجیِ سرور از `setup` به `SamaHesab_Server_Setup` تغییر کرد تا هشدارِ امنیتیِ شیمِ `setup.exe` رفع شود.) خروجی‌ها در gitignore‌اند. (pc)
 
 ### 💻 لِینِ لپ‌تاپ / کلود ۲ — باقیمانده (همگی فاز ۲ / نیاز به بک‌اند یا تصمیمِ مدل)
-- [ ] **U6.** **تخفیفِ پلکانیِ مقداری** — موجودیتِ قاعدهٔ تخفیف + ادغام در `CreateSalesInvoiceCommand`. ⚠️ نیاز به تصمیمِ مدل (پلکان بر مقدار/مبلغ؟ per کالا/گروه/مشتری؟). (تتمهٔ کارِ ۷)
+- [x] ✅C2@04:40 **U6.** **تخفیفِ پلکانیِ مقداری** — انجام شد (مدل: پلکان بر **مقدار، per کالا**). `ProductDiscountTier` + `Inv.ProductDiscountTiers` (در `02_CreateTables` + مهاجرتِ idempotent `database/23_ProductDiscountTiers.sql`) + DbSet/ToTable + CQRS (`Save`/`Get`/`ResolveQtyDiscount`) + **صفحهٔ مدیریت «تخفیف پلکانی»** (منوی انبار) + **اعمالِ خودکار در فاکتور فروش** (`AddToCart`، غیرتهاجمی به command) + ۷ تست (۲۲۵ سبز). ⏭️ پلکانِ گروه‌کالا/مشتری فاز بعد.
 - [ ] **U7.** **رزرو میز + تخصیص گارسون** رستوران — `ReserveTableCommand`/`AssignWaiter` (دامنه `DiningTable.Reserve` آماده) + UI. (=کارِ ۱۴/R9 + تتمهٔ OPT-12)
 - [ ] **U8.** **زمانِ سپری‌شدهٔ میز + وضعیتِ ارسال‌به‌آشپزخانهٔ سطح‌آیتم** — نیاز به timestamp/وضعیت در کوئریِ میزها. (تتمهٔ OPT-12)
 - [ ] **U9.** اتصالِ «کالای محبوب/مشتری اخیر» به **POS** از طریق `ApiClient` (بک‌اندِ favorites آماده). (=کارِ ۱۳/R10)

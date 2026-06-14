@@ -455,6 +455,17 @@ CREATE TABLE Inv.Serials (
     UNIQUE(ProductId, SerialNumber)
 );
 
+-- پله‌های تخفیفِ مقداریِ کالا (U6): «مقدار ≥ MinQty → DiscountPercent٪»
+CREATE TABLE Inv.ProductDiscountTiers (
+    Id              INT IDENTITY(1,1) PRIMARY KEY,
+    CompanyId       INT NOT NULL REFERENCES Cfg.Companies(Id),
+    ProductId       INT NOT NULL REFERENCES Inv.Products(Id) ON DELETE CASCADE,
+    MinQty          DECIMAL(18,3) NOT NULL,
+    DiscountPercent DECIMAL(5,2) NOT NULL DEFAULT 0,
+    CreatedAt       DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt       DATETIME2
+);
+
 CREATE TABLE Inv.StockItems (
     Id              INT IDENTITY(1,1) PRIMARY KEY,
     ProductId       INT NOT NULL REFERENCES Inv.Products(Id),

@@ -120,6 +120,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<BatchSerialViewModel>();
                 services.AddTransient<InventoryReportViewModel>();
                 services.AddTransient<ViewModels.Inventory.PriceListViewModel>();   // کارِ ۷ — مدیریت لیست‌قیمت
+                services.AddTransient<ViewModels.Inventory.DiscountTiersViewModel>();   // U6 — تخفیف پلکانی
                 services.AddTransient<ProductEditViewModel>();
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();

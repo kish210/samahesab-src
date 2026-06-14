@@ -106,6 +106,7 @@ public partial class MainViewModel : BaseViewModel
             ["BatchSerial"]     = ("بچ و سریال",          sp => sp.GetRequiredService<BatchSerialViewModel>()),
             ["InventoryReport"] = ("گزارش انبار",          sp => sp.GetRequiredService<InventoryReportViewModel>()),
             ["PriceList"]       = ("مدیریت لیست‌قیمت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.PriceListViewModel>()),
+            ["DiscountTiers"]   = ("تخفیف پلکانی",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.DiscountTiersViewModel>()),
             ["SalesReport"]     = ("گزارش فروش",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.SalesReportViewModel>()),
             ["PurchaseReport"]  = ("گزارش خرید",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Purchase.PurchaseReportViewModel>()),
             ["ProductEdit"]     = ("ویرایش کالا",         sp => sp.GetRequiredService<ProductEditViewModel>()),

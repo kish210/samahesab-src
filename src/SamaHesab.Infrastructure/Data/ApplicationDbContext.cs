@@ -80,6 +80,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<StockItem> StockItems { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Inventory.ProductDiscountTier> ProductDiscountTiers { get; set; }
 
     // CRM
     public DbSet<Customer> Customers { get; set; }
@@ -145,6 +146,9 @@ public class ApplicationDbContext : DbContext
             b.ToTable("StockTransactions", "Inv");
             b.HasKey(t => t.Id);
         });
+        // پلهٔ تخفیفِ مقداریِ کالا (U6)
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.ProductDiscountTier>().ToTable("ProductDiscountTiers", "Inv");
+
         // بچ و سریال (عمق انبار — INV-1): جداول Inv.Batches/Serials از قبل در SQL هست.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Inventory.Batch>(b =>
         {

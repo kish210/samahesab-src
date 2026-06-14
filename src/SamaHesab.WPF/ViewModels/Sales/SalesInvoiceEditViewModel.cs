@@ -167,9 +167,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     /// <summary>Add the product picked from the dropdown.</summary>
     [RelayCommand]
-    private void AddSelectedProduct()
+    private async Task AddSelectedProductAsync()
     {
-        if (SelectedProductItem != null) { AddToCart(SelectedProductItem); SelectedProductItem = null; }
+        if (SelectedProductItem != null) { await AddToCartAsync(SelectedProductItem); SelectedProductItem = null; }
     }
 
     /// <summary>Reload customer list (after a quick-add) and optionally select one.</summary>
@@ -190,24 +190,36 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         SearchResults.Clear();
         foreach (var p in products.Take(20))
             SearchResults.Add(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
-        if (SearchResults.Count == 1) { AddToCart(SearchResults[0]); ProductSearch = string.Empty; }
+        if (SearchResults.Count == 1) { await AddToCartAsync(SearchResults[0]); ProductSearch = string.Empty; }
     }
 
     [RelayCommand]
-    private void AddToCart(ProductSearchResult? product)
+    private async Task AddToCartAsync(ProductSearchResult? product)
     {
         if (product == null) return;
         AddUnitPrice = product.Price; AddTaxPct = product.TaxRate;
         var existing = InvoiceItems.FirstOrDefault(i => i.ProductId == product.Id);
-        if (existing != null) { existing.Quantity += AddQty; existing.Recalculate(); }
+        if (existing != null)
+        {
+            existing.Quantity += AddQty;
+            // U6: تخفیفِ پلکانیِ مقداری برای مقدارِ جدید (اگر تخفیفِ دستی روی ردیف نباشد)
+            if (existing.DiscountPct <= 0)
+            {
+                var d = await ResolveQtyDiscountAsync(product.Id, existing.Quantity);
+                if (d > 0) existing.DiscountPct = d;
+            }
+            existing.Recalculate();
+        }
         else
         {
+            var disc = AddDiscountPct;
+            if (disc <= 0) disc = await ResolveQtyDiscountAsync(product.Id, AddQty);   // U6
             var row = new SalesInvoiceItemRow
             {
                 RowNumber = InvoiceItems.Count + 1, ProductId = product.Id,
                 ProductCode = product.Code, ProductName = product.Name,
                 Quantity = AddQty, UnitPrice = AddUnitPrice,
-                DiscountPct = AddDiscountPct, TaxPct = AddTaxPct,
+                DiscountPct = disc, TaxPct = AddTaxPct,
                 StockOnHand = OnHandOf(product.Id)
             };
             row.Recalculate(); row.PropertyChanged += (_, _) => RecalculateTotals();
@@ -217,6 +229,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         ProductSearch = string.Empty; AddQty = 1; AddDiscountPct = 0; SearchResults.Clear();
         // کار #۳۹: ثبت استفاده‌ی کالا برای «کالاهای پرتکرار»
         _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", product.Id, product.Name));
+    }
+
+    /// <summary>U6: بهترین تخفیفِ پلکانیِ مقداری برای (کالا، مقدار)؛ خطا/نبودِ پله → ۰.</summary>
+    private async Task<decimal> ResolveQtyDiscountAsync(int productId, decimal qty)
+    {
+        try { return await _mediator.Send(new SamaHesab.Application.Inventory.DiscountTiers.ResolveQtyDiscountQuery(productId, qty)); }
+        catch { return 0; }
     }
 
     /// <summary>ورود سریع: اسکن/تایپ بارکد یا کد کالا + Enter → ردیف فوراً افزوده می‌شود (سرویس یکپارچهٔ بارکد #۲۷). فوکوس برای ورود پیوسته حفظ می‌شود.</summary>
@@ -233,7 +252,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             if (found.Count == 1)
             {
                 var p = found[0];
-                AddToCart(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
+                await AddToCartAsync(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
                 BarcodeInput = string.Empty;
                 return;
             }
@@ -241,7 +260,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             BarcodeInput = string.Empty;
             return;
         }
-        AddToCart(new ProductSearchResult(hit.ProductId, hit.Code, hit.Name, code, hit.SalePrice, hit.TaxRate));
+        await AddToCartAsync(new ProductSearchResult(hit.ProductId, hit.Code, hit.Name, code, hit.SalePrice, hit.TaxRate));
         BarcodeInput = string.Empty;
     }
 

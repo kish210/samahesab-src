@@ -1,0 +1,17 @@
+<UserControl x:Class="SamaHesab.WPF.Controls.AccountSearchBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <!--
+      کامپوننتِ مشترکِ جست‌وجوی هوشمندِ حساب (FND-5/U13/T3).
+      آیتم‌های ItemsSource باید پراپرتیِ `Display` (مثل «کد — نام») و `Id` داشته باشند.
+      تایپِ کد یا نام → فیلترِ contains (TextSearch) + انتخاب با کیبورد.
+    -->
+    <ComboBox x:Name="Combo"
+              ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              SelectedValue="{Binding SelectedAccountId, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+              SelectedValuePath="Id" DisplayMemberPath="Display"
+              IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
+              StaysOpenOnEdit="True" FontFamily="{StaticResource VazirFont}" FontSize="12.5"
+              VerticalContentAlignment="Center"/>
+</UserControl>

@@ -16,7 +16,7 @@
 ### 🖥 لِینِ pc / C1
 - [~] **T1.** 🛑 رفعِ نهاییِ کرشِ «ثبت سند» — C1 نوارِ چیپ را به ScrollViewerِ امن تغییر داد؛ منتظرِ تأییدِ C2 روی دادهٔ واقعی. اگر باز کرش کرد، C2 stack-trace می‌فرستد.
 - [x] ✅C1 **T2.** مهاجرتِ آیکونِ تولبارها از `PackIcon` به SVG — **کامل** برای ۵ ویوِ لِینِ من: `VoucherEditView` (۸ دکمه)، `VoucherListView`، `ChequeListView`، `ChartOfAccountsView`، `FinancialReportsView`. ۸ آیکونِ نبوده به `DesignIcons.xaml` افزوده شد (`IcCheck/IcCopy/IcSwap/IcClose/IcTransfer/IcUndo/IcTemplate/IcTrash`) با استایلِ مشترکِ `ErpToolSvg`. رندر بصری تأیید شد (`screenshot/accounting_docs.png`). build سبز، ۲۲۵ تست. (pc)
-- [ ] **T3.** U13 — **type-ahead حساب** با Popup مشترک (لِینِ حسابداری؛ کالا را C2).
+- [x] ✅C1 **T3.** U13 — **کامپوننتِ مشترکِ type-ahead حساب** ساخته شد: `Controls/AccountSearchBox` (ComboBoxِ editable + IsTextSearchEnabled + DisplayMemberPath=Display، با DPهای `ItemsSource`/`SelectedAccountId`) — الگوی تکراریِ گزارش‌ها/ثبت‌سند را یکپارچه می‌کند. در **گزارش‌های مالی** (انتخابگرِ حساب) به‌کار گرفته شد. build سبز. ⏭️ به‌کارگیری در «ثبت سند» تا رفعِ قطعیِ فلگِ کرشِ T1 موکول شد (برای آلوده‌نکردنِ بررسی). (pc)
 
 ### 💻 لِینِ لپ‌تاپ / C2
 - [~] **T4.** مهاجرتِ آیکونِ تولبارهای **خرید/POS/مشتری/لیست‌ها/گزارش‌ها/لیست‌قیمت** به SVG (فاکتورِ فروش ✅؛ بقیه در حال انجام).

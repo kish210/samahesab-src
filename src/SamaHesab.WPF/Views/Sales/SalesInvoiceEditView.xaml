@@ -182,7 +182,7 @@
                 <!-- گرید اقلام (مرکز صفحه، چگالی بالا) -->
                 <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
                     <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
-                              RowHeight="27" GridLinesVisibility="Both"
+                              RowHeight="27" GridLinesVisibility="All"
                              
                               FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                         <DataGrid.Columns>

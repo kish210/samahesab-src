@@ -148,7 +148,7 @@
             <Border Grid.Column="0" Style="{StaticResource ErpCardPanel}" Padding="0">
                 <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                           RowHeight="28"
-                          GridLinesVisibility="Both">
+                          GridLinesVisibility="All">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ردیف" Binding="{Binding RowNumber}" Width="48"/>
                         <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="90"/>

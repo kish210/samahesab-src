@@ -3,31 +3,59 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FlowDirection="RightToLeft">
 
-    <Border Background="{DynamicResource InputBackground}"
-            BorderBrush="{DynamicResource InputBorder}"
-            BorderThickness="1" CornerRadius="4">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="36"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <Border Background="{DynamicResource InputBackground}"
+                BorderBrush="{DynamicResource InputBorder}"
+                BorderThickness="1" CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0"
-                     Text="{Binding PersianDate, RelativeSource={RelativeSource AncestorType=UserControl},
-                         UpdateSourceTrigger=PropertyChanged}"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     Foreground="{DynamicResource PrimaryText}"
-                     Padding="10,8"
-                     FontFamily="{StaticResource VazirFont}"
-                     VerticalAlignment="Center"/>
+                <TextBox x:Name="DateBox" Grid.Column="0"
+                         Text="{Binding PersianDate, RelativeSource={RelativeSource AncestorType=UserControl},
+                             UpdateSourceTrigger=PropertyChanged}"
+                         Background="Transparent" BorderThickness="0"
+                         Foreground="{DynamicResource PrimaryText}" Padding="10,8"
+                         FontFamily="{StaticResource VazirFont}" VerticalAlignment="Center"
+                         MaxLength="10"/>
 
-            <Button Grid.Column="1" Content="📅"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Foreground="{DynamicResource SecondaryText}"
-                    FontSize="14"
-                    Click="CalendarButton_Click"/>
-        </Grid>
-    </Border>
+                <Button x:Name="CalBtn" Grid.Column="1" Content="📅"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource SecondaryText}" FontSize="14" Cursor="Hand"
+                        Click="CalendarButton_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- پاپ‌آپِ تقویمِ شمسی -->
+        <Popup x:Name="CalPopup" PlacementTarget="{Binding ElementName=CalBtn}" Placement="Bottom"
+               StaysOpen="False" AllowsTransparency="True">
+            <Border Background="White" BorderBrush="#CFDAEF" BorderThickness="1" CornerRadius="8"
+                    Margin="4" Width="248" SnapsToDevicePixels="True">
+                <Border.Effect><DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.25" Color="#324A7A"/></Border.Effect>
+                <StackPanel Margin="8">
+                    <!-- هدر: ماه قبل · عنوانِ ماه/سال · ماه بعد -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="28"/><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="‹" FontSize="16" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                Foreground="#324A7A" Click="PrevMonth_Click"/>
+                        <TextBlock x:Name="HeaderText" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   FontWeight="Bold" FontSize="13" Foreground="#1F2937" FontFamily="{StaticResource VazirFont}"/>
+                        <Button Grid.Column="2" Content="›" FontSize="16" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                Foreground="#324A7A" Click="NextMonth_Click"/>
+                    </Grid>
+                    <!-- نامِ روزهای هفته -->
+                    <UniformGrid x:Name="DayNames" Columns="7" Margin="0,0,0,2"/>
+                    <!-- شبکهٔ روزها -->
+                    <UniformGrid x:Name="DaysGrid" Columns="7" Rows="6"/>
+                    <Button Content="امروز" Margin="0,6,0,0" Height="26" Cursor="Hand"
+                            Background="#EAF0FB" Foreground="#324A7A" BorderThickness="0"
+                            FontFamily="{StaticResource VazirFont}" Click="Today_Click"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
 </UserControl>

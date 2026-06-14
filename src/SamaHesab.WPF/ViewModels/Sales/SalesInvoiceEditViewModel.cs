@@ -120,7 +120,11 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     }
 
     partial void OnSelectedProductItemChanged(ProductSearchResult? value)
-        => EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
+    {
+        EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
+        // با انتخابِ کالا، «فی» و «مالیات ٪» نوارِ ورود از خودِ کالا پر شود.
+        if (value != null) { AddUnitPrice = value.Price; AddTaxPct = value.TaxRate; }
+    }
 
     private PrintDocumentData BuildPrintData()
     {
@@ -203,7 +207,10 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private async Task AddToCartAsync(ProductSearchResult? product)
     {
         if (product == null) return;
-        AddUnitPrice = product.Price; AddTaxPct = product.TaxRate;
+        // اگر کاربر «فی»/«مالیات» را دستی وارد/ویرایش کرده، حفظ شود؛ وگرنه از خودِ کالا پر شود
+        // (مسیرِ بارکد/جستجو که نوارِ ورود را پر نمی‌کند).
+        if (AddUnitPrice <= 0) AddUnitPrice = product.Price;
+        if (AddTaxPct <= 0) AddTaxPct = product.TaxRate;
         var existing = InvoiceItems.FirstOrDefault(i => i.ProductId == product.Id);
         if (existing != null)
         {
@@ -232,7 +239,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             InvoiceItems.Add(row);
         }
         RecalculateTotals();
-        ProductSearch = string.Empty; AddQty = 1; AddDiscountPct = 0; SearchResults.Clear();
+        ProductSearch = string.Empty; AddQty = 1; AddDiscountPct = 0; AddUnitPrice = 0; AddTaxPct = 0; SearchResults.Clear();
         // کار #۳۹: ثبت استفاده‌ی کالا برای «کالاهای پرتکرار»
         _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", product.Id, product.Name));
     }

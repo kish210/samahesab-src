@@ -90,7 +90,10 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         catch { _onHand = new(); }
     }
 
-    partial void OnSelectedWarehouseIdChanged(int value) => _ = ReloadStockAsync();
+    // در حینِ LoadAsync، ستِ SelectedWarehouseId نباید بارگذاریِ موازیِ موجودی را تریگر کند
+    // (تداخلِ DbContext: «A second operation…»). مثلِ SalesInvoiceEditViewModel.
+    private bool _suppressStockReload;
+    partial void OnSelectedWarehouseIdChanged(int value) { if (!_suppressStockReload) _ = ReloadStockAsync(); }
     private async Task ReloadStockAsync()
     {
         await LoadStockForWarehouseAsync();
@@ -120,7 +123,9 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
+        _suppressStockReload = true;
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+        _suppressStockReload = false;
         await LoadStockForWarehouseAsync();
 
         var products = await _productRepository.SearchAsync(companyId, "");

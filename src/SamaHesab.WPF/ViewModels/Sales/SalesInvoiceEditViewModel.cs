@@ -108,7 +108,10 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
 
-    partial void OnSelectedWarehouseIdChanged(int value) => _ = ReloadStockAsync();
+    // در حینِ LoadAsync، ستِ SelectedWarehouseId نباید بارگذاریِ موازیِ موجودی (fire-and-forget)
+    // را تریگر کند — وگرنه با کوئری‌های همان DbContext تداخل می‌کند («A second operation…»).
+    private bool _suppressStockReload;
+    partial void OnSelectedWarehouseIdChanged(int value) { if (!_suppressStockReload) _ = ReloadStockAsync(); }
     private async Task ReloadStockAsync()
     {
         await LoadStockForWarehouseAsync();
@@ -140,7 +143,10 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
         Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
+        // ستِ انبارِ پیش‌فرض بدونِ تریگرِ بارگذاریِ موازی؛ سپس بارگذاریِ موجودی به‌صورتِ سریالی await می‌شود.
+        _suppressStockReload = true;
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
+        _suppressStockReload = false;
         await LoadStockForWarehouseAsync();
 
         var prods = await _productRepository.SearchAsync(companyId, "");

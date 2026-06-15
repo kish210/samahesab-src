@@ -19,6 +19,7 @@
 
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
 
         <!-- توکن‌های برند -->
         <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>
@@ -119,6 +120,19 @@
                 <Button Style="{StaticResource TBtn}" Command="{Binding PrintCommand}">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
+                <!-- P1/DT-6: چاپ با قالبِ پویا (قالب‌های نوعِ Voucher) -->
+                <Menu Background="Transparent" VerticalAlignment="Center"
+                      Visibility="{Binding PrintTemplates.Count, Converter={StaticResource GtzVis}}">
+                    <MenuItem Header="چاپ با قالب ▼" ItemsSource="{Binding PrintTemplates}" FontSize="12">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding Name}"/>
+                                <Setter Property="Command" Value="{Binding DataContext.PrintWithTemplateCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                </Menu>
                 <Button Style="{StaticResource TBtn}" Command="{Binding CancelCommand}" Foreground="#B91C1C" BorderBrush="#E6BcBc"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcClose}" Style="{StaticResource ErpToolSvg}" Stroke="#B91C1C" Margin="0,0,5,0"/><TextBlock Text="انصراف"/></StackPanel></Button>
             </StackPanel>
         </Border>

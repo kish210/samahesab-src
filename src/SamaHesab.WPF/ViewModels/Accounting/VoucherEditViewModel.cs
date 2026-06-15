@@ -113,6 +113,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         catch { /* مانده اختیاری است */ }
 
         await LoadQuickAccountsAsync();
+        await LoadPrintTemplatesAsync();
     }
 
     /// <summary>بارگذاریِ حساب‌های پرکاربرد (سنجاق‌شده) + اخیر برای نوارِ دسترسیِ سریع.
@@ -366,6 +367,62 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
 
             await _dialogService.ShowSuccessAsync($"سند برای چاپ آماده شد:\n{path}");
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    /// <summary>P1/DT-6 — قالب‌های چاپِ سندِ حسابداری (دکمهٔ «چاپ ▼»، قالب‌های نوعِ Voucherِ C2).</summary>
+    public ObservableCollection<Application.Documents.DocumentTemplateListDto> PrintTemplates { get; } = new();
+
+    private async Task LoadPrintTemplatesAsync()
+    {
+        PrintTemplates.Clear();
+        try { foreach (var t in await _mediator.Send(new Application.Documents.GetDocumentTemplatesQuery("Voucher"))) PrintTemplates.Add(t); }
+        catch { /* قالب‌ها اختیاری‌اند؛ نبودشان نباید سند را خراب کند */ }
+    }
+
+    /// <summary>P1/DT-6 — چاپِ سند با قالبِ پویای انتخاب‌شده (همان موتورِ DocumentTemplateEngine).</summary>
+    [RelayCommand]
+    private async Task PrintWithTemplateAsync(Application.Documents.DocumentTemplateListDto? tpl)
+    {
+        if (tpl is null) return;
+        if (!Items.Any()) { await _dialogService.ShowErrorAsync("سندی برای چاپ وجود ندارد."); return; }
+        try
+        {
+            var full = await _mediator.Send(new Application.Documents.GetDocumentTemplateQuery(tpl.Id));
+            if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
+
+            var g = Services.AppSettingsStore.GetGeneral();
+            string N(decimal d) => d.ToString("#,##0");
+            var typeName = VoucherTypes.FirstOrDefault(t => t.Id == SelectedVoucherTypeId)?.Name ?? "";
+            var fields = new Dictionary<string, string?>
+            {
+                ["VoucherNumber"] = VoucherNumber, ["DocNumber"] = VoucherNumber, ["QrData"] = VoucherNumber,
+                ["VoucherDate"] = VoucherDate, ["Date"] = VoucherDate, ["VoucherType"] = typeName,
+                ["Reference"] = Reference, ["Description"] = Description,
+                ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,
+                ["EconomicCode"] = g.CompanyEconomicCode, ["NationalId"] = g.CompanyNationalId, ["BranchName"] = "",
+                ["TotalDebit"] = N(TotalDebit), ["TotalCredit"] = N(TotalCredit),
+                ["PrintDate"] = _calendar.GetCurrentPersianDate(), ["PrintTime"] = DateTime.Now.ToString("HH:mm"),
+            };
+            var rows = Items.Select(r => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
+            {
+                ["AccountCode"] = r.AccountCode, ["AccountName"] = r.AccountName, ["DetailName"] = r.AccountName,
+                ["LineDescription"] = r.Description, ["Description"] = r.Description,
+                ["Debit"] = N(r.Debit), ["Credit"] = N(r.Credit),
+            }).ToList();
+
+            var data = Application.Documents.DocumentData.Of(fields, rows);
+            var html = Application.Documents.DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                     + Application.Documents.DocumentTemplateEngine.Render(full.BodyHtml, data)
+                     + Application.Documents.DocumentTemplateEngine.Render(full.FooterHtml, data);
+
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"سند_{VoucherNumber}_{tpl.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
         }
         catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }

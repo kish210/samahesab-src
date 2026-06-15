@@ -55,6 +55,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     [ObservableProperty] private ProductSearchResult? _selectedProductItem;
 
+    /// <summary>T10 — پس از افزودنِ هر ردیف، View نوارِ ورود را دوباره فوکوس می‌کند (ورودِ پیوستهٔ کیبوردمحور).</summary>
+    public event System.Action? RowAdded;
+
     public ObservableCollection<SalesInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
     /// <summary>مشتریان اخیرِ این کاربر (کار #۳۹) — چیپ‌های دسترسی سریع.</summary>
@@ -240,6 +243,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         }
         RecalculateTotals();
         ProductSearch = string.Empty; AddQty = 1; AddDiscountPct = 0; AddUnitPrice = 0; AddTaxPct = 0; SearchResults.Clear();
+        RowAdded?.Invoke();   // T10 — بازگشتِ فوکوس به نوارِ ورود برای ردیفِ بعدی
         // کار #۳۹: ثبت استفاده‌ی کالا برای «کالاهای پرتکرار»
         _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("product", product.Id, product.Name));
     }

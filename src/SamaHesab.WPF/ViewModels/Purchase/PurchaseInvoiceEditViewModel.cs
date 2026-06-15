@@ -50,6 +50,9 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private bool _hasSupplierInfo;
     [ObservableProperty] private decimal _entryOnHand;
 
+    /// <summary>T10 — پس از افزودنِ هر ردیف، View نوارِ ورود را دوباره فوکوس می‌کند (ورودِ پیوسته).</summary>
+    public event System.Action? RowAdded;
+
     public ObservableCollection<PurchaseInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
     public List<ProductSearchResult> AllProducts { get; private set; } = new();
@@ -174,6 +177,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         ProductSearch = string.Empty; AddQty = 1;
         AddBatchNumber = null; AddProductionDate = null; AddExpiryDate = null;
         SearchResults.Clear();
+        RowAdded?.Invoke();   // T10 — بازگشتِ فوکوس به نوارِ ورود برای ردیفِ بعدی
     }
 
     [RelayCommand] private void RemoveItem(PurchaseInvoiceItemRow? item) { if (item != null) { InvoiceItems.Remove(item); RecalculateTotals(); } }

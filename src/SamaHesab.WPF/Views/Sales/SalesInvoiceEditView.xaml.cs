@@ -18,7 +18,15 @@ public partial class SalesInvoiceEditView : UserControl
             if (e.Key == System.Windows.Input.Key.F4) { BarcodeBox.Focus(); e.Handled = true; }
             else if (e.Key == System.Windows.Input.Key.F6) { CustomerCombo.Focus(); e.Handled = true; }
         };
+        // T10: پس از افزودنِ هر ردیف، فوکوس به نوارِ بارکد برگردد (ورودِ پیوسته)
+        DataContextChanged += (_, e) =>
+        {
+            if (e.OldValue is SalesInvoiceEditViewModel oldVm) oldVm.RowAdded -= FocusEntry;
+            if (e.NewValue is SalesInvoiceEditViewModel newVm) newVm.RowAdded += FocusEntry;
+        };
     }
+
+    private void FocusEntry() => BarcodeBox.Focus();
 
     private async void AddCustomer_Click(object sender, RoutedEventArgs e)
     {

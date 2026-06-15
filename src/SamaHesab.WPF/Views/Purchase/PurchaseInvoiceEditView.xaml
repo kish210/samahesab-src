@@ -97,7 +97,7 @@
                                        Margin="3,0,2,0" VerticalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/>
                         </StackPanel>
                     </DockPanel>
-                    <ComboBox ItemsSource="{Binding AllProducts}" DisplayMemberPath="Name"
+                    <ComboBox x:Name="ProductCombo" ItemsSource="{Binding AllProducts}" DisplayMemberPath="Name"
                               SelectedItem="{Binding SelectedProductItem}"
                               IsEditable="True"
                               Height="32"/>

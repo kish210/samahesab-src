@@ -27,16 +27,32 @@ public class BackupService : IBackupService
         var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         var fileName = Path.Combine(path, $"SamaHesab_{timestamp}.bak");
 
-        var sql = $@"BACKUP DATABASE [SamaHesab] 
-                     TO DISK = N'{fileName}' 
-                     WITH COMPRESSION, STATS = 10, FORMAT";
-
         try
         {
             await using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync(ct);
+
+            // فشرده‌سازی روی نسخهٔ Express پشتیبانی نمی‌شود (EngineEdition=4) → فقط در نسخه‌های دیگر.
+            var edition = Convert.ToInt32(await new SqlCommand(
+                "SELECT SERVERPROPERTY('EngineEdition')", conn).ExecuteScalarAsync(ct));
+            var withClause = edition == 4 ? "WITH FORMAT, STATS = 10" : "WITH COMPRESSION, FORMAT, STATS = 10";
+            var sql = $"BACKUP DATABASE [SamaHesab] TO DISK = N'{fileName.Replace("'", "''")}' {withClause}";
+
             await using var cmd = new SqlCommand(sql, conn) { CommandTimeout = 3600 };
             await cmd.ExecuteNonQueryAsync(ct);
+
+            // ثبت در تاریخچهٔ پشتیبان (best-effort تا فهرست به‌روز بماند).
+            try
+            {
+                long size = File.Exists(fileName) ? new FileInfo(fileName).Length : 0;
+                await using var h = new SqlCommand(
+                    "INSERT INTO Cfg.BackupHistory(BackupType, FilePath, FileSize, Status, CreatedAt) " +
+                    "VALUES (N'دستی', @p, @s, N'موفق', SYSDATETIME())", conn);
+                h.Parameters.AddWithValue("@p", fileName);
+                h.Parameters.AddWithValue("@s", size);
+                await h.ExecuteNonQueryAsync(ct);
+            }
+            catch (Exception hx) { _logger.LogWarning(hx, "ثبتِ تاریخچهٔ پشتیبان ناموفق بود"); }
 
             _logger.LogInformation("پشتیبان‌گیری با موفقیت انجام شد: {FileName}", fileName);
             return fileName;

@@ -97,8 +97,22 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _smsSender = string.Empty;
     [ObservableProperty] private string _companyName = string.Empty;
     [ObservableProperty] private string _companyPhone = string.Empty;
+    [ObservableProperty] private string _companyNationalId = string.Empty;
+    [ObservableProperty] private string _companyEconomicCode = string.Empty;
+    [ObservableProperty] private string _companyRegNumber = string.Empty;
+    [ObservableProperty] private string _companyAddress = string.Empty;
+    [ObservableProperty] private string _companyPostalCode = string.Empty;
+    [ObservableProperty] private string _companyEmail = string.Empty;
+    [ObservableProperty] private string _companyWebsite = string.Empty;
     [ObservableProperty] private string _fiscalYearStart = string.Empty;
     [ObservableProperty] private string _fiscalYearEnd = string.Empty;
+    [ObservableProperty] private decimal _defaultVatRate = 9;
+    [ObservableProperty] private int _decimalPlaces;
+    [ObservableProperty] private string _voucherPrefix = string.Empty;
+    [ObservableProperty] private string _invoicePrefix = string.Empty;
+    [ObservableProperty] private bool _autoBackupEnabled;
+    [ObservableProperty] private int _backupIntervalDays = 1;
+    [ObservableProperty] private string _backupPath = string.Empty;
     [ObservableProperty] private string _updateStatus = string.Empty;
 
     public string AppVersionText => $"نسخهٔ برنامه: {AppVersion.Display}";
@@ -116,9 +130,21 @@ public partial class SettingsViewModel : BaseViewModel
         SelectedTheme = AppSettingsStore.GetTheme();
         CompanyName = g.CompanyName ?? "";
         CompanyPhone = g.CompanyPhone ?? "";
+        CompanyNationalId = g.CompanyNationalId ?? "";
+        CompanyEconomicCode = g.CompanyEconomicCode ?? "";
+        CompanyRegNumber = g.CompanyRegNumber ?? "";
+        CompanyAddress = g.CompanyAddress ?? "";
+        CompanyPostalCode = g.CompanyPostalCode ?? "";
+        CompanyEmail = g.CompanyEmail ?? "";
+        CompanyWebsite = g.CompanyWebsite ?? "";
         FiscalYearStart = string.IsNullOrWhiteSpace(g.FiscalYearStart) ? "1404/01/01" : g.FiscalYearStart!;
         FiscalYearEnd = string.IsNullOrWhiteSpace(g.FiscalYearEnd) ? "1404/12/29" : g.FiscalYearEnd!;
         SelectedCurrency = g.Currency;
+        DefaultVatRate = g.DefaultVatRate;
+        DecimalPlaces = g.DecimalPlaces;
+        VoucherPrefix = g.VoucherPrefix; InvoicePrefix = g.InvoicePrefix;
+        AutoBackupEnabled = g.AutoBackupEnabled; BackupIntervalDays = g.BackupIntervalDays;
+        BackupPath = string.IsNullOrWhiteSpace(g.BackupPath) ? @"C:\SamaHesabBackup" : g.BackupPath!;
         SmsEnabled = g.SmsEnabled; SmsProvider = g.SmsProvider;
         SmsApiKey = g.SmsApiKey ?? ""; SmsSender = g.SmsSender ?? "";
         await Task.CompletedTask;
@@ -134,8 +160,14 @@ public partial class SettingsViewModel : BaseViewModel
             AppSettingsStore.SaveGeneral(new GeneralSettings
             {
                 CompanyName = CompanyName, CompanyPhone = CompanyPhone,
+                CompanyNationalId = CompanyNationalId, CompanyEconomicCode = CompanyEconomicCode,
+                CompanyRegNumber = CompanyRegNumber, CompanyAddress = CompanyAddress,
+                CompanyPostalCode = CompanyPostalCode, CompanyEmail = CompanyEmail, CompanyWebsite = CompanyWebsite,
                 FiscalYearStart = FiscalYearStart, FiscalYearEnd = FiscalYearEnd,
-                Currency = SelectedCurrency, SmsEnabled = SmsEnabled, SmsProvider = SmsProvider,
+                Currency = SelectedCurrency, DefaultVatRate = DefaultVatRate, DecimalPlaces = DecimalPlaces,
+                VoucherPrefix = VoucherPrefix, InvoicePrefix = InvoicePrefix,
+                AutoBackupEnabled = AutoBackupEnabled, BackupIntervalDays = BackupIntervalDays, BackupPath = BackupPath,
+                SmsEnabled = SmsEnabled, SmsProvider = SmsProvider,
                 SmsApiKey = SmsApiKey, SmsSender = SmsSender
             });
             await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد.");

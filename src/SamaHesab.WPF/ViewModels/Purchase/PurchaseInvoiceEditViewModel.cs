@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Purchase.Commands;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -222,7 +223,30 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         InvoiceItems.Clear(); PaidAmount = 0; RecalculateTotals();
     }
 
-    [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال چاپ...");
+    [RelayCommand]
+    private async Task PrintAsync()
+    {
+        if (!InvoiceItems.Any()) { await _dialogService.ShowWarningAsync("ردیفی برای چاپ نیست."); return; }
+        try
+        {
+            string N(decimal d) => d.ToString("N0");
+            var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId)?.Name ?? "—";
+            var rows = InvoiceItems.Select(i => new[] {
+                i.RowNumber.ToString(), i.ProductCode, i.ProductName, N(i.Quantity), N(i.UnitPrice),
+                N(i.DiscountAmount), N(i.TaxAmount), N(i.NetAmount) }).ToList();
+            rows.Add(new[] { "", "", "جمع کل", "", "", N(TotalDiscount), N(TotalTax), N(GrandTotal) });
+            var table = new ReportTable(
+                $"فاکتور خرید {InvoiceNumber} — {supplier} — {InvoiceDate}",
+                new[] { "ردیف", "کد", "نام کالا", "مقدار", "فی", "تخفیف", "مالیات", "مبلغ خالص" }, rows);
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"فاکتور_خرید_{InvoiceNumber}_{System.DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, ReportExporter.ToHtml(table), new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
 }
 
 public partial class PurchaseInvoiceItemRow : ObservableObject

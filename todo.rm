@@ -85,8 +85,9 @@
 - [x] ✅C2 **صورت‌حساب تأمین‌کننده** — صفحهٔ کاملِ `SupplierStatementView` (C2-C، commit `8274a44`).
 - [x] ✅C2 **خروجی اکسل/چاپِ لیستِ فروش/خرید** — `ReportExporter.ToCsv/ToHtml` (commit `c1c0e32`).
 - [x] ✅C2 **خروجی اکسلِ لیستِ مشتری/تأمین‌کننده/کالا** — (commit `17a9858`؛ +حذفِ MessageBoxِ بازدارندهٔ کالا).
-- [x] ✅C2 **چاپِ صورت‌حساب مشتری** — `CustomerCard.PrintStatement` → HTMLِ قابل‌چاپ از `Ledger`؛ `CustomerEdit.PrintStatement` → ناوبری به کارت مشتری. (commit بعدی)
-> همه build سبز، ۲۴۴ تست. لِینِ C2 پاک است؛ اگر استاب/شکافِ دیگری ماند، اینجا فهرست می‌شود.
+- [x] ✅C2 **چاپِ صورت‌حساب مشتری** — `CustomerCard.PrintStatement` → HTMLِ قابل‌چاپ از `Ledger`؛ `CustomerEdit.PrintStatement` → ناوبری به کارت مشتری. (commit `91dbd50`)
+- [x] ✅C2 **چاپِ فاکتور خرید** — `PurchaseInvoiceEdit.PrintAsync` → HTMLِ راست‌چینِ قابل‌چاپ (ردیف‌ها + سطرِ جمع) با `ReportExporter.ToHtml`، ذخیره در `My Documents\SamaHesab\اسناد`. (commit بعدی)
+> همه build سبز، ۲۴۴ تست. **هیچ استابِ چاپ/خروجی در لِینِ C2 نماند.** باقی‌ماندهٔ placeholderها («دریافت وجه»/«پیامکِ مانده») فیچرِ آینده‌اند (نیاز به دیالوگِ پرداخت/درگاهِ SMS).
 
 ---
 

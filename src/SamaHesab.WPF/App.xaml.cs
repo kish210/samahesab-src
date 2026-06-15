@@ -114,6 +114,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<EndOfPeriodViewModel>();
                 services.AddTransient<VoucherApprovalsViewModel>();
                 services.AddTransient<AccountantDashboardViewModel>();
+                services.AddTransient<ManagerDashboardViewModel>();
                 services.AddTransient<VoucherProductivityViewModel>();
                 services.AddTransient<BankReconciliationViewModel>();
                 services.AddTransient<AccountingDimensionsViewModel>();

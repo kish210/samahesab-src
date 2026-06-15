@@ -44,6 +44,7 @@
     <DataTemplate DataType="{x:Type acc:EndOfPeriodViewModel}"><va:EndOfPeriodView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:VoucherApprovalsViewModel}"><va:VoucherApprovalsView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:AccountantDashboardViewModel}"><va:AccountantDashboardView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:ManagerDashboardViewModel}"><va:ManagerDashboardView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:VoucherProductivityViewModel}"><va:VoucherProductivityView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:BankReconciliationViewModel}"><va:BankReconciliationView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:AccountingDimensionsViewModel}"><va:AccountingDimensionsView/></DataTemplate>

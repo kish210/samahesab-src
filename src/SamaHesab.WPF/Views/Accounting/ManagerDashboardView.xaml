@@ -1,0 +1,70 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Accounting.ManagerDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Width" Value="210"/>
+            <Setter Property="Height" Value="100"/>
+        </Style>
+        <Style x:Key="Cap" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5"/><Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style x:Key="Val" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="21"/><Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryAccent}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="6,0,6,12" LastChildFill="False">
+            <StackPanel DockPanel.Dock="Right">
+                <TextBlock Text="داشبورد مدیریتی" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+                <TextBlock Text="{Binding TodayText, StringFormat='امروز: {0}'}" FontSize="12.5" Foreground="{DynamicResource SecondaryText}" Margin="0,3,0,0"/>
+            </StackPanel>
+            <Button DockPanel.Dock="Left" Content="بروزرسانی" Command="{Binding RefreshCommand}" VerticalAlignment="Center"
+                    Padding="14,6" Cursor="Hand" BorderThickness="1"
+                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+        </DockPanel>
+
+        <!-- KPIها -->
+        <WrapPanel Grid.Row="1">
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="فروشِ امروز"/><TextBlock Style="{StaticResource Val}" Text="{Binding TodaySales, Converter={StaticResource Num}, ConverterParameter=ریال}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="فروشِ این ماه"/><TextBlock Style="{StaticResource Val}" Text="{Binding MonthSales, Converter={StaticResource Num}, ConverterParameter=ریال}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="سودِ این ماه"/><TextBlock Style="{StaticResource Val}" Foreground="#2E7D52" Text="{Binding MonthProfit, Converter={StaticResource Num}, ConverterParameter=ریال}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="حاشیهٔ سود (٪)"/><TextBlock Style="{StaticResource Val}" Foreground="#2E7D52" Text="{Binding MonthMarginPercent, Converter={StaticResource Num}, ConverterParameter=٪}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="جمعِ دریافتنی"/><TextBlock Style="{StaticResource Val}" Text="{Binding ReceivablesTotal, Converter={StaticResource Num}, ConverterParameter=ریال}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="جمعِ پرداختنی"/><TextBlock Style="{StaticResource Val}" Foreground="#C2403A" Text="{Binding PayablesTotal, Converter={StaticResource Num}, ConverterParameter=ریال}"/></StackPanel></Border>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Style="{StaticResource Cap}" Text="چک‌های در جریان"/><TextBlock Style="{StaticResource Val}" Text="{Binding ChequesInProcess, Converter={StaticResource Num}, ConverterParameter=فقره}"/></StackPanel></Border>
+        </WrapPanel>
+
+        <!-- مشتریانِ برتر -->
+        <Border Grid.Row="2" Margin="6,10,6,0" Background="{DynamicResource CardBackground}" CornerRadius="12" Padding="12">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="مشتریانِ برترِ این ماه" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" Margin="2,0,2,8"/>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding TopCustomers}" AutoGenerateColumns="False" IsReadOnly="True"
+                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="28" FontSize="12.5"
+                          Background="Transparent" RowBackground="Transparent" BorderThickness="0" CanUserAddRows="False"
+                          Foreground="{DynamicResource PrimaryText}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="مشتری" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="مبلغِ خرید (ریال)" Binding="{Binding Total, Converter={StaticResource Num}}" Width="200"/>
+                        <DataGridTextColumn Header="تعداد فاکتور" Binding="{Binding InvoiceCount, Converter={StaticResource Num}}" Width="130"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

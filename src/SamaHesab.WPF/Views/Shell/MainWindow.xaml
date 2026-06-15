@@ -176,6 +176,7 @@
                                 <MenuItem Header="عملیات پایان دوره" Command="{Binding NavigateCommand}" CommandParameter="EndOfPeriod"/>
                                 <MenuItem Header="کارتابلِ تأیید اسناد" Command="{Binding NavigateCommand}" CommandParameter="VoucherApprovals"/>
                                 <MenuItem Header="داشبورد حسابدار" Command="{Binding NavigateCommand}" CommandParameter="AccountantDash"/>
+                                <MenuItem Header="داشبورد مدیریتی" Command="{Binding NavigateCommand}" CommandParameter="ManagerDash"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

@@ -163,7 +163,11 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
                     var p = await _products.GetByIdAsync(l.ProductId, ct);
                     return Result.Failure($"موجودی کافی برای «{p?.Name ?? ("#" + l.ProductId)}» نیست (موجودی: {stock?.Quantity ?? 0}).");
                 }
-                var unitCost = stock.AverageCost;
+                // R8: بهای خروج برای کالاهای روشِ FIFO از لایه‌های کاردکس؛ وگرنه میانگینِ موزون.
+                var product = await _products.GetByIdAsync(l.ProductId, ct);
+                var unitCost = await ComputeIssueUnitCostAsync(companyId, l.ProductId, req.WarehouseId,
+                    l.Quantity, stock.AverageCost,
+                    product?.ValuationMethod ?? Domain.Enums.ValuationMethod.WeightedAverage, ct);
                 stock.RemoveStock(l.Quantity);
                 _stock.Update(stock);
                 totalValue += l.Quantity * unitCost;
@@ -184,6 +188,29 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
             return Result.Success();
         }
         catch (Exception ex) { await _uow.RollbackTransactionAsync(ct); return Result.Failure(ex.GetBaseException().Message); }
+    }
+
+    /// <summary>
+    /// R8 — بهای تمام‌شدهٔ یک خروجِ حواله به روشِ FIFO (قرینهٔ منطقِ فروش): هزینهٔ نهاییِ مصرفِ
+    /// <paramref name="qty"/> واحد از لایه‌های کاردکس. برای کالاهای میانگین‌وزنی (یا نبودِ لایه)
+    /// همان <paramref name="fallbackAverage"/> برگردانده می‌شود.
+    /// </summary>
+    private async Task<decimal> ComputeIssueUnitCostAsync(int companyId, int productId, int warehouseId,
+        decimal qty, decimal fallbackAverage, Domain.Enums.ValuationMethod method, CancellationToken ct)
+    {
+        if (method != Domain.Enums.ValuationMethod.FIFO || qty <= 0) return fallbackAverage;
+
+        var prior = await _ledger.FindAsync(
+            t => t.CompanyId == companyId && t.ProductId == productId && t.WarehouseId == warehouseId, ct);
+        var movements = prior.OrderBy(t => t.CreatedAt).ThenBy(t => t.Id)
+            .Select(t => (t.Quantity, t.UnitCost)).ToList();
+        if (movements.Count == 0) return fallbackAverage;
+
+        var before = SamaHesab.Application.Inventory.FifoCostEngine.Compute(movements).IssuedCost;
+        movements.Add((-qty, 0));
+        var after = SamaHesab.Application.Inventory.FifoCostEngine.Compute(movements).IssuedCost;
+        var marginal = after - before;
+        return marginal > 0 ? System.Math.Round(marginal / qty, 4) : fallbackAverage;
     }
 }
 

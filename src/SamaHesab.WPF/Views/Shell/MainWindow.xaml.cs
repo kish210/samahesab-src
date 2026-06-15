@@ -11,6 +11,7 @@ public partial class MainWindow : MetroWindow
     {
         InitializeComponent();
         DataContext = _vm = viewModel;
+        VersionText.Text = $"نسخه {Services.AppVersion.Display} سازمانی";
         Loaded += async (_, _) => await viewModel.LoadAsync();
     }
 

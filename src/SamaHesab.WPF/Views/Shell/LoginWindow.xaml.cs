@@ -12,6 +12,7 @@ public partial class LoginWindow : Window
         InitializeComponent();
         _vm = viewModel;
         DataContext = viewModel;
+        VersionText.Text = $"نسخه {Services.AppVersion.Display}  |  © ۱۴۰۴ سماع رایانه کیش";
         Resources["BoolVis"] = new System.Windows.Controls.BooleanToVisibilityConverter();
         Loaded += (_, _) =>
         {

@@ -197,7 +197,7 @@
                             Background="Transparent" Foreground="#6E83AE" BorderThickness="0" FontSize="13" Cursor="Hand"
                             FontFamily="{StaticResource VazirFont}" Click="ConnectionSettings_Click"/>
 
-                    <TextBlock Text="نسخه ۱.۰.۰  |  © ۱۴۰۴ سماع رایانه کیش" Foreground="#64748B"
+                    <TextBlock x:Name="VersionText" Text="© ۱۴۰۴ سماع رایانه کیش" Foreground="#64748B"
                                FontFamily="{StaticResource VazirFont}" FontSize="11"
                                HorizontalAlignment="Center" Margin="0,14,0,0"/>
                 </StackPanel>

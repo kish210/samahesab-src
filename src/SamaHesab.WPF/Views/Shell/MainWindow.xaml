@@ -157,7 +157,7 @@
                     </Border>
                     <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="سماع‌حساب" Foreground="White" FontSize="14" FontWeight="Bold"/>
-                        <TextBlock Text="نسخه ۳٫۲ سازمانی" Foreground="#9FB0D0" FontSize="10"/>
+                        <TextBlock x:Name="VersionText" Text="سازمانی" Foreground="#9FB0D0" FontSize="10"/>
                     </StackPanel>
                 </StackPanel>
 

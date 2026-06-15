@@ -41,4 +41,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- DT-10 — پکِ قالب‌های پیش‌فرض (.shtpl) همراهِ برنامه به خروجی کپی می‌شود تا «نصبِ قالب‌های پیش‌فرض» در دسترس باشد. -->
+  <ItemGroup>
+    <Content Include="..\..\Templates\**\*.shtpl" Link="Templates\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

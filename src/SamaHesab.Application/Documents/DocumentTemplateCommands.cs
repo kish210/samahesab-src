@@ -89,6 +89,33 @@ public class SaveDocumentTemplateCommandHandler : IRequestHandler<SaveDocumentTe
     }
 }
 
+// ── Set default (DT-10 — یک قالبِ پیش‌فرض برای هر نوعِ سند؛ بقیه unset می‌شوند) ─────
+public record SetDefaultTemplateCommand(int Id) : IRequest<Result>;
+
+public class SetDefaultTemplateCommandHandler : IRequestHandler<SetDefaultTemplateCommand, Result>
+{
+    private readonly IRepository<DocumentTemplate> _repo;
+    private readonly IUnitOfWork _uow;
+    public SetDefaultTemplateCommandHandler(IRepository<DocumentTemplate> repo, IUnitOfWork uow)
+    { _repo = repo; _uow = uow; }
+
+    public async Task<Result> Handle(SetDefaultTemplateCommand req, CancellationToken ct)
+    {
+        var target = await _repo.GetByIdAsync(req.Id, ct);
+        if (target is null) return Result.Failure("قالب یافت نشد.");
+        // همهٔ قالب‌های هم‌شرکت/هم‌نوع را unset کن، سپس فقط هدف را پیش‌فرض کن.
+        var siblings = await _repo.FindAsync(
+            t => t.CompanyId == target.CompanyId && t.DocumentType == target.DocumentType, ct);
+        foreach (var s in siblings)
+        {
+            var shouldBe = s.Id == target.Id;
+            if (s.IsDefault != shouldBe) { s.SetDefault(shouldBe); _repo.Update(s); }
+        }
+        await _uow.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+}
+
 // ── Delete (block system templates) ──────────────────────────────────────────
 public record DeleteDocumentTemplateCommand(int Id) : IRequest<Result>;
 

@@ -6,6 +6,7 @@ using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Settings;
 
@@ -89,6 +90,71 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
             await _dialogService.ShowSuccessAsync($"قالبِ «{EditName}» ذخیره شد.");
             await ReloadAsync();
         }, "در حال ذخیرهٔ قالب...");
+    }
+
+    /// <summary>DT-10 — قالبِ انتخاب‌شده را پیش‌فرضِ این نوعِ سند می‌کند (بقیه از پیش‌فرض خارج می‌شوند).</summary>
+    [RelayCommand]
+    private async Task SetDefaultAsync()
+    {
+        if (SelectedTemplate is null && EditId is null)
+        { await _dialogService.ShowWarningAsync("ابتدا یک قالب را از فهرست انتخاب کنید."); return; }
+        var id = SelectedTemplate?.Id ?? EditId!.Value;
+        await ExecuteAsync(async () =>
+        {
+            var r = await _mediator.Send(new SetDefaultTemplateCommand(id));
+            if (!r.Succeeded) { await _dialogService.ShowErrorAsync(r.ErrorMessage ?? "خطا در تعیینِ پیش‌فرض."); return; }
+            await _dialogService.ShowSuccessAsync("قالبِ پیش‌فرضِ این نوعِ سند تعیین شد.");
+            await ReloadAsync();
+        }, "در حال تعیینِ پیش‌فرض...");
+    }
+
+    /// <summary>DT-10 — نصبِ پکِ قالب‌های پیش‌فرض از پوشهٔ Templates کنارِ برنامه (idempotent بر اساسِ نوع+نام).</summary>
+    [RelayCommand]
+    private async Task InstallBuiltInAsync()
+    {
+        var dir = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Templates");
+        if (!System.IO.Directory.Exists(dir))
+        { await _dialogService.ShowWarningAsync("پوشهٔ قالب‌های پیش‌فرض یافت نشد."); return; }
+
+        if (!await _dialogService.ConfirmAsync("قالب‌های پیش‌فرضِ آماده نصب شوند؟ (قالب‌های هم‌نامِ موجود دست‌نخورده می‌مانند)")) return;
+
+        await ExecuteAsync(async () =>
+        {
+            var files = System.IO.Directory.EnumerateFiles(dir, "*.shtpl", System.IO.SearchOption.AllDirectories).ToList();
+            var existingByType = new Dictionary<string, HashSet<string>>();
+            int imported = 0, skipped = 0, failed = 0;
+            var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(
+                        System.IO.File.ReadAllText(file), opts);
+                    if (pkg is null || string.IsNullOrWhiteSpace(pkg.DocumentType) || string.IsNullOrWhiteSpace(pkg.BodyHtml))
+                    { failed++; continue; }
+
+                    if (!existingByType.TryGetValue(pkg.DocumentType, out var names))
+                    {
+                        var list = await _mediator.Send(new GetDocumentTemplatesQuery(pkg.DocumentType));
+                        names = list.Select(t => t.Name).ToHashSet();
+                        existingByType[pkg.DocumentType] = names;
+                    }
+                    if (names.Contains(pkg.Name)) { skipped++; continue; }
+
+                    var r = await _mediator.Send(new SaveDocumentTemplateCommand(null, pkg.DocumentType, pkg.Name,
+                        string.IsNullOrWhiteSpace(pkg.PaperSize) ? "A4P" : pkg.PaperSize,
+                        pkg.HeaderHtml, pkg.BodyHtml, pkg.FooterHtml));
+                    if (r.Succeeded) { imported++; names.Add(pkg.Name); } else failed++;
+                }
+                catch { failed++; }
+            }
+
+            await ReloadAsync();
+            await _dialogService.ShowSuccessAsync(
+                $"نصبِ قالب‌های پیش‌فرض پایان یافت — نصب‌شده: {imported}، از قبل موجود: {skipped}" +
+                (failed > 0 ? $"، ناموفق: {failed}" : ""));
+        }, "در حال نصبِ قالب‌های پیش‌فرض...");
     }
 
     [RelayCommand]

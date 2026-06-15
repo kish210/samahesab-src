@@ -11,10 +11,7 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <StartupObject>SamaHesab.WPF.App</StartupObject>
     <AssemblyTitle>سما حساب</AssemblyTitle>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
-    <Company>سماع رایانه کیش</Company>
-    <Product>سامانه جامع سما حساب</Product>
+    <!-- نسخه/شرکت/محصول از Directory.Build.props (منبعِ واحد) به ارث می‌رسد. -->
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SamaHesab.Application\SamaHesab.Application.csproj" />

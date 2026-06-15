@@ -1,0 +1,18 @@
+<Project>
+  <!-- ============================================================= -->
+  <!-- منبعِ واحدِ نسخه برای همهٔ پروژه‌های .NET (WPF/API/کتابخانه‌ها).  -->
+  <!-- هر csproj این مقادیر را به‌صورتِ خودکار به ارث می‌برد (MSBuild). -->
+  <!--                                                                 -->
+  <!-- ⚠️ برای ارتقای نسخه، فقط همین‌جا + سه اسکریپتِ Inno را تغییر دهید -->
+  <!--   (Inno نمی‌تواند این فایل را بخواند): installer/SamaHesab_Setup.iss،-->
+  <!--   installer/client.iss، installer/server.iss — هر سه باید برابرِ -->
+  <!--   <Version> زیر باشند. سیاست در todo.rm ثبت شده.                 -->
+  <!-- ============================================================= -->
+  <PropertyGroup>
+    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
+    <Company>سماع رایانه کیش</Company>
+    <Product>سامانه جامع سما حساب</Product>
+  </PropertyGroup>
+</Project>

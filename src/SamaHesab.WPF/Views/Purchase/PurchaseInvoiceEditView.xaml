@@ -11,6 +11,7 @@
         <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:NullToVisibilityConverter x:Key="NullVis"/>
+        <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
     </UserControl.Resources>
 
     <Grid Margin="3">
@@ -37,6 +38,19 @@
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintCommand}">
                         <StackPanel><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" TextAlignment="Center"/></StackPanel>
                     </Button>
+                    <!-- L3 (DT-3 قرینهٔ خرید): چاپ با قالبِ پویا (خرید/برگشت) -->
+                    <Menu Background="Transparent" VerticalAlignment="Center" Margin="2,0,0,0"
+                          Visibility="{Binding PrintTemplates.Count, Converter={StaticResource GtzVis}}">
+                        <MenuItem Header="چاپ ▼" ItemsSource="{Binding PrintTemplates}" FontSize="11.5">
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding Name}"/>
+                                    <Setter Property="Command" Value="{Binding DataContext.PrintWithTemplateCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
+                                    <Setter Property="CommandParameter" Value="{Binding}"/>
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
+                    </Menu>
                     <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
                 </StackPanel>
 

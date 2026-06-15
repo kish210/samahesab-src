@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Documents;
 using SamaHesab.Application.Purchase.Commands;
 using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -55,6 +56,8 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
 
     public ObservableCollection<PurchaseInvoiceItemRow> InvoiceItems { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
+    // L3 (DT-3 قرینهٔ خرید) — قالب‌های چاپِ فاکتور خرید/برگشت برای منوی «چاپ ▼».
+    public ObservableCollection<DocumentTemplateListDto> PrintTemplates { get; } = new();
     public List<ProductSearchResult> AllProducts { get; private set; } = new();
     public List<SupplierItem> Suppliers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
@@ -135,6 +138,23 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         var products = await _productRepository.SearchAsync(companyId, "");
         AllProducts = products.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
+
+        await LoadPrintTemplatesAsync();
+    }
+
+    /// <summary>L3 — نوعِ قالب بر اساسِ نوعِ فاکتور (خرید/برگشت از خرید).</summary>
+    private string TemplateDocType => InvoiceType == "برگشت از خرید" ? "PurchaseReturn" : "PurchaseInvoice";
+
+    partial void OnInvoiceTypeChanged(string value) => _ = LoadPrintTemplatesAsync();
+
+    private async Task LoadPrintTemplatesAsync()
+    {
+        try
+        {
+            PrintTemplates.Clear();
+            foreach (var t in await _mediator.Send(new GetDocumentTemplatesQuery(TemplateDocType))) PrintTemplates.Add(t);
+        }
+        catch { /* نبودِ قالب نباید فرم را خراب کند */ }
     }
 
     [RelayCommand]
@@ -247,6 +267,50 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
             System.IO.Directory.CreateDirectory(dir);
             var path = System.IO.Path.Combine(dir, $"فاکتور_خرید_{InvoiceNumber}_{System.DateTime.Now:yyyyMMdd_HHmmss}.html");
             System.IO.File.WriteAllText(path, ReportExporter.ToHtml(table), new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    /// <summary>L3 (DT-3 قرینهٔ خرید) — چاپِ فاکتور خرید/برگشت با قالبِ انتخاب‌شده (موتورِ قالبِ پویا).</summary>
+    [RelayCommand]
+    private async Task PrintWithTemplateAsync(DocumentTemplateListDto? tpl)
+    {
+        if (tpl is null) return;
+        if (!InvoiceItems.Any()) { await _dialogService.ShowWarningAsync("ردیفی برای چاپ نیست."); return; }
+        try
+        {
+            var full = await _mediator.Send(new GetDocumentTemplateQuery(tpl.Id));
+            if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
+
+            var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId)?.Name ?? "—";
+            string N(decimal d) => d.ToString("N0");
+            var fields = new Dictionary<string, string?>
+            {
+                ["InvoiceNumber"] = InvoiceNumber, ["DocNumber"] = InvoiceNumber, ["InvoiceDate"] = InvoiceDate,
+                ["SupplierName"] = supplier, ["SupplierCode"] = SelectedSupplierId.ToString(),
+                ["TotalAmount"] = N(GrandTotal), ["GrandTotal"] = N(GrandTotal), ["SubTotal"] = N(SubTotal),
+                ["Tax"] = N(TotalTax), ["Discount"] = N(TotalDiscount), ["BranchName"] = "سما حساب",
+                ["WarehouseName"] = Warehouses.FirstOrDefault(w => w.Id == SelectedWarehouseId)?.Name ?? "—",
+                ["Notes"] = Description,
+            };
+            var rows = InvoiceItems.Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
+            {
+                ["ProductName"] = i.ProductName, ["ProductCode"] = i.ProductCode,
+                ["Quantity"] = i.Quantity.ToString("0.##"), ["UnitPrice"] = N(i.UnitPrice),
+                ["LineDiscount"] = N(i.DiscountAmount), ["LineTax"] = N(i.TaxAmount), ["LineTotal"] = N(i.NetAmount),
+            }).ToList();
+            var data = DocumentData.Of(fields, rows);
+
+            var html = DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                     + DocumentTemplateEngine.Render(full.BodyHtml, data)
+                     + DocumentTemplateEngine.Render(full.FooterHtml, data);
+
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"خرید_{InvoiceNumber}_{tpl.Name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
         }
         catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }

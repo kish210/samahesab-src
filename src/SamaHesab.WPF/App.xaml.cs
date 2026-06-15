@@ -891,7 +891,7 @@ public partial class App : System.Windows.Application
             ("Salary","19_حقوق"), ("Attendance","20_حضور_غیاب"),
             ("Reports","21_گزارشها"), ("Settings","22_تنظیمات"), ("Backup","23_پشتیبانگیری"),
             ("FinancialReports","24_گزارشهای_مالی"), ("StockTransfer","25_انتقال_انبار"), ("Kardex","26_کاردکس"),
-            ("Modules","27_مدیریت_ماژولها"),
+            ("Modules","27_مدیریت_ماژولها"), ("DocumentTemplates","28_قالب_اسناد"),
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

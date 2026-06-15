@@ -68,6 +68,62 @@ public partial class ChequeListViewModel : BaseViewModel
             RecomputeStats();
             ApplyFilter();
         }, "در حال بارگذاری چک‌ها...");
+        await LoadPrintTemplatesAsync();
+    }
+
+    /// <summary>P1/DT-6 — قالب‌های چاپِ چک (دریافتی=ChequeReceipt · پرداختی=ChequePayment).</summary>
+    public ObservableCollection<Application.Documents.DocumentTemplateListDto> PrintTemplates { get; } = new();
+
+    private async Task LoadPrintTemplatesAsync()
+    {
+        var docType = TypeFilter == "پرداختی" ? "ChequePayment" : "ChequeReceipt";
+        PrintTemplates.Clear();
+        try { foreach (var t in await _mediator.Send(new Application.Documents.GetDocumentTemplatesQuery(docType))) PrintTemplates.Add(t); }
+        catch { /* قالب اختیاری است */ }
+    }
+
+    partial void OnTypeFilterChanged(string value) => _ = LoadPrintTemplatesAsync();
+
+    /// <summary>P1/DT-6 — چاپِ چکِ انتخاب‌شده با قالبِ پویا.</summary>
+    [RelayCommand]
+    private async Task PrintWithTemplateAsync(Application.Documents.DocumentTemplateListDto? tpl)
+    {
+        if (tpl is null) return;
+        if (SelectedCheque is not { } c) { await _dialogService.ShowErrorAsync("ابتدا یک چک را از لیست انتخاب کنید."); return; }
+        try
+        {
+            var full = await _mediator.Send(new Application.Documents.GetDocumentTemplateQuery(tpl.Id));
+            if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
+
+            var g = Services.AppSettingsStore.GetGeneral();
+            string N(decimal d) => d.ToString("#,##0");
+            var fields = new Dictionary<string, string?>
+            {
+                ["ChequeNumber"] = c.Number, ["DocNumber"] = c.Number, ["QrData"] = c.Number,
+                ["Date"] = _calendar.GetCurrentPersianDate(), ["DueDate"] = c.DueDate,
+                ["BankName"] = c.Bank, ["PartyName"] = c.IssuedBy, ["AccountName"] = c.Bank,
+                ["Amount"] = N(c.Amount), ["Reason"] = c.Reference, ["Notes"] = c.Reference,
+                ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,
+                ["EconomicCode"] = g.CompanyEconomicCode, ["NationalId"] = g.CompanyNationalId, ["BranchName"] = "",
+                ["PrintDate"] = _calendar.GetCurrentPersianDate(), ["PrintTime"] = DateTime.Now.ToString("HH:mm"),
+            };
+            var rows = new List<IReadOnlyDictionary<string, string?>>
+            {
+                new Dictionary<string, string?> { ["Description"] = c.Reference, ["LineAmount"] = N(c.Amount) }
+            };
+            var data = Application.Documents.DocumentData.Of(fields, rows);
+            var html = Application.Documents.DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                     + Application.Documents.DocumentTemplateEngine.Render(full.BodyHtml, data)
+                     + Application.Documents.DocumentTemplateEngine.Render(full.FooterHtml, data);
+
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"چک_{c.Number}_{tpl.Name}_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
     private void RecomputeStats()

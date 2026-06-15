@@ -98,6 +98,7 @@ public partial class MainViewModel : BaseViewModel
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),
             ["VoucherApprovals"]= ("کارتابلِ تأیید",       sp => sp.GetRequiredService<VoucherApprovalsViewModel>()),
+            ["AccountantDash"]  = ("داشبورد حسابدار",      sp => sp.GetRequiredService<AccountantDashboardViewModel>()),
             ["AccDimensions"]   = ("ابعاد حسابداری",      sp => sp.GetRequiredService<AccountingDimensionsViewModel>()),
             ["Security"]        = ("امنیت و دسترسی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>()),
             ["AuditLog"]        = ("لاگِ حسابرسی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.AuditLogViewModel>()),

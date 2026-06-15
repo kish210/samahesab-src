@@ -175,6 +175,7 @@
                                 <MenuItem Header="بهره‌وری سند (الگو/تکرارشونده)" Command="{Binding NavigateCommand}" CommandParameter="VoucherTools"/>
                                 <MenuItem Header="عملیات پایان دوره" Command="{Binding NavigateCommand}" CommandParameter="EndOfPeriod"/>
                                 <MenuItem Header="کارتابلِ تأیید اسناد" Command="{Binding NavigateCommand}" CommandParameter="VoucherApprovals"/>
+                                <MenuItem Header="داشبورد حسابدار" Command="{Binding NavigateCommand}" CommandParameter="AccountantDash"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

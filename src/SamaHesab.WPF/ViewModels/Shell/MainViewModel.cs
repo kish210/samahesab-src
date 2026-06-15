@@ -97,6 +97,7 @@ public partial class MainViewModel : BaseViewModel
             ["InterBranch"]     = ("تسویهٔ بین‌شعبه",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>()),
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),
+            ["VoucherApprovals"]= ("کارتابلِ تأیید",       sp => sp.GetRequiredService<VoucherApprovalsViewModel>()),
             ["AccDimensions"]   = ("ابعاد حسابداری",      sp => sp.GetRequiredService<AccountingDimensionsViewModel>()),
             ["Security"]        = ("امنیت و دسترسی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>()),
             ["AuditLog"]        = ("لاگِ حسابرسی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.AuditLogViewModel>()),

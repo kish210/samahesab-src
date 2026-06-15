@@ -17,6 +17,7 @@ public static class PermissionCatalog
         new("Accounting.Voucher.View",   "حسابداری", "مشاهدهٔ اسناد"),
         new("Accounting.Voucher.Create", "حسابداری", "ثبت سند"),
         new("Accounting.Voucher.Post",   "حسابداری", "قطعی‌کردن/برگشت سند"),
+        new("Accounting.Voucher.Approve","حسابداری", "تأیید/ردِ سند (گردش‌کار)"),
         new("Accounting.Setup.Manage",   "حسابداری", "مدیریت حساب‌ها/ابعاد/سال مالی"),
         // خزانه
         new("Treasury.View",   "خزانه", "مشاهدهٔ خزانه (چک/بانک)"),

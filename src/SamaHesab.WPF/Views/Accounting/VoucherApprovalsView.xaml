@@ -1,0 +1,71 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Accounting.VoucherApprovalsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <Style x:Key="ActBtn" TargetType="Button">
+            <Setter Property="Margin" Value="2,0"/><Setter Property="Padding" Value="10,3"/>
+            <Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="0"/><Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="کارتابلِ تأییدِ اسناد" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="اسنادِ «در انتظارِ تأیید» — تا تأیید نشوند قابلِ قطعی‌کردن نیستند."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <Button Grid.Row="1" Content="بروزرسانی" Command="{Binding LoadCommand}" HorizontalAlignment="Right"
+                Margin="0,0,0,8" Padding="14,5" Cursor="Hand" BorderThickness="1"
+                Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                BorderBrush="{DynamicResource BorderColor}"/>
+
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Pending}" AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
+                  Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
+                  CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="شمارهٔ سند" Binding="{Binding VoucherNumber}" Width="120"/>
+                <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="120"/>
+                <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
+                <DataGridTextColumn Header="مبلغ (بدهکار)" Binding="{Binding TotalDebit, Converter={StaticResource Num}}" Width="150"/>
+                <DataGridTemplateColumn Header="عملیات" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="تأیید" Style="{StaticResource ActBtn}" Background="#2E7D52"
+                                        Command="{Binding DataContext.ApproveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="رد" Style="{StaticResource ActBtn}" Background="#C2403A"
+                                        Command="{Binding DataContext.RejectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="در انتظارِ تأیید:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Count}" FontWeight="Bold" FontSize="14"
+                           Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

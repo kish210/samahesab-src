@@ -30,6 +30,11 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["PostVoucherCommand"]    = new("Accounting", "Voucher", "Post", "قطعیِ سند",     Enforce: false, Table: "Acc"),
         ["ReverseVoucherCommand"] = new("Accounting", "Voucher", "Post", "برگشتِ سند",    Enforce: false, Table: "Acc"),
         ["CloseFiscalYearCommand"]= new("Accounting", "Setup", "Manage", "بستنِ سال مالی", Enforce: false, Table: "Acc"),
+        // ── گردش‌کارِ تأیید (T22): ارسال audit-only؛ تأیید/رد نیازمندِ مجوزِ Approve (enforce) ──
+        ["SubmitVoucherForApprovalCommand"] = new("Accounting", "Voucher", "Create",  "ارسالِ سند برای تأیید", Enforce: false, Table: "Acc"),
+        ["ApproveVoucherCommand"]           = new("Accounting", "Voucher", "Approve", "تأییدِ سند",            Enforce: true,  Table: "Acc"),
+        ["RejectVoucherCommand"]            = new("Accounting", "Voucher", "Approve", "ردِّ سند",              Enforce: true,  Table: "Acc"),
+        ["ReopenVoucherApprovalCommand"]    = new("Accounting", "Voucher", "Create",  "بازگشاییِ سند",         Enforce: false, Table: "Acc"),
         // ── خزانه (audit-only) ──
         ["CreatePaymentCommand"]  = new("Treasury", "Manage", "", "پرداختِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateReceiptCommand"]  = new("Treasury", "Manage", "", "دریافتِ خزانه",        Enforce: false, Table: "Trs"),

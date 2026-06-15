@@ -112,6 +112,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>();
                 services.AddTransient<ChequeBoardViewModel>();
                 services.AddTransient<EndOfPeriodViewModel>();
+                services.AddTransient<VoucherApprovalsViewModel>();
                 services.AddTransient<VoucherProductivityViewModel>();
                 services.AddTransient<BankReconciliationViewModel>();
                 services.AddTransient<AccountingDimensionsViewModel>();

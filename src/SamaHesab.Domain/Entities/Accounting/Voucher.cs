@@ -23,6 +23,9 @@ public class Voucher : AuditableEntity, IBranchScoped
     public int? ReversedFromId { get; private set; }
     public bool IsReversed { get; private set; }
 
+    /// <summary>گردش‌کارِ تأیید (T22). null = خارج از گردش‌کار (قابلِ قطعیِ مستقیم، سازگارِ عقب‌رو).</summary>
+    public VoucherApprovalStatus? ApprovalStatus { get; private set; }
+
     public ICollection<VoucherItem> Items { get; private set; } = new List<VoucherItem>();
 
     private Voucher() { }
@@ -66,6 +69,13 @@ public class Voucher : AuditableEntity, IBranchScoped
         if (Status != VoucherStatus.Draft)
             throw new InvalidOperationException("فقط اسناد پیش‌نویس را می‌توان قطعی کرد.");
 
+        // گردش‌کارِ تأیید (T22، opt-in): سندی که وارد گردش‌کار شده، تا تأیید قطعی نمی‌شود.
+        // ApprovalStatus == null یعنی خارج از گردش‌کار → مثل قبل قطعی می‌شود (سازگارِ عقب‌رو).
+        if (ApprovalStatus is VoucherApprovalStatus.PendingApproval)
+            throw new InvalidOperationException("سند در انتظارِ تأیید است؛ پیش از تأیید قابلِ قطعی‌کردن نیست.");
+        if (ApprovalStatus is VoucherApprovalStatus.Rejected)
+            throw new InvalidOperationException("سند ردشده است؛ ابتدا آن را به پیش‌نویس بازگردانید.");
+
         if (!IsBalanced())
             throw new InvalidOperationException("سند تراز نیست. مجموع بدهکار و بستانکار باید برابر باشد.");
 
@@ -101,6 +111,47 @@ public class Voucher : AuditableEntity, IBranchScoped
     {
         TotalDebit = Items.Sum(i => i.Debit);
         TotalCredit = Items.Sum(i => i.Credit);
+    }
+
+    // ── گردش‌کارِ تأیید (T22) — گذارهای معتبر مطابقِ ApprovalWorkflow ──
+    /// <summary>ارسالِ سندِ پیش‌نویس برای تأیید (Draft → PendingApproval).</summary>
+    public void SubmitForApproval()
+    {
+        if (Status != VoucherStatus.Draft)
+            throw new InvalidOperationException("فقط سندِ پیش‌نویس را می‌توان برای تأیید ارسال کرد.");
+        if (ApprovalStatus is VoucherApprovalStatus.PendingApproval or VoucherApprovalStatus.Approved)
+            throw new InvalidOperationException("سند از قبل در گردش‌کارِ تأیید است.");
+        ApprovalStatus = VoucherApprovalStatus.PendingApproval;
+        UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>تأییدِ سندِ در انتظار (PendingApproval → Approved).</summary>
+    public void ApproveBy(int userId)
+    {
+        if (ApprovalStatus != VoucherApprovalStatus.PendingApproval)
+            throw new InvalidOperationException("فقط سندِ «در انتظارِ تأیید» را می‌توان تأیید کرد.");
+        ApprovalStatus = VoucherApprovalStatus.Approved;
+        ApprovedByUserId = userId;
+        ApprovedAt = DateTime.Now;
+        UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>ردِّ سندِ در انتظار (PendingApproval → Rejected).</summary>
+    public void RejectApproval()
+    {
+        if (ApprovalStatus != VoucherApprovalStatus.PendingApproval)
+            throw new InvalidOperationException("فقط سندِ «در انتظارِ تأیید» را می‌توان رد کرد.");
+        ApprovalStatus = VoucherApprovalStatus.Rejected;
+        UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>بازگرداندنِ سندِ ردشده به پیش‌نویس/خارج از گردش‌کار (Rejected → null).</summary>
+    public void ReopenApproval()
+    {
+        if (ApprovalStatus != VoucherApprovalStatus.Rejected)
+            throw new InvalidOperationException("فقط سندِ ردشده را می‌توان بازگرداند.");
+        ApprovalStatus = null;
+        UpdatedAt = DateTime.Now;
     }
 
     public bool IsBalanced() => Math.Abs(TotalDebit - TotalCredit) < 0.01m;

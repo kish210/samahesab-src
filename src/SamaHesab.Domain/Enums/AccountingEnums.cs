@@ -7,6 +7,14 @@ public enum VoucherStatus
     Permanent = 3    // دائمی
 }
 
+/// <summary>وضعیتِ گردش‌کارِ تأییدِ سند (T22). null روی سند = خارج از گردش‌کار (قابلِ قطعیِ مستقیم).</summary>
+public enum VoucherApprovalStatus
+{
+    PendingApproval = 1,   // در انتظار تأیید
+    Approved = 2,          // تأییدشده
+    Rejected = 3           // ردشده
+}
+
 public enum AccountLevel
 {
     Group = 1,       // گروه

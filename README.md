@@ -1,15 +1,17 @@
-# سامانهٔ جامع «سما حساب» — نسخهٔ ۲.۰.۰
+# سامانهٔ جامع «سما حساب» — نسخهٔ ۲.۱.۰
 
 > یک نرم‌افزار **حسابداری و مدیریت کسب‌وکار (ERP)** کاملِ فارسی، راست‌به‌چپ، با تقویم شمسی — در سطحِ سپیدار/هلو/راهکاران (SMB).
 > معماری مبتنی بر **سرور مرکزی (Web API)**: کلاینت‌ها از طریق شبکه به سرور وصل می‌شوند، نه مستقیم به پایگاه‌داده.
 
 ---
 
-## ⬇️ دانلود (نسخهٔ ۲.۰.۰)
+## ⬇️ دانلود (نسخهٔ ۲.۱.۰)
 
 **نصابِ کاملِ خودکفا** (شاملِ .NET runtime — نیازی به پیش‌نیاز ندارد):
 
-### 👉 [دانلودِ `SamaHesab_Setup_v2.0.0.exe` (~۹۵ مگابایت)](https://github.com/kish210/SamaHesab/releases/download/v2.0.0/SamaHesab_Setup_v2.0.0.exe)
+### 👉 [دانلودِ `SamaHesab_Setup_v2.1.0.exe` (~۹۵ مگابایت)](https://github.com/kish210/SamaHesab/releases/download/v2.1.0/SamaHesab_Setup_v2.1.0.exe)
+
+> **تازه در ۲.۱.۰:** تسویهٔ بین‌شعبه · گردش‌کارِ تأییدِ اسناد · گزارشِ نقطهٔ سفارش · سندِ خودکارِ مغایرتِ بستنِ شیفت · زیرسیستمِ حسابرسی (RBAC + لاگ) · اجرای خودکارِ مهاجرت‌های DB در استارت‌آپ.
 
 > همهٔ نسخه‌ها و فایل‌ها در صفحهٔ [Releases](https://github.com/kish210/SamaHesab/releases/latest).
 > این نصاب کلاینتِ حسابداری + POS/رستوران + سرورِ API را با هم نصب می‌کند (مناسبِ نصبِ تک‌سیستمی). برای استقرارِ سرور/کلاینتِ جداگانه، بخشِ «نصب و راه‌اندازی» را ببینید.
@@ -77,7 +79,7 @@
 2. در ویزارد، **آدرس سرور** (`http://<آی‌پی‌سرور>:5080`) و **شناسهٔ شعبه** را وارد کنید.
 3. برنامه را اجرا و وارد شوید.
 
-> **یا** برای نصبِ تک‌سیستمی (سرور+کلاینت روی یک دستگاه): **`SamaHesab_Setup_v2.0.0.exe`**.
+> **یا** برای نصبِ تک‌سیستمی (سرور+کلاینت روی یک دستگاه): **`SamaHesab_Setup_v2.1.0.exe`**.
 
 ### ورودِ پیش‌فرض
 ```
@@ -112,7 +114,7 @@ cd src/SamaHesab.API && dotnet run -c Release
 powershell -ExecutionPolicy Bypass -File installer/publish-all.ps1   # تولید dist/ خودکفا
 ISCC installer\client.iss             # -> installer/Output/client.exe
 ISCC installer\server.iss             # -> installer/Output/SamaHesab_Server_Setup.exe
-ISCC installer\SamaHesab_Setup.iss    # -> installer/Output/SamaHesab_Setup_v2.0.0.exe
+ISCC installer\SamaHesab_Setup.iss    # -> installer/Output/SamaHesab_Setup_v2.1.0.exe
 ```
 
 ---

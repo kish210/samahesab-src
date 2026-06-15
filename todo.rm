@@ -30,7 +30,7 @@
 > پس کارِ بازِ **واقعی** فقط موارد زیر است:
 
 ### 💻 لِینِ لپ‌تاپ / C2 (جریان/UIِ عملیاتی)
-- [ ] **L1.** **انتخابِ سریالِ تک‌واحدی در UIِ حوالهٔ انبار** — بک‌اند آماده است (`Inventory/.../SellSerialCommand` + dispatch در `IssueStockCommandHandler`). فقط UIِ انتخابِ سریال در `WarehouseClient`/حواله مانده (مثلِ انتخابگرِ بچِ R8). *(انبار = C2)*
+- [x] ✅C2 **L1.** **انتخابِ سریالِ تک‌واحدی در UIِ حوالهٔ انبار** — انجام شد: `ApiSerial` DTO + `GetSerialsAsync` در `ApiClient` (endpointِ موجودِ `/api/batchserial/serials`)، بارگذاریِ سریال‌های «موجود» روی هر ردیفِ سبدِ حواله، ستونِ «سریال» در `WarehouseClientView` (قرینهٔ انتخابگرِ بچِ R8، فقط برای کالاهای سریال‌دار)، ارسالِ `SerialId` در `IssueStockAsync` → handler با `SellSerialCommand` سریال را Sold می‌کند. API تغییری نخواست (مستقیم به `IssueStockCommand` bind است). build سبز، ۲۷۱ تست. *(انبار = C2)*
 - [ ] **L2. DT-10 — نصبِ پکِ قالبِ پیش‌فرض:** الان فقط ۲ قالبِ seedشده در DB هست؛ ۴۲ قالبِ `/Templates/**/*.shtpl` به‌صورتِ فایل‌اند. یک اکشنِ «📦 نصبِ قالب‌های پیش‌فرض» در طراحِ قالب اضافه شود که فایل‌های پک را خوانده و با `SaveDocumentTemplateCommand` وارد کند (idempotent بر اساسِ نام). تا feature قالب end-to-end و out-of-box شود. *(Template-Storage = لِینِ موتورِ C2)*
 - [ ] **L3.** **پولیشِ «چاپ ▼» در خرید/برگشت** هم‌تراز با فروش (DT-3) — افزودنِ منوی انتخابِ قالب به `PurchaseInvoiceEditView` با `DocumentData` ساخته‌شده از اقلامِ خرید. *(خرید = C2)*
 

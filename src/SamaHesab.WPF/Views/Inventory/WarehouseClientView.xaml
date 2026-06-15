@@ -72,6 +72,17 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
+                            <!-- L1: انتخابِ سریالِ تک‌واحدی هنگام حواله (فقط کالاهای سریال‌دار) -->
+                            <DataGridTemplateColumn Header="سریال" Width="140">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Serials}" DisplayMemberPath="SerialNumber"
+                                                  SelectedValuePath="Id" SelectedValue="{Binding SerialId}"
+                                                  Visibility="{Binding HasSerials, Converter={StaticResource BoolVis}}"
+                                                  VerticalAlignment="Center" FontSize="11" Height="26"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 

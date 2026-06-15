@@ -78,7 +78,7 @@ public partial class WarehouseClientViewModel : BaseViewModel
             var line = new WhCartLine(tile.Id, tile.Code, tile.Name) { Qty = 1, UnitCost = 0 };
             line.PropertyChanged += (_, _) => Recalculate();
             Cart.Add(line);
-            if (IsIssue) _ = LoadBatchesForLineAsync(line);   // R8 — بچ‌های کالا برای انتخاب در حواله
+            if (IsIssue) { _ = LoadBatchesForLineAsync(line); _ = LoadSerialsForLineAsync(line); }   // R8 بچ + L1 سریال برای انتخاب در حواله
         }
         Recalculate();
     }
@@ -92,6 +92,19 @@ public partial class WarehouseClientViewModel : BaseViewModel
             foreach (var b in await _api.GetBatchesAsync(line.ProductId))
                 if (b.Quantity > 0) line.Batches.Add(b);
             line.RaiseHasBatches();
+        }
+        catch { /* بهره‌وری؛ نبودش حواله را بلاک نمی‌کند */ }
+    }
+
+    /// <summary>L1 — بارگذاریِ سریال‌های «موجود»ِ کالا روی ردیفِ سبد (فقط حواله؛ best-effort).</summary>
+    private async Task LoadSerialsForLineAsync(WhCartLine line)
+    {
+        try
+        {
+            line.Serials.Clear();
+            foreach (var s in await _api.GetSerialsAsync(line.ProductId))
+                if (s.Status == "موجود") line.Serials.Add(s);
+            line.RaiseHasSerials();
         }
         catch { /* بهره‌وری؛ نبودش حواله را بلاک نمی‌کند */ }
     }
@@ -139,7 +152,7 @@ public partial class WarehouseClientViewModel : BaseViewModel
                     break;
                 case "حواله خروج":
                     r = await _api.IssueStockAsync(SelectedWarehouse.Id, date, "حواله از کلاینت انبار",
-                        Cart.Select(c => (c.ProductId, c.Qty, c.BatchId)));
+                        Cart.Select(c => (c.ProductId, c.Qty, c.BatchId, c.SerialId)));
                     break;
                 case "انتقال بین انبار":
                     if (DestWarehouse is null || DestWarehouse.Id == SelectedWarehouse.Id)
@@ -194,6 +207,11 @@ public partial class WhCartLine : ObservableObject
     [ObservableProperty] private int? _batchId;
     public bool HasBatches => Batches.Count > 0;
     public void RaiseHasBatches() => OnPropertyChanged(nameof(HasBatches));
+    // L1 — انتخابِ سریالِ تک‌واحدی هنگام حواله (اختیاری؛ فقط برای کالاهای سریال‌دار پر می‌شود).
+    public ObservableCollection<ApiSerial> Serials { get; } = new();
+    [ObservableProperty] private int? _serialId;
+    public bool HasSerials => Serials.Count > 0;
+    public void RaiseHasSerials() => OnPropertyChanged(nameof(HasSerials));
 
     public WhCartLine(int productId, string code, string name)
     { ProductId = productId; Code = code; Name = name; }

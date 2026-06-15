@@ -48,6 +48,10 @@ public record ApiStockRow(int ProductId, string Code, string Name, decimal Quant
 public record ApiBatch(int Id, int ProductId, string BatchNumber, string? ProductionDate,
     string? ExpiryDate, decimal Quantity, decimal? PurchasePrice, string? Notes);
 
+// ── Serial (L1 — انتخابِ سریالِ تک‌واحدی هنگام حواله) DTO ──
+public record ApiSerial(int Id, int ProductId, int? WarehouseId, string SerialNumber,
+    string Status, decimal? PurchasePrice, string? PurchaseDate, string? SaleDate);
+
 // ── Stock count / انبارگردانی (#28) DTOs ──
 public record ApiStockCount(int Id, int WarehouseId, string Date, string Status,
     int LineCount, int VarianceCount, List<ApiStockCountLine> Lines);
@@ -467,12 +471,12 @@ public class ApiClient
     }
 
     public async Task<(bool ok, string? error)> IssueStockAsync(int warehouseId, string date,
-        string? description, IEnumerable<(int productId, decimal qty, int? batchId)> items)
+        string? description, IEnumerable<(int productId, decimal qty, int? batchId, int? serialId)> items)
     {
         try
         {
             var body = new { warehouseId, date, description,
-                items = items.Select(i => new { productId = i.productId, quantity = i.qty, batchId = i.batchId }).ToArray() };
+                items = items.Select(i => new { productId = i.productId, quantity = i.qty, batchId = i.batchId, serialId = i.serialId }).ToArray() };
             var resp = await _http.PostAsJsonAsync("/api/warehouse/issue", body);
             return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت حواله.");
         }
@@ -483,6 +487,13 @@ public class ApiClient
     public async Task<List<ApiBatch>> GetBatchesAsync(int productId)
     {
         try { return await _http.GetFromJsonAsync<List<ApiBatch>>($"/api/batchserial/batches?productId={productId}") ?? new(); }
+        catch { return new(); }
+    }
+
+    /// <summary>L1 — سریال‌های موجودِ یک کالا (برای انتخابِ تک‌واحدی هنگام حواله).</summary>
+    public async Task<List<ApiSerial>> GetSerialsAsync(int productId)
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiSerial>>($"/api/batchserial/serials?productId={productId}") ?? new(); }
         catch { return new(); }
     }
 

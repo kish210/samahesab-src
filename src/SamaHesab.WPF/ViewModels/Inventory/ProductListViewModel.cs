@@ -1,11 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
@@ -120,7 +122,22 @@ public partial class ProductListViewModel : BaseViewModel
     [RelayCommand]
     private async Task ExportExcelAsync()
     {
-        await _dialogService.ShowInfoAsync("در حال آماده‌سازی فایل اکسل...");
+        if (Products.Count == 0) { await _dialogService.ShowWarningAsync("فهرستی برای خروجی نیست."); return; }
+        try
+        {
+            string N(decimal d) => d.ToString("N0");
+            var table = new ReportTable("لیست کالاها",
+                new[] { "کد", "بارکد", "نام کالا", "قیمت فروش", "قیمت خرید", "حداقل موجودی", "وضعیت", "هشدار" },
+                Products.Select(p => new[] { p.Code, p.Barcode, p.Name, N(p.SalePrice), N(p.PurchasePrice),
+                    N(p.MinStock), p.IsActive ? "فعال" : "غیرفعال", p.IsLowStock ? "کسری" : "" }).ToList());
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"لیست_کالاها_{System.DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            System.IO.File.WriteAllText(path, ReportExporter.ToCsv(table), new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
     [RelayCommand]

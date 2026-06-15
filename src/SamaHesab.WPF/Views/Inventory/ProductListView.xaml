@@ -31,7 +31,7 @@
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding DeleteProductCommand}">
                         <StackPanel><Path Data="{StaticResource IcTrash}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource DangerColor}"/><TextBlock Text="حذف" TextAlignment="Center"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource ErpToolButton}" Click="ExportExcel_Click">
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding ExportExcelCommand}">
                         <StackPanel><Path Data="{StaticResource IcExcel}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="اکسل" TextAlignment="Center"/></StackPanel>
                     </Button>
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding RefreshCommand}">

@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Entities.CRM;
+using System.Linq;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -49,7 +51,25 @@ public partial class SupplierListViewModel : BaseViewModel
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private async Task RefreshAsync() => await LoadAsync();
-    [RelayCommand] private async Task ExportAsync() => await _dialogService.ShowInfoAsync("خروجی اکسل...");
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        if (Suppliers.Count == 0) { await _dialogService.ShowWarningAsync("فهرستی برای خروجی نیست."); return; }
+        try
+        {
+            string N(decimal d) => d.ToString("N0");
+            var table = new ReportTable("لیست تأمین‌کنندگان",
+                new[] { "کد", "نام", "موبایل", "شهر", "مانده", "وضعیت" },
+                Suppliers.Select(s => new[] { s.Code, s.Name, s.Mobile, s.City, N(s.Balance), s.IsActive ? "فعال" : "غیرفعال" }).ToList());
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"لیست_تأمین‌کنندگان_{System.DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            System.IO.File.WriteAllText(path, ReportExporter.ToCsv(table), new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
 }
 
 public record SupplierListItem(int Id, string Code, string Name, string Mobile, string City, decimal Balance, bool IsActive);

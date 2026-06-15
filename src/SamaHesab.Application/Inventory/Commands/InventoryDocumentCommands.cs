@@ -112,7 +112,7 @@ public class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCommand, R
 // ─────────────────────────────────────────────────────────────────────────────
 // حواله خروج انبار (Issuing) — کاهش موجودی به بهای میانگین
 // ─────────────────────────────────────────────────────────────────────────────
-public record IssueStockLine(int ProductId, decimal Quantity);
+public record IssueStockLine(int ProductId, decimal Quantity, int? BatchId = null, int? SerialId = null);
 public record IssueStockCommand(int WarehouseId, string Date, string? Description,
     List<IssueStockLine> Items) : IRequest<Result>;
 
@@ -139,11 +139,12 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IMediator _mediator;
 
     public IssueStockCommandHandler(IStockItemRepository stock, IRepository<StockTransaction> ledger,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
-        IUnitOfWork uow, ICurrentUserService user)
-    { _stock = stock; _ledger = ledger; _products = products; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; }
+        IUnitOfWork uow, ICurrentUserService user, IMediator mediator)
+    { _stock = stock; _ledger = ledger; _products = products; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; _mediator = mediator; }
 
     public async Task<Result> Handle(IssueStockCommand req, CancellationToken ct)
     {
@@ -176,6 +177,18 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
                     companyId, branchId, "حواله خروج", doc, req.Date, l.ProductId, req.WarehouseId,
                     -l.Quantity, unitCost, stock.Quantity, stock.Quantity * stock.AverageCost,
                     "Issue", null, req.Description), ct);
+
+                // R8: ردیابیِ بچ/سریالِ انتخاب‌شده در حواله (قرینهٔ مسیرِ فروش). خطا → rollbackِ کلِ حواله.
+                if (l.BatchId.HasValue)
+                {
+                    var issueRes = await _mediator.Send(new IssueBatchCommand(l.BatchId.Value, l.Quantity), ct);
+                    if (!issueRes.Succeeded) throw new InvalidOperationException(issueRes.ErrorMessage);
+                }
+                if (l.SerialId.HasValue)
+                {
+                    var serialRes = await _mediator.Send(new SellSerialCommand(l.SerialId.Value, req.Date), ct);
+                    if (!serialRes.Succeeded) throw new InvalidOperationException(serialRes.ErrorMessage);
+                }
             }
 
             // سند خودکار: بهای تمام‌شده/مصرف (بد) / موجودی کالا (بس)

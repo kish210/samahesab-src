@@ -74,6 +74,7 @@
     <DataTemplate DataType="{x:Type pur:PurchaseInvoiceEditViewModel}"><vpur:PurchaseInvoiceEditView/></DataTemplate>
 
     <!-- POS -->
+    <DataTemplate DataType="{x:Type pos:PosDashboardViewModel}"><vpos:PosDashboardView/></DataTemplate>
     <DataTemplate DataType="{x:Type pos:PosViewModel}"><vpos:PosView/></DataTemplate>
     <DataTemplate DataType="{x:Type pos:ShiftViewModel}"><vpos:ShiftView/></DataTemplate>
 

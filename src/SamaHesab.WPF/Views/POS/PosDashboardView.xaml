@@ -1,0 +1,92 @@
+<UserControl x:Class="SamaHesab.WPF.Views.POS.PosDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="{StaticResource ErpAppBg}">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <!-- کارتِ KPI -->
+        <Style x:Key="Kpi" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+        <Style x:Key="KpiCaption" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/><Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
+        </Style>
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/><Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+        <StackPanel>
+            <!-- هدر -->
+            <DockPanel Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IcPos}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" Stroke="{StaticResource ErpBlue700}"/>
+                    <TextBlock Text="داشبورد صندوق / رستوران" FontSize="17" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </StackPanel>
+                <Button DockPanel.Dock="Left" HorizontalAlignment="Left" Style="{StaticResource ErpBtnGhost}" Height="30" Padding="12,0"
+                        Content="بازخوانی" Command="{Binding RefreshCommand}"/>
+                <TextBlock Text="{Binding TodayText, StringFormat='امروز: {0}'}" VerticalAlignment="Center" HorizontalAlignment="Left"
+                           Foreground="{StaticResource ErpTextMuted}" FontSize="12" Margin="0,0,12,0"/>
+            </DockPanel>
+
+            <!-- ═══ صندوق ═══ -->
+            <TextBlock Text="فروشِ امروز (صندوق)" FontWeight="Bold" FontSize="13" Foreground="{StaticResource ErpTextStrong}" Margin="2,4,0,6"/>
+            <UniformGrid Columns="3">
+                <Border Style="{StaticResource Kpi}">
+                    <StackPanel>
+                        <TextBlock Text="فروشِ امروز (ریال)" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding TodaySales, Converter={StaticResource Num}}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpSuccess700}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Kpi}">
+                    <StackPanel>
+                        <TextBlock Text="تعدادِ فاکتورِ امروز" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding TodayInvoiceCount}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpBlue700}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Kpi}">
+                    <StackPanel>
+                        <TextBlock Text="میانگینِ هر فاکتور (ریال)" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding AverageInvoice, Converter={StaticResource Num}}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpTextStrong}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ═══ رستوران ═══ -->
+            <StackPanel Visibility="{Binding HasRestaurant, Converter={StaticResource BoolVis}}">
+                <TextBlock Text="وضعیتِ رستوران" FontWeight="Bold" FontSize="13" Foreground="{StaticResource ErpTextStrong}" Margin="2,10,0,6"/>
+                <UniformGrid Columns="3">
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="میزهای آزاد" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding FreeTables}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpSuccess700}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="میزهای مشغول" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding OccupiedTables}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpBlue700}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="میزهای رزرو" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding ReservedTables}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpGold500}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="در حالِ تسویه" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding BillingTables}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpGold500}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="سفارش‌های باز" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding OpenOrders}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpBlue700}"/></StackPanel></Border>
+                    <Border Style="{StaticResource Kpi}"><StackPanel>
+                        <TextBlock Text="ارزشِ سفارش‌های باز (ریال)" Style="{StaticResource KpiCaption}"/>
+                        <TextBlock Text="{Binding OpenOrdersValue, Converter={StaticResource Num}}" Style="{StaticResource KpiValue}" Foreground="{StaticResource ErpTextStrong}"/></StackPanel></Border>
+                </UniformGrid>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

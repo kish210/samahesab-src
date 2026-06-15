@@ -48,7 +48,7 @@ public partial class MainViewModel : BaseViewModel
     // نقشهٔ «کلید صفحه → ماژولِ اختیاری» (صفحات خارج از این نقشه = هسته، همیشه مجاز)
     private static readonly Dictionary<string, string> _pageModule = new()
     {
-        ["POS"] = ModuleService.Pos, ["CashShift"] = ModuleService.Pos,
+        ["POS"] = ModuleService.Pos, ["CashShift"] = ModuleService.Pos, ["PosDashboard"] = ModuleService.Pos,
         ["Employees"] = ModuleService.Hr, ["EmployeeEdit"] = ModuleService.Hr,
         ["Salary"] = ModuleService.Hr, ["Attendance"] = ModuleService.Hr,
     };
@@ -126,6 +126,7 @@ public partial class MainViewModel : BaseViewModel
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),
             ["PurchaseInvoiceList"]= ("لیست خریدها",       sp => sp.GetRequiredService<PurchaseInvoiceListViewModel>()),
             ["POS"]             = ("صندوق فروش",          sp => sp.GetRequiredService<PosViewModel>()),
+            ["PosDashboard"]    = ("داشبورد صندوق",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.POS.PosDashboardViewModel>()),
             ["CashShift"]       = ("صندوق / شیفت",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>()),
             ["Customers"]       = ("مشتریان",             sp => sp.GetRequiredService<CustomerListViewModel>()),
             ["CustomerEdit"]    = ("ویرایش مشتری",        sp => sp.GetRequiredService<CustomerEditViewModel>()),

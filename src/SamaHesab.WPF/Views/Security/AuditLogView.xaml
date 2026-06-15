@@ -30,18 +30,12 @@
                      VerticalContentAlignment="Center" Padding="7,0"
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
                      BorderBrush="{DynamicResource BorderColor}"/>
-            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Padding="16,6" Cursor="Hand"
-                    Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0" FontWeight="SemiBold"/>
-            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
-                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
-                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Style="{StaticResource ErpBtnPrimary}"/>
+            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
         </StackPanel>
 
-        <!-- گرید -->
-        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
-                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="28" FontSize="12.5"
-                  Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
-                  CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}">
+        <!-- گرید (ظاهر از استایلِ ضمنیِ ErpDataGrid) -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="تاریخ" Binding="{Binding When}" Width="150"/>
                 <DataGridTextColumn Header="کاربر" Binding="{Binding User}" Width="120"/>

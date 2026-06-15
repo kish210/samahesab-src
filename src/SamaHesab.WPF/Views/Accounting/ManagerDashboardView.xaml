@@ -54,10 +54,7 @@
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="مشتریانِ برترِ این ماه" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" Margin="2,0,2,8"/>
-                <DataGrid Grid.Row="1" ItemsSource="{Binding TopCustomers}" AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal" RowHeight="28" FontSize="12.5"
-                          Background="Transparent" RowBackground="Transparent" BorderThickness="0" CanUserAddRows="False"
-                          Foreground="{DynamicResource PrimaryText}">
+                <DataGrid Grid.Row="1" ItemsSource="{Binding TopCustomers}" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="مشتری" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="مبلغِ خرید (ریال)" Binding="{Binding Total, Converter={StaticResource Num}}" Width="200"/>

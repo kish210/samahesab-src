@@ -29,14 +29,9 @@
         </StackPanel>
 
         <Button Grid.Row="1" Content="بروزرسانی" Command="{Binding LoadCommand}" HorizontalAlignment="Right"
-                Margin="0,0,0,8" Padding="14,5" Cursor="Hand" BorderThickness="1"
-                Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
-                BorderBrush="{DynamicResource BorderColor}"/>
+                Margin="0,0,0,8" Style="{StaticResource ErpBtnSecondary}"/>
 
-        <DataGrid Grid.Row="2" ItemsSource="{Binding Pending}" AutoGenerateColumns="False" IsReadOnly="True"
-                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
-                  Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
-                  CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}">
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Pending}" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="شمارهٔ سند" Binding="{Binding VoucherNumber}" Width="120"/>
                 <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="120"/>

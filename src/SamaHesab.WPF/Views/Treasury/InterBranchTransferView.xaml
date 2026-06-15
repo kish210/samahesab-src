@@ -84,9 +84,7 @@
 
                 <!-- دکمه ثبت -->
                 <Button Grid.Row="4" Grid.Column="2" Content="ثبتِ انتقال" HorizontalAlignment="Left"
-                        Padding="22,8" FontSize="13" FontWeight="Bold" Foreground="White" BorderThickness="0"
-                        Cursor="Hand" Background="{StaticResource Blue700}"
-                        Command="{Binding TransferCommand}"/>
+                        MinWidth="130" Style="{StaticResource ErpBtnPrimary}" Command="{Binding TransferCommand}"/>
             </Grid>
         </Border>
     </Grid>

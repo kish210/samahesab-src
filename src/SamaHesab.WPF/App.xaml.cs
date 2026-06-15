@@ -89,7 +89,7 @@ public partial class App : System.Windows.Application
                     cfg.RegisterServicesFromAssembly(typeof(Application.Accounting.Commands.CreateVoucherCommand).Assembly);
                     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
                     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-                    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(Application.Common.Behaviors.InventoryAuditBehavior<,>)); // T19
+                    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(Application.Common.Behaviors.AuditBehavior<,>)); // T19/T21
                 });
 
                 // WPF Services

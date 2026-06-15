@@ -21,7 +21,7 @@ public static class DependencyInjection
         // Pipeline behaviors
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(InventoryAuditBehavior<,>)); // T19 — RBAC+حسابرسیِ حرکاتِ انبار
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditBehavior<,>)); // T19/T21 — RBAC+حسابرسیِ عملیاتِ حساس
 
         return services;
     }

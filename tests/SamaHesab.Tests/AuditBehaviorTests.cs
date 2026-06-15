@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using SamaHesab.Application.Accounting.Commands;
 using SamaHesab.Application.Common.Behaviors;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
@@ -14,15 +15,15 @@ using Xunit;
 
 namespace SamaHesab.Tests;
 
-/// <summary>T19 — رفتارِ RBAC + حسابرسیِ حرکاتِ انبار (`InventoryAuditBehavior`).</summary>
-public class InventoryAuditBehaviorTests
+/// <summary>T19/T21 — رفتارِ حسابرسی + کنترلِ دسترسیِ عملیاتِ حساس (`AuditBehavior`).</summary>
+public class AuditBehaviorTests
 {
     private sealed class FakeUser : ICurrentUserService
     {
         private readonly bool _allow;
         public FakeUser(bool allow) => _allow = allow;
         public int? UserId => 5; public int? CompanyId => 1; public int? BranchId => 1;
-        public string? Username => "anbar"; public string? FullName => "انباردار"; public bool IsAuthenticated => true;
+        public string? Username => "u"; public string? FullName => "کاربر"; public bool IsAuthenticated => true;
         public bool HasPermission(string m, string f, string a) => _allow;
         public IEnumerable<string> GetRoles() => _allow ? new[] { "ADMIN" } : Array.Empty<string>();
     }
@@ -52,61 +53,73 @@ public class InventoryAuditBehaviorTests
         public Task RollbackTransactionAsync(CancellationToken ct = default) => Task.CompletedTask;
     }
 
-    private static readonly AdjustStockCommand SampleMove = new(1, 2, 10, "1403/03/15", "اصلاح");
+    // ── انبار (enforce=true) ──
+    private static readonly AdjustStockCommand Move = new(1, 2, 10, "1403/03/15", "x");
 
     [Fact]
-    public async Task Without_Permission_Denies_And_Skips_Handler()
+    public async Task Inventory_Without_Permission_Denies_And_Skips_Handler()
     {
         var audit = new FakeAuditRepo();
-        var sut = new InventoryAuditBehavior<AdjustStockCommand, Result>(new FakeUser(false), audit, new FakeUow());
-        var handlerCalled = false;
+        var sut = new AuditBehavior<AdjustStockCommand, Result>(new FakeUser(false), audit, new FakeUow());
+        var called = false;
 
-        var res = await sut.Handle(SampleMove, () => { handlerCalled = true; return Task.FromResult(Result.Success()); }, default);
-
-        Assert.False(res.Succeeded);            // Result.Failure (نه استثنا)
-        Assert.False(handlerCalled);            // فرمان اجرا نشد
-        Assert.Empty(audit.Items);              // لاگی ثبت نشد
-    }
-
-    [Fact]
-    public async Task With_Permission_Runs_Handler_And_Writes_Audit()
-    {
-        var audit = new FakeAuditRepo();
-        var sut = new InventoryAuditBehavior<AdjustStockCommand, Result>(new FakeUser(true), audit, new FakeUow());
-
-        var res = await sut.Handle(SampleMove, () => Task.FromResult(Result.Success()), default);
-
-        Assert.True(res.Succeeded);
-        var log = Assert.Single(audit.Items);
-        Assert.Equal("تعدیلِ موجودی", log.Action);
-        Assert.Equal(5, log.UserId);
-        Assert.Equal("Inv", log.TableName);
-    }
-
-    [Fact]
-    public async Task Failed_Handler_Does_Not_Write_Audit()
-    {
-        var audit = new FakeAuditRepo();
-        var sut = new InventoryAuditBehavior<AdjustStockCommand, Result>(new FakeUser(true), audit, new FakeUow());
-
-        var res = await sut.Handle(SampleMove, () => Task.FromResult(Result.Failure("خطا")), default);
+        var res = await sut.Handle(Move, () => { called = true; return Task.FromResult(Result.Success()); }, default);
 
         Assert.False(res.Succeeded);
-        Assert.Empty(audit.Items);              // فقط در صورتِ موفقیت لاگ می‌شود
+        Assert.False(called);
+        Assert.Empty(audit.Items);
     }
 
     [Fact]
-    public async Task NonInventory_Command_Passes_Through_Untouched()
+    public async Task Inventory_With_Permission_Runs_And_Audits()
     {
         var audit = new FakeAuditRepo();
-        // فرمانی که در فهرستِ حرکاتِ انبار نیست (حتی با کاربرِ بدونِ مجوز) باید عبور کند.
-        var sut = new InventoryAuditBehavior<StartStockCountCommand, Result<int>>(new FakeUser(false), audit, new FakeUow());
+        var sut = new AuditBehavior<AdjustStockCommand, Result>(new FakeUser(true), audit, new FakeUow());
 
-        var res = await sut.Handle(new StartStockCountCommand(1, "1403/03/15"),
-            () => Task.FromResult(Result<int>.Success(99)), default);
+        var res = await sut.Handle(Move, () => Task.FromResult(Result.Success()), default);
 
         Assert.True(res.Succeeded);
-        Assert.Equal(99, res.Value);
+        Assert.Equal("تعدیلِ موجودی", Assert.Single(audit.Items).Action);
+    }
+
+    // ── حسابداری (enforce=false → فقط حسابرسی، بدونِ منع) ──
+    [Fact]
+    public async Task Accounting_AuditOnly_Runs_Even_Without_Permission_And_Audits()
+    {
+        var audit = new FakeAuditRepo();
+        var sut = new AuditBehavior<PostVoucherCommand, Result>(new FakeUser(false), audit, new FakeUow());
+        var called = false;
+
+        var res = await sut.Handle(new PostVoucherCommand(7),
+            () => { called = true; return Task.FromResult(Result.Success()); }, default);
+
+        Assert.True(res.Succeeded);                 // منع نشد (audit-only)
+        Assert.True(called);
+        Assert.Equal("قطعیِ سند", Assert.Single(audit.Items).Action);
+    }
+
+    [Fact]
+    public async Task Failed_Operation_Is_Not_Audited()
+    {
+        var audit = new FakeAuditRepo();
+        var sut = new AuditBehavior<PostVoucherCommand, Result>(new FakeUser(true), audit, new FakeUow());
+
+        var res = await sut.Handle(new PostVoucherCommand(7), () => Task.FromResult(Result.Failure("خطا")), default);
+
+        Assert.False(res.Succeeded);
+        Assert.Empty(audit.Items);
+    }
+
+    [Fact]
+    public async Task Unmapped_Command_Passes_Through()
+    {
+        var audit = new FakeAuditRepo();
+        var sut = new AuditBehavior<StartStockCountCommand, Result<int>>(new FakeUser(false), audit, new FakeUow());
+
+        var res = await sut.Handle(new StartStockCountCommand(1, "1403/03/15"),
+            () => Task.FromResult(Result<int>.Success(3)), default);
+
+        Assert.True(res.Succeeded);
         Assert.Empty(audit.Items);
     }
 }

@@ -75,6 +75,8 @@
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,8,0,0">
                         <Button Style="{StaticResource ErpBtnPrimary}" Height="32" Padding="18,0" Content="💾 ذخیره" Command="{Binding SaveCommand}"/>
                         <Button Style="{StaticResource ErpBtnGhost}" Height="32" Padding="14,0" Margin="6,0,0,0" Content="👁 پیش‌نمایش" Command="{Binding PreviewCommand}"/>
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="32" Padding="14,0" Margin="6,0,0,0" Content="📤 خروجی قالب" Command="{Binding ExportCommand}"/>
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="32" Padding="14,0" Margin="6,0,0,0" Content="📥 ورود قالب" Click="Import_Click"/>
                         <Button Style="{StaticResource ErpBtnSecondary}" Height="32" Padding="14,0" Margin="6,0,0,0" Content="🗑 حذف" Command="{Binding DeleteCommand}"/>
                     </StackPanel>
                 </Grid>

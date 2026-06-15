@@ -6,6 +6,13 @@ using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.Application.Documents;
 
+// ── Portable package (DT-5) — فرمتِ import/export قالب (.shtpl JSON، پایهٔ مارکت‌پلیس) ──
+public record DocumentTemplatePackage(string Format, string DocumentType, string Name, string PaperSize,
+    string? HeaderHtml, string BodyHtml, string? FooterHtml)
+{
+    public const string CurrentFormat = "shtpl-v1";
+}
+
 // ── List (per document type) ─────────────────────────────────────────────────
 public record DocumentTemplateListDto(int Id, string Name, string PaperSize, bool IsDefault, bool IsActive, bool IsSystem);
 public record GetDocumentTemplatesQuery(string DocumentType) : IRequest<List<DocumentTemplateListDto>>;

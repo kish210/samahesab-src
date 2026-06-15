@@ -105,6 +105,48 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
         }, "در حال حذف...");
     }
 
+    /// <summary>DT-5 — خروجیِ قالبِ فعلی به فایلِ `.shtpl` (JSON) برای اشتراک/نصب در سیستمِ دیگر.</summary>
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        if (string.IsNullOrWhiteSpace(EditBody)) { await _dialogService.ShowWarningAsync("بدنهٔ قالب خالی است."); return; }
+        try
+        {
+            var pkg = new DocumentTemplatePackage(DocumentTemplatePackage.CurrentFormat, SelectedType,
+                string.IsNullOrWhiteSpace(EditName) ? "template" : EditName, EditPaperSize, EditHeader, EditBody, EditFooter);
+            var json = System.Text.Json.JsonSerializer.Serialize(pkg, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "قالب‌ها");
+            System.IO.Directory.CreateDirectory(dir);
+            var safe = string.Join("_", pkg.Name.Split(System.IO.Path.GetInvalidFileNameChars()));
+            var path = System.IO.Path.Combine(dir, $"{safe}.shtpl");
+            System.IO.File.WriteAllText(path, json, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dir) { UseShellExecute = true });
+            await _dialogService.ShowSuccessAsync($"قالب در «{path}» ذخیره شد.");
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    /// <summary>DT-5 — واردکردنِ یک قالب از محتوای فایلِ `.shtpl`؛ در ویرایشگر بارگذاری می‌شود تا کاربر ذخیره کند.</summary>
+    public async Task ImportFromJsonAsync(string json)
+    {
+        try
+        {
+            var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(json,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (pkg is null || string.IsNullOrWhiteSpace(pkg.BodyHtml))
+            { await _dialogService.ShowErrorAsync("فایلِ قالب نامعتبر است."); return; }
+
+            if (!string.IsNullOrWhiteSpace(pkg.DocumentType)) SelectedType = pkg.DocumentType;
+            EditId = null;
+            EditName = string.IsNullOrWhiteSpace(pkg.Name) ? "قالبِ واردشده" : pkg.Name;
+            EditPaperSize = string.IsNullOrWhiteSpace(pkg.PaperSize) ? "A4P" : pkg.PaperSize;
+            EditHeader = pkg.HeaderHtml; EditBody = pkg.BodyHtml; EditFooter = pkg.FooterHtml;
+            await _dialogService.ShowInfoAsync("قالب وارد شد — برای ذخیره دکمهٔ «ذخیره» را بزنید.");
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("خطا در خواندنِ قالب: " + ex.Message); }
+    }
+
     /// <summary>پیش‌نمایشِ قالبِ فعلی با دادهٔ نمونه (HTMLِ قابل‌چاپ).</summary>
     [RelayCommand]
     private async Task PreviewAsync()

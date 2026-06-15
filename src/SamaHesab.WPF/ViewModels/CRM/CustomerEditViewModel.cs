@@ -106,7 +106,13 @@ public partial class CustomerEditViewModel : BaseViewModel
         await _dialogService.ShowSuccessAsync($"پیامک تبریک تولد به {Mobile} ارسال شد.");
     }
 
-    [RelayCommand] private async Task PrintStatementAsync() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی صورتحساب...");
+    [RelayCommand]
+    private async Task PrintStatementAsync()
+    {
+        if (!IsEditing) { await _dialogService.ShowWarningAsync("صورت‌حساب فقط برای مشتریِ ذخیره‌شده موجود است."); return; }
+        // کارت مشتری گردشِ کامل + دکمهٔ «چاپ صورت‌حساب» را دارد.
+        _navigationService.NavigateTo("CustomerCard", EditingId);
+    }
     [RelayCommand] private void Cancel() => _navigationService.NavigateTo("Customers");
 }
 

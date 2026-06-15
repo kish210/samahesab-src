@@ -9,6 +9,7 @@ using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.CRM;
 
@@ -245,7 +246,26 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [RelayCommand] private void Edit() => _navigationService.NavigateTo("CustomerEdit", CustomerId);
     [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoiceEdit");
     [RelayCommand] private async Task Receipt() => await _dialogService.ShowInfoAsync("ثبت دریافت وجه از مشتری…");
-    [RelayCommand] private async Task PrintStatement() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی صورت‌حساب…");
+    [RelayCommand]
+    private async Task PrintStatement()
+    {
+        if (Ledger.Count == 0) { await _dialogService.ShowWarningAsync("گردشی برای چاپ نیست."); return; }
+        try
+        {
+            string N(decimal d) => d.ToString("N0");
+            var table = new SamaHesab.Application.Reports.Export.ReportTable(
+                $"صورت‌حساب مشتری — {Name} (مانده: {N(LedgerClosing)})",
+                new[] { "تاریخ", "شماره سند", "شرح", "بدهکار", "بستانکار", "مانده" },
+                Ledger.Select(r => new[] { r.Date, r.DocNumber, r.Description, N(r.Debit), N(r.Credit), N(r.Balance) }).ToList());
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"صورت‌حساب_{Name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, SamaHesab.Application.Reports.Export.ReportExporter.ToHtml(table), new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
     [RelayCommand] private async Task SmsBalance() => await _dialogService.ShowInfoAsync($"پیامک مانده ({Balance:N0}) به {Mobile}…");
 }
 

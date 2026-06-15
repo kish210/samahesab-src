@@ -39,6 +39,7 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["CreatePaymentCommand"]  = new("Treasury", "Manage", "", "پرداختِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateReceiptCommand"]  = new("Treasury", "Manage", "", "دریافتِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateInterBranchTransferCommand"] = new("Treasury", "Manage", "", "تسویهٔ بین‌شعبه", Enforce: false, Table: "Trs"),
+        ["PostSalaryVoucherCommand"] = new("Accounting", "Voucher", "Create", "صدورِ سندِ حقوق", Enforce: false, Table: "Hrm"),
     };
 
     private readonly ICurrentUserService _user;

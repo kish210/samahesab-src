@@ -180,11 +180,15 @@ public partial class SalaryViewModel : BaseViewModel
     [RelayCommand]
     private async Task PostAllAsync()
     {
+        if (SalarySlips.Count == 0) { await _dialogService.ShowWarningAsync("ابتدا فیش‌ها را محاسبه کنید."); return; }
         var ok = await _dialogService.ConfirmAsync($"حقوق {SalarySlips.Count} نفر به مبلغ کل {TotalNet:N0} ریال پرداخت شود؟");
         if (!ok) return;
         await ExecuteAsync(async () =>
         {
-            await _dialogService.ShowSuccessAsync("فیش‌های حقوقی ثبت و سند حسابداری صادر گردید.");
+            var date = _calendar.GetCurrentPersianDate();
+            var res = await _mediator.Send(new PostSalaryVoucherCommand(date));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync($"حقوق ثبت و سندِ حسابداری صادر شد (سند #{res.Value!.VoucherId}).");
         }, "در حال ثبت حقوق...");
     }
 

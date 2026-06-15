@@ -101,6 +101,7 @@ public class ApplicationDbContext : DbContext
 
     // HRM
     public DbSet<Employee> Employees { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.HRM.Department> Departments { get; set; }
 
     // Restaurant (v2)
     public DbSet<Hall> Halls { get; set; }
@@ -233,6 +234,12 @@ public class ApplicationDbContext : DbContext
         // Avoid cascading the HR detail tables into the model for now.
         modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);
         modelBuilder.Entity<Employee>().Ignore(e => e.SalarySlips);
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Department>(b =>
+        {
+            b.ToTable("Departments", "Hrm");
+            b.Ignore(d => d.CreatedAt);   // Hrm.Departments ستون‌های تاریخِ ممیزی ندارد
+            b.Ignore(d => d.UpdatedAt);
+        });
 
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>

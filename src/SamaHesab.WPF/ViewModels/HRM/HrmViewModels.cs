@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.HRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -11,42 +13,44 @@ namespace SamaHesab.WPF.ViewModels.HRM;
 // ─── Employee List ─────────────────────────────────────────────────────────────
 public partial class EmployeeListViewModel : BaseViewModel
 {
-    private readonly IRepository<SamaHesab.Domain.Entities.HRM.Employee> _repo;
-    private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private bool _showInactive;
-    [ObservableProperty] private SamaHesab.Domain.Entities.HRM.Employee? _selectedEmployee;
+    [ObservableProperty] private EmployeeDto? _selectedEmployee;
 
-    public ObservableCollection<SamaHesab.Domain.Entities.HRM.Employee> Employees { get; } = new();
+    public ObservableCollection<EmployeeDto> Employees { get; } = new();
 
-    public EmployeeListViewModel(IRepository<SamaHesab.Domain.Entities.HRM.Employee> repo,
-        ICurrentUserService currentUser, IDialogService dialogService, INavigationService navigationService)
-        : base(dialogService, navigationService) { _repo = repo; _currentUser = currentUser; }
+    public EmployeeListViewModel(IMediator mediator,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService) { _mediator = mediator; }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var all = await _repo.FindAsync(e => e.CompanyId == _currentUser.CompanyId!.Value
-                && (ShowInactive || e.IsActive));
+            var list = await _mediator.Send(new GetEmployeesQuery(ShowInactive,
+                string.IsNullOrWhiteSpace(SearchText) ? null : SearchText.Trim()));
             Employees.Clear();
-            foreach (var e in all.OrderBy(e => e.LastName)) Employees.Add(e);
+            foreach (var e in list) Employees.Add(e);
         }, "در حال بارگذاری کارکنان...");
     }
 
     [RelayCommand] private void AddNew() => _navigationService.NavigateTo("EmployeeEdit");
-    [RelayCommand] private void Edit(SamaHesab.Domain.Entities.HRM.Employee? emp)
+    [RelayCommand] private void Edit(EmployeeDto? emp)
     { if (emp != null) _navigationService.NavigateTo("EmployeeEdit"); }
 
     [RelayCommand]
-    private async Task DeleteAsync(SamaHesab.Domain.Entities.HRM.Employee? emp)
+    private async Task DeleteAsync(EmployeeDto? emp)
     {
         if (emp == null) return;
-        var ok = await _dialogService.ConfirmAsync($"آیا کارمند {emp.FullName} حذف شود؟");
-        if (!ok) return;
-        _repo.Remove(emp);
-        Employees.Remove(emp);
+        if (!await _dialogService.ConfirmAsync($"آیا کارمند {emp.FullName} حذف شود؟")) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new DeleteEmployeeCommand(emp.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            Employees.Remove(emp);
+        }, "در حال حذف...");
     }
 
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();
@@ -56,9 +60,8 @@ public partial class EmployeeListViewModel : BaseViewModel
 // ─── Employee Edit ────────────────────────────────────────────────────────────
 public partial class EmployeeEditViewModel : BaseViewModel
 {
-    private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string _code = string.Empty;
     [ObservableProperty] private string _nationalCode = string.Empty;
@@ -89,10 +92,10 @@ public partial class EmployeeEditViewModel : BaseViewModel
     public List<string> Educations { get; } = new() { "زیر دیپلم", "دیپلم", "فوق دیپلم", "لیسانس", "فوق لیسانس", "دکتری" };
     public List<string> ContractTypes { get; } = new() { "دائم", "موقت", "پاره وقت", "پیمانی" };
 
-    public EmployeeEditViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IUnitOfWork unitOfWork, IDialogService dialogService, INavigationService navigationService)
+    public EmployeeEditViewModel(IPersianCalendarService calendar, IMediator mediator,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _currentUser = currentUser; _calendar = calendar; _unitOfWork = unitOfWork; }
+    { _calendar = calendar; _mediator = mediator; }
 
     public override async Task LoadAsync()
     {
@@ -109,7 +112,11 @@ public partial class EmployeeEditViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(LastName)) { await _dialogService.ShowErrorAsync("نام خانوادگی الزامی است."); return; }
         await ExecuteAsync(async () =>
         {
-            // Save employee
+            var res = await _mediator.Send(new SaveEmployeeCommand(
+                0, Code, NationalCode, FirstName, LastName, HireDate, BaseSalary, ContractType,
+                Mobile, Phone, Email, Address, FatherName, BirthDate, Gender, MaritalStatus,
+                Education, DepartmentId, PositionId, BankName, BankAccount, ShebaNumber, InsuranceNumber, Notes));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
             await _dialogService.ShowSuccessAsync("پرونده کارمند ذخیره شد.");
             _navigationService.NavigateTo("Employees");
         }, "در حال ذخیره...");
@@ -122,7 +129,7 @@ public partial class EmployeeEditViewModel : BaseViewModel
 public partial class SalaryViewModel : BaseViewModel
 {
     private readonly IPersianCalendarService _calendar;
-    private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string _selectedYear = string.Empty;
     [ObservableProperty] private int _selectedMonth = 1;
@@ -138,10 +145,10 @@ public partial class SalaryViewModel : BaseViewModel
         .Select(m => new MonthItem(m, new string[]{"فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"}[m-1]))
         .ToList();
 
-    public SalaryViewModel(IPersianCalendarService calendar, ICurrentUserService currentUser,
+    public SalaryViewModel(IPersianCalendarService calendar, IMediator mediator,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _calendar = calendar; _currentUser = currentUser; }
+    { _calendar = calendar; _mediator = mediator; }
 
     public override async Task LoadAsync()
     {
@@ -157,14 +164,10 @@ public partial class SalaryViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             SalarySlips.Clear();
-            // Sample data
-            var emp = new[]
-            {
-                new SalarySlipRow(1,"علی احمدی","مالی",15_000_000,500_000,2_000_000,1_050_000,300_000,16_150_000),
-                new SalarySlipRow(2,"مریم رضایی","فروش",12_000_000,0,1_500_000,840_000,240_000,12_420_000),
-                new SalarySlipRow(3,"رضا محمدی","انبار",10_000_000,800_000,1_000_000,756_000,200_000,10_844_000),
-            };
-            foreach (var s in emp) SalarySlips.Add(s);
+            var slips = await _mediator.Send(new GetSalarySlipsQuery(SelectedYear, SelectedMonth));
+            foreach (var s in slips)
+                SalarySlips.Add(new SalarySlipRow(s.EmployeeId, s.EmployeeName, s.Department,
+                    s.BaseSalary, s.Overtime, s.Allowances, s.Insurance, s.Tax, s.Net));
 
             TotalGross = SalarySlips.Sum(s => s.GrossSalary);
             TotalInsurance = SalarySlips.Sum(s => s.InsuranceDeduct);

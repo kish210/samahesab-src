@@ -13,16 +13,19 @@
         <Border Background="{DynamicResource SurfaceBackground}"
                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
             <StackPanel Margin="0,16,0,0">
-                <TextBlock Text="تنظیمات سیستم" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
-                           FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,0,16,12"/>
-                <Button Content="🏢 اطلاعات شرکت"   Style="{StaticResource SidebarItemButton}" Command="{Binding ShowCompanyCommand}"/>
-                <Button Content="🎨 ظاهر و تم"       Style="{StaticResource SidebarItemButton}" Command="{Binding ShowThemeCommand}"/>
-                <Button Content="📱 پیام کوتاه (SMS)" Style="{StaticResource SidebarItemButton}" Command="{Binding ShowSmsCommand}"/>
-                <Button Content="👤 کاربران"          Style="{StaticResource SidebarItemButton}" Command="{Binding ShowUsersCommand}"/>
-                <Button Content="🔐 دسترسی‌ها"        Style="{StaticResource SidebarItemButton}" Command="{Binding ShowPermissionsCommand}"/>
-                <Button Content="💰 ارزها"            Style="{StaticResource SidebarItemButton}" Command="{Binding ShowCurrenciesCommand}"/>
-                <Button Content="📏 واحدها"           Style="{StaticResource SidebarItemButton}" Command="{Binding ShowUnitsCommand}"/>
-                <Button Content="⚙ تنظیمات سال مالی" Style="{StaticResource SidebarItemButton}" Command="{Binding ShowFiscalYearCommand}"/>
+                <TextBlock Text="تنظیماتِ همین صفحه" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
+                           FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,0,16,8"/>
+                <Button Content="🏢 اطلاعات شرکت"    Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Company"/>
+                <Button Content="🎨 ظاهر و ارز"      Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Appearance"/>
+                <Button Content="📱 پیام کوتاه (SMS)" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Sms"/>
+                <Button Content="ℹ نسخه و به‌روزرسانی" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="About"/>
+
+                <TextBlock Text="تنظیماتِ تخصصی" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
+                           FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,18,16,8"/>
+                <Button Content="👤 کاربران و دسترسی‌ها" Style="{StaticResource SidebarItemButton}" Command="{Binding OpenSecurityCommand}"/>
+                <Button Content="🧩 مدیریت ماژول‌ها"     Style="{StaticResource SidebarItemButton}" Command="{Binding OpenModulesCommand}"/>
+                <Button Content="🏢 مدیریت شعب"          Style="{StaticResource SidebarItemButton}" Command="{Binding OpenBranchesCommand}"/>
+                <Button Content="💾 پشتیبان‌گیری"         Style="{StaticResource SidebarItemButton}" Command="{Binding OpenBackupCommand}"/>
             </StackPanel>
         </Border>
 
@@ -31,7 +34,7 @@
             <StackPanel Margin="24">
 
                 <!-- Company Info -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                <Border x:Name="CompanySection" Style="{StaticResource Card}" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="🏢 اطلاعات شرکت" FontWeight="Bold" FontSize="15"
                                    Foreground="{DynamicResource PrimaryText}"
@@ -70,7 +73,7 @@
                 </Border>
 
                 <!-- Appearance -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                <Border x:Name="AppearanceSection" Style="{StaticResource Card}" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="🎨 ظاهر و تم نرم‌افزار" FontWeight="Bold" FontSize="15"
                                    Foreground="{DynamicResource PrimaryText}"
@@ -94,7 +97,7 @@
                 </Border>
 
                 <!-- SMS Settings -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+                <Border x:Name="SmsSection" Style="{StaticResource Card}" Margin="0,0,0,20">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <TextBlock Text="📱 تنظیمات پیام کوتاه" FontWeight="Bold" FontSize="15"
@@ -130,6 +133,30 @@
                                 <Button Grid.Column="2" Content="🧪 آزمایش ارسال" Style="{StaticResource SecondaryButton}" Height="36" IsEnabled="{Binding SmsEnabled}" Command="{Binding TestSmsCommand}"/>
                             </Grid>
                         </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- About & Update -->
+                <Border x:Name="AboutSection" Style="{StaticResource Card}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="ℹ نسخه و به‌روزرسانی" FontWeight="Bold" FontSize="15"
+                                   Foreground="{DynamicResource PrimaryText}"
+                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,14"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding AppVersionText}" Foreground="{DynamicResource PrimaryText}"
+                                           FontFamily="{StaticResource VazirFont}" FontSize="13"/>
+                                <TextBlock Text="{Binding UpdateStatus}" Foreground="{DynamicResource SecondaryText}"
+                                           FontFamily="{StaticResource VazirFont}" FontSize="12" Margin="0,4,0,0"
+                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="© ۱۴۰۴ سماع رایانه کیش" Foreground="{DynamicResource SecondaryText}"
+                                           FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="🔄 بررسی به‌روزرسانی" Style="{StaticResource SecondaryButton}"
+                                    Height="38" VerticalAlignment="Center" FontFamily="{StaticResource VazirFont}"
+                                    Command="{Binding CheckUpdateCommand}"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

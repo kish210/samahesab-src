@@ -30,6 +30,7 @@ public static class AppSettingsStore
         public PrintSettings? Print { get; set; }
         public ApiSettings? Api { get; set; }
         public Dictionary<string, bool>? Modules { get; set; }
+        public GeneralSettings? General { get; set; }
     }
 
     private static Model Load()
@@ -115,4 +116,28 @@ public static class AppSettingsStore
         m.Modules = modules;
         Save(m);
     }
+
+    /// <summary>تنظیماتِ عمومیِ صفحهٔ «تنظیمات» (شرکت/ارز/پیامک).</summary>
+    public static GeneralSettings GetGeneral() => Load().General ?? new GeneralSettings();
+
+    public static void SaveGeneral(GeneralSettings g)
+    {
+        var m = Load();
+        m.General = g;
+        Save(m);
+    }
+}
+
+/// <summary>تنظیماتِ عمومیِ کاربر/شرکت که در `settings.user.json` ذخیره می‌شوند.</summary>
+public class GeneralSettings
+{
+    public string? CompanyName { get; set; }
+    public string? CompanyPhone { get; set; }
+    public string? FiscalYearStart { get; set; }
+    public string? FiscalYearEnd { get; set; }
+    public string Currency { get; set; } = "ریال";
+    public bool SmsEnabled { get; set; }
+    public string SmsProvider { get; set; } = "kavenegar";
+    public string? SmsApiKey { get; set; }
+    public string? SmsSender { get; set; }
 }

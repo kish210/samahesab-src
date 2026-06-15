@@ -84,10 +84,12 @@ public partial class BackupViewModel : BaseViewModel
     }
 }
 
-// Settings ViewModel
+// Settings ViewModel — تنظیماتِ واقعی (ذخیره/بارگذاری از settings.user.json) + نسخه/به‌روزرسانی
 public partial class SettingsViewModel : BaseViewModel
 {
-    [ObservableProperty] private string _selectedTheme = "Dark";
+    private readonly UpdateService _updater;
+
+    [ObservableProperty] private string _selectedTheme = "Sama";
     [ObservableProperty] private string _selectedCurrency = "ریال";
     [ObservableProperty] private bool _smsEnabled;
     [ObservableProperty] private string _smsProvider = "kavenegar";
@@ -97,34 +99,79 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _companyPhone = string.Empty;
     [ObservableProperty] private string _fiscalYearStart = string.Empty;
     [ObservableProperty] private string _fiscalYearEnd = string.Empty;
+    [ObservableProperty] private string _updateStatus = string.Empty;
 
-    public List<string> Themes { get; } = new() { "Dark", "Light" };
+    public string AppVersionText => $"نسخهٔ برنامه: {AppVersion.Display}";
+
+    public List<string> Themes { get; } = new() { "Sama" };
     public List<string> Currencies { get; } = new() { "ریال", "تومان" };
     public List<string> SmsProviders { get; } = new() { "kavenegar", "farazsms", "melipayamak" };
 
-    public SettingsViewModel(IDialogService dialogService, INavigationService navigationService)
-        : base(dialogService, navigationService) { }
+    public SettingsViewModel(UpdateService updater, IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService) { _updater = updater; }
 
     public override async Task LoadAsync()
     {
-        CompanyName = "شرکت نمونه";
-        FiscalYearStart = "1403/01/01";
-        FiscalYearEnd = "1403/12/29";
+        var g = AppSettingsStore.GetGeneral();
+        SelectedTheme = AppSettingsStore.GetTheme();
+        CompanyName = g.CompanyName ?? "";
+        CompanyPhone = g.CompanyPhone ?? "";
+        FiscalYearStart = string.IsNullOrWhiteSpace(g.FiscalYearStart) ? "1404/01/01" : g.FiscalYearStart!;
+        FiscalYearEnd = string.IsNullOrWhiteSpace(g.FiscalYearEnd) ? "1404/12/29" : g.FiscalYearEnd!;
+        SelectedCurrency = g.Currency;
+        SmsEnabled = g.SmsEnabled; SmsProvider = g.SmsProvider;
+        SmsApiKey = g.SmsApiKey ?? ""; SmsSender = g.SmsSender ?? "";
         await Task.CompletedTask;
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        await ExecuteAsync(async () => await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد."));
+        await ExecuteAsync(async () =>
+        {
+            AppSettingsStore.SaveTheme(SelectedTheme);
+            ThemeManager.Apply(SelectedTheme);
+            AppSettingsStore.SaveGeneral(new GeneralSettings
+            {
+                CompanyName = CompanyName, CompanyPhone = CompanyPhone,
+                FiscalYearStart = FiscalYearStart, FiscalYearEnd = FiscalYearEnd,
+                Currency = SelectedCurrency, SmsEnabled = SmsEnabled, SmsProvider = SmsProvider,
+                SmsApiKey = SmsApiKey, SmsSender = SmsSender
+            });
+            await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد.");
+        }, "در حال ذخیرهٔ تنظیمات...");
     }
 
     [RelayCommand]
     private async Task TestSmsAsync()
     {
         if (!SmsEnabled) { await _dialogService.ShowWarningAsync("SMS فعال نیست."); return; }
-        await _dialogService.ShowInfoAsync("پیامک آزمایشی ارسال شد.");
+        await _dialogService.ShowInfoAsync("ارسالِ پیامکِ آزمایشی از طریقِ درگاهِ سرور انجام می‌شود (تنظیماتِ درگاه روی سرور).");
     }
+
+    // ── نسخه و به‌روزرسانی ──
+    [RelayCommand]
+    private async Task CheckUpdateAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            UpdateStatus = "در حال بررسی...";
+            var info = await _updater.CheckAsync();
+            if (info is null) { UpdateStatus = $"به‌روزرسانی‌ای موجود نیست (نسخهٔ فعلی {AppVersion.Display})."; return; }
+            UpdateStatus = $"نسخهٔ جدید: {info.Tag}";
+            if (!await _dialogService.ConfirmAsync($"نسخهٔ جدید ({info.Tag}) موجود است. اکنون دانلود و نصب شود؟ برنامه بسته می‌شود.", "به‌روزرسانی")) return;
+            if (await _updater.DownloadAndRunAsync(info))
+                System.Windows.Application.Current.Shutdown();
+            else
+                await _dialogService.ShowErrorAsync("دانلودِ به‌روزرسانی ناموفق بود.");
+        }, "بررسی به‌روزرسانی...");
+    }
+
+    // ── ناوبریِ سریع به صفحاتِ تنظیماتِ تخصصی ──
+    [RelayCommand] private void OpenSecurity() => _navigationService.NavigateTo("Security");
+    [RelayCommand] private void OpenBackup() => _navigationService.NavigateTo("Backup");
+    [RelayCommand] private void OpenModules() => _navigationService.NavigateTo("Modules");
+    [RelayCommand] private void OpenBranches() => _navigationService.NavigateTo("Branches");
 }
 
 // Company Settings

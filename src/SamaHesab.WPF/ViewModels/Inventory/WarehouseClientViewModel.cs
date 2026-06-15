@@ -29,6 +29,7 @@ public partial class WarehouseClientViewModel : BaseViewModel
     [ObservableProperty] private decimal _totalValue;
     [ObservableProperty] private bool _isReceive = true;     // برای نمایش ستون بهای واحد
     [ObservableProperty] private bool _isTransfer;            // برای نمایش انتخاب انبار مقصد
+    [ObservableProperty] private bool _isIssue;               // R8 — نمایش ستونِ بچ در حواله
     [ObservableProperty] private string _statusText = string.Empty;
     [ObservableProperty] private string _barcodeInput = string.Empty;   // اسکنِ بارکدِ یکپارچه (#۲۷)
     [ObservableProperty] private string _scanInfo = string.Empty;
@@ -51,6 +52,7 @@ public partial class WarehouseClientViewModel : BaseViewModel
     {
         IsReceive = value == "رسید ورود";
         IsTransfer = value == "انتقال بین انبار";
+        IsIssue = value == "حواله خروج";
     }
     partial void OnSelectedWarehouseChanged(ApiWarehouse? value) => _ = RefreshStockAsync();
     partial void OnQuickSearchChanged(string value) => _ = SearchAsync();
@@ -76,8 +78,22 @@ public partial class WarehouseClientViewModel : BaseViewModel
             var line = new WhCartLine(tile.Id, tile.Code, tile.Name) { Qty = 1, UnitCost = 0 };
             line.PropertyChanged += (_, _) => Recalculate();
             Cart.Add(line);
+            if (IsIssue) _ = LoadBatchesForLineAsync(line);   // R8 — بچ‌های کالا برای انتخاب در حواله
         }
         Recalculate();
+    }
+
+    /// <summary>R8 — بارگذاریِ بچ‌های موجودِ کالا روی ردیفِ سبد (فقط حواله؛ best-effort).</summary>
+    private async Task LoadBatchesForLineAsync(WhCartLine line)
+    {
+        try
+        {
+            line.Batches.Clear();
+            foreach (var b in await _api.GetBatchesAsync(line.ProductId))
+                if (b.Quantity > 0) line.Batches.Add(b);
+            line.RaiseHasBatches();
+        }
+        catch { /* بهره‌وری؛ نبودش حواله را بلاک نمی‌کند */ }
     }
 
     /// <summary>اسکن/تایپِ بارکد یا کدِ کالا (#۲۷) + Enter → افزودنِ مستقیم به سبدِ رسید/حواله/انتقال.</summary>
@@ -123,7 +139,7 @@ public partial class WarehouseClientViewModel : BaseViewModel
                     break;
                 case "حواله خروج":
                     r = await _api.IssueStockAsync(SelectedWarehouse.Id, date, "حواله از کلاینت انبار",
-                        Cart.Select(c => (c.ProductId, c.Qty)));
+                        Cart.Select(c => (c.ProductId, c.Qty, c.BatchId)));
                     break;
                 case "انتقال بین انبار":
                     if (DestWarehouse is null || DestWarehouse.Id == SelectedWarehouse.Id)
@@ -173,6 +189,11 @@ public partial class WhCartLine : ObservableObject
     public string Name { get; }
     [ObservableProperty] private decimal _qty;
     [ObservableProperty] private decimal _unitCost;
+    // R8 — انتخابِ بچ هنگام حواله (اختیاری؛ فقط برای کالاهای بچ‌دار پر می‌شود).
+    public ObservableCollection<ApiBatch> Batches { get; } = new();
+    [ObservableProperty] private int? _batchId;
+    public bool HasBatches => Batches.Count > 0;
+    public void RaiseHasBatches() => OnPropertyChanged(nameof(HasBatches));
 
     public WhCartLine(int productId, string code, string name)
     { ProductId = productId; Code = code; Name = name; }

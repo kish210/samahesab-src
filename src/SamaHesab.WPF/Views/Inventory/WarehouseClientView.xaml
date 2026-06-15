@@ -61,6 +61,17 @@
                             <DataGridTextColumn Header="کالا" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
                             <DataGridTextColumn Header="تعداد" Binding="{Binding Qty}" Width="70"/>
                             <DataGridTextColumn Header="بهای واحد" Binding="{Binding UnitCost}" Width="100"/>
+                            <!-- R8: انتخابِ بچ هنگام حواله (فقط کالاهای بچ‌دار) -->
+                            <DataGridTemplateColumn Header="بچ" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding Batches}" DisplayMemberPath="BatchNumber"
+                                                  SelectedValuePath="Id" SelectedValue="{Binding BatchId}"
+                                                  Visibility="{Binding HasBatches, Converter={StaticResource BoolVis}}"
+                                                  VerticalAlignment="Center" FontSize="11" Height="26"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 

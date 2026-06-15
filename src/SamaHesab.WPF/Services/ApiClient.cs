@@ -44,6 +44,10 @@ public record ApiHeldSaleDetail(int Id, string Label, string Payload, decimal To
 public record ApiWarehouse(int Id, string Name);
 public record ApiStockRow(int ProductId, string Code, string Name, decimal Quantity, decimal AverageCost, decimal Value);
 
+// ── Batch (R8 — انتخابِ بچ هنگام حواله) DTO ──
+public record ApiBatch(int Id, int ProductId, string BatchNumber, string? ProductionDate,
+    string? ExpiryDate, decimal Quantity, decimal? PurchasePrice, string? Notes);
+
 // ── Stock count / انبارگردانی (#28) DTOs ──
 public record ApiStockCount(int Id, int WarehouseId, string Date, string Status,
     int LineCount, int VarianceCount, List<ApiStockCountLine> Lines);
@@ -463,16 +467,23 @@ public class ApiClient
     }
 
     public async Task<(bool ok, string? error)> IssueStockAsync(int warehouseId, string date,
-        string? description, IEnumerable<(int productId, decimal qty)> items)
+        string? description, IEnumerable<(int productId, decimal qty, int? batchId)> items)
     {
         try
         {
             var body = new { warehouseId, date, description,
-                items = items.Select(i => new { productId = i.productId, quantity = i.qty }).ToArray() };
+                items = items.Select(i => new { productId = i.productId, quantity = i.qty, batchId = i.batchId }).ToArray() };
             var resp = await _http.PostAsJsonAsync("/api/warehouse/issue", body);
             return resp.IsSuccessStatusCode ? (true, null) : (false, await ReadErrorAsync(resp) ?? "خطا در ثبت حواله.");
         }
         catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+    }
+
+    /// <summary>R8 — بچ‌های موجودِ یک کالا (برای انتخاب هنگام حواله).</summary>
+    public async Task<List<ApiBatch>> GetBatchesAsync(int productId)
+    {
+        try { return await _http.GetFromJsonAsync<List<ApiBatch>>($"/api/batchserial/batches?productId={productId}") ?? new(); }
+        catch { return new(); }
     }
 
     public async Task<(bool ok, string? error)> AdjustStockAsync(int warehouseId, int productId,

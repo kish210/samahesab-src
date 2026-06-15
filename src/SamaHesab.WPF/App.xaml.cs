@@ -97,6 +97,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<INavigationService, NavigationService>();
                 services.AddSingleton<IPrintService, PrintService>();
                 services.AddSingleton<Services.ApiClient>();
+                services.AddSingleton<Services.UpdateService>();   // به‌روزرسانِ خودکار از GitHub
                 services.AddSingleton<ModuleService>();   // سیستم ماژولار (واحد)
                 services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
@@ -776,8 +777,42 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── به‌روزرسانیِ خودکار از GitHub (فقط حالا که سیستم بیکار است، پیش از ورود) ──
+        if (await CheckForUpdateAsync()) return;   // اگر کاربر به‌روزرسانی را پذیرفت، نصاب اجرا و اپ بسته می‌شود
+
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();
+    }
+
+    /// <summary>
+    /// بررسیِ نسخهٔ جدید روی GitHub در زمانِ استارت‌آپ (سیستم درحالِ اجرای کاری نیست).
+    /// اگر نسخهٔ جدیدتری باشد و کاربر تأیید کند، نصاب دانلود و اجرا و برنامه بسته می‌شود.
+    /// برمی‌گرداند: true یعنی به‌روزرسانی آغاز شد (جریانِ ورود نباید ادامه یابد).
+    /// </summary>
+    private async Task<bool> CheckForUpdateAsync()
+    {
+        try
+        {
+            var updater = _host!.Services.GetRequiredService<Services.UpdateService>();
+            var info = await updater.CheckAsync();
+            if (info is null) return false;   // آخرین نسخه‌ایم یا آفلاین
+
+            var dialog = _host.Services.GetRequiredService<IDialogService>();
+            var ok = await dialog.ConfirmAsync(
+                $"نسخهٔ جدید ({info.Tag}) موجود است (نسخهٔ فعلی: {Services.UpdateService.CurrentVersion}).\n" +
+                "اکنون دانلود و نصب شود؟ برنامه بسته می‌شود و نصاب اجرا می‌گردد.",
+                "به‌روزرسانی");
+            if (!ok) return false;
+
+            if (await updater.DownloadAndRunAsync(info))
+            {
+                Shutdown();
+                return true;
+            }
+            await dialog.ShowErrorAsync("دانلودِ به‌روزرسانی ناموفق بود؛ برنامه به‌صورتِ عادی ادامه می‌دهد.");
+            return false;
+        }
+        catch { return false; }   // هر خطایی → ادامهٔ عادیِ برنامه
     }
 
     /// <summary>Probe the configured DB (short timeout) — used by kiosk clients (pos/restoran).</summary>

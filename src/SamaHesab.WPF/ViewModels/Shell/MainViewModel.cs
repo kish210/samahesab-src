@@ -147,6 +147,7 @@ public partial class MainViewModel : BaseViewModel
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
+            ["DocumentTemplates"]= ("قالبِ اسناد",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DocumentTemplatesViewModel>()),
         };
 
         // Clock timer

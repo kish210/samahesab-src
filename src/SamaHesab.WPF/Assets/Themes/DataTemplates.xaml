@@ -102,6 +102,7 @@
     <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:ModulesViewModel}"><vcfg:ModulesView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:BackupViewModel}"><vcfg:BackupView/></DataTemplate>
+    <DataTemplate DataType="{x:Type cfg:DocumentTemplatesViewModel}"><vcfg:DocumentTemplatesView/></DataTemplate>
 
     <!-- ── Placeholder for screens still under construction ── -->
     <DataTemplate x:Key="UnderConstruction">

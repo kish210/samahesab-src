@@ -168,6 +168,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ModulesViewModel>();
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
+                services.AddTransient<ViewModels.Settings.DocumentTemplatesViewModel>();   // فاز ۱۰ DT-4
                 services.AddTransient<UserManagementViewModel>();
 
                 // Windows

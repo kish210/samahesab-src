@@ -163,7 +163,13 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         // Reset input
         NewRowNumber++;
         NewAccountId = null; NewDescription = null; NewDebit = 0; NewCredit = 0;
+
+        // T10 — ردیفِ ورودِ سریع: پس از افزودن، View فوکوس را به فیلدِ حساب برمی‌گرداند.
+        RowAdded?.Invoke();
     }
+
+    /// <summary>پس از افزودنِ موفقِ یک ردیف رخ می‌دهد — View فوکوس را به نوارِ ورود برمی‌گرداند.</summary>
+    public event Action? RowAdded;
 
     private async Task TouchAccountAsync(int accountId, string label)
     {

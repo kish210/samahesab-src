@@ -125,6 +125,7 @@ public partial class MainViewModel : BaseViewModel
             ["ProductCard"]     = ("کارت کالا",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>()),
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
+            ["RecurringInvoices"]= ("فاکتورهای تکرارشونده", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.RecurringInvoiceListViewModel>()),
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),
             ["PurchaseInvoiceList"]= ("لیست خریدها",       sp => sp.GetRequiredService<PurchaseInvoiceListViewModel>()),
             ["POS"]             = ("صندوق فروش",          sp => sp.GetRequiredService<PosViewModel>()),

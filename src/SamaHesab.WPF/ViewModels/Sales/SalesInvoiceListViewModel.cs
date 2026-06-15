@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports.Export;
 using SamaHesab.Domain.Entities.Sales;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -82,8 +83,43 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
     };
 
     [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice");
-    [RelayCommand] private async Task PrintAsync() => await _dialogService.ShowInfoAsync("در حال چاپ...");
-    [RelayCommand] private async Task ExportExcelAsync() => await _dialogService.ShowInfoAsync("در حال آماده‌سازی اکسل...");
+
+    [RelayCommand]
+    private async Task PrintAsync()
+    {
+        if (Invoices.Count == 0) { await _dialogService.ShowWarningAsync("فهرستی برای چاپ نیست."); return; }
+        try { OpenFile(SaveTo("html", ReportExporter.ToHtml(BuildTable()))); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (Invoices.Count == 0) { await _dialogService.ShowWarningAsync("فهرستی برای خروجی نیست."); return; }
+        try { OpenFile(SaveTo("csv", ReportExporter.ToCsv(BuildTable()))); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    private ReportTable BuildTable()
+    {
+        string N(decimal d) => d.ToString("N0");
+        return new ReportTable($"لیست فاکتورهای فروش ({FromDate} تا {ToDate})",
+            new[] { "شماره", "تاریخ", "مشتری", "مبلغ کل", "پرداختی", "مانده", "وضعیت" },
+            Invoices.Select(i => new[] { i.Number, i.Date, i.CustomerName, N(i.Total), N(i.Paid), N(i.Remain), i.Status }).ToList());
+    }
+
+    private static string SaveTo(string ext, string content)
+    {
+        var dir = System.IO.Path.Combine(
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
+        System.IO.Directory.CreateDirectory(dir);
+        var path = System.IO.Path.Combine(dir, $"لیست_فروش_{System.DateTime.Now:yyyyMMdd_HHmmss}.{ext}");
+        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        return path;
+    }
+
+    private static void OpenFile(string path)
+        => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
 }
 
 public record SalesInvoiceListItem(int Id, string Number, string Date, string CustomerName,

@@ -35,6 +35,9 @@
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding PrintCommand}">
                         <StackPanel><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
                     </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding ExportExcelCommand}">
+                        <StackPanel><Path Data="{StaticResource IcExcel}" Style="{StaticResource ErpToolSvg}" Width="22" Height="22" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="خروجی اکسل" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </Border>

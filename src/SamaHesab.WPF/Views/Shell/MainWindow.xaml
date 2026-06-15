@@ -229,6 +229,7 @@
                                 <MenuItem Header="بچ و سریال (انقضا)" Command="{Binding NavigateCommand}" CommandParameter="BatchSerial"/>
                                 <MenuItem Header="گزارش موجودی/ارزش انبار" Command="{Binding NavigateCommand}" CommandParameter="InventoryReport"/>
                                 <MenuItem Header="گزارش نقطهٔ سفارش" Command="{Binding NavigateCommand}" CommandParameter="ReorderReport"/>
+                                <MenuItem Header="داشبورد انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseDash"/>
                                 <MenuItem Header="کارت کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductCard"/>
                                 <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
                                 <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>

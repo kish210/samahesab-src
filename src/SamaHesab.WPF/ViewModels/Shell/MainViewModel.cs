@@ -114,6 +114,7 @@ public partial class MainViewModel : BaseViewModel
             ["SalesReport"]     = ("گزارش فروش",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.SalesReportViewModel>()),
             ["PurchaseReport"]  = ("گزارش خرید",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Purchase.PurchaseReportViewModel>()),
             ["SupplierStatement"] = ("صورت‌حساب تأمین‌کننده", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Purchase.SupplierStatementViewModel>()),
+            ["PurchaseOrders"]  = ("سفارش‌های خرید",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Purchase.PurchaseOrderListViewModel>()),
             ["ProductEdit"]     = ("ویرایش کالا",         sp => sp.GetRequiredService<ProductEditViewModel>()),
             ["Warehouses"]      = ("انبارها",              sp => sp.GetRequiredService<WarehouseViewModel>()),
             ["StockAdjust"]     = ("تعدیل موجودی",        sp => sp.GetRequiredService<StockAdjustViewModel>()),

@@ -99,7 +99,7 @@
 
 ### 💻 لپ‌تاپ / C2
 - [x] ✅C2 **F9-1.** **داشبوردِ صندوق/رستوران (UI):** `PosDashboardView/VM` روی `GetCashierDashboardQuery` (فروش/تعدادِ فاکتور/میانگینِ امروز) + `GetRestaurantDashboardQuery` (میزهای آزاد/مشغول/رزرو/تسویه + سفارش‌های باز/ارزش). کاشی‌های KPI + بازخوانی + منوی «داشبورد صندوق/رستوران» (گیت‌شده با ماژولِ POS). build سبز. (commit بعدی)
-- [ ] **F9-2.** **UIِ پیشنهادِ سفارشِ خرید (reorder) + «تبدیل به سفارش»:** صفحه‌ای روی `GetReorderSuggestionsQuery` + دکمهٔ تبدیل که `CreatePurchaseOrderFromReorderCommand`ِ **آماده** را صدا می‌زند. (تتمهٔ P4 — لِینِ خرید/انبار)
+- [x] ✅C2 **F9-2.** **سفارش‌های خرید + پیشنهادِ نقطهٔ سفارش:** صفحهٔ `PurchaseOrderListView/VM` (UIِ نبودهٔ PurchaseOrder): فهرستِ سفارش‌ها (`GetPurchaseOrdersQuery`) + جدولِ پیشنهادِ reorder (`GetReorderSuggestionsQuery`) + دکمهٔ **«ساخت سفارش از نقطهٔ سفارش»** که `CreatePurchaseOrderFromReorderCommand`ِ آماده را صدا می‌زند. منوی خرید → «سفارش‌های خرید». **بدونِ تداخل با ReorderReportِ C1** (آن گزارش است؛ این عملیاتِ خرید). build سبز. (commit بعدی)
 - [ ] **F9-3.** **فاکتورِ تکرارشونده (UI فروش/خرید):** تعریفِ الگوی فاکتور + تولیدِ سررسیدشده، روی زمان‌بندِ مشترک. (تتمهٔ P3 — سمتِ فاکتور؛ اسناد تکرارشونده را C1 زده)
 
 ### 🖥 pc / C1

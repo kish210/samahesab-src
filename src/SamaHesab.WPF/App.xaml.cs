@@ -133,6 +133,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Sales.SalesReportViewModel>();   // کارِ ۸ — گزارش فروش
                 services.AddTransient<ViewModels.Purchase.PurchaseReportViewModel>();   // کارِ ۸ — گزارش خرید
                 services.AddTransient<ViewModels.Purchase.SupplierStatementViewModel>();   // C2-C — صورت‌حساب تأمین‌کننده
+                services.AddTransient<ViewModels.Purchase.PurchaseOrderListViewModel>();   // F9-2 — سفارش‌های خرید + نقطهٔ سفارش
                 services.AddTransient<SalesInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceEditViewModel>();
                 services.AddTransient<PurchaseInvoiceListViewModel>();

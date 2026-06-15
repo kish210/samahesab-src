@@ -72,7 +72,56 @@ public partial class ReceivablesViewModel : BaseViewModel
             if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
             await _dialogService.ShowSuccessAsync($"دریافت ثبت شد (سند #{res.Value}).");
             await LoadAsync();
+            await OfferReceiptPrintAsync("Receipt", res.Value.ToString(), r.Name, amount, "وصول از مشتری");
         }, "در حال ثبت دریافت...");
+    }
+
+    /// <summary>P1/DT-6 — پس از ثبتِ دریافت/پرداخت، چاپِ رسید/پرداختِ خزانه با قالبِ پویا (در صورتِ وجودِ قالب و تأییدِ کاربر).</summary>
+    private async Task OfferReceiptPrintAsync(string docType, string docNumber, string partyName, decimal amount, string reason)
+    {
+        try
+        {
+            var tpls = await _mediator.Send(new SamaHesab.Application.Documents.GetDocumentTemplatesQuery(docType));
+            if (tpls.Count == 0) return;
+            if (!await _dialogService.ConfirmAsync("رسید چاپ شود؟", "چاپِ رسید")) return;
+
+            var pick = tpls.FirstOrDefault(t => t.IsDefault) ?? tpls[0];
+            var full = await _mediator.Send(new SamaHesab.Application.Documents.GetDocumentTemplateQuery(pick.Id));
+            if (full is null) return;
+
+            var g = Services.AppSettingsStore.GetGeneral();
+            string N(decimal d) => d.ToString("#,##0");
+            var fields = new Dictionary<string, string?>
+            {
+                ["DocNumber"] = docNumber, ["QrData"] = docNumber, ["Date"] = _calendar.GetCurrentPersianDate(),
+                ["PartyName"] = partyName, ["Reason"] = reason, ["AccountName"] = "صندوق",
+                ["Amount"] = N(amount), ["AmountInWords"] = SafeWords(amount), ["Notes"] = reason,
+                ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,
+                ["EconomicCode"] = g.CompanyEconomicCode, ["NationalId"] = g.CompanyNationalId, ["BranchName"] = "",
+                ["PrintDate"] = _calendar.GetCurrentPersianDate(), ["PrintTime"] = DateTime.Now.ToString("HH:mm"),
+            };
+            var rows = new List<IReadOnlyDictionary<string, string?>>
+            {
+                new Dictionary<string, string?> { ["Description"] = reason, ["LineAmount"] = N(amount) }
+            };
+            var data = SamaHesab.Application.Documents.DocumentData.Of(fields, rows);
+            var html = SamaHesab.Application.Documents.DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                     + SamaHesab.Application.Documents.DocumentTemplateEngine.Render(full.BodyHtml, data)
+                     + SamaHesab.Application.Documents.DocumentTemplateEngine.Render(full.FooterHtml, data);
+
+            var dir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"رسید_{docNumber}_{DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch { /* چاپِ رسید اختیاری است؛ خطا نباید جریانِ ثبت را خراب کند */ }
+    }
+
+    private string SafeWords(decimal amount)
+    {
+        try { return _calendar.NumberToWords(amount); } catch { return ""; }
     }
 
     [RelayCommand]
@@ -98,6 +147,7 @@ public partial class ReceivablesViewModel : BaseViewModel
             if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
             await _dialogService.ShowSuccessAsync($"پرداخت ثبت شد (سند #{res.Value}).");
             await LoadAsync();
+            await OfferReceiptPrintAsync("Payment", res.Value.ToString(), p.Name, amount, "پرداخت به تأمین‌کننده");
         }, "در حال ثبت پرداخت...");
     }
 

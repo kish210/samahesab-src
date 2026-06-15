@@ -141,6 +141,7 @@ public partial class MainViewModel : BaseViewModel
             ["Attendance"]      = ("حضور و غیاب",         sp => sp.GetRequiredService<AttendanceViewModel>()),
             ["Reports"]         = ("گزارش‌ها",            sp => sp.GetRequiredService<ReportsViewModel>()),
             ["FinancialReports"]= ("گزارش‌های مالی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>()),
+            ["BranchReport"]    = ("گزارش تطبیقی شعب",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.BranchReportViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),

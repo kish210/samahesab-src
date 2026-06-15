@@ -252,6 +252,7 @@
                             <ContextMenu>
                                 <MenuItem Header="گزارش‌ها" Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
                                 <MenuItem Header="گزارش‌های مالی" Command="{Binding NavigateCommand}" CommandParameter="FinancialReports"/>
+                                <MenuItem Header="گزارش تطبیقی شعب" Command="{Binding NavigateCommand}" CommandParameter="BranchReport"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

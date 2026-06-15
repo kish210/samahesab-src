@@ -144,6 +144,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Reports.BranchReportViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.POS.PosDashboardViewModel>();   // F9-1 — داشبورد صندوق/رستوران
                 services.AddTransient<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>();

@@ -203,6 +203,7 @@ public partial class SalaryViewModel : BaseViewModel
 public partial class AttendanceViewModel : BaseViewModel
 {
     private readonly IPersianCalendarService _calendar;
+    private readonly IMediator _mediator;
 
     [ObservableProperty] private string _selectedDate = string.Empty;
     [ObservableProperty] private int _presentCount;
@@ -211,9 +212,10 @@ public partial class AttendanceViewModel : BaseViewModel
 
     public ObservableCollection<AttendanceRow> Records { get; } = new();
 
-    public AttendanceViewModel(IPersianCalendarService calendar, IDialogService dialogService,
-        INavigationService navigationService) : base(dialogService, navigationService)
-    { _calendar = calendar; }
+    public AttendanceViewModel(IPersianCalendarService calendar, IMediator mediator,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _calendar = calendar; _mediator = mediator; }
 
     public override async Task LoadAsync()
     {
@@ -227,19 +229,14 @@ public partial class AttendanceViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             Records.Clear();
-            Records.Add(new AttendanceRow(1, "علی احمدی", "08:05", "17:10", 8.08m, 0.17m, "حاضر"));
-            Records.Add(new AttendanceRow(2, "مریم رضایی", "", "", 0, 0, "مرخصی"));
-            Records.Add(new AttendanceRow(3, "رضا محمدی", "08:30", "17:00", 7.5m, 0, "حاضر"));
+            var rows = await _mediator.Send(new GetAttendanceQuery(SelectedDate));
+            foreach (var r in rows)
+                Records.Add(new AttendanceRow(r.EmployeeId, r.EmployeeName, r.CheckIn, r.CheckOut,
+                    r.WorkHours, r.OvertimeHours, r.Status));
             PresentCount = Records.Count(r => r.Status == "حاضر");
             AbsentCount  = Records.Count(r => r.Status == "غایب");
             LeaveCount   = Records.Count(r => r.Status == "مرخصی");
-            await Task.CompletedTask;
         }, "در حال بارگذاری...");
-    }
-
-    [RelayCommand] private async Task SaveAsync()
-    {
-        await ExecuteAsync(async () => await _dialogService.ShowSuccessAsync("حضور و غیاب ذخیره شد."));
     }
 }
 

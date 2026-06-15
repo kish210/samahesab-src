@@ -102,6 +102,7 @@ public class ApplicationDbContext : DbContext
     // HRM
     public DbSet<Employee> Employees { get; set; }
     public DbSet<SamaHesab.Domain.Entities.HRM.Department> Departments { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.HRM.AttendanceRecord> AttendanceRecords { get; set; }
 
     // Restaurant (v2)
     public DbSet<Hall> Halls { get; set; }
@@ -240,6 +241,8 @@ public class ApplicationDbContext : DbContext
             b.Ignore(d => d.CreatedAt);   // Hrm.Departments ستون‌های تاریخِ ممیزی ندارد
             b.Ignore(d => d.UpdatedAt);
         });
+        // AttendanceRecord موجودیتِ مستقل (BaseEntity)؛ ناوبریِ Employee.AttendanceRecords نادیده می‌ماند.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceRecord>().ToTable("AttendanceRecords", "Hrm");
 
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>

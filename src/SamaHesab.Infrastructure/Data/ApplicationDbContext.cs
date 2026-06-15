@@ -110,6 +110,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RestaurantOrder> RestaurantOrders { get; set; }
     public DbSet<RestaurantOrderItem> RestaurantOrderItems { get; set; }
     public DbSet<KitchenTicket> KitchenTickets { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Documents.DocumentTemplate> DocumentTemplates { get; set; }   // فاز ۱۰ DT-2
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -307,6 +308,13 @@ public class ApplicationDbContext : DbContext
         });
 
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.UserItemRef>().ToTable("UserItemRefs", "Cfg");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Documents.DocumentTemplate>(b =>   // فاز ۱۰ DT-2
+        {
+            b.ToTable("DocumentTemplates", "Cfg");
+            b.Property(x => x.DocumentType).HasMaxLength(60);
+            b.Property(x => x.Name).HasMaxLength(150);
+            b.Property(x => x.PaperSize).HasMaxLength(20);
+        });
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.Branch>(b =>
         {
             b.ToTable("Branches", "Cfg");

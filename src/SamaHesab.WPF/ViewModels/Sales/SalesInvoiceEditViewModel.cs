@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Documents;
 using SamaHesab.Application.Sales.Commands;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -59,6 +60,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public event System.Action? RowAdded;
 
     public ObservableCollection<SalesInvoiceItemRow> InvoiceItems { get; } = new();
+    /// <summary>فاز ۱۰ DT-3 — قالب‌های چاپِ فاکتور فروش (برای دکمهٔ «چاپ ▼»).</summary>
+    public ObservableCollection<DocumentTemplateListDto> PrintTemplates { get; } = new();
     public ObservableCollection<ProductSearchResult> SearchResults { get; } = new();
     /// <summary>مشتریان اخیرِ این کاربر (کار #۳۹) — چیپ‌های دسترسی سریع.</summary>
     public ObservableCollection<RecentRef> RecentCustomers { get; } = new();
@@ -161,6 +164,56 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         OnPropertyChanged(nameof(AllProducts));
 
         await LoadRecentCustomersAsync();
+
+        // DT-3: قالب‌های چاپِ فاکتور فروش
+        try
+        {
+            PrintTemplates.Clear();
+            foreach (var t in await _mediator.Send(new GetDocumentTemplatesQuery("SalesInvoice"))) PrintTemplates.Add(t);
+        }
+        catch { /* نبودِ قالب نباید فرم را خراب کند */ }
+    }
+
+    /// <summary>DT-3 — چاپِ فاکتور با قالبِ انتخاب‌شده (موتورِ قالبِ پویا).</summary>
+    [RelayCommand]
+    private async Task PrintWithTemplateAsync(DocumentTemplateListDto? tpl)
+    {
+        if (tpl is null) return;
+        if (!InvoiceItems.Any()) { await _dialogService.ShowWarningAsync("ردیفی برای چاپ نیست."); return; }
+        try
+        {
+            var full = await _mediator.Send(new GetDocumentTemplateQuery(tpl.Id));
+            if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
+
+            var customerName = Customers.FirstOrDefault(c => c.Id == SelectedCustomerId)?.Name ?? "—";
+            string N(decimal d) => d.ToString("N0");
+            var fields = new Dictionary<string, string?>
+            {
+                ["InvoiceNumber"] = InvoiceNumber, ["InvoiceDate"] = InvoiceDate,
+                ["CustomerName"] = customerName, ["CustomerCode"] = SelectedCustomerId.ToString(),
+                ["TotalAmount"] = N(GrandTotal), ["Tax"] = N(TotalTax),
+                ["Discount"] = N(TotalDiscount + InvoiceDiscount), ["BranchName"] = "سما حساب",
+            };
+            var rows = InvoiceItems.Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
+            {
+                ["ProductName"] = i.ProductName, ["ProductCode"] = i.ProductCode,
+                ["Quantity"] = i.Quantity.ToString("0.##"), ["UnitPrice"] = N(i.UnitPrice),
+                ["LineTotal"] = N(i.NetAmount),
+            }).ToList();
+            var data = DocumentData.Of(fields, rows);
+
+            var html = DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                     + DocumentTemplateEngine.Render(full.BodyHtml, data)
+                     + DocumentTemplateEngine.Render(full.FooterHtml, data);
+
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "اسناد");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"فاکتور_{InvoiceNumber}_{tpl.Name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
     /// <summary>کار #۳۹ — بارگذاری مشتریان اخیرِ کاربر جاری.</summary>

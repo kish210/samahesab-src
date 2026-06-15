@@ -144,8 +144,8 @@
 
 ### 💻 لپ‌تاپ / C2
 - [x] ✅C2 **DT-1.** **موتورِ هسته (Domain + Resolver + Renderer + تست):** `Domain/Entities/Documents/DocumentTemplate` (نوعِ سندِ رشته‌ای=پلاگین، PaperSize، Header/Body/Footer) + `Application/Documents/DocumentTemplateEngine` (`Render`/`RenderTemplate`/`ExtractTokens`؛ توکنِ اسکالر `{X}`، بلوکِ تکرارِ ردیف `[[ROWS]]…[[/ROWS]]` با `{#}`، fallback به سرسند، توکنِ ناشناخته→خالی) + `DocumentData`. **خالص، بدونِ UI/EF.** ۶ تست. build سبز، ۲۶۸ تست. (commit بعدی)
-- [ ] **DT-2.** **ذخیره‌سازی:** EF/DbSet/ToTable + مهاجرتِ idempotent `28_DocumentTemplates.sql` + Commands/Queries (`Save/Get/GetById/Delete` + پیش‌فرضِ هر نوع) + seedِ ۲ قالبِ پیش‌فرضِ فاکتور فروش (رسمی A4 + حرارتیِ ۸۰م م).
-- [ ] **DT-3.** **انتخابِ قالب هنگامِ چاپ:** دکمهٔ «چاپ ▼» در فاکتور فروش/خرید با فهرستِ قالب‌های آن نوعِ سند → resolve+render+print (HTML). جایگزینِ چاپِ ثابتِ فعلی.
+- [x] ✅C2 **DT-2.** **ذخیره‌سازی:** `DbSet<DocumentTemplate>` + ToTable(`Cfg.DocumentTemplates`) + مهاجرتِ idempotent `28_DocumentTemplates.sql` (اجرا و تأیید، ۲ قالبِ پیش‌فرضِ فاکتور فروش: رسمی A4 + حرارتیِ ۸۰م م) + CQRS کامل (`GetDocumentTemplatesQuery`/`GetDocumentTemplateQuery`/`SaveDocumentTemplateCommand`/`DeleteDocumentTemplateCommand`). build سبز.
+- [x] ✅C2 **DT-3.** **انتخابِ قالب هنگامِ چاپ:** دکمهٔ «چاپ ▼» در فاکتور فروش — فهرستِ قالب‌های `SalesInvoice` بارگذاری و با موتور (resolve+render) به HTMLِ قابل‌چاپ تبدیل و باز می‌شود (ذخیره در `My Documents\SamaHesab\اسناد`). build سبز. ⏭️ همین الگو برای فاکتور خرید/سایرِ اسناد قابل‌تکرار است.
 - [ ] **DT-4.** **طراحِ قالب (Designer):** صفحهٔ مدیریتِ قالب‌ها (Settings → Document Templates) — MVP: ویرایشگرِ متنی/توکنیِ Header/Body/Footer + انتخابِ نوعِ سند/کاغذ + پیش‌نمایش؛ سپس درگ‌ودراپ (متن/تصویر/جدول/بارکد/QR/خط/امضا) در افزایشِ بعدی.
 - [ ] **DT-5.** **import/export قالب** (فایلِ `.shtpl` JSON) — نصب/حذف/اشتراکِ قالب بدونِ تغییرِ سورس (پایهٔ مارکت‌پلیس).
 

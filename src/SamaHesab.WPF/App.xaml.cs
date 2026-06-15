@@ -116,6 +116,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<BankReconciliationViewModel>();
                 services.AddTransient<AccountingDimensionsViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Security.AuditLogViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Settings.BranchManagementViewModel>();
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();

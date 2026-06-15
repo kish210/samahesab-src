@@ -1,0 +1,64 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Security.AuditLogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="لاگِ حسابرسی" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="ردِّ عملیاتِ حساس (حرکاتِ انبار و …) — برای کنترل و پیگیری."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- نوار ابزار -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="بازه (روز):" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,8,0"/>
+            <TextBox Width="70" Height="30" Text="{Binding DaysBack, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center" Padding="7,0" FlowDirection="LeftToRight" HorizontalContentAlignment="Center"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                     BorderBrush="{DynamicResource BorderColor}"/>
+            <TextBlock Text="عمل:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="14,0,8,0"/>
+            <TextBox Width="200" Height="30" Text="{Binding ActionFilter, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center" Padding="7,0"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                     BorderBrush="{DynamicResource BorderColor}"/>
+            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Padding="16,6" Cursor="Hand"
+                    Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0" FontWeight="SemiBold"/>
+            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
+                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+        </StackPanel>
+
+        <!-- گرید -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="28" FontSize="12.5"
+                  Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
+                  CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="تاریخ" Binding="{Binding When}" Width="150"/>
+                <DataGridTextColumn Header="کاربر" Binding="{Binding User}" Width="120"/>
+                <DataGridTextColumn Header="عمل" Binding="{Binding Action}" Width="160"/>
+                <DataGridTextColumn Header="جدول" Binding="{Binding TableName}" Width="90"/>
+                <DataGridTextColumn Header="جزئیات" Binding="{Binding Details}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- شمارش -->
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="تعداد رکورد:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding RowCount}" FontWeight="Bold" FontSize="14"
+                           Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -17,6 +17,11 @@ public class SecurityController : ControllerBase
     [HttpGet("permissions")]
     public async Task<IActionResult> Catalog() => Ok(await _mediator.Send(new GetPermissionCatalogQuery()));
 
+    /// <summary>T20 — مشاهدهٔ لاگِ حسابرسی (audit trail).</summary>
+    [HttpGet("auditlog")]
+    public async Task<IActionResult> AuditLog([FromQuery] int days = 30, [FromQuery] string? action = null, [FromQuery] int max = 500)
+        => Ok(await _mediator.Send(new Application.Security.Queries.GetAuditLogQuery(days, action, max)));
+
     [HttpGet("roles")]
     public async Task<IActionResult> Roles() => Ok(await _mediator.Send(new GetRolesQuery()));
 

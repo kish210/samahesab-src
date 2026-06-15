@@ -158,6 +158,21 @@ public partial class VoucherListViewModel : BaseViewModel
     [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports");
     [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports");
 
+    /// <summary>T22 — ارسالِ سندِ انتخاب‌شده برای تأیید (وارد کردنِ آن به گردش‌کار).</summary>
+    [RelayCommand]
+    private async Task SubmitForApprovalAsync()
+    {
+        if (SelectedVoucher is null) { await _dialogService.ShowWarningAsync("یک سند را انتخاب کنید."); return; }
+        if (!await _dialogService.ConfirmAsync($"ارسالِ سندِ شمارهٔ {SelectedVoucher.VoucherNumber} برای تأیید؟")) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new SamaHesab.Application.Accounting.Commands.SubmitVoucherForApprovalCommand(SelectedVoucher.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync("سند برای تأیید ارسال شد (در «کارتابلِ تأیید» قابلِ پیگیری است).");
+            await SearchAsync();
+        }, "در حال ارسال برای تأیید...");
+    }
+
     /// <summary>جدولِ گزارشِ لیستِ اسنادِ فیلترشده (مشترکِ خروجی اکسل/چاپ).</summary>
     private ReportTable BuildListTable()
     {

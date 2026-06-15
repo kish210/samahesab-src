@@ -64,6 +64,9 @@
                 <Button DockPanel.Dock="Right" Style="{StaticResource TBtn}" Command="{Binding EditVoucherCommand}">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPencil}" Style="{StaticResource ErpToolSvg}"/><TextBlock Text="ویرایش" VerticalAlignment="Center" Margin="5,0,0,0"/></StackPanel>
                 </Button>
+                <Button DockPanel.Dock="Right" Style="{StaticResource TBtn}" Command="{Binding SubmitForApprovalCommand}" ToolTip="ارسالِ سندِ انتخاب‌شده برای تأیید">
+                    <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}"/><TextBlock Text="ارسال تأیید" VerticalAlignment="Center" Margin="5,0,0,0"/></StackPanel>
+                </Button>
                 <Button DockPanel.Dock="Right" Style="{StaticResource TBtn}" Command="{Binding LedgerCommand}">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcBook}" Style="{StaticResource ErpToolSvg}"/><TextBlock Text="دفتر کل" VerticalAlignment="Center" Margin="5,0,0,0"/></StackPanel>
                 </Button>

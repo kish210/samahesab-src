@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "2.2.0"
+#define MyAppVersion   "2.3.0"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
 #define MyAppExeName   "SamaHesab.exe"
@@ -70,7 +70,7 @@ Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
-; build خودکفاست؛ نیازی به نصبِ .NET/VC++ نیست. راه‌اندازیِ دستیِ پایگاه‌داده از پوشهٔ database.
+; build خودکفاست؛ نیازی به نصبِ .NET/VC++ نیست. پایگاه‌داده در اولین اجرا خودکار ساخته می‌شود (DatabaseMigrator)؛ اسکریپت‌های database برای مرجع همراه‌اند.
 ; Launch Application
 Filename: "{app}\{#MyAppExeName}"; Description: "راه‌اندازی {#MyAppName}"; \
   Flags: nowait postinstall skipifsilent; WorkingDir: "{app}"

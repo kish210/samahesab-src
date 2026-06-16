@@ -25,44 +25,138 @@ public static class DatabaseMigrator
     private const int MinMigrationNumber = 11;
     private const string ResourceMarker = ".database.";
 
+    /// <summary>schemaهای پایه (مطابقِ 01_CreateDatabase) — برنامه‌ای ساخته می‌شوند چون اسکریپتِ ۰۱
+    /// مسیرهای لینوکسی/نامِ ثابت دارد و DB را drop می‌کند (روی ویندوز قابل‌اجرا نیست).</summary>
+    private static readonly string[] BaseSchemas = { "Acc", "Inv", "Sal", "Pur", "Pos", "Crm", "Hrm", "Cfg", "Sec" };
+
     public static async Task RunAsync(string connectionString, Action<string>? log = null, CancellationToken ct = default)
     {
         var asm = typeof(DatabaseMigrator).Assembly;
-        var scripts = asm.GetManifestResourceNames()
-            .Where(IsMigrationResource)
-            .OrderBy(MigrationNumber)
-            .ThenBy(r => r, StringComparer.Ordinal)
-            .ToList();
-        if (scripts.Count == 0) return;
+
+        // ۰) اطمینان از وجودِ خودِ پایگاه‌داده (نصبِ تازه: DB هنوز ساخته نشده).
+        await EnsureDatabaseExistsAsync(connectionString, log, ct);
 
         await using var conn = new SqlConnection(connectionString);
         await conn.OpenAsync(ct);
 
+        await EnsureSchemasAsync(conn, log, ct);
         await EnsureTrackingTableAsync(conn, ct);
         var applied = await GetAppliedAsync(conn, ct);
 
-        foreach (var res in scripts)
+        // ۱) اسکیمای پایه (02..09) فقط روی DBِ تازه (وقتی جدولِ هسته‌ای `Sec.Users` نیست) —
+        //    تا روی DBهای موجود دوباره اجرا نشود (جدول/داده‌ی تکراری).
+        if (await ObjectMissingAsync(conn, "Sec.Users", ct))
+        {
+            log?.Invoke("پایگاه‌دادهٔ تازه — اجرای اسکریپت‌های پایه (ساختِ جدول‌ها/seed)...");
+            foreach (var res in OrderedScripts(asm, IsBaseResource))
+                await ApplyScriptAsync(conn, asm, res, applied, log, ct);
+        }
+
+        // ۲) مهاجرت‌های افزایشیِ ≥11 (idempotent).
+        foreach (var res in OrderedScripts(asm, IsMigrationResource))
         {
             var name = ShortName(res);
             if (applied.Contains(name)) continue;
+            await ApplyScriptAsync(conn, asm, res, applied, log, ct);
+        }
+    }
 
-            var sql = ReadResource(asm, res);
+    /// <summary>یک اسکریپت را batch-به-batch اجرا و در صورتِ موفقیت ثبت می‌کند (شکست → فقط لاگ، ادامه).</summary>
+    private static async Task ApplyScriptAsync(SqlConnection conn, Assembly asm, string res,
+        HashSet<string> applied, Action<string>? log, CancellationToken ct)
+    {
+        var name = ShortName(res);
+        if (applied.Contains(name)) return;
+        try
+        {
+            foreach (var batch in SplitBatches(ReadResource(asm, res)))
+            {
+                await using var cmd = new SqlCommand(batch, conn) { CommandTimeout = 180 };
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+            await RecordAppliedAsync(conn, name, ct);
+            applied.Add(name);
+            log?.Invoke($"اسکریپتِ DB اعمال شد: {name}");
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"اسکریپتِ DB ناموفق (ادامه): {name} — {ex.GetBaseException().Message}");
+        }
+    }
+
+    /// <summary>اگر پایگاه‌داده وجود نداشته باشد، با اتصال به master و نامِ پیکربندی‌شده آن را می‌سازد.</summary>
+    private static async Task EnsureDatabaseExistsAsync(string connectionString, Action<string>? log, CancellationToken ct)
+    {
+        string dbName;
+        SqlConnectionStringBuilder master;
+        try
+        {
+            var b = new SqlConnectionStringBuilder(connectionString);
+            dbName = b.InitialCatalog;
+            if (string.IsNullOrWhiteSpace(dbName)) return;   // نامِ DB مشخص نیست — کاری نمی‌کنیم
+            master = new SqlConnectionStringBuilder(connectionString) { InitialCatalog = "master" };
+        }
+        catch { return; }
+
+        try
+        {
+            await using var mc = new SqlConnection(master.ConnectionString);
+            await mc.OpenAsync(ct);
+            await using var cmd = new SqlCommand(
+                "DECLARE @s nvarchar(300) = N'CREATE DATABASE ' + QUOTENAME(@db); " +
+                "IF DB_ID(@db) IS NULL EXEC sp_executesql @s;", mc) { CommandTimeout = 120 };
+            cmd.Parameters.AddWithValue("@db", dbName);
+            await cmd.ExecuteNonQueryAsync(ct);
+            log?.Invoke($"پایگاه‌داده آماده است: {dbName}");
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"ساختِ پایگاه‌داده ناموفق بود: {ex.GetBaseException().Message}");
+        }
+    }
+
+    /// <summary>schemaهای پایه را در صورتِ نبود می‌سازد (پیش‌نیازِ اسکریپت‌های پایه که `Acc.*`/`Sec.*`… می‌سازند).</summary>
+    private static async Task EnsureSchemasAsync(SqlConnection conn, Action<string>? log, CancellationToken ct)
+    {
+        foreach (var s in BaseSchemas)
+        {
             try
             {
-                foreach (var batch in SplitBatches(sql))
-                {
-                    await using var cmd = new SqlCommand(batch, conn) { CommandTimeout = 120 };
-                    await cmd.ExecuteNonQueryAsync(ct);
-                }
-                await RecordAppliedAsync(conn, name, ct);
-                log?.Invoke($"مهاجرتِ DB اعمال شد: {name}");
+                await using var cmd = new SqlCommand(
+                    "DECLARE @sql nvarchar(200) = N'CREATE SCHEMA ' + QUOTENAME(@s); " +
+                    "IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = @s) EXEC sp_executesql @sql;", conn);
+                cmd.Parameters.AddWithValue("@s", s);
+                await cmd.ExecuteNonQueryAsync(ct);
             }
-            catch (Exception ex)
-            {
-                // idempotent‌اند؛ شکستِ یکی نباید بقیه/استارتِ اپ را بلاک کند — فقط لاگ می‌شود.
-                log?.Invoke($"مهاجرتِ DB ناموفق (ادامه): {name} — {ex.GetBaseException().Message}");
-            }
+            catch (Exception ex) { log?.Invoke($"ساختِ schema {s} ناموفق: {ex.GetBaseException().Message}"); }
         }
+    }
+
+    private static async Task<bool> ObjectMissingAsync(SqlConnection conn, string objectName, CancellationToken ct)
+    {
+        await using var cmd = new SqlCommand("SELECT CASE WHEN OBJECT_ID(@o,'U') IS NULL THEN 1 ELSE 0 END", conn);
+        cmd.Parameters.AddWithValue("@o", objectName);
+        var r = await cmd.ExecuteScalarAsync(ct);
+        return Convert.ToInt32(r) == 1;
+    }
+
+    // ── انتخاب/مرتب‌سازیِ منابع ──
+    private static List<string> OrderedScripts(Assembly asm, Func<string, bool> filter) =>
+        asm.GetManifestResourceNames()
+            .Where(filter)
+            .OrderBy(MigrationNumber)
+            .ThenBy(r => r, StringComparer.Ordinal)
+            .ToList();
+
+    /// <summary>اسکریپت‌های پایه: پیشوندِ عددیِ 2..10 (نه ۰۱ که DB-drop/مسیرِ لینوکسی دارد)، بدونِ RunAll/DemoData.</summary>
+    private static bool IsBaseResource(string res)
+    {
+        if (!res.EndsWith(".sql", StringComparison.OrdinalIgnoreCase)) return false;
+        var name = ShortName(res);
+        if (name.Contains("RunAll", StringComparison.OrdinalIgnoreCase) ||
+            name.Contains("DemoData", StringComparison.OrdinalIgnoreCase)) return false;
+        var n = MigrationNumber(res);
+        return n >= 2 && n < MinMigrationNumber;
     }
 
     // ── انتخاب/مرتب‌سازیِ منابع ──

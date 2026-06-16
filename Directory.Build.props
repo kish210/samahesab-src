@@ -9,9 +9,9 @@
   <!--   <Version> زیر باشند. سیاست در todo.rm ثبت شده.                 -->
   <!-- ============================================================= -->
   <PropertyGroup>
-    <Version>2.2.0</Version>
-    <AssemblyVersion>2.2.0.0</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
+    <Version>2.3.0</Version>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
     <Company>سماع رایانه کیش</Company>
     <Product>سامانه جامع سما حساب</Product>
   </PropertyGroup>

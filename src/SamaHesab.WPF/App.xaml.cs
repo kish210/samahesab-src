@@ -193,17 +193,18 @@ public partial class App : System.Windows.Application
             try
             {
                 using var scope = _host.Services.CreateScope();
+
+                // نصبِ تازه: DB/اسکیمای پایه را خودکار می‌سازد؛ DBِ موجود: فقط مهاجرت‌های افزایشیِ ≥11.
+                // (ریشهٔ کرش‌های «Invalid column/object name» + مشکلِ «نصاب DB نمی‌سازد».)
+                await SamaHesab.Infrastructure.Data.DatabaseMigrator.RunAsync(
+                    Services.AppSettingsStore.GetConnectionString(),
+                    msg => Log.Information("[DB-migrate] {Msg}", msg));
+
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var ok = await db.Database.CanConnectAsync();
                 Log.Information("اتصال پایگاه داده: {Ok}", ok ? "برقرار" : "ناموفق");
                 if (ok)
                 {
-                    // مهاجرت‌های افزایشیِ DB را idempotent اجرا کن تا DBِ کاربر هیچ‌وقت از اسکیما عقب نماند
-                    // (ریشهٔ کرش‌های «Invalid column/object name»). فقط اسکریپت‌های 11+ و یک‌بار هرکدام.
-                    await SamaHesab.Infrastructure.Data.DatabaseMigrator.RunAsync(
-                        Services.AppSettingsStore.GetConnectionString(),
-                        msg => Log.Information("[DB-migrate] {Msg}", msg));
-
                     // Ensure a default admin exists so DB-backed login works on a fresh DB.
                     await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
 

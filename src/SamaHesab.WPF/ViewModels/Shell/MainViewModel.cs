@@ -68,6 +68,7 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty] private string _todayPersianDate = string.Empty;
     [ObservableProperty] private string _statusMessage = "آماده";
     [ObservableProperty] private bool _isDarkTheme = true;
+    [ObservableProperty] private string _licenseBanner = string.Empty;   // فاز ۱۲ P-G7 — بنرِ وضعیتِ لایسنس
 
     private readonly Dictionary<string, (string Title, Func<IServiceProvider, BaseViewModel> Factory)> _pages;
 
@@ -85,6 +86,23 @@ public partial class MainViewModel : BaseViewModel
         _currentUser = currentUser;
         _modules = modules;
         _modules.Changed += () => System.Windows.Application.Current?.Dispatcher.Invoke(RaiseModuleFlags);
+
+        // فاز ۱۲ P-G7 — بنرِ وضعیتِ لایسنس در نوارِ وضعیت.
+        try
+        {
+            var lic = _services.GetService<LicenseService>();
+            var s = lic?.GetStatus();
+            LicenseBanner = s?.State switch
+            {
+                AppLicenseState.Activated   => $"✔ فعال — رده {s.License?.Tier}",
+                AppLicenseState.Trial       => $"⏳ آزمایشی — {s.TrialDaysRemaining} روز و {s.TrialVouchersRemaining} سند",
+                AppLicenseState.TrialExpired => "⛔ آزمایشی منقضی شد",
+                AppLicenseState.Expired     => "⛔ لایسنس منقضی",
+                AppLicenseState.Invalid     => "⛔ لایسنس نامعتبر",
+                _ => string.Empty,
+            };
+        }
+        catch { /* بنر نباید پوسته را بشکند */ }
 
         _pages = new Dictionary<string, (string, Func<IServiceProvider, BaseViewModel>)>
         {

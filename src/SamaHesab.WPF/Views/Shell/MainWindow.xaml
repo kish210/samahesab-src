@@ -507,6 +507,8 @@
                     <TextBlock Text="{Binding TodayPersianDate}" Foreground="#9FB0D0" FontSize="11"/>
                     <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
                     <TextBlock Foreground="#9FB0D0" FontSize="11"><Run Text="سرور: "/><Run Text="SRV-01" Foreground="White"/></TextBlock>
+                    <Rectangle Width="1" Fill="#24FFFFFF" Margin="11,5"/>
+                    <TextBlock Text="{Binding LicenseBanner}" Foreground="#FFD27F" FontSize="11" FontWeight="SemiBold"/>
                 </StackPanel>
             </DockPanel>
         </Border>

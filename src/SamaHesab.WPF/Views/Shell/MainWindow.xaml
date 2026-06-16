@@ -258,6 +258,7 @@
                                 <MenuItem Header="ماندهٔ سنی‌شده (دریافتنی/پرداختنی)" Command="{Binding NavigateCommand}" CommandParameter="AgedBalance"/>
                                 <MenuItem Header="خلاصهٔ مالیات ارزش‌افزوده" Command="{Binding NavigateCommand}" CommandParameter="VatSummary"/>
                                 <MenuItem Header="دفترِ روزنامه" Command="{Binding NavigateCommand}" CommandParameter="Daybook"/>
+                                <MenuItem Header="کالای راکد / کم‌گردش" Command="{Binding NavigateCommand}" CommandParameter="DeadStock"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

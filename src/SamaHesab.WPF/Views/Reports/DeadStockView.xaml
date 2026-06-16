@@ -1,0 +1,57 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Reports.DeadStockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="کالاهای راکد / کم‌گردش" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="کالاهایی که موجودی دارند ولی مدتی است هیچ حرکتِ انبار (ورود/خروج) نداشته‌اند — سرمایهٔ خوابیده."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="حداقل روزِ رکود:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,6,0"/>
+            <TextBox Width="80" Height="30" Text="{Binding IdleDays}" VerticalContentAlignment="Center" Padding="7,0" FlowDirection="LeftToRight"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Style="{StaticResource ErpBtnPrimary}"/>
+            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="چاپ" Command="{Binding PrintCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
+                <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="موجودی" Binding="{Binding Quantity, Converter={StaticResource Num}}" Width="100"/>
+                <DataGridTextColumn Header="ارزش (ریال)" Binding="{Binding Value, Converter={StaticResource Num}}" Width="150"/>
+                <DataGridTextColumn Header="آخرین حرکت" Binding="{Binding LastMovement}" Width="120"/>
+                <DataGridTextColumn Header="روزِ رکود" Binding="{Binding IdleDisplay}" Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="تعداد کالای راکد:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ItemCount, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center" Margin="6,0,24,0"/>
+                <TextBlock Text="جمعِ سرمایهٔ خوابیده:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding IdleValue, Converter={StaticResource Num}, ConverterParameter=ریال}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

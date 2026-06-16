@@ -355,6 +355,7 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
+                <StackPanel>
                 <DockPanel>
                     <TextBlock VerticalAlignment="Center" FontWeight="Bold" FontSize="13">
                         <TextBlock.Style>
@@ -385,6 +386,9 @@
                         </StackPanel>
                     </StackPanel>
                 </DockPanel>
+                <TextBlock Text="{Binding TotalInWords}" Margin="0,7,2,0" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextStrong}" TextWrapping="Wrap"/>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>

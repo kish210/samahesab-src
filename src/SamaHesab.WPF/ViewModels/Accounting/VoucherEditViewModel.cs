@@ -230,7 +230,14 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         TotalCredit = Items.Sum(r => r.Credit);
         Difference  = TotalDebit - TotalCredit;
         IsBalanced  = Math.Abs(Difference) < 0.01m && Items.Any();
+        // مبلغِ سند به حروف (کلاسیکِ اسنادِ ایرانی) — مبنای مبلغِ سند = جمعِ بدهکار.
+        var amount = TotalDebit > 0 ? TotalDebit : TotalCredit;
+        try { TotalInWords = amount > 0 ? "مبلغِ سند به حروف: " + _calendar.NumberToWords(amount) + " ریال" : ""; }
+        catch { TotalInWords = ""; }
     }
+
+    /// <summary>مبلغِ سند به حروف (نمایشِ زنده، به‌خواستِ کاربر — امکانِ ERPِ ایرانی).</summary>
+    [ObservableProperty] private string _totalInWords = string.Empty;
 
     /// <summary>Open an existing voucher for viewing (passed from the voucher list).</summary>
     public async Task OnNavigatedToAsync(object? parameter)

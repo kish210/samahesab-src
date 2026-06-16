@@ -165,6 +165,7 @@ public partial class MainViewModel : BaseViewModel
             ["AgedBalance"]     = ("ماندهٔ سنی‌شده",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.AgedBalanceViewModel>()),
             ["VatSummary"]      = ("خلاصهٔ مالیات ارزش‌افزوده", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.VatSummaryViewModel>()),
             ["Daybook"]         = ("دفترِ روزنامه",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.DaybookViewModel>()),
+            ["DeadStock"]       = ("کالای راکد",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.DeadStockViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),

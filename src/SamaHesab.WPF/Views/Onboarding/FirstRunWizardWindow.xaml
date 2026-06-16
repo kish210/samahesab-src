@@ -1,0 +1,111 @@
+<Window x:Class="SamaHesab.WPF.Views.Onboarding.FirstRunWizardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="راه‌اندازیِ اولیه — سما حساب"
+        Height="640" Width="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        FlowDirection="RightToLeft"
+        FontFamily="{StaticResource VazirFont}"
+        Background="{DynamicResource AppBackground}">
+    <Window.Resources>
+        <Style x:Key="Cap" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}"/>
+            <Setter Property="Margin" Value="2,8,0,3"/>
+        </Style>
+        <Style x:Key="Sec" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryAccent}"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- سربرگ -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock Text="به سما حساب خوش آمدید 👋" FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryAccent}"/>
+            <TextBlock Text="برای شروع، چند موردِ پایه را تنظیم کنید. بعداً از «تنظیمات» قابلِ تغییر است."
+                       FontSize="12" Foreground="{DynamicResource MutedText}" Margin="0,3,0,0"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,8,0">
+
+                <!-- ۱) شرکت -->
+                <TextBlock Text="۱) اطلاعاتِ شرکت" Style="{StaticResource Sec}"/>
+                <TextBlock Text="نامِ شرکت *" Style="{StaticResource Cap}"/>
+                <TextBox Height="32" Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="تلفن" Style="{StaticResource Cap}"/>
+                        <TextBox Height="32" Text="{Binding CompanyPhone}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="شناسهٔ ملی" Style="{StaticResource Cap}"/>
+                        <TextBox Height="32" Text="{Binding CompanyNationalId}"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="کدِ اقتصادی" Style="{StaticResource Cap}"/>
+                <TextBox Height="32" Text="{Binding CompanyEconomicCode}"/>
+                <TextBlock Text="نشانی" Style="{StaticResource Cap}"/>
+                <TextBox Height="48" AcceptsReturn="True" TextWrapping="Wrap" Text="{Binding CompanyAddress}"/>
+                <TextBlock Text="لوگو" Style="{StaticResource Cap}"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Left" Content="انتخابِ لوگو…" Height="30" Padding="12,0" Click="Logo_Click"/>
+                    <TextBox Height="30" IsReadOnly="True" Text="{Binding LogoPath}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+                </DockPanel>
+
+                <!-- ۲) سالِ مالی -->
+                <TextBlock Text="۲) سالِ مالی" Style="{StaticResource Sec}"/>
+                <TextBlock Text="عنوان" Style="{StaticResource Cap}"/>
+                <TextBox Height="32" Text="{Binding FiscalTitle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="از تاریخ (۱۴۰۵/۰۱/۰۱)" Style="{StaticResource Cap}"/>
+                        <TextBox Height="32" Text="{Binding FiscalStart}" FlowDirection="LeftToRight" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="تا تاریخ (۱۴۰۵/۱۲/۲۹)" Style="{StaticResource Cap}"/>
+                        <TextBox Height="32" Text="{Binding FiscalEnd}" FlowDirection="LeftToRight" HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ۳) رمزِ مدیر -->
+                <TextBlock Text="۳) رمزِ عبورِ مدیر (admin)" Style="{StaticResource Sec}"/>
+                <TextBlock Text="⚠ رمزِ پیش‌فرض admin123 است. برای امنیت، رمزِ تازه‌ای بگذارید."
+                           FontSize="11" Foreground="{DynamicResource WarningColor}" Margin="0,0,0,2"/>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="رمزِ جدید" Style="{StaticResource Cap}"/>
+                        <PasswordBox x:Name="PwdNew" Height="32" PasswordChanged="PwdNew_Changed"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="تکرارِ رمز" Style="{StaticResource Cap}"/>
+                        <PasswordBox x:Name="PwdConfirm" Height="32" PasswordChanged="PwdConfirm_Changed"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- دکمه‌ها -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,12,0,0">
+            <Button Content="✔ اتمام و ورود" Height="38" Padding="20,0" FontWeight="Bold"
+                    Background="#2E7D52" Foreground="White" BorderThickness="0" Cursor="Hand"
+                    Command="{Binding FinishCommand}"/>
+            <Button Content="بعداً" Height="38" Padding="18,0" Margin="8,0,0,0" Cursor="Hand"
+                    Command="{Binding SkipCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

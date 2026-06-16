@@ -164,4 +164,8 @@ public class GeneralSettings
     public string SmsProvider { get; set; } = "kavenegar";
     public string? SmsApiKey { get; set; }
     public string? SmsSender { get; set; }
+
+    // ── راه‌اندازیِ اولیه (فاز ۱۲ G3) ──
+    public bool SetupCompleted { get; set; }   // ویزاردِ First-Run یک‌بار اجرا شده؟
+    public string? CompanyLogoPath { get; set; }
 }

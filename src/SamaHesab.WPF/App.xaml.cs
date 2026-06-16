@@ -104,6 +104,7 @@ public partial class App : System.Windows.Application
                 // ViewModels
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<LoginViewModel>();
+                services.AddTransient<ViewModels.Onboarding.FirstRunWizardViewModel>();   // فاز ۱۲ G3
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<VoucherListViewModel>();
                 services.AddTransient<VoucherEditViewModel>();
@@ -396,6 +397,21 @@ public partial class App : System.Windows.Application
             vrtb.Render(vwin);
             var venc = new System.Windows.Media.Imaging.PngBitmapEncoder(); venc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(vrtb));
             using (var vfs = System.IO.File.Create(System.IO.Path.Combine(vdir, "voucher.png"))) venc.Save(vfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_WIZARD") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+            var zwin = new Views.Onboarding.FirstRunWizardWindow(
+                _host.Services.GetRequiredService<ViewModels.Onboarding.FirstRunWizardViewModel>());
+            zwin.Show(); await Task.Delay(1200); zwin.UpdateLayout();
+            var zdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(zdir);
+            var zrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(600, 640, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            zrtb.Render(zwin);
+            var zenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); zenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(zrtb));
+            using (var zfs = System.IO.File.Create(System.IO.Path.Combine(zdir, "wizard.png"))) zenc.Save(zfs);
             Shutdown(); return;
         }
 

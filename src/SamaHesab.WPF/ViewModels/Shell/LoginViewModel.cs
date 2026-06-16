@@ -119,6 +119,18 @@ public partial class LoginViewModel : ObservableObject
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,
                 fullName, roles, permissions);
 
+            // فاز ۱۲ G3 — اولین اجرا: ویزاردِ راه‌اندازیِ اولیه (یک‌بار) پیش از ورود به پوسته.
+            if (!Services.AppSettingsStore.GetGeneral().SetupCompleted)
+            {
+                try
+                {
+                    var wiz = new Views.Onboarding.FirstRunWizardWindow(
+                        App.GetService<Onboarding.FirstRunWizardViewModel>());
+                    wiz.ShowDialog();
+                }
+                catch { /* ویزارد نباید مانعِ ورود شود */ }
+            }
+
             var mainWindow = App.GetService<Views.Shell.MainWindow>();
             mainWindow.Show();
 

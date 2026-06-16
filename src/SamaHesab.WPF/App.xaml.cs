@@ -719,6 +719,15 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── فاز ۱۲ G2 — تزریقِ دادهٔ تراکنشیِ دمو (خرید/فروش/خزانه/سند) روی دادهٔ پایه‌ی 08_DemoData ──
+        // جدا از تولید: فقط با SAMA_SEED_DEMO=1 اجرا می‌شود؛ idempotent (اگر دمو از قبل تزریق شده، رد می‌شود).
+        if (Environment.GetEnvironmentVariable("SAMA_SEED_DEMO") == "1")
+        {
+            await RunSeedDemoAsync();
+            Shutdown();
+            return;
+        }
+
         // ─── Touch POS mode (pos.exe / --pos / SAMA_POS=1): fullscreen fast checkout ──
         // This is a standalone CLIENT: it talks to the central server over the Web API
         // (HTTP), never the database directly. Server address is set in ApiSettings.
@@ -1089,6 +1098,152 @@ public partial class App : System.Windows.Application
         {
             var dir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(dir);
             System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "e2e_report.txt"), sb.ToString(), new System.Text.UTF8Encoding(true));
+        }
+        catch { }
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// فاز ۱۲ G2 — تزریقِ دادهٔ تراکنشیِ واقع‌نما برای دمو/آموزش، روی دادهٔ پایه‌ی <c>08_DemoData.sql</c>
+    /// (کالا/مشتری/تأمین‌کننده/انبار). تراکنش‌ها از طریقِ command‌های واقعیِ Application ساخته می‌شوند تا
+    /// پُست/کاردکس/سندِ خودکار درست و تراز متوازن باشد. idempotent: اگر فاکتورِ فروش از قبل هست، رد می‌شود.
+    /// </summary>
+    private async Task RunSeedDemoAsync()
+    {
+        var sb = new System.Text.StringBuilder();
+        int ok = 0, err = 0;
+        void Step(string name, bool good, string detail = "")
+        {
+            if (good) ok++; else err++;
+            var line = $"[{(good ? "OK" : "ERR")}] {name}{(string.IsNullOrEmpty(detail) ? "" : " — " + detail)}";
+            sb.AppendLine(line); Log.Information("[SEED] " + line);
+        }
+
+        try
+        {
+            using var scope = _host!.Services.CreateScope();
+            var sp = scope.ServiceProvider;
+            ((Services.CurrentUserService)sp.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+
+            var mediator = sp.GetRequiredService<MediatR.IMediator>();
+            var calendar = sp.GetRequiredService<SamaHesab.Application.Common.Interfaces.IPersianCalendarService>();
+            var products = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IProductRepository>();
+            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Customer>>();
+            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Supplier>>();
+            var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
+            var invRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice>>();
+
+            var date = calendar.GetCurrentPersianDate();
+
+            // ── idempotency: اگر دمو قبلاً تزریق شده، خارج شو ──
+            var existing = await invRepo.CountAsync(i => i.CompanyId == 1);
+            if (existing >= 5)
+            {
+                Step($"دمو از قبل تزریق شده ({existing} فاکتورِ فروش) — رد شد", true);
+                await FinishSeed(sb, ok, err); return;
+            }
+
+            // ── پیش‌نیاز: دادهٔ پایه (08_DemoData) ──
+            var prodList = (await products.SearchAsync(1, "")).Where(p => p.ProductType == SamaHesab.Domain.Enums.ProductType.Product).ToList();
+            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsActive);
+            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsActive);
+            var warehouses = await whRepo.GetByCompanyAsync(1);
+            if (prodList.Count == 0 || customers.Count == 0 || suppliers.Count == 0 || warehouses.Count == 0)
+            {
+                Step("دادهٔ پایه ناقص است — ابتدا 08_DemoData.sql را اجرا کنید", false,
+                    $"کالا={prodList.Count} مشتری={customers.Count} تأمین={suppliers.Count} انبار={warehouses.Count}");
+                await FinishSeed(sb, ok, err); return;
+            }
+
+            // ── سالِ مالی ──
+            var fyList = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetFiscalYearsQuery());
+            var fy = fyList.FirstOrDefault(f => f.IsActive) ?? fyList.FirstOrDefault();
+            if (fy == null)
+            {
+                var year = date.Length >= 4 ? date[..4] : "1405";
+                await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.SaveFiscalYearCommand(
+                    0, $"سالِ مالی {year}", $"{year}/01/01", $"{year}/12/29"));
+                fyList = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetFiscalYearsQuery());
+                fy = fyList.FirstOrDefault(f => f.IsActive) ?? fyList.FirstOrDefault();
+            }
+            if (fy == null) { Step("سالِ مالی ساخته نشد", false); await FinishSeed(sb, ok, err); return; }
+            var wh = warehouses[0];
+
+            // ── ۱) خرید: موجودیِ اولیه برای چند کالا (تا فروش ممکن شود) ──
+            var picks = prodList.Take(Math.Min(4, prodList.Count)).ToList();
+            for (int i = 0; i < picks.Count; i++)
+            {
+                var p = picks[i]; var supplier = suppliers[i % suppliers.Count];
+                decimal qty = 100, price = p.PurchasePrice > 0 ? p.PurchasePrice : 50_000;
+                var pr = await mediator.Send(new SamaHesab.Application.Purchase.Commands.CreatePurchaseInvoiceCommand(
+                    1, fy.Id, date, supplier.Id, wh.Id, "خرید", null, null, "خریدِ دمو", 0, 0,
+                    new() { new SamaHesab.Application.Purchase.Commands.PurchaseInvoiceItemDto(p.Id, qty, price, 0, 0, null, null, null, null, null) },
+                    qty * price));
+                Step($"خرید: {p.Name} ×{qty:N0}", pr.Succeeded, pr.Succeeded ? $"سند #{pr.Value}" : pr.ErrorMessage ?? "");
+            }
+
+            // ── ۲) فروش: ترکیبِ نقدی/نسیه با مالیات، روی مشتری‌ها/کالاهای مختلف ──
+            var sales = new (int pi, int ci, decimal qty, string method, bool credit, decimal taxPct)[]
+            {
+                (0, 0, 5,  "نقدی", false, 9),
+                (1, 1, 3,  "نقدی", false, 9),
+                (2, 2, 8,  "نسیه", true,  0),
+                (0, 1, 2,  "بانک", false, 9),
+                (3, 0, 6,  "نسیه", true,  9),
+                (1, 2, 4,  "نقدی", false, 0),
+            };
+            decimal creditCustomerBalanceTarget = 0; int creditCustomerId = 0;
+            foreach (var s in sales)
+            {
+                var p = picks[s.pi % picks.Count]; var c = customers[s.ci % customers.Count];
+                decimal price = p.SalePrice > 0 ? p.SalePrice : 80_000;
+                decimal lineTotal = s.qty * price; decimal tax = lineTotal * s.taxPct / 100m;
+                decimal grand = lineTotal + tax;
+                decimal paid = s.credit ? 0 : grand;
+                var sr = await mediator.Send(new SamaHesab.Application.Sales.Commands.CreateSalesInvoiceCommand(
+                    1, fy.Id, date, c.Id, wh.Id, SamaHesab.Domain.Enums.InvoiceType.Sale, "خرده", null, null, "فروشِ دمو", 0, 0,
+                    new() { new SamaHesab.Application.Sales.Commands.SalesInvoiceItemDto(p.Id, s.qty, price, 0, s.taxPct, null, null, null) },
+                    0, paid, s.method));
+                Step($"فروش ({s.method}): {p.Name} ×{s.qty:N0} به {c.FullName}", sr.Succeeded, sr.Succeeded ? $"سند #{sr.Value}" : sr.ErrorMessage ?? "");
+                if (s.credit && sr.Succeeded) { creditCustomerId = c.Id; creditCustomerBalanceTarget += grand; }
+            }
+
+            // ── ۳) خزانه: یک دریافتِ بخشی از مشتریِ نسیه + یک پرداخت به تأمین‌کننده ──
+            if (creditCustomerId > 0)
+            {
+                var amount = Math.Round(creditCustomerBalanceTarget / 2m);
+                var rec = await mediator.Send(new SamaHesab.Application.Treasury.Commands.CreateReceiptCommand(
+                    1, fy.Id, date, creditCustomerId, amount, "نقدی", "دریافتِ دمو از مشتری"));
+                Step("دریافتِ خزانه از مشتریِ نسیه", rec.Succeeded, rec.Succeeded ? $"سند #{rec.Value}" : rec.ErrorMessage ?? "");
+            }
+            var pay = await mediator.Send(new SamaHesab.Application.Treasury.Commands.CreatePaymentCommand(
+                1, fy.Id, date, suppliers[0].Id, 2_000_000, "نقدی", "پرداختِ دمو به تأمین‌کننده"));
+            Step("پرداختِ خزانه به تأمین‌کننده", pay.Succeeded, pay.Succeeded ? $"سند #{pay.Value}" : pay.ErrorMessage ?? "");
+
+            // ── ۴) صحت‌سنجی: تراز متوازن ──
+            var tb = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetTrialBalanceQuery(date, date));
+            var dr = tb.Sum(r => r.Debit); var cr = tb.Sum(r => r.Credit);
+            Step("توازنِ ترازِ آزمایشی", Math.Abs(dr - cr) < 1m, $"بدهکار={dr:N0} بستانکار={cr:N0}");
+
+            await FinishSeed(sb, ok, err);
+        }
+        catch (Exception ex)
+        {
+            sb.AppendLine($"[ERROR] استثناء: {ex.GetBaseException().Message}");
+            Log.Error(ex, "[SEED] استثناء");
+            await FinishSeed(sb, ok, err + 1);
+        }
+    }
+
+    private static Task FinishSeed(System.Text.StringBuilder sb, int ok, int err)
+    {
+        var summary = $"\n══════════ تزریقِ دموی G2 — موفق={ok} · خطا={err} ══════════";
+        sb.AppendLine(summary); Log.Information("[SEED] " + summary);
+        try
+        {
+            var dir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(dir);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "demo_seed_report.txt"), sb.ToString(), new System.Text.UTF8Encoding(true));
         }
         catch { }
         return Task.CompletedTask;

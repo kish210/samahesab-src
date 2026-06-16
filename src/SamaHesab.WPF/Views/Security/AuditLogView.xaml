@@ -46,14 +46,26 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- شمارش -->
+        <!-- شمارش + ناوبریِ صفحه (P-G10) -->
         <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
-                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="تعداد رکورد:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding RowCount}" FontWeight="Bold" FontSize="14"
-                           Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
-            </StackPanel>
+                BorderThickness="1" CornerRadius="8" Padding="14,6" Margin="0,8,0,0">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Content="« اول"  Command="{Binding FirstPageCommand}" IsEnabled="{Binding CanPrevPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                    <Button Content="‹ قبلی" Command="{Binding PrevPageCommand}"  IsEnabled="{Binding CanPrevPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                    <Button Content="بعدی ›" Command="{Binding NextPageCommand}"  IsEnabled="{Binding CanNextPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                    <Button Content="آخر »"  Command="{Binding LastPageCommand}"  IsEnabled="{Binding CanNextPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,10,0"/>
+                    <TextBlock Text="صفحهٔ " Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding PageNumber, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" از " Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalPages, Converter={StaticResource Num}}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="تعداد رکورد:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding RowCount, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="14"
+                               Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                </StackPanel>
+            </DockPanel>
         </Border>
     </Grid>
 </UserControl>

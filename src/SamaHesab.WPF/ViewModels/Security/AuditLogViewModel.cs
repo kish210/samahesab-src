@@ -15,12 +15,28 @@ public partial class AuditLogViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
     private readonly IPdfService _pdf;
+    private readonly List<AuditLogDto> _all = new();   // P-G10 — backing list (خروجی همه را شامل می‌شود؛ گرید صفحه‌بندی می‌شود)
 
     public ObservableCollection<AuditLogDto> Rows { get; } = new();
 
     [ObservableProperty] private int _daysBack = 30;
     [ObservableProperty] private string _actionFilter = string.Empty;
     [ObservableProperty] private int _rowCount;
+
+    // P-G10 — صفحه‌بندیِ سمتِ کلاینت
+    private const int PageSizeConst = 50;
+    [ObservableProperty] private int _pageNumber = 1;
+    [ObservableProperty] private int _totalPages = 1;
+    public bool CanPrevPage => PageNumber > 1;
+    public bool CanNextPage => PageNumber < TotalPages;
+    partial void OnPageNumberChanged(int value) => RaisePaging();
+    partial void OnTotalPagesChanged(int value) => RaisePaging();
+    private void RaisePaging() { OnPropertyChanged(nameof(CanPrevPage)); OnPropertyChanged(nameof(CanNextPage)); }
+
+    [RelayCommand] private void FirstPage() { if (PageNumber != 1) { PageNumber = 1; ApplyPage(); } }
+    [RelayCommand] private void PrevPage()  { if (CanPrevPage) { PageNumber--; ApplyPage(); } }
+    [RelayCommand] private void NextPage()  { if (CanNextPage) { PageNumber++; ApplyPage(); } }
+    [RelayCommand] private void LastPage()  { if (PageNumber != TotalPages) { PageNumber = TotalPages; ApplyPage(); } }
 
     public AuditLogViewModel(IMediator mediator, IPdfService pdf,
         IDialogService dialogService, INavigationService navigationService)
@@ -37,15 +53,28 @@ public partial class AuditLogViewModel : BaseViewModel
             var rows = await _mediator.Send(new GetAuditLogQuery(
                 DaysBack: DaysBack <= 0 ? 30 : DaysBack,
                 Action: string.IsNullOrWhiteSpace(ActionFilter) ? null : ActionFilter.Trim()));
-            Rows.Clear();
-            foreach (var r in rows) Rows.Add(r);
-            RowCount = Rows.Count;
+            _all.Clear();
+            _all.AddRange(rows);
+            RowCount = _all.Count;
+            PageNumber = 1;
+            ApplyPage();
         }, "در حال بارگیری لاگِ حسابرسی...");
     }
 
+    private void ApplyPage()
+    {
+        TotalPages = System.Math.Max(1, (int)System.Math.Ceiling(_all.Count / (double)PageSizeConst));
+        if (PageNumber > TotalPages) PageNumber = TotalPages;
+        if (PageNumber < 1) PageNumber = 1;
+        Rows.Clear();
+        foreach (var r in _all.Skip((PageNumber - 1) * PageSizeConst).Take(PageSizeConst)) Rows.Add(r);
+        RaisePaging();
+    }
+
+    // خروجی (CSV/PDF) همهٔ ردیف‌های بارگذاری‌شده را شامل می‌شود، نه فقط صفحهٔ جاری.
     private ReportTable BuildTable() => new("لاگِ حسابرسی",
         new[] { "تاریخ", "کاربر", "عمل", "جدول", "جزئیات" },
-        Rows.Select(r => new[] { r.When, r.User ?? "—", r.Action, r.TableName ?? "—", r.Details ?? "" }).ToList());
+        _all.Select(r => new[] { r.When, r.User ?? "—", r.Action, r.TableName ?? "—", r.Details ?? "" }).ToList());
 
     [RelayCommand]
     private async Task ExportCsvAsync()

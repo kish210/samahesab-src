@@ -43,6 +43,21 @@ public partial class ChequeListViewModel : BaseViewModel
     private readonly List<ChequeListRow> _all = new();
     public ObservableCollection<ChequeListRow> Cheques { get; } = new();
 
+    // P-G10 — صفحه‌بندیِ سمتِ کلاینت (دادهٔ فیلترشده در حافظه است)
+    private const int PageSizeConst = 50;
+    [ObservableProperty] private int _pageNumber = 1;
+    [ObservableProperty] private int _totalPages = 1;
+    public bool CanPrevPage => PageNumber > 1;
+    public bool CanNextPage => PageNumber < TotalPages;
+    partial void OnPageNumberChanged(int value) => RaisePaging();
+    partial void OnTotalPagesChanged(int value) => RaisePaging();
+    private void RaisePaging() { OnPropertyChanged(nameof(CanPrevPage)); OnPropertyChanged(nameof(CanNextPage)); }
+
+    [RelayCommand] private void FirstPage() { if (PageNumber != 1) { PageNumber = 1; ApplyFilter(); } }
+    [RelayCommand] private void PrevPage()  { if (CanPrevPage) { PageNumber--; ApplyFilter(); } }
+    [RelayCommand] private void NextPage()  { if (CanNextPage) { PageNumber++; ApplyFilter(); } }
+    [RelayCommand] private void LastPage()  { if (PageNumber != TotalPages) { PageNumber = TotalPages; ApplyFilter(); } }
+
     public ChequeListViewModel(IChequeRepository chequeRepository, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IMediator mediator, IBarcodeService barcode,
         IDialogService dialogService, INavigationService navigationService)
@@ -68,7 +83,7 @@ public partial class ChequeListViewModel : BaseViewModel
                     c.DueDate, c.Status, c.IssuedBy ?? "", c.Description ?? ""));
 
             RecomputeStats();
-            ApplyFilter();
+            ApplyFilterFromStart();
         }, "در حال بارگذاری چک‌ها...");
         await LoadPrintTemplatesAsync();
     }
@@ -151,18 +166,28 @@ public partial class ChequeListViewModel : BaseViewModel
             var s = SearchText.Trim();
             q = q.Where(c => c.Number.Contains(s) || c.IssuedBy.Contains(s) || c.Bank.Contains(s));
         }
+        var filtered = q.OrderBy(c => c.DueDate).ToList();
+        TotalCount = filtered.Count;                                  // کلِ نتایجِ فیلترشده
+        TotalAmount = filtered.Sum(c => c.Amount);
+        TotalPages = System.Math.Max(1, (int)System.Math.Ceiling(filtered.Count / (double)PageSizeConst));
+        if (PageNumber > TotalPages) PageNumber = TotalPages;
+        if (PageNumber < 1) PageNumber = 1;
+
         Cheques.Clear();
-        int i = 1;
-        foreach (var c in q.OrderBy(c => c.DueDate)) { c.RowNumber = i++; Cheques.Add(c); }
-        TotalCount = Cheques.Count;
-        TotalAmount = Cheques.Sum(c => c.Amount);
+        int i = (PageNumber - 1) * PageSizeConst + 1;                 // فقط صفحهٔ جاری نمایش داده می‌شود
+        foreach (var c in filtered.Skip((PageNumber - 1) * PageSizeConst).Take(PageSizeConst))
+        { c.RowNumber = i++; Cheques.Add(c); }
+        RaisePaging();
     }
 
-    partial void OnSearchTextChanged(string? value) => ApplyFilter();
+    /// <summary>اعمالِ فیلتر = بازگشت به صفحهٔ ۱.</summary>
+    private void ApplyFilterFromStart() { PageNumber = 1; ApplyFilter(); }
+
+    partial void OnSearchTextChanged(string? value) => ApplyFilterFromStart();
 
     /// <summary>انتخابِ کارتِ وضعیت (فیلترِ گرید بر اساسِ وضعیت).</summary>
     [RelayCommand]
-    private void SelectStatus(string? key) { StatusFilter = key ?? "همه"; ApplyFilter(); }
+    private void SelectStatus(string? key) { StatusFilter = key ?? "همه"; ApplyFilterFromStart(); }
 
     /// <summary>تغییرِ چیپ دریافتنی/پرداختنی.</summary>
     [RelayCommand]
@@ -171,7 +196,7 @@ public partial class ChequeListViewModel : BaseViewModel
         TypeFilter = key ?? "دریافتی";
         StatusFilter = "همه";
         RecomputeStats();
-        ApplyFilter();
+        ApplyFilterFromStart();
     }
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();

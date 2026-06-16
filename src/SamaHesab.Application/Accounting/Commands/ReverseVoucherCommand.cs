@@ -18,9 +18,11 @@ public class ReverseVoucherCommandHandler : IRequestHandler<ReverseVoucherComman
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _currentUser;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
-    public ReverseVoucherCommandHandler(IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService currentUser)
-    { _vouchers = vouchers; _uow = uow; _currentUser = currentUser; }
+    public ReverseVoucherCommandHandler(IVoucherRepository vouchers, IUnitOfWork uow,
+        ICurrentUserService currentUser, IRepository<FiscalYear> fiscalYears)
+    { _vouchers = vouchers; _uow = uow; _currentUser = currentUser; _fiscalYears = fiscalYears; }
 
     public async Task<Result<int>> Handle(ReverseVoucherCommand req, CancellationToken ct)
     {
@@ -30,6 +32,11 @@ public class ReverseVoucherCommandHandler : IRequestHandler<ReverseVoucherComman
             return Result<int>.Failure("فقط سند قطعی و برگشت‌نخورده قابل برگشت است.");
         if (!original.Items.Any())
             return Result<int>.Failure("سند فاقد ردیف است.");
+
+        // قفل دوره: برگشت در سال مالیِ بسته یا با تاریخِ خارج از بازه مجاز نیست.
+        var fy = await _fiscalYears.GetByIdAsync(original.FiscalYearId, ct);
+        var lockMsg = FiscalPeriodGuard.Check(fy, req.Date);
+        if (lockMsg is not null) return Result<int>.Failure(lockMsg);
 
         var companyId = _currentUser.CompanyId ?? original.CompanyId;
         var userId = _currentUser.UserId ?? 0;

@@ -79,17 +79,10 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
                         $"نسخهٔ آزمایشی: سقفِ {_license.TrialVoucherLimit} سندِ حسابداری پر شده است. برای ادامه، نرم‌افزار را فعال کنید.");
             }
 
-            // قفل دوره: اگر سال مالی تعریف شده باشد، بسته‌بودن/خارج‌از‌بازه‌بودن مسدود می‌شود.
-            // (نبودِ رکورد سال مالی برای نصب‌های قدیمی مجاز است تا چیزی نشکند.)
+            // قفل دوره (مشترک): بسته‌بودن/خارج‌از‌بازه‌بودنِ سال مالی مسدود می‌شود.
             var fy = await _fiscalYears.GetByIdAsync(request.FiscalYearId, ct);
-            if (fy is not null)
-            {
-                if (fy.IsClosed)
-                    return Result<int>.Failure($"سال مالی «{fy.Title}» بسته شده است؛ ثبت سند مجاز نیست.");
-                if (!fy.Contains(request.VoucherDate))
-                    return Result<int>.Failure(
-                        $"تاریخ سند ({request.VoucherDate}) خارج از بازهٔ سال مالی «{fy.Title}» ({fy.StartDate} تا {fy.EndDate}) است.");
-            }
+            var lockMsg = FiscalPeriodGuard.Check(fy, request.VoucherDate);
+            if (lockMsg is not null) return Result<int>.Failure(lockMsg);
 
             var voucherNumber = await _voucherRepository.GetNextNumberAsync(companyId, ct);
 

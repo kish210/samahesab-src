@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
@@ -32,14 +33,20 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<Supplier> _suppliers;
     private readonly IRepository<PurchaseInvoice> _invoices;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public CreatePaymentCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
         IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Supplier> suppliers,
-        IRepository<PurchaseInvoice> invoices)
-    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; }
+        IRepository<PurchaseInvoice> invoices, IRepository<FiscalYear> fiscalYears)
+    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; }
 
     public async Task<Result<int>> Handle(CreatePaymentCommand req, CancellationToken ct)
     {
+        // قفل دوره: پرداخت در سال مالیِ بسته یا با تاریخِ خارج از بازه مجاز نیست.
+        var fy = await _fiscalYears.GetByIdAsync(req.FiscalYearId, ct);
+        var lockMsg = FiscalPeriodGuard.Check(fy, req.Date);
+        if (lockMsg is not null) return Result<int>.Failure(lockMsg);
+
         await _uow.BeginTransactionAsync(ct);
         try
         {

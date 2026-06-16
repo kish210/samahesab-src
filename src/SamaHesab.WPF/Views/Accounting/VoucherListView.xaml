@@ -129,6 +129,23 @@
                             <TextBlock DockPanel.Dock="Left" Text="{Binding TotalDebit, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="12.5" Foreground="{StaticResource ErpTextStrong}" FlowDirection="LeftToRight"/>
                         </DockPanel>
                     </Border>
+                    <!-- P-G10 — ناوبریِ صفحه (وقتی فهرست بیش از یک صفحه است) -->
+                    <Border DockPanel.Dock="Bottom" Background="{StaticResource ErpGray100}" BorderBrush="{StaticResource ErpBorderStrong}" BorderThickness="0,1,0,0" Padding="9,4">
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                <Button Content="« اول"  Command="{Binding FirstPageCommand}" IsEnabled="{Binding CanPrevPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                                <Button Content="‹ قبلی" Command="{Binding PrevPageCommand}"  IsEnabled="{Binding CanPrevPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                                <Button Content="بعدی ›" Command="{Binding NextPageCommand}"  IsEnabled="{Binding CanNextPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0" Margin="0,0,4,0"/>
+                                <Button Content="آخر »"  Command="{Binding LastPageCommand}"  IsEnabled="{Binding CanNextPage}" Style="{StaticResource ErpBtnSecondary}" Height="26" Padding="8,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="صفحهٔ " FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding PageNumber, Converter={StaticResource Num}}" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource ErpTextStrong}" VerticalAlignment="Center"/>
+                                <TextBlock Text=" از " FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding TotalPages, Converter={StaticResource Num}}" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource ErpTextStrong}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
                     <DataGrid ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}" Style="{StaticResource ErpDataGrid}" IsReadOnly="True">
                         <DataGrid.InputBindings>
                             <!-- دابل‌کلیک روی ردیف = باز کردنِ سند (OPT-2) -->

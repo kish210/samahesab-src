@@ -35,6 +35,23 @@ public partial class VoucherListViewModel : BaseViewModel
     [ObservableProperty] private decimal _totalDebit;
     [ObservableProperty] private decimal _totalCredit;
 
+    // P-G10 — صفحه‌بندیِ سمتِ سرور (کوئری از قبل Skip/Take دارد؛ این‌جا فقط ناوبری اضافه می‌شود)
+    private const int PageSizeConst = 50;
+    [ObservableProperty] private int _pageNumber = 1;
+    [ObservableProperty] private int _totalPages = 1;
+    public bool CanPrevPage => PageNumber > 1;
+    public bool CanNextPage => PageNumber < TotalPages;
+    public string PageInfo => $"صفحهٔ {PageNumber} از {System.Math.Max(1, TotalPages)}";
+
+    partial void OnPageNumberChanged(int value) => RaisePagingChanged();
+    partial void OnTotalPagesChanged(int value) => RaisePagingChanged();
+    private void RaisePagingChanged()
+    {
+        OnPropertyChanged(nameof(CanPrevPage));
+        OnPropertyChanged(nameof(CanNextPage));
+        OnPropertyChanged(nameof(PageInfo));
+    }
+
     public ObservableCollection<VoucherListDto> Vouchers { get; } = new();
 
     [ObservableProperty] private VoucherListDto? _selectedVoucher;
@@ -126,8 +143,16 @@ public partial class VoucherListViewModel : BaseViewModel
         await SearchAsync();
     }
 
+    /// <summary>اعمالِ فیلتر = بازگشت به صفحهٔ ۱ و بارگذاری.</summary>
     [RelayCommand]
     private async Task SearchAsync()
+    {
+        PageNumber = 1;
+        await LoadPageAsync();
+    }
+
+    /// <summary>بارگذاریِ صفحهٔ جاری با فیلترهای فعلی (مشترکِ جستجو و ناوبریِ صفحه).</summary>
+    private async Task LoadPageAsync()
     {
         await ExecuteAsync(async () =>
         {
@@ -137,7 +162,9 @@ public partial class VoucherListViewModel : BaseViewModel
                 ToDate: ToDate,
                 VoucherTypeId: SelectedTypeId,
                 Status: SelectedStatus,
-                SearchText: SearchText);
+                SearchText: SearchText,
+                PageNumber: PageNumber,
+                PageSize: PageSizeConst);
 
             var result = await _mediator.Send(query);
             Vouchers.Clear();
@@ -145,12 +172,20 @@ public partial class VoucherListViewModel : BaseViewModel
                 Vouchers.Add(v);
 
             TotalCount = result.TotalCount;
+            TotalPages = System.Math.Max(1, (int)System.Math.Ceiling(TotalCount / (double)PageSizeConst));
+            if (PageNumber > TotalPages) PageNumber = TotalPages;   // پس از تغییرِ فیلتر/حذف
             TotalDebit = Vouchers.Sum(v => v.TotalDebit);
             TotalCredit = Vouchers.Sum(v => v.TotalCredit);
             // master-detail: همیشه یک سند انتخاب باشد تا پنل پیش‌نمایش پر بماند
             SelectedVoucher = Vouchers.FirstOrDefault();
+            RaisePagingChanged();
         }, "در حال جستجو...");
     }
+
+    [RelayCommand] private Task FirstPageAsync() { if (PageNumber == 1) return Task.CompletedTask; PageNumber = 1; return LoadPageAsync(); }
+    [RelayCommand] private Task PrevPageAsync()  { if (!CanPrevPage) return Task.CompletedTask; PageNumber--; return LoadPageAsync(); }
+    [RelayCommand] private Task NextPageAsync()  { if (!CanNextPage) return Task.CompletedTask; PageNumber++; return LoadPageAsync(); }
+    [RelayCommand] private Task LastPageAsync()  { if (PageNumber == TotalPages) return Task.CompletedTask; PageNumber = TotalPages; return LoadPageAsync(); }
 
     [RelayCommand]
     private void NewVoucher() => _navigationService.NavigateTo("VoucherEdit");

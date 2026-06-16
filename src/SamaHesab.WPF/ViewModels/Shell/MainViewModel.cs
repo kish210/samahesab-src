@@ -168,6 +168,7 @@ public partial class MainViewModel : BaseViewModel
             ["DeadStock"]       = ("کالای راکد",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.DeadStockViewModel>()),
             ["ProductProfit"]   = ("سود و زیانِ کالا",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.ProductProfitViewModel>()),
             ["AbcAnalysis"]     = ("تحلیلِ ABC کالا",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.AbcAnalysisViewModel>()),
+            ["Turnover"]        = ("گردشِ موجودی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.InventoryTurnoverViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),

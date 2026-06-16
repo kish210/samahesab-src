@@ -261,6 +261,7 @@
                                 <MenuItem Header="کالای راکد / کم‌گردش" Command="{Binding NavigateCommand}" CommandParameter="DeadStock"/>
                                 <MenuItem Header="سود و زیانِ کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductProfit"/>
                                 <MenuItem Header="تحلیلِ ABC کالا" Command="{Binding NavigateCommand}" CommandParameter="AbcAnalysis"/>
+                                <MenuItem Header="گردشِ موجودی" Command="{Binding NavigateCommand}" CommandParameter="Turnover"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

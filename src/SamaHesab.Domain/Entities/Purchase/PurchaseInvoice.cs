@@ -2,7 +2,7 @@ using SamaHesab.Domain.Common;
 
 namespace SamaHesab.Domain.Entities.Purchase;
 
-public class PurchaseInvoice : AuditableEntity
+public class PurchaseInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسازیِ شعبه
 {
     public int BranchId { get; private set; }
     public int FiscalYearId { get; private set; }

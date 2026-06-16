@@ -4,7 +4,7 @@ using SamaHesab.Domain.Events;
 
 namespace SamaHesab.Domain.Entities.Sales;
 
-public class SalesInvoice : AuditableEntity
+public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسازیِ شعبه
 {
     public int BranchId { get; private set; }
     public int FiscalYearId { get; private set; }

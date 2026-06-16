@@ -401,6 +401,9 @@ public class ApplicationDbContext : DbContext
 
         // فیلتر ترکیبیِ شرکت+شعبه روی موجودیت‌های شعبه‌ای — جایگزینِ فیلترِ فقط-شرکت بالا.
         ApplyTenantAndBranchFilter<Voucher>(modelBuilder);
+        // MB-2 — گسترش به فروش/خرید (هماهنگی با C2). فقط برای کاربرِ بدونِ Security.AllBranches فعال می‌شود.
+        ApplyTenantAndBranchFilter<Domain.Entities.Sales.SalesInvoice>(modelBuilder);
+        ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

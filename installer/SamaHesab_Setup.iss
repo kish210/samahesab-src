@@ -58,12 +58,15 @@ Source: "..\dist\api\*"; DestDir: "{app}\server"; Flags: ignoreversion recursesu
 
 ; User Guide (PDF) — مطابقِ آیکونِ «راهنمای کاربر»
 Source: "..\docs\SamaHesab-UserGuide.pdf"; DestDir: "{app}\docs"; DestName: "UserGuide.pdf"; Flags: ignoreversion
+; خودآموزِ گام‌به‌گام (PDF) — مطابقِ آیکونِ «خودآموز»
+Source: "..\docs\SamaHesab-Tutorial.pdf"; DestDir: "{app}\docs"; DestName: "Tutorial.pdf"; Flags: ignoreversion
 
 ; اسکریپت‌های پایگاه‌داده (همهٔ مهاجرت‌ها ۰۱..۲۲ — برای اجرای دستی روی SQL Server)
 Source: "..\database\*.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
+Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
 Name: "{group}\راهنمای کاربر";                   Filename: "{app}\docs\UserGuide.pdf"
 Name: "{group}\حذف {#MyAppName}";               Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon

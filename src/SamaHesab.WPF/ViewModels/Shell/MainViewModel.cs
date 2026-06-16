@@ -148,6 +148,7 @@ public partial class MainViewModel : BaseViewModel
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
             ["DocumentTemplates"]= ("قالبِ اسناد",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DocumentTemplatesViewModel>()),
+            ["DataImport"]      = ("ورودِ داده از اکسل",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DataImportViewModel>()),
         };
 
         // Clock timer

@@ -170,6 +170,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
                 services.AddTransient<ViewModels.Settings.DocumentTemplatesViewModel>();   // فاز ۱۰ DT-4
+                services.AddTransient<ViewModels.Settings.DataImportViewModel>();   // فاز ۱۲ G4
                 services.AddTransient<UserManagementViewModel>();
 
                 // Windows
@@ -412,6 +413,22 @@ public partial class App : System.Windows.Application
             zrtb.Render(zwin);
             var zenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); zenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(zrtb));
             using (var zfs = System.IO.File.Create(System.IO.Path.Combine(zdir, "wizard.png"))) zenc.Save(zfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_IMPORT") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+            var ivm = _host.Services.GetRequiredService<ViewModels.Settings.DataImportViewModel>();
+            var iview = new Views.Settings.DataImportView { DataContext = ivm };
+            var iwin = new Window { Content = iview, Width = 1100, Height = 720, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft, FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont") };
+            iwin.Show(); await Task.Delay(1200); iwin.UpdateLayout();
+            var idir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(idir);
+            var irtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1100, 720, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            irtb.Render(iwin);
+            var ienc = new System.Windows.Media.Imaging.PngBitmapEncoder(); ienc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(irtb));
+            using (var ifs = System.IO.File.Create(System.IO.Path.Combine(idir, "import.png"))) ienc.Save(ifs);
             Shutdown(); return;
         }
 

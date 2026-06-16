@@ -1,0 +1,58 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Settings.DataImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="{StaticResource ErpAppBg}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- سربرگ -->
+        <StackPanel Grid.Row="0" Margin="2,0,2,8">
+            <TextBlock Text="ورودِ داده از اکسل" FontSize="18" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}"/>
+            <TextBlock Text="مهاجرتِ مشتری/تأمین‌کننده از سیستمِ قبلی. سطرِ اولِ فایل باید سرستون باشد."
+                       FontSize="12" Foreground="{StaticResource ErpTextMuted}" Margin="0,3,0,0"/>
+        </StackPanel>
+
+        <!-- نوار انتخاب -->
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="نوعِ داده:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox Width="160" Height="30" ItemsSource="{Binding EntityTypes}" SelectedItem="{Binding SelectedEntityType}"/>
+                    <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Padding="14,0" Margin="10,0,0,0" Content="📂 انتخابِ فایلِ اکسل…" Click="Browse_Click"/>
+                    <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="380"/>
+                </StackPanel>
+                <TextBlock Text="{Binding ColumnHelp}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,8,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- پیش‌نمایش -->
+        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Margin="0,0,0,6">
+                    <Run Text="پیش‌نمایش — تعداد سطر: "/><Run Text="{Binding RowCount}" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}"/>
+                </TextBlock>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <TextBox Text="{Binding PreviewText, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                             FontFamily="Consolas" FontSize="11.5" FlowDirection="LeftToRight" TextWrapping="NoWrap"/>
+                </ScrollViewer>
+                <Border Grid.Row="2" Background="{StaticResource ErpGray150}" CornerRadius="4" Padding="8,6" Margin="0,8,0,0">
+                    <TextBlock Text="{Binding ResultText}" TextWrapping="Wrap" FontSize="12"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- دکمه -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,8,0,0">
+            <Button Style="{StaticResource ErpBtnPrimary}" Height="36" Padding="22,0" FontWeight="Bold"
+                    Content="⬇ ورودِ داده" Command="{Binding ImportCommand}" IsEnabled="{Binding CanImport}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

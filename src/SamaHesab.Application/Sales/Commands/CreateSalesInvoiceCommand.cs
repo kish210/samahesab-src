@@ -54,6 +54,9 @@ public class CreateSalesInvoiceCommandValidator : AbstractValidator<CreateSalesI
             item.RuleFor(i => i.ProductId).GreaterThan(0).WithMessage("کالا الزامی است.");
             item.RuleFor(i => i.Quantity).GreaterThan(0).WithMessage("مقدار باید بزرگتر از صفر باشد.");
             item.RuleFor(i => i.UnitPrice).GreaterThanOrEqualTo(0).WithMessage("قیمت واحد نمی‌تواند منفی باشد.");
+            // RC-val — کرانهٔ درصد: تخفیفِ >۱۰۰٪ مبلغِ منفی/سندِ خراب می‌سازد.
+            item.RuleFor(i => i.DiscountPct).InclusiveBetween(0, 100).WithMessage("درصدِ تخفیف باید بینِ ۰ تا ۱۰۰ باشد.");
+            item.RuleFor(i => i.TaxPct).InclusiveBetween(0, 100).WithMessage("درصدِ مالیات باید بینِ ۰ تا ۱۰۰ باشد.");
         });
     }
 }

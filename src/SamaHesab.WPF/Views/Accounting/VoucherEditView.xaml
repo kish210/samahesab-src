@@ -15,6 +15,8 @@
         <KeyBinding Key="F8" Command="{Binding PrintCommand}"/>
         <KeyBinding Key="F9" Command="{Binding PostCommand}"/>
         <KeyBinding Key="OemPlus" Command="{Binding FillBalanceCommand}"/>
+        <!-- میان‌برِ استانداردِ ذخیره (علاوه بر F7) برای کاربرانِ پرکار -->
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
     </UserControl.InputBindings>
 
     <UserControl.Resources>
@@ -267,7 +269,7 @@
                                   ItemsSource="{Binding LeafAccounts}"
                                   SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
                                   IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
-                                  StaysOpenOnEdit="True">
+                                  StaysOpenOnEdit="True" PreviewKeyDown="AccCombo_PreviewKeyDown">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -280,15 +282,18 @@
                     </StackPanel>
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="شرح ردیف" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Blue700}" Margin="2,0,2,3"/>
-                        <TextBox Style="{StaticResource InputC}" Text="{Binding NewDescription, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="DescBox" Style="{StaticResource InputC}" Text="{Binding NewDescription, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="DescBox_PreviewKeyDown"/>
                     </StackPanel>
                     <StackPanel Grid.Column="6">
                         <TextBlock Text="بدهکار" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Blue700}" Margin="2,0,2,3"/>
-                        <TextBox Style="{StaticResource NumC}" Text="{Binding NewDebit, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="DebitBox" Style="{StaticResource NumC}" Text="{Binding NewDebit, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewKeyDown="DebitBox_PreviewKeyDown" GotKeyboardFocus="NumBox_GotKeyboardFocus"/>
                     </StackPanel>
                     <StackPanel Grid.Column="8">
                         <TextBlock Text="بستانکار" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Blue700}" Margin="2,0,2,3"/>
-                        <TextBox Style="{StaticResource NumC}" Text="{Binding NewCredit, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox x:Name="CreditBox" Style="{StaticResource NumC}" Text="{Binding NewCredit, UpdateSourceTrigger=PropertyChanged}"
+                                 GotKeyboardFocus="NumBox_GotKeyboardFocus">
                             <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding AddRowCommand}"/></TextBox.InputBindings>
                         </TextBox>
                     </StackPanel>
@@ -301,8 +306,9 @@
 
             <!-- گرید ردیف‌ها -->
             <Border Grid.Row="2" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Background="White">
-                <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
+                <DataGrid x:Name="ItemsGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
                           HeadersVisibility="Column" CanUserAddRows="False" Background="White"
+                          SelectionMode="Single" SelectionUnit="FullRow" PreviewKeyDown="ItemsGrid_PreviewKeyDown"
                           GridLinesVisibility="All" HorizontalGridLinesBrush="#EDEFF3" VerticalGridLinesBrush="#EDEFF3"
                           RowBackground="White" AlternatingRowBackground="{StaticResource Zebra}" RowHeight="30" FontSize="12.5"
                           BorderThickness="0">

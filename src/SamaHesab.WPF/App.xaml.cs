@@ -227,6 +227,27 @@ public partial class App : System.Windows.Application
                         }
                     }
                     catch (Exception tex) { Log.Warning(tex, "نصبِ خودکارِ قالب‌های پیش‌فرض ناموفق بود"); }
+
+                    // RC-3 — پشتیبانِ خودکار: اگر فعال است و از آخرین پشتیبان به‌اندازهٔ بازه گذشته، یک‌بار اجرا کن.
+                    try
+                    {
+                        var g = Services.AppSettingsStore.GetGeneral();
+                        if (g.AutoBackupEnabled)
+                        {
+                            var due = !DateTime.TryParse(g.LastBackupUtc, null,
+                                          System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+                                          out var last)
+                                      || (DateTime.UtcNow - last).TotalDays >= System.Math.Max(1, g.BackupIntervalDays);
+                            if (due)
+                            {
+                                await scope.ServiceProvider.GetRequiredService<IBackupService>().AutoBackupAsync();
+                                g.LastBackupUtc = DateTime.UtcNow.ToString("o");
+                                Services.AppSettingsStore.SaveGeneral(g);
+                                Log.Information("[backup] پشتیبانِ خودکار اجرا شد.");
+                            }
+                        }
+                    }
+                    catch (Exception bex) { Log.Warning(bex, "پشتیبانِ خودکار ناموفق بود"); }
                 }
             }
             catch (Exception ex)

@@ -169,4 +169,5 @@ public class GeneralSettings
     public bool SetupCompleted { get; set; }   // ویزاردِ First-Run یک‌بار اجرا شده؟
     public string? CompanyLogoPath { get; set; }
     public string? TrialInstallUtc { get; set; }   // فاز ۱۲ P-G7 — شروعِ دورهٔ آزمایشی (ISO UTC)
+    public string? LastBackupUtc { get; set; }      // فاز RC (RC-3) — آخرین پشتیبانِ خودکار (ISO UTC)
 }

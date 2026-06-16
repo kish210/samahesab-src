@@ -22,8 +22,9 @@ public class ChangeUserPasswordCommandHandler : IRequestHandler<ChangeUserPasswo
 
     public async Task<Result> Handle(ChangeUserPasswordCommand req, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 4)
-            return Result.Failure("رمزِ عبور باید حداقل ۴ نویسه باشد.");
+        // RC-2 — سیاستِ رمزِ تجاری (حداقل ۸ + حرف و رقم).
+        var pw = SamaHesab.Application.Common.Validation.PasswordPolicy.Validate(req.NewPassword);
+        if (!pw.Ok) return Result.Failure(pw.Error!);
 
         var user = await _users.GetByIdAsync(req.UserId, ct);
         if (user is null) return Result.Failure("کاربر یافت نشد.");

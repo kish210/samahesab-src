@@ -18,7 +18,7 @@ namespace SamaHesab.Application.Common.Behaviors;
 public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private sealed record Rule(string Module, string Feature, string PermAction, string AuditAction, bool Enforce, string Table);
+    private sealed record Rule(string Module, string Feature, string PermAction, string AuditAction, bool Enforce, string Table, bool Sensitive = false);
 
     private static readonly Dictionary<string, Rule> Rules = new(StringComparer.Ordinal)
     {
@@ -40,6 +40,8 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["CreateReceiptCommand"]  = new("Treasury", "Manage", "", "دریافتِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateInterBranchTransferCommand"] = new("Treasury", "Manage", "", "تسویهٔ بین‌شعبه", Enforce: false, Table: "Trs"),
         ["PostSalaryVoucherCommand"] = new("Accounting", "Voucher", "Create", "صدورِ سندِ حقوق", Enforce: false, Table: "Hrm"),
+        // ── امنیت (audit-only؛ Sensitive=true ⇒ payload لاگ نمی‌شود تا رمز در Sec.AuditLogs نشت نکند) ──
+        ["ChangeUserPasswordCommand"] = new("Security", "User", "Manage", "تغییرِ رمزِ کاربر", Enforce: false, Table: "Sec", Sensitive: true),
     };
 
     private readonly ICurrentUserService _user;
@@ -64,7 +66,9 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
             try
             {
                 string? payload = null;
-                try { payload = JsonSerializer.Serialize((object)request); } catch { /* ignore */ }
+                // برای فرمان‌های حساس (مثلِ تغییرِ رمز) محتوای فرمان سریال نمی‌شود تا راز در لاگ نشت نکند.
+                if (!rule.Sensitive)
+                    try { payload = JsonSerializer.Serialize((object)request); } catch { /* ignore */ }
                 await _audit.AddAsync(AuditLog.Create(
                     rule.AuditAction, _user.UserId, _user.Username, tableName: rule.Table, recordId: null, newValues: payload), ct);
                 await _uow.SaveChangesAsync(ct);

@@ -110,6 +110,26 @@ public class AuditBehaviorTests
         Assert.Empty(audit.Items);
     }
 
+    // ── امنیت: تغییرِ رمز audit می‌شود ولی رمز در payload لاگ نمی‌شود (Sensitive) ──
+    [Fact]
+    public async Task ChangePassword_Is_Audited_Without_Leaking_The_Password()
+    {
+        var audit = new FakeAuditRepo();
+        var sut = new AuditBehavior<SamaHesab.Application.Security.Commands.ChangeUserPasswordCommand, Result>(
+            new FakeUser(false), audit, new FakeUow());
+
+        const string secret = "S3cret-PlainText-Pw";
+        var res = await sut.Handle(
+            new SamaHesab.Application.Security.Commands.ChangeUserPasswordCommand(5, secret),
+            () => Task.FromResult(Result.Success()), default);
+
+        Assert.True(res.Succeeded);                          // audit-only، منع نمی‌کند
+        var log = Assert.Single(audit.Items);
+        Assert.Equal("تغییرِ رمزِ کاربر", log.Action);
+        Assert.Null(log.NewValues);                          // payload سریال نشده
+        Assert.DoesNotContain(secret, log.NewValues ?? "");  // رمز هیچ‌جای لاگ نیست
+    }
+
     [Fact]
     public async Task Unmapped_Command_Passes_Through()
     {

@@ -27,6 +27,8 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["TransferStockCommand"]  = new("Inventory", "Manage", "", "انتقال بین انبار",    Enforce: true,  Table: "Inv"),
         ["PostStockCountCommand"] = new("Inventory", "Manage", "", "ثبتِ انبارگردانی",    Enforce: true,  Table: "Inv"),
         // ── حسابداری (audit-only) ──
+        ["CreateVoucherCommand"]  = new("Accounting", "Voucher", "Create", "ثبتِ سندِ دستی", Enforce: false, Table: "Acc"),
+        ["CreateVoucherFromTemplateCommand"] = new("Accounting", "Voucher", "Create", "ثبتِ سند از الگو", Enforce: false, Table: "Acc"),
         ["PostVoucherCommand"]    = new("Accounting", "Voucher", "Post", "قطعیِ سند",     Enforce: false, Table: "Acc"),
         ["ReverseVoucherCommand"] = new("Accounting", "Voucher", "Post", "برگشتِ سند",    Enforce: false, Table: "Acc"),
         ["CloseFiscalYearCommand"]= new("Accounting", "Setup", "Manage", "بستنِ سال مالی", Enforce: false, Table: "Acc"),
@@ -39,6 +41,7 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["CreatePaymentCommand"]  = new("Treasury", "Manage", "", "پرداختِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateReceiptCommand"]  = new("Treasury", "Manage", "", "دریافتِ خزانه",        Enforce: false, Table: "Trs"),
         ["CreateInterBranchTransferCommand"] = new("Treasury", "Manage", "", "تسویهٔ بین‌شعبه", Enforce: false, Table: "Trs"),
+        ["ChangeChequeStatusCommand"] = new("Treasury", "Manage", "", "تغییرِ وضعیتِ چک", Enforce: false, Table: "Trs"),
         ["PostSalaryVoucherCommand"] = new("Accounting", "Voucher", "Create", "صدورِ سندِ حقوق", Enforce: false, Table: "Hrm"),
         // ── امنیت (audit-only؛ Sensitive=true ⇒ payload لاگ نمی‌شود تا رمز در Sec.AuditLogs نشت نکند) ──
         ["ChangeUserPasswordCommand"] = new("Security", "User", "Manage", "تغییرِ رمزِ کاربر", Enforce: false, Table: "Sec", Sensitive: true),

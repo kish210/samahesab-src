@@ -130,6 +130,23 @@ public class AuditBehaviorTests
         Assert.DoesNotContain(secret, log.NewValues ?? "");  // رمز هیچ‌جای لاگ نیست
     }
 
+    // ── RC: کاملیِ Audit — تغییرِ وضعیتِ چک باید Audit شود (audit-only) ──
+    [Fact]
+    public async Task ChequeStatusChange_Is_Audited()
+    {
+        var audit = new FakeAuditRepo();
+        var sut = new AuditBehavior<SamaHesab.Application.Accounting.Commands.ChangeChequeStatusCommand, Result<int>>(
+            new FakeUser(false), audit, new FakeUow());
+
+        var res = await sut.Handle(
+            new SamaHesab.Application.Accounting.Commands.ChangeChequeStatusCommand(
+                7, SamaHesab.Application.Accounting.Commands.ChequeAction.Clear, "1405/03/26"),
+            () => Task.FromResult(Result<int>.Success(7)), default);
+
+        Assert.True(res.Succeeded);
+        Assert.Equal("تغییرِ وضعیتِ چک", Assert.Single(audit.Items).Action);
+    }
+
     [Fact]
     public async Task Unmapped_Command_Passes_Through()
     {

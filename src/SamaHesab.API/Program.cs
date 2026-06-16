@@ -9,6 +9,10 @@ using SamaHesab.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// فاز ۱۲ P-G8 — اجرا به‌عنوانِ Windows Service (وقتی توسطِ SCM اجرا شود) تا سرور بدونِ
+// کنسولِ دستی، خودکار و در پس‌زمینه بالا بماند. در محیطِ توسعه/کنسول بی‌اثر است.
+builder.Host.UseWindowsService(o => o.ServiceName = "SamaHesabApi");
+
 // ── Reuse the SAME Application + Infrastructure layers as the desktop client ──
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

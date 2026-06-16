@@ -103,6 +103,7 @@
 ### حالت‌های اجرا
 `SamaHesab.exe` (حسابداری) · `--pos` فروشگاه · `--restaurant` رستوران · `--waiter` گارسون · `--kitchen` آشپزخانه · `--warehouse` انبار.
 
+📗 **خودآموزِ گام‌به‌گام (شروعِ سریع، تصویری):** [`docs/خودآموز.md`](docs/خودآموز.md) — از اولین اجرا تا گزارش‌ها.
 📘 راهنمای کاملِ کاربر: [`docs/SamaHesab-UserGuide.pdf`](docs/SamaHesab-UserGuide.pdf)
 
 ---

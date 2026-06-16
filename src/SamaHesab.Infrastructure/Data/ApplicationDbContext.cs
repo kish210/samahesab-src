@@ -404,6 +404,11 @@ public class ApplicationDbContext : DbContext
         // MB-2 — گسترش به فروش/خرید (هماهنگی با C2). فقط برای کاربرِ بدونِ Security.AllBranches فعال می‌شود.
         ApplyTenantAndBranchFilter<Domain.Entities.Sales.SalesInvoice>(modelBuilder);
         ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
+        // MB-3 — جداسازیِ شعبهٔ انبار (هماهنگی با C2). فیلترِ nullable-aware: انبارِ بدونِ شعبه (null)
+        // مشترک و برای همه دیده می‌شود؛ وگرنه فقط شعبهٔ کاربر. ادمین/AllBranches همه را می‌بیند.
+        modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>
+            (!_tenantFilterEnabled || e.CompanyId == _companyId)
+            && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

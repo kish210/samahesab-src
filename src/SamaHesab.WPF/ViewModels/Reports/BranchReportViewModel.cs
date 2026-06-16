@@ -15,6 +15,7 @@ public partial class BranchReportViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
     private readonly IPersianCalendarService _calendar;
+    private readonly IPdfService _pdf;
 
     public ObservableCollection<BranchPerformanceDto> Rows { get; } = new();
 
@@ -24,9 +25,9 @@ public partial class BranchReportViewModel : BaseViewModel
     [ObservableProperty] private int _totalInvoices;
 
     public BranchReportViewModel(IMediator mediator, IPersianCalendarService calendar,
-        IDialogService dialogService, INavigationService navigationService)
+        IPdfService pdf, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _mediator = mediator; _calendar = calendar; }
+    { _mediator = mediator; _calendar = calendar; _pdf = pdf; }
 
     public override async Task LoadAsync()
     {
@@ -77,13 +78,29 @@ public partial class BranchReportViewModel : BaseViewModel
         catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
+    [RelayCommand]
+    private async Task ExportPdfAsync()
+    {
+        if (Rows.Count == 0) { await _dialogService.ShowWarningAsync("ابتدا گزارش را تهیه کنید."); return; }
+        try
+        {
+            var g = AppSettingsStore.GetGeneral();
+            var meta = new PdfMeta(g.CompanyName, $"بازه: {FromDate} تا {ToDate}", _calendar.GetCurrentPersianDateTime(), Landscape: true);
+            OpenFile(SaveBytes("pdf", _pdf.RenderTable(BuildTable(), meta)));
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
     private static string SaveTo(string ext, string content)
+        => SaveBytes(ext, new System.Text.UTF8Encoding(true).GetBytes(content));
+
+    private static string SaveBytes(string ext, byte[] content)
     {
         var dir = System.IO.Path.Combine(
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
         System.IO.Directory.CreateDirectory(dir);
         var path = System.IO.Path.Combine(dir, $"گزارش_شعب_{System.DateTime.Now:yyyyMMdd_HHmmss}.{ext}");
-        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        System.IO.File.WriteAllBytes(path, content);
         return path;
     }
 

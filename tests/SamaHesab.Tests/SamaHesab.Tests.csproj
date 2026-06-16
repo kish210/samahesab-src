@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\SamaHesab.Domain\SamaHesab.Domain.csproj" />
     <ProjectReference Include="..\..\src\SamaHesab.Application\SamaHesab.Application.csproj" />
+    <ProjectReference Include="..\..\src\SamaHesab.Infrastructure\SamaHesab.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

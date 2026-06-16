@@ -59,7 +59,13 @@
                         <TextBlock Text="اکسل" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Style="{StaticResource SecondaryButton}" Height="30" Padding="12,0" Margin="6,0,0,0" Command="{Binding PrintCommand}" ToolTip="چاپ / خروجی PDF">
+                <Button Style="{StaticResource SecondaryButton}" Height="30" Padding="12,0" Margin="6,0,0,0" Command="{Binding ExportPdfCommand}" ToolTip="خروجی PDF بومی (فارسی)">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IcDownload}" Style="{StaticResource ErpToolSvg}"/>
+                        <TextBlock Text="PDF" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource SecondaryButton}" Height="30" Padding="12,0" Margin="6,0,0,0" Command="{Binding PrintCommand}" ToolTip="چاپ در مرورگر">
                     <Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}"/>
                 </Button>
             </StackPanel>

@@ -33,7 +33,8 @@
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
             <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Style="{StaticResource ErpBtnPrimary}"/>
             <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
-            <Button Content="چاپ / PDF" Command="{Binding PrintCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="چاپ" Command="{Binding PrintCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
         </StackPanel>
 
         <!-- گرید (ظاهر از استایلِ ضمنیِ ErpDataGrid) -->

@@ -20,6 +20,7 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
     private readonly IAccountRepository _accountRepo;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IPdfService _pdf;
 
     [ObservableProperty] private string _selectedReportType = "تراز آزمایشی";
     [ObservableProperty] private string _fromDate = string.Empty;
@@ -65,12 +66,12 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
     public List<ProjectDto> Projects { get; private set; } = new();
 
     public FinancialReportsViewModel(IMediator mediator, IAccountRepository accountRepo,
-        ICurrentUserService currentUser, IPersianCalendarService calendar,
+        ICurrentUserService currentUser, IPersianCalendarService calendar, IPdfService pdf,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _accountRepo = accountRepo;
-        _currentUser = currentUser; _calendar = calendar;
+        _currentUser = currentUser; _calendar = calendar; _pdf = pdf;
     }
 
     public override async Task LoadAsync()
@@ -211,14 +212,16 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
         IsCashFlow;
 
     private string SaveTo(string ext, string content)
+        => SaveBytes(ext, new System.Text.UTF8Encoding(true).GetBytes(content));   // UTF-8 با BOM
+
+    private string SaveBytes(string ext, byte[] content)
     {
         var dir = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
         System.IO.Directory.CreateDirectory(dir);
         var name = $"{SelectedReportType}_{DateTime.Now:yyyyMMdd_HHmmss}.{ext}";
         var path = System.IO.Path.Combine(dir, name);
-        // UTF-8 با BOM تا اکسل/مرورگر فارسی را درست نشان دهد
-        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        System.IO.File.WriteAllBytes(path, content);
         return path;
     }
 
@@ -249,6 +252,23 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
             var path = SaveTo("html", ReportExporter.ToHtml(BuildTable()));
             OpenFile(path);   // مرورگر باز می‌شود؛ کاربر با Ctrl+P → ذخیره به‌صورت PDF
             await _dialogService.ShowInfoAsync("گزارش در مرورگر باز شد. برای PDF از «چاپ ← ذخیره به‌صورت PDF» استفاده کنید.");
+        }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
+    /// <summary>خروجیِ PDFِ بومیِ فارسی (QuestPDF) — فاز ۱۱، P2/DT-7.</summary>
+    [RelayCommand]
+    private async Task ExportPdfAsync()
+    {
+        if (!HasRows()) { await _dialogService.ShowWarningAsync("ابتدا گزارش را تهیه کنید."); return; }
+        try
+        {
+            var g = AppSettingsStore.GetGeneral();
+            var sub = string.IsNullOrWhiteSpace(FromDate) ? null : $"بازه: {FromDate} تا {ToDate}";
+            var meta = new PdfMeta(g.CompanyName, sub, _calendar.GetCurrentPersianDateTime());
+            var path = SaveBytes("pdf", _pdf.RenderTable(BuildTable(), meta));
+            OpenFile(path);
+            await _dialogService.ShowSuccessAsync($"خروجی PDF ذخیره شد:\n{path}");
         }
         catch (Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }

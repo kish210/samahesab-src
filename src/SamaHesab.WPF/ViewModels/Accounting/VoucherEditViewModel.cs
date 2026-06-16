@@ -23,6 +23,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     private readonly IVoucherRepository _voucherRepo;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
+    private readonly IBarcodeService _barcode;
 
     // Header
     [ObservableProperty] private string _voucherNumber = "--- خودکار ---";
@@ -64,11 +65,11 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
 
     public VoucherEditViewModel(IMediator mediator, IAccountRepository accountRepo,
         IVoucherRepository voucherRepo, ICurrentUserService currentUser,
-        IPersianCalendarService calendar, IDialogService dialogService,
+        IPersianCalendarService calendar, IBarcodeService barcode, IDialogService dialogService,
         INavigationService navigationService) : base(dialogService, navigationService)
     {
         _mediator = mediator; _accountRepo = accountRepo; _voucherRepo = voucherRepo;
-        _currentUser = currentUser; _calendar = calendar;
+        _currentUser = currentUser; _calendar = calendar; _barcode = barcode;
     }
 
     public override async Task LoadAsync()
@@ -398,6 +399,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
             var fields = new Dictionary<string, string?>
             {
                 ["VoucherNumber"] = VoucherNumber, ["DocNumber"] = VoucherNumber, ["QrData"] = VoucherNumber,
+                ["QrImage"] = _barcode.QrImageHtml(VoucherNumber),
                 ["VoucherDate"] = VoucherDate, ["Date"] = VoucherDate, ["VoucherType"] = typeName,
                 ["Reference"] = Reference, ["Description"] = Description,
                 ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,

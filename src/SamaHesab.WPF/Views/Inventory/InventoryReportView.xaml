@@ -37,7 +37,10 @@
             <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
                     BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
-            <Button Content="چاپ / PDF" Command="{Binding PrintCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
+            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
+                    Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
+                    BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
+            <Button Content="چاپ" Command="{Binding PrintCommand}" Margin="6,0,0,0" Padding="12,6" Cursor="Hand"
                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
                     BorderBrush="{DynamicResource BorderColor}" BorderThickness="1"/>
         </StackPanel>

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Application.Reports.Export;
 using SamaHesab.WPF.Services;
@@ -13,6 +14,7 @@ namespace SamaHesab.WPF.ViewModels.Inventory;
 public partial class InventoryReportViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
+    private readonly IPdfService _pdf;
 
     public ObservableCollection<InvWarehousePick> Warehouses { get; } = new();
     public ObservableCollection<StockRow> Rows { get; } = new();
@@ -22,10 +24,10 @@ public partial class InventoryReportViewModel : BaseViewModel
     [ObservableProperty] private decimal _totalValue;
     [ObservableProperty] private int _itemCount;
 
-    public InventoryReportViewModel(IMediator mediator,
+    public InventoryReportViewModel(IMediator mediator, IPdfService pdf,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _mediator = mediator; }
+    { _mediator = mediator; _pdf = pdf; }
 
     public override async Task LoadAsync()
     {
@@ -75,13 +77,29 @@ public partial class InventoryReportViewModel : BaseViewModel
         catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
+    [RelayCommand]
+    private async Task ExportPdfAsync()
+    {
+        if (Rows.Count == 0) { await _dialogService.ShowWarningAsync("ابتدا گزارش را تهیه کنید."); return; }
+        try
+        {
+            var g = AppSettingsStore.GetGeneral();
+            var meta = new PdfMeta(g.CompanyName, null, System.DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+            OpenFile(SaveBytes("pdf", _pdf.RenderTable(BuildTable(), meta)));
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
+    }
+
     private static string SaveTo(string ext, string content)
+        => SaveBytes(ext, new System.Text.UTF8Encoding(true).GetBytes(content));
+
+    private static string SaveBytes(string ext, byte[] content)
     {
         var dir = System.IO.Path.Combine(
             System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارش‌ها");
         System.IO.Directory.CreateDirectory(dir);
         var path = System.IO.Path.Combine(dir, $"موجودی_انبار_{System.DateTime.Now:yyyyMMdd_HHmmss}.{ext}");
-        System.IO.File.WriteAllText(path, content, new System.Text.UTF8Encoding(true));
+        System.IO.File.WriteAllBytes(path, content);
         return path;
     }
 

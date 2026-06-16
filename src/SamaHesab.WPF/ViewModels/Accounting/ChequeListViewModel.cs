@@ -18,6 +18,7 @@ public partial class ChequeListViewModel : BaseViewModel
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
+    private readonly IBarcodeService _barcode;
 
     // فیلترها (سمتِ کلاینت روی لیستِ بارگذاری‌شده تا کارت/چیپ/جستجو لحظه‌ای باشد)
     [ObservableProperty] private string _statusFilter = "همه";   // کلیدِ کارتِ انتخاب‌شده
@@ -43,7 +44,7 @@ public partial class ChequeListViewModel : BaseViewModel
     public ObservableCollection<ChequeListRow> Cheques { get; } = new();
 
     public ChequeListViewModel(IChequeRepository chequeRepository, ICurrentUserService currentUser,
-        IPersianCalendarService calendar, IMediator mediator,
+        IPersianCalendarService calendar, IMediator mediator, IBarcodeService barcode,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
@@ -51,6 +52,7 @@ public partial class ChequeListViewModel : BaseViewModel
         _currentUser = currentUser;
         _calendar = calendar;
         _mediator = mediator;
+        _barcode = barcode;
     }
 
     public override async Task LoadAsync()
@@ -100,6 +102,7 @@ public partial class ChequeListViewModel : BaseViewModel
             var fields = new Dictionary<string, string?>
             {
                 ["ChequeNumber"] = c.Number, ["DocNumber"] = c.Number, ["QrData"] = c.Number,
+                ["QrImage"] = _barcode.QrImageHtml(c.Number),
                 ["Date"] = _calendar.GetCurrentPersianDate(), ["DueDate"] = c.DueDate,
                 ["BankName"] = c.Bank, ["PartyName"] = c.IssuedBy, ["AccountName"] = c.Bank,
                 ["Amount"] = N(c.Amount), ["Reason"] = c.Reference, ["Notes"] = c.Reference,

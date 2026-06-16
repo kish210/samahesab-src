@@ -21,6 +21,7 @@ public partial class ReceivablesViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _user;
     private readonly IPersianCalendarService _calendar;
+    private readonly IBarcodeService _barcode;
 
     public ObservableCollection<ReceivableDto> Receivables { get; } = new();
     public ObservableCollection<PayableDto> Payables { get; } = new();
@@ -29,10 +30,11 @@ public partial class ReceivablesViewModel : BaseViewModel
     [ObservableProperty] private decimal _totalPayable;
 
     public ReceivablesViewModel(IMediator mediator, ICurrentUserService user,
-        IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
+        IPersianCalendarService calendar, IBarcodeService barcode,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _user = user; _calendar = calendar;
+        _mediator = mediator; _user = user; _calendar = calendar; _barcode = barcode;
     }
 
     public override async Task LoadAsync()
@@ -93,7 +95,8 @@ public partial class ReceivablesViewModel : BaseViewModel
             string N(decimal d) => d.ToString("#,##0");
             var fields = new Dictionary<string, string?>
             {
-                ["DocNumber"] = docNumber, ["QrData"] = docNumber, ["Date"] = _calendar.GetCurrentPersianDate(),
+                ["DocNumber"] = docNumber, ["QrData"] = docNumber, ["QrImage"] = _barcode.QrImageHtml(docNumber),
+                ["Date"] = _calendar.GetCurrentPersianDate(),
                 ["PartyName"] = partyName, ["Reason"] = reason, ["AccountName"] = "صندوق",
                 ["Amount"] = N(amount), ["AmountInWords"] = SafeWords(amount), ["Notes"] = reason,
                 ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,

@@ -33,6 +33,7 @@ public partial class PosViewModel : BaseViewModel
     [ObservableProperty] private decimal _discount;
     [ObservableProperty] private decimal _tax;
     [ObservableProperty] private decimal _grandTotal;
+    [ObservableProperty] private decimal _roundingAdjustment;   // 🇮🇷 POS-IR-1 — اختلافِ گرد کردن
     [ObservableProperty] private decimal _cashReceived;
     [ObservableProperty] private decimal _change;
     [ObservableProperty] private string _paymentMode = "نقدی";
@@ -330,7 +331,11 @@ public partial class PosViewModel : BaseViewModel
     {
         SubTotal   = CartItems.Sum(i => i.Quantity * i.UnitPrice);
         Tax        = CartItems.Sum(i => i.TaxAmount);
-        GrandTotal = SubTotal - Discount + Tax;
+        var raw    = SubTotal - Discount + Tax;
+        // 🇮🇷 POS-IR-1 — گرد کردنِ مبلغِ نهایی (تنظیم‌پذیر؛ ۰=خاموش).
+        var step   = Services.AppSettingsStore.GetGeneral().PosRoundingStep;
+        GrandTotal = SamaHesab.Application.Common.MoneyRounding.RoundTo(raw, step);
+        RoundingAdjustment = GrandTotal - raw;
         Change     = Math.Max(0, CashReceived - GrandTotal);
     }
 

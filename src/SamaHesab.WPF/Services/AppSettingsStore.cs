@@ -170,4 +170,5 @@ public class GeneralSettings
     public string? CompanyLogoPath { get; set; }
     public string? TrialInstallUtc { get; set; }   // فاز ۱۲ P-G7 — شروعِ دورهٔ آزمایشی (ISO UTC)
     public string? LastBackupUtc { get; set; }      // فاز RC (RC-3) — آخرین پشتیبانِ خودکار (ISO UTC)
+    public int PosRoundingStep { get; set; }        // 🇮🇷 POS-IR-1 — پلهٔ گرد کردنِ مبلغِ POS (۰=خاموش، مثلاً ۱۰۰۰)
 }

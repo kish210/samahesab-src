@@ -61,6 +61,16 @@
 |---|---|
 | ![بانک](screenshot/bank_recon.png) | ![شعب](screenshot/branches.png) |
 
+**🆕 گزارش‌های تجاریِ نسخهٔ ۲.۴.۰:**
+
+| ماندهٔ سنی‌شده (دریافتنی/پرداختنی) | خلاصهٔ مالیات ارزش‌افزوده |
+|---|---|
+| ![سنی‌شده](screenshot/aged_balance.png) | ![مالیات](screenshot/vat_summary.png) |
+
+| دفترِ روزنامه |
+|---|
+| ![روزنامه](screenshot/daybook.png) |
+
 > تصاویرِ بیشتر (داشبورد، ثبت سند، چک، فاکتورها، POS و …) در پوشهٔ [`screenshot/`](screenshot/).
 
 ---

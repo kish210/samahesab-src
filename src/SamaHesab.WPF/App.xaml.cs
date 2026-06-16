@@ -200,6 +200,25 @@ public partial class App : System.Windows.Application
 
                     // Ensure a default admin exists so DB-backed login works on a fresh DB.
                     await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(_host.Services);
+
+                    // DT-10 — نصبِ خودکارِ پکِ ۴۲ قالبِ پیش‌فرض در اولین اجرا (out-of-box).
+                    // گیتِ سبک: اگر هیچ قالبِ «PurchaseInvoice» نبود (seedِ پایه فقط SalesInvoice دارد)
+                    // یعنی پک هنوز نصب نشده → یک‌بار نصب می‌شود؛ اجراهای بعدی idempotent رد می‌شوند.
+                    try
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                        var hasPack = await mediator.Send(
+                            new SamaHesab.Application.Documents.GetDocumentTemplatesQuery("PurchaseInvoice"));
+                        if (hasPack.Count == 0)
+                        {
+                            var tplDir = System.IO.Path.Combine(AppContext.BaseDirectory, "Templates");
+                            var res = await mediator.Send(
+                                new SamaHesab.Application.Documents.InstallBuiltInTemplatesCommand(tplDir));
+                            Log.Information("[DB-migrate] قالب‌های پیش‌فرض نصب شد — نصب‌شده:{Imp} موجود:{Skip} ناموفق:{Fail}",
+                                res.Imported, res.Skipped, res.Failed);
+                        }
+                    }
+                    catch (Exception tex) { Log.Warning(tex, "نصبِ خودکارِ قالب‌های پیش‌فرض ناموفق بود"); }
                 }
             }
             catch (Exception ex)

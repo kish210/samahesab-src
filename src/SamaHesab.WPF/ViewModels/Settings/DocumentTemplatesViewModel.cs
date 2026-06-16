@@ -120,40 +120,12 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
-            var files = System.IO.Directory.EnumerateFiles(dir, "*.shtpl", System.IO.SearchOption.AllDirectories).ToList();
-            var existingByType = new Dictionary<string, HashSet<string>>();
-            int imported = 0, skipped = 0, failed = 0;
-            var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(
-                        System.IO.File.ReadAllText(file), opts);
-                    // P3/DT-8 — اعتبارسنجی/نسخه‌بندیِ بسته پیش از نصب
-                    if (pkg is null || !DocumentTemplatePackageValidator.Validate(pkg).Ok) { failed++; continue; }
-
-                    if (!existingByType.TryGetValue(pkg.DocumentType, out var names))
-                    {
-                        var list = await _mediator.Send(new GetDocumentTemplatesQuery(pkg.DocumentType));
-                        names = list.Select(t => t.Name).ToHashSet();
-                        existingByType[pkg.DocumentType] = names;
-                    }
-                    if (names.Contains(pkg.Name)) { skipped++; continue; }
-
-                    var r = await _mediator.Send(new SaveDocumentTemplateCommand(null, pkg.DocumentType, pkg.Name,
-                        string.IsNullOrWhiteSpace(pkg.PaperSize) ? "A4P" : pkg.PaperSize,
-                        pkg.HeaderHtml, pkg.BodyHtml, pkg.FooterHtml));
-                    if (r.Succeeded) { imported++; names.Add(pkg.Name); } else failed++;
-                }
-                catch { failed++; }
-            }
-
+            // منطقِ idempotentِ نصب در Application است (مشترک با auto-seedِ اولین اجرا).
+            var res = await _mediator.Send(new InstallBuiltInTemplatesCommand(dir));
             await ReloadAsync();
             await _dialogService.ShowSuccessAsync(
-                $"نصبِ قالب‌های پیش‌فرض پایان یافت — نصب‌شده: {imported}، از قبل موجود: {skipped}" +
-                (failed > 0 ? $"، ناموفق: {failed}" : ""));
+                $"نصبِ قالب‌های پیش‌فرض پایان یافت — نصب‌شده: {res.Imported}، از قبل موجود: {res.Skipped}" +
+                (res.Failed > 0 ? $"، ناموفق: {res.Failed}" : ""));
         }, "در حال نصبِ قالب‌های پیش‌فرض...");
     }
 

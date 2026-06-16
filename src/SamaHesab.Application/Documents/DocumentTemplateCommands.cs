@@ -136,3 +136,58 @@ public class DeleteDocumentTemplateCommandHandler : IRequestHandler<DeleteDocume
         return Result.Success();
     }
 }
+
+// ── Install built-in pack (DT-10) — نصبِ idempotentِ پکِ `/Templates/**/*.shtpl` ──
+// منطقِ مشترکِ «نصبِ قالب‌های پیش‌فرض» برای دکمهٔ طراح و auto-seedِ اولین اجرا.
+public record InstallBuiltInTemplatesResult(int Imported, int Skipped, int Failed);
+public record InstallBuiltInTemplatesCommand(string TemplatesDirectory) : IRequest<InstallBuiltInTemplatesResult>;
+
+public class InstallBuiltInTemplatesCommandHandler : IRequestHandler<InstallBuiltInTemplatesCommand, InstallBuiltInTemplatesResult>
+{
+    private readonly IRepository<DocumentTemplate> _repo;
+    private readonly IUnitOfWork _uow;
+    private readonly ICurrentUserService _user;
+    public InstallBuiltInTemplatesCommandHandler(IRepository<DocumentTemplate> repo, IUnitOfWork uow, ICurrentUserService user)
+    { _repo = repo; _uow = uow; _user = user; }
+
+    public async Task<InstallBuiltInTemplatesResult> Handle(InstallBuiltInTemplatesCommand req, CancellationToken ct)
+    {
+        var companyId = _user.CompanyId ?? 1;
+        if (!System.IO.Directory.Exists(req.TemplatesDirectory))
+            return new InstallBuiltInTemplatesResult(0, 0, 0);
+
+        var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        // نام‌های موجود per نوعِ سند (idempotency بر اساسِ نوع+نام).
+        var existingByType = new Dictionary<string, HashSet<string>>();
+        int imported = 0, skipped = 0, failed = 0;
+        bool added = false;
+
+        foreach (var file in System.IO.Directory.EnumerateFiles(req.TemplatesDirectory, "*.shtpl", System.IO.SearchOption.AllDirectories))
+        {
+            try
+            {
+                var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(
+                    await System.IO.File.ReadAllTextAsync(file, ct), opts);
+                if (pkg is null || !DocumentTemplatePackageValidator.Validate(pkg).Ok) { failed++; continue; }
+
+                if (!existingByType.TryGetValue(pkg.DocumentType, out var names))
+                {
+                    var list = await _repo.FindAsync(t => t.CompanyId == companyId && t.DocumentType == pkg.DocumentType, ct);
+                    names = list.Select(t => t.Name).ToHashSet();
+                    existingByType[pkg.DocumentType] = names;
+                }
+                if (names.Contains(pkg.Name)) { skipped++; continue; }
+
+                await _repo.AddAsync(DocumentTemplate.Create(companyId, pkg.DocumentType, pkg.Name,
+                    pkg.BodyHtml, string.IsNullOrWhiteSpace(pkg.PaperSize) ? "A4P" : pkg.PaperSize,
+                    pkg.HeaderHtml, pkg.FooterHtml), ct);
+                names.Add(pkg.Name);
+                imported++; added = true;
+            }
+            catch { failed++; }
+        }
+
+        if (added) await _uow.SaveChangesAsync(ct);
+        return new InstallBuiltInTemplatesResult(imported, skipped, failed);
+    }
+}

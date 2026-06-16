@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IExcelExportService, ExcelExportService>();
         services.AddScoped<IExcelImportService, ExcelImportService>();   // فاز ۱۲ G4 — ورودِ اکسل
+        services.AddScoped<IUnitLookup, Services.Inventory.UnitLookup>();   // فاز ۱۲ G4.2 — جست‌وجوی واحد
         services.AddSingleton<SamaHesab.Application.Licensing.IMachineFingerprintProvider,
             Services.Licensing.MachineFingerprintProvider>();   // فاز ۱۲ P-G7 — اثرِانگشتِ دستگاه
         services.AddScoped<IPdfService, PdfService>();   // فاز ۱۱ — P2/DT-7: PDFِ بومیِ فارسی (QuestPDF)

@@ -107,4 +107,34 @@ public class DataImportTests
         Assert.Equal(1, res.Imported);
         Assert.Contains(repo.Items, s => s.Code == "S1" && s.Phone == "021");
     }
+
+    private sealed class FakeUnitLookup : SamaHesab.Application.Common.Interfaces.IUnitLookup
+    {
+        public System.Collections.Generic.IReadOnlyDictionary<string, int> All()
+            => new System.Collections.Generic.Dictionary<string, int>(System.StringComparer.OrdinalIgnoreCase) { ["عدد"] = 1, ["کیلوگرم"] = 2 };
+        public int? Resolve(string? name) => All().TryGetValue((name ?? "").Trim(), out var id) ? id : null;
+        public int? DefaultUnitId() => 1;
+    }
+
+    [Fact]
+    public async Task Imports_Products_With_Unit_And_Prices()
+    {
+        var repo = new InMemoryRepo<SamaHesab.Domain.Entities.Inventory.Product>();
+        var sut = new ImportProductsCommandHandler(repo, new FakeUow(), new FakeUser(), new FakeUnitLookup());
+        var rows = new List<IReadOnlyDictionary<string, string>>
+        {
+            Row(("کد", "K1"), ("نام", "خودکار"), ("واحد", "عدد"), ("قیمت فروش", "۱۲٬۵۰۰"), ("قیمت خرید", "9000")),
+            Row(("نام", "برنج"), ("واحد", "کیلوگرم"), ("قیمت فروش", "85000")),   // بدونِ کد → خودکار
+        };
+
+        var res = await sut.Handle(new ImportProductsCommand(rows), default);
+
+        Assert.Equal(2, res.Imported);
+        Assert.Equal(0, res.Failed);
+        var pen = repo.Items.First(p => p.Code == "K1");
+        Assert.Equal("خودکار", pen.Name);
+        Assert.Equal(1, pen.UnitId);
+        Assert.Equal(12500m, pen.SalePrice);     // رقمِ فارسی + جداکنندهٔ هزار پارس شد
+        Assert.Contains(repo.Items, p => p.Name == "برنج" && p.UnitId == 2);
+    }
 }

@@ -20,7 +20,7 @@ public partial class DataImportViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private IReadOnlyList<IReadOnlyDictionary<string, string>> _rows = new List<IReadOnlyDictionary<string, string>>();
 
-    public List<string> EntityTypes { get; } = new() { "مشتری", "تأمین‌کننده" };
+    public List<string> EntityTypes { get; } = new() { "مشتری", "تأمین‌کننده", "کالا" };
 
     [ObservableProperty] private string _selectedEntityType = "مشتری";
     [ObservableProperty] private string? _filePath;
@@ -36,9 +36,12 @@ public partial class DataImportViewModel : BaseViewModel
 
     public override System.Threading.Tasks.Task LoadAsync() => System.Threading.Tasks.Task.CompletedTask;
 
-    public string ColumnHelp => SelectedEntityType == "تأمین‌کننده"
-        ? "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس · کد پستی  (سرستونِ سطرِ اول)."
-        : "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس · کد پستی · کد ملی · کد اقتصادی · توضیحات.";
+    public string ColumnHelp => SelectedEntityType switch
+    {
+        "کالا" => "ستون‌های قابلِ‌خواندن: کد · نام · واحد · قیمت فروش · قیمت خرید · قیمت عمده · قیمت مصرف‌کننده · مالیات · بارکد  (واحدِ ناشناخته → پیش‌فرضِ «عدد»).",
+        "تأمین‌کننده" => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس.",
+        _ => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس · کد پستی · کد ملی · کد اقتصادی · توضیحات.",
+    };
 
     partial void OnSelectedEntityTypeChanged(string value) => OnPropertyChanged(nameof(ColumnHelp));
 
@@ -79,9 +82,12 @@ public partial class DataImportViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
-            ImportResult res = SelectedEntityType == "تأمین‌کننده"
-                ? await _mediator.Send(new ImportSuppliersCommand(_rows))
-                : await _mediator.Send(new ImportCustomersCommand(_rows));
+            ImportResult res = SelectedEntityType switch
+            {
+                "کالا" => await _mediator.Send(new ImportProductsCommand(_rows)),
+                "تأمین‌کننده" => await _mediator.Send(new ImportSuppliersCommand(_rows)),
+                _ => await _mediator.Send(new ImportCustomersCommand(_rows)),
+            };
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine($"وارد شد: {res.Imported} · از قبل موجود: {res.Skipped} · ناموفق: {res.Failed}");

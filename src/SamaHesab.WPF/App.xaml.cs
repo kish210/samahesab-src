@@ -153,6 +153,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.BranchReportViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Reports.AgedBalanceViewModel>();
                 services.AddTransient<PosViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.POS.PosDashboardViewModel>();   // F9-1 — داشبورد صندوق/رستوران
                 services.AddTransient<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>();
@@ -979,6 +980,7 @@ public partial class App : System.Windows.Application
             ("Reports","21_گزارشها"), ("Settings","22_تنظیمات"), ("Backup","23_پشتیبانگیری"),
             ("FinancialReports","24_گزارشهای_مالی"), ("StockTransfer","25_انتقال_انبار"), ("Kardex","26_کاردکس"),
             ("Modules","27_مدیریت_ماژولها"), ("DocumentTemplates","28_قالب_اسناد"),
+            ("AgedBalance","29_ماندهٔ_سنی‌شده"),
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

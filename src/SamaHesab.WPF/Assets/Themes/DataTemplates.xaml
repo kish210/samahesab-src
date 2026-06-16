@@ -97,6 +97,7 @@
     <DataTemplate DataType="{x:Type rep:ReportsViewModel}"><vrep:ReportsView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:FinancialReportsViewModel}"><vrep:FinancialReportsView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:BranchReportViewModel}"><vrep:BranchReportView/></DataTemplate>
+    <DataTemplate DataType="{x:Type rep:AgedBalanceViewModel}"><vrep:AgedBalanceView/></DataTemplate>
 
     <!-- Settings -->
     <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>

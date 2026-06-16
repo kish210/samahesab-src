@@ -256,6 +256,7 @@
                                 <MenuItem Header="گزارش‌های مالی" Command="{Binding NavigateCommand}" CommandParameter="FinancialReports"/>
                                 <MenuItem Header="گزارش تطبیقی شعب" Command="{Binding NavigateCommand}" CommandParameter="BranchReport"/>
                                 <MenuItem Header="ماندهٔ سنی‌شده (دریافتنی/پرداختنی)" Command="{Binding NavigateCommand}" CommandParameter="AgedBalance"/>
+                                <MenuItem Header="خلاصهٔ مالیات ارزش‌افزوده" Command="{Binding NavigateCommand}" CommandParameter="VatSummary"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

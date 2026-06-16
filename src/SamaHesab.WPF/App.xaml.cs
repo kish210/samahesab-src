@@ -1121,7 +1121,9 @@ public partial class App : System.Windows.Application
     /// <summary>
     /// فاز ۱۲ G2 — تزریقِ دادهٔ تراکنشیِ واقع‌نما برای دمو/آموزش، روی دادهٔ پایه‌ی <c>08_DemoData.sql</c>
     /// (کالا/مشتری/تأمین‌کننده/انبار). تراکنش‌ها از طریقِ command‌های واقعیِ Application ساخته می‌شوند تا
-    /// پُست/کاردکس/سندِ خودکار درست و تراز متوازن باشد. idempotent: اگر فاکتورِ فروش از قبل هست، رد می‌شود.
+    /// پُست/کاردکس/سندِ خودکار درست و تراز متوازن باشد. شاملِ: فاکتورها (خرید/فروش/خزانه) + سندِ
+    /// افتتاحیه (صندوق+بانک / سرمایه) + چک‌های دریافتی/پرداختی. هر بخش گاردِ idempotentِ مستقل دارد
+    /// (با اجرای مجدد فقط بخشِ نبوده اضافه می‌شود).
     /// </summary>
     private async Task RunSeedDemoAsync()
     {
@@ -1148,16 +1150,17 @@ public partial class App : System.Windows.Application
             var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Supplier>>();
             var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
             var invRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice>>();
+            var accounts = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IAccountRepository>();
+            var chequeRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IChequeRepository>();
+            var voucherRepo2 = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Accounting.Voucher>>();
+            var uow = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IUnitOfWork>();
 
             var date = calendar.GetCurrentPersianDate();
 
-            // ── idempotency: اگر دمو قبلاً تزریق شده، خارج شو ──
+            // ── idempotency: هر بخش گاردِ مستقل دارد تا با اجرای مجدد، فقط بخشِ نبوده اضافه شود ──
             var existing = await invRepo.CountAsync(i => i.CompanyId == 1);
-            if (existing >= 5)
-            {
-                Step($"دمو از قبل تزریق شده ({existing} فاکتورِ فروش) — رد شد", true);
-                await FinishSeed(sb, ok, err); return;
-            }
+            var seedInvoices = existing < 5;
+            if (!seedInvoices) Step($"فاکتورهای دمو از قبل هست ({existing}) — رد شد", true);
 
             // ── پیش‌نیاز: دادهٔ پایه (08_DemoData) ──
             var prodList = (await products.SearchAsync(1, "")).Where(p => p.ProductType == SamaHesab.Domain.Enums.ProductType.Product).ToList();
@@ -1185,6 +1188,8 @@ public partial class App : System.Windows.Application
             if (fy == null) { Step("سالِ مالی ساخته نشد", false); await FinishSeed(sb, ok, err); return; }
             var wh = warehouses[0];
 
+            if (seedInvoices)
+            {
             // ── ۱) خرید: موجودیِ اولیه برای چند کالا (تا فروش ممکن شود) ──
             var picks = prodList.Take(Math.Min(4, prodList.Count)).ToList();
             for (int i = 0; i < picks.Count; i++)
@@ -1235,8 +1240,59 @@ public partial class App : System.Windows.Application
             var pay = await mediator.Send(new SamaHesab.Application.Treasury.Commands.CreatePaymentCommand(
                 1, fy.Id, date, suppliers[0].Id, 2_000_000, "نقدی", "پرداختِ دمو به تأمین‌کننده"));
             Step("پرداختِ خزانه به تأمین‌کننده", pay.Succeeded, pay.Succeeded ? $"سند #{pay.Value}" : pay.ErrorMessage ?? "");
+            }   // پایانِ if (seedInvoices)
 
-            // ── ۴) صحت‌سنجی: تراز متوازن ──
+            // ── ۳) سندِ افتتاحیه (گاردِ مستقل: شمارشِ سندِ نوعِ OPEN=1 مستقیم از مخزن، چون کوئری روی نوع فیلتر نمی‌کند) ──
+            var openCount = await voucherRepo2.CountAsync(v => v.CompanyId == 1 && v.VoucherTypeId == 1);
+            if (openCount == 0)
+            {
+                var cash = await accounts.GetByCodeAsync(1, "1-01-001");      // صندوق
+                var bank = await accounts.GetByCodeAsync(1, "1-01-003");      // بانک ملت
+                var capital = await accounts.GetByCodeAsync(1, "5-01");       // سرمایه
+                if (cash != null && bank != null && capital != null)
+                {
+                    var ob = await mediator.Send(new SamaHesab.Application.Accounting.Commands.PostOpeningBalanceCommand(
+                        1, fy.Id, date, new()
+                        {
+                            new SamaHesab.Application.Accounting.Commands.OpeningBalanceLine(cash.Id, 50_000_000, 0, "افتتاحیهٔ صندوق"),
+                            new SamaHesab.Application.Accounting.Commands.OpeningBalanceLine(bank.Id, 200_000_000, 0, "افتتاحیهٔ بانک"),
+                            new SamaHesab.Application.Accounting.Commands.OpeningBalanceLine(capital.Id, 0, 250_000_000, "سرمایهٔ اولیه"),
+                        }));
+                    Step("سندِ افتتاحیه (صندوق+بانک / سرمایه)", ob.Succeeded, ob.Succeeded ? $"سند #{ob.Value}" : ob.ErrorMessage ?? "");
+                }
+                else Step("سندِ افتتاحیه — حساب‌های لازم (صندوق/بانک/سرمایه) یافت نشد؛ رد شد", true);
+            }
+            else Step($"سندِ افتتاحیه از قبل هست ({openCount}) — رد شد", true);
+
+            // ── ۴) چک‌ها (گاردِ مستقل: اگر چکی نباشد) — دریافتی از مشتری + پرداختی به تأمین‌کننده ──
+            var chequeCount = await chequeRepo.CountAsync(c => c.CompanyId == 1);
+            if (chequeCount == 0)
+            {
+                string Due(int days) => calendar.ToPersianDate(DateTime.Now.AddDays(days));
+                var demoCheques = new (SamaHesab.Domain.Enums.ChequeType type, string num, string bank, decimal amount, int dueDays, string by, string desc)[]
+                {
+                    (SamaHesab.Domain.Enums.ChequeType.Received, "۸۸۱۲۳۴", "بانک ملت",   120_000_000, 25,  customers[0].FullName, "چکِ دریافتی بابتِ فروشِ نسیه"),
+                    (SamaHesab.Domain.Enums.ChequeType.Received, "۸۸۱۲۳۵", "بانک صادرات", 64_000_000,  55,  customers.Count > 1 ? customers[1].FullName : customers[0].FullName, "چکِ دریافتی بابتِ فروشِ نسیه"),
+                    (SamaHesab.Domain.Enums.ChequeType.Paid,     "۴۴۵۵۶۶", "بانک ملی",    90_000_000,  40,  suppliers[0].FullName, "چکِ پرداختی بابتِ خریدِ نسیه"),
+                };
+                int made = 0;
+                foreach (var ch in demoCheques)
+                {
+                    try
+                    {
+                        var entity = SamaHesab.Domain.Entities.Accounting.Cheque.Create(
+                            1, 1, ch.type, ch.num, ch.bank, ch.amount, Due(ch.dueDays), ch.by, ch.desc);
+                        await chequeRepo.AddAsync(entity);
+                        made++;
+                    }
+                    catch (Exception cx) { Step($"چک {ch.num}", false, cx.GetBaseException().Message); }
+                }
+                if (made > 0) await uow.SaveChangesAsync();
+                Step($"چک‌های دمو ({made} فقره: ۲ دریافتی + ۱ پرداختی)", made > 0);
+            }
+            else Step($"چک‌ها از قبل هست ({chequeCount} فقره) — رد شد", true);
+
+            // ── ۵) صحت‌سنجی: تراز متوازن ──
             var tb = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetTrialBalanceQuery(date, date));
             var dr = tb.Sum(r => r.Debit); var cr = tb.Sum(r => r.Credit);
             Step("توازنِ ترازِ آزمایشی", Math.Abs(dr - cr) < 1m, $"بدهکار={dr:N0} بستانکار={cr:N0}");

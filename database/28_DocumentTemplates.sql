@@ -36,7 +36,7 @@ IF NOT EXISTS (SELECT 1 FROM Cfg.DocumentTemplates WHERE DocumentType = 'SalesIn
 BEGIN
     INSERT INTO Cfg.DocumentTemplates (CompanyId, DocumentType, Name, PaperSize, BodyHtml, IsDefault, IsSystem)
     VALUES
-    (1, 'SalesInvoice', 'فاکتور رسمی (A4)', 'A4P',
+    (1, 'SalesInvoice', N'فاکتور رسمی (A4)', 'A4P',
      N'<div style="font-family:Tahoma;direction:rtl;padding:16px">
        <h2 style="text-align:center">فاکتور فروش</h2>
        <table style="width:100%"><tr><td>شماره: {InvoiceNumber}</td><td>تاریخ: {InvoiceDate}</td></tr>
@@ -48,7 +48,7 @@ BEGIN
        <h3 style="text-align:left">جمع کل: {TotalAmount} ریال — مالیات: {Tax} — تخفیف: {Discount}</h3>
        <p style="text-align:center;color:#666">{BranchName}</p></div>',
      1, 1),
-    (1, 'SalesInvoice', 'رسیدِ حرارتی (۸۰م م)', 'Thermal80',
+    (1, 'SalesInvoice', N'رسیدِ حرارتی (۸۰م م)', 'Thermal80',
      N'<div style="font-family:Tahoma;direction:rtl;width:280px;font-size:12px">
        <div style="text-align:center;font-weight:bold">{BranchName}</div>
        <div>فاکتور: {InvoiceNumber} — {InvoiceDate}</div>

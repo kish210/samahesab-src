@@ -79,7 +79,7 @@
   - **اثرِانگشتِ دستگاه** (`IMachineFingerprintProvider` + Infraِ `MachineFingerprintProvider`): مادربرد(WMI) + Windows MachineGuid(رجیستری) + CPU(WMI) → SHA-256. تأیید روی دستگاهِ واقعی (۳۲ Hex، پایدار).
   - **اعتبارسنجی** (`LicenseValidator`): تأییدِ امضا + تطبیقِ اثرِانگشت + انقضا؛ وضعیت‌ها None/Valid/Expired/WrongMachine/BadSignature (tamper detection + graceful failure، همه آفلاین).
   - **تریال** (`TrialPolicy`): **۱۲۰ روز یا ۲۰۰ سند — هرکدام زودتر**.
-  - **ابزارِ وندور** (`tools/SamaHesab.LicenseTool`): `keygen`/`sign`/`verify`. round-tripِ واقعی تأیید شد (sign→Valid با کلیدِ embed، fingerprintِ غلط→WrongMachine، دستکاری→BadSignature).
+  - **ابزارِ وندور (صدورِ لایسنس):** به **مخزنِ خصوصیِ جدا** منتقل شد → `github.com/kish210/SamaHesab.LicenseManager` (PRIVATE؛ WPF + CLI، keygen/sign/verify). از ریپوی اصلی **حذف شد** تا قابلیتِ صدور فقط نزدِ وندور بماند. ریپوی اصلی فقط **اعتبارسنجی** را دارد (کلاینت). کلیدِ خصوصی هیچ‌وقت در هیچ مخزنی نیست (`%USERPROFILE%\.samahesab`).
   - **۱۳ تستِ واحد** (RSA roundtrip/tamper/کلیدِ بیگانه/قفلِ ماشین/انقضا/JSON/رده‌ها/تریالِ دوگانه/اثرِانگشتِ واقعی). ۳۰۶ تست سبز.
   - ✅ **رانتایم + UI (افزوده):** `LicenseService` (اعتبارسنجیِ آفلاینِ فایلِ `license.lic` یا تریالِ ۱۲۰روز/۲۰۰سند + اثرِانگشت) · پنجرهٔ فعال‌سازی (`LicenseActivationWindow` — نمایشِ شناسهٔ دستگاه برای ارسال به وندور + بارگذاریِ `.lic`) · **گیتِ استارت‌آپ** در `LoginViewModel` (انقضا/نامعتبر → فعال‌سازیِ مسدودکننده). رندرِ بصری تأیید شد (`screenshot/license.png`). build سبز، ۳۰۸ تست.
   - ⏭️ **باقی‌ماندهٔ خرده‌کار:** اعمالِ سقفِ شعبه/کاربرِ رده‌ها هنگامِ ساخت + اجبارِ سقفِ ۲۰۰ سند هنگامِ ثبتِ سند (شمارشِ DB) + بنرِ تریال. *(C2 به‌جای C1 — به‌خواستِ کاربر)*

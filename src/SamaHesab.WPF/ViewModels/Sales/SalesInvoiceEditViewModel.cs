@@ -77,6 +77,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private readonly IStockItemRepository _stockRepository;
 
     private readonly IPrintService _printService;
+    private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
 
     /// <summary>موجودیِ انبارِ انتخابی به‌ازای هر کالا (OPT-5: نمایشِ موجودی هنگام فروش).</summary>
     private Dictionary<int, decimal> _onHand = new();
@@ -90,14 +91,14 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         IStockItemRepository stockRepository,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
-        IPrintService printService)
+        IPrintService printService, IBarcodeService barcode)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
         _customerRepository = customerRepository; _warehouseRepository = warehouseRepository;
         _stockRepository = stockRepository;
-        _printService = printService;
+        _printService = printService; _barcode = barcode;
     }
 
     /// <summary>OPT-5: بارگذاریِ موجودیِ انبارِ انتخابی (productId→qty) برای نمایشِ سریعِ موجودی.</summary>
@@ -193,6 +194,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                 ["CustomerName"] = customerName, ["CustomerCode"] = SelectedCustomerId.ToString(),
                 ["TotalAmount"] = N(GrandTotal), ["Tax"] = N(TotalTax),
                 ["Discount"] = N(TotalDiscount + InvoiceDiscount), ["BranchName"] = "سما حساب",
+                // L6 — QR: payload = شمارهٔ فاکتور (هم‌رفتار با اسنادِ خزانه/حسابداری). DocNumber برای بارکدِ متنیِ قالب.
+                ["DocNumber"] = InvoiceNumber, ["QrData"] = InvoiceNumber,
+                ["QrImage"] = _barcode.QrImageHtml(InvoiceNumber, 60),
             };
             var rows = InvoiceItems.Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
             {

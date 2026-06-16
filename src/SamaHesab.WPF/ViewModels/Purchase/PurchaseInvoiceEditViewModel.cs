@@ -67,6 +67,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepository;
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IStockItemRepository _stockRepository;
+    private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
     private Dictionary<int, decimal> _onHand = new();
 
     public PurchaseInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
@@ -75,13 +76,14 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         IWarehouseRepository warehouseRepository,
         IStockItemRepository stockRepository,
         IDialogService dialogService,
-        INavigationService navigationService, IPersianCalendarService calendar)
+        INavigationService navigationService, IPersianCalendarService calendar,
+        IBarcodeService barcode)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
         _supplierRepository = supplierRepository; _warehouseRepository = warehouseRepository;
-        _stockRepository = stockRepository;
+        _stockRepository = stockRepository; _barcode = barcode;
     }
 
     private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
@@ -293,6 +295,8 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
                 ["Tax"] = N(TotalTax), ["Discount"] = N(TotalDiscount), ["BranchName"] = "سما حساب",
                 ["WarehouseName"] = Warehouses.FirstOrDefault(w => w.Id == SelectedWarehouseId)?.Name ?? "—",
                 ["Notes"] = Description,
+                // L6 — QR: payload = شمارهٔ فاکتور (هم‌رفتار با اسنادِ خزانه/حسابداری).
+                ["QrData"] = InvoiceNumber, ["QrImage"] = _barcode.QrImageHtml(InvoiceNumber, 60),
             };
             var rows = InvoiceItems.Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
             {

@@ -25,8 +25,9 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="نوعِ داده:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <ComboBox Width="160" Height="30" ItemsSource="{Binding EntityTypes}" SelectedItem="{Binding SelectedEntityType}"/>
-                    <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Padding="14,0" Margin="10,0,0,0" Content="📂 انتخابِ فایلِ اکسل…" Click="Browse_Click"/>
-                    <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="380"/>
+                    <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="12,0" Margin="10,0,0,0" Content="📥 دانلودِ نمونهٔ اکسل" Command="{Binding DownloadTemplateCommand}"/>
+                    <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Padding="14,0" Margin="6,0,0,0" Content="📂 انتخابِ فایلِ اکسل…" Click="Browse_Click"/>
+                    <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="320"/>
                 </StackPanel>
                 <TextBlock Text="{Binding ColumnHelp}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,8,0,0"/>
             </StackPanel>
@@ -43,7 +44,17 @@
                     <TextBox Text="{Binding PreviewText, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"
                              FontFamily="Consolas" FontSize="11.5" FlowDirection="LeftToRight" TextWrapping="NoWrap"/>
                 </ScrollViewer>
-                <Border Grid.Row="2" Background="{StaticResource ErpGray150}" CornerRadius="4" Padding="8,6" Margin="0,8,0,0">
+                <Border Grid.Row="2" CornerRadius="4" Padding="8,6" Margin="0,8,0,0">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#E8F5E9"/><!-- موفق: سبزِ کم‌رنگ -->
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                    <Setter Property="Background" Value="#FDECEA"/><!-- خطا/هشدار: قرمزِ کم‌رنگ -->
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <TextBlock Text="{Binding ResultText}" TextWrapping="Wrap" FontSize="12"/>
                 </Border>
             </Grid>

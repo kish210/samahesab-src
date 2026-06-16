@@ -17,6 +17,7 @@ namespace SamaHesab.WPF.ViewModels.Settings;
 public partial class DataImportViewModel : BaseViewModel
 {
     private readonly IExcelImportService _excel;
+    private readonly IExcelExportService _exporter;
     private readonly IMediator _mediator;
     private IReadOnlyList<IReadOnlyDictionary<string, string>> _rows = new List<IReadOnlyDictionary<string, string>>();
 
@@ -28,11 +29,45 @@ public partial class DataImportViewModel : BaseViewModel
     [ObservableProperty] private string _previewText = string.Empty;
     [ObservableProperty] private string _resultText = string.Empty;
     [ObservableProperty] private bool _canImport;
+    [ObservableProperty] private bool _resultIsError;   // POLISH-1: رنگِ نتیجه
 
-    public DataImportViewModel(IExcelImportService excel, IMediator mediator,
+    public DataImportViewModel(IExcelImportService excel, IExcelExportService exporter, IMediator mediator,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _excel = excel; _mediator = mediator; }
+    { _excel = excel; _exporter = exporter; _mediator = mediator; }
+
+    /// <summary>سرستون‌های نمونهٔ هر نوع (همان نگاشتِ import).</summary>
+    private string[] TemplateHeaders => SelectedEntityType switch
+    {
+        "کالا" => new[] { "کد", "نام", "واحد", "قیمت فروش", "قیمت خرید", "قیمت عمده", "قیمت مصرف‌کننده", "مالیات", "بارکد" },
+        "تأمین‌کننده" => new[] { "کد", "نام", "نام خانوادگی", "نام شرکت", "تلفن", "موبایل", "ایمیل", "استان", "شهر", "آدرس" },
+        _ => new[] { "کد", "نام", "نام خانوادگی", "نام شرکت", "تلفن", "موبایل", "ایمیل", "استان", "شهر", "آدرس", "کد پستی", "کد ملی", "کد اقتصادی", "توضیحات" },
+    };
+
+    private object?[] TemplateSample => SelectedEntityType switch
+    {
+        "کالا" => new object?[] { "K1001", "خودکار آبی", "عدد", 25000, 18000, 22000, 25000, 9, "6261234567890" },
+        "تأمین‌کننده" => new object?[] { "S1001", "علی", "احمدی", "", "02112345678", "09120000000", "a@x.com", "تهران", "تهران", "خ ولیعصر" },
+        _ => new object?[] { "C1001", "رضا", "کریمی", "", "02112345678", "09120000000", "r@x.com", "تهران", "تهران", "خ آزادی", "1234567890", "", "0499370899", "" },
+    };
+
+    /// <summary>POLISH-1 — دانلودِ فایلِ نمونهٔ اکسل با سرستون‌های درست + یک ردیفِ مثال.</summary>
+    [RelayCommand]
+    private async System.Threading.Tasks.Task DownloadTemplateAsync()
+    {
+        try
+        {
+            var bytes = _exporter.Export("نمونه", TemplateHeaders, new[] { (IReadOnlyList<object?>)TemplateSample });
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), "SamaHesab", "قالب‌ها");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, $"نمونهٔ ورودِ {SelectedEntityType}.xlsx");
+            await System.IO.File.WriteAllBytesAsync(path, bytes);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+            await _dialogService.ShowSuccessAsync($"فایلِ نمونه ساخته شد: {path}\nستون‌ها را پر کنید و همین فایل را وارد کنید.");
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("خطا در ساختِ نمونه: " + ex.Message); }
+    }
 
     public override System.Threading.Tasks.Task LoadAsync() => System.Threading.Tasks.Task.CompletedTask;
 
@@ -93,6 +128,7 @@ public partial class DataImportViewModel : BaseViewModel
             sb.AppendLine($"وارد شد: {res.Imported} · از قبل موجود: {res.Skipped} · ناموفق: {res.Failed}");
             foreach (var e in res.Errors) sb.AppendLine("• " + e);
             ResultText = sb.ToString();
+            ResultIsError = res.Failed > 0 || res.Errors.Count > 0;
             await _dialogService.ShowSuccessAsync($"ورودِ داده پایان یافت — {res.Imported} مورد وارد شد.");
         }, "در حال ورودِ داده...");
     }

@@ -74,6 +74,14 @@ public partial class CustomerEditViewModel : BaseViewModel
         if (IsCompany && string.IsNullOrWhiteSpace(CompanyName))
         { await _dialogService.ShowErrorAsync("نام شرکت الزامی است."); return; }
 
+        // RC-7 — اعتبارسنجیِ هویتِ مالیاتی (برای فاکتورِ رسمی). خالی مجاز است.
+        if (IsPersonal && !SamaHesab.Application.Common.Validation.IranianIdentity.IsValidNationalCode(NationalCode))
+        { await _dialogService.ShowErrorAsync("کدِ ملی نامعتبر است (۱۰ رقم با رقمِ کنترلیِ صحیح)."); return; }
+        if (IsCompany && !SamaHesab.Application.Common.Validation.IranianIdentity.IsValidEconomicId(NationalCode))
+        { await _dialogService.ShowErrorAsync("شناسهٔ ملیِ شرکت نامعتبر است (۱۱ یا ۱۴ رقم)."); return; }
+        if (!SamaHesab.Application.Common.Validation.IranianIdentity.IsValidEconomicId(EconomicCode))
+        { await _dialogService.ShowErrorAsync("کدِ اقتصادی نامعتبر است (۱۱/۱۲/۱۴ رقم)."); return; }
+
         await ExecuteAsync(async () =>
         {
             try

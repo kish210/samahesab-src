@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============================================================
+         توکن‌های چگالی — «فشرده». کاهشِ ارتفاع/پدینگ برای کاهشِ فضای خالی و
+         افزایشِ اطلاعاتِ دیده‌شده در هر صفحه (کاربرِ ۸‌ساعته). فونت‌ها تغییر نمی‌کنند
+         تا خوانایی حفظ شود. همتای آن: DensityNormal.xaml.
+         ============================================================ -->
+    <sys:Double x:Key="ErpDensButtonHeight">28</sys:Double>
+    <sys:Double x:Key="ErpDensInputHeight">27</sys:Double>
+    <sys:Double x:Key="ErpDensRowHeight">24</sys:Double>
+    <sys:Double x:Key="ErpDensHeaderHeight">27</sys:Double>
+    <sys:Double x:Key="ErpDensGboxHeaderHeight">29</sys:Double>
+    <Thickness x:Key="ErpDensStripPadding">7,5</Thickness>
+    <Thickness x:Key="ErpDensBarPadding">9,5</Thickness>
+
+</ResourceDictionary>

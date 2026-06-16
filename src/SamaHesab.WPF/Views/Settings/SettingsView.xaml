@@ -213,6 +213,10 @@
                                 </ComboBox>
                             </StackPanel>
                         </Grid>
+                        <!-- حالتِ فشرده (چگالی): کاهشِ فضای خالی و نمایشِ اطلاعاتِ بیشتر — اعمالِ زنده -->
+                        <CheckBox Content="حالتِ فشرده (نمایشِ اطلاعاتِ بیشتر در هر صفحه؛ مناسبِ کارِ روزانه)"
+                                  IsChecked="{Binding CompactMode}" Margin="0,16,0,0"
+                                  FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"/>
                     </StackPanel>
                 </Border>
 

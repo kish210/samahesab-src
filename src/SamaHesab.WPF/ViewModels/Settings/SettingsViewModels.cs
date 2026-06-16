@@ -90,6 +90,7 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly UpdateService _updater;
 
     [ObservableProperty] private string _selectedTheme = "Sama";
+    [ObservableProperty] private bool _compactMode;   // حالتِ فشردهٔ رابط (چگالی)
     [ObservableProperty] private string _selectedCurrency = "ریال";
     [ObservableProperty] private bool _smsEnabled;
     [ObservableProperty] private string _smsProvider = "kavenegar";
@@ -124,10 +125,18 @@ public partial class SettingsViewModel : BaseViewModel
     public SettingsViewModel(UpdateService updater, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService) { _updater = updater; }
 
+    // تغییرِ سوییچِ «حالتِ فشرده» → اعمالِ زنده روی کلِ رابط + ذخیرهٔ ترجیح (بدونِ نیاز به دکمهٔ ذخیره).
+    partial void OnCompactModeChanged(bool value)
+    {
+        DensityManager.Apply(value);
+        AppSettingsStore.SaveCompactMode(value);
+    }
+
     public override async Task LoadAsync()
     {
         var g = AppSettingsStore.GetGeneral();
         SelectedTheme = AppSettingsStore.GetTheme();
+        CompactMode = AppSettingsStore.GetCompactMode();
         CompanyName = g.CompanyName ?? "";
         CompanyPhone = g.CompanyPhone ?? "";
         CompanyNationalId = g.CompanyNationalId ?? "";

@@ -58,6 +58,8 @@ public partial class App : System.Windows.Application
         Services.AppSettingsStore.EnsureInitialized();
 
         Services.ThemeManager.Apply(Services.AppSettingsStore.GetTheme());
+        // چگالیِ رابط (عادی/فشرده) طبقِ ترجیحِ کاربر — پیش از ساختِ پنجره‌ها.
+        Services.DensityManager.Apply(Services.AppSettingsStore.GetCompactMode());
 
         // ─── Serilog (writable log folder) ────────────────────────────────────
         Log.Logger = new LoggerConfiguration()

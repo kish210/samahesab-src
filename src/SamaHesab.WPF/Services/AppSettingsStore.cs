@@ -27,6 +27,7 @@ public static class AppSettingsStore
     {
         public Dictionary<string, string> ConnectionStrings { get; set; } = new();
         public string? Theme { get; set; }
+        public bool CompactMode { get; set; }
         public PrintSettings? Print { get; set; }
         public ApiSettings? Api { get; set; }
         public Dictionary<string, bool>? Modules { get; set; }
@@ -62,6 +63,16 @@ public static class AppSettingsStore
         m.Theme = theme;
         if (m.ConnectionStrings.Count == 0)
             m.ConnectionStrings["DefaultConnection"] = DefaultConnectionString;
+        Save(m);
+    }
+
+    /// <summary>حالتِ فشردهٔ رابط (چگالی). پیش‌فرض: خاموش (عادی).</summary>
+    public static bool GetCompactMode() => Load().CompactMode;
+
+    public static void SaveCompactMode(bool compact)
+    {
+        var m = Load();
+        m.CompactMode = compact;
         Save(m);
     }
 

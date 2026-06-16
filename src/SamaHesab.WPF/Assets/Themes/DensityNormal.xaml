@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ============================================================
+         توکن‌های چگالی — «عادی». دقیقاً برابرِ مقادیرِ فعلیِ دیزاین‌سیستم،
+         پس انتخابِ این حالت هیچ تغییرِ ظاهری ایجاد نمی‌کند (پیش‌فرضِ ایمن).
+         همتای آن: DensityCompact.xaml (همین کلیدها، مقادیرِ فشرده‌تر).
+         ============================================================ -->
+    <sys:Double x:Key="ErpDensButtonHeight">32</sys:Double>
+    <sys:Double x:Key="ErpDensInputHeight">32</sys:Double>
+    <sys:Double x:Key="ErpDensRowHeight">30</sys:Double>
+    <sys:Double x:Key="ErpDensHeaderHeight">32</sys:Double>
+    <sys:Double x:Key="ErpDensGboxHeaderHeight">34</sys:Double>
+    <Thickness x:Key="ErpDensStripPadding">10,8</Thickness>
+    <Thickness x:Key="ErpDensBarPadding">14,8</Thickness>
+
+</ResourceDictionary>

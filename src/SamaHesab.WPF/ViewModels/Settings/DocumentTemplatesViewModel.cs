@@ -131,8 +131,8 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
                 {
                     var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(
                         System.IO.File.ReadAllText(file), opts);
-                    if (pkg is null || string.IsNullOrWhiteSpace(pkg.DocumentType) || string.IsNullOrWhiteSpace(pkg.BodyHtml))
-                    { failed++; continue; }
+                    // P3/DT-8 — اعتبارسنجی/نسخه‌بندیِ بسته پیش از نصب
+                    if (pkg is null || !DocumentTemplatePackageValidator.Validate(pkg).Ok) { failed++; continue; }
 
                     if (!existingByType.TryGetValue(pkg.DocumentType, out var names))
                     {
@@ -200,8 +200,10 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
         {
             var pkg = System.Text.Json.JsonSerializer.Deserialize<DocumentTemplatePackage>(json,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (pkg is null || string.IsNullOrWhiteSpace(pkg.BodyHtml))
-            { await _dialogService.ShowErrorAsync("فایلِ قالب نامعتبر است."); return; }
+            // P3/DT-8 — اعتبارسنجی/نسخه‌بندیِ بسته با پیامِ گویا
+            if (pkg is null) { await _dialogService.ShowErrorAsync("فایلِ قالب خوانده نشد یا ساختارِ معتبری ندارد."); return; }
+            var check = DocumentTemplatePackageValidator.Validate(pkg);
+            if (!check.Ok) { await _dialogService.ShowErrorAsync(check.Error!); return; }
 
             if (!string.IsNullOrWhiteSpace(pkg.DocumentType)) SelectedType = pkg.DocumentType;
             EditId = null;

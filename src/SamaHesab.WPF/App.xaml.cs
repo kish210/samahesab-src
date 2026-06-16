@@ -711,6 +711,14 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── فاز ۱۲ G1 — تستِ پذیرشِ end-to-end روی DBِ واقعی (چرخهٔ خرید→فروش→سند→تراز) ──
+        if (Environment.GetEnvironmentVariable("SAMA_E2E") == "1")
+        {
+            await RunE2EAsync();
+            Shutdown();
+            return;
+        }
+
         // ─── Touch POS mode (pos.exe / --pos / SAMA_POS=1): fullscreen fast checkout ──
         // This is a standalone CLIENT: it talks to the central server over the Web API
         // (HTTP), never the database directly. Server address is set in ApiSettings.
@@ -968,6 +976,122 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Log.Warning(ex, "[SHOT] failed {File}", file); }
         }
+    }
+
+    /// <summary>
+    /// فاز ۱۲ G1 — تستِ پذیرشِ end-to-end روی DBِ واقعی: چرخهٔ خرید → موجودی → فروش →
+    /// سندِ حسابداریِ خودکار → تراز. هر گام PASS/FAIL لاگ و در فایل ذخیره می‌شود.
+    /// از داده‌ی پایه‌ی موجود (کالا/مشتری/تأمین‌کننده/انبار) استفاده می‌کند؛ رکوردِ تستی می‌سازد.
+    /// </summary>
+    private async Task RunE2EAsync()
+    {
+        var sb = new System.Text.StringBuilder();
+        int pass = 0, fail = 0;
+        void Check(string name, bool ok, string detail = "")
+        {
+            if (ok) pass++; else fail++;
+            var line = $"[{(ok ? "PASS" : "FAIL")}] {name}{(string.IsNullOrEmpty(detail) ? "" : " — " + detail)}";
+            sb.AppendLine(line); Log.Information("[E2E] " + line);
+        }
+
+        try
+        {
+            using var scope = _host!.Services.CreateScope();
+            var sp = scope.ServiceProvider;
+            ((Services.CurrentUserService)sp.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+
+            var mediator = sp.GetRequiredService<MediatR.IMediator>();
+            var calendar = sp.GetRequiredService<SamaHesab.Application.Common.Interfaces.IPersianCalendarService>();
+            var products = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IProductRepository>();
+            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Customer>>();
+            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Supplier>>();
+            var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
+            var stockRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IStockItemRepository>();
+
+            var date = calendar.GetCurrentPersianDate();
+
+            // ── پیش‌نیازها: داده‌ی پایه ──
+            var prodList = await products.SearchAsync(1, "");
+            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsActive);
+            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsActive);
+            var warehouses = await whRepo.GetByCompanyAsync(1);
+            var fyList = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetFiscalYearsQuery());
+            var fy = fyList.FirstOrDefault(f => f.IsActive) ?? fyList.FirstOrDefault();
+            if (fy == null)
+            {
+                // سالِ مالیِ جاری را بساز (تستِ خودکفا).
+                var year = date.Length >= 4 ? date[..4] : "1405";
+                var created = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.SaveFiscalYearCommand(
+                    0, $"سالِ مالی {year}", $"{year}/01/01", $"{year}/12/29"));
+                Check("ساختِ سالِ مالی (نبود)", created.Succeeded, created.Succeeded ? $"#{created.Value}" : created.ErrorMessage ?? "");
+                fyList = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetFiscalYearsQuery());
+                fy = fyList.FirstOrDefault(f => f.IsActive) ?? fyList.FirstOrDefault();
+            }
+
+            Check("داده‌ی پایه موجود است (کالا/مشتری/تأمین‌کننده/انبار/سالِ مالی)",
+                prodList.Count > 0 && customers.Count > 0 && suppliers.Count > 0 && warehouses.Count > 0 && fy != null,
+                $"کالا={prodList.Count} مشتری={customers.Count} تأمین={suppliers.Count} انبار={warehouses.Count} سالِ‌مالی={(fy?.Id.ToString() ?? "—")}");
+            if (prodList.Count == 0 || customers.Count == 0 || suppliers.Count == 0 || warehouses.Count == 0 || fy == null)
+            { await FinishE2E(sb, pass, fail); return; }
+
+            var product = prodList[0]; var customer = customers[0]; var supplier = suppliers[0]; var wh = warehouses[0];
+
+            async Task<decimal> StockOf() => (await stockRepo.GetByProductAndWarehouseAsync(product.Id, wh.Id))?.Quantity ?? 0;
+            var startStock = await StockOf();
+
+            // ── ۱) خرید: دریافتِ ۱۰ واحد ──
+            const decimal buyQty = 10, buyPrice = 1000;
+            var pRes = await mediator.Send(new SamaHesab.Application.Purchase.Commands.CreatePurchaseInvoiceCommand(
+                1, fy.Id, date, supplier.Id, wh.Id, "خرید", null, null, "E2E خرید", 0, 0,
+                new() { new SamaHesab.Application.Purchase.Commands.PurchaseInvoiceItemDto(product.Id, buyQty, buyPrice, 0, 0, null, null, null, null, null) },
+                buyQty * buyPrice));
+            Check("ثبتِ فاکتورِ خرید", pRes.Succeeded, pRes.Succeeded ? $"سند #{pRes.Value}" : pRes.ErrorMessage ?? "");
+            var afterBuy = await StockOf();
+            Check("افزایشِ موجودی پس از خرید", afterBuy == startStock + buyQty, $"{startStock} → {afterBuy} (انتظار {startStock + buyQty})");
+
+            // ── ۲) فروش نقدی: ۴ واحد ──
+            const decimal sellQty = 4, sellPrice = 2000;
+            var total = sellQty * sellPrice;
+            var sRes = await mediator.Send(new SamaHesab.Application.Sales.Commands.CreateSalesInvoiceCommand(
+                1, fy.Id, date, customer.Id, wh.Id, SamaHesab.Domain.Enums.InvoiceType.Sale, "خرده", null, null, "E2E فروش", 0, 0,
+                new() { new SamaHesab.Application.Sales.Commands.SalesInvoiceItemDto(product.Id, sellQty, sellPrice, 0, 0, null, null, null) },
+                0, total, "نقدی"));
+            Check("ثبتِ فاکتورِ فروش (نقدی)", sRes.Succeeded, sRes.Succeeded ? $"سند #{sRes.Value}" : sRes.ErrorMessage ?? "");
+            var afterSell = await StockOf();
+            Check("کاهشِ موجودی پس از فروش", afterSell == afterBuy - sellQty, $"{afterBuy} → {afterSell} (انتظار {afterBuy - sellQty})");
+
+            // ── ۳) سندِ حسابداریِ خودکار ──
+            var vouchers = await mediator.Send(new SamaHesab.Application.Accounting.Queries.GetVouchersQuery(
+                fy.Id, FromDate: date, ToDate: date));
+            Check("سندِ حسابداریِ خودکار برای امروز ایجاد شد", vouchers.TotalCount > 0, $"تعداد سند امروز={vouchers.TotalCount}");
+
+            // ── ۴) تراز آزمایشی متوازن ──
+            var tb = await mediator.Send(new SamaHesab.Application.Reports.Queries.GetTrialBalanceQuery(date, date));
+            var dr = tb.Sum(r => r.Debit); var cr = tb.Sum(r => r.Credit);
+            Check("توازنِ تراز آزمایشی (جمعِ بدهکار = بستانکار)", System.Math.Abs(dr - cr) < 1m, $"بدهکار={dr:N0} بستانکار={cr:N0}");
+
+            await FinishE2E(sb, pass, fail);
+        }
+        catch (Exception ex)
+        {
+            sb.AppendLine($"[ERROR] استثناء: {ex.GetBaseException().Message}");
+            Log.Error(ex, "[E2E] استثناء");
+            await FinishE2E(sb, pass, fail + 1);
+        }
+    }
+
+    private static Task FinishE2E(System.Text.StringBuilder sb, int pass, int fail)
+    {
+        var summary = $"\n══════════ خلاصه: PASS={pass} · FAIL={fail} ══════════";
+        sb.AppendLine(summary); Log.Information("[E2E] " + summary);
+        try
+        {
+            var dir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(dir);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "e2e_report.txt"), sb.ToString(), new System.Text.UTF8Encoding(true));
+        }
+        catch { }
+        return Task.CompletedTask;
     }
 
     private async Task RunSelfTestAsync()

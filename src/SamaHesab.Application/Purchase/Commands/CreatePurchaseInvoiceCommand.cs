@@ -62,6 +62,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Purchase.PurchaseInvoice> _invoiceRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
+    private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
     private readonly IMediator _mediator;
 
     public CreatePurchaseInvoiceCommandHandler(
@@ -73,6 +74,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IVoucherRepository voucherRepository,
         IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository,
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
+        IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IMediator mediator)
     {
         _unitOfWork = unitOfWork;
@@ -83,11 +85,17 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _voucherRepository = voucherRepository;
         _invoiceRepository = invoiceRepository;
         _ledger = ledger;
+        _fiscalYears = fiscalYears;
         _mediator = mediator;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
     {
+        // RC-fix — قفلِ دورهٔ مالی (قبل از تراکنش): فاکتورِ خرید در دورهٔ بسته/خارج از بازه ثبت نشود.
+        var fyLock = Accounting.FiscalPeriodGuard.Check(
+            await _fiscalYears.GetByIdAsync(request.FiscalYearId, ct), request.InvoiceDate);
+        if (fyLock is not null) return Result<int>.Failure(fyLock);
+
         await _unitOfWork.BeginTransactionAsync(ct);
         try
         {

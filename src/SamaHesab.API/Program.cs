@@ -30,6 +30,10 @@ builder.Services.AddHostedService<SamaHesab.API.Services.RecurringDocumentSchedu
 
 // ── JWT authentication ──
 var jwt = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwt["Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "تنظیمِ Jwt:Key در appsettings.json موجود نیست — برای امضای توکنِ JWT الزامی است.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -41,12 +45,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwt["Issuer"],
             ValidAudience = jwt["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();   // پاسخِ خطای یکدستِ JSON (RFC 7807)
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
@@ -70,11 +75,24 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// نصبِ تازهٔ سرور: ساختِ خودکارِ پایگاه‌داده + اسکیمای پایه (مثلِ کلاینتِ دسکتاپ) — پیش از seed،
+// تا API روی سرورِ بدونِ DB هم خودکار بالا بیاید (هم‌سان با رفعِ نصابِ دسکتاپ).
+try
+{
+    var cs = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (!string.IsNullOrWhiteSpace(cs))
+        await SamaHesab.Infrastructure.Data.DatabaseMigrator.RunAsync(cs, m => app.Logger.LogInformation("[DB] {Msg}", m));
+}
+catch (Exception ex) { app.Logger.LogWarning(ex, "بوت‌استرپِ پایگاه‌داده رد شد"); }
+
 // Ensure a default admin + restaurant menu exist (idempotent) so the API is usable on a fresh DB.
 try { await SamaHesab.Infrastructure.Identity.IdentitySeeder.EnsureDefaultAdminAsync(app.Services); }
 catch (Exception ex) { app.Logger.LogWarning(ex, "Identity seeding skipped (DB unavailable?)"); }
 try { await SamaHesab.Infrastructure.Seed.RestaurantSeeder.EnsureMenuAsync(app.Services); }
 catch (Exception ex) { app.Logger.LogWarning(ex, "Restaurant menu seeding skipped"); }
+
+// خطاهای ناهندل‌شده → پاسخِ ProblemDetailsِ یکدست (به‌جای ۵۰۰ خام).
+app.UseExceptionHandler();
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SamaHesab ERP API v1"));
@@ -83,5 +101,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => Results.Redirect("/swagger"));
+
+// سلامت‌سنجی (برای مانیتورینگ/Windows Service) — اتصالِ DB را هم چک می‌کند. بدونِ احراز.
+app.MapGet("/health", async (SamaHesab.Infrastructure.Data.ApplicationDbContext db) =>
+{
+    bool dbOk;
+    try { dbOk = await db.Database.CanConnectAsync(); } catch { dbOk = false; }
+    return Results.Ok(new { status = dbOk ? "healthy" : "degraded", db = dbOk, utc = DateTime.UtcNow });
+});
 
 app.Run();

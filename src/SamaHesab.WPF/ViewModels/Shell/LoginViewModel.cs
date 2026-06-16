@@ -131,6 +131,25 @@ public partial class LoginViewModel : ObservableObject
                 catch { /* ویزارد نباید مانعِ ورود شود */ }
             }
 
+            // فاز ۱۲ P-G7 — گیتِ لایسنس: اگر تریال منقضی/لایسنس نامعتبر بود، پنجرهٔ فعال‌سازی (مسدودکننده).
+            try
+            {
+                var lic = App.GetService<Services.LicenseService>();
+                var st = lic.GetStatus();
+                if (st.State is Services.AppLicenseState.TrialExpired or Services.AppLicenseState.Expired
+                        or Services.AppLicenseState.Invalid)
+                {
+                    new Views.Licensing.LicenseActivationWindow(
+                        App.GetService<Licensing.LicenseActivationViewModel>()).ShowDialog();
+                    if (!lic.GetStatus().CanRun)   // هنوز فعال نشد → ورود مسدود
+                    {
+                        HasError = true; ErrorMessage = "برای ادامه باید نرم‌افزار را فعال کنید.";
+                        return;
+                    }
+                }
+            }
+            catch { /* خطای لایسنس نباید ورود را در حالتِ سالم بشکند */ }
+
             var mainWindow = App.GetService<Views.Shell.MainWindow>();
             mainWindow.Show();
 

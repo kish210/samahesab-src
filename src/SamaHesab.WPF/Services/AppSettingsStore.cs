@@ -168,4 +168,5 @@ public class GeneralSettings
     // ── راه‌اندازیِ اولیه (فاز ۱۲ G3) ──
     public bool SetupCompleted { get; set; }   // ویزاردِ First-Run یک‌بار اجرا شده؟
     public string? CompanyLogoPath { get; set; }
+    public string? TrialInstallUtc { get; set; }   // فاز ۱۲ P-G7 — شروعِ دورهٔ آزمایشی (ISO UTC)
 }

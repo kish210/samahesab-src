@@ -105,6 +105,8 @@ public partial class App : System.Windows.Application
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<LoginViewModel>();
                 services.AddTransient<ViewModels.Onboarding.FirstRunWizardViewModel>();   // فاز ۱۲ G3
+                services.AddSingleton<Services.LicenseService>();   // فاز ۱۲ P-G7 — رانتایمِ لایسنس
+                services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<VoucherListViewModel>();
                 services.AddTransient<VoucherEditViewModel>();
@@ -413,6 +415,19 @@ public partial class App : System.Windows.Application
             zrtb.Render(zwin);
             var zenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); zenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(zrtb));
             using (var zfs = System.IO.File.Create(System.IO.Path.Combine(zdir, "wizard.png"))) zenc.Save(zfs);
+            Shutdown(); return;
+        }
+
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_LICENSE") == "1")
+        {
+            var lwin = new Views.Licensing.LicenseActivationWindow(
+                _host.Services.GetRequiredService<ViewModels.Licensing.LicenseActivationViewModel>());
+            lwin.Show(); await Task.Delay(1200); lwin.UpdateLayout();
+            var ldir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(ldir);
+            var lrtb = new System.Windows.Media.Imaging.RenderTargetBitmap(600, 520, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            lrtb.Render(lwin);
+            var lenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); lenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(lrtb));
+            using (var lfs = System.IO.File.Create(System.IO.Path.Combine(ldir, "license.png"))) lenc.Save(lfs);
             Shutdown(); return;
         }
 

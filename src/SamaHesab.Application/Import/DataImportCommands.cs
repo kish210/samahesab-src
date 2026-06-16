@@ -75,8 +75,18 @@ public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersComm
                     RowMap.Get(row, "ایمیل", "Email"), RowMap.Get(row, "استان", "Province"),
                     RowMap.Get(row, "شهر", "City"), RowMap.Get(row, "آدرس", "نشانی", "Address"),
                     RowMap.Get(row, "کد پستی", "PostalCode"));
-                c.SetDetails(RowMap.Get(row, "کد ملی", "شناسه ملی", "کد/شناسه ملی", "NationalCode"),
-                    RowMap.Get(row, "کد اقتصادی", "EconomicCode"), null, RowMap.Get(row, "توضیحات", "Notes"));
+
+                // RC-7b — اعتبارسنجیِ هویتِ مالیاتی: نامعتبر را ذخیره نکن و هشدار بده (مشتری حفظ می‌شود).
+                var national = RowMap.Get(row, "کد ملی", "شناسه ملی", "کد/شناسه ملی", "NationalCode");
+                var economic = RowMap.Get(row, "کد اقتصادی", "EconomicCode");
+                var nationalOk = type == "حقوقی"
+                    ? SamaHesab.Application.Common.Validation.IranianIdentity.IsValidEconomicId(national)
+                    : SamaHesab.Application.Common.Validation.IranianIdentity.IsValidNationalCode(national);
+                if (!nationalOk) { if (errors.Count < 10) errors.Add($"ردیف {line}: کد/شناسهٔ ملیِ «{national}» نامعتبر بود و نادیده گرفته شد."); national = null; }
+                if (!SamaHesab.Application.Common.Validation.IranianIdentity.IsValidEconomicId(economic))
+                { if (errors.Count < 10) errors.Add($"ردیف {line}: کدِ اقتصادیِ «{economic}» نامعتبر بود و نادیده گرفته شد."); economic = null; }
+
+                c.SetDetails(national, economic, null, RowMap.Get(row, "توضیحات", "Notes"));
 
                 await _repo.AddAsync(c, ct);
                 existing.Add(code); imported++;

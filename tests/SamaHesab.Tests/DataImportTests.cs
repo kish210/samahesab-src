@@ -93,6 +93,23 @@ public class DataImportTests
     }
 
     [Fact]
+    public async Task Customer_Import_Drops_Invalid_NationalCode_But_Keeps_Customer()
+    {
+        var repo = new InMemoryRepo<Customer>();
+        var sut = new ImportCustomersCommandHandler(repo, new FakeUow(), new FakeUser());
+        var rows = new List<IReadOnlyDictionary<string, string>>
+        {
+            Row(("کد", "C9"), ("نام", "رضا"), ("نام خانوادگی", "کریمی"), ("کد ملی", "1234567890")),  // checksum غلط
+        };
+
+        var res = await sut.Handle(new ImportCustomersCommand(rows), default);
+
+        Assert.Equal(1, res.Imported);                       // مشتری ساخته شد
+        Assert.Contains(res.Errors, e => e.Contains("نادیده گرفته"));  // هشدار داده شد
+        Assert.Null(repo.Items.First(c => c.Code == "C9").NationalCode);  // کدِ بد ذخیره نشد
+    }
+
+    [Fact]
     public async Task Imports_Suppliers()
     {
         var repo = new InMemoryRepo<Supplier>();

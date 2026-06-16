@@ -259,6 +259,7 @@
                                 <MenuItem Header="خلاصهٔ مالیات ارزش‌افزوده" Command="{Binding NavigateCommand}" CommandParameter="VatSummary"/>
                                 <MenuItem Header="دفترِ روزنامه" Command="{Binding NavigateCommand}" CommandParameter="Daybook"/>
                                 <MenuItem Header="کالای راکد / کم‌گردش" Command="{Binding NavigateCommand}" CommandParameter="DeadStock"/>
+                                <MenuItem Header="سود و زیانِ کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductProfit"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

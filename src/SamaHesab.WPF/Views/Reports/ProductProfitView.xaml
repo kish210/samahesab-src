@@ -1,0 +1,65 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Reports.ProductProfitView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="سود و زیانِ کالا / فروش" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+            <TextBlock Text="درآمدِ فروش منهای بهای تمام‌شده (از خروجی‌های واقعیِ انبار) = سودِ ناخالصِ هر کالا + حاشیهٔ سود."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="از تاریخ:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,6,0"/>
+            <TextBox Width="120" Height="30" Text="{Binding FromDate}" VerticalContentAlignment="Center" Padding="7,0"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+            <TextBlock Text="تا تاریخ:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="12,0,6,0"/>
+            <TextBox Width="120" Height="30" Text="{Binding ToDate}" VerticalContentAlignment="Center" Padding="7,0"
+                     Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
+            <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Style="{StaticResource ErpBtnPrimary}"/>
+            <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+            <Button Content="چاپ" Command="{Binding PrintCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
+                <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="تعداد" Binding="{Binding Quantity, Converter={StaticResource Num}}" Width="90"/>
+                <DataGridTextColumn Header="فروش (ریال)" Binding="{Binding Revenue, Converter={StaticResource Num}}" Width="130"/>
+                <DataGridTextColumn Header="بهای تمام‌شده" Binding="{Binding Cost, Converter={StaticResource Num}}" Width="130"/>
+                <DataGridTextColumn Header="سودِ ناخالص" Binding="{Binding Profit, Converter={StaticResource Num}}" Width="130"/>
+                <DataGridTextColumn Header="حاشیه ٪" Binding="{Binding MarginPercent}" Width="80"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border Grid.Row="3" Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8" Padding="14,8" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="فروشِ کل:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalRevenue, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center" Margin="6,0,18,0"/>
+                <TextBlock Text="بهای تمام‌شده:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalCost, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}" VerticalAlignment="Center" Margin="6,0,18,0"/>
+                <TextBlock Text="سودِ ناخالص:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource Num}, ConverterParameter=ریال}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,18,0"/>
+                <TextBlock Text="حاشیهٔ سود:" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding MarginPercent, StringFormat='{}{0}٪'}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryAccent}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

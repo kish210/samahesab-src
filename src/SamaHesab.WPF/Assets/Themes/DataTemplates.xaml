@@ -101,6 +101,7 @@
     <DataTemplate DataType="{x:Type rep:VatSummaryViewModel}"><vrep:VatSummaryView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:DaybookViewModel}"><vrep:DaybookView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:DeadStockViewModel}"><vrep:DeadStockView/></DataTemplate>
+    <DataTemplate DataType="{x:Type rep:ProductProfitViewModel}"><vrep:ProductProfitView/></DataTemplate>
 
     <!-- Settings -->
     <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>

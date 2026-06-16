@@ -107,6 +107,8 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Onboarding.FirstRunWizardViewModel>();   // فاز ۱۲ G3
                 services.AddSingleton<Services.LicenseService>();   // فاز ۱۲ P-G7 — رانتایمِ لایسنس
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
+                // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
+                services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<VoucherListViewModel>();
                 services.AddTransient<VoucherEditViewModel>();

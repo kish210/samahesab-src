@@ -52,6 +52,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitLookup, Services.Inventory.UnitLookup>();   // فاز ۱۲ G4.2 — جست‌وجوی واحد
         services.AddSingleton<SamaHesab.Application.Licensing.IMachineFingerprintProvider,
             Services.Licensing.MachineFingerprintProvider>();   // فاز ۱۲ P-G7 — اثرِانگشتِ دستگاه
+        // پیش‌فرضِ نامحدود (سرور/تست)؛ کلاینتِ دسکتاپ آن را با نسخهٔ واقعی override می‌کند.
+        services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext,
+            SamaHesab.Application.Licensing.UnlimitedLicenseContext>();
         services.AddScoped<IPdfService, PdfService>();   // فاز ۱۱ — P2/DT-7: PDFِ بومیِ فارسی (QuestPDF)
         services.AddScoped<IBarcodeService, BarcodeService>();   // فاز ۱۱ — P2/DT-7: تصویرِ QR برای اسناد (QRCoder)
         services.AddScoped<IBackupService, BackupService>();

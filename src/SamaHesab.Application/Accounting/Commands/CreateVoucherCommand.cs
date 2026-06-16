@@ -48,17 +48,20 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
     private readonly IRepository<FiscalYear> _fiscalYears;
+    private readonly SamaHesab.Application.Licensing.ILicenseContext _license;
 
     public CreateVoucherCommandHandler(
         IVoucherRepository voucherRepository,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUser,
-        IRepository<FiscalYear> fiscalYears)
+        IRepository<FiscalYear> fiscalYears,
+        SamaHesab.Application.Licensing.ILicenseContext license)
     {
         _voucherRepository = voucherRepository;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
         _fiscalYears = fiscalYears;
+        _license = license;
     }
 
     public async Task<Result<int>> Handle(CreateVoucherCommand request, CancellationToken ct)
@@ -66,6 +69,15 @@ public class CreateVoucherCommandHandler : IRequestHandler<CreateVoucherCommand,
         try
         {
             var companyId = _currentUser.CompanyId!.Value;
+
+            // فاز ۱۲ P-G7 — سقفِ نسخهٔ آزمایشی: حداکثر ۲۰۰ سند.
+            if (_license.IsTrial)
+            {
+                var count = await _voucherRepository.CountAsync(v => v.CompanyId == companyId, ct);
+                if (count >= _license.TrialVoucherLimit)
+                    return Result<int>.Failure(
+                        $"نسخهٔ آزمایشی: سقفِ {_license.TrialVoucherLimit} سندِ حسابداری پر شده است. برای ادامه، نرم‌افزار را فعال کنید.");
+            }
 
             // قفل دوره: اگر سال مالی تعریف شده باشد، بسته‌بودن/خارج‌از‌بازه‌بودن مسدود می‌شود.
             // (نبودِ رکورد سال مالی برای نصب‌های قدیمی مجاز است تا چیزی نشکند.)

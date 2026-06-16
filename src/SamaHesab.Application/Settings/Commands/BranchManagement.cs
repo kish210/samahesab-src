@@ -47,8 +47,10 @@ public class SaveBranchCommandHandler : IRequestHandler<SaveBranchCommand, Resul
     private readonly IRepository<Branch> _branches;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
-    public SaveBranchCommandHandler(IRepository<Branch> branches, IUnitOfWork uow, ICurrentUserService user)
-    { _branches = branches; _uow = uow; _user = user; }
+    private readonly SamaHesab.Application.Licensing.ILicenseContext _license;
+    public SaveBranchCommandHandler(IRepository<Branch> branches, IUnitOfWork uow, ICurrentUserService user,
+        SamaHesab.Application.Licensing.ILicenseContext license)
+    { _branches = branches; _uow = uow; _user = user; _license = license; }
 
     public async Task<Result<int>> Handle(SaveBranchCommand req, CancellationToken ct)
     {
@@ -59,6 +61,15 @@ public class SaveBranchCommandHandler : IRequestHandler<SaveBranchCommand, Resul
             {
                 if (await _branches.AnyAsync(b => b.CompanyId == companyId && b.Code == req.Code, ct))
                     return Result<int>.Failure("کد شعبه تکراری است.");
+
+                // فاز ۱۲ P-G7 — سقفِ شعبهٔ رده.
+                if (!SamaHesab.Application.Licensing.LicenseLimits.IsUnlimited(_license.MaxBranches))
+                {
+                    var branchCount = await _branches.CountAsync(b => b.CompanyId == companyId, ct);
+                    if (branchCount >= _license.MaxBranches)
+                        return Result<int>.Failure(
+                            $"سقفِ شعبهٔ لایسنس ({_license.MaxBranches}) پر شده است. برای شعبهٔ بیشتر، رده را ارتقا دهید.");
+                }
                 var branch = Branch.Create(companyId, req.Code, req.Name, req.IsHQ);
                 branch.Update(req.Name, req.Address, req.Phone, req.ManagerName);
                 await _branches.AddAsync(branch, ct);

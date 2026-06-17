@@ -97,6 +97,19 @@ class SamaHesab_Landing {
         return $result;
     }
 
+    /** اسکرین‌شات‌های همراهِ پلاگین (URL → عنوان) برای گالریِ اعتمادساز. */
+    private function shots() {
+        $b = SAMAHESAB_SC_URL . 'assets/screenshots/';
+        return array(
+            array( $b . 'dashboard.png',     'داشبوردِ مدیریتی' ),
+            array( $b . 'sales-invoice.png', 'فاکتورِ فروش' ),
+            array( $b . 'pos.png',           'صندوقِ فروشگاهی (POS)' ),
+            array( $b . 'accounting.png',    'اسنادِ حسابداری' ),
+            array( $b . 'reports.png',       'گزارش‌های مدیریتی' ),
+            array( $b . 'support.png',       'مرکزِ پشتیبانی' ),
+        );
+    }
+
     public function product( $atts ) {
         // ویژگیِ شورت‌کد (در صورتِ تعیینِ صریح) بالاترین اولویت؛ وگرنه «آخرین Releaseِ زنده»؛ وگرنه تنظیماتِ دستی.
         $atts   = shortcode_atts( array( 'version' => '', 'url' => '' ), $atts, 'samahesab_product' );
@@ -110,35 +123,134 @@ class SamaHesab_Landing {
         $version = esc_html( $version );
         $url     = esc_url( $url );
 
+        $shots    = $this->shots();
+        $hero_img = SAMAHESAB_SC_URL . 'assets/screenshots/dashboard.png';
+
         ob_start();
         ?>
-        <div class="samahesab-product" dir="rtl" style="font-family:Tahoma,'B Nazanin',sans-serif;max-width:1080px;margin:auto;line-height:1.9;color:#1a1a1a">
+        <style>
+        .samahesab-product{
+            --sh-primary: var(--e-global-color-primary, #6EC1E4);
+            --sh-accent:  var(--e-global-color-accent,  #61CE70);
+            --sh-dark:    var(--e-global-color-secondary,#54595F);
+            --sh-text:    var(--e-global-color-text,    #7A7A7A);
+            --sh-line:#e7ecf1;
+            font-family:inherit; color:var(--sh-dark); direction:rtl; line-height:1.85;
+            max-width:1180px; margin:0 auto; padding:0 16px;
+        }
+        .samahesab-product *{box-sizing:border-box}
+        .sh-block{padding:50px 0}
+        .sh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;
+            padding:6px 14px;border-radius:30px;color:var(--sh-dark);
+            background:#eaf6fc;background:color-mix(in srgb,var(--sh-primary) 16%,#fff)}
+        .sh-hero{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center;padding:54px 0}
+        .sh-hero h1{font-size:40px;line-height:1.25;margin:16px 0 12px;color:var(--sh-dark);font-weight:800}
+        .sh-hero p.lead{font-size:18px;color:var(--sh-text);margin:0 0 26px}
+        .sh-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+        .sh-btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:16px;
+            padding:14px 32px;border-radius:12px;text-decoration:none;transition:transform .15s,box-shadow .15s,border-color .15s}
+        .sh-btn-primary{background:var(--sh-dark);color:#fff;box-shadow:0 10px 24px rgba(20,40,80,.16)}
+        .sh-btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(20,40,80,.22);color:#fff}
+        .sh-btn-ghost{background:transparent;color:var(--sh-dark);border:2px solid var(--sh-line)}
+        .sh-btn-ghost:hover{border-color:var(--sh-primary);color:var(--sh-dark)}
+        .sh-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;font-size:13px;color:var(--sh-text)}
+        .sh-chips span{display:inline-flex;align-items:center;gap:6px}
+        .sh-frame{border:1px solid var(--sh-line);border-radius:14px;overflow:hidden;background:#fff;
+            box-shadow:0 20px 55px rgba(20,40,80,.16)}
+        .sh-frame .bar{display:flex;gap:7px;padding:11px 13px;background:#f4f6f9;border-bottom:1px solid var(--sh-line)}
+        .sh-frame .bar i{width:11px;height:11px;border-radius:50%;background:#d6dbe2}
+        .sh-frame img{display:block;width:100%;height:auto}
+        .sh-h2{text-align:center;font-size:28px;color:var(--sh-dark);margin:0 0 8px;font-weight:800}
+        .sh-sub{text-align:center;color:var(--sh-text);margin:0 auto 30px;max-width:640px}
+        .sh-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:18px}
+        .sh-card{background:#fff;border:1px solid var(--sh-line);border-radius:16px;padding:22px;transition:transform .18s,box-shadow .18s,border-color .18s}
+        .sh-card:hover{transform:translateY(-3px);border-color:var(--sh-primary);box-shadow:0 16px 36px rgba(20,40,80,.1)}
+        .sh-ic{width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:26px;
+            background:#eaf6fc;background:color-mix(in srgb,var(--sh-primary) 18%,#fff)}
+        .sh-card h3{color:var(--sh-dark);margin:12px 0 6px;font-size:18px}
+        .sh-card p{font-size:13.5px;color:var(--sh-text);margin:0}
+        .sh-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:24px}
+        .sh-g{margin:0}
+        .sh-g a{display:block;text-decoration:none}
+        .sh-g .sh-frame{transition:transform .18s,box-shadow .18s}
+        .sh-g a:hover .sh-frame{transform:translateY(-5px);box-shadow:0 26px 60px rgba(20,40,80,.22)}
+        .sh-g figcaption{text-align:center;margin-top:12px;font-weight:700;color:var(--sh-dark)}
+        .sh-dl{text-align:center;border-radius:22px;padding:52px 24px;
+            background:#eef9fd;background:linear-gradient(160deg,color-mix(in srgb,var(--sh-primary) 24%,#fff),#fff 75%);
+            border:1px solid var(--sh-line)}
+        .sh-dl h2{font-size:28px;color:var(--sh-dark);margin:0 0 10px;font-weight:800}
+        .sh-dl p{color:var(--sh-text);margin:0 0 22px}
+        .sh-note{font-size:12.5px;color:var(--sh-text);margin-top:14px}
+        @media (max-width:880px){
+            .sh-hero{grid-template-columns:1fr;text-align:center;padding:30px 0}
+            .sh-hero .sh-cta{justify-content:center}
+            .sh-hero h1{font-size:30px}
+        }
+        </style>
+
+        <div class="samahesab-product" dir="rtl">
             <!-- هیرو -->
-            <section style="text-align:center;background:linear-gradient(135deg,#1f4e79,#2d6da3);color:#fff;border-radius:14px;padding:40px 20px;margin-bottom:28px">
-                <h1 style="font-size:34px;margin:0 0 8px">سما حساب</h1>
-                <p style="font-size:17px;opacity:.92;margin:0 0 22px">نرم‌افزارِ جامعِ حسابداری و مدیریتِ کسب‌وکار (ERP) — فارسی، راست‌به‌چپ، با تقویمِ شمسی.</p>
-                <a href="<?php echo $url; ?>" style="display:inline-block;background:#fff;color:#1f4e79;font-weight:bold;font-size:17px;padding:14px 34px;border-radius:10px;text-decoration:none">⬇️ دانلودِ نسخهٔ <?php echo $version; ?></a>
-                <div style="font-size:12.5px;opacity:.8;margin-top:12px">ویندوز ۱۰/۱۱ · خودکفا (بدونِ پیش‌نیاز) · نسخهٔ آزمایشیِ رایگان</div>
+            <section class="sh-hero">
+                <div>
+                    <span class="sh-eyebrow">✔ نرم‌افزارِ حسابداریِ ایرانی</span>
+                    <h1>سما حساب — مدیریتِ کاملِ کسب‌وکارِ شما</h1>
+                    <p class="lead">حسابداری، خزانه‌داری، فروش و خرید، انبار، صندوقِ فروشگاهی و گزارش‌های مدیریتی — یکجا، فارسی و راست‌به‌چپ با تقویمِ شمسی.</p>
+                    <div class="sh-cta">
+                        <a class="sh-btn sh-btn-primary" href="<?php echo $url; ?>">⬇️ دانلودِ نسخهٔ <?php echo $version; ?></a>
+                        <a class="sh-btn sh-btn-ghost" href="#sh-features">مشاهدهٔ امکانات</a>
+                    </div>
+                    <div class="sh-chips">
+                        <span>🪟 ویندوز ۱۰/۱۱</span><span>📦 نصبِ خودکفا</span><span>🎁 نسخهٔ آزمایشیِ رایگان</span><span>🇮🇷 پشتیبانیِ فارسی</span>
+                    </div>
+                </div>
+                <div class="sh-frame">
+                    <div class="bar"><i></i><i></i><i></i></div>
+                    <img src="<?php echo esc_url( $hero_img ); ?>" alt="داشبوردِ سما حساب" loading="lazy">
+                </div>
             </section>
 
-            <!-- گریدِ امکانات -->
-            <h2 style="text-align:center;color:#1f4e79;margin:0 0 18px">امکاناتِ نرم‌افزار</h2>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
-                <?php foreach ( $this->features() as $f ) : ?>
-                    <div style="background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:18px">
-                        <div style="font-size:28px"><?php echo esc_html( $f[0] ); ?></div>
-                        <h3 style="color:#1f4e79;margin:8px 0 6px;font-size:17px"><?php echo esc_html( $f[1] ); ?></h3>
-                        <p style="font-size:13px;color:#555;margin:0"><?php echo esc_html( $f[2] ); ?></p>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+            <!-- امکانات -->
+            <section class="sh-block" id="sh-features">
+                <h2 class="sh-h2">یک نرم‌افزار، همهٔ نیازهای کسب‌وکار</h2>
+                <p class="sh-sub">از ثبتِ سند تا گزارش‌های مدیریتی و صندوقِ فروشگاهی — همه در یک بستر یکپارچه.</p>
+                <div class="sh-features">
+                    <?php foreach ( $this->features() as $f ) : ?>
+                        <div class="sh-card">
+                            <div class="sh-ic"><?php echo esc_html( $f[0] ); ?></div>
+                            <h3><?php echo esc_html( $f[1] ); ?></h3>
+                            <p><?php echo esc_html( $f[2] ); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+
+            <!-- گالریِ اسکرین‌شات -->
+            <section class="sh-block">
+                <h2 class="sh-h2">نگاهی به محیطِ نرم‌افزار</h2>
+                <p class="sh-sub">تصاویرِ واقعی از بخش‌های مختلفِ سما حساب — برای بزرگ‌نمایی روی هر تصویر کلیک کنید.</p>
+                <div class="sh-gallery">
+                    <?php foreach ( $shots as $s ) : ?>
+                        <figure class="sh-g">
+                            <a href="<?php echo esc_url( $s[0] ); ?>" target="_blank" rel="noopener">
+                                <div class="sh-frame">
+                                    <div class="bar"><i></i><i></i><i></i></div>
+                                    <img src="<?php echo esc_url( $s[0] ); ?>" alt="<?php echo esc_attr( $s[1] ); ?>" loading="lazy">
+                                </div>
+                            </a>
+                            <figcaption><?php echo esc_html( $s[1] ); ?></figcaption>
+                        </figure>
+                    <?php endforeach; ?>
+                </div>
+            </section>
 
             <!-- دانلود -->
-            <section style="text-align:center;background:#f5f8fc;border:1px solid #e2e2e2;border-radius:14px;padding:32px 20px;margin-top:28px">
-                <h2 style="color:#1f4e79;margin:0 0 8px">همین حالا شروع کنید</h2>
-                <p style="margin:0 0 18px;color:#555">نصابِ خودکفا — شاملِ همهٔ پیش‌نیازها. نصب در چند دقیقه.</p>
-                <a href="<?php echo $url; ?>" style="display:inline-block;background:#1f4e79;color:#fff;font-weight:bold;font-size:17px;padding:14px 40px;border-radius:10px;text-decoration:none">⬇️ دانلودِ سما حساب <?php echo $version; ?></a>
-                <div style="font-size:12.5px;color:#888;margin-top:14px">برای پشتیبانی و راهنما: مرکزِ پشتیبانیِ درونِ نرم‌افزار یا تماس با سماع رایانه کیش.</div>
+            <section class="sh-block">
+                <div class="sh-dl">
+                    <h2>همین حالا رایگان شروع کنید</h2>
+                    <p>نصابِ خودکفا (شاملِ همهٔ پیش‌نیازها). نصب در چند دقیقه، روی ویندوز ۱۰ و ۱۱.</p>
+                    <a class="sh-btn sh-btn-primary" href="<?php echo $url; ?>">⬇️ دانلودِ سما حساب <?php echo $version; ?></a>
+                    <div class="sh-note">پشتیبانی و راهنما از طریقِ مرکزِ پشتیبانیِ درونِ نرم‌افزار یا تماس با سماع رایانه کیش.</div>
+                </div>
             </section>
         </div>
         <?php

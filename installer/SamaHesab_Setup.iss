@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "2.5.0"
+#define MyAppVersion   "2.5.1"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
 #define MyAppExeName   "SamaHesab.exe"
@@ -116,40 +116,95 @@ begin
   Result := RegKeyExists(HKLM, Subkey);
 end;
 
-// ─── Check previous installation ──────────────────────────────────────────
-function InitializeSetup: Boolean;
-begin
-  if not IsSqlServerInstalled then
-  begin
-    MsgBox(
-      'هشدار: Microsoft SQL Server روی این سیستم نصب نشده است.' + #13#10 +
-      'برای استفاده از سما حساب، ابتدا SQL Server 2019 یا 2022 را نصب کنید.' + #13#10#13#10 +
-      'می‌توانید SQL Server Express را به صورت رایگان از سایت مایکروسافت دانلود کنید.',
-      mbCriticalError, MB_OK);
-    Result := True; // Still allow installation, user might configure later
-  end
-  else
-    Result := True;
-end;
+// ─── پیش‌نیاز = SQL Server. اگر نباشد، نصاب خودش SQL Express را دانلود و نصب می‌کند ───
+//   .NET و VC++ داخلِ buildِ خودکفا هستند (پیش‌نیازِ جداگانه ندارند).
+//   ⚠️ آدرسِ دانلود یک ثابت است؛ روی ماشینِ تمیز باید راستی‌آزمایی/به‌روزرسانی شود.
+const
+  SqlExprUrl = 'https://download.microsoft.com/download/3/8/d/38de7036-2433-4207-8eae-06e247e17b25/SQL2022-SSEI-Expr.exe';
 
-// ─── Custom install page ───────────────────────────────────────────────────
 var
   ServerPage: TInputQueryWizardPage;
   ServerName: String;
   DatabaseName: String;
+  DownloadPage: TDownloadWizardPage;
+  NeedSqlInstall: Boolean;
+
+function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
+begin
+  Result := True;   // ادامهٔ دانلود
+end;
+
+// گیتِ پیش‌نیاز (پیش از ویزارد): اگر SQL نبود، با تأییدِ کاربر برای نصبِ خودکار علامت می‌زند.
+function InitializeSetup: Boolean;
+begin
+  Result := True;
+  NeedSqlInstall := False;
+  if IsSqlServerInstalled then Exit;
+
+  if MsgBox(
+      'بررسیِ پیش‌نیازها:' + #13#10#13#10 +
+      '✗ Microsoft SQL Server روی این سیستم پیدا نشد.' + #13#10 +
+      '   سما حساب بدونِ آن کار نمی‌کند.' + #13#10#13#10 +
+      'آیا نصاب خودش SQL Server Express (رایگان) را دانلود و نصب کند؟' + #13#10 +
+      '(نیازمندِ اینترنت؛ چند دقیقه طول می‌کشد. «خیر» = لغوِ نصب.)',
+      mbConfirmation, MB_YESNO) = IDYES then
+    NeedSqlInstall := True
+  else
+    Result := False;   // پیش‌نیاز فراهم نیست و کاربر نصبِ خودکار را نخواست → نصب لغو
+end;
 
 procedure InitializeWizard;
 begin
   ServerPage := CreateInputQueryPage(wpSelectDir,
-    'تنظیمات پایگاه داده',
-    'اطلاعات اتصال به SQL Server را وارد کنید',
+    'تنظیمات پایگاه داده', 'اطلاعات اتصال به SQL Server را وارد کنید',
     'لطفاً مشخصات سرور SQL Server خود را وارد نمایید:');
-
-  ServerPage.Add('نام سرور SQL (مثال: . یا localhost\SQLEXPRESS):', False);
+  ServerPage.Add('نام سرور SQL (مثال: .\SQLEXPRESS):', False);
   ServerPage.Add('نام پایگاه داده:', False);
-
-  ServerPage.Values[0] := '.';
+  ServerPage.Values[0] := '.\SQLEXPRESS';   // پیش‌فرضِ درست برای SQL Express
   ServerPage.Values[1] := 'SamaHesab';
+
+  DownloadPage := CreateDownloadPage('نصبِ پیش‌نیاز — SQL Server Express',
+    'در حال دریافتِ بستهٔ نصبِ SQL Server Express…', @OnDownloadProgress);
+end;
+
+// دانلود + نصبِ بی‌صدای SQL Express، سپس راستی‌آزمایی. true = نصب شد و تأیید گردید.
+function InstallSqlExpress: Boolean;
+var
+  Rc: Integer;
+begin
+  Result := False;
+  // ۱) دانلودِ بوت‌استرپرِ SQL Express (با صفحهٔ پیشرفتِ Inno)
+  DownloadPage.Clear;
+  DownloadPage.Add(SqlExprUrl, 'SQL-Express-Setup.exe', '');
+  DownloadPage.Show;
+  try
+    try
+      DownloadPage.Download;
+    except
+      MsgBox('دانلودِ SQL Server ناموفق بود:' + #13#10 + GetExceptionMessage + #13#10#13#10 +
+        'اتصالِ اینترنت را بررسی کنید یا SQL Server Express را دستی نصب کنید.', mbError, MB_OK);
+      Exit;
+    end;
+  finally
+    DownloadPage.Hide;
+  end;
+
+  // ۲) اجرای بی‌صدای نصابِ SQL Express (فقط موتورِ DB، نمونهٔ SQLEXPRESS)
+  WizardForm.StatusLabel.Caption := 'در حال نصبِ SQL Server Express… (چند دقیقه طول می‌کشد)';
+  if not Exec(ExpandConstant('{tmp}\SQL-Express-Setup.exe'),
+      '/ACTION=Install /QUIET /IACCEPTSQLSERVERLICENSETERMS /FEATURES=SQLENGINE ' +
+      '/INSTANCENAME=SQLEXPRESS /TCPENABLED=1 /HIDEPROGRESSBAR',
+      '', SW_SHOW, ewWaitUntilTerminated, Rc) then
+  begin
+    MsgBox('اجرای نصابِ SQL Server ناموفق بود (کدِ ' + IntToStr(Rc) + ').', mbError, MB_OK);
+    Exit;
+  end;
+
+  // ۳) راستی‌آزماییِ نصب
+  Result := IsSqlServerInstalled;
+  if not Result then
+    MsgBox('نصبِ SQL Server کامل تأیید نشد (شاید به ری‌استارت نیاز باشد).' + #13#10 +
+      'پس از ری‌استارتِ ویندوز، نصبِ سما حساب را دوباره اجرا کنید.', mbError, MB_OK);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -160,20 +215,20 @@ begin
   begin
     ServerName   := ServerPage.Values[0];
     DatabaseName := ServerPage.Values[1];
+    if ServerName = '' then begin MsgBox('نام سرور SQL الزامی است.', mbError, MB_OK); Result := False; Exit; end;
+    if DatabaseName = '' then begin MsgBox('نام پایگاه داده الزامی است.', mbError, MB_OK); Result := False; Exit; end;
+  end;
 
-    if ServerName = '' then
+  // درست پیش از شروعِ کپیِ فایل‌ها (صفحهٔ Ready): اگر SQL لازم است، اول آن را نصب کن و تأیید کن.
+  if (CurPageID = wpReady) and NeedSqlInstall then
+  begin
+    if InstallSqlExpress then
     begin
-      MsgBox('نام سرور SQL الزامی است.', mbError, MB_OK);
-      Result := False;
-      Exit;
-    end;
-
-    if DatabaseName = '' then
-    begin
-      MsgBox('نام پایگاه داده الزامی است.', mbError, MB_OK);
-      Result := False;
-      Exit;
-    end;
+      NeedSqlInstall := False;
+      ServerName := '.\SQLEXPRESS';   // نمونهٔ تازه‌نصب → appsettings همین را می‌گیرد
+    end
+    else
+      Result := False;   // پیش‌نیاز فراهم نشد → به مرحلهٔ نصب نرویم
   end;
 end;
 

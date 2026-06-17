@@ -59,6 +59,17 @@ public partial class App : System.Windows.Application
         // Ensure %AppData%\SamaHesab + a default connection string exist (writable).
         Services.AppSettingsStore.EnsureInitialized();
 
+        // نصبِ تازه روی سیستمِ ناشناخته: اگر نمونهٔ SQLِ پیکربندی‌شده وصل نشد، نمونهٔ کارای رایج را
+        // پیدا و ذخیره کن — تا هم DbContext و هم بوت‌استرپِ DB از همان استفاده کنند (رفعِ «داده‌های پایه ساخته نمی‌شود»).
+        try
+        {
+            var cs0 = Services.AppSettingsStore.GetConnectionString();
+            var resolved = await SamaHesab.Infrastructure.Data.SqlInstanceProbe.ResolveAsync(cs0);
+            if (!string.Equals(resolved, cs0, StringComparison.Ordinal))
+                Services.AppSettingsStore.SaveConnectionString(resolved);
+        }
+        catch { /* probe اختیاری است؛ نبودش نباید استارت‌آپ را متوقف کند */ }
+
         Services.ThemeManager.Apply(Services.AppSettingsStore.GetTheme());
         // چگالیِ رابط (عادی/فشرده) طبقِ ترجیحِ کاربر — پیش از ساختِ پنجره‌ها.
         Services.DensityManager.Apply(Services.AppSettingsStore.GetCompactMode());

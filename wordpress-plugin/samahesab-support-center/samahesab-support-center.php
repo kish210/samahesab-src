@@ -3,7 +3,7 @@
  * Plugin Name:       SamaHesab Support Center
  * Plugin URI:        https://kishwifi.com
  * Description:        مرکزِ پشتیبانی و بازخوردِ سما حساب — دریافتِ گزارشِ باگ/درخواستِ قابلیت/تیکت از نصب‌های ERP، دانشنامه، یادداشت‌های نسخه و پرتالِ مشتری. (🆘 HC-WP)
- * Version:           1.2.1
+ * Version:           1.2.2
  * Author:            سماع رایانه کیش
  * Author URI:        https://kishwifi.com
  * Text Domain:       samahesab-support
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // دسترسیِ مستقیم ممنوع.
 }
 
-define( 'SAMAHESAB_SC_VERSION', '1.2.1' );
+define( 'SAMAHESAB_SC_VERSION', '1.2.2' );
 define( 'SAMAHESAB_SC_FILE', __FILE__ );
 define( 'SAMAHESAB_SC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SAMAHESAB_SC_URL', plugin_dir_url( __FILE__ ) );

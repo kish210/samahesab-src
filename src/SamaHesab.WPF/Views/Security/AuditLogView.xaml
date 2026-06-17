@@ -4,6 +4,10 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- F5 = نمایش/تازه‌سازیِ لاگ (کیبوردمحور، هم‌راستا با فهرست‌ها/گزارش‌ها) -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RunCommand}"/>
+    </UserControl.InputBindings>
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,12 +28,16 @@
             <TextBox Width="70" Height="30" Text="{Binding DaysBack, UpdateSourceTrigger=PropertyChanged}"
                      VerticalContentAlignment="Center" Padding="7,0" FlowDirection="LeftToRight" HorizontalContentAlignment="Center"
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
-                     BorderBrush="{DynamicResource BorderColor}"/>
+                     BorderBrush="{DynamicResource BorderColor}">
+                <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding RunCommand}"/></TextBox.InputBindings>
+            </TextBox>
             <TextBlock Text="عمل:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="14,0,8,0"/>
             <TextBox Width="200" Height="30" Text="{Binding ActionFilter, UpdateSourceTrigger=PropertyChanged}"
                      VerticalContentAlignment="Center" Padding="7,0"
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
-                     BorderBrush="{DynamicResource BorderColor}"/>
+                     BorderBrush="{DynamicResource BorderColor}">
+                <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding RunCommand}"/></TextBox.InputBindings>
+            </TextBox>
             <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Style="{StaticResource ErpBtnPrimary}"/>
             <Button Content="اکسل" Command="{Binding ExportCsvCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
             <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>

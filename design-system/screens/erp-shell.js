@@ -55,7 +55,7 @@
         <div><div class="nm">سماع‌حساب</div><div class="ver">نسخه ۳٫۲ سازمانی</div></div>
       </div>
       <nav class="erp-menu">${menus}</nav>
-      <div class="search">${svg(I.search)}<input placeholder="جستجو در همه‌جا…   Ctrl+K" /></div>
+      <div class="search">${svg(I.search)}<input placeholder="جستجو در همه‌جا…   Ctrl+K" readonly style="cursor:pointer" onclick="ErpShell.openSearch()" /></div>
       <button class="tb-ic" title="ماشین‌حساب">${svg(I.calc)}</button>
       <button class="tb-ic" title="راهنما">${svg(I.help)}</button>
       <button class="tb-ic" title="اعلان‌ها">${svg(I.bell)}<span class="ping"></span></button>
@@ -104,6 +104,123 @@
       if (side) side.innerHTML = sidebar(opts.active);
       if (tabs) tabs.innerHTML = tabstrip(opts.tabs);
       if (status) status.innerHTML = statusbar(opts.status);
+      mountPalette();
     }
   };
+  window.ErpShell.openSearch = openPalette;
+
+  /* ============================================================
+     پالت فرمان (Ctrl+K) + جستجوی سراسری (F3)
+     ابتکار شماره‌ی ۱ رودمپ — روی همه‌ی صفحات فعال است.
+     ============================================================ */
+  const CMDS = [
+    // [نوع, عنوان, زیرعنوان, آیکون, مقصد]
+    ['دستور','ثبت سند جدید','حسابداری · F2','voucher','voucher.html'],
+    ['دستور','فاکتور فروش جدید','فروش · Ctrl+2','sales','sales-invoice.html'],
+    ['دستور','فاکتور خرید جدید','خرید · Ctrl+3','purchasing','purchase-invoice.html'],
+    ['دستور','انتقال بین انبار','انبار · Ctrl+4','inventory','inventory-transfer.html'],
+    ['دستور','صندوق فروشگاهی','فروش · F12','pos','pos.html'],
+    ['دستور','مدیریت چک','خزانه‌داری · Ctrl+5','cheque','cheques.html'],
+    ['صفحه','میز کار','داشبورد','home','workspace.html'],
+    ['صفحه','تراز آزمایشی','گزارش‌ها','reports','trial-balance.html'],
+    ['صفحه','دفتر کل / معین','گزارش‌ها','reports','general-ledger.html'],
+    ['صفحه','اسناد حسابداری','حسابداری','accounting','accounting-docs.html'],
+    ['صفحه','رستوران','فروش · لمسی','restaurant','restaurant.html'],
+    ['مشتری','بازرگانی پارس خودرو','کد ۲۰۰۱۲ · مانده ۷۸٬۰۰۰٬۰۰۰ بد','people','customer-card.html'],
+    ['مشتری','شرکت آلفا تجارت','کد ۲۰۰۱۵ · مانده ۴۵٬۲۰۰٬۰۰۰ بد','people','customer-card.html'],
+    ['کالا','روغن موتور ۵ لیتری بهران','K1001 · موجودی ۱۲','inventory','product-card.html'],
+    ['کالا','باتری ۶۰ آمپر سپاهان','K1004 · موجودی ۶','inventory','product-card.html'],
+    ['کالا','شمع موتور NGK','K1005 · کم‌موجود','inventory','product-card.html'],
+    ['سند','سند ۱۴۰۵۸۳','فروش نقدی · پیش‌نویس','accounting','voucher.html'],
+    ['فاکتور','فاکتور F000052','پارس خودرو · ۴۸٬۲۰۰٬۰۰۰','sales','sales-invoice.html'],
+  ];
+  const TYPE_CLR = { 'دستور':'#4B5F97', 'صفحه':'#5A6FA2', 'مشتری':'#B58A3C', 'کالا':'#2E7D52', 'سند':'#5A6478', 'فاکتور':'#5A6478' };
+
+  function paletteHTML() {
+    return `
+    <div class="cmdk-ov" id="cmdkOv">
+      <div class="cmdk">
+        <div class="cmdk-in">
+          ${svg(I.search)}
+          <input id="cmdkInput" placeholder="جستجوی دستور، مشتری، کالا، سند، فاکتور…" autocomplete="off" />
+          <span class="cmdk-esc">Esc</span>
+        </div>
+        <div class="cmdk-list" id="cmdkList"></div>
+        <div class="cmdk-foot">
+          <span><b>↑↓</b> حرکت</span><span><b>Enter</b> انتخاب</span><span><b>Esc</b> بستن</span>
+          <span style="margin-inline-start:auto">جستجوی سراسری سماع‌حساب</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  let cmdkSel = 0, cmdkFiltered = CMDS;
+  function renderList(q) {
+    q = (q || '').trim();
+    cmdkFiltered = q ? CMDS.filter(c => (c[1] + ' ' + c[2] + ' ' + c[0]).toLowerCase().includes(q.toLowerCase())) : CMDS;
+    if (cmdkSel >= cmdkFiltered.length) cmdkSel = 0;
+    const list = document.getElementById('cmdkList');
+    if (!cmdkFiltered.length) { list.innerHTML = `<div class="cmdk-empty">نتیجه‌ای یافت نشد</div>`; return; }
+    list.innerHTML = cmdkFiltered.map((c, i) => `
+      <a class="cmdk-it ${i === cmdkSel ? 'hl' : ''}" href="${c[4]}" data-i="${i}">
+        <span class="cmdk-ic" style="background:${TYPE_CLR[c[0]]}1A;color:${TYPE_CLR[c[0]]}">${svg(I[c[3]] || I.search)}</span>
+        <span class="cmdk-tx"><span class="t">${c[1]}</span><span class="s">${c[2]}</span></span>
+        <span class="cmdk-type" style="color:${TYPE_CLR[c[0]]}">${c[0]}</span>
+      </a>`).join('');
+    const hl = list.querySelector('.cmdk-it.hl');
+    if (hl) hl.scrollIntoView({ block: 'nearest' });
+  }
+
+  function openPalette() { const ov = document.getElementById('cmdkOv'); if (!ov) return; ov.classList.add('on'); cmdkSel = 0; const inp = document.getElementById('cmdkInput'); inp.value = ''; renderList(''); setTimeout(() => inp.focus(), 30); }
+  function closePalette() { const ov = document.getElementById('cmdkOv'); if (ov) ov.classList.remove('on'); }
+
+  let paletteMounted = false;
+  function mountPalette() {
+    if (paletteMounted) return; paletteMounted = true;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = paletteHTML();
+    document.body.appendChild(wrap.firstElementChild);
+    if (!document.getElementById('cmdk-style')) {
+      const st = document.createElement('style'); st.id = 'cmdk-style';
+      st.textContent = CMDK_CSS; document.head.appendChild(st);
+    }
+    const ov = document.getElementById('cmdkOv');
+    const inp = document.getElementById('cmdkInput');
+    const list = document.getElementById('cmdkList');
+    inp.addEventListener('input', () => { cmdkSel = 0; renderList(inp.value); });
+    list.addEventListener('mousemove', e => { const it = e.target.closest('.cmdk-it'); if (it) { cmdkSel = +it.dataset.i; renderList(inp.value); } });
+    ov.addEventListener('click', e => { if (e.target === ov) closePalette(); });
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); ov.classList.contains('on') ? closePalette() : openPalette(); return; }
+      if (e.key === 'F3') { e.preventDefault(); openPalette(); return; }
+      if (!ov.classList.contains('on')) return;
+      if (e.key === 'Escape') { e.preventDefault(); closePalette(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); cmdkSel = Math.min(cmdkSel + 1, cmdkFiltered.length - 1); renderList(inp.value); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); cmdkSel = Math.max(cmdkSel - 1, 0); renderList(inp.value); }
+      else if (e.key === 'Enter') { e.preventDefault(); const c = cmdkFiltered[cmdkSel]; if (c) window.location.href = c[4]; }
+    });
+  }
+
+  const CMDK_CSS = `
+    .cmdk-ov { position: fixed; inset: 0; background: rgba(8,14,28,.5); backdrop-filter: blur(2px); display: none; align-items: flex-start; justify-content: center; z-index: 200; padding-top: 12vh; }
+    .cmdk-ov.on { display: flex; }
+    .cmdk { width: 560px; max-width: 92vw; background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(8,14,28,.4); overflow: hidden; font-family: var(--font-sans); }
+    .cmdk-in { display: flex; align-items: center; gap: 11px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .cmdk-in svg { width: 19px; height: 19px; color: var(--gray-400); flex: none; }
+    .cmdk-in input { flex: 1; border: none; outline: none; font-family: var(--font-sans); font-size: 15px; color: var(--text-strong); background: transparent; }
+    .cmdk-esc { font-size: 10.5px; font-weight: 600; color: var(--text-muted); background: var(--gray-100); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; }
+    .cmdk-list { max-height: 340px; overflow-y: auto; padding: 6px; }
+    .cmdk-it { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+    .cmdk-it.hl { background: var(--blue-50); }
+    .cmdk-it:hover { text-decoration: none; }
+    .cmdk-ic { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex: none; }
+    .cmdk-ic svg { width: 17px; height: 17px; }
+    .cmdk-tx { display: flex; flex-direction: column; min-width: 0; }
+    .cmdk-tx .t { font-size: 13.5px; font-weight: 600; color: var(--text-strong); }
+    .cmdk-tx .s { font-size: 11.5px; color: var(--text-muted); }
+    .cmdk-type { margin-inline-start: auto; font-size: 11px; font-weight: 700; flex: none; }
+    .cmdk-empty { padding: 30px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    .cmdk-foot { display: flex; align-items: center; gap: 16px; padding: 9px 16px; border-top: 1px solid var(--border); background: var(--gray-50); font-size: 11px; color: var(--text-muted); }
+    .cmdk-foot b { color: var(--text-body); font-weight: 700; }
+  `;
 })();

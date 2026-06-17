@@ -1,0 +1,283 @@
+<!-- @dsCard group="Brand" viewport="1000x760" name="رودمپ بهبود UX" subtitle="نقشه‌راه بهره‌وری و آمادگی تجاری" -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سماع‌حساب — رودمپ بهبود UX</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { background: var(--gray-100); padding: 32px 0; }
+  .doc { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 14px; box-shadow: var(--shadow-md); overflow: hidden; }
+
+  /* جلد */
+  .cover { background: linear-gradient(160deg, var(--blue-900), var(--blue-700)); color: #fff; padding: 44px 48px; position: relative; overflow: hidden; }
+  .cover::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1.4px); background-size: 24px 24px; }
+  .cover::after { content: ""; position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: 4px; background: linear-gradient(var(--gold-400), var(--gold-600)); }
+  .cover .inner { position: relative; z-index: 2; }
+  .cover .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--gold-300); }
+  .cover h1 { font-size: 34px; font-weight: 800; margin-top: 10px; }
+  .cover .sub { font-size: 15px; color: rgba(255,255,255,.78); margin-top: 8px; max-width: 620px; line-height: 25px; }
+  .cover .meta { display: flex; gap: 26px; margin-top: 26px; }
+  .cover .meta .m .v { font-size: 22px; font-weight: 800; }
+  .cover .meta .m .l { font-size: 11.5px; color: rgba(255,255,255,.65); margin-top: 2px; }
+
+  .body { padding: 36px 48px 48px; }
+  .sec { margin-top: 38px; }
+  .sec:first-child { margin-top: 0; }
+  .sec-h { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; }
+  .sec-h .num { width: 30px; height: 30px; border-radius: 8px; background: var(--blue-600); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none; }
+  .sec-h h2 { font-size: 21px; font-weight: 800; color: var(--text-strong); }
+  .sec-h .tag { margin-inline-start: auto; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .lead { font-size: 14px; color: var(--text-body); line-height: 23px; margin-bottom: 16px; }
+
+  /* کارت‌های ابتکار سراسری */
+  .init-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .init { border: 1px solid var(--border); border-radius: 11px; padding: 16px 18px; background: var(--white); }
+  .init .top { display: flex; align-items: center; gap: 10px; }
+  .init .ic { width: 34px; height: 34px; border-radius: 9px; background: var(--blue-50); color: var(--blue-600); display: flex; align-items: center; justify-content: center; flex: none; }
+  .init .ic svg { width: 18px; height: 18px; }
+  .init h3 { font-size: 14.5px; font-weight: 700; color: var(--text-strong); }
+  .init .kbd-row { margin-inline-start: auto; }
+  .kbd2 { display: inline-flex; align-items: center; height: 21px; padding: 0 7px; font-size: 11px; font-weight: 600; color: var(--blue-700); background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 5px; font-variant-numeric: tabular-nums; }
+  .init p { font-size: 12.5px; color: var(--text-body); line-height: 21px; margin-top: 10px; }
+  .init ul { margin: 10px 0 0; padding-inline-start: 18px; }
+  .init li { font-size: 12.5px; color: var(--text-body); line-height: 20px; margin-bottom: 3px; }
+
+  /* جدول صفحات */
+  .screen { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+  .screen-h { display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: var(--gray-50); border-bottom: 1px solid var(--border); }
+  .screen-h .si { width: 32px; height: 32px; border-radius: 8px; background: var(--blue-600); color: #fff; display: flex; align-items: center; justify-content: center; flex: none; }
+  .screen-h .si svg { width: 17px; height: 17px; }
+  .screen-h .t { font-size: 15.5px; font-weight: 700; color: var(--text-strong); }
+  .screen-h .role { font-size: 11.5px; color: var(--text-muted); }
+  .screen-h .metrics { margin-inline-start: auto; display: flex; gap: 8px; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .pill .lbl { font-weight: 500; opacity: .8; }
+  .pri-1 { background: var(--danger-50); color: var(--danger-700); }
+  .pri-2 { background: var(--warning-50); color: var(--warning-700); }
+  .pri-3 { background: var(--blue-50); color: var(--blue-700); }
+  .gain { background: var(--success-50); color: var(--success-700); }
+  .diff { background: var(--gray-150); color: var(--gray-700); }
+
+  .screen-b { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { padding: 14px 18px; }
+  .col.prob { border-inline-end: 1px solid var(--border); background: #FDFBFB; }
+  .col h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+  .col.prob h4 { color: var(--danger-700); }
+  .col.fix h4 { color: var(--success-700); }
+  .col ul { margin: 0; padding: 0; list-style: none; }
+  .col li { font-size: 12.5px; color: var(--text-body); line-height: 20px; padding-inline-start: 18px; position: relative; margin-bottom: 7px; }
+  .col.prob li::before { content: "✕"; position: absolute; inset-inline-start: 0; color: var(--danger-500); font-size: 10px; top: 3px; }
+  .col.fix li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: var(--success-500); font-weight: 800; font-size: 11px; top: 2px; }
+  .col li b { color: var(--text-strong); font-weight: 600; }
+  .col li .k { display: inline-flex; align-items: center; height: 17px; padding: 0 5px; font-size: 10px; font-weight: 600; color: var(--blue-700); background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 4px; font-variant-numeric: tabular-nums; }
+
+  /* جدول جمع‌بندی */
+  .sumtable { width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 12.5px; }
+  .sumtable th { background: var(--gray-100); text-align: start; padding: 10px 12px; font-size: 11px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--border); }
+  .sumtable td { padding: 9px 12px; border-bottom: 1px solid var(--gray-100); color: var(--text-body); }
+  .sumtable tr:last-child td { border-bottom: none; }
+  .sumtable td .strong { font-weight: 600; color: var(--text-strong); }
+  .ph { display: inline-block; width: 56px; height: 6px; border-radius: 3px; background: var(--gray-150); position: relative; vertical-align: middle; }
+  .ph i { position: absolute; inset-inline-start: 0; top: 0; height: 100%; border-radius: 3px; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; font-size: 11.5px; color: var(--text-muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; }
+
+  .footer { padding: 22px 48px; border-top: 1px solid var(--border); background: var(--gray-50); display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); }
+  @media print { body { background: #fff; padding: 0; } .doc { box-shadow: none; } .screen, .init { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="doc">
+  <!-- جلد -->
+  <div class="cover">
+    <div class="inner">
+      <div class="eyebrow">نقشه‌راه محصول · معماری تجربه کاربری</div>
+      <h1>رودمپ بهبود UX سماع‌حساب</h1>
+      <p class="sub">تکامل تجربه‌ی موجود به یک ERP تجاری حرفه‌ای — تمرکز بر بهره‌وری، کاهش کلیک، کاهش خطا و آمادگی برای ۱٬۰۰۰ مشتری. بدون تغییر برند، رنگ یا تایپوگرافی.</p>
+      <div class="meta">
+        <div class="m"><div class="v">۱۵</div><div class="l">صفحه‌ی بازبینی‌شده</div></div>
+        <div class="m"><div class="v">۵</div><div class="l">ابتکار سراسری</div></div>
+        <div class="m"><div class="v">۸–۱۲ ساعت</div><div class="l">کار روزانه‌ی کاربر</div></div>
+        <div class="m"><div class="v">۱۴۰۵/۰۳</div><div class="l">نسخه‌ی سند</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- اصول -->
+    <div class="sec">
+      <div class="sec-h"><span class="num">۱</span><h2>اصول راهبری</h2></div>
+      <p class="lead">این سند نرم‌افزار را بازطراحی نمی‌کند؛ آن را <b>تکامل</b> می‌دهد. هر پیشنهاد باید یکی از این پنج معیار را بهبود دهد، وگرنه حذف می‌شود: <b>سرعت عملیات روزانه ↑</b> · <b>تعداد کلیک ↓</b> · <b>زمان آموزش ↓</b> · <b>خطای کاربر ↓</b> · <b>پیش‌بینی‌پذیری ↑</b>. داشبورد مرکز ERP نیست؛ صفحات عملیاتی (سند، فاکتور، انبار) ۹۰٪ زمان کاربر را می‌گیرند و اولویت اول‌اند.</p>
+    </div>
+
+    <!-- ابتکارهای سراسری -->
+    <div class="sec">
+      <div class="sec-h"><span class="num">۲</span><h2>ابتکارهای سراسری</h2><span class="tag">پایه‌ی همه‌ی صفحات</span></div>
+      <div class="init-grid" id="inits"></div>
+    </div>
+
+    <!-- تحلیل صفحات -->
+    <div class="sec">
+      <div class="sec-h"><span class="num">۳</span><h2>تحلیل صفحه‌به‌صفحه</h2><span class="tag">مشکل فعلی ← بهبود پیشنهادی</span></div>
+      <div class="legend">
+        <span><i style="background:var(--danger-500)"></i>اولویت بحرانی</span>
+        <span><i style="background:var(--warning-500)"></i>اولویت بالا</span>
+        <span><i style="background:var(--blue-500)"></i>اولویت متوسط</span>
+        <span><i style="background:var(--success-500)"></i>سود بهره‌وری</span>
+        <span><i style="background:var(--gray-400)"></i>سختی پیاده‌سازی</span>
+      </div>
+      <div id="screens" style="margin-top:16px"></div>
+    </div>
+
+    <!-- جمع‌بندی اولویت -->
+    <div class="sec">
+      <div class="sec-h"><span class="num">۴</span><h2>جمع‌بندی و ترتیب اجرا</h2></div>
+      <table class="sumtable">
+        <thead><tr><th>فاز</th><th>اقدامات</th><th>سود بهره‌وری</th><th>سختی</th><th>مخاطب اصلی</th></tr></thead>
+        <tbody id="phases"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b style="color:var(--text-body)">سماع رایانه کیش</b> · رودمپ بهبود UX · محرمانه</span>
+    <span>منبع: github.com/kish210/samahesab</span>
+  </div>
+</div>
+
+<script>
+  const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const I = {
+    search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+    cmd:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 9h8M8 13h5"/>',
+    kbd:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+    star:'<path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8L3.5 9.2l5.9-.9z"/>',
+    workspace:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+    voucher:'<path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 9h7M8 13h7M8 17h4"/>',
+    sales:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12.3a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.78L21 7H6"/>',
+    purchase:'<path d="M3 6h11v9H3z"/><path d="M14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
+    inv:'<path d="M3.3 7.3 12 3l8.7 4.3v9.4L12 21l-8.7-4.3z"/><path d="M3.3 7.3 12 11.6l8.7-4.3M12 21v-9.4"/>',
+    treasury:'<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M6 9h6M6 12.5h4"/><path d="m14 13.5 2 2 4-4"/>',
+    people:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 6.2a3 3 0 0 1 0 5.6M21 20a5 5 0 0 0-3.5-4.8"/>',
+    reports:'<path d="M4 20V4M4 20h16"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/>',
+    pos:'<rect x="3" y="3" width="18" height="13" rx="1.6"/><path d="M8 20h8M12 16v4"/>',
+    rest:'<path d="M5 3v7a3 3 0 0 0 6 0V3M8 3v18M19 3c-1.5 1-2.5 3-2.5 6 0 2 1 3 2.5 3v9"/>',
+    plane:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+    shield:'<path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/><path d="M9 12l2 2 4-4"/>',
+    help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3.5"/><path d="M12 17h.01"/>',
+    gauge:'<path d="M12 14l4-4"/><path d="M3 18a9 9 0 1 1 18 0"/>',
+  };
+
+  // ابتکارهای سراسری
+  const inits = [
+    ['cmd','پالت فرمان · Command Palette','Ctrl + K','هر عملیاتی — ساخت سند، باز کردن فاکتور، رفتن به مشتری — از یک کادر فرمان تایپی. الگوی Visual Studio / PowerToys.',['اجرای هر دستور بدون موس','«سند جدید»، «فاکتور پارس خودرو»، «گزارش فروش»','نتایج هوشمند با اولویت اخیر/پرتکرار']],
+    ['search','جستجوی سراسری هوشمند','F3','یک نوار جستجو که هم‌زمان در مشتری، کالا، فاکتور، سند، حساب و چک می‌گردد و نتیجه را دسته‌بندی‌شده نشان می‌دهد.',['تشخیص نوع ورودی (کد کالا، شماره فاکتور، نام)','پرش مستقیم به رکورد','جستجوی اخیر و پیشنهاد']],
+    ['kbd','نقشه‌ی کلید سراسری','F2…F9','میانبرهای یکسان در همه‌ی فرم‌ها تا کاربر یک‌بار یاد بگیرد و همه‌جا کار کند.',['F2 جدید · F3 جستجو · F4 ویرایش · F5 بازخوانی','Ctrl+S ذخیره · Ctrl+N سند نو · Esc انصراف','Enter افزودن ردیف · ↑↓ حرکت گرید']],
+    ['star','علاقه‌مندی، اخیر و پین','—','دسترسی سریع به حساب‌ها، کالاها، مشتری‌ها و صفحات پرکاربردِ هر کاربر.',['حساب‌های اخیر و علاقه‌مند در ثبت سند','صفحات پین‌شده در سایدبار','بازکردن مجدد آخرین اسناد']],
+    ['workspace','تبدیل فرم به Workspace','—','هر حوزه یک فضای کاری با تب اسناد باز (MDI)، نوار ابزار و نوار وضعیت — کاربر چند سند را هم‌زمان باز نگه می‌دارد.',['تب‌های اسناد باز بالای صفحه','جابه‌جایی سریع بدون بستن کار','وضعیت زنده در نوار پایین']],
+    ['help','مرکز پشتیبانی یکپارچه','F1','ماژول پشتیبانی جدید: گزارش خطا، درخواست قابلیت، پایگاه دانش، یادداشت نسخه و عیب‌یابی.',['ثبت خطا با اسکرین‌شات خودکار','جستجوی راهنما داخل برنامه','نمایش تغییرات هر نسخه']],
+  ];
+  document.getElementById('inits').innerHTML = inits.map(it => `
+    <div class="init">
+      <div class="top">
+        <span class="ic">${svg(I[it[0]])}</span>
+        <h3>${it[1]}</h3>
+        ${it[2]!=='—'?`<span class="kbd-row"><span class="kbd2">${it[2]}</span></span>`:''}
+      </div>
+      <p>${it[3]}</p>
+      <ul>${it[4].map(x=>`<li>${x}</li>`).join('')}</ul>
+    </div>`).join('');
+
+  // تحلیل صفحات
+  // [icon, title, role, pri(1-3), gain, diff, problems[], fixes[]]
+  const screens = [
+    ['voucher','ثبت سند حسابداری','حسابدار · پرتکرارترین فرم',1,'بسیار بالا','متوسط',
+      ['تایپ کامل کد/نام حساب در هر ردیف','نبود الگوی سند برای اسناد تکراری','کشف خطای تراز فقط هنگام ذخیره','ورود ردیف‌به‌ردیف کند برای اسناد بزرگ'],
+      ['<b>تکمیل خودکار حساب</b> با کد، نام و مانده زنده','<b>حساب‌های اخیر/علاقه‌مند</b> بالای لیست','<b>الگوی سند و سند تکرارشونده</b> (حقوق، اجاره)','<b>کنترل تراز زنده</b> در نوار پایین — نه هنگام ذخیره','ورود انبوه: چسباندن از اکسل با <span class="k">Ctrl+V</span>']],
+    ['sales','فاکتور فروش','فروشنده · صندوق‌دار',1,'بسیار بالا','متوسط',
+      ['جستجوی کند کالا، نبود اولویت بارکد','نبود نمایش اعتبار و مانده‌ی مشتری','عدم نمایش موجودی هنگام فروش','تخفیف و مالیات دستی'],
+      ['<b>گردش‌کار بارکد-اول</b>: اسکن = افزودن خودکار','<b>خلاصه‌ی اعتبار مشتری</b> (مانده، سقف، سررسید)','<b>موجودی لحظه‌ای</b> کنار هر کالا','<b>تاریخچه‌ی قیمت و خرید اخیر</b> همان مشتری','محاسبه‌ی خودکار مالیات ۹٪ و جمع']],
+    ['purchase','فاکتور خرید','کارمند خرید',2,'بالا','متوسط',
+      ['ورود دستی قیمت فروش جدید','نبود اتصال به رسید انبار','عدم پیشنهاد تأمین‌کننده‌ی اصلی'],
+      ['<b>بروزرسانی خودکار قیمت فروش</b> بر مبنای درصد سود','<b>تولید خودکار رسید انبار</b> هنگام قطعی','پیشنهاد <b>تأمین‌کننده و آخرین قیمت خرید</b>','کنترل مغایرت فاکتور فروشنده']],
+    ['inv','انبار و کالا','انباردار',1,'بالا','متوسط',
+      ['نبود نمای کلی چند-انباره','هشدار کمبود فقط در گزارش','انتقال انبار چنددمرحله‌ای و کند','نبود هشدار انقضا/سری ساخت'],
+      ['<b>نمای وضعیت انبارها</b> در یک نگاه','<b>هشدار نقطه‌ی سفارش</b> فعال روی میز کار','<b>انتقال سریع</b> با اسکن و کنترل موجودی مبدأ','<b>هشدار انقضا و سری ساخت</b> برای کالای مشمول','کاردکس یک‌کلیکی از کارت کالا']],
+    ['treasury','خزانه‌داری و چک','حسابدار · مدیر مالی',2,'بالا','کم',
+      ['پیگیری دستی سررسید چک','نبود نمای چرخه‌ی وضعیت چک','جستجوی کند بین چک‌ها'],
+      ['<b>هشدار سررسید</b> چک‌های هفته روی میز کار','<b>کارت‌های وضعیت</b> (در جریان، نزد صندوق، وصول، برگشتی)','<b>تغییر وضعیت گروهی</b> چک‌ها','فیلتر سریع بر اساس بانک و بازه']],
+    ['people','اشخاص (مشتری/تأمین‌کننده)','فروش · حسابداری',2,'متوسط','کم',
+      ['اطلاعات مشتری پراکنده در چند صفحه','نبود نمای ۳۶۰ درجه','دسترسی کند به گردش حساب'],
+      ['<b>کارت ۳۶۰ درجه</b>: مانده، گردش، چک، فاکتور، تماس','<b>اقدام سریع</b>: فاکتور، دریافت وجه، صورت‌حساب، پیامک','نمایش <b>اعتبار و میانگین تسویه</b>','تب‌های گردش/فاکتور/چک در یک صفحه']],
+    ['reports','گزارش‌ها (تراز/دفتر)','حسابدار · مدیر',3,'متوسط','کم',
+      ['ناوبری کند بین سطوح حساب','نبود drill-down از تراز به سند','خروجی محدود'],
+      ['<b>تراز چندسطحی</b> (کل/معین/تفصیلی) با یک کلیک','<b>Drill-down</b>: تراز ← دفتر ← سند مرجع','درخت حساب کنار گردش در دفتر کل','خروجی اکسل/PDF و چاپ استاندارد']],
+    ['pos','صندوق فروشگاهی (POS)','صندوق‌دار · لمسی',1,'بسیار بالا','متوسط',
+      ['دکمه‌های کوچک برای صفحه‌ی لمسی','گردش‌کار پرداخت کند','نبود تعلیق/بازیابی فاکتور'],
+      ['<b>دکمه‌های بزرگ ≥۶۰px</b> و تمام‌صفحه','<b>پرداخت تک‌کلیکی</b> نقد/کارت/نسیه/ترکیبی','<b>تعلیق و بازیابی</b> فاکتور برای مشتری بعدی','اسکن بارکد به‌عنوان ورودی پیش‌فرض','جمع بزرگ و خوانا از فاصله']],
+    ['rest','رستوران','گارسون · صندوق · لمسی',2,'بالا','بالا',
+      ['نبود نقشه‌ی میز بصری','ارسال دستی به آشپزخانه','عدم مدیریت وضعیت میز'],
+      ['<b>نقشه‌ی میز</b> با وضعیت (آزاد/فعال/صورتحساب)','<b>ارسال به آشپزخانه (KOT)</b> با یک دکمه','<b>انتقال و ادغام میز</b>','منوی لمسی دسته‌بندی‌شده با تصویر']],
+    ['plane','گردشگری و تور','اپراتور آژانس',3,'متوسط','بالا',
+      ['ماژول موجود اما بدون الگوی UX اختصاصی','نبود نمای رزرو و مسافر'],
+      ['<b>الگوی فروش بلیت/تور</b> بر پایه‌ی همان فاکتور','مدیریت <b>مسافر، رزرو و واچر</b>','اتصال به حساب مشتری و خزانه']],
+    ['shield','امنیت و دسترسی','مدیر سیستم',2,'متوسط','کم',
+      ['تنظیم دسترسی پیچیده و پراکنده','نبود نمای نقش‌ها'],
+      ['<b>مدیریت نقش‌محور</b> دسترسی‌ها','نمای ماتریسی کاربر × ماژول','گزارش فعالیت و ورود کاربران']],
+    ['help','مرکز پشتیبانی','همه‌ی کاربران',3,'متوسط','کم',
+      ['نبود مسیر گزارش خطا داخل برنامه','راهنما خارج از محصول'],
+      ['<b>گزارش خطا</b> با عکس و لاگ خودکار','<b>پایگاه دانش و یادداشت نسخه</b> داخل برنامه','صفحه‌ی <b>عیب‌یابی</b> اتصال و سیستم']],
+    ['workspace','داشبورد / میز کار','مدیر · همه',3,'کم','کم',
+      ['کارت‌های KPI و پنل‌ها خالی‌اند','داشبورد به‌جای صفحات عملیاتی مرکز توجه شده'],
+      ['اتصال KPIها به <b>داده‌ی واقعی</b> (فروش، دریافتنی، چک)','<b>میز کار سبک</b>: کارهای امروز، چک سررسید، میانبر سریع','تثبیت داشبورد به‌عنوان نقطه‌ی شروع، نه مرکز کار']],
+  ];
+
+  const priCls = {1:'pri-1',2:'pri-2',3:'pri-3'};
+  const priLbl = {1:'بحرانی',2:'بالا',3:'متوسط'};
+  document.getElementById('screens').innerHTML = screens.map(s => `
+    <div class="screen">
+      <div class="screen-h">
+        <span class="si">${svg(I[s[0]])}</span>
+        <div><div class="t">${s[1]}</div><div class="role">${s[2]}</div></div>
+        <div class="metrics">
+          <span class="pill ${priCls[s[3]]}"><span class="lbl">اولویت</span> ${priLbl[s[3]]}</span>
+          <span class="pill gain"><span class="lbl">بهره‌وری</span> ${s[4]}</span>
+          <span class="pill diff"><span class="lbl">سختی</span> ${s[5]}</span>
+        </div>
+      </div>
+      <div class="screen-b">
+        <div class="col prob">
+          <h4>مشکلات فعلی</h4>
+          <ul>${s[6].map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="col fix">
+          <h4>بهبودهای پیشنهادی</h4>
+          <ul>${s[7].map(x=>`<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // فازها
+  const phases = [
+    ['فاز ۱ — پایه','نقشه‌ی کلید سراسری · جستجوی سراسری · پالت فرمان Ctrl+K · تب اسناد باز','بسیار بالا',30,'همه'],
+    ['فاز ۲ — عملیاتی','ثبت سند (تکمیل خودکار + الگو) · فاکتور فروش (بارکد-اول + اعتبار) · انبار (هشدار + انتقال سریع)','بسیار بالا',65,'حسابدار · فروش · انبار'],
+    ['فاز ۳ — صندوق','POS لمسی (دکمه بزرگ + تعلیق) · رستوران (نقشه میز + KOT)','بالا',60,'صندوق‌دار · گارسون'],
+    ['فاز ۴ — مالی','خزانه و چک (هشدار سررسید) · کارت ۳۶۰ مشتری · گزارش‌ها (drill-down)','بالا',45,'مدیر مالی'],
+    ['فاز ۵ — تجاری','مرکز پشتیبانی · امنیت نقش‌محور · ماژول گردشگری · داشبورد داده‌محور','متوسط',35,'مدیر سیستم'],
+  ];
+  const diffColor = d => d<=35?'var(--success-500)':d<=55?'var(--warning-500)':'var(--danger-500)';
+  document.getElementById('phases').innerHTML = phases.map(p=>`
+    <tr>
+      <td class="strong">${p[0]}</td>
+      <td>${p[1]}</td>
+      <td><span class="pill gain" style="height:21px">${p[2]}</span></td>
+      <td><span class="ph"><i style="width:${p[3]}%;background:${diffColor(p[3])}"></i></span></td>
+      <td style="color:var(--text-muted)">${p[4]}</td>
+    </tr>`).join('');
+</script>
+</body>
+</html>

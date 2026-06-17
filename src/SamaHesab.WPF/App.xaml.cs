@@ -108,6 +108,9 @@ public partial class App : System.Windows.Application
                 services.AddTransient<LoginViewModel>();
                 services.AddTransient<ViewModels.Onboarding.FirstRunWizardViewModel>();   // فاز ۱۲ G3
                 services.AddSingleton<Services.LicenseService>();   // فاز ۱۲ P-G7 — رانتایمِ لایسنس
+                services.AddSingleton<Services.DiagnosticsCollector>();   // 🆘 HC-1 — عکسِ تشخیصیِ سیستم
+                services.AddTransient<ViewModels.Support.HelpCenterViewModel>();   // 🆘 HC-1
+                services.AddTransient<ViewModels.Support.DiagnosticsViewModel>();  // 🆘 HC-1
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();
@@ -744,6 +747,7 @@ public partial class App : System.Windows.Application
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+            _host.Services.GetRequiredService<ModuleService>().SetEnabled(ModuleService.Support, true);   // 🆘 HC-1 — برای اسکرین‌شات
             var w = _host.Services.GetRequiredService<MainWindow>();
             w.Show();
             await RunScreenshotsAsync(w);
@@ -1010,6 +1014,7 @@ public partial class App : System.Windows.Application
             ("FinancialReports","24_گزارشهای_مالی"), ("StockTransfer","25_انتقال_انبار"), ("Kardex","26_کاردکس"),
             ("Modules","27_مدیریت_ماژولها"), ("DocumentTemplates","28_قالب_اسناد"),
             ("AgedBalance","29_ماندهٔ_سنی‌شده"), ("VatSummary","30_خلاصهٔ_مالیات"), ("Daybook","31_دفتر_روزنامه"), ("DeadStock","32_کالای_راکد"), ("ProductProfit","33_سود_کالا"), ("AbcAnalysis","34_تحلیل_ABC"), ("Turnover","35_گردش_موجودی"),
+            ("HelpCenter","36_مرکز_پشتیبانی"), ("Diagnostics","37_عیب‌یابی"),   // 🆘 HC-1
         };
 
         await Task.Delay(1500); // let the shell + dashboard render
@@ -1648,11 +1653,35 @@ public partial class App : System.Windows.Application
         }
         catch { }
 
-        MessageBox.Show(
+        // 🆘 HC-1 — «ارسالِ گزارشِ خطا»: یک گزارشِ ساختاریافتهٔ فنی بساز و به کاربر پیشنهاد بده.
+        var choice = MessageBox.Show(
             "خطا در اجرای برنامه:\n\n" + (ex?.Message ?? "نامشخص") +
-            "\n\nجزئیات در فایل زیر ذخیره شد:\n" +
-            System.IO.Path.Combine(Services.AppSettingsStore.AppDataDir, "fatal-error.txt"),
-            "سما حساب - خطا", MessageBoxButton.OK, MessageBoxImage.Error);
+            "\n\nآیا می‌خواهید «گزارشِ خطا» را برای ارسال به پشتیبانی آماده کنید؟\n" +
+            "(گزارش فقط شاملِ اطلاعاتِ فنی است؛ هیچ دادهٔ مالی یا تجاری در آن نیست.)",
+            "سما حساب - خطا", MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+        if (choice == MessageBoxResult.Yes)
+        {
+            try
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "گزارشِ خطا");
+                System.IO.Directory.CreateDirectory(dir);
+                var asm = System.Reflection.Assembly.GetEntryAssembly()?.GetName();
+                var report =
+                    "═══ گزارشِ خطای سما حساب ═══\n" +
+                    $"تاریخ (UTC): {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}\n" +
+                    $"نسخهٔ ERP: {asm?.Version}\n" +
+                    $"ویندوز: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}\n" +
+                    $"چارچوب: {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}\n\n" +
+                    "── پیامِ استثناء ──\n" + (ex?.Message ?? "نامشخص") + "\n\n" +
+                    "── Stack Trace ──\n" + message;
+                var path = System.IO.Path.Combine(dir, $"error_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+                System.IO.File.WriteAllText(path, report, new System.Text.UTF8Encoding(true));
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dir) { UseShellExecute = true });
+            }
+            catch { /* best-effort */ }
+        }
     }
 
     public static T GetService<T>() where T : notnull =>

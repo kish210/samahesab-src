@@ -305,6 +305,16 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
+                    <!-- 🆘 HC-1: منوی مرکزِ پشتیبانی فقط وقتی ماژولِ پشتیبانی فعال است -->
+                    <Button Style="{StaticResource TopMenuBtn}" Content="مرکزِ پشتیبانی" Click="TopMenu_Click"
+                            Visibility="{Binding SupportEnabled, Converter={StaticResource BoolVis}}">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="HelpCenter"/>
+                                <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                 </StackPanel>
 
                 <!-- جستجو -->

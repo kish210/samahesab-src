@@ -34,6 +34,7 @@ public partial class MainViewModel : BaseViewModel
     public bool HrEnabled => _modules.IsEnabled(ModuleService.Hr);
     public bool CrmEnabled => _modules.IsEnabled(ModuleService.Crm);
     public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
+    public bool SupportEnabled => _modules.IsEnabled(ModuleService.Support);   // 🆘 HC-1
 
     // ── دسترسی منو بر اساس مجوز (RBAC). ADMIN/«*» همه را true می‌کند. ──
     public bool CanAccounting => _currentUser.HasPermission("Accounting", "Voucher", "View");
@@ -51,6 +52,7 @@ public partial class MainViewModel : BaseViewModel
         ["POS"] = ModuleService.Pos, ["CashShift"] = ModuleService.Pos, ["PosDashboard"] = ModuleService.Pos,
         ["Employees"] = ModuleService.Hr, ["EmployeeEdit"] = ModuleService.Hr,
         ["Salary"] = ModuleService.Hr, ["Attendance"] = ModuleService.Hr,
+        ["HelpCenter"] = ModuleService.Support, ["Diagnostics"] = ModuleService.Support,   // 🆘 HC-1
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -174,6 +176,9 @@ public partial class MainViewModel : BaseViewModel
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
             ["DocumentTemplates"]= ("قالبِ اسناد",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DocumentTemplatesViewModel>()),
             ["DataImport"]      = ("ورودِ داده از اکسل",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DataImportViewModel>()),
+            // 🆘 HC-1 — مرکزِ پشتیبانی (ماژولِ اختیاریِ Support)
+            ["HelpCenter"]      = ("مرکزِ پشتیبانی",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.HelpCenterViewModel>()),
+            ["Diagnostics"]     = ("عیب‌یابیِ سیستم",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.DiagnosticsViewModel>()),
         };
 
         // Clock timer
@@ -213,6 +218,7 @@ public partial class MainViewModel : BaseViewModel
         OnPropertyChanged(nameof(PosEnabled)); OnPropertyChanged(nameof(RestaurantEnabled));
         OnPropertyChanged(nameof(TourismEnabled)); OnPropertyChanged(nameof(HrEnabled));
         OnPropertyChanged(nameof(CrmEnabled)); OnPropertyChanged(nameof(HotelEnabled));
+        OnPropertyChanged(nameof(SupportEnabled));
     }
 
     private async Task NavigateToAsync(string page, object? parameter = null)

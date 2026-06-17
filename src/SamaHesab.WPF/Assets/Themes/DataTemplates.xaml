@@ -24,7 +24,13 @@
                     xmlns:tr="clr-namespace:SamaHesab.WPF.ViewModels.Treasury"
                     xmlns:vtr="clr-namespace:SamaHesab.WPF.Views.Treasury"
                     xmlns:sec="clr-namespace:SamaHesab.WPF.ViewModels.Security"
-                    xmlns:vsec="clr-namespace:SamaHesab.WPF.Views.Security">
+                    xmlns:vsec="clr-namespace:SamaHesab.WPF.Views.Security"
+                    xmlns:sup="clr-namespace:SamaHesab.WPF.ViewModels.Support"
+                    xmlns:vsup="clr-namespace:SamaHesab.WPF.Views.Support">
+
+    <!-- 🆘 HC-1 — مرکزِ پشتیبانی -->
+    <DataTemplate DataType="{x:Type sup:HelpCenterViewModel}"><vsup:HelpCenterView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:DiagnosticsViewModel}"><vsup:DiagnosticsView/></DataTemplate>
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>

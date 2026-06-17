@@ -109,6 +109,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Onboarding.FirstRunWizardViewModel>();   // فاز ۱۲ G3
                 services.AddSingleton<Services.LicenseService>();   // فاز ۱۲ P-G7 — رانتایمِ لایسنس
                 services.AddSingleton<Services.DiagnosticsCollector>();   // 🆘 HC-1 — عکسِ تشخیصیِ سیستم
+                services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, Services.SupportApiClient>();   // 🆘 HC-2
                 services.AddTransient<ViewModels.Support.HelpCenterViewModel>();   // 🆘 HC-1
                 services.AddTransient<ViewModels.Support.DiagnosticsViewModel>();  // 🆘 HC-1
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();

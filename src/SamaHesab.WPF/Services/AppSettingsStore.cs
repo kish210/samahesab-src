@@ -32,6 +32,7 @@ public static class AppSettingsStore
         public ApiSettings? Api { get; set; }
         public Dictionary<string, bool>? Modules { get; set; }
         public GeneralSettings? General { get; set; }
+        public SupportSettings? Support { get; set; }   // 🆘 HC-2
     }
 
     private static Model Load()
@@ -128,6 +129,16 @@ public static class AppSettingsStore
         Save(m);
     }
 
+    /// <summary>🆘 HC-2 — تنظیماتِ اتصال به سرورِ پشتیبانیِ وردپرس (کلید-API).</summary>
+    public static SupportSettings GetSupport() => Load().Support ?? new SupportSettings();
+
+    public static void SaveSupport(SupportSettings s)
+    {
+        var m = Load();
+        m.Support = s;
+        Save(m);
+    }
+
     /// <summary>تنظیماتِ عمومیِ صفحهٔ «تنظیمات» (شرکت/ارز/پیامک).</summary>
     public static GeneralSettings GetGeneral() => Load().General ?? new GeneralSettings();
 
@@ -183,3 +194,13 @@ public class GeneralSettings
     public string? LastBackupUtc { get; set; }      // فاز RC (RC-3) — آخرین پشتیبانِ خودکار (ISO UTC)
     public int PosRoundingStep { get; set; }        // 🇮🇷 POS-IR-1 — پلهٔ گرد کردنِ مبلغِ POS (۰=خاموش، مثلاً ۱۰۰۰)
 }
+
+/// <summary>🆘 HC-2 — اتصال به سرورِ پشتیبانیِ وردپرس (kishwifi.com). کلید-API هرگز در ریپو نیست.</summary>
+public class SupportSettings
+{
+    public string BaseUrl { get; set; } = "https://kishwifi.com";   // آدرسِ سایتِ وردپرس
+    public string CustomerId { get; set; } = "";                    // شناسهٔ مشتری (از پنلِ پشتیبانی)
+    public string ApiKey { get; set; } = "";                        // کلیدِ API
+    public string LicenseId { get; set; } = "";                     // شناسهٔ لایسنس
+}
+

@@ -112,6 +112,15 @@ public class ApplicationDbContext : DbContext
     public DbSet<KitchenTicket> KitchenTickets { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Documents.DocumentTemplate> DocumentTemplates { get; set; }   // فاز ۱۰ DT-2
 
+    // ─── 🆘 HC-2 — مرکزِ پشتیبانی (schema Sup) ──────────────────────────────
+    public DbSet<SamaHesab.Domain.Entities.Support.BugReport> BugReports { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.FeatureRequest> FeatureRequests { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.SupportTicket> SupportTickets { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.TicketMessage> TicketMessages { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.KnowledgeArticle> KnowledgeArticles { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.ReleaseNote> ReleaseNotes { get; set; }
+    public DbSet<SamaHesab.Domain.Entities.Support.RemoteSupportSession> RemoteSupportSessions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -370,6 +379,60 @@ public class ApplicationDbContext : DbContext
             b.Property(i => i.Quantity).HasPrecision(18, 3);
             foreach (var p in new[] { "UnitPrice", "DiscountAmount", "LineTotal" })
                 b.Property(p).HasPrecision(18, 2);
+        });
+
+        // ─── 🆘 HC-2 — Support Center (schema Sup; enums به‌صورتِ INT) ───────────
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.BugReport>(b =>
+        {
+            b.ToTable("BugReports", "Sup");
+            b.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            b.Property(x => x.ScreenName).HasMaxLength(120);
+            b.Property(x => x.RemoteId).HasMaxLength(60);
+            b.Property(x => x.AttachmentPath).HasMaxLength(400);
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.FeatureRequest>(b =>
+        {
+            b.ToTable("FeatureRequests", "Sup");
+            b.Property(x => x.Title).IsRequired().HasMaxLength(200);
+            b.Property(x => x.RemoteId).HasMaxLength(60);
+            b.Property(x => x.AttachmentPath).HasMaxLength(400);
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.SupportTicket>(b =>
+        {
+            b.ToTable("SupportTickets", "Sup");
+            b.Property(x => x.Subject).IsRequired().HasMaxLength(200);
+            b.Property(x => x.RemoteId).HasMaxLength(60);
+            b.HasMany(t => t.Messages).WithOne().HasForeignKey(m => m.TicketId);
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.TicketMessage>(b =>
+        {
+            b.ToTable("TicketMessages", "Sup");
+            b.Property(x => x.Author).HasMaxLength(120);
+            b.Property(x => x.AttachmentPath).HasMaxLength(400);
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.KnowledgeArticle>(b =>
+        {
+            b.ToTable("KnowledgeArticles", "Sup");
+            b.Property(x => x.RemoteId).IsRequired().HasMaxLength(60);
+            b.Property(x => x.Title).IsRequired().HasMaxLength(250);
+            b.Property(x => x.Kind).HasMaxLength(20);
+            b.Property(x => x.Url).HasMaxLength(500);
+            b.HasIndex(x => new { x.CompanyId, x.RemoteId }).IsUnique();
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.ReleaseNote>(b =>
+        {
+            b.ToTable("ReleaseNotes", "Sup");
+            b.Property(x => x.RemoteId).IsRequired().HasMaxLength(60);
+            b.Property(x => x.Version).IsRequired().HasMaxLength(40);
+            b.HasIndex(x => new { x.CompanyId, x.RemoteId }).IsUnique();
+        });
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Support.RemoteSupportSession>(b =>
+        {
+            b.ToTable("RemoteSupportSessions", "Sup");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(40);
+            b.Property(x => x.RequestedBy).HasMaxLength(120);
+            b.Property(x => x.LogPath).HasMaxLength(400);
+            b.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
         });
 
         // Cheque enums are stored as Persian NVARCHAR in the DB.

@@ -13,11 +13,15 @@ namespace SamaHesab.WPF.ViewModels.Support;
 /// <summary>گزینهٔ نمایشیِ یک enum (برچسبِ فارسی + مقدار).</summary>
 public sealed record EnumOption<T>(string Label, T Value);
 
+/// <summary>🆘 HC-3b — زمینهٔ استثناء برای پرکردنِ خودکارِ فرمِ گزارشِ باگ.</summary>
+public sealed record ExceptionContext(string Message, string StackTrace, string Screen);
+
 /// <summary>
 /// 🆘 HC-3 — فرمِ گزارشِ باگ. عکسِ تشخیصیِ سیستم خودکار الصاق می‌شود (فقط دادهٔ فنی).
 /// امکانِ الصاقِ اسکرین‌شاتِ خط‌کشی‌شده. ارسال از طریقِ سرورِ پشتیبانی یا صفِ محلی.
+/// HC-3b — اگر با <see cref="ExceptionContext"/> باز شود، از استثناء پیش‌پر می‌شود.
 /// </summary>
-public partial class BugReportViewModel : BaseViewModel
+public partial class BugReportViewModel : BaseViewModel, INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly DiagnosticsCollector _collector;
@@ -82,6 +86,26 @@ public partial class BugReportViewModel : BaseViewModel
         }
         catch { DiagnosticsSummary = "اطلاعاتِ تشخیصی در دسترس نیست."; }
     }
+
+    /// <summary>🆘 HC-3b — اگر صفحه با یک استثناء باز شود، فرم را از آن پیش‌پر می‌کند.</summary>
+    public Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is ExceptionContext ex)
+        {
+            SelectedCategory = Categories[10];   // سیستم
+            SelectedSeverity = Severities[2];    // زیاد
+            ScreenName = string.IsNullOrWhiteSpace(ex.Screen) ? ScreenName : ex.Screen;
+            Title = "خطای برنامه: " + Trim(ex.Message, 120);
+            ActualResult = ex.Message;
+            StepsToReproduce = "این گزارش به‌صورتِ خودکار از یک خطای رخ‌داده ساخته شد.";
+            Description =
+                $"یک خطای مدیریت‌نشده هنگامِ کار با «{ScreenName}» رخ داد.\n\n" +
+                $"پیام: {ex.Message}\n\n— Stack Trace —\n{ex.StackTrace}";
+        }
+        return Task.CompletedTask;
+    }
+
+    private static string Trim(string s, int max) => s.Length <= max ? s : s.Substring(0, max) + "…";
 
     /// <summary>توسطِ View پس از گرفتن/خط‌کشیِ اسکرین‌شات صدا زده می‌شود.</summary>
     public void SetAttachment(string path)

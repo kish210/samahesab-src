@@ -36,6 +36,8 @@ public partial class App : System.Windows.Application
         // ─── Surface every startup/runtime error instead of silently exiting ──
         DispatcherUnhandledException += (_, ev) =>
         {
+            // 🆘 HC-3b — اگر برنامه بالا آمده، به‌جای کرش، گزارشِ خطای یک‌کلیکی پیشنهاد بده و باز بمان.
+            if (TryReportRuntimeException(ev.Exception)) { ev.Handled = true; return; }
             ShowFatal(ev.Exception);
             ev.Handled = true;
         };
@@ -1651,6 +1653,38 @@ public partial class App : System.Windows.Application
         }
         Log.CloseAndFlush();
         base.OnExit(e);
+    }
+
+    /// <summary>
+    /// 🆘 HC-3b — تلاش برای گزارشِ یک‌کلیکیِ خطای زمانِ اجرا (نه استارت‌آپ). در صورتِ موفقیت true
+    /// (برنامه باز می‌ماند و فرمِ گزارشِ باگ از پیش پرشده باز می‌شود)؛ وگرنه false تا مسیرِ fatal طی شود.
+    /// </summary>
+    private bool TryReportRuntimeException(Exception? ex)
+    {
+        try
+        {
+            if (ex is null || _host is null) return false;
+            var main = Current?.MainWindow;
+            if (main is null || !main.IsVisible) return false;   // هنوز استارت‌آپ است → fatal
+
+            var modules = _host.Services.GetService<Services.ModuleService>();
+            if (modules is null || !modules.IsEnabled(Services.ModuleService.Support)) return false;
+
+            try { Log.Error(ex, "Runtime error (offered in-app report)"); } catch { }
+
+            var choice = MessageBox.Show(
+                "خطایی رخ داد؛ برنامه باز می‌ماند.\n\nمی‌خواهید گزارشِ خطا را برای پشتیبانی بسازید؟\n" +
+                "(فقط اطلاعاتِ فنی — بدونِ دادهٔ مالی.)",
+                "سما حساب", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (choice != MessageBoxResult.Yes) return true;   // باز می‌ماند، گزارش نمی‌سازد
+
+            var screen = (main.DataContext as ViewModels.Shell.MainViewModel)?.CurrentPageTitle ?? "—";
+            var nav = _host.Services.GetService<Services.INavigationService>();
+            nav?.NavigateTo("BugReport",
+                new ViewModels.Support.ExceptionContext(ex.Message, ex.ToString(), screen));
+            return true;
+        }
+        catch { return false; }
     }
 
     private static void ShowFatal(Exception? ex)

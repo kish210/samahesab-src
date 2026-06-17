@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#324A7A"/>
+  <rect x="56" y="56" width="400" height="400" rx="64" fill="#1B2843"/>
+  <text x="256" y="300" font-family="Tahoma, Arial, sans-serif" font-size="190" font-weight="700"
+        fill="#FFFFFF" text-anchor="middle">س</text>
+  <rect x="176" y="350" width="160" height="20" rx="10" fill="#B18A5A"/>
+</svg>

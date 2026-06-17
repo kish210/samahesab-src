@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>سما حساب — موبایل</title>
+  <meta name="theme-color" content="#324A7A"/>
+  <link rel="manifest" href="manifest.webmanifest"/>
+  <!-- iOS: نصب به‌صورتِ standalone از «افزودن به صفحهٔ اصلی» -->
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="سما حساب"/>
+  <link rel="apple-touch-icon" href="icon.svg"/>
+  <link rel="icon" href="icon.svg" type="image/svg+xml"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <!-- نوار بالا -->
+  <header id="topbar" class="hidden">
+    <div class="brand"><span class="mark">س</span><span>سما حساب</span></div>
+    <button id="btnLogout" class="icon-btn" title="خروج">⎋</button>
+  </header>
+
+  <!-- صفحهٔ ورود -->
+  <main id="loginView" class="view">
+    <div class="login-card">
+      <div class="login-logo"><span class="mark big">س</span></div>
+      <h1>ورود به سما حساب</h1>
+      <p class="muted">کلاینتِ موبایل — اتصال به سرورِ مرکزی</p>
+      <label>آدرس سرور</label>
+      <input id="server" type="url" inputmode="url" placeholder="http://192.168.1.10:5080" autocomplete="off"/>
+      <label>نام کاربری</label>
+      <input id="username" type="text" autocomplete="username" value="admin"/>
+      <label>رمز عبور</label>
+      <input id="password" type="password" autocomplete="current-password"/>
+      <button id="btnLogin" class="primary">ورود</button>
+      <div id="loginMsg" class="msg"></div>
+    </div>
+    <div class="ver" id="verLine"></div>
+  </main>
+
+  <!-- داشبورد -->
+  <main id="dashView" class="view hidden">
+    <div class="hello" id="hello"></div>
+    <section class="kpis" id="kpis"></section>
+    <section class="card">
+      <h2>🔔 هشدارها</h2>
+      <div id="alerts" class="list"><div class="muted pad">در حال بارگذاری…</div></div>
+    </section>
+    <button id="btnRefresh" class="ghost">⟳ بازخوانی</button>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

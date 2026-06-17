@@ -1,0 +1,16 @@
+{
+  "name": "سما حساب — موبایل",
+  "short_name": "سما حساب",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B2843",
+  "theme_color": "#324A7A",
+  "description": "کلاینتِ موبایلِ سامانهٔ سما حساب — اتصال به سرورِ مرکزی.",
+  "icons": [
+    { "src": "icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }
+  ]
+}

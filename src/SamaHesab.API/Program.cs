@@ -94,6 +94,11 @@ catch (Exception ex) { app.Logger.LogWarning(ex, "Restaurant menu seeding skippe
 // خطاهای ناهندل‌شده → پاسخِ ProblemDetailsِ یکدست (به‌جای ۵۰۰ خام).
 app.UseExceptionHandler();
 
+// PWAِ موبایل (MOBILE-1): فایل‌های wwwroot/app/* را سرو می‌کند → کلاینتِ موبایل در /app/.
+// هم‌مبدأ با API است، پس نیازی به CORS ندارد و JWT مستقیم کار می‌کند.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SamaHesab ERP API v1"));
 app.UseCors();

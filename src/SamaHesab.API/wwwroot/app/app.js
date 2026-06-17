@@ -9,16 +9,17 @@ const store = {
   set token(v) { v ? localStorage.setItem('sh_token', v) : localStorage.removeItem('sh_token'); },
 };
 
-const fa = (n) => (typeof n === 'number' && isFinite(n))
-  ? n.toLocaleString('fa-IR') : (n ?? '—');
+const fa = (n) => (typeof n === 'number' && isFinite(n)) ? Math.round(n).toLocaleString('en-US') : '۰';
 
-// نگاشتِ کلیدهای پرکاربردِ داشبورد به برچسبِ فارسی (هرچه نبود، خودِ کلید نشان داده می‌شود).
-const LBL = {
-  todaySales: 'فروشِ امروز', salesToday: 'فروشِ امروز', monthSales: 'فروشِ ماه',
-  receivables: 'دریافتنی', payables: 'پرداختنی', cashBalance: 'موجودیِ نقد',
-  dueCheques: 'چکِ سررسید', lowStock: 'کالای کم‌موجود', invoiceCount: 'تعدادِ فاکتور',
-  netProfit: 'سودِ خالص', totalSales: 'جمعِ فروش', openShifts: 'شیفتِ باز',
-};
+// تاریخِ امروزِ شمسی به فرمتِ موردِ نیازِ API (مثل 1405/03/27، ارقامِ لاتین).
+function todayJalali() {
+  try {
+    const p = new Intl.DateTimeFormat('en-US-u-ca-persian',
+      { year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+    const g = (t) => p.find(x => x.type === t).value;
+    return `${g('year')}/${g('month')}/${g('day')}`;
+  } catch { return ''; }
+}
 
 async function api(path, opts = {}) {
   const headers = Object.assign({ 'Accept': 'application/json' }, opts.headers || {});
@@ -51,7 +52,7 @@ async function login() {
   } catch (e) {
     store.token = '';
     msg.className = 'msg err';
-    msg.textContent = (e.message && /Failed to fetch|NetworkError/.test(e.message))
+    msg.textContent = /Failed to fetch|NetworkError/.test(e.message || '')
       ? 'اتصال به سرور برقرار نشد — آدرس/شبکه را بررسی کنید.' : 'ورود ناموفق: ' + e.message;
   } finally { btn.disabled = false; }
 }
@@ -60,43 +61,68 @@ function logout() { store.token = ''; showLogin(); }
 
 async function openDashboard() {
   showDash();
-  // سلام به کاربر
-  try { const me = await api('/api/auth/me'); $('hello').textContent = 'سلام، ' + (me.fullName || me.username || 'کاربر') + ' 👋'; }
+  try { const me = await api('/api/auth/me'); $('hello').textContent = 'سلام، ' + (me.fullName || me.username || 'کاربر'); }
   catch { $('hello').textContent = 'داشبورد'; }
   await Promise.all([loadKpis(), loadAlerts()]);
 }
 
+// تعریفِ کارت‌های KPI: [کلید, برچسب, رنگ, واحد]
+const KPI_DEFS = [
+  ['todaySales', 'فروشِ امروز', 'blue', 'ریال'],
+  ['monthSales', 'فروشِ ماه', 'blue', 'ریال'],
+  ['monthProfit', 'سودِ ماه', 'green', 'ریال'],
+  ['monthMarginPercent', 'حاشیهٔ سود', 'green', '٪'],
+  ['receivablesTotal', 'دریافتنی', 'gold', 'ریال'],
+  ['payablesTotal', 'پرداختنی', 'gold', 'ریال'],
+  ['chequesInProcess', 'چکِ در جریان', 'amber', 'فقره'],
+];
+
 async function loadKpis() {
-  const box = $('kpis'); box.innerHTML = '';
+  const box = $('kpis'); const cust = $('customers');
+  box.innerHTML = skeleton(6); cust.innerHTML = '';
   try {
-    const d = await api('/api/analytics/dashboard/manager');
-    const entries = Object.entries(d || {}).filter(([, v]) => typeof v === 'number').slice(0, 6);
-    if (!entries.length) { box.innerHTML = '<div class="kpi"><div class="l">داده‌ای برای نمایش نیست</div></div>'; return; }
-    box.innerHTML = entries.map(([k, v]) =>
-      `<div class="kpi"><div class="v">${fa(v)}</div><div class="l">${LBL[k] || k}</div></div>`).join('');
+    const d = await api('/api/analytics/dashboard/manager?today=' + encodeURIComponent(todayJalali()));
+    box.innerHTML = KPI_DEFS
+      .filter(([k]) => typeof d[k] === 'number')
+      .map(([k, l, c, u]) => `
+        <div class="kpi ${c}">
+          <div class="v">${fa(d[k])}<span class="u">${u}</span></div>
+          <div class="l">${l}</div>
+        </div>`).join('');
+    // برترین مشتریان
+    const tc = Array.isArray(d.topCustomers) ? d.topCustomers : [];
+    if (tc.length) {
+      cust.innerHTML = `<section class="card"><h2>🏆 برترین مشتریان</h2><div class="list">` +
+        tc.slice(0, 5).map(c => `
+          <div class="row tc">
+            <span class="av">${escapeHtml((c.name || '?').slice(0, 1))}</span>
+            <span class="grow">${escapeHtml(c.name || '—')}<small>${fa(c.invoiceCount)} فاکتور</small></span>
+            <span class="amt">${fa(c.total)}</span>
+          </div>`).join('') + `</div></section>`;
+    }
   } catch (e) {
-    box.innerHTML = `<div class="kpi"><div class="l">داشبورد در دسترس نیست</div></div>`;
+    box.innerHTML = `<div class="kpi"><div class="l">${escapeHtml(e.message || 'داشبورد در دسترس نیست')}</div></div>`;
   }
 }
 
 async function loadAlerts() {
   const box = $('alerts');
   try {
-    const a = await api('/api/analytics/alerts');
+    const a = await api('/api/analytics/alerts?today=' + encodeURIComponent(todayJalali()));
     const list = Array.isArray(a) ? a : (a.items || a.alerts || []);
-    if (!list.length) { box.innerHTML = '<div class="muted pad">هشداری نیست ✓</div>'; return; }
+    if (!list.length) { box.innerHTML = '<div class="empty">✓ هشداری نیست</div>'; return; }
     box.innerHTML = list.slice(0, 30).map(x => {
       const text = x.message || x.title || x.text || x.description || JSON.stringify(x);
       const sev = (x.severity || x.level || '').toString().toLowerCase();
       const cls = /crit|danger|high|red/.test(sev) ? 'r' : /warn|med|amber/.test(sev) ? 'w' : '';
       return `<div class="row"><span class="dot ${cls}"></span><span>${escapeHtml(text)}</span></div>`;
     }).join('');
-  } catch { box.innerHTML = '<div class="muted pad">هشدارها در دسترس نیست</div>'; }
+  } catch { box.innerHTML = '<div class="empty">هشدارها در دسترس نیست</div>'; }
 }
 
+function skeleton(n) { let s = ''; for (let i = 0; i < n; i++) s += '<div class="kpi sk"></div>'; return s; }
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
-// ── راه‌اندازی ──
 window.addEventListener('DOMContentLoaded', () => {
   $('server').value = store.base;
   $('verLine').textContent = 'سما حساب موبایل · نسخهٔ بتا';
@@ -105,6 +131,5 @@ window.addEventListener('DOMContentLoaded', () => {
   $('btnLogout').addEventListener('click', logout);
   $('btnRefresh').addEventListener('click', () => { loadKpis(); loadAlerts(); });
   if (store.token) openDashboard(); else showLogin();
-
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 });

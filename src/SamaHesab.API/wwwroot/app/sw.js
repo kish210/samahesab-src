@@ -1,6 +1,6 @@
 // Service Worker — کشِ پوستهٔ اپ (offline shell + نصب‌شدنی شدنِ PWA).
 // فراخوانی‌های /api هرگز کش نمی‌شوند (همیشه از شبکه).
-const CACHE = 'samahesab-pwa-v1';
+const CACHE = 'samahesab-pwa-v2';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {

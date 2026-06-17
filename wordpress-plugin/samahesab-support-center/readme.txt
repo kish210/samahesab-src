@@ -4,7 +4,7 @@ Tags: support, helpdesk, tickets, bug-report, erp
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 
 مرکزِ پشتیبانی و بازخوردِ سما حساب برای وردپرس — دریافتِ گزارشِ باگ/درخواستِ قابلیت/تیکت از نصب‌های ERP،
@@ -36,6 +36,7 @@ License: GPLv2 or later
 
 == شورت‌کدها ==
 
+* `[samahesab_product]`  — بخشِ عمومیِ «امکانات + دانلودِ» نرم‌افزار (هیرو + گرید + دکمهٔ دانلود).
 * `[samahesab_portal]`   — تیکت‌ها/درخواست‌های مشتریِ واردشده.
 * `[samahesab_kb]`       — دانشنامه با جست‌وجو.
 * `[samahesab_releases]` — یادداشت‌های نسخه.
@@ -48,6 +49,9 @@ License: GPLv2 or later
 4. کلید/شناسهٔ مشتری/آدرسِ سایت را در «تنظیماتِ پشتیبانیِ» سما حساب وارد کنید.
 
 == Changelog ==
+
+= 1.1.0 =
+* بخشِ عمومیِ «امکانات + دانلودِ» نرم‌افزار با شورت‌کدِ `[samahesab_product]` + تنظیماتِ نسخه/لینکِ دانلود (SamaHesab ▸ دانلود).
 
 = 1.0.0 =
 * نسخهٔ نخست: CPTها، REST، احرازِ کلید-API، داشبوردِ ادمین، پرتالِ مشتری، اعلانِ ایمیلی.

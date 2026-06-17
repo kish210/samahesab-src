@@ -32,6 +32,41 @@ class SamaHesab_Admin {
 
         add_submenu_page( 'samahesab', 'مشتریان و کلید-API', 'مشتریان (کلید-API)', 'manage_options',
             'samahesab-keys', array( $this, 'keys_page' ) );
+
+        add_submenu_page( 'samahesab', 'دانلودِ نرم‌افزار', 'دانلود (سایت)', 'manage_options',
+            'samahesab-download', array( $this, 'download_page' ) );
+    }
+
+    /** تنظیمِ نسخه/لینکِ دانلود که شورت‌کدِ [samahesab_product] استفاده می‌کند. */
+    public function download_page() {
+        if ( isset( $_POST['samahesab_save_dl'] ) && check_admin_referer( 'samahesab_dl' ) ) {
+            update_option( 'samahesab_version', sanitize_text_field( wp_unslash( $_POST['version'] ?? '' ) ) );
+            update_option( 'samahesab_download_url', esc_url_raw( wp_unslash( $_POST['download_url'] ?? '' ) ) );
+            echo '<div class="notice notice-success"><p>ذخیره شد.</p></div>';
+        }
+        $version = get_option( 'samahesab_version', '2.5.0' );
+        $url     = get_option( 'samahesab_download_url', 'https://github.com/kish210/SamaHesab/releases/latest' );
+        ?>
+        <div class="wrap" dir="rtl" style="font-family:Tahoma,sans-serif">
+            <h1>دانلودِ نرم‌افزار (بخشِ سایت)</h1>
+            <p>این مقادیر در بخشِ عمومیِ سایت (شورت‌کدِ <code>[samahesab_product]</code>) نمایش داده می‌شوند.</p>
+            <form method="post">
+                <?php wp_nonce_field( 'samahesab_dl' ); ?>
+                <table class="form-table">
+                    <tr><th>نسخه</th><td><input name="version" type="text" class="regular-text" value="<?php echo esc_attr( $version ); ?>"></td></tr>
+                    <tr><th>لینکِ دانلود</th><td><input name="download_url" type="url" class="regular-text" value="<?php echo esc_attr( $url ); ?>"></td></tr>
+                </table>
+                <p><button class="button button-primary" name="samahesab_save_dl" value="1">ذخیره</button></p>
+            </form>
+            <hr>
+            <h2>چطور بخشِ «امکانات + دانلود» را روی سایت بگذارم؟</h2>
+            <ol>
+                <li>«برگه‌ها ▸ افزودنِ برگه» یک برگهٔ تازه (مثلاً «درباره سما حساب» یا «دانلود») بساز.</li>
+                <li>این شورت‌کد را در متنِ برگه بگذار: <code>[samahesab_product]</code></li>
+                <li>برگه را منتشر کن و در منوی سایت قرار بده.</li>
+            </ol>
+        </div>
+        <?php
     }
 
     private function count_status( $type, $status ) {

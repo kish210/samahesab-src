@@ -273,10 +273,12 @@
                                   StaysOpenOnEdit="True" PreviewKeyDown="AccCombo_PreviewKeyDown">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Code}" FontSize="11" Foreground="{StaticResource TextMuted}" Width="52" FlowDirection="LeftToRight"/>
+                                    <!-- U13: کد (راست) · نام (وسط) · ماندهٔ جاری (چپ، LTR) — مطابقِ DESIGN LAW ۲-ب -->
+                                    <DockPanel LastChildFill="True" MinWidth="320">
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding Code}" FontSize="11" Foreground="{StaticResource TextMuted}" Width="52" FlowDirection="LeftToRight"/>
+                                        <TextBlock DockPanel.Dock="Left" Text="{Binding Balance, Converter={StaticResource Num}}" FontSize="10.5" Foreground="{StaticResource TextMuted}" FlowDirection="LeftToRight" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Name}" FontSize="12.5"/>
-                                    </StackPanel>
+                                    </DockPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>

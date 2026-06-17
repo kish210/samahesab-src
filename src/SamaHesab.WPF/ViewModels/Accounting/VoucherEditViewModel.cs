@@ -113,6 +113,11 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         }
         catch { /* مانده اختیاری است */ }
 
+        // U13 — type-ahead حساب با نمایشِ مانده در فهرستِ پیشنهاد (DESIGN LAW ۲-ب).
+        foreach (var it in LeafAccounts)
+            if (_accountBalances.TryGetValue(it.Id, out var bal)) it.Balance = bal;
+        OnPropertyChanged(nameof(LeafAccounts));
+
         await LoadQuickAccountsAsync();
         await LoadPrintTemplatesAsync();
     }
@@ -487,6 +492,8 @@ public record VoucherAccountItem(int Id, string Code, string Name)
 {
     /// <summary>متنِ جست‌وجوی هوشمند: شامل کد و نام تا تایپِ هرکدام (contains) فیلتر کند.</summary>
     public string Display => $"{Code} — {Name}";
+    /// <summary>ماندهٔ جاریِ حساب (U13) — برای نمایش کنارِ پیشنهادِ type-ahead.</summary>
+    public decimal Balance { get; set; }
 }
 public record CostCenterItem(int Id, string Name);
 

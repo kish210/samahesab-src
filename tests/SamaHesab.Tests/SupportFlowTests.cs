@@ -155,4 +155,31 @@ public class SupportFlowTests
         Assert.Single(list);
         Assert.Equal("تنظیمِ مالیات", list[0].Title);
     }
+
+    // ── HC-6 ──
+    [Fact]
+    public void RemoteCode_Has_Expected_Shape()
+    {
+        var code = GenerateSupportCodeCommandHandler.NewCode();
+        Assert.Matches(@"^SH-[0-9A-Z]{4}-\d{2}$", code);
+    }
+
+    [Fact]
+    public async Task Generate_And_End_Remote_Session()
+    {
+        var repo = new Repo<RemoteSupportSession>();
+        var gen = new GenerateSupportCodeCommandHandler(repo, new Uow(), new User());
+        var res = await gen.Handle(new GenerateSupportCodeCommand("بررسیِ گزارش", 30), default);
+
+        Assert.True(res.Succeeded);
+        Assert.Equal("در انتظار", res.Value!.StatusText);
+        Assert.Single(repo.Items);
+
+        var end = new EndRemoteSessionCommandHandler(repo, new Uow());
+        var endRes = await end.Handle(new EndRemoteSessionCommand(res.Value.Id, null), default);
+
+        Assert.True(endRes.Succeeded);
+        Assert.Equal(RemoteSessionStatus.Ended, repo.Items[0].Status);
+        Assert.NotNull(repo.Items[0].EndedAt);
+    }
 }

@@ -20,6 +20,12 @@ public static class SupportLabels
         SyncState.Local => "محلی", SyncState.Queued => "در صفِ ارسال",
         SyncState.Synced => "ارسال‌شده", SyncState.Failed => "ناموفق", _ => s.ToString()
     };
+
+    public static string RemoteStatus(RemoteSessionStatus s) => s switch
+    {
+        RemoteSessionStatus.Pending => "در انتظار", RemoteSessionStatus.Active => "فعال",
+        RemoteSessionStatus.Ended => "پایان‌یافته", RemoteSessionStatus.Expired => "منقضی", _ => s.ToString()
+    };
 }
 
 // ── «درخواست‌های من» — نمای یکپارچهٔ محلیِ باگ/قابلیت/تیکت ──

@@ -23,7 +23,7 @@ public partial class HelpCenterViewModel : BaseViewModel
         new("SupportTicket", "تیکتِ پشتیبانی",   "ثبت و پیگیریِ درخواستِ پشتیبانی",             "TicketConfirmationOutline", true),
         new("KnowledgeBase", "دانشنامه",         "مقالات، پرسش‌های پرتکرار و راهنما",          "BookOpenPageVariantOutline", true),
         new("ReleaseNotes",  "یادداشت‌های نسخه", "تازه‌ها، رفعِ باگ‌ها و مشکلاتِ شناخته‌شده",    "Update",                true),
-        new("RemoteSupport", "پشتیبانیِ ریموت",  "کدِ پشتیبانی برای دسترسیِ کارشناس",           "MonitorShare",          false),
+        new("RemoteSupport", "پشتیبانیِ ریموت",  "کدِ پشتیبانی برای دسترسیِ کارشناس",           "MonitorShare",          true),
         new("MyRequests",    "درخواست‌های من",   "وضعیتِ تیکت‌ها و گزارش‌های ارسالی",           "FormatListChecks",      true),
     };
 

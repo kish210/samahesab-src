@@ -118,6 +118,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Support.MyRequestsViewModel>();       // 🆘 HC-4
                 services.AddTransient<ViewModels.Support.ReleaseNotesViewModel>();     // 🆘 HC-5
                 services.AddTransient<ViewModels.Support.KnowledgeBaseViewModel>();    // 🆘 HC-5
+                services.AddTransient<ViewModels.Support.RemoteSupportViewModel>();    // 🆘 HC-6
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();
@@ -1025,6 +1026,7 @@ public partial class App : System.Windows.Application
             ("BugReport","38_گزارش_باگ"),   // 🆘 HC-3
             ("FeatureRequest","39_درخواست_قابلیت"), ("SupportTicket","40_تیکت"), ("MyRequests","41_درخواست‌های_من"),   // 🆘 HC-4
             ("KnowledgeBase","42_دانشنامه"), ("ReleaseNotes","43_یادداشت_نسخه"),   // 🆘 HC-5
+            ("RemoteSupport","44_پشتیبانی_ریموت"),   // 🆘 HC-6
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

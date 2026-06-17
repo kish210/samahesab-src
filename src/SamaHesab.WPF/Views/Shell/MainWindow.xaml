@@ -330,6 +330,8 @@
                                 <Separator/>
                                 <MenuItem Header="دانشنامه" Command="{Binding NavigateCommand}" CommandParameter="KnowledgeBase"/>
                                 <MenuItem Header="یادداشت‌های نسخه" Command="{Binding NavigateCommand}" CommandParameter="ReleaseNotes"/>
+                                <Separator/>
+                                <MenuItem Header="پشتیبانیِ ریموت" Command="{Binding NavigateCommand}" CommandParameter="RemoteSupport"/>
                                 <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
                             </ContextMenu>
                         </Button.ContextMenu>

@@ -53,23 +53,30 @@ class SamaHesab_Landing {
     private function latest_release() {
         $cached = get_transient( 'samahesab_latest_release' );
         if ( is_array( $cached ) ) {
-            return $cached;
+            // رکوردِ موفق «version» دارد؛ نشانگرِ شکست (failed) → null بدونِ درخواستِ دوباره.
+            return empty( $cached['version'] ) ? null : $cached;
         }
+
+        // کَشِ منفی: اگر گیت‌هاب در دسترس نبود، ۱۵ دقیقه دوباره تلاش نکن تا رندرِ صفحه بلاک نشود.
+        $fail = function () {
+            set_transient( 'samahesab_latest_release', array( 'failed' => 1 ), 15 * MINUTE_IN_SECONDS );
+            return null;
+        };
 
         $repo = $this->github_repo();
         $resp = wp_remote_get( "https://api.github.com/repos/{$repo}/releases/latest", array(
-            'timeout' => 12,
+            'timeout' => 7,
             'headers' => array(
                 'Accept'     => 'application/vnd.github+json',
                 'User-Agent' => 'SamaHesab-Support-Center',
             ),
         ) );
         if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) ) {
-            return null;
+            return $fail();
         }
         $data = json_decode( wp_remote_retrieve_body( $resp ), true );
         if ( empty( $data['tag_name'] ) ) {
-            return null;
+            return $fail();
         }
 
         // یافتنِ نصابِ .exe از assets (اولویت با فایلی که «setup» دارد = نصابِ کامل).
@@ -205,7 +212,7 @@ class SamaHesab_Landing {
                 </div>
                 <div class="sh-frame">
                     <div class="bar"><i></i><i></i><i></i></div>
-                    <img src="<?php echo esc_url( $hero_img ); ?>" alt="داشبوردِ سما حساب" loading="lazy">
+                    <img src="<?php echo esc_url( $hero_img ); ?>" alt="داشبوردِ سما حساب" loading="eager" fetchpriority="high" decoding="async">
                 </div>
             </section>
 

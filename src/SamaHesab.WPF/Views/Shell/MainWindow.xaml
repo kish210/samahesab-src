@@ -323,6 +323,7 @@
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="HelpCenter"/>
+                                <MenuItem Header="گزارشِ باگ" Command="{Binding NavigateCommand}" CommandParameter="BugReport"/>
                                 <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
                             </ContextMenu>
                         </Button.ContextMenu>

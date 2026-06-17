@@ -53,6 +53,7 @@ public partial class MainViewModel : BaseViewModel
         ["Employees"] = ModuleService.Hr, ["EmployeeEdit"] = ModuleService.Hr,
         ["Salary"] = ModuleService.Hr, ["Attendance"] = ModuleService.Hr,
         ["HelpCenter"] = ModuleService.Support, ["Diagnostics"] = ModuleService.Support,   // 🆘 HC-1
+        ["BugReport"] = ModuleService.Support,   // 🆘 HC-3
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -179,6 +180,7 @@ public partial class MainViewModel : BaseViewModel
             // 🆘 HC-1 — مرکزِ پشتیبانی (ماژولِ اختیاریِ Support)
             ["HelpCenter"]      = ("مرکزِ پشتیبانی",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.HelpCenterViewModel>()),
             ["Diagnostics"]     = ("عیب‌یابیِ سیستم",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.DiagnosticsViewModel>()),
+            ["BugReport"]       = ("گزارشِ باگ",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.BugReportViewModel>()),
         };
 
         // Clock timer

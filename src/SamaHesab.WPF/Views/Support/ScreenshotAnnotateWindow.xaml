@@ -1,0 +1,39 @@
+<Window x:Class="SamaHesab.WPF.Views.Support.ScreenshotAnnotateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ابزارِ اسکرین‌شات — خط بکشید / مشکل را هایلایت کنید"
+        FlowDirection="RightToLeft" FontFamily="{StaticResource VazirFont}"
+        Width="1000" Height="680" WindowStartupLocation="CenterScreen" Background="#202830">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- نوار ابزار -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="2,0,2,8">
+            <Button x:Name="BtnPen"  Content="✏️ قلم (قرمز)" Click="Pen_Click" Padding="12,6" Margin="0,0,6,0"/>
+            <Button x:Name="BtnHi"   Content="🖍️ هایلایت" Click="Highlight_Click" Padding="12,6" Margin="0,0,6,0"/>
+            <Button x:Name="BtnErase" Content="🧽 پاک‌کن" Click="Erase_Click" Padding="12,6" Margin="0,0,6,0"/>
+            <Button Content="↺ پاک‌کردنِ همه" Click="Clear_Click" Padding="12,6" Margin="0,0,6,0"/>
+        </StackPanel>
+
+        <!-- بوم: تصویر + لایهٔ نقاشی -->
+        <Border Grid.Row="1" BorderBrush="#3A4756" BorderThickness="1" Background="#11161C">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Grid x:Name="CanvasRoot" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image x:Name="ShotImage" Stretch="None"/>
+                    <InkCanvas x:Name="Ink" Background="Transparent"/>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- دکمه‌ها -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="2,8,2,0">
+            <Button Content="💾 ذخیره و الصاق" Click="Save_Click" Padding="16,7" Margin="0,0,8,0"
+                    Background="#2E7D32" Foreground="White" FontWeight="Bold"/>
+            <Button Content="انصراف" IsCancel="True" Padding="16,7"/>
+        </StackPanel>
+    </Grid>
+</Window>

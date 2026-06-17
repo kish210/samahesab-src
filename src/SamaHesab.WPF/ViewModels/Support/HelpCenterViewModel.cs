@@ -18,7 +18,7 @@ public partial class HelpCenterViewModel : BaseViewModel
     public ObservableCollection<HelpTile> Tiles { get; } = new()
     {
         new("Diagnostics",  "عیب‌یابیِ سیستم",  "وضعیتِ لایسنس، پایگاه‌داده، حافظه و ماژول‌ها", "Stethoscope",          true),
-        new("BugReport",    "گزارشِ باگ",        "گزارشِ خطا با الصاقِ خودکارِ اطلاعاتِ سیستم",   "BugOutline",            false),
+        new("BugReport",    "گزارشِ باگ",        "گزارشِ خطا با الصاقِ خودکارِ اطلاعاتِ سیستم",   "BugOutline",            true),
         new("FeatureRequest","درخواستِ قابلیت",  "پیشنهادِ قابلیتِ تازه برای محصول",            "LightbulbOnOutline",    false),
         new("SupportTicket", "تیکتِ پشتیبانی",   "ثبت و پیگیریِ درخواستِ پشتیبانی",             "TicketConfirmationOutline", false),
         new("KnowledgeBase", "دانشنامه",         "مقالات، پرسش‌های پرتکرار و راهنما",          "BookOpenPageVariantOutline", false),

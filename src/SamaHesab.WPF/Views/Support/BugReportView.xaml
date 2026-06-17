@@ -1,0 +1,99 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Support.BugReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft"
+             Background="{StaticResource ErpAppBg}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- سربرگ -->
+        <StackPanel Grid.Row="0" Margin="2,0,2,8">
+            <TextBlock Text="گزارشِ باگ" FontSize="18" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}"/>
+            <TextBlock Text="مشکل را شرح دهید. اطلاعاتِ فنیِ سیستم خودکار الصاق می‌شود (بدونِ دادهٔ مالی)."
+                       FontSize="12" Foreground="{StaticResource ErpTextMuted}" Margin="0,3,0,0"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="16">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="عنوان *" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                    <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Height="32" Padding="6,4"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="شدت" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <ComboBox Height="32" ItemsSource="{Binding Severities}" SelectedItem="{Binding SelectedSeverity}" DisplayMemberPath="Label"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="دسته‌بندی" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <ComboBox Height="32" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" DisplayMemberPath="Label"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="شرحِ مشکل *" FontWeight="SemiBold" Margin="0,10,0,3"/>
+                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Height="70"
+                             TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Padding="6,4"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="نتیجهٔ موردِانتظار" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <TextBox Text="{Binding ExpectedResult, UpdateSourceTrigger=PropertyChanged}" Height="56" TextWrapping="Wrap" AcceptsReturn="True" Padding="6,4"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="نتیجهٔ واقعی" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <TextBox Text="{Binding ActualResult, UpdateSourceTrigger=PropertyChanged}" Height="56" TextWrapping="Wrap" AcceptsReturn="True" Padding="6,4"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="گام‌های بازتولید" FontWeight="SemiBold" Margin="0,10,0,3"/>
+                    <TextBox Text="{Binding StepsToReproduce, UpdateSourceTrigger=PropertyChanged}" Height="56"
+                             TextWrapping="Wrap" AcceptsReturn="True" Padding="6,4"/>
+
+                    <!-- پیوست -->
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0" VerticalAlignment="Center">
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="32" Padding="12,0" Content="📸 گرفتن و خط‌کشیِ اسکرین‌شات" Click="Capture_Click"/>
+                        <TextBlock Text="{Binding AttachmentName}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="12"/>
+                        <Button Content="✖" Command="{Binding RemoveAttachmentCommand}" Margin="6,0,0,0" Padding="6,0" Height="24"
+                                ToolTip="حذفِ پیوست" Visibility="{Binding HasAttachment, Converter={StaticResource BoolVis}}"/>
+                    </StackPanel>
+
+                    <!-- خلاصهٔ تشخیص -->
+                    <Border Background="{StaticResource ErpAppBg}" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="4" Padding="10,7" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="🔒 اطلاعاتِ فنیِ الصاق‌شده (فقط تشخیصی — بدونِ دادهٔ مالی):" FontSize="11.5" Foreground="{StaticResource ErpTextMuted}"/>
+                            <TextBlock Text="{Binding DiagnosticsSummary}" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ارسال + نتیجه -->
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Border Grid.Column="0" CornerRadius="4" Padding="10,7" VerticalAlignment="Center"
+                    Visibility="{Binding HasResult, Converter={StaticResource BoolVis}}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="#E8F5E9"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ResultIsError}" Value="True">
+                                <Setter Property="Background" Value="#FDECEA"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" FontSize="12"/>
+            </Border>
+            <Button Grid.Column="1" Style="{StaticResource ErpBtnPrimary}" Height="36" Padding="22,0" Margin="8,0,0,0"
+                    Content="📤 ارسالِ گزارش" Command="{Binding SubmitCommand}"/>
+        </Grid>
+    </Grid>
+</UserControl>

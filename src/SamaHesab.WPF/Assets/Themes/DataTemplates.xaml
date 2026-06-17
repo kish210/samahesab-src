@@ -35,6 +35,8 @@
     <DataTemplate DataType="{x:Type sup:FeatureRequestViewModel}"><vsup:FeatureRequestView/></DataTemplate>
     <DataTemplate DataType="{x:Type sup:SupportTicketViewModel}"><vsup:SupportTicketView/></DataTemplate>
     <DataTemplate DataType="{x:Type sup:MyRequestsViewModel}"><vsup:MyRequestsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:ReleaseNotesViewModel}"><vsup:ReleaseNotesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:KnowledgeBaseViewModel}"><vsup:KnowledgeBaseView/></DataTemplate>
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>

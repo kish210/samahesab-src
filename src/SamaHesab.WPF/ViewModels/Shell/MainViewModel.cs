@@ -56,6 +56,7 @@ public partial class MainViewModel : BaseViewModel
         ["BugReport"] = ModuleService.Support,   // 🆘 HC-3
         ["FeatureRequest"] = ModuleService.Support, ["SupportTicket"] = ModuleService.Support,
         ["MyRequests"] = ModuleService.Support,   // 🆘 HC-4
+        ["ReleaseNotes"] = ModuleService.Support, ["KnowledgeBase"] = ModuleService.Support,   // 🆘 HC-5
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -186,6 +187,8 @@ public partial class MainViewModel : BaseViewModel
             ["FeatureRequest"]  = ("درخواستِ قابلیت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.FeatureRequestViewModel>()),
             ["SupportTicket"]   = ("تیکتِ پشتیبانی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.SupportTicketViewModel>()),
             ["MyRequests"]      = ("درخواست‌های من",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.MyRequestsViewModel>()),
+            ["ReleaseNotes"]    = ("یادداشت‌های نسخه",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.ReleaseNotesViewModel>()),
+            ["KnowledgeBase"]   = ("دانشنامه",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.KnowledgeBaseViewModel>()),
         };
 
         // Clock timer

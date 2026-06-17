@@ -327,6 +327,9 @@
                                 <MenuItem Header="درخواستِ قابلیت" Command="{Binding NavigateCommand}" CommandParameter="FeatureRequest"/>
                                 <MenuItem Header="تیکتِ پشتیبانی" Command="{Binding NavigateCommand}" CommandParameter="SupportTicket"/>
                                 <MenuItem Header="درخواست‌های من" Command="{Binding NavigateCommand}" CommandParameter="MyRequests"/>
+                                <Separator/>
+                                <MenuItem Header="دانشنامه" Command="{Binding NavigateCommand}" CommandParameter="KnowledgeBase"/>
+                                <MenuItem Header="یادداشت‌های نسخه" Command="{Binding NavigateCommand}" CommandParameter="ReleaseNotes"/>
                                 <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
                             </ContextMenu>
                         </Button.ContextMenu>

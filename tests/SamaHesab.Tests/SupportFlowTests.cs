@@ -125,4 +125,34 @@ public class SupportFlowTests
         // مرتب‌سازی نزولیِ تاریخ: جدیدترین (تیکت) اول.
         Assert.True(list.Zip(list.Skip(1), (a, b) => a.CreatedAt >= b.CreatedAt).All(x => x));
     }
+
+    // ── HC-5 ──
+    [Fact]
+    public async Task SyncReleases_Offline_Returns_Cached_Current_First()
+    {
+        var repo = new Repo<ReleaseNote>();
+        await repo.AddAsync(ReleaseNote.Create(1, "r1", "2.4.0", "h", "b", "k", DateTime.Now.AddDays(-30), false), default);
+        await repo.AddAsync(ReleaseNote.Create(1, "r2", "2.5.0", "h2", "b2", "k2", DateTime.Now, true), default);
+
+        var sut = new SyncReleaseNotesCommandHandler(repo, new Uow(), new User(), new OfflineApi());
+        var list = await sut.Handle(new SyncReleaseNotesCommand(), default);
+
+        Assert.Equal(2, list.Count);
+        Assert.True(list[0].IsCurrent);          // نسخهٔ فعلی اول
+        Assert.Equal("2.5.0", list[0].Version);
+    }
+
+    [Fact]
+    public async Task SyncArticles_Offline_Filters_Cache_By_Search()
+    {
+        var repo = new Repo<KnowledgeArticle>();
+        await repo.AddAsync(KnowledgeArticle.Create(1, "a1", "تنظیمِ مالیات", SupportCategory.Accounting, "نرخِ مالیات", null, null, "article", DateTime.Now), default);
+        await repo.AddAsync(KnowledgeArticle.Create(1, "a2", "افزودنِ کالا", SupportCategory.Inventory, "کالای نو", null, null, "guide", DateTime.Now), default);
+
+        var sut = new SyncKnowledgeArticlesCommandHandler(repo, new Uow(), new User(), new OfflineApi());
+        var list = await sut.Handle(new SyncKnowledgeArticlesCommand("مالیات"), default);
+
+        Assert.Single(list);
+        Assert.Equal("تنظیمِ مالیات", list[0].Title);
+    }
 }

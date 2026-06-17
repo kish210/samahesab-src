@@ -6,6 +6,10 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- F5 = اجرای/تازه‌سازیِ گزارش (کیبوردمحور) -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RunCommand}"/>
+    </UserControl.InputBindings>
     <Grid Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

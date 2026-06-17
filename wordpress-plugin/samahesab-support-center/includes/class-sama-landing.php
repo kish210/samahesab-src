@@ -23,6 +23,7 @@ class SamaHesab_Landing {
     public function register_settings() {
         register_setting( 'samahesab_download_group', 'samahesab_download_url' );
         register_setting( 'samahesab_download_group', 'samahesab_version' );
+        register_setting( 'samahesab_download_group', 'samahesab_github_repo' );
     }
 
     private function features() {
@@ -38,14 +39,76 @@ class SamaHesab_Landing {
         );
     }
 
-    public function product( $atts ) {
-        $atts = shortcode_atts( array(
-            'version' => get_option( 'samahesab_version', '2.5.0' ),
-            'url'     => get_option( 'samahesab_download_url', 'https://github.com/kish210/SamaHesab/releases/latest' ),
-        ), $atts, 'samahesab_product' );
+    /** مخزنِ گیت‌هاب (قابلِ تنظیم در «SamaHesab ▸ دانلود»). */
+    private function github_repo() {
+        $r = trim( (string) get_option( 'samahesab_github_repo', 'kish210/SamaHesab' ) );
+        return '' !== $r ? $r : 'kish210/SamaHesab';
+    }
 
-        $version = esc_html( $atts['version'] );
-        $url     = esc_url( $atts['url'] );
+    /**
+     * 🔗 لینکِ هوشمند: آخرین Releaseِ گیت‌هاب را زنده می‌خوانَد (نسخه + نصابِ .exe) و ۱ ساعت کَش می‌کند.
+     * با ساختِ Releaseِ تازه روی گیت‌هاب، سایت خودکار به‌روز می‌شود — بدونِ تغییر در سایت.
+     * در صورتِ نبودِ شبکه/خطا → null (تا fallback به تنظیماتِ دستی برود).
+     */
+    private function latest_release() {
+        $cached = get_transient( 'samahesab_latest_release' );
+        if ( is_array( $cached ) ) {
+            return $cached;
+        }
+
+        $repo = $this->github_repo();
+        $resp = wp_remote_get( "https://api.github.com/repos/{$repo}/releases/latest", array(
+            'timeout' => 12,
+            'headers' => array(
+                'Accept'     => 'application/vnd.github+json',
+                'User-Agent' => 'SamaHesab-Support-Center',
+            ),
+        ) );
+        if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) ) {
+            return null;
+        }
+        $data = json_decode( wp_remote_retrieve_body( $resp ), true );
+        if ( empty( $data['tag_name'] ) ) {
+            return null;
+        }
+
+        // یافتنِ نصابِ .exe از assets (اولویت با فایلی که «setup» دارد = نصابِ کامل).
+        $download = '';
+        if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
+            foreach ( $data['assets'] as $a ) {
+                $name = isset( $a['name'] ) ? strtolower( $a['name'] ) : '';
+                if ( '.exe' === substr( $name, -4 ) && ! empty( $a['browser_download_url'] ) ) {
+                    $download = $a['browser_download_url'];
+                    if ( false !== strpos( $name, 'setup' ) ) {
+                        break;
+                    }
+                }
+            }
+        }
+        if ( '' === $download ) {
+            $download = ! empty( $data['html_url'] ) ? $data['html_url'] : "https://github.com/{$repo}/releases/latest";
+        }
+
+        $result = array(
+            'version' => ltrim( (string) $data['tag_name'], 'vV' ),
+            'url'     => $download,
+        );
+        set_transient( 'samahesab_latest_release', $result, HOUR_IN_SECONDS );
+        return $result;
+    }
+
+    public function product( $atts ) {
+        // ویژگیِ شورت‌کد (در صورتِ تعیینِ صریح) بالاترین اولویت؛ وگرنه «آخرین Releaseِ زنده»؛ وگرنه تنظیماتِ دستی.
+        $atts   = shortcode_atts( array( 'version' => '', 'url' => '' ), $atts, 'samahesab_product' );
+        $latest = $this->latest_release();
+
+        $version = '' !== $atts['version'] ? $atts['version']
+            : ( $latest ? $latest['version'] : get_option( 'samahesab_version', '2.5.0' ) );
+        $url = '' !== $atts['url'] ? $atts['url']
+            : ( $latest ? $latest['url'] : get_option( 'samahesab_download_url', 'https://github.com/' . $this->github_repo() . '/releases/latest' ) );
+
+        $version = esc_html( $version );
+        $url     = esc_url( $url );
 
         ob_start();
         ?>

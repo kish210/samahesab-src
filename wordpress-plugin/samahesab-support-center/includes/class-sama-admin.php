@@ -40,23 +40,35 @@ class SamaHesab_Admin {
     /** تنظیمِ نسخه/لینکِ دانلود که شورت‌کدِ [samahesab_product] استفاده می‌کند. */
     public function download_page() {
         if ( isset( $_POST['samahesab_save_dl'] ) && check_admin_referer( 'samahesab_dl' ) ) {
+            update_option( 'samahesab_github_repo', sanitize_text_field( wp_unslash( $_POST['github_repo'] ?? '' ) ) );
             update_option( 'samahesab_version', sanitize_text_field( wp_unslash( $_POST['version'] ?? '' ) ) );
             update_option( 'samahesab_download_url', esc_url_raw( wp_unslash( $_POST['download_url'] ?? '' ) ) );
-            echo '<div class="notice notice-success"><p>ذخیره شد.</p></div>';
+            delete_transient( 'samahesab_latest_release' );   // کَش پاک تا تغییر فوراً اعمال شود
+            echo '<div class="notice notice-success"><p>ذخیره شد (کَشِ آخرین نسخه هم تازه شد).</p></div>';
         }
+        if ( isset( $_POST['samahesab_clear_cache'] ) && check_admin_referer( 'samahesab_dl' ) ) {
+            delete_transient( 'samahesab_latest_release' );
+            echo '<div class="notice notice-success"><p>کَشِ «آخرین نسخه» پاک شد؛ دفعهٔ بعد زنده از گیت‌هاب خوانده می‌شود.</p></div>';
+        }
+        $repo    = get_option( 'samahesab_github_repo', 'kish210/SamaHesab' );
         $version = get_option( 'samahesab_version', '2.5.0' );
         $url     = get_option( 'samahesab_download_url', 'https://github.com/kish210/SamaHesab/releases/latest' );
         ?>
         <div class="wrap" dir="rtl" style="font-family:Tahoma,sans-serif">
             <h1>دانلودِ نرم‌افزار (بخشِ سایت)</h1>
-            <p>این مقادیر در بخشِ عمومیِ سایت (شورت‌کدِ <code>[samahesab_product]</code>) نمایش داده می‌شوند.</p>
+            <p><strong>لینکِ دانلود هوشمند است:</strong> شورت‌کدِ <code>[samahesab_product]</code> به‌صورتِ خودکار <em>آخرین Releaseِ</em> مخزنِ گیت‌هاب (نسخه + فایلِ نصابِ <code>.exe</code>) را می‌خوانَد و ۱ ساعت کَش می‌کند. کافی است روی گیت‌هاب یک Releaseِ جدید بسازی — سایت بدونِ هیچ تغییری به‌روز می‌شود.</p>
+            <p>مقادیرِ «نسخه/لینکِ دستی» فقط <strong>fallback</strong> هستند (اگر API گیت‌هاب در دسترس نباشد).</p>
             <form method="post">
                 <?php wp_nonce_field( 'samahesab_dl' ); ?>
                 <table class="form-table">
-                    <tr><th>نسخه</th><td><input name="version" type="text" class="regular-text" value="<?php echo esc_attr( $version ); ?>"></td></tr>
-                    <tr><th>لینکِ دانلود</th><td><input name="download_url" type="url" class="regular-text" value="<?php echo esc_attr( $url ); ?>"></td></tr>
+                    <tr><th>مخزنِ گیت‌هاب (owner/repo)</th><td><input name="github_repo" type="text" class="regular-text" value="<?php echo esc_attr( $repo ); ?>" placeholder="kish210/SamaHesab"></td></tr>
+                    <tr><th>نسخهٔ fallback</th><td><input name="version" type="text" class="regular-text" value="<?php echo esc_attr( $version ); ?>"></td></tr>
+                    <tr><th>لینکِ دانلودِ fallback</th><td><input name="download_url" type="url" class="regular-text" value="<?php echo esc_attr( $url ); ?>"></td></tr>
                 </table>
-                <p><button class="button button-primary" name="samahesab_save_dl" value="1">ذخیره</button></p>
+                <p>
+                    <button class="button button-primary" name="samahesab_save_dl" value="1">ذخیره</button>
+                    <button class="button" name="samahesab_clear_cache" value="1">تازه‌سازیِ آخرین نسخه از گیت‌هاب</button>
+                </p>
             </form>
             <hr>
             <h2>چطور بخشِ «امکانات + دانلود» را روی سایت بگذارم؟</h2>

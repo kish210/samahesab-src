@@ -6,7 +6,7 @@
              xmlns:ctl="clr-namespace:SamaHesab.WPF.Controls"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft"
-             Background="#F4F5F7">
+             Background="#F6F8FB">
 
     <!-- میان‌برهای کیبورد (طبق سند طراحی: F2/F7/F8/F9 + «=» توازن خودکار) -->
     <UserControl.InputBindings>
@@ -23,17 +23,18 @@
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
 
-        <!-- توکن‌های برند -->
-        <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>
-        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>
-        <SolidColorBrush x:Key="Gold500" Color="#B18A5A"/>
-        <SolidColorBrush x:Key="EntryBg" Color="#EEF2FB"/>
-        <SolidColorBrush x:Key="EntryBorder" Color="#CFDAEF"/>
-        <SolidColorBrush x:Key="Line" Color="#E3E6EC"/>
-        <SolidColorBrush x:Key="HeadBg" Color="#EFF2F7"/>
-        <SolidColorBrush x:Key="Zebra" Color="#FAFBFC"/>
-        <SolidColorBrush x:Key="TextStrong" Color="#1F2937"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#6B7280"/>
+        <!-- توکن‌های برند — هم‌تراز با پالتِ دیزاین‌سیستم (DESIGN LAW: منبعِ واحد) -->
+        <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>      <!-- =ErpBlue600 -->
+        <SolidColorBrush x:Key="Blue700" Color="#324A7A"/>      <!-- =ErpBlue700 -->
+        <SolidColorBrush x:Key="Gold500" Color="#B18A5A"/>      <!-- =ErpGold500 -->
+        <SolidColorBrush x:Key="EntryBg" Color="#EEF1F7"/>      <!-- =ErpBlue50 -->
+        <SolidColorBrush x:Key="EntryBorder" Color="#DCE2EE"/>  <!-- =ErpBlue100 -->
+        <SolidColorBrush x:Key="Line" Color="#E0E5EE"/>         <!-- =ErpBorder -->
+        <SolidColorBrush x:Key="HeadBg" Color="#F6F8FB"/>       <!-- =ErpGray50 -->
+        <SolidColorBrush x:Key="Zebra" Color="#F6F8FB"/>        <!-- =ErpGray50 -->
+        <SolidColorBrush x:Key="TextStrong" Color="#161C2A"/>   <!-- =ErpTextStrong -->
+        <SolidColorBrush x:Key="TextMuted" Color="#7B8699"/>    <!-- =ErpTextMuted -->
+
 
         <!-- لیبل کوچک بالای فیلد -->
         <Style x:Key="Lbl" TargetType="TextBlock">

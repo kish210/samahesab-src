@@ -14,6 +14,18 @@
         GlowBrush="{StaticResource ErpBlue700}"
         BorderThickness="0">
 
+    <!-- DL-C1-E: میان‌برهای سراسریِ ناوبری (DESIGN LAW بخش ۷). Ctrl+K در code-behind (فوکوسِ جست‌وجو). -->
+    <mah:MetroWindow.InputBindings>
+        <KeyBinding Modifiers="Control" Key="D1" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
+        <KeyBinding Modifiers="Control" Key="D2" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
+        <KeyBinding Modifiers="Control" Key="D3" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
+        <KeyBinding Modifiers="Control" Key="D4" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
+        <KeyBinding Modifiers="Control" Key="D5" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
+        <KeyBinding Modifiers="Control" Key="D6" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
+        <KeyBinding Modifiers="Control" Key="R"  Command="{Binding NavigateCommand}" CommandParameter="Reports"/>
+        <KeyBinding Key="F12" Command="{Binding NavigateCommand}" CommandParameter="POS"/>
+    </mah:MetroWindow.InputBindings>
+
     <mah:MetroWindow.Resources>
         <conv:NavActiveToVisibilityConverter x:Key="NavActive"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
@@ -323,7 +335,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Path Grid.Column="0" Data="{StaticResource IcSearch}" Style="{StaticResource TopSvgIcon}" Stroke="#9FB0D0" Width="15" Height="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
+                        <TextBox Grid.Column="1" x:Name="GlobalSearchBox" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
                                  Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" Padding="8,0"
                                  materialDesign:HintAssist.Hint="جستجو در همه‌جا…  Ctrl+K" materialDesign:HintAssist.Foreground="#8294B6"/>
                     </Grid>

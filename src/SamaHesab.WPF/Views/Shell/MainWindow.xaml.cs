@@ -13,6 +13,18 @@ public partial class MainWindow : MetroWindow
         DataContext = _vm = viewModel;
         VersionText.Text = $"نسخه {Services.AppVersion.Display} سازمانی";
         Loaded += async (_, _) => await viewModel.LoadAsync();
+        PreviewKeyDown += OnGlobalKeyDown;
+    }
+
+    // DL-C1-E: Ctrl+K = فوکوس به جست‌وجوی سراسری (بقیهٔ میان‌برها در XAML InputBindings).
+    private void OnGlobalKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.K &&
+            (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) == System.Windows.Input.ModifierKeys.Control)
+        {
+            GlobalSearchBox.Focus();
+            e.Handled = true;
+        }
     }
 
     /// <summary>منوی تاپ‌بار: کلیک روی دکمه، فهرست بازشونده‌ی همان دکمه را زیر آن باز می‌کند.</summary>

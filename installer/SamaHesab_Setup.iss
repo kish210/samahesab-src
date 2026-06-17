@@ -75,8 +75,9 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 [Run]
 ; build خودکفاست؛ نیازی به نصبِ .NET/VC++ نیست. پایگاه‌داده در اولین اجرا خودکار ساخته می‌شود (DatabaseMigrator)؛ اسکریپت‌های database برای مرجع همراه‌اند.
 ; Launch Application
+; postinstall بدونِ skipifsilent: پس از آپدیتِ بی‌صدا (به‌روزرسانِ خودکار) هم برنامه دوباره باز می‌شود.
 Filename: "{app}\{#MyAppExeName}"; Description: "راه‌اندازی {#MyAppName}"; \
-  Flags: nowait postinstall skipifsilent; WorkingDir: "{app}"
+  Flags: nowait postinstall; WorkingDir: "{app}"
 
 [UninstallRun]
 Filename: "{cmd}"; Parameters: "/C net stop SamaHesabService 2>nul"; Flags: runhidden
@@ -238,6 +239,10 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
+    // در آپدیتِ بی‌صدا صفحهٔ سرور نمایش داده نمی‌شود و ServerName خالی می‌ماند → appsettings را
+    // بازنویسی نکن (تنظیماتِ موجودِ سرور حفظ شود). فقط در نصبِ تعاملی که سرور وارد شده، بنویس.
+    if ServerName = '' then Exit;
+
     // نوشتنِ رشتهٔ اتصال در appsettings سرورِ API (نه برنامهٔ دسکتاپ که از طریق API کار می‌کند)
     ApiSettingsPath := ExpandConstant('{app}\server\appsettings.json');
     if FileExists(ApiSettingsPath) then

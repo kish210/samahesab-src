@@ -63,14 +63,22 @@ public class UpdateService
     {
         try
         {
-            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(15) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("SamaHesab-Updater");
             var bytes = await http.GetByteArrayAsync(info.DownloadUrl, ct);
+            if (bytes.Length < 1_000_000) return false;   // دانلودِ ناقص/خطا (نصاب ده‌ها مگابایت است)
 
             var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), info.FileName);
             await System.IO.File.WriteAllBytesAsync(path, bytes, ct);
 
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+            // اجرای نصاب در حالتِ به‌روزرسانیِ درجا: نصاب خودش برنامهٔ در حالِ اجرا را می‌بندد
+            // (CLOSEAPPLICATIONS → فایل‌ها قفل نمی‌مانند → نصب کامل می‌شود → میان‌بر سالم می‌ماند)
+            // و پس از نصب دوباره اجرا می‌کند (RESTARTAPPLICATIONS). SILENT = بدونِ ویزارد، فقط نوارِ پیشرفت.
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path)
+            {
+                UseShellExecute = true,
+                Arguments = "/SILENT /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /SUPPRESSMSGBOXES"
+            });
             return true;
         }
         catch { return false; }

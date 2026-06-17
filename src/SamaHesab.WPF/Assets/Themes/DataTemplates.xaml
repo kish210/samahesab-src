@@ -32,6 +32,9 @@
     <DataTemplate DataType="{x:Type sup:HelpCenterViewModel}"><vsup:HelpCenterView/></DataTemplate>
     <DataTemplate DataType="{x:Type sup:DiagnosticsViewModel}"><vsup:DiagnosticsView/></DataTemplate>
     <DataTemplate DataType="{x:Type sup:BugReportViewModel}"><vsup:BugReportView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:FeatureRequestViewModel}"><vsup:FeatureRequestView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:SupportTicketViewModel}"><vsup:SupportTicketView/></DataTemplate>
+    <DataTemplate DataType="{x:Type sup:MyRequestsViewModel}"><vsup:MyRequestsView/></DataTemplate>
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>

@@ -19,12 +19,12 @@ public partial class HelpCenterViewModel : BaseViewModel
     {
         new("Diagnostics",  "عیب‌یابیِ سیستم",  "وضعیتِ لایسنس، پایگاه‌داده، حافظه و ماژول‌ها", "Stethoscope",          true),
         new("BugReport",    "گزارشِ باگ",        "گزارشِ خطا با الصاقِ خودکارِ اطلاعاتِ سیستم",   "BugOutline",            true),
-        new("FeatureRequest","درخواستِ قابلیت",  "پیشنهادِ قابلیتِ تازه برای محصول",            "LightbulbOnOutline",    false),
-        new("SupportTicket", "تیکتِ پشتیبانی",   "ثبت و پیگیریِ درخواستِ پشتیبانی",             "TicketConfirmationOutline", false),
+        new("FeatureRequest","درخواستِ قابلیت",  "پیشنهادِ قابلیتِ تازه برای محصول",            "LightbulbOnOutline",    true),
+        new("SupportTicket", "تیکتِ پشتیبانی",   "ثبت و پیگیریِ درخواستِ پشتیبانی",             "TicketConfirmationOutline", true),
         new("KnowledgeBase", "دانشنامه",         "مقالات، پرسش‌های پرتکرار و راهنما",          "BookOpenPageVariantOutline", false),
         new("ReleaseNotes",  "یادداشت‌های نسخه", "تازه‌ها، رفعِ باگ‌ها و مشکلاتِ شناخته‌شده",    "Update",                false),
         new("RemoteSupport", "پشتیبانیِ ریموت",  "کدِ پشتیبانی برای دسترسیِ کارشناس",           "MonitorShare",          false),
-        new("MyRequests",    "درخواست‌های من",   "وضعیتِ تیکت‌ها و گزارش‌های ارسالی",           "FormatListChecks",      false),
+        new("MyRequests",    "درخواست‌های من",   "وضعیتِ تیکت‌ها و گزارش‌های ارسالی",           "FormatListChecks",      true),
     };
 
     public HelpCenterViewModel(IDialogService dialogService, INavigationService navigationService)

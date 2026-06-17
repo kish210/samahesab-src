@@ -113,6 +113,9 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Support.HelpCenterViewModel>();   // 🆘 HC-1
                 services.AddTransient<ViewModels.Support.DiagnosticsViewModel>();  // 🆘 HC-1
                 services.AddTransient<ViewModels.Support.BugReportViewModel>();    // 🆘 HC-3
+                services.AddTransient<ViewModels.Support.FeatureRequestViewModel>();   // 🆘 HC-4
+                services.AddTransient<ViewModels.Support.SupportTicketViewModel>();    // 🆘 HC-4
+                services.AddTransient<ViewModels.Support.MyRequestsViewModel>();       // 🆘 HC-4
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();
@@ -1018,6 +1021,7 @@ public partial class App : System.Windows.Application
             ("AgedBalance","29_ماندهٔ_سنی‌شده"), ("VatSummary","30_خلاصهٔ_مالیات"), ("Daybook","31_دفتر_روزنامه"), ("DeadStock","32_کالای_راکد"), ("ProductProfit","33_سود_کالا"), ("AbcAnalysis","34_تحلیل_ABC"), ("Turnover","35_گردش_موجودی"),
             ("HelpCenter","36_مرکز_پشتیبانی"), ("Diagnostics","37_عیب‌یابی"),   // 🆘 HC-1
             ("BugReport","38_گزارش_باگ"),   // 🆘 HC-3
+            ("FeatureRequest","39_درخواست_قابلیت"), ("SupportTicket","40_تیکت"), ("MyRequests","41_درخواست‌های_من"),   // 🆘 HC-4
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

@@ -1,0 +1,36 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Support.MyRequestsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{StaticResource VazirFont}" FlowDirection="RightToLeft"
+             Background="{StaticResource ErpAppBg}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="2,0,2,8">
+            <StackPanel>
+                <TextBlock Text="درخواست‌های من" FontSize="18" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}"/>
+                <TextBlock FontSize="12" Foreground="{StaticResource ErpTextMuted}" Margin="0,3,0,0">
+                    <Run Text="مجموع: "/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
+                    <Run Text="  ·  در صفِ ارسال: "/><Run Text="{Binding PendingSyncCount}" FontWeight="Bold" Foreground="#C0392B"/>
+                </TextBlock>
+            </StackPanel>
+            <Button HorizontalAlignment="Left" Style="{StaticResource ErpBtnGhost}" Height="30" Padding="12,0"
+                    Content="🔄 به‌روزرسانی" Command="{Binding RefreshCommand}"/>
+        </Grid>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6">
+            <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" BorderThickness="0"
+                      RowHeaderWidth="0" CanUserAddRows="False" Background="White">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="نوع" Binding="{Binding Kind}" Width="80"/>
+                    <DataGridTextColumn Header="عنوان" Binding="{Binding Title}" Width="*"/>
+                    <DataGridTextColumn Header="وضعیت" Binding="{Binding StatusText}" Width="120"/>
+                    <DataGridTextColumn Header="همگام‌سازی" Binding="{Binding SyncText}" Width="120"/>
+                    <DataGridTextColumn Header="کدِ پیگیری" Binding="{Binding RemoteId}" Width="110"/>
+                    <DataGridTextColumn Header="تاریخ" Binding="{Binding CreatedAt, StringFormat=yyyy/MM/dd HH:mm}" Width="140"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

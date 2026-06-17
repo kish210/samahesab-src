@@ -54,6 +54,8 @@ public partial class MainViewModel : BaseViewModel
         ["Salary"] = ModuleService.Hr, ["Attendance"] = ModuleService.Hr,
         ["HelpCenter"] = ModuleService.Support, ["Diagnostics"] = ModuleService.Support,   // 🆘 HC-1
         ["BugReport"] = ModuleService.Support,   // 🆘 HC-3
+        ["FeatureRequest"] = ModuleService.Support, ["SupportTicket"] = ModuleService.Support,
+        ["MyRequests"] = ModuleService.Support,   // 🆘 HC-4
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -181,6 +183,9 @@ public partial class MainViewModel : BaseViewModel
             ["HelpCenter"]      = ("مرکزِ پشتیبانی",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.HelpCenterViewModel>()),
             ["Diagnostics"]     = ("عیب‌یابیِ سیستم",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.DiagnosticsViewModel>()),
             ["BugReport"]       = ("گزارشِ باگ",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.BugReportViewModel>()),
+            ["FeatureRequest"]  = ("درخواستِ قابلیت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.FeatureRequestViewModel>()),
+            ["SupportTicket"]   = ("تیکتِ پشتیبانی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.SupportTicketViewModel>()),
+            ["MyRequests"]      = ("درخواست‌های من",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.MyRequestsViewModel>()),
         };
 
         // Clock timer

@@ -324,6 +324,9 @@
                             <ContextMenu>
                                 <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="HelpCenter"/>
                                 <MenuItem Header="گزارشِ باگ" Command="{Binding NavigateCommand}" CommandParameter="BugReport"/>
+                                <MenuItem Header="درخواستِ قابلیت" Command="{Binding NavigateCommand}" CommandParameter="FeatureRequest"/>
+                                <MenuItem Header="تیکتِ پشتیبانی" Command="{Binding NavigateCommand}" CommandParameter="SupportTicket"/>
+                                <MenuItem Header="درخواست‌های من" Command="{Binding NavigateCommand}" CommandParameter="MyRequests"/>
                                 <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
                             </ContextMenu>
                         </Button.ContextMenu>

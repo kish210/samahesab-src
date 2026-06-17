@@ -3,6 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource AppBackground}"
              FlowDirection="RightToLeft">
+    <!-- F5 = محاسبه/نمایشِ فیش‌ها (کیبوردمحور، هم‌راستا با بقیهٔ صفحات) -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding LoadSlipsCommand}"/>
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

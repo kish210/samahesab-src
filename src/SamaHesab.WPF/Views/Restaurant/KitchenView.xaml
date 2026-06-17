@@ -4,6 +4,10 @@
              Background="#161C2A"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- F5 = بازخوانی (کیبوردمحور، هم‌راستا با بقیهٔ صفحات) -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <Style x:Key="AdvanceBtn" TargetType="Button">
             <Setter Property="Height" Value="44"/>

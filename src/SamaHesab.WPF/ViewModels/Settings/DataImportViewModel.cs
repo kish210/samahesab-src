@@ -21,8 +21,12 @@ public partial class DataImportViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private IReadOnlyList<IReadOnlyDictionary<string, string>> _rows = new List<IReadOnlyDictionary<string, string>>();
 
-    public List<string> EntityTypes { get; } = new() { "مشتری", "تأمین‌کننده", "کالا" };
+    public List<string> EntityTypes { get; } = new() { "مشتری", "تأمین‌کننده", "اشخاص", "کالا" };
 
+    /// <summary>نرم‌افزارِ مبدأ (مهاجرت). تطبیقِ ستون انعطاف‌پذیر است؛ این انتخاب راهنما + تفکیکِ اشخاص را تعیین می‌کند.</summary>
+    public List<string> SourceApps { get; } = new() { "اکسلِ سما حساب", "حساب‌فا (Hesabfa)", "سپیدار (Sepidar)", "هلو (Holoo)" };
+
+    [ObservableProperty] private string _selectedSourceApp = "اکسلِ سما حساب";
     [ObservableProperty] private string _selectedEntityType = "مشتری";
     [ObservableProperty] private string? _filePath;
     [ObservableProperty] private int _rowCount;
@@ -41,6 +45,7 @@ public partial class DataImportViewModel : BaseViewModel
     {
         "کالا" => new[] { "کد", "نام", "واحد", "قیمت فروش", "قیمت خرید", "قیمت عمده", "قیمت مصرف‌کننده", "مالیات", "بارکد" },
         "تأمین‌کننده" => new[] { "کد", "نام", "نام خانوادگی", "نام شرکت", "تلفن", "موبایل", "ایمیل", "استان", "شهر", "آدرس" },
+        "اشخاص" => new[] { "کد", "نام", "نام خانوادگی", "نام شرکت", "مشتری", "تأمین‌کننده", "تلفن", "موبایل", "ایمیل", "استان", "شهر", "آدرس", "کد پستی", "کد ملی", "کد اقتصادی" },
         _ => new[] { "کد", "نام", "نام خانوادگی", "نام شرکت", "تلفن", "موبایل", "ایمیل", "استان", "شهر", "آدرس", "کد پستی", "کد ملی", "کد اقتصادی", "توضیحات" },
     };
 
@@ -48,6 +53,7 @@ public partial class DataImportViewModel : BaseViewModel
     {
         "کالا" => new object?[] { "K1001", "خودکار آبی", "عدد", 25000, 18000, 22000, 25000, 9, "6261234567890" },
         "تأمین‌کننده" => new object?[] { "S1001", "علی", "احمدی", "", "02112345678", "09120000000", "a@x.com", "تهران", "تهران", "خ ولیعصر" },
+        "اشخاص" => new object?[] { "P1001", "رضا", "کریمی", "", "+", "-", "02112345678", "09120000000", "r@x.com", "تهران", "تهران", "خ آزادی", "1234567890", "0499370899", "" },
         _ => new object?[] { "C1001", "رضا", "کریمی", "", "02112345678", "09120000000", "r@x.com", "تهران", "تهران", "خ آزادی", "1234567890", "", "0499370899", "" },
     };
 
@@ -73,12 +79,29 @@ public partial class DataImportViewModel : BaseViewModel
 
     public string ColumnHelp => SelectedEntityType switch
     {
-        "کالا" => "ستون‌های قابلِ‌خواندن: کد · نام · واحد · قیمت فروش · قیمت خرید · قیمت عمده · قیمت مصرف‌کننده · مالیات · بارکد  (واحدِ ناشناخته → پیش‌فرضِ «عدد»).",
-        "تأمین‌کننده" => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس.",
-        _ => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت · تلفن · موبایل · ایمیل · استان · شهر · آدرس · کد پستی · کد ملی · کد اقتصادی · توضیحات.",
+        "کالا" => "ستون‌های قابلِ‌خواندن: کد · نام · واحد(/واحد اصلی) · قیمت فروش · قیمت خرید · قیمت عمده · قیمت مصرف‌کننده · مالیات(/مالیات فروش) · بارکد  (واحدِ ناشناخته → پیش‌فرضِ «عدد»).",
+        "تأمین‌کننده" => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت(/شرکت) · تلفن · موبایل · ایمیل · استان · شهر · آدرس.",
+        "اشخاص" => "فایلِ ترکیبیِ مشتری+تأمین‌کننده (مثلِ خروجیِ «اشخاص»ِ حساب‌فا). بر اساسِ ستونِ پرچمِ «مشتری»/«تأمین‌کننده» (مقدارِ «+») تفکیک می‌شود؛ ردیفِ بدونِ پرچم → مشتری. سایر ستون‌ها مثلِ مشتری.",
+        _ => "ستون‌های قابلِ‌خواندن: کد · نام · نام خانوادگی · نام شرکت(/شرکت) · تلفن · موبایل · ایمیل · استان · شهر · آدرس · کد پستی(/کدپستی) · کد ملی(/شناسه ملی) · کد اقتصادی · توضیحات.",
+    };
+
+    /// <summary>راهنمای مهاجرت بر اساسِ نرم‌افزارِ مبدأ.</summary>
+    public string SourceHint => SelectedSourceApp switch
+    {
+        "حساب‌فا (Hesabfa)" => "حساب‌فا: فایلِ «اشخاص» را با نوعِ «اشخاص» وارد کن (خودکار به مشتری/تأمین‌کننده تفکیک می‌شود) و فایلِ «کالاها» را با نوعِ «کالا». فاکتور/سند/دریافت/پرداختِ حساب‌فا «سرجمع»‌اند و مستقیماً وارد نمی‌شوند — مانده‌های افتتاحیه را به‌صورتِ سندِ افتتاحیه ثبت کن.",
+        "سپیدار (Sepidar)" => "سپیدار: اشخاص/کالا را با همان نوع وارد کن. اگر سرستون‌ها فرق داشت، فایل را با عنوان‌های قالبِ نمونه هم‌نام کن. (برای تطبیقِ دقیق، یک نمونه‌خروجیِ سپیدار بده تا نگاشتش را کامل کنم.)",
+        "هلو (Holoo)" => "هلو: اشخاص/کالا را با همان نوع وارد کن؛ در صورتِ نیاز سرستون‌ها را مطابقِ قالبِ نمونه تنظیم کن.",
+        _ => "اکسلِ استاندارد: از «دانلودِ نمونه» قالبِ هر نوع را بگیر، پر کن و همان را وارد کن.",
     };
 
     partial void OnSelectedEntityTypeChanged(string value) => OnPropertyChanged(nameof(ColumnHelp));
+    partial void OnSelectedSourceAppChanged(string value)
+    {
+        OnPropertyChanged(nameof(SourceHint));
+        // پیش‌فرضِ هوشمند: حساب‌فا فایلِ اشخاصِ ترکیبی دارد.
+        if (value.StartsWith("حساب‌فا") && SelectedEntityType is "مشتری" or "تأمین‌کننده")
+            SelectedEntityType = "اشخاص";
+    }
 
     /// <summary>از code-behind بعد از انتخابِ فایل صدا زده می‌شود.</summary>
     public void LoadFile(string path)
@@ -121,6 +144,7 @@ public partial class DataImportViewModel : BaseViewModel
             {
                 "کالا" => await _mediator.Send(new ImportProductsCommand(_rows)),
                 "تأمین‌کننده" => await _mediator.Send(new ImportSuppliersCommand(_rows)),
+                "اشخاص" => await _mediator.Send(new ImportPersonsCommand(_rows)),
                 _ => await _mediator.Send(new ImportCustomersCommand(_rows)),
             };
 

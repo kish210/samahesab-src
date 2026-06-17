@@ -74,7 +74,7 @@ public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersComm
                     RowMap.Get(row, "تلفن", "Phone"), RowMap.Get(row, "موبایل", "تلفن همراه", "همراه", "Mobile"),
                     RowMap.Get(row, "ایمیل", "Email"), RowMap.Get(row, "استان", "Province"),
                     RowMap.Get(row, "شهر", "City"), RowMap.Get(row, "آدرس", "نشانی", "Address"),
-                    RowMap.Get(row, "کد پستی", "PostalCode"));
+                    RowMap.Get(row, "کد پستی", "کدپستی", "PostalCode"));
 
                 // RC-7b — اعتبارسنجیِ هویتِ مالیاتی: نامعتبر را ذخیره نکن و هشدار بده (مشتری حفظ می‌شود).
                 var national = RowMap.Get(row, "کد ملی", "شناسه ملی", "کد/شناسه ملی", "NationalCode");
@@ -149,6 +149,59 @@ public class ImportSuppliersCommandHandler : IRequestHandler<ImportSuppliersComm
     }
 }
 
+// ─── اشخاص (فایلِ ترکیبیِ مشتری+تأمین‌کننده — مثلِ حساب‌فا) ───
+// یک فایلِ «اشخاص» با ستون‌های پرچمِ «مشتری»/«تأمین‌کننده» را بر اساسِ پرچم تفکیک و به
+// کامندهای موجودِ مشتری/تأمین‌کننده می‌سپارد (استفادهٔ مجددِ کاملِ منطق/اعتبارسنجی).
+// ردیفی که هر دو پرچم را دارد، هم مشتری و هم تأمین‌کننده ساخته می‌شود. اگر هیچ پرچمی نبود → مشتری.
+public record ImportPersonsCommand(IReadOnlyList<IReadOnlyDictionary<string, string>> Rows) : IRequest<ImportResult>;
+
+public class ImportPersonsCommandHandler : IRequestHandler<ImportPersonsCommand, ImportResult>
+{
+    private readonly IMediator _mediator;
+    public ImportPersonsCommandHandler(IMediator mediator) { _mediator = mediator; }
+
+    private static bool Flag(IReadOnlyDictionary<string, string> row, params string[] keys)
+    {
+        var v = RowMap.Get(row, keys);
+        if (v == null) return false;
+        v = v.Trim();
+        return v is "+" or "بله" or "1" or "true" or "True" or "✓" or "yes" or "Yes";
+    }
+
+    public async Task<ImportResult> Handle(ImportPersonsCommand req, CancellationToken ct)
+    {
+        var customerRows = new List<IReadOnlyDictionary<string, string>>();
+        var supplierRows = new List<IReadOnlyDictionary<string, string>>();
+
+        foreach (var row in req.Rows)
+        {
+            var isCust = Flag(row, "مشتری", "Customer", "Is Customer");
+            var isSupp = Flag(row, "تأمین‌کننده", "تامین کننده", "تامین‌کننده", "Supplier", "Vendor");
+            if (!isCust && !isSupp) isCust = true;   // بدونِ پرچم → مشتری
+            if (isCust) customerRows.Add(row);
+            if (isSupp) supplierRows.Add(row);
+        }
+
+        var errors = new List<string>();
+        int imp = 0, skip = 0, fail = 0;
+
+        if (customerRows.Count > 0)
+        {
+            var r = await _mediator.Send(new ImportCustomersCommand(customerRows), ct);
+            imp += r.Imported; skip += r.Skipped; fail += r.Failed;
+            errors.AddRange(r.Errors.Select(e => "مشتری » " + e));
+        }
+        if (supplierRows.Count > 0)
+        {
+            var r = await _mediator.Send(new ImportSuppliersCommand(supplierRows), ct);
+            imp += r.Imported; skip += r.Skipped; fail += r.Failed;
+            errors.AddRange(r.Errors.Select(e => "تأمین‌کننده » " + e));
+        }
+
+        return new ImportResult(imp, skip, fail, errors);
+    }
+}
+
 // ──────────────────────────────── کالا (G4.2) ────────────────────────────────
 public record ImportProductsCommand(IReadOnlyList<IReadOnlyDictionary<string, string>> Rows) : IRequest<ImportResult>;
 
@@ -178,7 +231,7 @@ public class ImportProductsCommandHandler : IRequestHandler<ImportProductsComman
                 var name = RowMap.Get(row, "نام", "نام کالا", "شرح", "Name");
                 if (name == null) { failed++; if (errors.Count < 10) errors.Add($"ردیف {line}: نامِ کالا خالی است."); continue; }
 
-                var unitId = _units.Resolve(RowMap.Get(row, "واحد", "Unit")) ?? defaultUnit;
+                var unitId = _units.Resolve(RowMap.Get(row, "واحد", "واحد اصلی", "Unit")) ?? defaultUnit;
                 if (unitId is null) { failed++; if (errors.Count < 10) errors.Add($"ردیف {line}: واحدی در سیستم تعریف نشده."); continue; }
 
                 var code = RowMap.Get(row, "کد", "کد کالا", "Code");
@@ -189,7 +242,7 @@ public class ImportProductsCommandHandler : IRequestHandler<ImportProductsComman
                 var purchase = RowMap.Dec(RowMap.Get(row, "قیمت خرید", "خرید", "PurchasePrice"));
                 var wholesale = RowMap.Dec(RowMap.Get(row, "قیمت عمده", "عمده", "WholesalePrice"));
                 var consumer = RowMap.Dec(RowMap.Get(row, "قیمت مصرف‌کننده", "مصرف‌کننده", "ConsumerPrice"));
-                var tax = RowMap.Dec(RowMap.Get(row, "مالیات", "نرخ مالیات", "TaxRate"));
+                var tax = RowMap.Dec(RowMap.Get(row, "مالیات", "مالیات فروش", "نرخ مالیات", "TaxRate"));
                 var barcode = RowMap.Get(row, "بارکد", "Barcode");
 
                 var p = Product.Create(companyId, code, name, unitId.Value, sale, purchase);

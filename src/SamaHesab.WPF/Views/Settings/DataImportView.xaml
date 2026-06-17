@@ -23,13 +23,19 @@
         <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,8">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="نوعِ داده:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox Width="160" Height="30" ItemsSource="{Binding EntityTypes}" SelectedItem="{Binding SelectedEntityType}"/>
+                    <TextBlock Text="نرم‌افزارِ مبدأ:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox Width="170" Height="30" ItemsSource="{Binding SourceApps}" SelectedItem="{Binding SelectedSourceApp}"/>
+                    <TextBlock Text="نوعِ داده:" VerticalAlignment="Center" Margin="16,0,6,0"/>
+                    <ComboBox Width="150" Height="30" ItemsSource="{Binding EntityTypes}" SelectedItem="{Binding SelectedEntityType}"/>
                     <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="12,0" Margin="10,0,0,0" Content="📥 دانلودِ نمونهٔ اکسل" Command="{Binding DownloadTemplateCommand}"/>
                     <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Padding="14,0" Margin="6,0,0,0" Content="📂 انتخابِ فایلِ اکسل…" Click="Browse_Click"/>
-                    <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="320"/>
+                    <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{StaticResource ErpTextMuted}" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
                 </StackPanel>
-                <TextBlock Text="{Binding ColumnHelp}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,8,0,0"/>
+                <!-- راهنمای مهاجرتِ نرم‌افزارِ مبدأ -->
+                <Border Background="{StaticResource ErpBlue50}" CornerRadius="5" Padding="8,6" Margin="0,8,0,0">
+                    <TextBlock Text="{Binding SourceHint}" TextWrapping="Wrap" FontSize="11.5" Foreground="{StaticResource ErpBlue700}"/>
+                </Border>
+                <TextBlock Text="{Binding ColumnHelp}" TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,6,0,0"/>
             </StackPanel>
         </Border>
 

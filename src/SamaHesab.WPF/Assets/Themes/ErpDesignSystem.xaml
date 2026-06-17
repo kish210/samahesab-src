@@ -266,6 +266,12 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="12.5"/>
         <Setter Property="RowHeight" Value="{DynamicResource ErpDensRowHeight}"/>
+        <!-- کارایی (OPT-PERF-1): بازیافتِ ظرفِ ردیف‌ها + مجازی‌سازیِ سطر/ستون → اسکرول و حافظهٔ
+             فهرست‌های بزرگ به‌شدت بهینه. روی همهٔ گریدها (سبکِ ضمنی) اعمال می‌شود. -->
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
         <Setter Property="AlternationCount" Value="2"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="SelectionUnit" Value="FullRow"/>

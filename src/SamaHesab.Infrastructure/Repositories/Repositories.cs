@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -40,10 +41,37 @@ public class VoucherRepository : GenericRepository<Voucher>, IVoucherRepository
             .FirstOrDefaultAsync(v => v.Id == voucherId, ct);
     }
 
-    public Task<string> GetNextNumberAsync(int companyId, CancellationToken ct = default)
+    // X5 — شماره‌گذاریِ متوالیِ بدونِ‌خلأ و اتمیک (مقاوم به هم‌روندی).
+    // قبلاً stub بود و `V{ticks}` می‌داد (نه متوالی، نامناسبِ حسابداریِ رسمیِ ایرانی).
+    // جدولِ توالیِ سبک `dbo.__DocSequences` نگه‌داری می‌شود؛ ردیفِ هر شرکت یک‌بار از بیشترین
+    // شمارهٔ عددیِ موجود seed و سپس به‌صورتِ اتمیک (UPDATE با اسنادِ @next=Last=Last+1) افزایش می‌یابد.
+    // اگر در تراکنشِ جاری فراخوانده شود، در همان تراکنش شرکت می‌کند (رول‌بک → شماره مصرف نمی‌شود).
+    public async Task<string> GetNextNumberAsync(int companyId, CancellationToken ct = default)
     {
-        // Simplified - in real implementation call the SP
-        return Task.FromResult($"V{DateTime.Now.Ticks}");
+        var conn = Context.Database.GetDbConnection();
+        var wasClosed = conn.State != System.Data.ConnectionState.Open;
+        if (wasClosed) await conn.OpenAsync(ct);
+        try
+        {
+            await using var cmd = conn.CreateCommand();
+            var tx = Context.Database.CurrentTransaction?.GetDbTransaction();
+            if (tx != null) cmd.Transaction = tx;
+            cmd.CommandText = @"
+IF OBJECT_ID('dbo.__DocSequences','U') IS NULL
+  CREATE TABLE dbo.__DocSequences(CompanyId INT NOT NULL, Name NVARCHAR(40) NOT NULL, LastValue INT NOT NULL,
+     CONSTRAINT PK___DocSequences PRIMARY KEY (CompanyId, Name));
+IF NOT EXISTS (SELECT 1 FROM dbo.__DocSequences WHERE CompanyId=@c AND Name=@n)
+  INSERT dbo.__DocSequences(CompanyId, Name, LastValue)
+  VALUES (@c, @n, ISNULL((SELECT MAX(TRY_CONVERT(INT, VoucherNumber)) FROM Acc.Vouchers WHERE CompanyId=@c), 0));
+DECLARE @next INT;
+UPDATE dbo.__DocSequences SET @next = LastValue = LastValue + 1 WHERE CompanyId=@c AND Name=@n;
+SELECT @next;";
+            var pc = cmd.CreateParameter(); pc.ParameterName = "@c"; pc.Value = companyId; cmd.Parameters.Add(pc);
+            var pn = cmd.CreateParameter(); pn.ParameterName = "@n"; pn.Value = "voucher"; cmd.Parameters.Add(pn);
+            var result = await cmd.ExecuteScalarAsync(ct);
+            return Convert.ToInt32(result).ToString();
+        }
+        finally { if (wasClosed) await conn.CloseAsync(); }
     }
 }
 

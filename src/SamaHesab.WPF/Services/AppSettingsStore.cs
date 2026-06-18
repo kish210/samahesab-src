@@ -180,6 +180,7 @@ public class GeneralSettings
     public bool AutoBackupEnabled { get; set; }
     public int BackupIntervalDays { get; set; } = 1;
     public string? BackupPath { get; set; }
+    public string? CloudBackupFolder { get; set; }   // پوشهٔ سینکِ ابری (Google Drive for Desktop) — کپیِ خودکارِ بکاپ
 
     // ── پیامک ──
     public bool SmsEnabled { get; set; }

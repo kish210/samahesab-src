@@ -47,6 +47,19 @@
                         <CheckBox Content="پشتیبان‌گیری خودکار روزانه" IsChecked="{Binding AutoBackup}"
                                   Foreground="{DynamicResource PrimaryText}"
                                   FontFamily="{StaticResource VazirFont}" Margin="0,12,0,12"/>
+
+                        <!-- بکاپِ ابری (Google Drive for Desktop) — کپیِ خودکار در پوشهٔ سینک -->
+                        <TextBlock Style="{StaticResource FormLabel}" Text="☁ بکاپِ ابری — پوشهٔ Google Drive (اختیاری)"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                <TextBox Text="{Binding CloudBackupPath, UpdateSourceTrigger=LostFocus}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                            </Border>
+                            <Button Grid.Column="2" Content="🔍 یافتنِ Google Drive" Style="{StaticResource SecondaryButton}" Padding="10,0" Command="{Binding DetectGoogleDriveCommand}"/>
+                        </Grid>
+                        <TextBlock Text="اگر Google Drive for Desktop نصب باشد، هر بکاپ خودکار در این پوشه کپی و با حسابِ Drive سینک می‌شود."
+                                   Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,12"/>
+
                         <Button Content="🚀 شروع پشتیبان‌گیری" Style="{StaticResource SuccessButton}"
                                 Height="40" Command="{Binding ManualBackupCommand}"/>
                     </StackPanel>

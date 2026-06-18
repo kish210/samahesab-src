@@ -17,6 +17,7 @@ public partial class BackupViewModel : BaseViewModel
     [ObservableProperty] private int _backupIntervalDays = 1;
     [ObservableProperty] private string _lastBackupTime = "بارگذاری...";
     [ObservableProperty] private string? _restoreFilePath;
+    [ObservableProperty] private string? _cloudBackupPath;   // پوشهٔ Google Drive (سینکِ ابری)
 
     public ObservableCollection<BackupInfo> BackupHistory { get; } = new();
 
@@ -27,6 +28,7 @@ public partial class BackupViewModel : BaseViewModel
 
     public override async Task LoadAsync()
     {
+        CloudBackupPath = AppSettingsStore.GetGeneral().CloudBackupFolder;
         await ExecuteAsync(async () =>
         {
             var history = await _backupService.GetBackupHistoryAsync();
@@ -44,10 +46,52 @@ public partial class BackupViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             var path = await _backupService.BackupAsync(BackupPath);
+            var cloudMsg = CopyToCloud(path);   // کپیِ ابری (Google Drive) در صورتِ تنظیم
             await LoadAsync();
-            await _dialogService.ShowSuccessAsync($"پشتیبان‌گیری با موفقیت انجام شد.\nفایل: {path}");
+            await _dialogService.ShowSuccessAsync($"پشتیبان‌گیری با موفقیت انجام شد.\nفایل: {path}{cloudMsg}");
         }, "در حال پشتیبان‌گیری...");
     }
+
+    /// <summary>کپیِ فایلِ بکاپ در پوشهٔ ابری (Google Drive for Desktop) در صورتِ تنظیم. پیامِ نتیجه را برمی‌گرداند.</summary>
+    private string CopyToCloud(string backupFile)
+    {
+        var folder = (CloudBackupPath ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(folder)) return "";
+        try
+        {
+            System.IO.Directory.CreateDirectory(folder);
+            var dest = System.IO.Path.Combine(folder, System.IO.Path.GetFileName(backupFile));
+            System.IO.File.Copy(backupFile, dest, overwrite: true);
+            return $"\n☁ نسخهٔ ابری (Google Drive): {dest}";
+        }
+        catch (System.Exception ex) { return "\n⚠ کپیِ ابری ناموفق: " + ex.Message; }
+    }
+
+    /// <summary>تشخیصِ خودکارِ پوشهٔ Google Drive for Desktop و ذخیرهٔ آن به‌عنوانِ مقصدِ بکاپِ ابری.</summary>
+    [RelayCommand]
+    private async Task DetectGoogleDriveAsync()
+    {
+        var candidates = new[]
+        {
+            System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Google Drive"),
+            System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "My Drive"),
+            @"G:\My Drive", @"G:\", @"H:\My Drive",
+        };
+        var found = candidates.FirstOrDefault(System.IO.Directory.Exists);
+        if (found == null) { await _dialogService.ShowWarningAsync("پوشهٔ Google Drive یافت نشد. اگر Google Drive for Desktop نصب است، مسیرِ آن را دستی وارد کنید."); return; }
+        CloudBackupPath = System.IO.Path.Combine(found, "SamaHesab-Backup");
+        SaveCloud();
+        await _dialogService.ShowSuccessAsync($"پوشهٔ Google Drive یافت شد:\n{CloudBackupPath}\nاز این پس هر بکاپ این‌جا هم کپی می‌شود.");
+    }
+
+    private void SaveCloud()
+    {
+        var g = AppSettingsStore.GetGeneral();
+        g.CloudBackupFolder = CloudBackupPath;
+        AppSettingsStore.SaveGeneral(g);
+    }
+
+    partial void OnCloudBackupPathChanged(string? value) => SaveCloud();
 
     [RelayCommand]
     private async Task BrowseRestoreFileAsync()

@@ -26,6 +26,11 @@ public class VouchersController : ControllerBase
     public async Task<IActionResult> Preview(int id, CancellationToken ct)
         => Ok(await _mediator.Send(new GetVoucherPreviewQuery(id), ct));
 
+    /// <summary>بارگذاریِ سند برای ویرایش (هدر + ردیف‌ها) — الگوی API-only.</summary>
+    [HttpGet("{id:int}/edit")]
+    public async Task<IActionResult> ForEdit(int id, CancellationToken ct)
+        => (await _mediator.Send(new GetVoucherForEditQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
+
     /// <summary>Create a (draft) accounting voucher.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVoucherCommand command, CancellationToken ct)

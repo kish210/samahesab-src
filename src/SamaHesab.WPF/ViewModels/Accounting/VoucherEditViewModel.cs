@@ -19,8 +19,7 @@ namespace SamaHesab.WPF.ViewModels.Accounting;
 public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
-    private readonly IAccountRepository _accountRepo;
-    private readonly IVoucherRepository _voucherRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IBarcodeService _barcode;
@@ -63,14 +62,21 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     // ماندهٔ هر حساب (از تراز آزمایشی) برای نمایش کنار چیپ‌های دسترسیِ سریع — OPT-1.
     private readonly Dictionary<int, decimal> _accountBalances = new();
 
-    public VoucherEditViewModel(IMediator mediator, IAccountRepository accountRepo,
-        IVoucherRepository voucherRepo, ICurrentUserService currentUser,
+    public VoucherEditViewModel(IMediator mediator, ApiClient api,
+        ICurrentUserService currentUser,
         IPersianCalendarService calendar, IBarcodeService barcode, IDialogService dialogService,
         INavigationService navigationService) : base(dialogService, navigationService)
     {
-        _mediator = mediator; _accountRepo = accountRepo; _voucherRepo = voucherRepo;
+        _mediator = mediator; _api = api;
         _currentUser = currentUser; _calendar = calendar; _barcode = barcode;
     }
+
+    /// <summary>🏛️ کلاینت→API، دسکتاپ→Application — حساب‌های معین.</summary>
+    private async Task<List<VoucherAccountItem>> FetchLeafAccountsAsync()
+        => !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetAccountsAsync()).Where(a => a.IsLeaf).Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList()
+            : (await _mediator.Send(new SamaHesab.Application.Accounting.Queries.GetAccountsQuery(LeafOnly: true)))
+                .Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList();
 
     public override async Task LoadAsync()
     {
@@ -98,8 +104,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         var active = years.FirstOrDefault(y => y.IsActive && !y.IsClosed) ?? years.FirstOrDefault(y => !y.IsClosed);
         if (active is not null) _fiscalYearId = active.Id;
 
-        var accounts = await _accountRepo.GetLeafAccountsAsync(_currentUser.CompanyId ?? 1);
-        LeafAccounts = accounts.Select(a => new VoucherAccountItem(a.Id, a.Code, a.Name)).ToList();
+        LeafAccounts = await FetchLeafAccountsAsync();
         OnPropertyChanged(nameof(LeafAccounts));
 
         // ماندهٔ حساب‌ها برای نمایش کنار چیپِ دسترسیِ سریع (OPT-1) — از تراز آزمایشی (Code→مانده).
@@ -108,7 +113,7 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         {
             var tb = await _mediator.Send(new GetTrialBalanceQuery("1400/01/01", "1410/12/29"));
             var balByCode = tb.GroupBy(r => r.Code).ToDictionary(g => g.Key, g => g.Sum(r => r.Balance));
-            foreach (var a in accounts)
+            foreach (var a in LeafAccounts)
                 if (balByCode.TryGetValue(a.Code, out var b)) _accountBalances[a.Id] = b;
         }
         catch { /* مانده اختیاری است */ }
@@ -255,7 +260,10 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     {
         await ExecuteAsync(async () =>
         {
-            var v = await _voucherRepo.GetWithItemsAsync(id);
+            // 🏛️ کلاینت→API، دسکتاپ→Application
+            var v = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? await _api.GetVoucherForEditAsync(id)
+                : await _mediator.Send(new SamaHesab.Application.Accounting.Queries.GetVoucherForEditQuery(id));
             if (v == null) { await _dialogService.ShowErrorAsync("سند یافت نشد."); return; }
 
             _editingId = v.Id;

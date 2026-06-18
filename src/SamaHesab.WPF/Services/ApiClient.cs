@@ -214,6 +214,10 @@ public class ApiClient
     public async Task<List<ApiVoucherPreviewLine>> GetVoucherPreviewAsync(int voucherId)
         => await _http.GetFromJsonAsync<List<ApiVoucherPreviewLine>>($"/api/vouchers/{voucherId}/preview") ?? new();
 
+    /// <summary>بارگذاریِ سند برای ویرایش از API (DTO مشترکِ Application).</summary>
+    public async Task<SamaHesab.Application.Accounting.Queries.VoucherEditDto?> GetVoucherForEditAsync(int id)
+        => await _http.GetFromJsonAsync<SamaHesab.Application.Accounting.Queries.VoucherEditDto>($"/api/vouchers/{id}/edit");
+
     /// <summary>کارت کالا (۳۶۰°) از API.</summary>
     public async Task<ApiProductCard?> GetProductCardAsync(int id)
         => await _http.GetFromJsonAsync<ApiProductCard?>($"/api/products/{id}/card");

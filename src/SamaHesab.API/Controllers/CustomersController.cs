@@ -48,4 +48,12 @@ public class CustomersController : ControllerBase
     [HttpGet("{id:int}/card")]
     public async Task<IActionResult> Card(int id, CancellationToken ct)
         => (await _mediator.Send(new GetCustomerCardQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
+
+    /// <summary>ساختِ مشتری — الگوی API-only.</summary>
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] SamaHesab.Application.CRM.Commands.CreateCustomerCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
 }

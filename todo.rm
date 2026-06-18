@@ -1045,7 +1045,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [ ] (pc) ثبتِ فاکتور فروش — `SalesInvoiceEditViewModel`
 - [ ] (pc) ثبتِ فاکتور خرید — `PurchaseInvoiceEditViewModel`
 - [ ] (pc) ثبتِ سند — `VoucherEditViewModel`
-- [ ] (pc) ویرایشِ مشتری — `CustomerEditViewModel`
+- [x] (pc) ویرایشِ مشتری — `CustomerEditViewModel`
 
 ### سازگار/بدونِ نیاز
 - [~] (pc) صندوق فروش/رستوران — `PosViewModel`/`RestaurantPosViewModel` از قبل دوحالته (UseApi)

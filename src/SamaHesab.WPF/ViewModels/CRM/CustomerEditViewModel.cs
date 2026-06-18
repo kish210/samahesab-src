@@ -1,19 +1,20 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.CRM.Commands;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 
 namespace SamaHesab.WPF.ViewModels.CRM;
 
+/// <summary>ویرایش/ساختِ مشتری — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application (CreateCustomerCommand). بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class CustomerEditViewModel : BaseViewModel
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<Customer> _customerRepo;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _code = string.Empty;
     [ObservableProperty] private string _customerType = "حقیقی";
@@ -50,10 +51,10 @@ public partial class CustomerEditViewModel : BaseViewModel
     public List<CustomerGroupItem> Groups { get; private set; } = new();
 
     public CustomerEditViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IUnitOfWork unitOfWork, IRepository<Customer> customerRepo,
+        IMediator mediator, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _currentUser = currentUser; _calendar = calendar; _unitOfWork = unitOfWork; _customerRepo = customerRepo; }
+    { _currentUser = currentUser; _calendar = calendar; _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync()
     {
@@ -86,17 +87,17 @@ public partial class CustomerEditViewModel : BaseViewModel
         {
             try
             {
-                var companyId = _currentUser.CompanyId ?? 1;
-                var entity = Customer.Create(companyId, Code, CustomerType, FirstName, LastName, CompanyName);
-                entity.UpdateContactInfo(Phone, Mobile, Email, Province, City, Address, PostalCode);
-                entity.UpdateCreditTerms(CreditLimit, CreditDays, PriceLevel, Discount);
-                entity.SetDetails(NationalCode, EconomicCode, GroupId, Notes);
-                entity.SetContactPerson(ContactPerson, Visitor);
-                if (!string.IsNullOrWhiteSpace(BirthDate)) entity.SetBirthDate(BirthDate!);
+                // 🏛️ مسیرِ نوشتن: کلاینت→API، دسکتاپ→Application (کامندِ مشترک).
+                var cmd = new CreateCustomerCommand(Code, CustomerType, FirstName, LastName, CompanyName,
+                    Phone, Mobile, Email, Province, City, Address, PostalCode,
+                    CreditLimit, CreditDays, PriceLevel, Discount,
+                    NationalCode, EconomicCode, GroupId, Notes, ContactPerson, Visitor, BirthDate);
 
-                await _customerRepo.AddAsync(entity);
-                await _unitOfWork.SaveChangesAsync();
+                bool ok; string? err = null;
+                if (!string.IsNullOrWhiteSpace(_api.BaseUrl)) (ok, err) = await _api.CreateCustomerAsync(cmd);
+                else { var r = await _mediator.Send(cmd); ok = r.Succeeded; err = r.ErrorMessage; }
 
+                if (!ok) { await _dialogService.ShowErrorAsync("خطا در ذخیره مشتری: " + err); return; }
                 await _dialogService.ShowSuccessAsync("مشتری با موفقیت ذخیره شد.");
                 _navigationService.NavigateTo("Customers");
             }

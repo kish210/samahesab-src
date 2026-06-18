@@ -191,6 +191,13 @@ public class ApiClient
     public async Task<ApiCustomerCard?> GetCustomerCardAsync(int id)
         => await _http.GetFromJsonAsync<ApiCustomerCard?>($"/api/customers/{id}/card");
 
+    /// <summary>ساختِ مشتری از طریقِ API (کامندِ مشترکِ لایهٔ Application).</summary>
+    public async Task<(bool ok, string? error)> CreateCustomerAsync(object command)
+    {
+        var resp = await _http.PostAsJsonAsync("/api/customers", command);
+        return resp.IsSuccessStatusCode ? (true, null) : (false, await resp.Content.ReadAsStringAsync());
+    }
+
     /// <summary>داشبوردِ کاملِ عملیاتی از API (DTO مشترکِ لایهٔ Application).</summary>
     public async Task<SamaHesab.Application.BI.Queries.DashboardDto?> GetDashboardAsync(string today)
         => await _http.GetFromJsonAsync<SamaHesab.Application.BI.Queries.DashboardDto>($"/api/dashboard/full?today={Uri.EscapeDataString(today)}");

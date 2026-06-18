@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamaHesab.Application.Common.Interfaces;
+using MediatR;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -11,10 +10,11 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.CRM;
 
+/// <summary>مشتریان — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class CustomerListViewModel : BaseViewModel
 {
-    private readonly ICurrentUserService _currentUser;
-    private readonly IRepository<Customer> _customerRepo;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private int _totalCount;
@@ -22,27 +22,25 @@ public partial class CustomerListViewModel : BaseViewModel
 
     public ObservableCollection<CustomerListItem> Customers { get; } = new();
 
-    public CustomerListViewModel(ICurrentUserService currentUser, IRepository<Customer> customerRepo,
+    public CustomerListViewModel(IMediator mediator, ApiClient api,
         IDialogService d, INavigationService n)
-        : base(d, n) { _currentUser = currentUser; _customerRepo = customerRepo; }
+        : base(d, n) { _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
-            var all = await _customerRepo.FindAsync(c => c.CompanyId == companyId);
-            var term = SearchText?.Trim() ?? string.Empty;
             Customers.Clear();
-            foreach (var c in all)
+            var search = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText;
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
             {
-                if (term.Length > 0 &&
-                    !((c.FullName?.Contains(term) ?? false) ||
-                      (c.Code?.Contains(term) ?? false) ||
-                      (c.Mobile?.Contains(term) ?? false)))
-                    continue;
-                Customers.Add(new CustomerListItem(c.Id, c.Code ?? "", c.FullName ?? "", c.Mobile ?? "",
-                    c.Balance, c.PriceLevel, c.IsActive));
+                foreach (var c in await _api.GetCustomersAsync(search))
+                    Customers.Add(new CustomerListItem(c.Id, c.Code, c.Name, c.Mobile, c.Balance, c.PriceLevel, c.IsActive));
+            }
+            else
+            {
+                foreach (var c in await _mediator.Send(new GetCustomersQuery(search)))
+                    Customers.Add(new CustomerListItem(c.Id, c.Code, c.Name, c.Mobile, c.Balance, c.PriceLevel, c.IsActive));
             }
             TotalCount = Customers.Count;
             TotalBalance = Customers.Sum(x => x.Balance);

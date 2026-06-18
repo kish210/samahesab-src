@@ -14,6 +14,7 @@ public record ApiSalesInvoiceRow(int Id, string Number, string Date, string Cust
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiSupplierRow(int Id, string Code, string Name, string Mobile, string City, decimal Balance, bool IsActive);
 public record ApiAccountRow(int Id, string Code, string Name, int Level, string Nature, bool IsActive);
+public record ApiCustomerRow(int Id, string Code, string Name, string Mobile, decimal Balance, string PriceLevel, bool IsActive);
 public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiGroup(int Id, string Name);
@@ -163,6 +164,13 @@ public class ApiClient
     /// <summary>فهرستِ حساب‌ها از API.</summary>
     public async Task<List<ApiAccountRow>> GetAccountsAsync()
         => await _http.GetFromJsonAsync<List<ApiAccountRow>>("/api/accounts") ?? new();
+
+    /// <summary>فهرستِ مشتریان از API.</summary>
+    public async Task<List<ApiCustomerRow>> GetCustomersAsync(string? search = null)
+    {
+        var url = string.IsNullOrWhiteSpace(search) ? "/api/customers" : $"/api/customers?search={Uri.EscapeDataString(search)}";
+        return await _http.GetFromJsonAsync<List<ApiCustomerRow>>(url) ?? new();
+    }
 
     /// <summary>فهرستِ فاکتورهای خرید از API.</summary>
     public async Task<List<ApiPurchaseInvoiceRow>> GetPurchaseInvoicesAsync(string? from = null, string? to = null, string? search = null)

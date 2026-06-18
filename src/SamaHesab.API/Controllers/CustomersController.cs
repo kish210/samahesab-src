@@ -41,13 +41,6 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken ct)
-    {
-        var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _customers.FindAsync(c => c.CompanyId == companyId, ct);
-        return Ok(list.Select(c => new
-        {
-            c.Id, c.Code, Name = c.FullName, c.Mobile, c.PriceLevel, c.Balance, c.IsActive
-        }));
-    }
+    public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetCustomersQuery(search), ct));
 }

@@ -1,21 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Entities.Inventory;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Inventory.Commands;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory
 {
+    /// <summary>تعدیل موجودی — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
     public partial class StockAdjustViewModel : BaseViewModel
     {
-        private readonly IProductRepository _productRepo;
-        private readonly IWarehouseRepository _warehouseRepo;
-        private readonly IStockItemRepository _stockRepo;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserService _user;
+        private readonly IMediator _mediator;
+        private readonly ApiClient _api;
+        private readonly IPersianCalendarService _calendar;
 
         [ObservableProperty] private int _selectedWarehouseId;
         private bool _suppressReload;
@@ -23,19 +24,17 @@ namespace SamaHesab.WPF.ViewModels.Inventory
         public ObservableCollection<StockAdjustRow> Rows { get; } = new();
         public List<WarehouseOption> Warehouses { get; private set; } = new();
 
-        public StockAdjustViewModel(IProductRepository productRepo, IWarehouseRepository warehouseRepo,
-            IStockItemRepository stockRepo, IUnitOfWork unitOfWork, ICurrentUserService user,
+        public StockAdjustViewModel(IMediator mediator, ApiClient api, IPersianCalendarService calendar,
             IDialogService d, INavigationService n) : base(d, n)
-        { _productRepo = productRepo; _warehouseRepo = warehouseRepo; _stockRepo = stockRepo;
-          _unitOfWork = unitOfWork; _user = user; }
+        { _mediator = mediator; _api = api; _calendar = calendar; }
 
         public override async Task LoadAsync()
         {
             await ExecuteAsync(async () =>
             {
-                var companyId = _user.CompanyId ?? 1;
-                Warehouses = (await _warehouseRepo.GetByCompanyAsync(companyId))
-                    .Select(w => new WarehouseOption(w.Id, w.Name)).ToList();
+                Warehouses = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                    ? (await _api.GetWarehousesAsync()).Select(w => new WarehouseOption(w.Id, w.Name)).ToList()
+                    : (await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehouseOption(w.Id, w.Name)).ToList();
                 OnPropertyChanged(nameof(Warehouses));
                 _suppressReload = true;
                 if (SelectedWarehouseId == 0 && Warehouses.Count > 0)
@@ -48,13 +47,21 @@ namespace SamaHesab.WPF.ViewModels.Inventory
         [RelayCommand]
         private async Task LoadRowsAsync()
         {
-            var companyId = _user.CompanyId ?? 1;
-            var products = await _productRepo.SearchAsync(companyId, "");
+            var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
+            // موجودیِ فعلیِ این انبار (productId→qty)
+            var onHand = (online
+                ? (await _api.GetWarehouseStockAsync(SelectedWarehouseId)).Select(s => (s.ProductId, s.Quantity))
+                : (await _mediator.Send(new GetWarehouseStockQuery(SelectedWarehouseId))).Select(s => (s.ProductId, s.Quantity)))
+                .GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
+
+            var products = online
+                ? (await _api.GetProductListAsync()).Select(p => (p.Id, p.Code, p.Name, p.PurchasePrice))
+                : (await _mediator.Send(new GetProductsQuery())).Select(p => (p.Id, p.Code, p.Name, p.PurchasePrice));
+
             Rows.Clear();
             foreach (var p in products)
             {
-                var stock = await _stockRepo.GetByProductAndWarehouseAsync(p.Id, SelectedWarehouseId);
-                var cur = stock?.Quantity ?? 0;
+                var cur = onHand.TryGetValue(p.Id, out var q) ? q : 0;
                 Rows.Add(new StockAdjustRow { ProductId = p.Id, ProductCode = p.Code,
                     ProductName = p.Name, CurrentQty = cur, NewQty = cur, UnitCost = p.PurchasePrice });
             }
@@ -70,26 +77,24 @@ namespace SamaHesab.WPF.ViewModels.Inventory
 
             await ExecuteAsync(async () =>
             {
-                try
+                var date = _calendar.GetCurrentPersianDate();
+                var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
+                foreach (var r in changed)
                 {
-                    foreach (var r in changed)
+                    // 🏛️ تعدیل از طریقِ کامند/endpoint — نه ریپازیتوریِ مستقیم.
+                    if (online)
                     {
-                        var stock = await _stockRepo.GetByProductAndWarehouseAsync(r.ProductId, SelectedWarehouseId);
-                        if (stock == null)
-                        {
-                            stock = StockItem.Create(r.ProductId, SelectedWarehouseId);
-                            await _stockRepo.AddAsync(stock);
-                        }
-                        var diff = r.NewQty - r.CurrentQty;
-                        if (diff > 0) stock.AddStock(diff, r.UnitCost);
-                        else stock.RemoveStock(-diff);
-                        _stockRepo.Update(stock);
+                        var (ok, err) = await _api.AdjustStockAsync(SelectedWarehouseId, r.ProductId, r.NewQty, date, "تعدیل موجودی");
+                        if (!ok) { await _dialogService.ShowErrorAsync("خطا: " + err); return; }
                     }
-                    await _unitOfWork.SaveChangesAsync();
-                    await _dialogService.ShowSuccessAsync("تعدیل موجودی ذخیره شد.");
-                    await LoadRowsAsync();
+                    else
+                    {
+                        var res = await _mediator.Send(new AdjustStockCommand(SelectedWarehouseId, r.ProductId, r.NewQty, date, "تعدیل موجودی"));
+                        if (!res.Succeeded) { await _dialogService.ShowErrorAsync("خطا: " + res.ErrorMessage); return; }
+                    }
                 }
-                catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا: " + ex.Message); }
+                await _dialogService.ShowSuccessAsync("تعدیل موجودی ذخیره شد.");
+                await LoadRowsAsync();
             }, "در حال ذخیره...");
         }
 

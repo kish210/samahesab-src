@@ -43,4 +43,9 @@ public class CustomersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
         => Ok(await _mediator.Send(new GetCustomersQuery(search), ct));
+
+    /// <summary>کارت ۳۶۰° مشتری (شناسنامه + چکِ در جریان) — الگوی API-only.</summary>
+    [HttpGet("{id:int}/card")]
+    public async Task<IActionResult> Card(int id, CancellationToken ct)
+        => (await _mediator.Send(new GetCustomerCardQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
 }

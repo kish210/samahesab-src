@@ -17,8 +17,7 @@ namespace SamaHesab.WPF.ViewModels.CRM;
 public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<SamaHesab.Domain.Entities.Accounting.Cheque> _cheques;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -61,13 +60,12 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private decimal _ledgerClosing;
     [ObservableProperty] private bool _hasData;
 
-    public CustomerCardViewModel(IMediator mediator, IRepository<Customer> customers,
-        IRepository<SamaHesab.Domain.Entities.Accounting.Cheque> cheques,
+    public CustomerCardViewModel(IMediator mediator, ApiClient api,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _customers = customers; _cheques = cheques;
+        _mediator = mediator; _api = api;
         _currentUser = currentUser; _calendar = calendar;
     }
 
@@ -80,21 +78,33 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     /// <summary>پیش‌فرض: اولین مشتری فعال (برای منو/پیش‌نمایش).</summary>
     public override async Task LoadAsync()
     {
-        var companyId = _currentUser.CompanyId ?? 1;
-        var first = (await _customers.FindAsync(c => c.CompanyId == companyId && c.IsActive)).FirstOrDefault();
-        if (first != null) await LoadForAsync(first.Id);
+        // 🏛️ کلاینت→API، دسکتاپ→Application — اولین مشتری برای پیش‌نمایش
+        var first = (!string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetCustomersAsync()).Select(c => c.Id)
+            : (await _mediator.Send(new GetCustomersQuery())).Select(c => c.Id)).FirstOrDefault();
+        if (first > 0) await LoadForAsync(first);
     }
 
     public async Task LoadForAsync(int customerId)
     {
         await ExecuteAsync(async () =>
         {
-            var c = await _customers.GetByIdAsync(customerId);
+            // 🏛️ شناسنامه + چکِ در جریان از کوئریِ تجمیعی (API/Application)
+            CustomerCardDto? c;
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+            {
+                var a = await _api.GetCustomerCardAsync(customerId);
+                c = a == null ? null : new CustomerCardDto(a.Id, a.Name, a.Code, a.CustomerType, a.PriceLevel,
+                    a.Mobile, a.Phone, a.NationalCode, a.EconomicCode, a.ContactPerson, a.Visitor,
+                    a.Province, a.City, a.Address, a.LoyaltyPoints, a.CreditDays, a.IsActive,
+                    a.Balance, a.CreditLimit, a.ChequeInProgress);
+            }
+            else c = await _mediator.Send(new GetCustomerCardQuery(customerId));
             if (c == null) { await _dialogService.ShowErrorAsync("مشتری یافت نشد."); return; }
 
             CustomerId = c.Id;
-            Name = c.FullName;
-            Initials = BuildInitials(c.FullName);
+            Name = c.Name;
+            Initials = BuildInitials(c.Name);
             Code = c.Code;
             GroupLabel = string.IsNullOrWhiteSpace(c.PriceLevel) ? c.CustomerType : $"{c.CustomerType} · {c.PriceLevel}";
             Mobile = c.Mobile; Phone = c.Phone;
@@ -104,12 +114,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             LoyaltyPoints = c.LoyaltyPoints;
             SettlementDays = c.CreditDays;        // R16: مهلت تسویه (روز)
             StatusLabel = c.IsActive ? "فعال" : "غیرفعال";
-
-            // R16/کارِ ۱۰: چکِ دریافتیِ در جریانِ این مشتری (بدونِ تغییرِ اسکیما — از PartyId/Status)
-            var inProc = await _cheques.FindAsync(ch => ch.PartyId == customerId
-                && ch.ChequeType == SamaHesab.Domain.Enums.ChequeType.Received
-                && ch.Status == SamaHesab.Domain.Enums.ChequeStatus.InProcess);
-            ChequeInProgress = inProc.Sum(x => x.Amount);
+            ChequeInProgress = c.ChequeInProgress;
 
             // اعتبار
             var credit = await _mediator.Send(new GetCustomerCreditQuery(customerId));

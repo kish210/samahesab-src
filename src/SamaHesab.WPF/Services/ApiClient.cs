@@ -17,6 +17,10 @@ public record ApiSupplierRow(int Id, string Code, string Name, string Mobile, st
 public record ApiAccountRow(int Id, string Code, string Name, int Level, string Nature, bool IsActive,
     string? AccountType = null, int? ParentId = null, bool IsLeaf = false);
 public record ApiCustomerRow(int Id, string Code, string Name, string Mobile, decimal Balance, string PriceLevel, bool IsActive);
+public record ApiCustomerCard(int Id, string Name, string Code, string CustomerType, string PriceLevel,
+    string? Mobile, string? Phone, string? NationalCode, string? EconomicCode,
+    string? ContactPerson, string? Visitor, string? Province, string? City, string? Address,
+    int LoyaltyPoints, int CreditDays, bool IsActive, decimal Balance, decimal CreditLimit, decimal ChequeInProgress);
 public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiWarehouseRow(int Id, string Code, string Name, string Manager, string Address, bool IsDefault, bool IsActive);
@@ -182,6 +186,10 @@ public class ApiClient
         var url = string.IsNullOrWhiteSpace(search) ? "/api/customers" : $"/api/customers?search={Uri.EscapeDataString(search)}";
         return await _http.GetFromJsonAsync<List<ApiCustomerRow>>(url) ?? new();
     }
+
+    /// <summary>کارت ۳۶۰° مشتری از API.</summary>
+    public async Task<ApiCustomerCard?> GetCustomerCardAsync(int id)
+        => await _http.GetFromJsonAsync<ApiCustomerCard?>($"/api/customers/{id}/card");
 
     /// <summary>فهرستِ کاملِ انبارها (صفحهٔ مدیریت) از API.</summary>
     public async Task<List<ApiWarehouseRow>> GetWarehouseListAsync()

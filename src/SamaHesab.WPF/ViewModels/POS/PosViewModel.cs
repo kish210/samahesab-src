@@ -62,6 +62,12 @@ public partial class PosViewModel : BaseViewModel
     [ObservableProperty] private string _quickSearch = string.Empty;
     private List<PosProductTile> _allProducts = new();
 
+    // 🇮🇷 تفکیکِ کالا/خدمات — 0=همه، 1=کالا، 2=خدمات
+    [ObservableProperty] private int _typeFilter;
+    partial void OnTypeFilterChanged(int value) => ApplyFilter();
+    [RelayCommand] private void SetTypeFilter(string? mode)
+    { TypeFilter = mode switch { "goods" => 1, "service" => 2, _ => 0 }; }
+
     // U9 — کالاهای محبوب/پرتکرار (سنجاق‌شده‌ها اول، سپس اخیرها) برای دسترسی سریع در صندوق.
     // دستهٔ مجازیِ id=-2 «⭐ محبوب» این فهرست را نمایش می‌دهد.
     private const int FavoriteCategoryId = -2;
@@ -100,7 +106,7 @@ public partial class PosViewModel : BaseViewModel
         else
         {
             var products = await _productRepo.FindAsync(p => p.CompanyId == companyId && p.IsActive);
-            _allProducts = products.Select(p => new PosProductTile(p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate, p.GroupId)).ToList();
+            _allProducts = products.Select(p => new PosProductTile(p.Id, p.Code, p.Name, p.SalePrice, p.TaxRate, p.GroupId, p.ProductType)).ToList();
             try { foreach (var g in (await _groupRepo.FindAsync(g => g.CompanyId == companyId)).OrderBy(g => g.Code)) Categories.Add(new PosCategoryTile(g.Id, g.Name)); }
             catch { }
         }
@@ -150,6 +156,8 @@ public partial class PosViewModel : BaseViewModel
             q = _allProducts;
             if (SelectedCategoryId != -1) q = q.Where(p => p.GroupId == SelectedCategoryId);
         }
+        if (TypeFilter == 1) q = q.Where(p => p.Type == SamaHesab.Domain.Enums.ProductType.Product || p.Type == SamaHesab.Domain.Enums.ProductType.Bundle);
+        else if (TypeFilter == 2) q = q.Where(p => p.Type == SamaHesab.Domain.Enums.ProductType.Service);
         if (!string.IsNullOrWhiteSpace(QuickSearch))
             q = q.Where(p => p.Name.Contains(QuickSearch) || p.Code.Contains(QuickSearch));
         foreach (var p in q.Take(60)) Products.Add(p);
@@ -179,6 +187,45 @@ public partial class PosViewModel : BaseViewModel
         }
         RecalculateTotals();
         TouchProduct(tile.Id, tile.Name);   // U9 — ثبت استفاده تا فهرستِ «محبوب» به‌روز بماند
+    }
+
+    /// <summary>🇮🇷 ثبتِ فوریِ کالا/خدمت از داخلِ صندوق و افزودنِ بی‌درنگ به سبد (بدونِ ترکِ صفحه).</summary>
+    [RelayCommand]
+    private async Task QuickAddProductAsync()
+    {
+        if (UseApi)
+        {
+            await _dialogService.ShowWarningAsync("ثبتِ فوریِ کالا فقط در حالتِ مستقیم به پایگاه داده در دسترس است؛ در صندوقِ شبکه‌ای کالا را از سرور تعریف کنید.");
+            return;
+        }
+
+        var dlg = new Views.POS.QuickProductDialog
+        { Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive) };
+        if (dlg.ShowDialog() != true) return;
+
+        var code = string.IsNullOrWhiteSpace(dlg.ProductCode)
+            ? "K" + DateTime.Now.ToString("yyMMddHHmmss")
+            : dlg.ProductCode!;
+
+        var cmd = new SamaHesab.Application.Inventory.Commands.CreateProductCommand(
+            Code: code, Barcode: dlg.Barcode, Name: dlg.ProductName, NameEn: null,
+            GroupId: SelectedCategoryId > 0 ? SelectedCategoryId : null, BrandId: null, UnitId: 1,
+            ProductType: dlg.ProductType,
+            PurchasePrice: dlg.PurchasePrice, SalePrice: dlg.SalePrice,
+            WholesalePrice: dlg.PurchasePrice, ConsumerPrice: dlg.SalePrice,
+            MinStock: 0, MaxStock: null,
+            HasSerial: false, HasBatch: false, HasExpiry: false,
+            ValuationMethod: SamaHesab.Domain.Enums.ValuationMethod.WeightedAverage,
+            TaxRate: dlg.TaxRate, Description: null);
+
+        var result = await _mediator.Send(cmd);
+        if (!result.Succeeded) { await _dialogService.ShowErrorAsync(result.ErrorMessage); return; }
+
+        var tile = new PosProductTile(result.Value, code, dlg.ProductName, dlg.SalePrice, dlg.TaxRate,
+            SelectedCategoryId > 0 ? SelectedCategoryId : null, dlg.ProductType);
+        _allProducts.Add(tile);
+        ApplyFilter();
+        AddProduct(tile);   // بی‌درنگ به سبد افزوده شود
     }
 
     /// <summary>U9 — ثبتِ best-effortِ استفاده از کالا (به‌روزرسانیِ فهرستِ اخیر/محبوب). فروش را بلاک نمی‌کند.</summary>
@@ -476,5 +523,6 @@ public partial class PosCartItem : ObservableObject
 }
 
 public record PosCategoryTile(int Id, string Name);
-public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId);
+public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId,
+    SamaHesab.Domain.Enums.ProductType Type = SamaHesab.Domain.Enums.ProductType.Product);
 public record HeldSaleRow(int Id, string Label, decimal Total, DateTime CreatedAt);

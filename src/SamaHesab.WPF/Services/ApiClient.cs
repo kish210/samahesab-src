@@ -14,7 +14,8 @@ public record ApiProductRow(int Id, string Code, string Barcode, string Name,
 public record ApiSalesInvoiceRow(int Id, string Number, string Date, string CustomerName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiSupplierRow(int Id, string Code, string Name, string Mobile, string City, decimal Balance, bool IsActive);
-public record ApiAccountRow(int Id, string Code, string Name, int Level, string Nature, bool IsActive);
+public record ApiAccountRow(int Id, string Code, string Name, int Level, string Nature, bool IsActive,
+    string? AccountType = null, int? ParentId = null, bool IsLeaf = false);
 public record ApiCustomerRow(int Id, string Code, string Name, string Mobile, decimal Balance, string PriceLevel, bool IsActive);
 public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);

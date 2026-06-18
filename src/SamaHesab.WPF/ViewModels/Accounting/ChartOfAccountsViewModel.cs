@@ -2,12 +2,13 @@
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Commands;
+using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Reports.Queries;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
@@ -26,7 +27,7 @@ public partial class AccountTreeNode : ObservableObject
 // ─── Full ChartOfAccounts ViewModel ──────────────────────────────────────────
 public partial class ChartOfAccountsViewModel : BaseViewModel
 {
-    private readonly IAccountRepository _accountRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
@@ -53,22 +54,32 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
 
     public ObservableCollection<AccountTreeNode> RootAccounts { get; } = new();
 
-    public ChartOfAccountsViewModel(IAccountRepository accountRepo,
+    public ChartOfAccountsViewModel(ApiClient api,
         ICurrentUserService currentUser, IPersianCalendarService calendar, IMediator mediator,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _accountRepo = accountRepo;
+        _api = api;
         _currentUser = currentUser;
         _calendar = calendar;
         _mediator = mediator;
+    }
+
+    /// <summary>🏛️ کلاینت→API، دسکتاپ→Application — فهرستِ کاملِ حساب‌ها (با ParentId/IsLeaf برای درخت).</summary>
+    private async Task<List<AccountDto>> FetchAccountsAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+            return (await _api.GetAccountsAsync())
+                .Select(a => new AccountDto(a.Id, a.Code, a.Name, a.Level, a.Nature, a.AccountType, a.ParentId, a.IsLeaf, a.IsActive))
+                .ToList();
+        return await _mediator.Send(new GetAccountsQuery());
     }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var all = await _accountRepo.GetByCompanyAsync(_currentUser.CompanyId ?? 1);
+            var all = await FetchAccountsAsync();
             RootAccounts.Clear();
 
             // ── جستجوی کد/نام (OPT-4): فقط حساب‌های منطبق + نیاکانشان نمایش داده می‌شوند ──

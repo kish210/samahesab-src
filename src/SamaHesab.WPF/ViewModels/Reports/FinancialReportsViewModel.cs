@@ -17,7 +17,7 @@ namespace SamaHesab.WPF.ViewModels.Reports;
 public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
-    private readonly IAccountRepository _accountRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IPdfService _pdf;
@@ -65,12 +65,12 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
     public List<CostCenterDto> CostCenters { get; private set; } = new();
     public List<ProjectDto> Projects { get; private set; } = new();
 
-    public FinancialReportsViewModel(IMediator mediator, IAccountRepository accountRepo,
+    public FinancialReportsViewModel(IMediator mediator, ApiClient api,
         ICurrentUserService currentUser, IPersianCalendarService calendar, IPdfService pdf,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _accountRepo = accountRepo;
+        _mediator = mediator; _api = api;
         _currentUser = currentUser; _calendar = calendar; _pdf = pdf;
     }
 
@@ -81,9 +81,12 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
         FromDate = $"{cal.GetYear(now)}/{cal.GetMonth(now):D2}/01";
         ToDate = _calendar.GetCurrentPersianDate();
 
-        var accs = await _accountRepo.GetByCompanyAsync(_currentUser.CompanyId ?? 1);
-        Accounts = accs.Where(a => a.IsLeaf).OrderBy(a => a.Code)
-            .Select(a => new AccountPick(a.Id, $"{a.Code} - {a.Name}")).ToList();
+        // 🏛️ کلاینت→API، دسکتاپ→Application — فقط حساب‌های معین (Leaf).
+        Accounts = (!string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? (await _api.GetAccountsAsync()).Where(a => a.IsLeaf).Select(a => new AccountPick(a.Id, $"{a.Code} - {a.Name}"))
+                : (await _mediator.Send(new SamaHesab.Application.Accounting.Queries.GetAccountsQuery(LeafOnly: true)))
+                    .Select(a => new AccountPick(a.Id, $"{a.Code} - {a.Name}")))
+            .OrderBy(a => a.Display).ToList();
         OnPropertyChanged(nameof(Accounts));
 
         // ابعاد تحلیلی برای فیلتر گزارش (هستهٔ ERP)

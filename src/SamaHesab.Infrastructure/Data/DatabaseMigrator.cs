@@ -43,13 +43,22 @@ public static class DatabaseMigrator
         await EnsureTrackingTableAsync(conn, ct);
         var applied = await GetAppliedAsync(conn, ct);
 
-        // ۱) اسکیمای پایه (02..09) فقط روی DBِ تازه (وقتی جدولِ هسته‌ای `Sec.Users` نیست) —
-        //    تا روی DBهای موجود دوباره اجرا نشود (جدول/داده‌ی تکراری).
-        if (await ObjectMissingAsync(conn, "Sec.Users", ct))
+        // ۱) اسکیمای پایه (02..09): اجرا اگر DB تازه است **یا داده‌های پایه ناقص‌اند** (بوت‌استرپِ ناقصِ قبلی).
+        //    قبلاً فقط به نبودِ `Sec.Users` گِیت می‌شد؛ اگر جدول‌ها ساخته می‌شد ولی seed/نمودار حساب شکست می‌خورد،
+        //    دفعهٔ بعد چون Sec.Users بود، داده‌های پایه هرگز ساخته نمی‌شد (= «فرمِ اطلاعاتِ پایه کار نمی‌کند»).
+        //    `__AppliedScripts` از دوباره‌اجرای اسکریپت‌های *موفق* جلوگیری می‌کند؛ فقط شکست‌خورده‌ها دوباره تلاش می‌شوند.
+        //    گِیت روی «نبودِ داده» است تا DBهای کامل (موجود/legacy با شرکت+حساب) دست‌نخورده بمانند.
+        var needBase = await ObjectMissingAsync(conn, "Sec.Users", ct)
+                    || await TableEmptyAsync(conn, "Cfg.Companies", ct)
+                    || await TableEmptyAsync(conn, "Acc.Accounts", ct);
+        if (needBase)
         {
-            log?.Invoke("پایگاه‌دادهٔ تازه — اجرای اسکریپت‌های پایه (ساختِ جدول‌ها/seed)...");
+            log?.Invoke("اجرای اسکریپت‌های پایه (ساختِ جدول‌ها/seed/نمودار حساب)...");
             foreach (var res in OrderedScripts(asm, IsBaseResource))
                 await ApplyScriptAsync(conn, asm, res, applied, log, ct);
+
+            if (await TableEmptyAsync(conn, "Cfg.Companies", ct) || await TableEmptyAsync(conn, "Acc.Accounts", ct))
+                log?.Invoke("⚠ هشدار: پس از اجرا، داده‌های پایه (شرکت/نمودار حساب) همچنان ناقص است — خطاهای اسکریپتِ بالا را بررسی کنید.");
         }
 
         // ۲) مهاجرت‌های افزایشیِ ≥11 (idempotent).
@@ -138,6 +147,18 @@ public static class DatabaseMigrator
         cmd.Parameters.AddWithValue("@o", objectName);
         var r = await cmd.ExecuteScalarAsync(ct);
         return Convert.ToInt32(r) == 1;
+    }
+
+    /// <summary>true اگر جدول وجود نداشته باشد یا خالی باشد (برای تشخیصِ نبودِ داده‌های پایه). نام‌ها ثابت‌اند.</summary>
+    private static async Task<bool> TableEmptyAsync(SqlConnection conn, string table, CancellationToken ct)
+    {
+        if (await ObjectMissingAsync(conn, table, ct)) return true;
+        try
+        {
+            await using var cmd = new SqlCommand($"SELECT CASE WHEN EXISTS(SELECT 1 FROM {table}) THEN 0 ELSE 1 END", conn);
+            return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct)) == 1;
+        }
+        catch { return true; }
     }
 
     // ── انتخاب/مرتب‌سازیِ منابع ──

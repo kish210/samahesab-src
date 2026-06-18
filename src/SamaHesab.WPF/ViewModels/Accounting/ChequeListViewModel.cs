@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Commands;
+using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Enums;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -12,9 +12,10 @@ using System.Globalization;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
+/// <summary>مدیریت چک — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class ChequeListViewModel : BaseViewModel
 {
-    private readonly IChequeRepository _chequeRepository;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
@@ -58,12 +59,12 @@ public partial class ChequeListViewModel : BaseViewModel
     [RelayCommand] private void NextPage()  { if (CanNextPage) { PageNumber++; ApplyFilter(); } }
     [RelayCommand] private void LastPage()  { if (PageNumber != TotalPages) { PageNumber = TotalPages; ApplyFilter(); } }
 
-    public ChequeListViewModel(IChequeRepository chequeRepository, ICurrentUserService currentUser,
+    public ChequeListViewModel(ApiClient api, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IMediator mediator, IBarcodeService barcode,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _chequeRepository = chequeRepository;
+        _api = api;
         _currentUser = currentUser;
         _calendar = calendar;
         _mediator = mediator;
@@ -74,13 +75,15 @@ public partial class ChequeListViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId!.Value;
-            var cheques = await _chequeRepository.FindAsync(c => c.CompanyId == companyId);
+            // 🏛️ کلاینت→API، دسکتاپ→Application
+            var cheques = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? await _api.GetChequesAsync()
+                : await _mediator.Send(new GetChequesQuery());
 
             _all.Clear();
             foreach (var c in cheques)
                 _all.Add(ChequeListRow.From(c.Id, c.ChequeType, c.ChequeNumber, c.BankName, c.Amount,
-                    c.DueDate, c.Status, c.IssuedBy ?? "", c.Description ?? ""));
+                    c.DueDate, c.Status, c.IssuedBy, c.Description));
 
             RecomputeStats();
             ApplyFilterFromStart();

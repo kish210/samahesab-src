@@ -202,6 +202,10 @@ public class ApiClient
     public async Task<SamaHesab.Application.BI.Queries.DashboardDto?> GetDashboardAsync(string today)
         => await _http.GetFromJsonAsync<SamaHesab.Application.BI.Queries.DashboardDto>($"/api/dashboard/full?today={Uri.EscapeDataString(today)}");
 
+    /// <summary>فهرستِ چک‌ها از API (DTO مشترکِ Application).</summary>
+    public async Task<List<SamaHesab.Application.Accounting.Queries.ChequeRowDto>> GetChequesAsync()
+        => await _http.GetFromJsonAsync<List<SamaHesab.Application.Accounting.Queries.ChequeRowDto>>("/api/cheques") ?? new();
+
     /// <summary>فهرستِ کاملِ انبارها (صفحهٔ مدیریت) از API.</summary>
     public async Task<List<ApiWarehouseRow>> GetWarehouseListAsync()
         => await _http.GetFromJsonAsync<List<ApiWarehouseRow>>("/api/warehouse/list") ?? new();

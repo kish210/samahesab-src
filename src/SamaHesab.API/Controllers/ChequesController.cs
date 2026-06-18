@@ -20,6 +20,11 @@ public class ChequesController : ControllerBase
     public async Task<IActionResult> Board([FromQuery] string today, CancellationToken ct)
         => Ok(await _mediator.Send(new GetChequeBoardQuery(today), ct));
 
+    /// <summary>فهرستِ کاملِ چک‌ها — الگوی API-only.</summary>
+    [HttpGet]
+    public async Task<IActionResult> List(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetChequesQuery(), ct));
+
     public record ChangeStatusRequest(ChequeAction Action, string Date, string? ReturnReason = null);
 
     /// <summary>تغییر وضعیت چک: وصول (سند خودکار)/برگشت/واگذاری.</summary>

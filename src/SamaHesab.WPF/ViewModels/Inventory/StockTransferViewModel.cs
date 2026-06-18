@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Commands;
-using SamaHesab.Domain.Entities.Inventory;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -12,12 +11,11 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
+/// <summary>انتقال بین انبار — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class StockTransferViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly IWarehouseRepository _warehouseRepo;
-    private readonly IProductRepository _productRepo;
-    private readonly IRepository<StockItem> _stockRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -51,35 +49,37 @@ public partial class StockTransferViewModel : BaseViewModel
             l.SourceStock = await SourceStockAsync(l.ProductId);
     }
 
-    public StockTransferViewModel(IMediator mediator, IWarehouseRepository warehouseRepo,
-        IProductRepository productRepo, IRepository<StockItem> stockRepo, ICurrentUserService currentUser,
+    public StockTransferViewModel(IMediator mediator, ApiClient api, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _warehouseRepo = warehouseRepo; _productRepo = productRepo;
-        _stockRepo = stockRepo; _currentUser = currentUser; _calendar = calendar;
+        _mediator = mediator; _api = api; _currentUser = currentUser; _calendar = calendar;
     }
 
-    /// <summary>موجودی کالا در انبار مبدأ.</summary>
+    /// <summary>موجودی کالا در انبار مبدأ (🏛️ کلاینت→API، دسکتاپ→Application).</summary>
     private async Task<decimal> SourceStockAsync(int productId)
     {
-        var fromWh = FromWarehouseId;
-        var items = await _stockRepo.FindAsync(s => s.ProductId == productId && s.WarehouseId == fromWh);
-        return items.Sum(s => s.Quantity);
+        if (FromWarehouseId <= 0) return 0;
+        var rows = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetWarehouseStockAsync(FromWarehouseId)).Select(s => (s.ProductId, s.Quantity))
+            : (await _mediator.Send(new GetWarehouseStockQuery(FromWarehouseId))).Select(s => (s.ProductId, s.Quantity));
+        return rows.Where(s => s.ProductId == productId).Sum(s => s.Quantity);
     }
 
     public override async Task LoadAsync()
     {
-        var companyId = _currentUser.CompanyId ?? 1;
         TransferDate = _calendar.GetCurrentPersianDate();
-        var whs = await _warehouseRepo.GetByCompanyAsync(companyId);
-        Warehouses = whs.Select(w => new WarehousePick(w.Id, w.Name)).ToList();
+        var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
+        Warehouses = online
+            ? (await _api.GetWarehousesAsync()).Select(w => new WarehousePick(w.Id, w.Name)).ToList()
+            : (await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehousePick(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Count > 0) FromWarehouseId = Warehouses[0].Id;
         if (Warehouses.Count > 1) ToWarehouseId = Warehouses[1].Id;
 
-        var prods = await _productRepo.SearchAsync(companyId, "");
-        Products = prods.Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList();
+        Products = online
+            ? (await _api.GetProductListAsync()).Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList()
+            : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList();
         OnPropertyChanged(nameof(Products));
     }
 

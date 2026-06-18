@@ -420,7 +420,6 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private async Task<string> GenerateInvoiceNumberAsync(int companyId, int fiscalYearId,
         InvoiceType type, CancellationToken ct)
     {
-        // Simplified - in real implementation call the SP
         var prefix = type switch
         {
             InvoiceType.Sale => "F",
@@ -428,8 +427,16 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             InvoiceType.Quotation => "PF",
             _ => "F"
         };
-        var count = await _invoiceRepository.CountAsync(
+        // بیشترین شمارهٔ موجود + ۱ (نه COUNT) — تا حذفِ یک فاکتور شمارهٔ تکراری تولید نکند
+        // (شمارهٔ فاکتورِ رسمیِ تکراری = نقصِ قانونی). رقم‌های پیشوند جدا و بیشینه گرفته می‌شود.
+        var existing = await _invoiceRepository.FindAsync(
             i => i.CompanyId == companyId && i.FiscalYearId == fiscalYearId && i.InvoiceType == type, ct);
-        return $"{prefix}{(count + 1):D6}";
+        int max = 0;
+        foreach (var inv in existing)
+        {
+            var digits = new string((inv.InvoiceNumber ?? "").Where(char.IsDigit).ToArray());
+            if (int.TryParse(digits, out var x) && x > max) max = x;
+        }
+        return $"{prefix}{(max + 1):D6}";
     }
 }

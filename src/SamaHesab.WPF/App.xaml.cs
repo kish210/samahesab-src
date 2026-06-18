@@ -178,6 +178,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.KardexViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.FinancialReportsViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>();   // درآمد/سود
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.BranchReportViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.AgedBalanceViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Reports.VatSummaryViewModel>();

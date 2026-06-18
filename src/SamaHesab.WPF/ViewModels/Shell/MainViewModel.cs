@@ -153,6 +153,8 @@ public partial class MainViewModel : BaseViewModel
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
             ["RecurringInvoices"]= ("فاکتورهای تکرارشونده", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.RecurringInvoiceListViewModel>()),
+            ["Income"]          = ("درآمد و سود",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),
+            ["IncomeList"]      = ("لیست درآمدها",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),
             ["PurchaseInvoice"] = ("فاکتور خرید",         sp => sp.GetRequiredService<PurchaseInvoiceEditViewModel>()),
             ["PurchaseInvoiceList"]= ("لیست خریدها",       sp => sp.GetRequiredService<PurchaseInvoiceListViewModel>()),
             ["POS"]             = ("صندوق فروش",          sp => sp.GetRequiredService<PosViewModel>()),

@@ -108,6 +108,7 @@
 
     <!-- Reports -->
     <DataTemplate DataType="{x:Type rep:ReportsViewModel}"><vrep:ReportsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type rep:IncomeReportViewModel}"><vrep:IncomeReportView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:FinancialReportsViewModel}"><vrep:FinancialReportsView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:BranchReportViewModel}"><vrep:BranchReportView/></DataTemplate>
     <DataTemplate DataType="{x:Type rep:AgedBalanceViewModel}"><vrep:AgedBalanceView/></DataTemplate>

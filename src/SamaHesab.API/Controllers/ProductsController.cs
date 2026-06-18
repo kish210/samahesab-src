@@ -31,6 +31,11 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
         => Ok(await _mediator.Send(new GetProductsQuery(search), ct));
 
+    /// <summary>کارت کالا (۳۶۰°): مشخصات/قیمت/کنترل + موجودیِ چنداِنباره — الگوی API-only.</summary>
+    [HttpGet("{id:int}/card")]
+    public async Task<IActionResult> Card(int id, CancellationToken ct)
+        => (await _mediator.Send(new GetProductCardQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
+
     /// <summary>غیرفعال‌سازیِ (حذفِ نرمِ) کالا.</summary>
     [HttpPost("{id:int}/deactivate")]
     public async Task<IActionResult> Deactivate(int id, CancellationToken ct)

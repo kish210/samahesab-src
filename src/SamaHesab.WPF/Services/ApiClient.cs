@@ -23,6 +23,11 @@ public record ApiWarehouseRow(int Id, string Code, string Name, string Manager, 
 public record ApiBankAccount(int Id, string BankName, string AccountNumber, string Sheba,
     string CardNumber, string BranchName, decimal OpeningBalance, bool IsActive);
 public record ApiVoucherPreviewLine(string AccountName, decimal Debit, decimal Credit);
+public record ApiProductCardStock(string WarehouseName, decimal Quantity, bool IsLow);
+public record ApiProductCard(int Id, string Code, string Name, string? Barcode, bool IsActive,
+    decimal PurchasePrice, decimal SalePrice, decimal WholesalePrice, decimal ConsumerPrice, decimal TaxRate,
+    decimal MinStock, decimal? MaxStock, decimal? ReorderPoint, string Tracking,
+    decimal TotalStock, List<ApiProductCardStock> WarehouseStocks);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -189,6 +194,10 @@ public class ApiClient
     /// <summary>پیش‌نمایشِ ردیف‌های یک سند از API.</summary>
     public async Task<List<ApiVoucherPreviewLine>> GetVoucherPreviewAsync(int voucherId)
         => await _http.GetFromJsonAsync<List<ApiVoucherPreviewLine>>($"/api/vouchers/{voucherId}/preview") ?? new();
+
+    /// <summary>کارت کالا (۳۶۰°) از API.</summary>
+    public async Task<ApiProductCard?> GetProductCardAsync(int id)
+        => await _http.GetFromJsonAsync<ApiProductCard?>($"/api/products/{id}/card");
 
     /// <summary>فهرستِ فاکتورهای خرید از API.</summary>
     public async Task<List<ApiPurchaseInvoiceRow>> GetPurchaseInvoicesAsync(string? from = null, string? to = null, string? search = null)

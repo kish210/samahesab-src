@@ -1033,10 +1033,10 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc) بچ و سریال — `BatchSerialViewModel`
 - [ ] (pc) کارت مشتری — `CustomerCardViewModel`
 - [x] (pc) صورت‌حساب تأمین‌کننده — `SupplierStatementViewModel`
-- [ ] (pc) فاکتورهای تکرارشونده — `RecurringInvoiceListViewModel`
+- [x] (pc) فاکتورهای تکرارشونده — `RecurringInvoiceListViewModel`
 - [ ] (pc) لیستِ اسناد — `VoucherListViewModel`
-- [ ] (pc) حساب‌های بانکی — `BankAccountViewModel`
-- [ ] (pc) مغایرت‌گیری بانکی — `BankReconciliationViewModel`
+- [x] (pc) حساب‌های بانکی — `BankAccountViewModel`
+- [x] (pc) مغایرت‌گیری بانکی — `BankReconciliationViewModel`
 - [x] (pc) نمودار حساب‌ها — `ChartOfAccountsViewModel`
 - [x] (pc) گزارش‌های مالی — `FinancialReportsViewModel`
 - [ ] (pc) داشبورد — `DashboardViewModel`

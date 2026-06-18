@@ -20,6 +20,8 @@ public record ApiCustomerRow(int Id, string Code, string Name, string Mobile, de
 public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiWarehouseRow(int Id, string Code, string Name, string Manager, string Address, bool IsDefault, bool IsActive);
+public record ApiBankAccount(int Id, string BankName, string AccountNumber, string Sheba,
+    string CardNumber, string BranchName, decimal OpeningBalance, bool IsActive);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -178,6 +180,10 @@ public class ApiClient
     /// <summary>فهرستِ کاملِ انبارها (صفحهٔ مدیریت) از API.</summary>
     public async Task<List<ApiWarehouseRow>> GetWarehouseListAsync()
         => await _http.GetFromJsonAsync<List<ApiWarehouseRow>>("/api/warehouse/list") ?? new();
+
+    /// <summary>حساب‌های بانکی از API.</summary>
+    public async Task<List<ApiBankAccount>> GetBankAccountsAsync(bool activeOnly = false)
+        => await _http.GetFromJsonAsync<List<ApiBankAccount>>($"/api/bankaccounts?activeOnly={(activeOnly ? "true" : "false")}") ?? new();
 
     /// <summary>فهرستِ فاکتورهای خرید از API.</summary>
     public async Task<List<ApiPurchaseInvoiceRow>> GetPurchaseInvoicesAsync(string? from = null, string? to = null, string? search = null)

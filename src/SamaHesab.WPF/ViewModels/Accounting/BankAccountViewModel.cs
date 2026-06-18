@@ -1,38 +1,39 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Entities.Accounting;
-using SamaHesab.Domain.Interfaces.Repositories;
+using MediatR;
+using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
+/// <summary>حساب‌های بانکی — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class BankAccountViewModel : BaseViewModel
 {
-    private readonly IRepository<BankAccount> _bankRepo;
-    private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private int _totalCount;
 
     public ObservableCollection<BankAccountRow> Accounts { get; } = new();
 
-    public BankAccountViewModel(IRepository<BankAccount> bankRepo, ICurrentUserService currentUser,
+    public BankAccountViewModel(IMediator mediator, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _bankRepo = bankRepo; _currentUser = currentUser; }
+    { _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _bankRepo.FindAsync(b => b.CompanyId == companyId);
             Accounts.Clear();
-            foreach (var b in list)
-                Accounts.Add(new BankAccountRow(b.Id, b.BankName, b.AccountNumber,
-                    b.ShebaNumber ?? "", b.CardNumber ?? "", b.BranchName ?? "", b.OpeningBalance, b.IsActive));
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+                foreach (var b in await _api.GetBankAccountsAsync())
+                    Accounts.Add(new BankAccountRow(b.Id, b.BankName, b.AccountNumber, b.Sheba, b.CardNumber, b.BranchName, b.OpeningBalance, b.IsActive));
+            else
+                foreach (var b in await _mediator.Send(new GetBankAccountsQuery()))
+                    Accounts.Add(new BankAccountRow(b.Id, b.BankName, b.AccountNumber, b.Sheba, b.CardNumber, b.BranchName, b.OpeningBalance, b.IsActive));
             TotalCount = Accounts.Count;
         }, "در حال بارگذاری حساب‌های بانکی...");
     }

@@ -20,7 +20,7 @@ namespace SamaHesab.WPF.ViewModels.Accounting;
 public partial class BankReconciliationViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly IRepository<BankAccount> _bankRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -46,14 +46,14 @@ public partial class BankReconciliationViewModel : BaseViewModel
 
     public BankReconciliationViewModel(
         IMediator mediator,
-        IRepository<BankAccount> bankRepo,
+        ApiClient api,
         ICurrentUserService currentUser,
         IPersianCalendarService calendar,
         IDialogService dialogService,
         INavigationService navigationService) : base(dialogService, navigationService)
     {
         _mediator = mediator;
-        _bankRepo = bankRepo;
+        _api = api;
         _currentUser = currentUser;
         _calendar = calendar;
     }
@@ -67,11 +67,14 @@ public partial class BankReconciliationViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _bankRepo.FindAsync(b => b.CompanyId == companyId && b.IsActive);
             BankAccounts.Clear();
-            foreach (var b in list)
-                BankAccounts.Add(new BankAccountOption(b.Id, $"{b.BankName} — {b.AccountNumber}"));
+            // 🏛️ کلاینت→API، دسکتاپ→Application
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+                foreach (var b in await _api.GetBankAccountsAsync(activeOnly: true))
+                    BankAccounts.Add(new BankAccountOption(b.Id, $"{b.BankName} — {b.AccountNumber}"));
+            else
+                foreach (var b in await _mediator.Send(new SamaHesab.Application.Accounting.Queries.GetBankAccountsQuery(ActiveOnly: true)))
+                    BankAccounts.Add(new BankAccountOption(b.Id, $"{b.BankName} — {b.AccountNumber}"));
             SelectedBankAccountId = BankAccounts.FirstOrDefault()?.Id ?? 0;
         }, "در حال بارگذاری حساب‌های بانکی...");
     }

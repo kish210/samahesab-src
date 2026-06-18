@@ -2,8 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Application.Sales.Commands;   // RecurringInvoice commands/DTOs
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -18,11 +19,8 @@ namespace SamaHesab.WPF.ViewModels.Sales;
 public partial class RecurringInvoiceListViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly ICurrentUserService _currentUser;
+    private readonly ApiClient _api;
     private readonly IPersianCalendarService _calendar;
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepo;
-    private readonly IWarehouseRepository _warehouseRepo;
-    private readonly IProductRepository _productRepo;
 
     public ObservableCollection<RecurringRow> Items { get; } = new();
     public ObservableCollection<NewLineRow> NewLines { get; } = new();
@@ -41,29 +39,34 @@ public partial class RecurringInvoiceListViewModel : BaseViewModel
     [ObservableProperty] private decimal _lineQty = 1;
     [ObservableProperty] private decimal _linePrice;
 
-    public RecurringInvoiceListViewModel(IMediator mediator, ICurrentUserService currentUser,
+    public RecurringInvoiceListViewModel(IMediator mediator, ApiClient api,
         IPersianCalendarService calendar,
-        IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepo,
-        IWarehouseRepository warehouseRepo, IProductRepository productRepo,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _currentUser = currentUser; _calendar = calendar;
-        _customerRepo = customerRepo; _warehouseRepo = warehouseRepo; _productRepo = productRepo;
+        _mediator = mediator; _api = api; _calendar = calendar;
     }
 
     public override async Task LoadAsync()
     {
-        var companyId = _currentUser.CompanyId ?? 1;
         NewNextDate = _calendar.GetCurrentPersianDate();
+        var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
 
-        var customers = await _customerRepo.FindAsync(c => c.CompanyId == companyId && c.IsActive);
-        Customers = customers.Select(c => new CustomerItem(c.Id, c.FullName, c.Mobile ?? "")).ToList();
+        // 🏛️ کلاینت→API، دسکتاپ→Application — دراپ‌داون‌ها از کوئری‌های مشترک.
+        Customers = online
+            ? (await _api.GetCustomersAsync()).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList()
+            : (await _mediator.Send(new GetCustomersQuery())).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList();
         OnPropertyChanged(nameof(Customers));
-        Warehouses = (await _warehouseRepo.GetByCompanyAsync(companyId)).Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
+
+        Warehouses = online
+            ? (await _api.GetWarehousesAsync()).Select(w => new WarehouseItem(w.Id, w.Name)).ToList()
+            : (await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         if (Warehouses.Any()) NewWarehouseId = Warehouses[0].Id;
-        Products = (await _productRepo.SearchAsync(companyId, "")).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
+
+        Products = online
+            ? (await _api.GetProductListAsync()).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList()
+            : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(Products));
 
         await ReloadListAsync();

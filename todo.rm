@@ -1078,3 +1078,14 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [ ] (pc) افزودنِ `PartyId` به SalesInvoice/PurchaseInvoice/Cheque (نول‌پذیر) + backfill
 - [ ] (pc) سوییچِ کامندها/کوئری‌ها به `PartyId`
 - [ ] (pc) حذفِ ستون‌های CustomerId/SupplierId و جداولِ Customers/Suppliers (آخرین گام، پس از تأیید)
+
+### مرحلهٔ B — مهاجرتِ خواندن ✅ (تست‌شده روی DB واقعی)
+- [x] (pc) نقشِ کارمند به Party (سه‌نقشه: مشتری/تأمین‌کننده/کارمند)
+- [x] (pc) `36_PartyMergeByCode.sql` — ادغامِ هم‌کد (کلیدِ دومِ تطبیق)
+- [x] (pc) `GetPersonsQuery` از `Crm.Parties` با ماندهٔ زنده + dual-write در ساختِ مشتری
+- [x] (pc) UI اشخاص: فیلتر/نمایشِ سه نقش
+- [x] (pc) ✅ تستِ واقعی: ۴۴ طرف‌حساب، ۳ چندنقشه (یکی C+S+E)، `/api/persons` درست، idempotent
+- نکتهٔ یافته‌شده (پیشین، خارج از scope): API در حالتِ Development به‌خاطرِ نبودِ ثبتِ `ISupportApiClient` بالا نمی‌آید؛ در Production سالم اجرا می‌شود.
+
+### مرحلهٔ C — Cutover نهایی (هنوز نشده؛ نیازمندِ تستِ کاملِ مالی)
+- [ ] (pc) repoint کردنِ FKهای فاکتور/سند/چک به Party + حذفِ Customers/Suppliers (آبشاری؛ گامِ آخر)

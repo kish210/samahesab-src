@@ -17,6 +17,9 @@ builder.Host.UseWindowsService(o => o.ServiceName = "SamaHesabApi");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// همگام‌سازیِ پشتیبانی سمتِ کلاینت است؛ میزبانِ API نسخهٔ no-op می‌گیرد (رفعِ ValidateOnBuild در Development).
+builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.OfflineSupportApiClient>();
+
 // ── API-side current-user (from JWT claims) ──
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, HttpCurrentUserService>();

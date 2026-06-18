@@ -1,10 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Purchase.Queries;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.Purchase;
-using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -12,12 +11,12 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Purchase;
 
+/// <summary>لیستِ فاکتورهای خرید — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class PurchaseInvoiceListViewModel : BaseViewModel
 {
-    private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
-    private readonly IRepository<PurchaseInvoice> _invoiceRepository;
-    private readonly IRepository<Supplier> _supplierRepository;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
@@ -26,14 +25,13 @@ public partial class PurchaseInvoiceListViewModel : BaseViewModel
 
     public ObservableCollection<PurchaseInvoiceListItem> Invoices { get; } = new();
 
-    public PurchaseInvoiceListViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IRepository<PurchaseInvoice> invoiceRepository, IRepository<Supplier> supplierRepository,
+    public PurchaseInvoiceListViewModel(IPersianCalendarService calendar,
+        IMediator mediator, ApiClient api,
         IDialogService d, INavigationService n) : base(d, n)
     {
-        _currentUser = currentUser;
         _calendar = calendar;
-        _invoiceRepository = invoiceRepository;
-        _supplierRepository = supplierRepository;
+        _mediator = mediator;
+        _api = api;
     }
 
     public override async Task LoadAsync() => await SearchAsync();
@@ -44,16 +42,16 @@ public partial class PurchaseInvoiceListViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             Invoices.Clear();
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _invoiceRepository.FindAsync(i => i.CompanyId == companyId);
-            var suppliers = (await _supplierRepository.GetAllAsync()).ToDictionary(s => s.Id, s => s.FullName);
-
-            foreach (var inv in list.OrderByDescending(i => i.Id))
+            // 🏛️ مسیرِ داده: کلاینتِ شبکه‌ای → API؛ دسکتاپِ آفلاین → Application.
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
             {
-                suppliers.TryGetValue(inv.SupplierId, out var sname);
-                Invoices.Add(new PurchaseInvoiceListItem(
-                    inv.Id, inv.InvoiceNumber, inv.InvoiceDate, sname ?? $"#{inv.SupplierId}",
-                    inv.GrandTotal, inv.PaidAmount, inv.RemainAmount, inv.StatusCode));
+                foreach (var r in await _api.GetPurchaseInvoicesAsync(FromDate, ToDate))
+                    Invoices.Add(new PurchaseInvoiceListItem(r.Id, r.Number, r.Date, r.SupplierName, r.Total, r.Paid, r.Remain, r.Status));
+            }
+            else
+            {
+                foreach (var r in await _mediator.Send(new GetPurchaseInvoicesQuery(FromDate, ToDate)))
+                    Invoices.Add(new PurchaseInvoiceListItem(r.Id, r.Number, r.Date, r.SupplierName, r.Total, r.Paid, r.Remain, r.Status));
             }
             TotalCount = Invoices.Count;
             TotalAmount = Invoices.Sum(i => i.Total);

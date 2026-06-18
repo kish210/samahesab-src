@@ -14,6 +14,12 @@ public class PurchaseController : ControllerBase
     private readonly IMediator _mediator;
     public PurchaseController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>فهرستِ فاکتورهای خرید (با نامِ تأمین‌کننده) — الگوی API-only.</summary>
+    [HttpGet("invoices")]
+    public async Task<IActionResult> List([FromQuery] string? from, [FromQuery] string? to,
+        [FromQuery] string? search, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetPurchaseInvoicesQuery(from, to, search), ct));
+
     /// <summary>Create a purchase invoice (increases stock + posts the automatic voucher).</summary>
     [HttpPost("invoices")]
     public async Task<IActionResult> Create([FromBody] CreatePurchaseInvoiceCommand command, CancellationToken ct)

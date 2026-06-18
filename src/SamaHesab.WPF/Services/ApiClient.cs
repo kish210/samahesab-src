@@ -12,6 +12,10 @@ public record ApiProductRow(int Id, string Code, string Barcode, string Name,
     decimal MinStock, bool IsActive, bool IsLowStock);
 public record ApiSalesInvoiceRow(int Id, string Number, string Date, string CustomerName,
     decimal Total, decimal Paid, decimal Remain, string Status);
+public record ApiSupplierRow(int Id, string Code, string Name, string Mobile, string City, decimal Balance, bool IsActive);
+public record ApiAccountRow(int Id, string Code, string Name, int Level, string Nature, bool IsActive);
+public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
+    decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -147,6 +151,28 @@ public class ApiClient
         if (!string.IsNullOrWhiteSpace(search)) qs.Add($"search={Uri.EscapeDataString(search)}");
         var url = "/api/sales/invoices" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
         return await _http.GetFromJsonAsync<List<ApiSalesInvoiceRow>>(url) ?? new();
+    }
+
+    /// <summary>فهرستِ تأمین‌کنندگان از API.</summary>
+    public async Task<List<ApiSupplierRow>> GetSuppliersAsync(string? search = null)
+    {
+        var url = string.IsNullOrWhiteSpace(search) ? "/api/suppliers" : $"/api/suppliers?search={Uri.EscapeDataString(search)}";
+        return await _http.GetFromJsonAsync<List<ApiSupplierRow>>(url) ?? new();
+    }
+
+    /// <summary>فهرستِ حساب‌ها از API.</summary>
+    public async Task<List<ApiAccountRow>> GetAccountsAsync()
+        => await _http.GetFromJsonAsync<List<ApiAccountRow>>("/api/accounts") ?? new();
+
+    /// <summary>فهرستِ فاکتورهای خرید از API.</summary>
+    public async Task<List<ApiPurchaseInvoiceRow>> GetPurchaseInvoicesAsync(string? from = null, string? to = null, string? search = null)
+    {
+        var qs = new List<string>();
+        if (!string.IsNullOrWhiteSpace(from)) qs.Add($"from={Uri.EscapeDataString(from)}");
+        if (!string.IsNullOrWhiteSpace(to)) qs.Add($"to={Uri.EscapeDataString(to)}");
+        if (!string.IsNullOrWhiteSpace(search)) qs.Add($"search={Uri.EscapeDataString(search)}");
+        var url = "/api/purchase/invoices" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
+        return await _http.GetFromJsonAsync<List<ApiPurchaseInvoiceRow>>(url) ?? new();
     }
 
     public async Task<List<ApiGroup>> GetGroupsAsync()

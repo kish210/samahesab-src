@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Purchase.Queries;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -33,13 +34,6 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken ct)
-    {
-        var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _suppliers.FindAsync(s => s.CompanyId == companyId, ct);
-        return Ok(list.Select(s => new
-        {
-            s.Id, s.Code, Name = s.FullName, s.Mobile, s.Balance, s.IsActive
-        }));
-    }
+    public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetSuppliersQuery(search), ct));
 }

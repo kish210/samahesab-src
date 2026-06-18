@@ -190,6 +190,7 @@ public class GeneralSettings
 
     // ── راه‌اندازیِ اولیه (فاز ۱۲ G3) ──
     public bool SetupCompleted { get; set; }   // ویزاردِ First-Run یک‌بار اجرا شده؟
+    public int IdleTimeoutMinutes { get; set; }   // قفل/خروجِ خودکار پس از بی‌فعالیتی (۰=خاموش) — امنیتِ تجاری
     public string? CompanyLogoPath { get; set; }
     public string? TrialInstallUtc { get; set; }   // فاز ۱۲ P-G7 — شروعِ دورهٔ آزمایشی (ISO UTC)
     public string? LastBackupUtc { get; set; }      // فاز RC (RC-3) — آخرین پشتیبانِ خودکار (ISO UTC)

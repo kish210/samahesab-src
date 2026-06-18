@@ -158,6 +158,7 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private bool _autoBackupEnabled;
     [ObservableProperty] private int _backupIntervalDays = 1;
     [ObservableProperty] private string _backupPath = string.Empty;
+    [ObservableProperty] private int _idleTimeoutMinutes;   // X6 — خروجِ خودکار پس از بی‌فعالیتی (۰=خاموش)
     [ObservableProperty] private string _updateStatus = string.Empty;
 
     public string AppVersionText => $"نسخهٔ برنامه: {AppVersion.Display}";
@@ -198,6 +199,7 @@ public partial class SettingsViewModel : BaseViewModel
         VoucherPrefix = g.VoucherPrefix; InvoicePrefix = g.InvoicePrefix;
         AutoBackupEnabled = g.AutoBackupEnabled; BackupIntervalDays = g.BackupIntervalDays;
         BackupPath = string.IsNullOrWhiteSpace(g.BackupPath) ? @"C:\SamaHesabBackup" : g.BackupPath!;
+        IdleTimeoutMinutes = g.IdleTimeoutMinutes;
         SmsEnabled = g.SmsEnabled; SmsProvider = g.SmsProvider;
         SmsApiKey = g.SmsApiKey ?? ""; SmsSender = g.SmsSender ?? "";
         await Task.CompletedTask;
@@ -210,19 +212,21 @@ public partial class SettingsViewModel : BaseViewModel
         {
             AppSettingsStore.SaveTheme(SelectedTheme);
             ThemeManager.Apply(SelectedTheme);
-            AppSettingsStore.SaveGeneral(new GeneralSettings
-            {
-                CompanyName = CompanyName, CompanyPhone = CompanyPhone,
-                CompanyNationalId = CompanyNationalId, CompanyEconomicCode = CompanyEconomicCode,
-                CompanyRegNumber = CompanyRegNumber, CompanyAddress = CompanyAddress,
-                CompanyPostalCode = CompanyPostalCode, CompanyEmail = CompanyEmail, CompanyWebsite = CompanyWebsite,
-                FiscalYearStart = FiscalYearStart, FiscalYearEnd = FiscalYearEnd,
-                Currency = SelectedCurrency, DefaultVatRate = DefaultVatRate, DecimalPlaces = DecimalPlaces,
-                VoucherPrefix = VoucherPrefix, InvoicePrefix = InvoicePrefix,
-                AutoBackupEnabled = AutoBackupEnabled, BackupIntervalDays = BackupIntervalDays, BackupPath = BackupPath,
-                SmsEnabled = SmsEnabled, SmsProvider = SmsProvider,
-                SmsApiKey = SmsApiKey, SmsSender = SmsSender
-            });
+            // merge روی تنظیماتِ موجود — تا فیلدهای فهرست‌نشده (SetupCompleted/CloudBackupFolder/CompanyLogoPath)
+            // پاک نشوند (باگِ قبلی: ساختِ نمونهٔ تازه → بازگشتِ ویزاردِ راه‌اندازی + از‌دست‌رفتنِ مسیرِ بکاپِ ابری).
+            var g = AppSettingsStore.GetGeneral();
+            g.CompanyName = CompanyName; g.CompanyPhone = CompanyPhone;
+            g.CompanyNationalId = CompanyNationalId; g.CompanyEconomicCode = CompanyEconomicCode;
+            g.CompanyRegNumber = CompanyRegNumber; g.CompanyAddress = CompanyAddress;
+            g.CompanyPostalCode = CompanyPostalCode; g.CompanyEmail = CompanyEmail; g.CompanyWebsite = CompanyWebsite;
+            g.FiscalYearStart = FiscalYearStart; g.FiscalYearEnd = FiscalYearEnd;
+            g.Currency = SelectedCurrency; g.DefaultVatRate = DefaultVatRate; g.DecimalPlaces = DecimalPlaces;
+            g.VoucherPrefix = VoucherPrefix; g.InvoicePrefix = InvoicePrefix;
+            g.AutoBackupEnabled = AutoBackupEnabled; g.BackupIntervalDays = BackupIntervalDays; g.BackupPath = BackupPath;
+            g.IdleTimeoutMinutes = IdleTimeoutMinutes;
+            g.SmsEnabled = SmsEnabled; g.SmsProvider = SmsProvider;
+            g.SmsApiKey = SmsApiKey; g.SmsSender = SmsSender;
+            AppSettingsStore.SaveGeneral(g);
             await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد.");
         }, "در حال ذخیرهٔ تنظیمات...");
     }

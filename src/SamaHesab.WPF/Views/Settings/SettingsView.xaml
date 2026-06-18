@@ -217,6 +217,14 @@
                         <CheckBox Content="حالتِ فشرده (نمایشِ اطلاعاتِ بیشتر در هر صفحه؛ مناسبِ کارِ روزانه)"
                                   IsChecked="{Binding CompactMode}" Margin="0,16,0,0"
                                   FontFamily="{StaticResource VazirFont}" Foreground="{DynamicResource PrimaryText}"/>
+                        <!-- X6 — خروجِ خودکار پس از بی‌فعالیتی (امنیتِ تجاری) -->
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="خروجِ خودکار پس از بی‌فعالیتی (دقیقه، ۰=خاموش):" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,8,0"/>
+                            <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4" Width="80">
+                                <TextBox Text="{Binding IdleTimeoutMinutes}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="8,6" TextAlignment="Center" FontFamily="{StaticResource VazirFont}"/>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

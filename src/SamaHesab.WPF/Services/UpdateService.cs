@@ -40,19 +40,27 @@ public class UpdateService
             if (!TryParseVersion(tag, out var latest)) return null;
             if (latest <= CurrentVersion) return null;   // چیزی جدیدتر نیست
 
-            // اولین assetِ نصابِ .exe را بردار.
+            // نصابِ دسکتاپ را بردار. ترتیبِ asset‌ها در API تضمینی نیست، پس
+            // نصابِ کلاینت/سرور را کنار می‌گذاریم و نصابِ اصلیِ دسکتاپ را ترجیح می‌دهیم.
             if (!root.TryGetProperty("assets", out var assets)) return null;
+            var notes = root.TryGetProperty("body", out var b) ? b.GetString() : null;
+
+            (string url, string name)? fallback = null;
             foreach (var a in assets.EnumerateArray())
             {
                 var name = a.GetProperty("name").GetString() ?? "";
-                if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    var url = a.GetProperty("browser_download_url").GetString();
-                    if (string.IsNullOrEmpty(url)) continue;
-                    var notes = root.TryGetProperty("body", out var b) ? b.GetString() : null;
-                    return new UpdateInfo(latest, tag, url, name, notes);
-                }
+                if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) continue;
+                var url = a.GetProperty("browser_download_url").GetString();
+                if (string.IsNullOrEmpty(url)) continue;
+
+                // نصابِ کلاینت/سرور هدفِ آپدیتِ خودکارِ دسکتاپ نیست؛ نادیده بگیر مگر اینکه چیزِ دیگری نباشد.
+                bool isClientOrServer = name.IndexOf("Client", StringComparison.OrdinalIgnoreCase) >= 0
+                                     || name.IndexOf("Server", StringComparison.OrdinalIgnoreCase) >= 0;
+                if (isClientOrServer) { fallback ??= (url, name); continue; }
+
+                return new UpdateInfo(latest, tag, url, name, notes);
             }
+            if (fallback is { } fb) return new UpdateInfo(latest, tag, fb.url, fb.name, notes);
             return null;
         }
         catch { return null; }   // آفلاین/خطا → بی‌صدا

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Sales.Commands;
+using SamaHesab.Application.Sales.Queries;
 using SamaHesab.Domain.Enums;
 
 namespace SamaHesab.API.Controllers;
@@ -22,6 +23,12 @@ public class SalesController : ControllerBase
         _currentUser = currentUser;
         _calendar = calendar;
     }
+
+    /// <summary>فهرستِ فاکتورهای فروش (با نامِ مشتری و وضعیت) — الگوی API-only.</summary>
+    [HttpGet("invoices")]
+    public async Task<IActionResult> List([FromQuery] string? from, [FromQuery] string? to,
+        [FromQuery] string? status, [FromQuery] string? search, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetSalesInvoicesQuery(from, to, status, search), ct));
 
     /// <summary>Create a sales invoice (reduces stock + posts the automatic voucher).</summary>
     [HttpPost("invoices")]

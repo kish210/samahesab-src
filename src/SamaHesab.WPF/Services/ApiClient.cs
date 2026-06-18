@@ -10,6 +10,8 @@ public record ApiPerson(int Id, string Code, string Name, string Mobile, decimal
 public record ApiProductRow(int Id, string Code, string Barcode, string Name,
     decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
     decimal MinStock, bool IsActive, bool IsLowStock);
+public record ApiSalesInvoiceRow(int Id, string Number, string Date, string CustomerName,
+    decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -132,6 +134,19 @@ public class ApiClient
     {
         var resp = await _http.PostAsync($"/api/products/{id}/deactivate", null);
         return resp.IsSuccessStatusCode;
+    }
+
+    /// <summary>فهرستِ فاکتورهای فروش از API.</summary>
+    public async Task<List<ApiSalesInvoiceRow>> GetSalesInvoicesAsync(string? from = null, string? to = null,
+        string? status = null, string? search = null)
+    {
+        var qs = new List<string>();
+        if (!string.IsNullOrWhiteSpace(from)) qs.Add($"from={Uri.EscapeDataString(from)}");
+        if (!string.IsNullOrWhiteSpace(to)) qs.Add($"to={Uri.EscapeDataString(to)}");
+        if (!string.IsNullOrWhiteSpace(status)) qs.Add($"status={Uri.EscapeDataString(status)}");
+        if (!string.IsNullOrWhiteSpace(search)) qs.Add($"search={Uri.EscapeDataString(search)}");
+        var url = "/api/sales/invoices" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
+        return await _http.GetFromJsonAsync<List<ApiSalesInvoiceRow>>(url) ?? new();
     }
 
     public async Task<List<ApiGroup>> GetGroupsAsync()

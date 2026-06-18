@@ -1,10 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.Sales;
-using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Sales.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -12,12 +11,15 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Sales;
 
+/// <summary>
+/// لیستِ فاکتورهای فروش — 🏛️ الگوی API-only: کلاینتِ شبکه‌ای از API (ApiClient.GetSalesInvoices)،
+/// دسکتاپِ آفلاین از لایهٔ Application (GetSalesInvoicesQuery). بدونِ ریپازیتوریِ مستقیم.
+/// </summary>
 public partial class SalesInvoiceListViewModel : BaseViewModel
 {
-    private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
-    private readonly IRepository<SalesInvoice> _invoiceRepository;
-    private readonly IRepository<Customer> _customerRepository;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
@@ -29,15 +31,14 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
     public ObservableCollection<SalesInvoiceListItem> Invoices { get; } = new();
     public List<string> StatusList { get; } = new() { "همه", "پیش‌نویس", "قطعی", "لغو شده" };
 
-    public SalesInvoiceListViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IRepository<SalesInvoice> invoiceRepository, IRepository<Customer> customerRepository,
+    public SalesInvoiceListViewModel(IPersianCalendarService calendar,
+        IMediator mediator, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _currentUser = currentUser;
         _calendar = calendar;
-        _invoiceRepository = invoiceRepository;
-        _customerRepository = customerRepository;
+        _mediator = mediator;
+        _api = api;
     }
 
     public override async Task LoadAsync()
@@ -55,32 +56,24 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             Invoices.Clear();
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _invoiceRepository.FindAsync(i => i.CompanyId == companyId);
-            var customers = (await _customerRepository.GetAllAsync()).ToDictionary(c => c.Id, c => c.FullName);
+            var status = SelectedStatus == "همه" ? null : SelectedStatus;
+            var search = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText;
 
-            foreach (var inv in list.OrderByDescending(i => i.Id))
+            // 🏛️ مسیرِ داده: کلاینتِ شبکه‌ای → API؛ دسکتاپِ آفلاین → Application.
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
             {
-                var statusFa = StatusToPersian(inv.Status);
-                if (SelectedStatus != "همه" && statusFa != SelectedStatus) continue;
-                customers.TryGetValue(inv.CustomerId, out var cname);
-                Invoices.Add(new SalesInvoiceListItem(
-                    inv.Id, inv.InvoiceNumber, inv.InvoiceDate, cname ?? $"#{inv.CustomerId}",
-                    inv.GrandTotal, inv.PaidAmount, inv.RemainAmount, statusFa));
+                foreach (var r in await _api.GetSalesInvoicesAsync(FromDate, ToDate, status, search))
+                    Invoices.Add(new SalesInvoiceListItem(r.Id, r.Number, r.Date, r.CustomerName, r.Total, r.Paid, r.Remain, r.Status));
+            }
+            else
+            {
+                foreach (var r in await _mediator.Send(new GetSalesInvoicesQuery(FromDate, ToDate, status, search)))
+                    Invoices.Add(new SalesInvoiceListItem(r.Id, r.Number, r.Date, r.CustomerName, r.Total, r.Paid, r.Remain, r.Status));
             }
             TotalCount = Invoices.Count;
             TotalAmount = Invoices.Sum(i => i.Total);
         });
     }
-
-    private static string StatusToPersian(SamaHesab.Domain.Enums.InvoiceStatus s) => s switch
-    {
-        SamaHesab.Domain.Enums.InvoiceStatus.Draft => "پیش‌نویس",
-        SamaHesab.Domain.Enums.InvoiceStatus.Confirmed => "قطعی",
-        SamaHesab.Domain.Enums.InvoiceStatus.Posted => "قطعی",
-        SamaHesab.Domain.Enums.InvoiceStatus.Cancelled => "لغو شده",
-        _ => s.ToString()
-    };
 
     [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice");
 

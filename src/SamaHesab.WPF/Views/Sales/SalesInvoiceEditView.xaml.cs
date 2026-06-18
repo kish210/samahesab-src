@@ -28,6 +28,8 @@ public partial class SalesInvoiceEditView : UserControl
 
     private void FocusEntry() => BarcodeBox.Focus();
 
+    private void FocusBarcode_Click(object sender, RoutedEventArgs e) => BarcodeBox.Focus();
+
     private async void AddCustomer_Click(object sender, RoutedEventArgs e)
     {
         var dlg = new QuickAddCustomerWindow { Owner = Window.GetWindow(this) };

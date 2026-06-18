@@ -20,8 +20,15 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private readonly IPersianCalendarService _calendar;
 
     [ObservableProperty] private string _invoiceNumber = "--- خودکار ---";
+    [ObservableProperty] private bool _autoNumber = true;            // شمارهٔ خودکار (مثلِ تصویر)
+    [ObservableProperty] private string _reference = string.Empty;   // ارجاع
+    [ObservableProperty] private string _title = string.Empty;       // عنوانِ فاکتور
+    [ObservableProperty] private int? _selectedProjectId;            // پروژه
     [ObservableProperty] private string _invoiceDate = string.Empty;
     [ObservableProperty] private int _selectedCustomerId;
+
+    partial void OnAutoNumberChanged(bool value)
+    { InvoiceNumber = value ? "--- خودکار ---" : (InvoiceNumber == "--- خودکار ---" ? string.Empty : InvoiceNumber); }
     [ObservableProperty] private string _selectedCustomerName = string.Empty;
     [ObservableProperty] private int _selectedWarehouseId;
     [ObservableProperty] private string _invoiceType = "فروش";
@@ -68,13 +75,18 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public List<ProductSearchResult> AllProducts { get; private set; } = new();
     public List<CustomerItem> Customers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
+    public List<ProjectItem> Projects { get; private set; } = new();
     public List<string> InvoiceTypes { get; } = new() { "فروش", "برگشت از فروش", "پیش‌فاکتور" };
     public List<string> PriceLevels { get; } = new() { "خرده", "عمده", "ویژه" };
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه", "اقساط" };
 
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
+    private readonly IRepository<SamaHesab.Domain.Entities.Accounting.Project> _projectRepository;
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IStockItemRepository _stockRepository;
+
+    /// <summary>تعدادِ کلِ اقلامِ واقعی (ردیف‌های دارای کالا) — برای نوارِ جمع.</summary>
+    [ObservableProperty] private decimal _totalQuantity;
 
     private readonly IPrintService _printService;
     private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
@@ -87,6 +99,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         IProductRepository productRepository,
         IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepository,
+        IRepository<SamaHesab.Domain.Entities.Accounting.Project> projectRepository,
         IWarehouseRepository warehouseRepository,
         IStockItemRepository stockRepository,
         IDialogService dialogService,
@@ -96,7 +109,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     {
         _mediator = mediator; _currentUser = currentUser;
         _productRepository = productRepository; _calendar = calendar;
-        _customerRepository = customerRepository; _warehouseRepository = warehouseRepository;
+        _customerRepository = customerRepository; _projectRepository = projectRepository;
+        _warehouseRepository = warehouseRepository;
         _stockRepository = stockRepository;
         _printService = printService; _barcode = barcode;
     }
@@ -163,6 +177,16 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var prods = await _productRepository.SearchAsync(companyId, "");
         AllProducts = prods.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
+
+        try
+        {
+            var projects = await _projectRepository.FindAsync(p => p.CompanyId == companyId && p.IsActive);
+            Projects = projects.Select(p => new ProjectItem(p.Id, p.Name)).ToList();
+            OnPropertyChanged(nameof(Projects));
+        }
+        catch { /* نبودِ پروژه نباید فرم را خراب کند */ }
+
+        if (InvoiceItems.Count == 0) SeedEmptyRows();
 
         await LoadRecentCustomersAsync();
 
@@ -341,17 +365,41 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     /// <summary>دکمه‌های پنل تسویه: تعیین روش پرداخت (نقد/کارت‌خوان/چک/نسیه).</summary>
     [RelayCommand] private void SetPay(string? method) { if (!string.IsNullOrEmpty(method)) PaymentType = method!; }
 
-    [RelayCommand] private void RemoveItem(SalesInvoiceItemRow? i) { if (i != null) { InvoiceItems.Remove(i); RecalculateTotals(); } }
+    [RelayCommand] private void RemoveItem(SalesInvoiceItemRow? i) { if (i != null) { InvoiceItems.Remove(i); RenumberRows(); RecalculateTotals(); } }
 
     private void RecalculateTotals()
     {
         SubTotal = InvoiceItems.Sum(i => i.Quantity * i.UnitPrice);
         TotalDiscount = InvoiceItems.Sum(i => i.DiscountAmount);
         TotalTax = InvoiceItems.Sum(i => i.TaxAmount);
+        TotalQuantity = InvoiceItems.Where(i => i.ProductId > 0).Sum(i => i.Quantity);
         GrandTotal = SubTotal - TotalDiscount - InvoiceDiscount + TotalTax + Shipping + OtherCosts;
         if (GrandTotal < 0) GrandTotal = 0;
         RemainAmount = GrandTotal - PaidAmount;
     }
+
+    /// <summary>افزودنِ ردیفِ خالیِ قابلِ‌ویرایش در گرید (سبکِ کلاسیک).</summary>
+    [RelayCommand]
+    private void AddEmptyRow()
+    {
+        var row = new SalesInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
+        row.PropertyChanged += (_, _) => RecalculateTotals();
+        InvoiceItems.Add(row);
+        RenumberRows();
+    }
+
+    private void SeedEmptyRows(int count = 5)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            var row = new SalesInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
+            row.PropertyChanged += (_, _) => RecalculateTotals();
+            InvoiceItems.Add(row);
+        }
+    }
+
+    private void RenumberRows()
+    { for (int i = 0; i < InvoiceItems.Count; i++) InvoiceItems[i].RowNumber = i + 1; }
 
     partial void OnInvoiceDiscountChanged(decimal value) => RecalculateTotals();
 
@@ -359,7 +407,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private async Task PostInvoiceAsync()
     {
         if (SelectedCustomerId == 0) { await _dialogService.ShowErrorAsync("مشتری را انتخاب کنید."); return; }
-        if (!InvoiceItems.Any()) { await _dialogService.ShowErrorAsync("حداقل یک ردیف وارد کنید."); return; }
+        var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
+        if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
         var ok = await _dialogService.ConfirmAsync($"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
         if (!ok) return;
         await ExecuteAsync(async () =>
@@ -372,12 +421,16 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                 SalesRepId: CommissionPercent > 0 ? (_currentUser.UserId ?? 1) : (int?)null,
                 DueDate: DueDate, Description: Description,
                 Shipping: Shipping, OtherCosts: OtherCosts,
-                Items: InvoiceItems.Select(i => new SalesInvoiceItemDto(
-                    i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct, null, null, null)).ToList(),
+                Items: realItems.Select(i => new SalesInvoiceItemDto(
+                    i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct,
+                    string.IsNullOrWhiteSpace(i.Description) ? null : i.Description, null, null)).ToList(),
                 InvoiceDiscount: InvoiceDiscount,
                 PaidAmount: PaidAmount,
                 PaymentMethod: PaymentType,
-                CommissionPercent: CommissionPercent);
+                CommissionPercent: CommissionPercent,
+                Reference: string.IsNullOrWhiteSpace(Reference) ? null : Reference,
+                Title: string.IsNullOrWhiteSpace(Title) ? null : Title,
+                ProjectId: SelectedProjectId);
             var result = await _mediator.Send(cmd);
             if (result.Succeeded) { await _dialogService.ShowSuccessAsync("فاکتور فروش ثبت شد."); NewInvoice(); }
             else await _dialogService.ShowErrorAsync(result.ErrorMessage);
@@ -387,10 +440,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private void NewInvoice()
     {
+        AutoNumber = true;
         InvoiceNumber = "--- خودکار ---";
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedCustomerId = 0; SelectedCustomerName = string.Empty;
+        Reference = string.Empty; Title = string.Empty; SelectedProjectId = null;
         Description = null; DueDate = null; InvoiceItems.Clear();
+        SeedEmptyRows();
         PaidAmount = 0; RecalculateTotals();
     }
 
@@ -451,8 +507,22 @@ public partial class SalesInvoiceItemRow : ObservableObject
     [ObservableProperty] private int _productId;
     [ObservableProperty] private string _productCode = string.Empty;
     [ObservableProperty] private string _productName = string.Empty;
+    [ObservableProperty] private string _unit = "عدد";
     [ObservableProperty] private string? _description;
     [ObservableProperty] private decimal _quantity;
+    [ObservableProperty] private ProductSearchResult? _selectedProduct;
+
+    /// <summary>انتخابِ کالا در گرید (سبکِ کلاسیک) → پر شدنِ خودکارِ کد/نام/فی/مالیات.</summary>
+    partial void OnSelectedProductChanged(ProductSearchResult? value)
+    {
+        if (value == null) return;
+        ProductId = value.Id;
+        ProductCode = value.Code;
+        ProductName = value.Name;
+        if (UnitPrice <= 0) UnitPrice = value.Price;
+        if (TaxPct <= 0) TaxPct = value.TaxRate;
+        Recalculate();
+    }
     [ObservableProperty] private decimal _unitPrice;
     [ObservableProperty] private decimal _discountPct;
     [ObservableProperty] private decimal _taxPct;
@@ -483,5 +553,6 @@ public partial class SalesInvoiceItemRow : ObservableObject
 public record RecentRef(int Id, string Label);
 public record CustomerItem(int Id, string Name, string? Mobile);
 public record WarehouseItem(int Id, string Name);
+public record ProjectItem(int Id, string Name);
 public record ProductSearchResult(int Id, string Code, string Name, string? Barcode, decimal Price, decimal TaxRate);
 

@@ -27,7 +27,10 @@ public record CreateSalesInvoiceCommand(
     decimal PaidAmount = 0,             // amount received at invoice time
     string PaymentMethod = "نسیه",      // نقدی / بانک / چک / نسیه
     decimal CommissionPercent = 0,      // sales-rep commission %
-    bool AllowOverCredit = false        // عبور مجاز از سقف اعتبار (با تأیید کاربر مجاز)
+    bool AllowOverCredit = false,       // عبور مجاز از سقف اعتبار (با تأیید کاربر مجاز)
+    string? Reference = null,           // ارجاع (شمارهٔ مرجع/سفارش)
+    string? Title = null,               // عنوانِ فاکتور
+    int? ProjectId = null               // پروژهٔ مرتبط
 ) : IRequest<Result<int>>;
 
 public record SalesInvoiceItemDto(
@@ -123,7 +126,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                 companyId, request.BranchId, request.FiscalYearId,
                 invoiceNumber, request.InvoiceDate, request.CustomerId, request.WarehouseId,
                 request.InvoiceType, request.PriceLevel, request.SalesRepId,
-                request.DueDate, request.Description);
+                request.DueDate, request.Description,
+                request.Reference, request.Title, request.ProjectId);
 
             for (int i = 0; i < request.Items.Count; i++)
             {

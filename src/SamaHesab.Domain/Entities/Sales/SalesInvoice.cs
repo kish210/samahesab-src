@@ -28,6 +28,9 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
     public InvoiceStatus Status { get; private set; } = InvoiceStatus.Draft;
     public string? DueDate { get; private set; }
     public string? Description { get; private set; }
+    public string? Reference { get; private set; }   // ارجاع (شمارهٔ مرجع/سفارش)
+    public string? Title { get; private set; }        // عنوانِ فاکتور
+    public int? ProjectId { get; private set; }       // پروژهٔ مرتبط
     public int PrintCount { get; private set; }
     public int? VoucherId { get; private set; }
     public int? ReturnedFromId { get; private set; }
@@ -40,7 +43,8 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
     public static SalesInvoice Create(int companyId, int branchId, int fiscalYearId,
         string invoiceNumber, string invoiceDate, int customerId, int warehouseId,
         InvoiceType invoiceType = InvoiceType.Sale, string priceLevel = "خرده",
-        int? salesRepId = null, string? dueDate = null, string? description = null)
+        int? salesRepId = null, string? dueDate = null, string? description = null,
+        string? reference = null, string? title = null, int? projectId = null)
     {
         if (string.IsNullOrWhiteSpace(invoiceNumber))
             throw new ArgumentException("شماره فاکتور الزامی است.");
@@ -58,8 +62,19 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
             PriceLevel = priceLevel,
             SalesRepId = salesRepId,
             DueDate = dueDate,
-            Description = description
+            Description = description,
+            Reference = reference,
+            Title = title,
+            ProjectId = projectId
         };
+    }
+
+    public void SetHeaderInfo(string? reference, string? title, int? projectId)
+    {
+        Reference = reference;
+        Title = title;
+        ProjectId = projectId;
+        UpdatedAt = DateTime.Now;
     }
 
     public void AddItem(SalesInvoiceItem item)

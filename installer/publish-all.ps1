@@ -37,6 +37,10 @@ Write-Host "[6/7] publish Warehouse launcher (warehouse.exe) ..." -ForegroundCol
 dotnet publish "$root\src\SamaHesab.Warehouse\SamaHesab.Warehouse.csproj" @common -o $app
 if ($LASTEXITCODE) { throw "Warehouse publish failed" }
 
+Write-Host "[6b/7] publish Migration tool (mohajerat.exe) ..." -ForegroundColor Cyan
+dotnet publish "$root\tools\SamaHesab.Migration\SamaHesab.Migration.csproj" @common -o $app
+if ($LASTEXITCODE) { throw "Migration tool publish failed" }
+
 Write-Host "[7/7] publish API server (SamaHesab.API.exe) ..." -ForegroundColor Cyan
 dotnet publish "$root\src\SamaHesab.API\SamaHesab.API.csproj" @common -o $api
 if ($LASTEXITCODE) { throw "API publish failed" }

@@ -62,7 +62,7 @@ public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersComm
             {
                 var first = RowMap.Get(row, "نام", "نام مشتری", "FirstName", "Name");
                 var last = RowMap.Get(row, "نام خانوادگی", "نام‌خانوادگی", "LastName", "Family");
-                var company = RowMap.Get(row, "نام شرکت", "شرکت", "CompanyName");
+                var company = RowMap.Get(row, "نام شرکت", "شرکت", "نام مستعار", "عنوان", "CompanyName");
                 var type = company != null && first == null && last == null ? "حقوقی" : "حقیقی";
 
                 var code = RowMap.Get(row, "کد", "کد مشتری", "Code");
@@ -125,7 +125,7 @@ public class ImportSuppliersCommandHandler : IRequestHandler<ImportSuppliersComm
             {
                 var first = RowMap.Get(row, "نام", "نام تأمین‌کننده", "FirstName", "Name");
                 var last = RowMap.Get(row, "نام خانوادگی", "نام‌خانوادگی", "LastName");
-                var company = RowMap.Get(row, "نام شرکت", "شرکت", "CompanyName");
+                var company = RowMap.Get(row, "نام شرکت", "شرکت", "نام مستعار", "عنوان", "CompanyName");
                 var type = company != null && first == null && last == null ? "حقوقی" : "حقیقی";
 
                 var code = RowMap.Get(row, "کد", "کد تأمین‌کننده", "Code");

@@ -66,10 +66,15 @@ Source: "..\database\*.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
+Name: "{group}\صندوقِ فروش (POS)";               Filename: "{app}\pos.exe"; WorkingDir: "{app}"
+Name: "{group}\رستوران";                         Filename: "{app}\restoran.exe"; WorkingDir: "{app}"
+Name: "{group}\ابزارِ مهاجرت داده";              Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"
 Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
 Name: "{group}\راهنمای کاربر";                   Filename: "{app}\docs\UserGuide.pdf"
 Name: "{group}\حذف {#MyAppName}";               Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\رستورانِ سما حساب";       Filename: "{app}\restoran.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\صندوقِ فروشِ سما حساب";   Filename: "{app}\pos.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]

@@ -11,6 +11,7 @@
         <KeyBinding Key="F1" Command="{Binding NewSaleCommand}"/>
         <KeyBinding Key="F12" Command="{Binding CheckoutCommand}"/>
         <KeyBinding Key="F8" Command="{Binding PrintReceiptCommand}"/>
+        <KeyBinding Key="F9" Command="{Binding PreviewReceiptCommand}"/>
         <KeyBinding Key="F4" Command="{Binding HoldSaleCommand}"/>
     </UserControl.InputBindings>
 
@@ -168,7 +169,7 @@
 
             <!-- ردیف توابع -->
             <Grid Grid.Row="2" Margin="0,7,0,0">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <!-- U11 — تعلیق فاکتور (Hold) -->
                 <Button Grid.Column="0" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"
                         Content="تعلیق فاکتور F4" Command="{Binding HoldSaleCommand}"/>
@@ -218,7 +219,13 @@
                         </Grid>
                     </Border>
                 </Popup>
-                <Button Grid.Column="4" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="ابطال Esc" Command="{Binding NewSaleCommand}"/>
+                <!-- پیش‌نمایشِ رسید (F9) -->
+                <Button Grid.Column="4" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"
+                        Content="👁 پیش‌نمایش" Command="{Binding PreviewReceiptCommand}"/>
+                <!-- چاپِ فاکتور/رسید (دستورِ موجود روی F8 — حالا دکمهٔ دیداری هم دارد) -->
+                <Button Grid.Column="6" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpBlue700}" FontSize="11.5"
+                        Content="🖨 چاپ F8" Command="{Binding PrintReceiptCommand}"/>
+                <Button Grid.Column="8" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="ابطال Esc" Command="{Binding NewSaleCommand}"/>
             </Grid>
         </Grid>
 

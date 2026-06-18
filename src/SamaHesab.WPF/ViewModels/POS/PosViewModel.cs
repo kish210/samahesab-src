@@ -444,6 +444,14 @@ public partial class PosViewModel : BaseViewModel
         try { _printService.PrintReceipt(BuildReceiptData()); }
         catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در چاپ رسید: " + ex.Message); }
     }
+
+    [RelayCommand]
+    private async Task PreviewReceiptAsync()
+    {
+        if (!CartItems.Any()) { await _dialogService.ShowWarningAsync("سبد خرید خالی است."); return; }
+        try { _printService.Preview(BuildReceiptData()); }
+        catch (Exception ex) { await _dialogService.ShowErrorAsync("خطا در پیش‌نمایش: " + ex.Message); }
+    }
 }
 
 public partial class PosCartItem : ObservableObject

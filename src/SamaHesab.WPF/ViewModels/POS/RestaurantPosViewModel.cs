@@ -179,6 +179,7 @@ public partial class RestaurantPosViewModel : BaseViewModel
 
     [RelayCommand] private void PrintTicket() { if (OrderLines.Any()) try { _printService.PrintReceipt(BuildBill("تیکت آشپزخانه")); } catch { } }
     [RelayCommand] private void PrintBill() { if (OrderLines.Any()) try { _printService.PrintReceipt(BuildBill("صورتحساب")); } catch { } }
+    [RelayCommand] private void PreviewBill() { if (OrderLines.Any()) try { _printService.Preview(BuildBill("صورتحساب")); } catch { } }
 
     [RelayCommand]
     private async Task CheckoutAsync()

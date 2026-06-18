@@ -167,6 +167,7 @@
                                 <Button Grid.Column="0" Height="40" Margin="0,0,3,0" Background="{DynamicResource WarningColor}" Foreground="White" BorderThickness="0" Content="تیکت" Command="{Binding PrintTicketCommand}"/>
                                 <Button Grid.Column="1" Height="40" Margin="3,0,0,0" Style="{StaticResource SuccessButton}" Content="چاپ" Command="{Binding PrintBillCommand}"/>
                             </Grid>
+                            <Button Height="34" Margin="0,6,0,0" Style="{StaticResource SecondaryButton}" Content="پیش‌نمایش صورتحساب" Command="{Binding PreviewBillCommand}"/>
                             <Button Height="38" Margin="0,6,0,0" Style="{StaticResource SecondaryButton}" Content="سفارش جدید" Command="{Binding NewOrderCommand}"/>
                             <Button Height="34" Margin="0,6,0,0" Style="{StaticResource SecondaryButton}" Content="پاک کردن" Command="{Binding ClearCommand}"/>
                         </StackPanel>

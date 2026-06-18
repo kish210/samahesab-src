@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamaHesab.Application.Common.Interfaces;
+using MediatR;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -13,13 +12,13 @@ namespace SamaHesab.WPF.ViewModels.CRM;
 
 /// <summary>
 /// اشخاص (طرف‌حساب) — نمای یکپارچهٔ مشتری + تأمین‌کننده در یک فهرست (سبکِ ERP ایرانی).
-/// مرحلهٔ ۱ از ادغامِ طرف‌حساب: داده‌های واردشده (هر دو نقش) همین‌جا دیده می‌شوند.
+/// 🏛️ الگوی مرجعِ معماریِ API-only: کلاینتِ شبکه‌ای از API می‌خواند (ApiClient.GetPersons)،
+/// دسکتاپِ آفلاین از لایهٔ Application (GetPersonsQuery) — هیچ ریپازیتوریِ مستقیمی در ViewModel نیست.
 /// </summary>
 public partial class PersonsListViewModel : BaseViewModel
 {
-    private readonly ICurrentUserService _currentUser;
-    private readonly IRepository<Customer> _customerRepo;
-    private readonly IRepository<Supplier> _supplierRepo;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private int _roleFilter;   // 0=همه، 1=مشتری، 2=تأمین‌کننده
@@ -29,26 +28,25 @@ public partial class PersonsListViewModel : BaseViewModel
     private readonly List<PersonListItem> _all = new();
     public ObservableCollection<PersonListItem> Persons { get; } = new();
 
-    public PersonsListViewModel(ICurrentUserService currentUser,
-        IRepository<Customer> customerRepo, IRepository<Supplier> supplierRepo,
-        IDialogService d, INavigationService n)
-        : base(d, n) { _currentUser = currentUser; _customerRepo = customerRepo; _supplierRepo = supplierRepo; }
+    public PersonsListViewModel(IMediator mediator, ApiClient api, IDialogService d, INavigationService n)
+        : base(d, n) { _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
             _all.Clear();
-
-            foreach (var c in await _customerRepo.FindAsync(x => x.CompanyId == companyId))
-                _all.Add(new PersonListItem(c.Id, c.Code ?? "", c.FullName ?? "", c.Mobile ?? "",
-                    c.Balance, "مشتری", true, false, c.IsActive));
-
-            foreach (var s in await _supplierRepo.FindAsync(x => x.CompanyId == companyId))
-                _all.Add(new PersonListItem(s.Id, s.Code ?? "", s.FullName ?? "", s.Mobile ?? "",
-                    s.Balance, "تأمین‌کننده", false, true, s.IsActive));
-
+            // 🏛️ مسیرِ داده: اگر کلاینتِ شبکه‌ای است (BaseUrl ست) → API؛ وگرنه دسکتاپِ آفلاین → Application.
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+            {
+                foreach (var p in await _api.GetPersonsAsync())
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive));
+            }
+            else
+            {
+                foreach (var p in await _mediator.Send(new GetPersonsQuery()))
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive));
+            }
             ApplyFilter();
         }, "در حال بارگذاری اشخاص...");
     }

@@ -5,6 +5,8 @@ using System.Net.Http.Json;
 namespace SamaHesab.WPF.Services;
 
 public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
+public record ApiPerson(int Id, string Code, string Name, string Mobile, decimal Balance,
+    string Role, bool IsCustomer, bool IsSupplier, bool IsActive);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -103,6 +105,16 @@ public class ApiClient
         var url = string.IsNullOrWhiteSpace(q) ? "/api/products" : $"/api/products?q={Uri.EscapeDataString(q)}";
         var list = await _http.GetFromJsonAsync<List<ApiProduct>>(url);
         return list ?? new List<ApiProduct>();
+    }
+
+    /// <summary>اشخاص (طرف‌حساب) — مشتری+تأمین‌کننده از API (الگوی مرجعِ API-only).</summary>
+    public async Task<List<ApiPerson>> GetPersonsAsync(string? search = null, int? role = null)
+    {
+        var qs = new List<string>();
+        if (!string.IsNullOrWhiteSpace(search)) qs.Add($"search={Uri.EscapeDataString(search)}");
+        if (role is > 0) qs.Add($"role={role}");
+        var url = "/api/persons" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
+        return await _http.GetFromJsonAsync<List<ApiPerson>>(url) ?? new();
     }
 
     public async Task<List<ApiGroup>> GetGroupsAsync()

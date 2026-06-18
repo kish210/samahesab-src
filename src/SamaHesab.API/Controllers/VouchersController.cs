@@ -21,6 +21,11 @@ public class VouchersController : ControllerBase
         [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int size = 50, CancellationToken ct = default)
         => Ok(await _mediator.Send(new GetVouchersQuery(fiscalYearId, fromDate, toDate, typeId, status, search, page, size), ct));
 
+    /// <summary>پیش‌نمایشِ ردیف‌های یک سند (برای پنلِ پیش‌نمایشِ لیست) — الگوی API-only.</summary>
+    [HttpGet("{id:int}/preview")]
+    public async Task<IActionResult> Preview(int id, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetVoucherPreviewQuery(id), ct));
+
     /// <summary>Create a (draft) accounting voucher.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVoucherCommand command, CancellationToken ct)

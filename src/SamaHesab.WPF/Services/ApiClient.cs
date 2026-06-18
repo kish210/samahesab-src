@@ -22,6 +22,7 @@ public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string S
 public record ApiWarehouseRow(int Id, string Code, string Name, string Manager, string Address, bool IsDefault, bool IsActive);
 public record ApiBankAccount(int Id, string BankName, string AccountNumber, string Sheba,
     string CardNumber, string BranchName, decimal OpeningBalance, bool IsActive);
+public record ApiVoucherPreviewLine(string AccountName, decimal Debit, decimal Credit);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -184,6 +185,10 @@ public class ApiClient
     /// <summary>حساب‌های بانکی از API.</summary>
     public async Task<List<ApiBankAccount>> GetBankAccountsAsync(bool activeOnly = false)
         => await _http.GetFromJsonAsync<List<ApiBankAccount>>($"/api/bankaccounts?activeOnly={(activeOnly ? "true" : "false")}") ?? new();
+
+    /// <summary>پیش‌نمایشِ ردیف‌های یک سند از API.</summary>
+    public async Task<List<ApiVoucherPreviewLine>> GetVoucherPreviewAsync(int voucherId)
+        => await _http.GetFromJsonAsync<List<ApiVoucherPreviewLine>>($"/api/vouchers/{voucherId}/preview") ?? new();
 
     /// <summary>فهرستِ فاکتورهای خرید از API.</summary>
     public async Task<List<ApiPurchaseInvoiceRow>> GetPurchaseInvoicesAsync(string? from = null, string? to = null, string? search = null)

@@ -17,11 +17,13 @@ public record CreateCustomerCommand(
 public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Result<int>>
 {
     private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _parties;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _currentUser;
 
-    public CreateCustomerCommandHandler(IRepository<Customer> customers, IUnitOfWork uow, ICurrentUserService currentUser)
-    { _customers = customers; _uow = uow; _currentUser = currentUser; }
+    public CreateCustomerCommandHandler(IRepository<Customer> customers, IRepository<Party> parties,
+        IUnitOfWork uow, ICurrentUserService currentUser)
+    { _customers = customers; _parties = parties; _uow = uow; _currentUser = currentUser; }
 
     public async Task<Result<int>> Handle(CreateCustomerCommand req, CancellationToken ct)
     {
@@ -37,6 +39,26 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
 
             await _customers.AddAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
+
+            // 🧱 dual-write به طرف‌حساب (Party) تا directoryِ اشخاص به‌روز بماند —
+            // اگر شخصی با همین کد ملی هست، فقط نقشِ مشتری اضافه می‌شود؛ وگرنه طرف‌حسابِ جدید.
+            try
+            {
+                Party? party = null;
+                if (!string.IsNullOrWhiteSpace(req.NationalCode))
+                    party = (await _parties.FindAsync(p => p.CompanyId == companyId && p.NationalCode == req.NationalCode, ct)).FirstOrDefault();
+                if (party != null) { party.MarkCustomer(); party.SetLegacy(entity.Id, party.LegacySupplierId); _parties.Update(party); }
+                else
+                {
+                    var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
+                    np.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
+                    np.SetLegacy(entity.Id, null);
+                    await _parties.AddAsync(np, ct);
+                }
+                await _uow.SaveChangesAsync(ct);
+            }
+            catch { /* همگام‌سازیِ Party اختیاری است؛ نباید ساختِ مشتری را بشکند */ }
+
             return Result<int>.Success(entity.Id);
         }
         catch (System.Exception ex) { return Result<int>.Failure(ex.GetBaseException().Message); }

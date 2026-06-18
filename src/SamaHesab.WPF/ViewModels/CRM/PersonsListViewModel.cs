@@ -40,12 +40,12 @@ public partial class PersonsListViewModel : BaseViewModel
             if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
             {
                 foreach (var p in await _api.GetPersonsAsync())
-                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive));
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee));
             }
             else
             {
                 foreach (var p in await _mediator.Send(new GetPersonsQuery()))
-                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive));
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee));
             }
             ApplyFilter();
         }, "در حال بارگذاری اشخاص...");
@@ -54,7 +54,7 @@ public partial class PersonsListViewModel : BaseViewModel
     partial void OnRoleFilterChanged(int value) => ApplyFilter();
 
     [RelayCommand] private void SetRole(string? mode)
-    { RoleFilter = mode switch { "customer" => 1, "supplier" => 2, _ => 0 }; }
+    { RoleFilter = mode switch { "customer" => 1, "supplier" => 2, "employee" => 3, _ => 0 }; }
 
     private void ApplyFilter()
     {
@@ -62,6 +62,7 @@ public partial class PersonsListViewModel : BaseViewModel
         IEnumerable<PersonListItem> q = _all;
         if (RoleFilter == 1) q = q.Where(p => p.IsCustomer);
         else if (RoleFilter == 2) q = q.Where(p => p.IsSupplier);
+        else if (RoleFilter == 3) q = q.Where(p => p.IsEmployee);
         if (term.Length > 0)
             q = q.Where(p => p.Name.Contains(term) || p.Code.Contains(term) || p.Mobile.Contains(term));
 
@@ -97,4 +98,4 @@ public partial class PersonsListViewModel : BaseViewModel
 }
 
 public record PersonListItem(int Id, string Code, string Name, string Mobile, decimal Balance,
-    string Role, bool IsCustomer, bool IsSupplier, bool IsActive);
+    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false);

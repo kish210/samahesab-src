@@ -26,6 +26,7 @@
                     <Button Style="{StaticResource Chip}" Content="همه" Command="{Binding SetRoleCommand}" CommandParameter="all"/>
                     <Button Style="{StaticResource Chip}" Content="مشتری" Command="{Binding SetRoleCommand}" CommandParameter="customer"/>
                     <Button Style="{StaticResource Chip}" Content="تأمین‌کننده" Command="{Binding SetRoleCommand}" CommandParameter="supplier"/>
+                    <Button Style="{StaticResource Chip}" Content="کارمند" Command="{Binding SetRoleCommand}" CommandParameter="employee"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBox Style="{StaticResource ErpInput}" Width="220" Height="30" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">

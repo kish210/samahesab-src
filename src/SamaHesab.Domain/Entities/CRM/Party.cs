@@ -35,13 +35,15 @@ public class Party : AuditableEntity
     public string? ContactPerson { get; private set; }
     public string? Visitor { get; private set; }
 
-    // نقش‌ها (یک طرف‌حساب می‌تواند هر دو را داشته باشد)
+    // نقش‌ها (یک طرف‌حساب می‌تواند چند نقش داشته باشد: مشتری/تأمین‌کننده/کارمند)
     public bool IsCustomer { get; private set; }
     public bool IsSupplier { get; private set; }
+    public bool IsEmployee { get; private set; }
 
     // ردیابیِ مبدأ در دورهٔ مهاجرت (برای idempotency و repoint کردنِ FKها)
     public int? LegacyCustomerId { get; private set; }
     public int? LegacySupplierId { get; private set; }
+    public int? LegacyEmployeeId { get; private set; }
 
     private Party() { }
 
@@ -62,9 +64,17 @@ public class Party : AuditableEntity
         ? CompanyName ?? ""
         : $"{FirstName} {LastName}".Trim();
 
-    public void SetRoles(bool isCustomer, bool isSupplier) { IsCustomer = isCustomer; IsSupplier = isSupplier; SetAudit(null); }
+    public void SetRoles(bool isCustomer, bool isSupplier, bool isEmployee = false)
+    { IsCustomer = isCustomer; IsSupplier = isSupplier; IsEmployee = isEmployee; SetAudit(null); }
     public void MarkCustomer() { IsCustomer = true; SetAudit(null); }
     public void MarkSupplier() { IsSupplier = true; SetAudit(null); }
+    public void MarkEmployee() { IsEmployee = true; SetAudit(null); }
+    public void UpdateProfile(string? nationalCode, string? mobile, string? phone, string? email,
+        string? province, string? city, string? address)
+    {
+        NationalCode = nationalCode; Mobile = mobile; Phone = phone; Email = email;
+        Province = province; City = city; Address = address; SetAudit(null);
+    }
     public void UpdateBalance(decimal amount) { Balance = amount; SetAudit(null); }
     public void Deactivate() { IsActive = false; SetAudit(null); }
     public void Activate() { IsActive = true; SetAudit(null); }

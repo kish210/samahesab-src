@@ -2,13 +2,15 @@
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Documents;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Application.Sales.Commands;
 using SamaHesab.Domain.Enums;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Sales;
 
@@ -16,7 +18,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
-    private readonly IProductRepository _productRepository;
+    private readonly ApiClient _api;
     private readonly IPersianCalendarService _calendar;
 
     [ObservableProperty] private string _invoiceNumber = "--- خودکار ---";
@@ -80,10 +82,6 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public List<string> PriceLevels { get; } = new() { "خرده", "عمده", "ویژه" };
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه", "اقساط" };
 
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepository;
-    private readonly IRepository<SamaHesab.Domain.Entities.Accounting.Project> _projectRepository;
-    private readonly IWarehouseRepository _warehouseRepository;
-    private readonly IStockItemRepository _stockRepository;
 
     /// <summary>تعدادِ کلِ اقلامِ واقعی (ردیف‌های دارای کالا) — برای نوارِ جمع.</summary>
     [ObservableProperty] private decimal _totalQuantity;
@@ -97,32 +95,27 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _entryOnHand;
 
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
-        IProductRepository productRepository,
-        IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepository,
-        IRepository<SamaHesab.Domain.Entities.Accounting.Project> projectRepository,
-        IWarehouseRepository warehouseRepository,
-        IStockItemRepository stockRepository,
+        ApiClient api,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
         IPrintService printService, IBarcodeService barcode)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
-        _productRepository = productRepository; _calendar = calendar;
-        _customerRepository = customerRepository; _projectRepository = projectRepository;
-        _warehouseRepository = warehouseRepository;
-        _stockRepository = stockRepository;
+        _api = api; _calendar = calendar;
         _printService = printService; _barcode = barcode;
     }
 
-    /// <summary>OPT-5: بارگذاریِ موجودیِ انبارِ انتخابی (productId→qty) برای نمایشِ سریعِ موجودی.</summary>
+    /// <summary>OPT-5: بارگذاریِ موجودیِ انبارِ انتخابی (productId→qty). 🏛️ کلاینت→API، دسکتاپ→Application.</summary>
     private async Task LoadStockForWarehouseAsync()
     {
         try
         {
             if (SelectedWarehouseId <= 0) { _onHand = new(); return; }
-            var items = await _stockRepository.GetByWarehouseAsync(SelectedWarehouseId);
-            _onHand = items.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
+            var rows = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? (await _api.GetWarehouseStockAsync(SelectedWarehouseId)).Select(s => (s.ProductId, s.Quantity))
+                : (await _mediator.Send(new GetWarehouseStockQuery(SelectedWarehouseId))).Select(s => (s.ProductId, s.Quantity));
+            _onHand = rows.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
         }
         catch { _onHand = new(); }
     }
@@ -159,14 +152,17 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public override async Task LoadAsync()
     {
         InvoiceDate = _calendar.GetCurrentPersianDate();
-        var companyId = _currentUser.CompanyId ?? 1;
+        var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
 
-        var customers = await _customerRepository.FindAsync(c => c.CompanyId == companyId && c.IsActive);
-        Customers = customers.Select(c => new CustomerItem(c.Id, c.FullName, c.Mobile ?? "")).ToList();
+        // 🏛️ کلاینت→API، دسکتاپ→Application
+        Customers = online
+            ? (await _api.GetCustomersAsync()).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList()
+            : (await _mediator.Send(new GetCustomersQuery())).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList();
         OnPropertyChanged(nameof(Customers));
 
-        var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
-        Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
+        Warehouses = online
+            ? (await _api.GetWarehousesAsync()).Select(w => new WarehouseItem(w.Id, w.Name)).ToList()
+            : (await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         // ستِ انبارِ پیش‌فرض بدونِ تریگرِ بارگذاریِ موازی؛ سپس بارگذاریِ موجودی به‌صورتِ سریالی await می‌شود.
         _suppressStockReload = true;
@@ -174,13 +170,14 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         _suppressStockReload = false;
         await LoadStockForWarehouseAsync();
 
-        var prods = await _productRepository.SearchAsync(companyId, "");
-        AllProducts = prods.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
+        AllProducts = online
+            ? (await _api.GetProductListAsync()).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList()
+            : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
 
         try
         {
-            var projects = await _projectRepository.FindAsync(p => p.CompanyId == companyId && p.IsActive);
+            var projects = await _mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetProjectsQuery(ActiveOnly: true));
             Projects = projects.Select(p => new ProjectItem(p.Id, p.Name)).ToList();
             OnPropertyChanged(nameof(Projects));
         }
@@ -269,9 +266,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     /// <summary>Reload customer list (after a quick-add) and optionally select one.</summary>
     public async Task ReloadCustomersAsync(int? selectId)
     {
-        var companyId = _currentUser.CompanyId ?? 1;
-        var customers = await _customerRepository.FindAsync(c => c.CompanyId == companyId && c.IsActive);
-        Customers = customers.Select(c => new CustomerItem(c.Id, c.FullName, c.Mobile ?? "")).ToList();
+        Customers = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetCustomersAsync()).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList()
+            : (await _mediator.Send(new GetCustomersQuery())).Select(c => new CustomerItem(c.Id, c.Name, c.Mobile)).ToList();
         OnPropertyChanged(nameof(Customers));
         if (selectId.HasValue) SelectedCustomerId = selectId.Value;
     }
@@ -280,10 +277,11 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private async Task SearchProductAsync()
     {
         if (string.IsNullOrWhiteSpace(ProductSearch)) return;
-        var products = await _productRepository.SearchAsync(_currentUser.CompanyId ?? 1, ProductSearch);
+        var products = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetProductListAsync(ProductSearch)).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList()
+            : (await _mediator.Send(new GetProductsQuery(ProductSearch))).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
         SearchResults.Clear();
-        foreach (var p in products.Take(20))
-            SearchResults.Add(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
+        foreach (var p in products.Take(20)) SearchResults.Add(p);
         if (SearchResults.Count == 1) { await AddToCartAsync(SearchResults[0]); ProductSearch = string.Empty; }
     }
 
@@ -345,12 +343,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var hit = await _mediator.Send(new SamaHesab.Application.Common.Barcode.ResolveBarcodeQuery(code));
         if (hit == null)
         {
-            // اگر بارکد نبود، یک جستجوی نام انجام بده
-            var found = await _productRepository.SearchAsync(_currentUser.CompanyId ?? 1, code);
+            // اگر بارکد نبود، یک جستجوی نام انجام بده (🏛️ کلاینت→API، دسکتاپ→Application)
+            var found = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? (await _api.GetProductListAsync(code)).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList()
+                : (await _mediator.Send(new GetProductsQuery(code))).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate)).ToList();
             if (found.Count == 1)
             {
-                var p = found[0];
-                await AddToCartAsync(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.SalePrice, p.TaxRate));
+                await AddToCartAsync(found[0]);
                 BarcodeInput = string.Empty;
                 return;
             }

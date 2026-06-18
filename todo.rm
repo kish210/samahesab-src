@@ -1069,6 +1069,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 ### مرحلهٔ A — پایهٔ افزایشی (امن) — در حال انجام
 - [x] (pc) موجودیتِ `Party` (نقش‌ها: IsCustomer/IsSupplier) + نگاشتِ EF + DbSet
 - [x] (pc) مهاجرتِ `35_PartyUnification.sql`: ساختِ `Crm.Parties` + پرکردن از Customers/Suppliers (idempotent، بدونِ حذفِ جداولِ قدیمی)
+  - [x] (pc) ✅ روی DBِ واقعی تست شد: ۳۴ مشتری + ۱۰ تأمین‌کننده = ۴۴ طرف‌حساب، idempotent
 
 ### مرحلهٔ B — مهاجرتِ خواندن (امن)
 - [ ] (pc) `GetPersonsQuery`/کارت‌ها از `Crm.Parties` بخوانند (با dedup بر کد ملی/موبایل)

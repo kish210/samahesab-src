@@ -3,10 +3,11 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Commands;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
@@ -16,7 +17,7 @@ namespace SamaHesab.WPF.ViewModels.Inventory;
 public partial class BatchSerialViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly IProductRepository _products;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -39,19 +40,22 @@ public partial class BatchSerialViewModel : BaseViewModel
     [ObservableProperty] private string _serialNumber = string.Empty;
     [ObservableProperty] private decimal _serialPurchasePrice;
 
-    public BatchSerialViewModel(IMediator mediator, IProductRepository products,
+    public BatchSerialViewModel(IMediator mediator, ApiClient api,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _products = products; _currentUser = currentUser; _calendar = calendar;
+        _mediator = mediator; _api = api; _currentUser = currentUser; _calendar = calendar;
     }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var prods = await _products.SearchAsync(_currentUser.CompanyId ?? 1, "");
+            // 🏛️ کلاینت→API، دسکتاپ→Application
+            var prods = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? (await _api.GetProductListAsync()).Select(p => (p.Id, p.Code, p.Name))
+                : (await _mediator.Send(new GetProductsQuery())).Select(p => (p.Id, p.Code, p.Name));
             Products.Clear();
             foreach (var p in prods.OrderBy(p => p.Code))
                 Products.Add(new ProductPick(p.Id, $"{p.Code} - {p.Name}"));

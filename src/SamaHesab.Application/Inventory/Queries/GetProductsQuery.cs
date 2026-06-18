@@ -11,7 +11,8 @@ namespace SamaHesab.Application.Inventory.Queries;
 /// </summary>
 public record ProductRowDto(int Id, string Code, string Barcode, string Name,
     decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
-    decimal MinStock, bool IsActive, bool IsLowStock);
+    decimal MinStock, bool IsActive, bool IsLowStock,
+    decimal ConsumerPrice = 0, decimal TaxRate = 0);
 
 public record GetProductsQuery(string? Search = null) : IRequest<List<ProductRowDto>>;
 
@@ -32,7 +33,8 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<Pr
         return list.Select(p => new ProductRowDto(
             p.Id, p.Code, p.Barcode ?? "", p.Name,
             p.SalePrice, p.PurchasePrice, p.WholesalePrice,
-            p.MinStock, p.IsActive, lowStock.Contains(p.Id))).ToList();
+            p.MinStock, p.IsActive, lowStock.Contains(p.Id),
+            p.ConsumerPrice, p.TaxRate)).ToList();
     }
 }
 

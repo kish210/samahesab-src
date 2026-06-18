@@ -1,12 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.DiscountTiers;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
@@ -17,8 +17,7 @@ namespace SamaHesab.WPF.ViewModels.Inventory;
 public partial class DiscountTiersViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly IProductRepository _products;
-    private readonly ICurrentUserService _currentUser;
+    private readonly ApiClient _api;
 
     public ObservableCollection<TierPick> Products { get; } = new();
     public ObservableCollection<TierRow> Tiers { get; } = new();
@@ -26,20 +25,23 @@ public partial class DiscountTiersViewModel : BaseViewModel
     [ObservableProperty] private int _selectedProductId;
     [ObservableProperty] private string _search = string.Empty;
 
-    public DiscountTiersViewModel(IMediator mediator, IProductRepository products,
-        ICurrentUserService currentUser, IDialogService dialogService, INavigationService navigationService)
+    public DiscountTiersViewModel(IMediator mediator, ApiClient api,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _mediator = mediator; _products = products; _currentUser = currentUser; }
+    { _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync() => await RunSearchAsync();
 
     [RelayCommand]
     private async Task RunSearchAsync()
     {
-        var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _products.SearchAsync(companyId, Search?.Trim() ?? "");
+        var term = Search?.Trim();
         Products.Clear();
-        foreach (var p in list) Products.Add(new TierPick(p.Id, $"{p.Code} — {p.Name}"));
+        // 🏛️ کلاینت→API، دسکتاپ→Application
+        var picks = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetProductListAsync(term)).Select(p => new TierPick(p.Id, $"{p.Code} — {p.Name}"))
+            : (await _mediator.Send(new GetProductsQuery(term))).Select(p => new TierPick(p.Id, $"{p.Code} — {p.Name}"));
+        foreach (var p in picks) Products.Add(p);
         if (Products.Count > 0 && SelectedProductId == 0) SelectedProductId = Products[0].Id;
     }
 

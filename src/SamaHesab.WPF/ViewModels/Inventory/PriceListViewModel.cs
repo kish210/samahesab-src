@@ -3,10 +3,11 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Commands;
-using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
@@ -17,9 +18,8 @@ namespace SamaHesab.WPF.ViewModels.Inventory;
 /// </summary>
 public partial class PriceListViewModel : BaseViewModel
 {
-    private readonly IProductRepository _products;
     private readonly IMediator _mediator;
-    private readonly ICurrentUserService _currentUser;
+    private readonly ApiClient _api;
 
     public ObservableCollection<PriceRow> Rows { get; } = new();
     public List<string> PriceLevels { get; } = new() { "قیمت خرید", "خرده‌فروشی", "عمده", "مصرف‌کننده" };
@@ -29,10 +29,19 @@ public partial class PriceListViewModel : BaseViewModel
     [ObservableProperty] private decimal _bulkPercent;
     [ObservableProperty] private int _dirtyCount;
 
-    public PriceListViewModel(IProductRepository products, IMediator mediator, ICurrentUserService currentUser,
+    public PriceListViewModel(IMediator mediator, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _products = products; _mediator = mediator; _currentUser = currentUser; }
+    { _mediator = mediator; _api = api; }
+
+    private async Task<List<ProductRowDto>> FetchProductsAsync(string? search)
+    {
+        if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+            return (await _api.GetProductListAsync(search))
+                .Select(p => new ProductRowDto(p.Id, p.Code, p.Barcode, p.Name, p.SalePrice, p.PurchasePrice,
+                    p.WholesalePrice, p.MinStock, p.IsActive, p.IsLowStock, p.ConsumerPrice, p.TaxRate)).ToList();
+        return await _mediator.Send(new GetProductsQuery(search));
+    }
 
     public override async Task LoadAsync() => await RunSearchAsync();
 
@@ -41,8 +50,7 @@ public partial class PriceListViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _products.SearchAsync(companyId, Search?.Trim() ?? "");
+            var list = await FetchProductsAsync(Search?.Trim());
             Rows.Clear();
             foreach (var p in list)
             {

@@ -9,7 +9,8 @@ public record ApiPerson(int Id, string Code, string Name, string Mobile, decimal
     string Role, bool IsCustomer, bool IsSupplier, bool IsActive);
 public record ApiProductRow(int Id, string Code, string Barcode, string Name,
     decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
-    decimal MinStock, bool IsActive, bool IsLowStock);
+    decimal MinStock, bool IsActive, bool IsLowStock,
+    decimal ConsumerPrice = 0, decimal TaxRate = 0);
 public record ApiSalesInvoiceRow(int Id, string Number, string Date, string CustomerName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiSupplierRow(int Id, string Code, string Name, string Mobile, string City, decimal Balance, bool IsActive);

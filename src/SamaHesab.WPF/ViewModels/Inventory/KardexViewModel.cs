@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Inventory.Queries;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -11,11 +10,11 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
+/// <summary>کاردکس — 🏛️ الگوی API-only: داده و دراپ‌داون‌ها از API (کلاینت) یا Application (دسکتاپ). بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class KardexViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
-    private readonly IWarehouseRepository _warehouseRepo;
-    private readonly IProductRepository _productRepo;
+    private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
 
@@ -30,30 +29,34 @@ public partial class KardexViewModel : BaseViewModel
     public List<ProductPick> Products { get; private set; } = new();
     public ObservableCollection<KardexRow> Rows { get; } = new();
 
-    public KardexViewModel(IMediator mediator, IWarehouseRepository warehouseRepo,
-        IProductRepository productRepo, ICurrentUserService currentUser,
+    public KardexViewModel(IMediator mediator, ApiClient api, ICurrentUserService currentUser,
         IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _warehouseRepo = warehouseRepo; _productRepo = productRepo;
+        _mediator = mediator; _api = api;
         _currentUser = currentUser; _calendar = calendar;
     }
 
     public override async Task LoadAsync()
     {
-        var companyId = _currentUser.CompanyId ?? 1;
         var cal = new System.Globalization.PersianCalendar();
         var now = DateTime.Now;
         FromDate = $"{cal.GetYear(now)}/01/01";
         ToDate = _calendar.GetCurrentPersianDate();
 
-        var whs = await _warehouseRepo.GetByCompanyAsync(companyId);
-        Warehouses = new List<WarehousePick> { new(0, "همه انبارها") }
-            .Concat(whs.Select(w => new WarehousePick(w.Id, w.Name))).ToList();
+        var whPicks = new List<WarehousePick> { new(0, "همه انبارها") };
+        if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+        {
+            whPicks.AddRange((await _api.GetWarehousesAsync()).Select(w => new WarehousePick(w.Id, w.Name)));
+            Products = (await _api.GetProductListAsync()).Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList();
+        }
+        else
+        {
+            whPicks.AddRange((await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehousePick(w.Id, w.Name)));
+            Products = (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList();
+        }
+        Warehouses = whPicks;
         OnPropertyChanged(nameof(Warehouses));
-
-        var prods = await _productRepo.SearchAsync(companyId, "");
-        Products = prods.Select(p => new ProductPick(p.Id, $"{p.Code} - {p.Name}")).ToList();
         OnPropertyChanged(nameof(Products));
     }
 

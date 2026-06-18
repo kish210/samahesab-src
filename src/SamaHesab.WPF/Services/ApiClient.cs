@@ -191,6 +191,10 @@ public class ApiClient
     public async Task<ApiCustomerCard?> GetCustomerCardAsync(int id)
         => await _http.GetFromJsonAsync<ApiCustomerCard?>($"/api/customers/{id}/card");
 
+    /// <summary>داشبوردِ کاملِ عملیاتی از API (DTO مشترکِ لایهٔ Application).</summary>
+    public async Task<SamaHesab.Application.BI.Queries.DashboardDto?> GetDashboardAsync(string today)
+        => await _http.GetFromJsonAsync<SamaHesab.Application.BI.Queries.DashboardDto>($"/api/dashboard/full?today={Uri.EscapeDataString(today)}");
+
     /// <summary>فهرستِ کاملِ انبارها (صفحهٔ مدیریت) از API.</summary>
     public async Task<List<ApiWarehouseRow>> GetWarehouseListAsync()
         => await _http.GetFromJsonAsync<List<ApiWarehouseRow>>("/api/warehouse/list") ?? new();

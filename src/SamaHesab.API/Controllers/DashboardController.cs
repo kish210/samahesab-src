@@ -1,5 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SamaHesab.Application.BI.Queries;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -15,12 +17,18 @@ public class DashboardController : ControllerBase
     private readonly IRepository<Customer> _customers;
     private readonly IRepository<Supplier> _suppliers;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
 
     public DashboardController(IProductRepository products, IRepository<Customer> customers,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+        IRepository<Supplier> suppliers, ICurrentUserService currentUser, IMediator mediator)
     {
-        _products = products; _customers = customers; _suppliers = suppliers; _currentUser = currentUser;
+        _products = products; _customers = customers; _suppliers = suppliers; _currentUser = currentUser; _mediator = mediator;
     }
+
+    /// <summary>داشبوردِ کاملِ عملیاتی (KPI + فهرست‌ها) — الگوی API-only.</summary>
+    [HttpGet("full")]
+    public async Task<IActionResult> Full([FromQuery] string today, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetDashboardQuery(today), ct));
 
     /// <summary>Operational KPI summary (counts + outstanding balances).</summary>
     [HttpGet("summary")]

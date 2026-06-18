@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -13,13 +13,8 @@ public partial class DashboardViewModel : BaseViewModel
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
-    private readonly IStockItemRepository _stockRepo;
-    private readonly IChequeRepository _chequeRepo;
-    private readonly IProductRepository _productRepo;
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customerRepo;
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepo;
-    private readonly IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> _salesRepo;
-    private readonly IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> _purchaseRepo;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     // Workspace header (طبق ماک‌آپ طراح: سلام + تاریخ روز)
     [ObservableProperty] private string _greeting = "خوش آمدید";
@@ -54,133 +49,54 @@ public partial class DashboardViewModel : BaseViewModel
     public ObservableCollection<PartyBalanceRow> Creditors { get; } = new();
 
     public DashboardViewModel(ICurrentUserService currentUser, IPersianCalendarService calendar,
-        IStockItemRepository stockRepo, IChequeRepository chequeRepo,
-        IProductRepository productRepo,
-        IRepository<SamaHesab.Domain.Entities.CRM.Customer> customerRepo,
-        IRepository<SamaHesab.Domain.Entities.CRM.Supplier> supplierRepo,
-        IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> salesRepo,
-        IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> purchaseRepo,
+        IMediator mediator, ApiClient api,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _currentUser = currentUser; _calendar = calendar;
-        _stockRepo = stockRepo; _chequeRepo = chequeRepo;
-        _productRepo = productRepo; _customerRepo = customerRepo; _supplierRepo = supplierRepo;
-        _salesRepo = salesRepo; _purchaseRepo = purchaseRepo;
+        _mediator = mediator; _api = api;
     }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
             var today = _calendar.GetCurrentPersianDate();           // 1403/06/15
-            var month = today.Length >= 7 ? today.Substring(0, 7) : today; // 1403/06
-
             Greeting = $"خوش آمدید {_currentUser.FullName ?? "کاربر گرامی"}";
             TodayDateText = $"امروز — {today}";
 
-            var products  = await _productRepo.FindAsync(p => p.CompanyId == companyId);
-            var customers = await _customerRepo.FindAsync(c => c.CompanyId == companyId);
-            var suppliers = await _supplierRepo.FindAsync(s => s.CompanyId == companyId);
-            var sales     = await _salesRepo.FindAsync(i => i.CompanyId == companyId);
-            var purchases = await _purchaseRepo.FindAsync(i => i.CompanyId == companyId);
-            var cheques   = await _chequeRepo.FindAsync(c => c.CompanyId == companyId);
+            // 🏛️ کلاینت→API، دسکتاپ→Application — کلِ داشبورد در یک کوئریِ تجمیعی.
+            var d = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? await _api.GetDashboardAsync(today)
+                : await _mediator.Send(new SamaHesab.Application.BI.Queries.GetDashboardQuery(today));
+            if (d == null) return;
 
-            TotalProducts  = products.Count;
-            TotalCustomers = customers.Count;
+            TodaySales = d.TodaySales; MonthSales = d.MonthSales;
+            TodayPurchase = d.TodayPurchase; MonthPurchase = d.MonthPurchase;
+            TotalProducts = d.TotalProducts; TotalCustomers = d.TotalCustomers;
+            NetProfit = d.NetProfit; Receivable = d.Receivable; Payable = d.Payable;
+            TodayReceipt = d.TodayReceipt; TodayPayment = d.TodayPayment;
+            LowStockCount = d.LowStockCount; OverdueCheques = d.OverdueCheques;
 
-            // ── KPI: sales / purchase by period (real persisted invoices) ──
-            TodaySales    = sales.Where(i => i.InvoiceDate == today).Sum(i => i.GrandTotal);
-            MonthSales    = sales.Where(i => i.InvoiceDate.StartsWith(month)).Sum(i => i.GrandTotal);
-            TodayPurchase = purchases.Where(i => i.InvoiceDate == today).Sum(i => i.GrandTotal);
-            MonthPurchase = purchases.Where(i => i.InvoiceDate.StartsWith(month)).Sum(i => i.GrandTotal);
-            NetProfit     = MonthSales - MonthPurchase;
-
-            Receivable = customers.Where(c => c.Balance > 0).Sum(c => c.Balance);
-            Payable    = suppliers.Where(s => s.Balance > 0).Sum(s => s.Balance);
-            TodayReceipt = sales.Where(i => i.InvoiceDate == today).Sum(i => i.PaidAmount);
-            TodayPayment = purchases.Where(i => i.InvoiceDate == today).Sum(i => i.PaidAmount);
-
-            // ── Recent sales (last 8) ──
             RecentInvoices.Clear();
-            foreach (var i in sales.OrderByDescending(x => x.Id).Take(8))
-            {
-                customersName(customers, i.CustomerId, out var name);
-                RecentInvoices.Add(new RecentInvoice(i.InvoiceNumber, i.InvoiceDate, name,
-                    i.GrandTotal, StatusFa(i.Status)));
-            }
-
-            // ── Recent purchases (last 8) ──
+            foreach (var i in d.RecentSales) RecentInvoices.Add(new RecentInvoice(i.Number, i.Date, i.Party, i.Total, i.Status));
             RecentPurchases.Clear();
-            foreach (var i in purchases.OrderByDescending(x => x.Id).Take(8))
-            {
-                var sup = suppliers.FirstOrDefault(s => s.Id == i.SupplierId);
-                RecentPurchases.Add(new RecentInvoice(i.InvoiceNumber, i.InvoiceDate,
-                    sup?.FullName ?? $"#{i.SupplierId}", i.GrandTotal, i.StatusCode));
-            }
-
-            // ── Due cheques (in-process, soonest first) ──
+            foreach (var i in d.RecentPurchases) RecentPurchases.Add(new RecentInvoice(i.Number, i.Date, i.Party, i.Total, i.Status));
             ChequesDue.Clear();
-            foreach (var c in cheques
-                         .Where(c => c.Status == SamaHesab.Domain.Enums.ChequeStatus.InProcess)
-                         .OrderBy(c => c.DueDate).Take(10))
-            {
-                ChequesDue.Add(new ChequeDueItem(c.ChequeNumber, c.BankName, c.Amount, c.DueDate,
-                    c.ChequeType == SamaHesab.Domain.Enums.ChequeType.Received ? "دریافتی" : "پرداختی"));
-            }
-            OverdueCheques = ChequesDue.Count(c => string.Compare(c.DueDate, today, System.StringComparison.Ordinal) < 0);
+            foreach (var c in d.ChequesDue) ChequesDue.Add(new ChequeDueItem(c.ChequeNumber, c.BankName, c.Amount, c.DueDate, c.Kind));
             ChequesDueCount = ChequesDue.Count;
-
-            // ── Low stock (real stock totals vs MinStock) ──
             LowStockItems.Clear();
-            foreach (var p in products)
-            {
-                var qty = await _stockRepo.GetTotalQuantityAsync(p.Id);
-                if (p.MinStock > 0 && qty <= p.MinStock)
-                    LowStockItems.Add(new LowStockRow(p.Code, p.Name, qty, p.MinStock));
-            }
-            LowStockCount = LowStockItems.Count;
-
-            // ── Top customers + outstanding debtors / creditors ──
+            foreach (var l in d.LowStockItems) LowStockItems.Add(new LowStockRow(l.Code, l.Name, l.Qty, l.Min));
             TopCustomers.Clear();
-            foreach (var c in customers.OrderByDescending(c => c.Balance).Take(8))
-                TopCustomers.Add(new PartyBalanceRow(c.FullName, c.Balance));
-
+            foreach (var p in d.TopCustomers) TopCustomers.Add(new PartyBalanceRow(p.Name, p.Balance));
             Debtors.Clear();
-            foreach (var c in customers.Where(c => c.Balance > 0).OrderByDescending(c => c.Balance).Take(10))
-                Debtors.Add(new PartyBalanceRow(c.FullName, c.Balance));
-
+            foreach (var p in d.Debtors) Debtors.Add(new PartyBalanceRow(p.Name, p.Balance));
             Creditors.Clear();
-            foreach (var s in suppliers.Where(s => s.Balance != 0).OrderByDescending(s => System.Math.Abs(s.Balance)).Take(10))
-                Creditors.Add(new PartyBalanceRow(s.FullName, s.Balance));
-
-            // ── Alerts ──
+            foreach (var p in d.Creditors) Creditors.Add(new PartyBalanceRow(p.Name, p.Balance));
             Alerts.Clear();
-            if (LowStockCount > 0)
-                Alerts.Add(new DashboardAlert("⚠", $"{LowStockCount} کالا به حداقل موجودی رسیده‌اند.", "warning", "Products"));
-            if (OverdueCheques > 0)
-                Alerts.Add(new DashboardAlert("🔴", $"{OverdueCheques} چک سررسید گذشته دارید.", "danger", "Cheques"));
-            if (Receivable > 0)
-                Alerts.Add(new DashboardAlert("📥", $"مانده دریافتنی از مشتریان: {Receivable:#,##0} ریال", "info", "Customers"));
+            foreach (var a in d.Alerts) Alerts.Add(new DashboardAlert(a.Icon, a.Text, a.Level, a.Nav));
         }, "در حال بارگذاری داشبورد...");
     }
-
-    private static void customersName(System.Collections.Generic.List<SamaHesab.Domain.Entities.CRM.Customer> list,
-        int id, out string name)
-    {
-        var c = list.FirstOrDefault(x => x.Id == id);
-        name = c?.FullName ?? $"#{id}";
-    }
-
-    private static string StatusFa(SamaHesab.Domain.Enums.InvoiceStatus s) => s switch
-    {
-        SamaHesab.Domain.Enums.InvoiceStatus.Draft => "پیش‌نویس",
-        SamaHesab.Domain.Enums.InvoiceStatus.Confirmed => "قطعی",
-        SamaHesab.Domain.Enums.InvoiceStatus.Posted => "قطعی",
-        SamaHesab.Domain.Enums.InvoiceStatus.Cancelled => "لغو شده",
-        _ => s.ToString()
-    };
 
     [RelayCommand]
     private void NavigateTo(string page) => _navigationService.NavigateTo(page);

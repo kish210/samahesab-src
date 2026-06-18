@@ -195,6 +195,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.KitchenViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.WarehouseClientViewModel>();
                 services.AddTransient<CustomerListViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.CRM.PersonsListViewModel>();   // اشخاص (یکپارچه)
                 services.AddTransient<CustomerEditViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.CRM.CustomerCardViewModel>();
                 services.AddTransient<SupplierListViewModel>();

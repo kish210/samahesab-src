@@ -99,6 +99,7 @@
     <!-- CRM -->
     <DataTemplate DataType="{x:Type crm:CustomerEditViewModel}"><vcrm:CustomerEditView/></DataTemplate>
     <DataTemplate DataType="{x:Type crm:CustomerListViewModel}"><vcrm:CustomerListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type crm:PersonsListViewModel}"><vcrm:PersonsListView/></DataTemplate>
     <DataTemplate DataType="{x:Type crm:CustomerCardViewModel}"><vcrm:CustomerCardView/></DataTemplate>
     <DataTemplate DataType="{x:Type crm:SupplierListViewModel}"><vcrm:SupplierListView/></DataTemplate>
 

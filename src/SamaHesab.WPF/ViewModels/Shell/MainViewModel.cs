@@ -160,6 +160,7 @@ public partial class MainViewModel : BaseViewModel
             ["POS"]             = ("صندوق فروش",          sp => sp.GetRequiredService<PosViewModel>()),
             ["PosDashboard"]    = ("داشبورد صندوق",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.POS.PosDashboardViewModel>()),
             ["CashShift"]       = ("صندوق / شیفت",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.POS.ShiftViewModel>()),
+            ["Persons"]         = ("اشخاص",              sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.CRM.PersonsListViewModel>()),
             ["Customers"]       = ("مشتریان",             sp => sp.GetRequiredService<CustomerListViewModel>()),
             ["CustomerEdit"]    = ("ویرایش مشتری",        sp => sp.GetRequiredService<CustomerEditViewModel>()),
             ["CustomerCard"]    = ("کارت مشتری",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.CRM.CustomerCardViewModel>()),

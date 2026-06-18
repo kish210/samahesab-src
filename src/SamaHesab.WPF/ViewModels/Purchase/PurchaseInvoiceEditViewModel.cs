@@ -2,21 +2,24 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Documents;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Application.Purchase.Commands;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Purchase;
 
+/// <summary>ثبتِ فاکتور خرید — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class PurchaseInvoiceEditViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
-    private readonly IProductRepository _productRepository;
+    private readonly ApiClient _api;
     private readonly IPersianCalendarService _calendar;
 
     [ObservableProperty] private string _invoiceNumber = "--- خودکار ---";
@@ -64,26 +67,18 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     public List<string> InvoiceTypes { get; } = new() { "خرید", "برگشت از خرید" };
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه" };
 
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _supplierRepository;
-    private readonly IWarehouseRepository _warehouseRepository;
-    private readonly IStockItemRepository _stockRepository;
     private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
     private Dictionary<int, decimal> _onHand = new();
 
     public PurchaseInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
-        IProductRepository productRepository,
-        IRepository<SamaHesab.Domain.Entities.CRM.Supplier> supplierRepository,
-        IWarehouseRepository warehouseRepository,
-        IStockItemRepository stockRepository,
+        ApiClient api,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
         IBarcodeService barcode)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
-        _productRepository = productRepository; _calendar = calendar;
-        _supplierRepository = supplierRepository; _warehouseRepository = warehouseRepository;
-        _stockRepository = stockRepository; _barcode = barcode;
+        _api = api; _calendar = calendar; _barcode = barcode;
     }
 
     private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
@@ -93,8 +88,11 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         try
         {
             if (SelectedWarehouseId <= 0) { _onHand = new(); return; }
-            var items = await _stockRepository.GetByWarehouseAsync(SelectedWarehouseId);
-            _onHand = items.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
+            // 🏛️ کلاینت→API، دسکتاپ→Application
+            var rows = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+                ? (await _api.GetWarehouseStockAsync(SelectedWarehouseId)).Select(s => (s.ProductId, s.Quantity))
+                : (await _mediator.Send(new GetWarehouseStockQuery(SelectedWarehouseId))).Select(s => (s.ProductId, s.Quantity));
+            _onHand = rows.GroupBy(s => s.ProductId).ToDictionary(g => g.Key, g => g.Sum(s => s.Quantity));
         }
         catch { _onHand = new(); }
     }
@@ -123,22 +121,26 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     public override async Task LoadAsync()
     {
         InvoiceDate = _calendar.GetCurrentPersianDate();
-        var companyId = _currentUser.CompanyId ?? 1;
+        var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
 
-        var suppliers = await _supplierRepository.FindAsync(s => s.CompanyId == companyId && s.IsActive);
-        Suppliers = suppliers.Select(s => new SupplierItem(s.Id, s.FullName, s.Mobile ?? "", s.Balance)).ToList();
+        // 🏛️ کلاینت→API، دسکتاپ→Application
+        Suppliers = online
+            ? (await _api.GetSuppliersAsync()).Select(s => new SupplierItem(s.Id, s.Name, s.Mobile, s.Balance)).ToList()
+            : (await _mediator.Send(new GetSuppliersQuery())).Select(s => new SupplierItem(s.Id, s.Name, s.Mobile, s.Balance)).ToList();
         OnPropertyChanged(nameof(Suppliers));
 
-        var warehouses = await _warehouseRepository.GetByCompanyAsync(companyId);
-        Warehouses = warehouses.Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
+        Warehouses = online
+            ? (await _api.GetWarehousesAsync()).Select(w => new WarehouseItem(w.Id, w.Name)).ToList()
+            : (await _mediator.Send(new GetWarehousesQuery())).Select(w => new WarehouseItem(w.Id, w.Name)).ToList();
         OnPropertyChanged(nameof(Warehouses));
         _suppressStockReload = true;
         if (Warehouses.Any()) SelectedWarehouseId = Warehouses[0].Id;
         _suppressStockReload = false;
         await LoadStockForWarehouseAsync();
 
-        var products = await _productRepository.SearchAsync(companyId, "");
-        AllProducts = products.Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
+        AllProducts = online
+            ? (await _api.GetProductListAsync()).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList()
+            : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
 
         await LoadPrintTemplatesAsync();
@@ -171,10 +173,12 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     private async Task SearchProductAsync()
     {
         if (string.IsNullOrWhiteSpace(ProductSearch)) return;
-        var products = await _productRepository.SearchAsync(_currentUser.CompanyId!.Value, ProductSearch);
+        // 🏛️ کلاینت→API، دسکتاپ→Application
+        var products = !string.IsNullOrWhiteSpace(_api.BaseUrl)
+            ? (await _api.GetProductListAsync(ProductSearch)).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList()
+            : (await _mediator.Send(new GetProductsQuery(ProductSearch))).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
         SearchResults.Clear();
-        foreach (var p in products.Take(20))
-            SearchResults.Add(new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate));
+        foreach (var p in products.Take(20)) SearchResults.Add(p);
         if (products.Count == 1) { AddProduct(SearchResults[0]); ProductSearch = string.Empty; }
     }
 

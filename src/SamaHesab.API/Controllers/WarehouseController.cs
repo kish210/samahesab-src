@@ -22,6 +22,11 @@ public class WarehouseController : ControllerBase
     public async Task<IActionResult> List(CancellationToken ct)
         => Ok(await _mediator.Send(new GetWarehousesQuery(), ct));
 
+    /// <summary>فهرستِ کاملِ انبارها برای صفحهٔ مدیریت — الگوی API-only.</summary>
+    [HttpGet("list")]
+    public async Task<IActionResult> FullList(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetWarehouseListQuery(), ct));
+
     [HttpGet("stock")]
     public async Task<IActionResult> Stock([FromQuery] int warehouseId, [FromQuery] string? q, CancellationToken ct)
         => Ok(await _mediator.Send(new GetWarehouseStockQuery(warehouseId, q), ct));

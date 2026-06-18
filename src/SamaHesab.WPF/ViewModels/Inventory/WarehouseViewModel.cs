@@ -1,36 +1,42 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Interfaces.Repositories;
+using MediatR;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
+/// <summary>انبارها — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
 public partial class WarehouseViewModel : BaseViewModel
 {
-    private readonly IWarehouseRepository _warehouseRepo;
-    private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private int _totalCount;
 
     public ObservableCollection<WarehouseRow> Warehouses { get; } = new();
 
-    public WarehouseViewModel(IWarehouseRepository warehouseRepo, ICurrentUserService currentUser,
+    public WarehouseViewModel(IMediator mediator, ApiClient api,
         IDialogService d, INavigationService n) : base(d, n)
-    { _warehouseRepo = warehouseRepo; _currentUser = currentUser; }
+    { _mediator = mediator; _api = api; }
 
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>
         {
-            var companyId = _currentUser.CompanyId ?? 1;
-            var list = await _warehouseRepo.GetByCompanyAsync(companyId);
             Warehouses.Clear();
-            foreach (var w in list)
-                Warehouses.Add(new WarehouseRow(w.Id, w.Code, w.Name, w.ManagerName ?? "",
-                    w.Address ?? "", w.IsDefault, w.IsActive));
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+            {
+                foreach (var w in await _api.GetWarehouseListAsync())
+                    Warehouses.Add(new WarehouseRow(w.Id, w.Code, w.Name, w.Manager, w.Address, w.IsDefault, w.IsActive));
+            }
+            else
+            {
+                foreach (var w in await _mediator.Send(new GetWarehouseListQuery()))
+                    Warehouses.Add(new WarehouseRow(w.Id, w.Code, w.Name, w.Manager, w.Address, w.IsDefault, w.IsActive));
+            }
             TotalCount = Warehouses.Count;
         }, "در حال بارگذاری انبارها...");
     }

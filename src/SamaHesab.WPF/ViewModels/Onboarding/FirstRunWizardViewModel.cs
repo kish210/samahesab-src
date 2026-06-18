@@ -36,6 +36,9 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     [ObservableProperty] private string _newPassword = string.Empty;
     [ObservableProperty] private string _confirmPassword = string.Empty;
 
+    /// <summary>تیکِ «ورودِ داده‌های نمونه/دمو» — برای آشنایی/آزمایش (مشتری/کالا/فاکتورِ نمونه).</summary>
+    [ObservableProperty] private bool _loadDemoData;
+
     /// <summary>پنجره با این رویداد خود را می‌بندد (اتمام یا «بعداً»).</summary>
     public event System.Action? Finished;
 
@@ -101,7 +104,14 @@ public partial class FirstRunWizardViewModel : BaseViewModel
                 { await _dialogService.ShowErrorAsync(pr.ErrorMessage ?? "خطا در تغییرِ رمز."); return; }
             }
 
-            // ۴) علامتِ تکمیل و ذخیره
+            // ۴) ورودِ داده‌های دمو (در صورتِ تیک) — اختیاری، برای آشنایی/آزمایش.
+            if (LoadDemoData)
+            {
+                try { await SamaHesab.Infrastructure.Data.DatabaseMigrator.RunDemoDataAsync(AppSettingsStore.GetConnectionString()); }
+                catch (System.Exception ex) { await _dialogService.ShowWarningAsync("ورودِ داده‌های دمو کامل نشد: " + ex.Message); }
+            }
+
+            // ۵) علامتِ تکمیل و ذخیره
             g.SetupCompleted = true;
             AppSettingsStore.SaveGeneral(g);
 

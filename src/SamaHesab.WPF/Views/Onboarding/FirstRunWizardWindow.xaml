@@ -96,6 +96,11 @@
                         <PasswordBox x:Name="PwdConfirm" Height="32" PasswordChanged="PwdConfirm_Changed"/>
                     </StackPanel>
                 </Grid>
+
+                <!-- ۴) داده‌های نمونه/دمو (اختیاری) -->
+                <TextBlock Text="۴) داده‌های نمونه" Style="{StaticResource Sec}"/>
+                <CheckBox IsChecked="{Binding LoadDemoData}" Margin="0,2,0,0"
+                          Content="ورودِ داده‌های دمو (مشتری/کالا/فاکتورِ نمونه) برای آشنایی و آزمایش"/>
             </StackPanel>
         </ScrollViewer>
 

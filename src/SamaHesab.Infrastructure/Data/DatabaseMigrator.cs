@@ -70,6 +70,24 @@ public static class DatabaseMigrator
         }
     }
 
+    /// <summary>ورودِ داده‌های دمو (به‌خواستِ کاربر در ویزارد): اسکریپت‌های `*DemoData*` را یک‌بار اجرا می‌کند
+    /// (idempotent از طریقِ __AppliedScripts). برای نمایش/آموزش؛ روی DBِ خالیِ تازه‌راه‌اندازی‌شده.</summary>
+    public static async Task RunDemoDataAsync(string connectionString, Action<string>? log = null, CancellationToken ct = default)
+    {
+        var asm = typeof(DatabaseMigrator).Assembly;
+        await using var conn = new SqlConnection(connectionString);
+        await conn.OpenAsync(ct);
+        await EnsureTrackingTableAsync(conn, ct);
+        var applied = await GetAppliedAsync(conn, ct);
+        var demo = asm.GetManifestResourceNames()
+            .Where(r => r.EndsWith(".sql", StringComparison.OrdinalIgnoreCase)
+                     && ShortName(r).Contains("DemoData", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(r => r, StringComparer.Ordinal)
+            .ToList();
+        foreach (var res in demo)
+            await ApplyScriptAsync(conn, asm, res, applied, log, ct);
+    }
+
     /// <summary>یک اسکریپت را batch-به-batch اجرا و در صورتِ موفقیت ثبت می‌کند (شکست → فقط لاگ، ادامه).</summary>
     private static async Task ApplyScriptAsync(SqlConnection conn, Assembly asm, string res,
         HashSet<string> applied, Action<string>? log, CancellationToken ct)

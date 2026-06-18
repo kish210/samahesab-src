@@ -1,6 +1,8 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.API.Controllers;
@@ -13,12 +15,28 @@ public class ProductsController : ControllerBase
     private readonly IProductRepository _products;
     private readonly ICurrentUserService _currentUser;
     private readonly IExcelExportService _excel;
+    private readonly IMediator _mediator;
 
-    public ProductsController(IProductRepository products, ICurrentUserService currentUser, IExcelExportService excel)
+    public ProductsController(IProductRepository products, ICurrentUserService currentUser,
+        IExcelExportService excel, IMediator mediator)
     {
         _products = products;
         _currentUser = currentUser;
         _excel = excel;
+        _mediator = mediator;
+    }
+
+    /// <summary>فهرستِ کاملِ کالاها برای صفحهٔ مدیریتِ کالا (با هشدارِ کسری) — الگوی API-only.</summary>
+    [HttpGet("list")]
+    public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetProductsQuery(search), ct));
+
+    /// <summary>غیرفعال‌سازیِ (حذفِ نرمِ) کالا.</summary>
+    [HttpPost("{id:int}/deactivate")]
+    public async Task<IActionResult> Deactivate(int id, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new DeactivateProductCommand(id), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
     /// <summary>Export the product list to an Excel (.xlsx) file.</summary>

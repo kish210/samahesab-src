@@ -7,6 +7,9 @@ namespace SamaHesab.WPF.Services;
 public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
 public record ApiPerson(int Id, string Code, string Name, string Mobile, decimal Balance,
     string Role, bool IsCustomer, bool IsSupplier, bool IsActive);
+public record ApiProductRow(int Id, string Code, string Barcode, string Name,
+    decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
+    decimal MinStock, bool IsActive, bool IsLowStock);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null);
@@ -115,6 +118,20 @@ public class ApiClient
         if (role is > 0) qs.Add($"role={role}");
         var url = "/api/persons" + (qs.Count > 0 ? "?" + string.Join("&", qs) : "");
         return await _http.GetFromJsonAsync<List<ApiPerson>>(url) ?? new();
+    }
+
+    /// <summary>کالاها — فهرستِ کاملِ صفحهٔ مدیریت (با هشدارِ کسری) از API.</summary>
+    public async Task<List<ApiProductRow>> GetProductListAsync(string? search = null)
+    {
+        var url = string.IsNullOrWhiteSpace(search) ? "/api/products/list" : $"/api/products/list?search={Uri.EscapeDataString(search)}";
+        return await _http.GetFromJsonAsync<List<ApiProductRow>>(url) ?? new();
+    }
+
+    /// <summary>غیرفعال‌سازیِ (حذفِ نرمِ) کالا از طریقِ API.</summary>
+    public async Task<bool> DeactivateProductAsync(int id)
+    {
+        var resp = await _http.PostAsync($"/api/products/{id}/deactivate", null);
+        return resp.IsSuccessStatusCode;
     }
 
     public async Task<List<ApiGroup>> GetGroupsAsync()

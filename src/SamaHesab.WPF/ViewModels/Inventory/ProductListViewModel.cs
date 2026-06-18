@@ -1,9 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamaHesab.Application.Common.Interfaces;
+using MediatR;
+using SamaHesab.Application.Inventory.Queries;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.Inventory;
-using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -11,10 +10,14 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
+/// <summary>
+/// مدیریت کالا — 🏛️ الگوی API-only: کلاینتِ شبکه‌ای از API (ApiClient.GetProductList)،
+/// دسکتاپِ آفلاین از لایهٔ Application (GetProductsQuery). بدونِ ریپازیتوریِ مستقیم در ViewModel.
+/// </summary>
 public partial class ProductListViewModel : BaseViewModel
 {
-    private readonly IProductRepository _productRepository;
-    private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
+    private readonly ApiClient _api;
 
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private int? _selectedGroupId;
@@ -22,19 +25,17 @@ public partial class ProductListViewModel : BaseViewModel
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private int _activeCount;
     [ObservableProperty] private int _lowStockCount;   // T16 — تعدادِ کالاهای زیرِ حداقل
-    [ObservableProperty] private Product? _selectedProduct;
+    [ObservableProperty] private ProductListItem? _selectedProduct;
 
     public ObservableCollection<ProductListItem> Products { get; } = new();
     public List<ProductGroupItem> Groups { get; private set; } = new();
 
-    public ProductListViewModel(
-        IProductRepository productRepository,
-        ICurrentUserService currentUser,
+    public ProductListViewModel(IMediator mediator, ApiClient api,
         IDialogService dialogService,
         INavigationService navigationService) : base(dialogService, navigationService)
     {
-        _productRepository = productRepository;
-        _currentUser = currentUser;
+        _mediator = mediator;
+        _api = api;
     }
 
     public override async Task LoadAsync()
@@ -60,24 +61,21 @@ public partial class ProductListViewModel : BaseViewModel
 
     private async Task LoadProductsAsync()
     {
-        var companyId = _currentUser.CompanyId!.Value;
-        IReadOnlyList<Product> products;
-
-        if (!string.IsNullOrWhiteSpace(SearchText))
-            products = await _productRepository.SearchAsync(companyId, SearchText);
-        else
-            products = await _productRepository.GetAllAsync();
-
-        // T16 — کالاهای زیرِ حداقلِ موجودی (برای بجِ هشدارِ کسری).
-        var lowStockIds = (await _productRepository.GetLowStockAsync(companyId)).Select(p => p.Id).ToHashSet();
-
         Products.Clear();
-        foreach (var p in products)
+        var search = string.IsNullOrWhiteSpace(SearchText) ? null : SearchText;
+
+        // 🏛️ مسیرِ داده: کلاینتِ شبکه‌ای → API؛ دسکتاپِ آفلاین → Application (بدونِ ریپازیتوریِ مستقیم).
+        if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
         {
-            Products.Add(new ProductListItem(
-                p.Id, p.Code, p.Barcode ?? "", p.Name,
-                p.SalePrice, p.PurchasePrice, p.WholesalePrice,
-                p.MinStock, p.IsActive, lowStockIds.Contains(p.Id)));
+            foreach (var p in await _api.GetProductListAsync(search))
+                Products.Add(new ProductListItem(p.Id, p.Code, p.Barcode, p.Name,
+                    p.SalePrice, p.PurchasePrice, p.WholesalePrice, p.MinStock, p.IsActive, p.IsLowStock));
+        }
+        else
+        {
+            foreach (var p in await _mediator.Send(new GetProductsQuery(search)))
+                Products.Add(new ProductListItem(p.Id, p.Code, p.Barcode, p.Name,
+                    p.SalePrice, p.PurchasePrice, p.WholesalePrice, p.MinStock, p.IsActive, p.IsLowStock));
         }
 
         TotalCount = Products.Count;
@@ -111,10 +109,14 @@ public partial class ProductListViewModel : BaseViewModel
             "حذف کالا");
         if (!confirm) return;
 
+        var id = SelectedProduct.Id;
         await ExecuteAsync(async () =>
         {
-            SelectedProduct.Deactivate();
-            _productRepository.Update(SelectedProduct);
+            // 🏛️ حذفِ نرم از طریقِ API یا لایهٔ Application — نه ریپازیتوریِ مستقیم.
+            if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+                await _api.DeactivateProductAsync(id);
+            else
+                await _mediator.Send(new DeactivateProductCommand(id));
             await LoadProductsAsync();
         });
     }

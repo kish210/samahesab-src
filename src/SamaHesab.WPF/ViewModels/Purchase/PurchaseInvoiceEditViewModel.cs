@@ -23,8 +23,13 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     private readonly IPersianCalendarService _calendar;
 
     [ObservableProperty] private string _invoiceNumber = "--- خودکار ---";
+    [ObservableProperty] private bool _autoNumber = true;            // شمارهٔ خودکار (کلاسیک)
+    [ObservableProperty] private decimal _totalQuantity;
     [ObservableProperty] private string _invoiceDate = string.Empty;
     [ObservableProperty] private int _selectedSupplierId;
+
+    partial void OnAutoNumberChanged(bool value)
+    { InvoiceNumber = value ? "--- خودکار ---" : (InvoiceNumber == "--- خودکار ---" ? string.Empty : InvoiceNumber); }
     [ObservableProperty] private int _selectedWarehouseId;
     [ObservableProperty] private string _invoiceType = "خرید";
     [ObservableProperty] private string? _dueDate;
@@ -68,17 +73,35 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه" };
 
     private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
+    private readonly IPrintService _printService;
     private Dictionary<int, decimal> _onHand = new();
 
     public PurchaseInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         ApiClient api,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
-        IBarcodeService barcode)
+        IBarcodeService barcode, IPrintService printService)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
-        _api = api; _calendar = calendar; _barcode = barcode;
+        _api = api; _calendar = calendar; _barcode = barcode; _printService = printService;
+    }
+
+    private PrintDocumentData BuildPrintData()
+    {
+        var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId)?.Name ?? "—";
+        var lines = InvoiceItems.Where(i => i.ProductId > 0).Select(i => new PrintLine(
+            i.RowNumber, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
+        return new PrintDocumentData("فاکتور خرید", InvoiceNumber, InvoiceDate, "تأمین‌کننده", supplier,
+            lines, SubTotal, TotalDiscount, TotalTax, Shipping, GrandTotal, PaidAmount, RemainAmount, Description);
+    }
+
+    [RelayCommand]
+    private async Task PrintPreviewAsync()
+    {
+        if (!InvoiceItems.Any(i => i.ProductId > 0)) { await _dialogService.ShowWarningAsync("ردیفی برای پیش‌نمایش نیست."); return; }
+        try { _printService.Preview(BuildPrintData()); }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("خطا در پیش‌نمایش: " + ex.Message); }
     }
 
     private decimal OnHandOf(int productId) => _onHand.TryGetValue(productId, out var q) ? q : 0;
@@ -143,6 +166,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
             : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
 
+        if (InvoiceItems.Count == 0) SeedEmptyRows();
         await LoadPrintTemplatesAsync();
     }
 
@@ -206,14 +230,36 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         RowAdded?.Invoke();   // T10 — بازگشتِ فوکوس به نوارِ ورود برای ردیفِ بعدی
     }
 
-    [RelayCommand] private void RemoveItem(PurchaseInvoiceItemRow? item) { if (item != null) { InvoiceItems.Remove(item); RecalculateTotals(); } }
+    [RelayCommand] private void RemoveItem(PurchaseInvoiceItemRow? item) { if (item != null) { InvoiceItems.Remove(item); RenumberRows(); RecalculateTotals(); } }
     [RelayCommand] private void ClearItems() { InvoiceItems.Clear(); RecalculateTotals(); }
+
+    /// <summary>افزودنِ ردیفِ خالیِ قابلِ‌ویرایش در گرید (سبکِ کلاسیک).</summary>
+    [RelayCommand]
+    private void AddEmptyRow()
+    {
+        var row = new PurchaseInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
+        row.PropertyChanged += (_, _) => RecalculateTotals();
+        InvoiceItems.Add(row); RenumberRows();
+    }
+
+    private void SeedEmptyRows(int count = 5)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            var row = new PurchaseInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
+            row.PropertyChanged += (_, _) => RecalculateTotals();
+            InvoiceItems.Add(row);
+        }
+    }
+
+    private void RenumberRows() { for (int i = 0; i < InvoiceItems.Count; i++) InvoiceItems[i].RowNumber = i + 1; }
 
     private void RecalculateTotals()
     {
         SubTotal = InvoiceItems.Sum(i => i.Quantity * i.UnitPrice);
         TotalDiscount = InvoiceItems.Sum(i => i.DiscountAmount);
         TotalTax = InvoiceItems.Sum(i => i.TaxAmount);
+        TotalQuantity = InvoiceItems.Where(i => i.ProductId > 0).Sum(i => i.Quantity);
         GrandTotal = SubTotal - TotalDiscount + TotalTax + Shipping + OtherCosts;
         RemainAmount = GrandTotal - PaidAmount;
     }
@@ -222,7 +268,8 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     private async Task PostInvoiceAsync()
     {
         if (SelectedSupplierId == 0) { await _dialogService.ShowErrorAsync("تأمین‌کننده انتخاب کنید."); return; }
-        if (!InvoiceItems.Any()) { await _dialogService.ShowErrorAsync("حداقل یک ردیف وارد کنید."); return; }
+        var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
+        if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
         var confirm = await _dialogService.ConfirmAsync($"فاکتور خرید {GrandTotal:N0} ریال قطعی شود؟");
         if (!confirm) return;
         await ExecuteAsync(async () =>
@@ -230,7 +277,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
             var cmd = new CreatePurchaseInvoiceCommand(
                 _currentUser.BranchId ?? 1, 1, InvoiceDate, SelectedSupplierId,
                 SelectedWarehouseId, InvoiceType, null, DueDate, Description, Shipping, OtherCosts,
-                InvoiceItems.Select(i => new PurchaseInvoiceItemDto(
+                realItems.Select(i => new PurchaseInvoiceItemDto(
                     i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct,
                     i.Description, null, i.BatchNumber, i.ProductionDate, i.ExpiryDate)).ToList(),
                 PaidAmount: PaidAmount);
@@ -247,10 +294,11 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private void NewInvoice()
     {
+        AutoNumber = true;
         InvoiceNumber = "--- خودکار ---";
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedSupplierId = 0; Description = null; DueDate = null;
-        InvoiceItems.Clear(); PaidAmount = 0; RecalculateTotals();
+        InvoiceItems.Clear(); SeedEmptyRows(); PaidAmount = 0; RecalculateTotals();
     }
 
     [RelayCommand]
@@ -331,6 +379,7 @@ public partial class PurchaseInvoiceItemRow : ObservableObject
     [ObservableProperty] private int _productId;
     [ObservableProperty] private string _productCode = string.Empty;
     [ObservableProperty] private string _productName = string.Empty;
+    [ObservableProperty] private string _unit = "عدد";
     [ObservableProperty] private string? _description;
     [ObservableProperty] private decimal _quantity;
     [ObservableProperty] private decimal _unitPrice;
@@ -343,6 +392,17 @@ public partial class PurchaseInvoiceItemRow : ObservableObject
     [ObservableProperty] private decimal _taxAmount;
     [ObservableProperty] private decimal _netAmount;
     [ObservableProperty] private decimal _stockOnHand;   // OPT-6: موجودیِ انبار
+    [ObservableProperty] private ProductSearchResult? _selectedProduct;
+
+    /// <summary>انتخابِ کالا در گرید (سبکِ کلاسیک) → پر شدنِ خودکارِ کد/نام/قیمتِ خرید/مالیات.</summary>
+    partial void OnSelectedProductChanged(ProductSearchResult? value)
+    {
+        if (value == null) return;
+        ProductId = value.Id; ProductCode = value.Code; ProductName = value.Name;
+        if (UnitPrice <= 0) UnitPrice = value.Price;
+        if (TaxPct <= 0) TaxPct = value.TaxRate;
+        Recalculate();
+    }
 
     partial void OnQuantityChanged(decimal value) => Recalculate();
     partial void OnUnitPriceChanged(decimal value) => Recalculate();

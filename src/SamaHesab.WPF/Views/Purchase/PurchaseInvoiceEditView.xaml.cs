@@ -8,8 +8,8 @@ public partial class PurchaseInvoiceEditView : UserControl
     public PurchaseInvoiceEditView()
     {
         InitializeComponent();
-        Loaded += (_, _) => ProductCombo.Focus();
-        // T10: پس از افزودنِ هر ردیف، فوکوس به نوارِ ورودِ کالا برگردد (ورودِ پیوسته)
+        Loaded += (_, _) => SupplierCombo.Focus();
+        // T10: پس از افزودنِ هر ردیف، فوکوس به نوارِ بارکد برگردد (ورودِ پیوسته)
         DataContextChanged += (_, e) =>
         {
             if (e.OldValue is PurchaseInvoiceEditViewModel oldVm) oldVm.RowAdded -= FocusEntry;
@@ -17,5 +17,7 @@ public partial class PurchaseInvoiceEditView : UserControl
         };
     }
 
-    private void FocusEntry() => ProductCombo.Focus();
+    private void FocusEntry() => BarcodeBox.Focus();
+
+    private void FocusBarcode_Click(object sender, System.Windows.RoutedEventArgs e) => BarcodeBox.Focus();
 }

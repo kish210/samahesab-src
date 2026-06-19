@@ -1,255 +1,249 @@
 <UserControl x:Class="SamaHesab.WPF.Views.Purchase.PurchaseInvoiceEditView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
-             Background="{DynamicResource AppBackground}"
+             Background="{StaticResource ErpAppBg}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
 
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolVis"/>
         <conv:NumberFormatConverter x:Key="Num"/>
-        <conv:NullToVisibilityConverter x:Key="NullVis"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
+        <Style x:Key="Cap" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10.5"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="Margin" Value="2,0,0,2"/>
+        </Style>
+        <Style x:Key="ActBtn" TargetType="Button" BasedOn="{StaticResource ErpBtnGhost}">
+            <Setter Property="Height" Value="32"/><Setter Property="Padding" Value="11,0"/>
+            <Setter Property="Margin" Value="0,0,5,0"/><Setter Property="FontSize" Value="11.5"/>
+        </Style>
     </UserControl.Resources>
 
-    <Grid Margin="3">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding NewInvoiceCommand}"/>
+        <KeyBinding Key="F7" Command="{Binding AddEmptyRowCommand}"/>
+        <KeyBinding Key="F8" Command="{Binding PrintCommand}"/>
+        <KeyBinding Key="F9" Command="{Binding PostInvoiceCommand}"/>
+    </UserControl.InputBindings>
+
+    <Grid Margin="6">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- toolbar + supplier (top) -->
-            <RowDefinition Height="Auto"/>   <!-- add-item line -->
-            <RowDefinition Height="*"/>      <!-- products grid + summary -->
-            <RowDefinition Height="Auto"/>   <!-- payment bar -->
+            <RowDefinition Height="Auto"/>   <!-- هدر کلاسیک -->
+            <RowDefinition Height="*"/>      <!-- گرید اقلام -->
+            <RowDefinition Height="Auto"/>   <!-- ردیف دکمه‌ها + جمع‌ها -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ Top: actions + supplier header ═══ -->
-        <Border Grid.Row="0" Style="{StaticResource ErpToolbar}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewInvoiceCommand}">
-                        <StackPanel><Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="جدید" TextAlignment="Center"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding PrintCommand}">
-                        <StackPanel><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/><TextBlock Text="چاپ" TextAlignment="Center"/></StackPanel>
-                    </Button>
-                    <!-- L3 (DT-3 قرینهٔ خرید): چاپ با قالبِ پویا (خرید/برگشت) -->
-                    <Menu Background="Transparent" VerticalAlignment="Center" Margin="2,0,0,0"
-                          Visibility="{Binding PrintTemplates.Count, Converter={StaticResource GtzVis}}">
-                        <MenuItem Header="چاپ ▼" ItemsSource="{Binding PrintTemplates}" FontSize="11.5">
-                            <MenuItem.ItemContainerStyle>
-                                <Style TargetType="MenuItem">
-                                    <Setter Property="Header" Value="{Binding Name}"/>
-                                    <Setter Property="Command" Value="{Binding DataContext.PrintWithTemplateCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
-                                    <Setter Property="CommandParameter" Value="{Binding}"/>
-                                </Style>
-                            </MenuItem.ItemContainerStyle>
-                        </MenuItem>
-                    </Menu>
-                    <Rectangle Width="1" Fill="{DynamicResource BorderColor}" Margin="6,6"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0">
-                    <Path Data="{StaticResource IcTruck}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource WarningColor}"/>
-                    <TextBlock Text="تأمین‌کننده" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
-                    <ComboBox ItemsSource="{Binding Suppliers}" Width="320"
-                              DisplayMemberPath="Name" SelectedValuePath="Id"
-                              SelectedValue="{Binding SelectedSupplierId}"
-                              IsEditable="True"
-
-                              Height="32"/>
-                    <!-- OPT-6: بجِ ماندهٔ تأمین‌کننده -->
-                    <Border Background="{DynamicResource SurfaceBackground}" CornerRadius="4" Padding="8,2" Margin="8,0,0,0"
-                            VerticalAlignment="Center" Visibility="{Binding HasSupplierInfo, Converter={StaticResource BoolVis}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="مانده:" Style="{StaticResource ErpInlineLabel}" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding SupplierBalance, Converter={StaticResource Num}}" FlowDirection="LeftToRight"
-                                       FontWeight="Bold" FontSize="12" Margin="4,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource DangerColor}"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="انبار" Style="{StaticResource ErpInlineLabel}"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" Width="130" Height="30"
-                              ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id"
-                              SelectedValue="{Binding SelectedWarehouseId}"/>
-                    <TextBlock Text="تاریخ" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
-                    <TextBox Text="{Binding InvoiceDate}" Width="95"/>
-                    <TextBlock Text="شماره" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
-                    <TextBox Text="{Binding InvoiceNumber}" Width="92" IsReadOnly="True"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ═══ Add-item line ═══ -->
-        <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3,3,3,0" Padding="6,5">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="80"/>
-                    <ColumnDefinition Width="115"/>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="70"/>
-                    <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="95"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="3,0">
-                    <DockPanel>
-                        <TextBlock Text="کالا (کد / بارکد / نام)" Style="{StaticResource FieldCaption}"/>
-                        <!-- OPT-6: موجودیِ زندهٔ کالای انتخابی -->
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left"
-                                    Visibility="{Binding SelectedProductItem, Converter={StaticResource NullVis}}">
-                            <TextBlock Text="موجودی:" FontSize="10" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding EntryOnHand, Converter={StaticResource Num}}" FontSize="10.5" FontWeight="Bold" FlowDirection="LeftToRight"
-                                       Margin="3,0,2,0" VerticalAlignment="Center" Foreground="{DynamicResource SuccessColor}"/>
-                        </StackPanel>
-                    </DockPanel>
-                    <ComboBox x:Name="ProductCombo" ItemsSource="{Binding AllProducts}" DisplayMemberPath="Name"
-                              SelectedItem="{Binding SelectedProductItem}"
-                              IsEditable="True"
-                              Height="32"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="3,0">
-                    <TextBlock Text="مقدار" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddQty}" Height="32"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2" Margin="3,0">
-                    <TextBlock Text="قیمت خرید" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddUnitPrice}" Height="32"/>
-                </StackPanel>
-                <StackPanel Grid.Column="3" Margin="3,0">
-                    <TextBlock Text="تخفیف ٪" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddDiscountPct}" Height="32"/>
-                </StackPanel>
-                <StackPanel Grid.Column="4" Margin="3,0">
-                    <TextBlock Text="مالیات ٪" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddTaxPct}" Height="32"/>
-                </StackPanel>
-                <!-- OPT-6: بچ/سری + انقضا (بک‌اندش در C2-B وصل است) -->
-                <StackPanel Grid.Column="5" Margin="3,0">
-                    <TextBlock Text="بچ / شمارهٔ سری" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddBatchNumber}" Height="32"/>
-                </StackPanel>
-                <StackPanel Grid.Column="6" Margin="3,0">
-                    <TextBlock Text="انقضا" Style="{StaticResource FieldCaption}"/>
-                    <TextBox Text="{Binding AddExpiryDate}" Height="32" FlowDirection="LeftToRight" TextAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Grid.Column="7" Margin="3,0" VerticalAlignment="Bottom">
-                    <Button Style="{StaticResource PrimaryButton}" Height="32" Padding="16,0" Command="{Binding AddSelectedProductCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IcPlus}" Style="{StaticResource ErpToolSvg}" Width="16" Height="16" VerticalAlignment="Center" Stroke="White"/>
-                            <TextBlock Text="افزودن" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ═══ Center: products grid + financial summary ═══ -->
-        <Grid Grid.Row="2" Margin="0,3,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="320"/>
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Style="{StaticResource ErpCardPanel}" Padding="0">
-                <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
-                          RowHeight="28"
-                          GridLinesVisibility="All">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ردیف" Binding="{Binding RowNumber}" Width="48" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="90" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, StringFormat={}{0:#,##0}}" Width="72" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="80">
-                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="قیمت خرید" Binding="{Binding UnitPrice}" Width="110">
-                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="تخفیف ٪" Binding="{Binding DiscountPct}" Width="70">
-                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="70">
-                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="بچ/سری" Binding="{Binding BatchNumber}" Width="100"/>
-                        <DataGridTextColumn Header="انقضا" Binding="{Binding ExpiryDate}" Width="90"/>
-                        <DataGridTextColumn Header="مبلغ خالص" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True"/>
-                        <DataGridTemplateColumn Header="حذف" Width="50">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Style="{StaticResource ErpToolButton}" Width="34" Height="26"
-                                            Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}">
-                                        <Path Data="{StaticResource IcTrash}" Style="{StaticResource ErpToolSvg}" Width="16" Height="16" Stroke="{DynamicResource DangerColor}"/>
-                                    </Button>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-
-            <Border Grid.Column="1" Style="{StaticResource ErpCardPanel}">
-                <DockPanel>
-                    <Border DockPanel.Dock="Top" Style="{StaticResource ErpPanelHeader}">
-                        <TextBlock Text="خلاصه مالی خرید" FontWeight="Bold" FontSize="12"/></Border>
-                    <StackPanel Margin="10,8">
-                        <Grid Margin="0,2">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="نوع" Style="{StaticResource ErpInlineLabel}"/>
-                            <ComboBox Grid.Column="1" Style="{StaticResource BaseComboBox}" Height="28" ItemsSource="{Binding InvoiceTypes}" SelectedItem="{Binding InvoiceType}"/>
-                        </Grid>
-                        <Separator Margin="0,6"/>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="جمع کل" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="تخفیف" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, StringFormat={}{0:#,##0}}" Foreground="{DynamicResource DangerColor}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, StringFormat={}{0:#,##0}}"/></DockPanel>
-                        <DockPanel Margin="0,3"><TextBlock DockPanel.Dock="Right" Text="هزینه حمل" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Text="{Binding Shipping}" Height="28"/></DockPanel>
-                        <Separator Margin="0,8"/>
-                        <DockPanel Margin="0,3">
-                            <TextBlock DockPanel.Dock="Right" Text="قابل پرداخت" FontWeight="Bold" FontSize="14"/>
-                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/>
-                        </DockPanel>
+        <!-- ═══ هدرِ کلاسیک ═══ -->
+        <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="9,7" Margin="0,0,0,6">
+            <StackPanel>
+                <DockPanel Margin="0,0,0,7">
+                    <TextBlock Text="فاکتور خرید" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="10,0" Command="{Binding NewInvoiceCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Stroke="{StaticResource ErpBlue600}"/>
+                                <TextBlock Text="جدید" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource ErpBlue700}" FontWeight="SemiBold"/>
+                                <TextBlock Text="F2" FontSize="9.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="10,0" Margin="4,0,0,0" Command="{Binding PrintPreviewCommand}">
+                            <TextBlock Text="👁 پیش‌نمایش" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="10,0" Margin="4,0,0,0" Command="{Binding PrintCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}"/>
+                                <TextBlock Text="چاپ" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="F8" FontSize="9.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Menu Background="Transparent" VerticalAlignment="Center" Margin="2,0,0,0"
+                              Visibility="{Binding PrintTemplates.Count, Converter={StaticResource GtzVis}}">
+                            <MenuItem Header="چاپ ▼" ItemsSource="{Binding PrintTemplates}" FontSize="11.5">
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name}"/>
+                                        <Setter Property="Command" Value="{Binding DataContext.PrintWithTemplateCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
+                                        <Setter Property="CommandParameter" Value="{Binding}"/>
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
+                        </Menu>
                     </StackPanel>
                 </DockPanel>
-            </Border>
-        </Grid>
 
-        <!-- ═══ Bottom: payment bar ═══ -->
-        <Border Grid.Row="3" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
-            <Grid Margin="4,4">
+                <!-- متادیتا: شماره/تاریخ/سررسید/انبار -->
+                <Grid Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="شماره" Style="{StaticResource Cap}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBox Style="{StaticResource ErpInput}" Height="30" Text="{Binding InvoiceNumber}" IsReadOnly="{Binding AutoNumber}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                            <CheckBox Grid.Column="1" Content="خودکار" IsChecked="{Binding AutoNumber}" VerticalAlignment="Center" Margin="6,0,0,0" FontSize="11"/>
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="تاریخ" Style="{StaticResource Cap}"/>
+                        <TextBox Style="{StaticResource ErpInput}" Height="30" Text="{Binding InvoiceDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="تاریخ سررسید" Style="{StaticResource Cap}"/>
+                        <TextBox Style="{StaticResource ErpInput}" Height="30" Text="{Binding DueDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Text="انبار" Style="{StaticResource Cap}"/>
+                        <ComboBox Height="30" ItemsSource="{Binding Warehouses}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedWarehouseId}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- تأمین‌کننده + نوع -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Style="{StaticResource Cap}"><Run Text="تأمین‌کننده"/><Run Text=" *" Foreground="{StaticResource ErpDanger500}"/></TextBlock>
+                        <ComboBox x:Name="SupplierCombo" ItemsSource="{Binding Suppliers}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                                  SelectedValue="{Binding SelectedSupplierId}" IsEditable="True" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="نوع" Style="{StaticResource Cap}"/>
+                        <ComboBox Height="30" ItemsSource="{Binding InvoiceTypes}" SelectedItem="{Binding InvoiceType}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- نوار ماندهٔ تأمین‌کننده -->
+                <DockPanel Margin="0,6,0,0" Visibility="{Binding HasSupplierInfo, Converter={StaticResource BoolVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ماندهٔ تأمین‌کننده:" Foreground="{StaticResource ErpTextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SupplierBalance, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="11" FlowDirection="LeftToRight" Foreground="{StaticResource ErpDanger500}" Margin="4,0,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ گریدِ اقلام (تمام‌عرض، قابلِ ویرایش) ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
+                      ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
+                      RowHeight="30" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="36" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="کالا" Width="2.2*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox ItemsSource="{Binding DataContext.AllProducts, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                          DisplayMemberPath="Name" SelectedItem="{Binding SelectedProduct, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True" BorderThickness="0" Background="Transparent" VerticalContentAlignment="Center"
+                                          Text="{Binding ProductName, Mode=OneWay}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="2*"/>
+                    <DataGridTextColumn Header="واحد" Binding="{Binding Unit}" Width="70">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="مقدار" Binding="{Binding Quantity}" Width="78">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding UnitPrice}" Width="115">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="تخفیف ٪" Binding="{Binding DiscountPct}" Width="64">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="64">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, StringFormat={}{0:#,##0}}" Width="66" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Width="38">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Width="26" Height="22" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                        Command="{Binding DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}">
+                                    <Path Data="{StaticResource IcTrash}" Style="{StaticResource ErpToolSvg}" Width="15" Height="15" Stroke="{StaticResource ErpDanger500}"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ═══ ردیفِ دکمه‌ها + جمع‌ها ═══ -->
+        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="9,7" Margin="0,6,0,0">
+            <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Path Data="{StaticResource IcCash}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource WarningColor}"/>
-                    <TextBlock Text="نحوه پرداخت" Style="{StaticResource ErpInlineLabel}" Margin="6,0"/>
-                    <ComboBox Style="{StaticResource BaseComboBox}" Width="120" Height="30" ItemsSource="{Binding PaymentTypes}" SelectedItem="{Binding PaymentType}"/>
-                    <TextBlock Text="پرداختی" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                    <TextBox Text="{Binding PaidAmount}" Width="140" Height="30"/>
-                    <TextBlock Text="سررسید" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                    <TextBox Text="{Binding DueDate}" Width="95"/>
-                    <TextBlock Text="مانده" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                    <TextBlock Text="{Binding RemainAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource DangerColor}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="0">
+                    <WrapPanel>
+                        <Button Style="{StaticResource ActBtn}" Command="{Binding AddEmptyRowCommand}" Content="＋ افزودن ردیف  F7"/>
+                        <Button Style="{StaticResource ActBtn}" Click="FocusBarcode_Click" Content="▮▮ بارکد"/>
+                    </WrapPanel>
+                    <Grid Margin="0,7,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/><ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="بارکد / کد / نامِ کالا  (⏎)" Style="{StaticResource Cap}"/>
+                            <TextBox x:Name="BarcodeBox" Style="{StaticResource ErpInput}" Height="30"
+                                     Text="{Binding ProductSearch, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding SearchProductCommand}"/></TextBox.InputBindings>
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="توضیحاتِ فاکتور" Style="{StaticResource Cap}"/>
+                            <TextBox Style="{StaticResource ErpInput}" Height="30" Width="260" Text="{Binding Description}"/>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                        <TextBlock Text="حمل و نقل" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center"/>
+                        <TextBox Style="{StaticResource ErpInput}" Width="110" Height="28" Margin="5,0,0,0" FlowDirection="LeftToRight" Text="{Binding Shipping}"/>
+                        <TextBlock Text="روش پرداخت" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        <ComboBox Width="120" Height="28" Margin="5,0,0,0" ItemsSource="{Binding PaymentTypes}" SelectedItem="{Binding PaymentType}"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <Button Grid.Column="2" Style="{StaticResource SuccessButton}" Height="40" Padding="24,0" Command="{Binding PostInvoiceCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="White"/>
-                        <TextBlock Text="ثبت قطعی فاکتور خرید" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
-                    </StackPanel>
-                </Button>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                    <DockPanel Margin="0,1"><TextBlock Text="تعداد" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalQuantity, Converter={StaticResource Num}}" FlowDirection="LeftToRight" FontWeight="SemiBold" FontSize="11.5"/></DockPanel>
+                    <DockPanel Margin="0,1"><TextBlock Text="جمع اقلام" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FlowDirection="LeftToRight" FontWeight="SemiBold" FontSize="11.5"/></DockPanel>
+                    <DockPanel Margin="0,1"><TextBlock Text="تخفیف" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalDiscount, Converter={StaticResource Num}}" FlowDirection="LeftToRight" Foreground="{StaticResource ErpDanger500}" FontSize="11.5"/></DockPanel>
+                    <DockPanel Margin="0,1"><TextBlock Text="مالیات" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5"/><TextBlock DockPanel.Dock="Left" Text="{Binding TotalTax, Converter={StaticResource Num}}" FlowDirection="LeftToRight" FontSize="11.5"/></DockPanel>
+
+                    <Border Background="{StaticResource ErpBlue700}" Padding="11,7" Margin="0,5,0,0">
+                        <DockPanel>
+                            <TextBlock Text="قابل پرداخت" Foreground="White" FontSize="12" VerticalAlignment="Center"/>
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" Foreground="White" FontSize="19" FontWeight="Bold" FlowDirection="LeftToRight"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="پرداختی" Foreground="{StaticResource ErpTextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Style="{StaticResource ErpInput}" Height="26" Margin="5,0,8,0" FlowDirection="LeftToRight" Text="{Binding PaidAmount}"/>
+                        <TextBlock Grid.Column="2" VerticalAlignment="Center">
+                            <Run Text="مانده: " Foreground="{StaticResource ErpTextMuted}" FontSize="11"/><Run Text="{Binding RemainAmount, Converter={StaticResource Num}, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource ErpDanger500}"/>
+                        </TextBlock>
+                    </Grid>
+
+                    <Button Style="{StaticResource ErpBtnSuccess}" Height="42" Margin="0,7,0,0" FontSize="14" FontWeight="Bold"
+                            Command="{Binding PostInvoiceCommand}" Content="✓ ثبت نهایی خرید — F9"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

@@ -28,7 +28,15 @@ public class PrintService : IPrintService
     private static FontFamily Vazir =>
         (FontFamily?)System.Windows.Application.Current.TryFindResource("VazirFont") ?? new FontFamily("Tahoma");
 
-    private static string Money(decimal v) => v.ToString("#,##0", CultureInfo.InvariantCulture);
+    /// <summary>ارقامِ لاتین → فارسی (برای چاپ/پیش‌نمایشِ سند).</summary>
+    private static string Fa(string s)
+    {
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var c in s) sb.Append(c >= '0' && c <= '9' ? (char)('۰' + (c - '0')) : c);
+        return sb.ToString();
+    }
+
+    private static string Money(decimal v) => Fa(v.ToString("#,##0", CultureInfo.InvariantCulture));
 
     // ── public entry points ──
     public void PrintInvoice(PrintDocumentData data)
@@ -50,13 +58,40 @@ public class PrintService : IPrintService
         var s = AppSettingsStore.GetPrintSettings();
         var doc = Build(data, s, receipt: s.Paper == PaperKind.Receipt80mm);
         var viewer = new FlowDocumentScrollViewer { Document = doc };
-        new Window
+
+        var win = new Window
         {
             Title = $"پیش‌نمایش چاپ — {data.DocTitle} {data.Number}",
-            Content = viewer, Width = 820, Height = 900,
+            Width = 820, Height = 900,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            FlowDirection = FlowDirection.RightToLeft
-        }.Show();
+            FlowDirection = FlowDirection.RightToLeft,
+            FontFamily = Vazir
+        };
+
+        // نوارِ ابزار: چاپ + بستن (تا کاربر بتواند پنجره را ببندد)
+        var bar = new System.Windows.Controls.StackPanel
+        {
+            Orientation = System.Windows.Controls.Orientation.Horizontal,
+            Background = System.Windows.Media.Brushes.WhiteSmoke,
+            Margin = new Thickness(0)
+        };
+        var printBtn = new System.Windows.Controls.Button { Content = "🖨 چاپ", Padding = new Thickness(16, 6, 16, 6), Margin = new Thickness(8, 6, 4, 6), Cursor = System.Windows.Input.Cursors.Hand };
+        printBtn.Click += (_, _) => { try { Send(Build(data, s, receipt: s.Paper == PaperKind.Receipt80mm), s); } catch { } };
+        var closeBtn = new System.Windows.Controls.Button { Content = "✕ بستن", Padding = new Thickness(16, 6, 16, 6), Margin = new Thickness(4, 6, 8, 6), Cursor = System.Windows.Input.Cursors.Hand };
+        closeBtn.Click += (_, _) => win.Close();
+        bar.Children.Add(printBtn);
+        bar.Children.Add(closeBtn);
+
+        var dock = new System.Windows.Controls.DockPanel();
+        System.Windows.Controls.DockPanel.SetDock(bar, System.Windows.Controls.Dock.Top);
+        dock.Children.Add(bar);
+        dock.Children.Add(viewer);
+        win.Content = dock;
+
+        // Esc هم ببندد
+        win.InputBindings.Add(new System.Windows.Input.KeyBinding(System.Windows.Input.ApplicationCommands.Close, System.Windows.Input.Key.Escape, System.Windows.Input.ModifierKeys.None));
+        win.CommandBindings.Add(new System.Windows.Input.CommandBinding(System.Windows.Input.ApplicationCommands.Close, (_, _) => win.Close()));
+        win.Show();
     }
 
     // ── send to printer ──
@@ -114,7 +149,7 @@ public class PrintService : IPrintService
         { FontSize = receipt ? 13 : 16, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 4) });
         doc.Blocks.Add(KeyVals(new[]
         {
-            ("شماره", d.Number), ("تاریخ", d.Date), (d.PartyLabel, d.PartyName)
+            ("شماره", Fa(d.Number)), ("تاریخ", Fa(d.Date)), (d.PartyLabel, d.PartyName)
         }, receipt));
 
         // items table
@@ -138,7 +173,7 @@ public class PrintService : IPrintService
             {
                 r.Cells.Add(Cell(ln.Row.ToString()));
                 r.Cells.Add(Cell(ln.Name));
-                r.Cells.Add(Cell(ln.Qty.ToString("#,##0.##")));
+                r.Cells.Add(Cell(Fa(ln.Qty.ToString("#,##0.##"))));
                 r.Cells.Add(Cell(Money(ln.Net), TextAlignment.Left));
             }
             else
@@ -146,7 +181,7 @@ public class PrintService : IPrintService
                 r.Cells.Add(Cell(ln.Row.ToString()));
                 r.Cells.Add(Cell(ln.Code));
                 r.Cells.Add(Cell(ln.Name));
-                r.Cells.Add(Cell(ln.Qty.ToString("#,##0.##")));
+                r.Cells.Add(Cell(Fa(ln.Qty.ToString("#,##0.##"))));
                 r.Cells.Add(Cell(Money(ln.UnitPrice), TextAlignment.Left));
                 r.Cells.Add(Cell(Money(ln.Net), TextAlignment.Left));
             }

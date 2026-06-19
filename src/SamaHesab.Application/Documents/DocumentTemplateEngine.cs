@@ -55,7 +55,7 @@ public static class DocumentTemplateEngine
                 sb.Append(TokenRx.Replace(inner, tm =>
                 {
                     var key = tm.Groups[1].Value;
-                    if (key == "#") return (i + 1).ToString();
+                    if (key == "#") return Fa((i + 1).ToString());
                     if (row.TryGetValue(key, out var v) && v is not null) return v;
                     if (data.Fields.TryGetValue(key, out var fv) && fv is not null) return fv;
                     return string.Empty;
@@ -63,6 +63,14 @@ public static class DocumentTemplateEngine
             }
             return sb.ToString();
         });
+
+    /// <summary>ارقامِ لاتین → فارسی (فقط برای شمارهٔ ردیفِ {#}).</summary>
+    private static string Fa(string s)
+    {
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var c in s) sb.Append(c >= '0' && c <= '9' ? (char)('۰' + (c - '0')) : c);
+        return sb.ToString();
+    }
 
     private static string ResolveScalars(string html, IReadOnlyDictionary<string, string?> fields)
         => TokenRx.Replace(html, m =>

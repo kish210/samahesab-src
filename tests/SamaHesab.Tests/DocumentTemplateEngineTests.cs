@@ -42,7 +42,7 @@ public class DocumentTemplateEngineTests
         var html = "[[ROWS]]<tr><td>{#}</td><td>{ProductName}</td><td>{Quantity}</td></tr>[[/ROWS]]";
         var result = DocumentTemplateEngine.Render(html, Sample());
         Assert.Equal(
-            "<tr><td>1</td><td>کالا الف</td><td>2</td></tr><tr><td>2</td><td>کالا ب</td><td>5</td></tr>",
+            "<tr><td>۱</td><td>کالا الف</td><td>2</td></tr><tr><td>۲</td><td>کالا ب</td><td>5</td></tr>",
             result);
     }
 

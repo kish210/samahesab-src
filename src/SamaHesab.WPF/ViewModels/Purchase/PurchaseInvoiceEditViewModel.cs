@@ -327,6 +327,15 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 
+    /// <summary>ارقامِ لاتین → فارسی (برای مقادیرِ نمایشیِ قالبِ چاپ).</summary>
+    private static string Fa(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return s ?? string.Empty;
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var c in s) sb.Append(c >= '0' && c <= '9' ? (char)('۰' + (c - '0')) : c);
+        return sb.ToString();
+    }
+
     /// <summary>L3 (DT-3 قرینهٔ خرید) — چاپِ فاکتور خرید/برگشت با قالبِ انتخاب‌شده (موتورِ قالبِ پویا).</summary>
     [RelayCommand]
     private async Task PrintWithTemplateAsync(DocumentTemplateListDto? tpl)
@@ -339,22 +348,24 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
             if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
 
             var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId)?.Name ?? "—";
-            string N(decimal d) => d.ToString("N0");
+            string N(decimal d) => Fa(d.ToString("N0"));
             var fields = new Dictionary<string, string?>
             {
-                ["InvoiceNumber"] = InvoiceNumber, ["DocNumber"] = InvoiceNumber, ["InvoiceDate"] = InvoiceDate,
-                ["SupplierName"] = supplier, ["SupplierCode"] = SelectedSupplierId.ToString(),
+                ["InvoiceNumber"] = Fa(InvoiceNumber), ["DocNumber"] = InvoiceNumber, ["InvoiceDate"] = Fa(InvoiceDate),
+                ["SupplierName"] = supplier, ["SupplierCode"] = Fa(SelectedSupplierId.ToString()),
                 ["TotalAmount"] = N(GrandTotal), ["GrandTotal"] = N(GrandTotal), ["SubTotal"] = N(SubTotal),
                 ["Tax"] = N(TotalTax), ["Discount"] = N(TotalDiscount), ["BranchName"] = "سما حساب",
                 ["WarehouseName"] = Warehouses.FirstOrDefault(w => w.Id == SelectedWarehouseId)?.Name ?? "—",
                 ["Notes"] = Description,
-                // L6 — QR: payload = شمارهٔ فاکتور (هم‌رفتار با اسنادِ خزانه/حسابداری).
+                // L6 — QR/بارکد: payload خام (بدونِ تبدیلِ رقم) تا کدگذاری/base64 سالم بماند.
                 ["QrData"] = InvoiceNumber, ["QrImage"] = _barcode.QrImageHtml(InvoiceNumber, 60),
             };
-            var rows = InvoiceItems.Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
+            // فقط ردیف‌های واقعی (ردیف‌های خالیِ seed‌شده چاپ نشوند)
+            var rows = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0)
+                .Select(i => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
             {
                 ["ProductName"] = i.ProductName, ["ProductCode"] = i.ProductCode,
-                ["Quantity"] = i.Quantity.ToString("0.##"), ["UnitPrice"] = N(i.UnitPrice),
+                ["Quantity"] = Fa(i.Quantity.ToString("0.##")), ["UnitPrice"] = N(i.UnitPrice),
                 ["LineDiscount"] = N(i.DiscountAmount), ["LineTax"] = N(i.TaxAmount), ["LineTotal"] = N(i.NetAmount),
             }).ToList();
             var data = DocumentData.Of(fields, rows);

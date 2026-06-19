@@ -402,6 +402,15 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
         catch { /* قالب‌ها اختیاری‌اند؛ نبودشان نباید سند را خراب کند */ }
     }
 
+    /// <summary>ارقامِ لاتین → فارسی (برای مقادیرِ نمایشیِ قالبِ چاپ).</summary>
+    private static string Fa(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return s ?? string.Empty;
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var ch in s) sb.Append(ch >= '0' && ch <= '9' ? (char)('۰' + (ch - '0')) : ch);
+        return sb.ToString();
+    }
+
     /// <summary>P1/DT-6 — چاپِ سند با قالبِ پویای انتخاب‌شده (همان موتورِ DocumentTemplateEngine).</summary>
     [RelayCommand]
     private async Task PrintWithTemplateAsync(Application.Documents.DocumentTemplateListDto? tpl)
@@ -414,22 +423,22 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
             if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
 
             var g = Services.AppSettingsStore.GetGeneral();
-            string N(decimal d) => d.ToString("#,##0");
+            string N(decimal d) => Fa(d.ToString("#,##0"));
             var typeName = VoucherTypes.FirstOrDefault(t => t.Id == SelectedVoucherTypeId)?.Name ?? "";
             var fields = new Dictionary<string, string?>
             {
-                ["VoucherNumber"] = VoucherNumber, ["DocNumber"] = VoucherNumber, ["QrData"] = VoucherNumber,
+                ["VoucherNumber"] = Fa(VoucherNumber), ["DocNumber"] = VoucherNumber, ["QrData"] = VoucherNumber,
                 ["QrImage"] = _barcode.QrImageHtml(VoucherNumber),
-                ["VoucherDate"] = VoucherDate, ["Date"] = VoucherDate, ["VoucherType"] = typeName,
+                ["VoucherDate"] = Fa(VoucherDate), ["Date"] = Fa(VoucherDate), ["VoucherType"] = typeName,
                 ["Reference"] = Reference, ["Description"] = Description,
                 ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,
                 ["EconomicCode"] = g.CompanyEconomicCode, ["NationalId"] = g.CompanyNationalId, ["BranchName"] = "",
                 ["TotalDebit"] = N(TotalDebit), ["TotalCredit"] = N(TotalCredit),
-                ["PrintDate"] = _calendar.GetCurrentPersianDate(), ["PrintTime"] = DateTime.Now.ToString("HH:mm"),
+                ["PrintDate"] = Fa(_calendar.GetCurrentPersianDate()), ["PrintTime"] = Fa(DateTime.Now.ToString("HH:mm")),
             };
             var rows = Items.Select(r => (IReadOnlyDictionary<string, string?>)new Dictionary<string, string?>
             {
-                ["AccountCode"] = r.AccountCode, ["AccountName"] = r.AccountName, ["DetailName"] = r.AccountName,
+                ["AccountCode"] = Fa(r.AccountCode), ["AccountName"] = r.AccountName, ["DetailName"] = r.AccountName,
                 ["LineDescription"] = r.Description, ["Description"] = r.Description,
                 ["Debit"] = N(r.Debit), ["Credit"] = N(r.Credit),
             }).ToList();

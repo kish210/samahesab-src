@@ -104,6 +104,15 @@ public partial class ChequeListViewModel : BaseViewModel
 
     partial void OnTypeFilterChanged(string value) => _ = LoadPrintTemplatesAsync();
 
+    /// <summary>ارقامِ لاتین → فارسی (برای مقادیرِ نمایشیِ قالبِ چاپ).</summary>
+    private static string Fa(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return s ?? string.Empty;
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (var ch in s) sb.Append(ch >= '0' && ch <= '9' ? (char)('۰' + (ch - '0')) : ch);
+        return sb.ToString();
+    }
+
     /// <summary>P1/DT-6 — چاپِ چکِ انتخاب‌شده با قالبِ پویا.</summary>
     [RelayCommand]
     private async Task PrintWithTemplateAsync(Application.Documents.DocumentTemplateListDto? tpl)
@@ -116,17 +125,17 @@ public partial class ChequeListViewModel : BaseViewModel
             if (full is null) { await _dialogService.ShowErrorAsync("قالب یافت نشد."); return; }
 
             var g = Services.AppSettingsStore.GetGeneral();
-            string N(decimal d) => d.ToString("#,##0");
+            string N(decimal d) => Fa(d.ToString("#,##0"));
             var fields = new Dictionary<string, string?>
             {
-                ["ChequeNumber"] = c.Number, ["DocNumber"] = c.Number, ["QrData"] = c.Number,
+                ["ChequeNumber"] = Fa(c.Number), ["DocNumber"] = c.Number, ["QrData"] = c.Number,
                 ["QrImage"] = _barcode.QrImageHtml(c.Number),
-                ["Date"] = _calendar.GetCurrentPersianDate(), ["DueDate"] = c.DueDate,
+                ["Date"] = Fa(_calendar.GetCurrentPersianDate()), ["DueDate"] = Fa(c.DueDate),
                 ["BankName"] = c.Bank, ["PartyName"] = c.IssuedBy, ["AccountName"] = c.Bank,
                 ["Amount"] = N(c.Amount), ["Reason"] = c.Reference, ["Notes"] = c.Reference,
                 ["CompanyName"] = g.CompanyName, ["CompanyAddress"] = g.CompanyAddress, ["CompanyPhone"] = g.CompanyPhone,
                 ["EconomicCode"] = g.CompanyEconomicCode, ["NationalId"] = g.CompanyNationalId, ["BranchName"] = "",
-                ["PrintDate"] = _calendar.GetCurrentPersianDate(), ["PrintTime"] = DateTime.Now.ToString("HH:mm"),
+                ["PrintDate"] = Fa(_calendar.GetCurrentPersianDate()), ["PrintTime"] = Fa(DateTime.Now.ToString("HH:mm")),
             };
             var rows = new List<IReadOnlyDictionary<string, string?>>
             {

@@ -32,10 +32,10 @@ VALUES
  (@Cid, N'K1011', N'6260100100112', N'روغن ترمز DOT4',                @Unit, N'Product', N'WeightedAverage',   55000,   82000,   74000,   88000, 10, 9, 1),
  (@Cid, N'K1012', N'6260100100129', N'چراغ جلو پراید',                @Unit, N'Product', N'WeightedAverage',  320000,  450000,  410000,  480000, 5, 9, 1);
 
--- ── Customers ───────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Crm.Customers WHERE CompanyId=@Cid AND Code=N'M1001')
-INSERT INTO Crm.Customers
-    (CompanyId, Code, CustomerType, FirstName, LastName, CompanyName, Mobile, City, PriceLevel, CreditLimit, Balance, IsActive)
+-- ── Customers (طرف‌حساب با نقشِ مشتری) ───────────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM Crm.Parties WHERE CompanyId=@Cid AND Code=N'M1001')
+INSERT INTO Crm.Parties
+    (CompanyId, Code, PartyType, FirstName, LastName, CompanyName, Mobile, City, PriceLevel, CreditLimit, Balance, IsActive)
 VALUES
  (@Cid, N'M1001', N'حقیقی', N'علی',   N'احمدی',   NULL,                 N'09121110001', N'تهران',  N'خرده', 50000000,  12500000, 1),
  (@Cid, N'M1002', N'حقوقی', NULL,     NULL,       N'شرکت آلفا تجارت',   N'02144550010', N'تهران',  N'عمده', 500000000, 45200000, 1),
@@ -43,16 +43,18 @@ VALUES
  (@Cid, N'M1004', N'حقوقی', NULL,     NULL,       N'بازرگانی پارس خودرو',N'03132220040', N'اصفهان', N'عمده', 800000000, 78000000, 1),
  (@Cid, N'M1005', N'حقیقی', N'زهرا',  N'کریمی',   NULL,                 N'09171110005', N'شیراز',  N'خرده', 20000000,   3400000, 1),
  (@Cid, N'M1006', N'حقیقی', N'حسین',  N'موسوی',   NULL,                 N'09131110006', N'یزد',    N'ویژه', 40000000,         0, 1);
+UPDATE Crm.Parties SET IsCustomer=1 WHERE CompanyId=@Cid AND Code LIKE N'M%';
 
--- ── Suppliers ───────────────────────────────────────────────────────────────
-IF NOT EXISTS (SELECT 1 FROM Crm.Suppliers WHERE CompanyId=@Cid AND Code=N'T1001')
-INSERT INTO Crm.Suppliers
-    (CompanyId, Code, SupplierType, FirstName, LastName, CompanyName, Mobile, City, Balance, IsActive)
+-- ── Suppliers (طرف‌حساب با نقشِ تأمین‌کننده) ──────────────────────────────────
+IF NOT EXISTS (SELECT 1 FROM Crm.Parties WHERE CompanyId=@Cid AND Code=N'T1001')
+INSERT INTO Crm.Parties
+    (CompanyId, Code, PartyType, FirstName, LastName, CompanyName, Mobile, City, Balance, IsActive)
 VALUES
  (@Cid, N'T1001', N'حقوقی', NULL, NULL, N'پخش قطعات بهران',     N'02155440010', N'تهران',  -32000000, 1),
  (@Cid, N'T1002', N'حقوقی', NULL, NULL, N'لاستیک بارز نمایندگی',N'03433220020', N'کرمان',  -15000000, 1),
  (@Cid, N'T1003', N'حقیقی', N'رضا', N'نوری', NULL,              N'09124440030', N'تهران',   -5000000, 1),
  (@Cid, N'T1004', N'حقوقی', NULL, NULL, N'باتری سپاهان پخش',    N'03134440040', N'اصفهان', -28000000, 1);
+UPDATE Crm.Parties SET IsSupplier=1 WHERE CompanyId=@Cid AND Code LIKE N'T%';
 -- ── Bank accounts (AccountId references any leaf account) ───────────────────
 DECLARE @Acc INT = (SELECT TOP 1 Id FROM Acc.Accounts WHERE CompanyId=@Cid AND IsLeaf=1 ORDER BY Id);
 IF @Acc IS NOT NULL AND NOT EXISTS (SELECT 1 FROM Acc.BankAccounts WHERE CompanyId=@Cid)

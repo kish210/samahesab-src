@@ -59,7 +59,11 @@ BEGIN
         JOIN Crm.Parties p ON p.LegacySupplierId = ch.PartyId WHERE ch.PartyId IS NOT NULL;
     END
 
-    -- ۵) حذفِ جداولِ قدیمی (داده در Crm.Parties است)
+    -- ۵) حذفِ ویوهای وابسته (به جداولِ قدیمی ارجاع می‌دادند؛ بعد از حذفِ جدول بی‌اعتبار می‌شوند)
+    IF OBJECT_ID(N'Crm.vw_CustomerBalance', N'V') IS NOT NULL DROP VIEW Crm.vw_CustomerBalance;
+    IF OBJECT_ID(N'Crm.vw_SupplierBalance', N'V') IS NOT NULL DROP VIEW Crm.vw_SupplierBalance;
+
+    -- ۶) حذفِ جداولِ قدیمی (داده در Crm.Parties است)
     DROP TABLE Crm.Customers;
     DROP TABLE Crm.Suppliers;
 

@@ -57,20 +57,10 @@
 > ### ✅ ماژولِ مرکزِ پشتیبانی (HC) کامل شد — هر ۷ فاز (HC-1…HC-6 + HC-WP). ۹/۹ صفحهٔ Help Center زنده، **۴۰۳ تستِ سبز**، پلاگینِ وردپرس تحویل‌شده. آمادهٔ استقرار (DBِ ERP خودکار schema `Sup` می‌سازد؛ پلاگین روی kishwifi.com نصب و کلید-API صادر می‌شود).
 - [x] ✅C2 **HC-3b — گزارشِ استثناءِ یک‌کلیکیِ درون‌برنامه‌ای (انجام شد @2026-06-17).** `BugReportViewModel : INavigationAware` → با `ExceptionContext(Message, StackTrace, Screen)` فرم را پیش‌پر می‌کند (عنوان/شرح+Stack/نتیجهٔ واقعی/صفحهٔ جاری، دسته=سیستم، شدت=زیاد). هوکِ `App.TryReportRuntimeException`: در `DispatcherUnhandledException`ِ زمانِ اجرا (وقتی پنجره بالاست و ماژولِ Support فعال است) به‌جای کرش، پیشنهادِ ساختِ گزارش می‌دهد و `NavigateTo("BugReport", ctx)` می‌کند؛ برنامه باز می‌ماند. استارت‌آپ/ماژولِ خاموش → مسیرِ `ShowFatal` (ذخیرهٔ فایل) دست‌نخورده. build سبز، ۴۰۳ تست (گلوِ UI؛ تستِ واحد ندارد چون پروژهٔ تست به WPF ارجاع ندارد). *(لِینِ C2)*
 >
-> ## 🚀 release v2.5.7 — آمادهٔ ساختِ نصاب (C2 @2026-06-19)
-> C2 کارهای قابل‌انجام را تمام کرد: **README به‌روز شد** (نسخه/تغییرات/لینکِ «آخرین release»)، نسخه در `Directory.Build.props` و هر سه اسکریپتِ Inno به **2.5.7** بالا رفت، و **سلامت تأیید شد: build سبز (Release) + ۴۰۵ تستِ سبز** روی HEAD (`905ae06`+). تگِ **`v2.5.7`** و یک **GitHub release به‌صورتِ draft** ساخته شد.
-> ✅ **C2 نسخهٔ پرتابلِ تست‌شده را ساخت و به release پیوست کرد:** `SamaHesab_2.5.7_Portable_App.zip` (۹۴M) + `SamaHesab_2.5.7_Portable_Server.zip` (۶۵M) — هر دو روی این لپ‌تاپ اجرا و تأیید شدند (کلاینت: self-test کامل `exit=0` · سرور: `/health=200, db:true`).
-> ⚠️ **اقدامِ C1/pc (تنها سیستمی که Inno Setup دارد) — ساختِ نصاب‌های کلاسیک و انتشار:**
-> ```powershell
-> git pull --rebase origin main
-> powershell -ExecutionPolicy Bypass -File installer\publish-all.ps1   # dist\app + dist\api
-> ISCC installer\SamaHesab_Setup.iss      # -> installer\Output\SamaHesab_Setup_v2.5.7.exe
-> ISCC installer\client.iss               # -> installer\Output\client.exe
-> ISCC installer\server.iss               # -> installer\Output\SamaHesab_Server_Setup.exe
-> gh release upload v2.5.7 installer\Output\SamaHesab_Setup_v2.5.7.exe installer\Output\client.exe installer\Output\SamaHesab_Server_Setup.exe --clobber
-> gh release edit v2.5.7 --draft=false    # انتشار (releases/latest → 2.5.7؛ دانلودِ سایت خودکار سوییچ می‌کند)
-> ```
-> اگر `gh` روی pc لاگین نیست، سه فایلِ `installer\Output\*.exe` را دستی در صفحهٔ release draftِ `v2.5.7` آپلود و سپس Publish کن. (تا قبل از Publish، `releases/latest` همان ۲.۵.۶ می‌مانَد و دانلودِ سایت سالم است.)
+> ## ✅ release v2.5.7 — منتشر شد (C2 @2026-06-20)
+> **`releases/latest` = v2.5.7 (published).** README به‌روز، نسخه (`Directory.Build.props` + ۳ اسکریپتِ Inno) = 2.5.7، **build سبز Release + ۴۰۵ تستِ سبز**، و برنامه روی buildِ تازه اجرا و تأیید شد (داشبورد/فاکتورِ فروش رندرِ کامل · کلاینت self-test `exit=0` · سرور `/health=200,db:true`).
+> C2 خودش **Inno Setup 6.7.3 را با winget روی لپ‌تاپ نصب کرد** (دیگر برای release به pc وابسته نیستیم) و هر سه نصاب + دو پرتابل را ساخت/آپلود کرد. assetهای نهاییِ release (۵تا، همه ۲.۵.۷): `SamaHesab_2.5.7_Setup.exe` · `SamaHesab_Client_2.5.7.exe` · `SamaHesab_Server_2.5.7.exe` · `SamaHesab_2.5.7_Portable_App.zip` · `SamaHesab_2.5.7_Portable_Server.zip`. (assetهای اشتباهیِ ۲.۵.۴/۲.۰.۰ که از glob روی pc آمده بودند پاک شدند.)
+> 🌐 دانلودِ هوشمندِ سایت (پلاگینِ وردپرس) خودکار به ۲.۵.۷ سوییچ می‌کند (کَشِ ۱ساعته؛ برای اعمالِ فوری: SamaHesab▸دانلود▸«تازه‌سازیِ آخرین نسخه»).
 >
 > ## 🤝 تحویلِ کامل به C1/pc (@2026-06-17 توسطِ C2)
 > **همهٔ فایل‌های C2 روی `origin/main` push شده‌اند — تا کامیتِ `6374cfe`. هیچ‌چیز محلی/نکامیت‌شده روی لپ‌تاپ نمانده.** (راستی‌آزمایی: working tree تمیز، `0/0` با ریموت؛ ۴۳ فایلِ `**/Support/` + ۹ فایلِ `wordpress-plugin/` روی ریموت.)

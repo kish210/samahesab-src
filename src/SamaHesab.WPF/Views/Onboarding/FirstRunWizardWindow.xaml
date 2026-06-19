@@ -97,8 +97,77 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- ۴) داده‌های نمونه/دمو (اختیاری) -->
-                <TextBlock Text="۴) داده‌های نمونه" Style="{StaticResource Sec}"/>
+                <!-- ۴) انبارها -->
+                <TextBlock Text="۴) انبارها" Style="{StaticResource Sec}"/>
+                <TextBlock Text="نامِ انبار(ها) را وارد کنید (مثلاً انبار مرکزی، انبار فروشگاه)." Style="{StaticResource Cap}"/>
+                <DataGrid ItemsSource="{Binding Warehouses}" AutoGenerateColumns="False" CanUserAddRows="False"
+                          HeadersVisibility="Column" MaxHeight="140" Margin="0,2,0,0" FontSize="12">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="نامِ انبار" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <DataGridTemplateColumn Width="38">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="✕" Padding="4,0" BorderThickness="0" Background="Transparent" Cursor="Hand"
+                                            Command="{Binding DataContext.RemoveWarehouseCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button Content="+ افزودنِ انبار" Command="{Binding AddWarehouseCommand}"
+                        HorizontalAlignment="Right" Margin="0,4,0,0" Padding="12,3" Cursor="Hand"/>
+
+                <!-- ۵) کالاها و خدمات -->
+                <TextBlock Text="۵) کالاها و خدمات" Style="{StaticResource Sec}"/>
+                <TextBlock Text="کالاها/خدماتِ پایه را وارد کنید. کد در صورتِ خالی‌بودن خودکار ساخته می‌شود." Style="{StaticResource Cap}"/>
+                <DataGrid ItemsSource="{Binding Products}" AutoGenerateColumns="False" CanUserAddRows="False"
+                          HeadersVisibility="Column" MaxHeight="160" Margin="0,2,0,0" FontSize="12">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="کد" Binding="{Binding Code, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
+                        <DataGridTextColumn Header="نام" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <DataGridCheckBoxColumn Header="خدمات؟" Binding="{Binding IsService, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
+                        <DataGridTextColumn Header="قیمتِ فروش" Binding="{Binding SalePrice, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
+                        <DataGridTextColumn Header="قیمتِ خرید" Binding="{Binding PurchasePrice, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
+                        <DataGridTemplateColumn Width="38">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="✕" Padding="4,0" BorderThickness="0" Background="Transparent" Cursor="Hand"
+                                            Command="{Binding DataContext.RemoveProductCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button Content="+ افزودنِ کالا/خدمت" Command="{Binding AddProductCommand}"
+                        HorizontalAlignment="Right" Margin="0,4,0,0" Padding="12,3" Cursor="Hand"/>
+
+                <!-- ۶) مشتری‌ها -->
+                <TextBlock Text="۶) مشتری‌ها" Style="{StaticResource Sec}"/>
+                <TextBlock Text="مشتریانِ اصلی را وارد کنید (برای شرکت، تیکِ «حقوقی» را بزنید)." Style="{StaticResource Cap}"/>
+                <DataGrid ItemsSource="{Binding Customers}" AutoGenerateColumns="False" CanUserAddRows="False"
+                          HeadersVisibility="Column" MaxHeight="160" Margin="0,2,0,0" FontSize="12">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="نام" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <DataGridTextColumn Header="موبایل" Binding="{Binding Mobile, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                        <DataGridCheckBoxColumn Header="حقوقی؟" Binding="{Binding IsCompany, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
+                        <DataGridTemplateColumn Width="38">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="✕" Padding="4,0" BorderThickness="0" Background="Transparent" Cursor="Hand"
+                                            Command="{Binding DataContext.RemoveCustomerCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button Content="+ افزودنِ مشتری" Command="{Binding AddCustomerCommand}"
+                        HorizontalAlignment="Right" Margin="0,4,0,0" Padding="12,3" Cursor="Hand"/>
+
+                <!-- ۷) داده‌های نمونه/دمو (اختیاری) -->
+                <TextBlock Text="۷) داده‌های نمونه" Style="{StaticResource Sec}"/>
                 <CheckBox IsChecked="{Binding LoadDemoData}" Margin="0,2,0,0"
                           Content="ورودِ داده‌های دمو (مشتری/کالا/فاکتورِ نمونه) برای آشنایی و آزمایش"/>
             </StackPanel>

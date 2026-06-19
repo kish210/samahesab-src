@@ -59,7 +59,18 @@
 >
 > ## 🚀 release v2.5.7 — آمادهٔ ساختِ نصاب (C2 @2026-06-19)
 > C2 کارهای قابل‌انجام را تمام کرد: **README به‌روز شد** (نسخه/تغییرات/لینکِ «آخرین release»)، نسخه در `Directory.Build.props` و هر سه اسکریپتِ Inno به **2.5.7** بالا رفت، و **سلامت تأیید شد: build سبز (Release) + ۴۰۵ تستِ سبز** روی HEAD (`905ae06`+). تگِ **`v2.5.7`** و یک **GitHub release به‌صورتِ draft** ساخته شد.
-> ⚠️ **اقدامِ C1/pc (تنها سیستمی که Inno Setup دارد):** سه نصاب را بساز (`ISCC installer\SamaHesab_Setup.iss` + `client.iss` + `server.iss` پس از `installer/publish-all.ps1`) → به‌صورتِ asset به release draftِ `v2.5.7` آپلود کن → **Publish** بزن. (تا قبل از Publish، `releases/latest` همان ۲.۵.۶ می‌مانَد و دانلودِ سایت سالم است.)
+> ✅ **C2 نسخهٔ پرتابلِ تست‌شده را ساخت و به release پیوست کرد:** `SamaHesab_2.5.7_Portable_App.zip` (۹۴M) + `SamaHesab_2.5.7_Portable_Server.zip` (۶۵M) — هر دو روی این لپ‌تاپ اجرا و تأیید شدند (کلاینت: self-test کامل `exit=0` · سرور: `/health=200, db:true`).
+> ⚠️ **اقدامِ C1/pc (تنها سیستمی که Inno Setup دارد) — ساختِ نصاب‌های کلاسیک و انتشار:**
+> ```powershell
+> git pull --rebase origin main
+> powershell -ExecutionPolicy Bypass -File installer\publish-all.ps1   # dist\app + dist\api
+> ISCC installer\SamaHesab_Setup.iss      # -> installer\Output\SamaHesab_Setup_v2.5.7.exe
+> ISCC installer\client.iss               # -> installer\Output\client.exe
+> ISCC installer\server.iss               # -> installer\Output\SamaHesab_Server_Setup.exe
+> gh release upload v2.5.7 installer\Output\SamaHesab_Setup_v2.5.7.exe installer\Output\client.exe installer\Output\SamaHesab_Server_Setup.exe --clobber
+> gh release edit v2.5.7 --draft=false    # انتشار (releases/latest → 2.5.7؛ دانلودِ سایت خودکار سوییچ می‌کند)
+> ```
+> اگر `gh` روی pc لاگین نیست، سه فایلِ `installer\Output\*.exe` را دستی در صفحهٔ release draftِ `v2.5.7` آپلود و سپس Publish کن. (تا قبل از Publish، `releases/latest` همان ۲.۵.۶ می‌مانَد و دانلودِ سایت سالم است.)
 >
 > ## 🤝 تحویلِ کامل به C1/pc (@2026-06-17 توسطِ C2)
 > **همهٔ فایل‌های C2 روی `origin/main` push شده‌اند — تا کامیتِ `6374cfe`. هیچ‌چیز محلی/نکامیت‌شده روی لپ‌تاپ نمانده.** (راستی‌آزمایی: working tree تمیز، `0/0` با ریموت؛ ۴۳ فایلِ `**/Support/` + ۹ فایلِ `wordpress-plugin/` روی ریموت.)

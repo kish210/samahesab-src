@@ -76,15 +76,15 @@ public class QuickAddCustomerWindow : Window
         {
             var type = _type.SelectedItem?.ToString() ?? "حقیقی";
             var currentUser = App.GetService<ICurrentUserService>();
-            var repo = App.GetService<IRepository<Customer>>();
+            var repo = App.GetService<IRepository<Party>>();
             var uow = App.GetService<IUnitOfWork>();
             var companyId = currentUser.CompanyId ?? 1;
             var code = "C" + System.DateTime.Now.ToString("yyMMddHHmmss");
 
-            Customer entity = type == "حقوقی"
-                ? Customer.Create(companyId, code, type, null, null, name)
-                : Customer.Create(companyId, code, type, name, "", null);
-            entity.UpdateContactInfo(null, _mobile.Text.Trim(), null, null, null, null, null);
+            Party entity = type == "حقوقی"
+                ? Party.Create(companyId, code, type, null, null, name, isCustomer: true)
+                : Party.Create(companyId, code, type, name, "", null, isCustomer: true);
+            entity.UpdateProfile(null, _mobile.Text.Trim(), null, null, null, null, null);
 
             repo.AddAsync(entity).GetAwaiter().GetResult();
             uow.SaveChangesAsync().GetAwaiter().GetResult();

@@ -61,8 +61,8 @@ public class SupplierStatementTests
     private static async Task<(GetSupplierStatementQueryHandler sut, InMemoryRepo<PurchaseInvoice> purchases)> BuildAsync()
     {
         var purchases = new InMemoryRepo<PurchaseInvoice>();
-        var suppliers = new InMemoryRepo<Supplier>();
-        await suppliers.AddAsync(Supplier.Create(1, "S-001", "حقوقی", companyName: "تأمین‌کنندهٔ آزمون"));
+        var suppliers = new InMemoryRepo<Party>();
+        await suppliers.AddAsync(Party.Create(1, "S-001", "حقوقی", companyName: "تأمین‌کنندهٔ آزمون", isSupplier: true));
         return (new GetSupplierStatementQueryHandler(purchases, suppliers, new FakeUser()), purchases);
     }
 

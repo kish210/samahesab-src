@@ -20,11 +20,11 @@ public record GetSalesInvoicesQuery(string? FromDate = null, string? ToDate = nu
 public class GetSalesInvoicesQueryHandler : IRequestHandler<GetSalesInvoicesQuery, List<SalesInvoiceRowDto>>
 {
     private readonly IRepository<SalesInvoice> _invoices;
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly ICurrentUserService _currentUser;
 
     public GetSalesInvoicesQueryHandler(IRepository<SalesInvoice> invoices,
-        IRepository<Customer> customers, ICurrentUserService currentUser)
+        IRepository<Party> customers, ICurrentUserService currentUser)
     { _invoices = invoices; _customers = customers; _currentUser = currentUser; }
 
     private static string StatusFa(InvoiceStatus s) => s switch
@@ -44,7 +44,7 @@ public class GetSalesInvoicesQueryHandler : IRequestHandler<GetSalesInvoicesQuer
     {
         var companyId = _currentUser.CompanyId ?? 1;
         var list = await _invoices.FindAsync(i => i.CompanyId == companyId, ct);
-        var customers = (await _customers.FindAsync(c => c.CompanyId == companyId, ct))
+        var customers = (await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct))
             .ToDictionary(c => c.Id, c => c.FullName);
 
         var term = req.Search?.Trim();

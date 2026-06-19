@@ -13,8 +13,8 @@ public record CustomerCreditDto(int CustomerId, string Name, decimal Balance,
 
 public class GetCustomerCreditQueryHandler : IRequestHandler<GetCustomerCreditQuery, CustomerCreditDto?>
 {
-    private readonly IRepository<Customer> _customers;
-    public GetCustomerCreditQueryHandler(IRepository<Customer> customers) => _customers = customers;
+    private readonly IRepository<Party> _customers;
+    public GetCustomerCreditQueryHandler(IRepository<Party> customers) => _customers = customers;
 
     public async Task<CustomerCreditDto?> Handle(GetCustomerCreditQuery req, CancellationToken ct)
     {

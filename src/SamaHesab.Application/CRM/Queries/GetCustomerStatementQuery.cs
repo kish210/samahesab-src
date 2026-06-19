@@ -20,11 +20,11 @@ public class GetCustomerStatementQueryHandler
     : IRequestHandler<GetCustomerStatementQuery, Result<CustomerStatement>>
 {
     private readonly IRepository<SalesInvoice> _sales;
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly ICurrentUserService _currentUser;
 
     public GetCustomerStatementQueryHandler(IRepository<SalesInvoice> sales,
-        IRepository<Customer> customers, ICurrentUserService currentUser)
+        IRepository<Party> customers, ICurrentUserService currentUser)
     { _sales = sales; _customers = customers; _currentUser = currentUser; }
 
     public async Task<Result<CustomerStatement>> Handle(GetCustomerStatementQuery req, CancellationToken ct)

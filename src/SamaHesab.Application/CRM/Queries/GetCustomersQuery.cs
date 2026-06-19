@@ -12,15 +12,15 @@ public record GetCustomersQuery(string? Search = null) : IRequest<List<CustomerR
 
 public class GetCustomersQueryHandler : IRequestHandler<GetCustomersQuery, List<CustomerRowDto>>
 {
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly ICurrentUserService _currentUser;
-    public GetCustomersQueryHandler(IRepository<Customer> customers, ICurrentUserService currentUser)
+    public GetCustomersQueryHandler(IRepository<Party> customers, ICurrentUserService currentUser)
     { _customers = customers; _currentUser = currentUser; }
 
     public async Task<List<CustomerRowDto>> Handle(GetCustomersQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var all = await _customers.FindAsync(c => c.CompanyId == companyId, ct);
+        var all = await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct);
         var term = req.Search?.Trim();
         return all
             .Where(c => string.IsNullOrEmpty(term)

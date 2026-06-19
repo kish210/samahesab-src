@@ -58,7 +58,7 @@ public class DataImportTests
     [Fact]
     public async Task Imports_Customers_And_Maps_Contact_Fields()
     {
-        var repo = new InMemoryRepo<Customer>();
+        var repo = new InMemoryRepo<Party>();
         var sut = new ImportCustomersCommandHandler(repo, new FakeUow(), new FakeUser());
         var rows = new List<IReadOnlyDictionary<string, string>>
         {
@@ -74,13 +74,13 @@ public class DataImportTests
         Assert.Equal("علی", ali.FirstName);
         Assert.Equal("0912", ali.Mobile);
         Assert.Equal("تهران", ali.City);
-        Assert.Contains(repo.Items, c => c.CompanyName == "پارس کالا" && c.CustomerType == "حقوقی");
+        Assert.Contains(repo.Items, c => c.CompanyName == "پارس کالا" && c.PartyType == "حقوقی");
     }
 
     [Fact]
     public async Task Skips_Duplicate_Codes_Idempotent()
     {
-        var repo = new InMemoryRepo<Customer>();
+        var repo = new InMemoryRepo<Party>();
         var sut = new ImportCustomersCommandHandler(repo, new FakeUow(), new FakeUser());
         var rows = new List<IReadOnlyDictionary<string, string>> { Row(("کد", "C1"), ("نام", "الف")) };
 
@@ -95,7 +95,7 @@ public class DataImportTests
     [Fact]
     public async Task Customer_Import_Drops_Invalid_NationalCode_But_Keeps_Customer()
     {
-        var repo = new InMemoryRepo<Customer>();
+        var repo = new InMemoryRepo<Party>();
         var sut = new ImportCustomersCommandHandler(repo, new FakeUow(), new FakeUser());
         var rows = new List<IReadOnlyDictionary<string, string>>
         {
@@ -112,7 +112,7 @@ public class DataImportTests
     [Fact]
     public async Task Imports_Suppliers()
     {
-        var repo = new InMemoryRepo<Supplier>();
+        var repo = new InMemoryRepo<Party>();
         var sut = new ImportSuppliersCommandHandler(repo, new FakeUow(), new FakeUser());
         var rows = new List<IReadOnlyDictionary<string, string>>
         {

@@ -1,3 +1,4 @@
+using SamaHesab.Domain.Entities.CRM;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Enums;
@@ -28,16 +29,16 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
     private readonly IStockItemRepository _stock;
     private readonly IChequeRepository _cheques;
     private readonly IProductRepository _products;
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Customer> _customers;
-    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Supplier> _suppliers;
+    private readonly IRepository<Party> _customers;
+    private readonly IRepository<Party> _suppliers;
     private readonly IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> _sales;
     private readonly IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> _purchases;
     private readonly ICurrentUserService _currentUser;
 
     public GetDashboardQueryHandler(IStockItemRepository stock, IChequeRepository cheques,
         IProductRepository products,
-        IRepository<SamaHesab.Domain.Entities.CRM.Customer> customers,
-        IRepository<SamaHesab.Domain.Entities.CRM.Supplier> suppliers,
+        IRepository<Party> customers,
+        IRepository<Party> suppliers,
         IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> sales,
         IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> purchases,
         ICurrentUserService currentUser)
@@ -57,8 +58,8 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         var month = today.Length >= 7 ? today.Substring(0, 7) : today;
 
         var products  = await _products.FindAsync(p => p.CompanyId == companyId, ct);
-        var customers = await _customers.FindAsync(c => c.CompanyId == companyId, ct);
-        var suppliers = await _suppliers.FindAsync(s => s.CompanyId == companyId, ct);
+        var customers = await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct);
+        var suppliers = await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct);
         var sales     = await _sales.FindAsync(i => i.CompanyId == companyId, ct);
         var purchases = await _purchases.FindAsync(i => i.CompanyId == companyId, ct);
         var cheques   = await _cheques.FindAsync(c => c.CompanyId == companyId, ct);

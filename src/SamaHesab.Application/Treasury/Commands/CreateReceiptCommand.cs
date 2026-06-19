@@ -32,12 +32,12 @@ public class CreateReceiptCommandHandler : IRequestHandler<CreateReceiptCommand,
     private readonly ICurrentUserService _currentUser;
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly IRepository<SalesInvoice> _invoices;
     private readonly IRepository<FiscalYear> _fiscalYears;
 
     public CreateReceiptCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
-        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Customer> customers,
+        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Party> customers,
         IRepository<SalesInvoice> invoices, IRepository<FiscalYear> fiscalYears)
     { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _customers = customers; _invoices = invoices; _fiscalYears = fiscalYears; }
 

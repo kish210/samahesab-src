@@ -19,11 +19,11 @@ public record GetTopSuppliersQuery(string FromDate, string ToDate, int Take = 10
 public class GetTopSuppliersQueryHandler : IRequestHandler<GetTopSuppliersQuery, List<TopSupplierDto>>
 {
     private readonly IRepository<PurchaseInvoice> _invoices;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
 
     public GetTopSuppliersQueryHandler(IRepository<PurchaseInvoice> invoices,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+        IRepository<Party> suppliers, ICurrentUserService currentUser)
     { _invoices = invoices; _suppliers = suppliers; _currentUser = currentUser; }
 
     public async Task<List<TopSupplierDto>> Handle(GetTopSuppliersQuery req, CancellationToken ct)
@@ -37,7 +37,7 @@ public class GetTopSuppliersQueryHandler : IRequestHandler<GetTopSuppliersQuery,
         var ranked = SalesAnalytics.TopParties(
             inRange.Select(i => new SalesRecord(i.InvoiceDate, i.SupplierId, i.GrandTotal)), req.Take);
 
-        var names = (await _suppliers.FindAsync(s => s.CompanyId == companyId, ct))
+        var names = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct))
             .ToDictionary(s => s.Id, s => s.FullName);
 
         return ranked

@@ -14,11 +14,11 @@ namespace SamaHesab.API.Controllers;
 [Route("api/[controller]")]
 public class SuppliersController : ControllerBase
 {
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
 
-    public SuppliersController(IRepository<Supplier> suppliers, ICurrentUserService currentUser, IMediator mediator)
+    public SuppliersController(IRepository<Party> suppliers, ICurrentUserService currentUser, IMediator mediator)
     {
         _suppliers = suppliers;
         _currentUser = currentUser;

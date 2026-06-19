@@ -23,11 +23,11 @@ public class GetSupplierStatementQueryHandler
     : IRequestHandler<GetSupplierStatementQuery, Result<SupplierStatement>>
 {
     private readonly IRepository<PurchaseInvoice> _purchases;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
 
     public GetSupplierStatementQueryHandler(IRepository<PurchaseInvoice> purchases,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+        IRepository<Party> suppliers, ICurrentUserService currentUser)
     { _purchases = purchases; _suppliers = suppliers; _currentUser = currentUser; }
 
     public async Task<Result<SupplierStatement>> Handle(GetSupplierStatementQuery req, CancellationToken ct)

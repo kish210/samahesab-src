@@ -19,10 +19,10 @@ public record PayableDto(
 
 public class GetPayablesQueryHandler : IRequestHandler<GetPayablesQuery, List<PayableDto>>
 {
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
 
-    public GetPayablesQueryHandler(IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+    public GetPayablesQueryHandler(IRepository<Party> suppliers, ICurrentUserService currentUser)
     {
         _suppliers = suppliers;
         _currentUser = currentUser;
@@ -32,7 +32,7 @@ public class GetPayablesQueryHandler : IRequestHandler<GetPayablesQuery, List<Pa
     {
         var companyId = _currentUser.CompanyId!.Value;
         var creditors = await _suppliers.FindAsync(
-            s => s.CompanyId == companyId && s.IsActive && s.Balance > 0.01m, ct);
+            s => s.CompanyId == companyId && s.IsSupplier && s.IsActive && s.Balance > 0.01m, ct);
 
         return creditors
             .OrderByDescending(s => s.Balance)

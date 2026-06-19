@@ -41,10 +41,10 @@ public record ImportCustomersCommand(IReadOnlyList<IReadOnlyDictionary<string, s
 
 public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersCommand, ImportResult>
 {
-    private readonly IRepository<Customer> _repo;
+    private readonly IRepository<Party> _repo;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
-    public ImportCustomersCommandHandler(IRepository<Customer> repo, IUnitOfWork uow, ICurrentUserService user)
+    public ImportCustomersCommandHandler(IRepository<Party> repo, IUnitOfWork uow, ICurrentUserService user)
     { _repo = repo; _uow = uow; _user = user; }
 
     public async Task<ImportResult> Handle(ImportCustomersCommand req, CancellationToken ct)
@@ -69,14 +69,14 @@ public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersComm
                 if (code == null) { do { code = $"C{++seq}"; } while (existing.Contains(code)); }
                 if (existing.Contains(code)) { skipped++; continue; }
 
-                var c = Customer.Create(companyId, code, type, first, last, company);
-                c.UpdateContactInfo(
-                    RowMap.Get(row, "تلفن", "Phone"), RowMap.Get(row, "موبایل", "تلفن همراه", "همراه", "Mobile"),
-                    RowMap.Get(row, "ایمیل", "Email"), RowMap.Get(row, "استان", "Province"),
-                    RowMap.Get(row, "شهر", "City"), RowMap.Get(row, "آدرس", "نشانی", "Address"),
-                    RowMap.Get(row, "کد پستی", "کدپستی", "PostalCode"));
+                var c = Party.Create(companyId, code, type, first, last, company, isCustomer: true);
+                c.UpdateProfile(
+                    null, RowMap.Get(row, "موبایل", "تلفن همراه", "همراه", "Mobile"),
+                    RowMap.Get(row, "تلفن", "Phone"), RowMap.Get(row, "ایمیل", "Email"),
+                    RowMap.Get(row, "استان", "Province"), RowMap.Get(row, "شهر", "City"),
+                    RowMap.Get(row, "آدرس", "نشانی", "Address"));
 
-                // RC-7b — اعتبارسنجیِ هویتِ مالیاتی: نامعتبر را ذخیره نکن و هشدار بده (مشتری حفظ می‌شود).
+                // RC-7b — اعتبارسنجیِ هویتِ مالیاتی: نامعتبر را ذخیره نکن و هشدار بده (شخص حفظ می‌شود).
                 var national = RowMap.Get(row, "کد ملی", "شناسه ملی", "کد/شناسه ملی", "NationalCode");
                 var economic = RowMap.Get(row, "کد اقتصادی", "EconomicCode");
                 var nationalOk = type == "حقوقی"
@@ -86,7 +86,7 @@ public class ImportCustomersCommandHandler : IRequestHandler<ImportCustomersComm
                 if (!SamaHesab.Application.Common.Validation.IranianIdentity.IsValidEconomicId(economic))
                 { if (errors.Count < 10) errors.Add($"ردیف {line}: کدِ اقتصادیِ «{economic}» نامعتبر بود و نادیده گرفته شد."); economic = null; }
 
-                c.SetDetails(national, economic, null, RowMap.Get(row, "توضیحات", "Notes"));
+                c.SetTaxIds(national, economic, RowMap.Get(row, "توضیحات", "Notes"));
 
                 await _repo.AddAsync(c, ct);
                 existing.Add(code); imported++;
@@ -104,10 +104,10 @@ public record ImportSuppliersCommand(IReadOnlyList<IReadOnlyDictionary<string, s
 
 public class ImportSuppliersCommandHandler : IRequestHandler<ImportSuppliersCommand, ImportResult>
 {
-    private readonly IRepository<Supplier> _repo;
+    private readonly IRepository<Party> _repo;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
-    public ImportSuppliersCommandHandler(IRepository<Supplier> repo, IUnitOfWork uow, ICurrentUserService user)
+    public ImportSuppliersCommandHandler(IRepository<Party> repo, IUnitOfWork uow, ICurrentUserService user)
     { _repo = repo; _uow = uow; _user = user; }
 
     public async Task<ImportResult> Handle(ImportSuppliersCommand req, CancellationToken ct)
@@ -132,11 +132,13 @@ public class ImportSuppliersCommandHandler : IRequestHandler<ImportSuppliersComm
                 if (code == null) { do { code = $"S{++seq}"; } while (existing.Contains(code)); }
                 if (existing.Contains(code)) { skipped++; continue; }
 
-                var s = Supplier.Create(companyId, code, type, first, last, company);
-                s.UpdateContactInfo(
-                    RowMap.Get(row, "تلفن", "Phone"), RowMap.Get(row, "موبایل", "تلفن همراه", "همراه", "Mobile"),
-                    RowMap.Get(row, "ایمیل", "Email"), RowMap.Get(row, "استان", "Province"),
-                    RowMap.Get(row, "شهر", "City"), RowMap.Get(row, "آدرس", "نشانی", "Address"));
+                var s = Party.Create(companyId, code, type, first, last, company, isSupplier: true);
+                s.UpdateProfile(
+                    RowMap.Get(row, "کد ملی", "شناسه ملی", "NationalCode"),
+                    RowMap.Get(row, "موبایل", "تلفن همراه", "همراه", "Mobile"),
+                    RowMap.Get(row, "تلفن", "Phone"), RowMap.Get(row, "ایمیل", "Email"),
+                    RowMap.Get(row, "استان", "Province"), RowMap.Get(row, "شهر", "City"),
+                    RowMap.Get(row, "آدرس", "نشانی", "Address"));
 
                 await _repo.AddAsync(s, ct);
                 existing.Add(code); imported++;

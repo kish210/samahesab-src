@@ -1094,8 +1094,8 @@ public partial class App : System.Windows.Application
             var mediator = sp.GetRequiredService<MediatR.IMediator>();
             var calendar = sp.GetRequiredService<SamaHesab.Application.Common.Interfaces.IPersianCalendarService>();
             var products = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IProductRepository>();
-            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Customer>>();
-            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Supplier>>();
+            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Party>>();
+            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Party>>();
             var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
             var stockRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IStockItemRepository>();
 
@@ -1103,8 +1103,8 @@ public partial class App : System.Windows.Application
 
             // ── پیش‌نیازها: داده‌ی پایه ──
             var prodList = await products.SearchAsync(1, "");
-            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsActive);
-            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsActive);
+            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsCustomer && c.IsActive);
+            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsSupplier && s.IsActive);
             var warehouses = await whRepo.GetByCompanyAsync(1);
             var fyList = await mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetFiscalYearsQuery());
             var fy = fyList.FirstOrDefault(f => f.IsActive) ?? fyList.FirstOrDefault();
@@ -1212,8 +1212,8 @@ public partial class App : System.Windows.Application
             var mediator = sp.GetRequiredService<MediatR.IMediator>();
             var calendar = sp.GetRequiredService<SamaHesab.Application.Common.Interfaces.IPersianCalendarService>();
             var products = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IProductRepository>();
-            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Customer>>();
-            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Supplier>>();
+            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Party>>();
+            var suppRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Party>>();
             var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
             var invRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice>>();
             var accounts = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IAccountRepository>();
@@ -1230,8 +1230,8 @@ public partial class App : System.Windows.Application
 
             // ── پیش‌نیاز: دادهٔ پایه (08_DemoData) ──
             var prodList = (await products.SearchAsync(1, "")).Where(p => p.ProductType == SamaHesab.Domain.Enums.ProductType.Product).ToList();
-            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsActive);
-            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsActive);
+            var customers = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsCustomer && c.IsActive);
+            var suppliers = await suppRepo.FindAsync(s => s.CompanyId == 1 && s.IsSupplier && s.IsActive);
             var warehouses = await whRepo.GetByCompanyAsync(1);
             if (prodList.Count == 0 || customers.Count == 0 || suppliers.Count == 0 || warehouses.Count == 0)
             {
@@ -1400,12 +1400,12 @@ public partial class App : System.Windows.Application
             var mediator = sp.GetRequiredService<MediatR.IMediator>();
             var products = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IProductRepository>();
             var accounts = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IAccountRepository>();
-            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Customer>>();
+            var custRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IRepository<SamaHesab.Domain.Entities.CRM.Party>>();
             var whRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IWarehouseRepository>();
 
             var prodList = await products.SearchAsync(1, "");
             Line($"Products read: {prodList.Count}");
-            var custList = await custRepo.FindAsync(c => c.CompanyId == 1);
+            var custList = await custRepo.FindAsync(c => c.CompanyId == 1 && c.IsCustomer);
             Line($"Customers read: {custList.Count}");
             var whList = await whRepo.GetByCompanyAsync(1);
             Line($"Warehouses read: {whList.Count}");
@@ -1639,8 +1639,8 @@ public partial class App : System.Windows.Application
             try
             {
                 var uow = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IUnitOfWork>();
-                var entity = SamaHesab.Domain.Entities.CRM.Customer.Create(1, "TST" + DateTime.Now.ToString("HHmmss"),
-                    "حقیقی", "تست", "خودکار", null);
+                var entity = SamaHesab.Domain.Entities.CRM.Party.Create(1, "TST" + DateTime.Now.ToString("HHmmss"),
+                    "حقیقی", "تست", "خودکار", null, isCustomer: true);
                 await custRepo.AddAsync(entity);
                 await uow.SaveChangesAsync();
                 Line($"CUSTOMER CREATE: PASS (id={entity.Id})");

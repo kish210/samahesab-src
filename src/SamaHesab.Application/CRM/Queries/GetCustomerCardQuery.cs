@@ -20,9 +20,9 @@ public record GetCustomerCardQuery(int CustomerId) : IRequest<CustomerCardDto?>;
 
 public class GetCustomerCardQueryHandler : IRequestHandler<GetCustomerCardQuery, CustomerCardDto?>
 {
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly IRepository<Cheque> _cheques;
-    public GetCustomerCardQueryHandler(IRepository<Customer> customers, IRepository<Cheque> cheques)
+    public GetCustomerCardQueryHandler(IRepository<Party> customers, IRepository<Cheque> cheques)
     { _customers = customers; _cheques = cheques; }
 
     public async Task<CustomerCardDto?> Handle(GetCustomerCardQuery req, CancellationToken ct)
@@ -34,7 +34,7 @@ public class GetCustomerCardQueryHandler : IRequestHandler<GetCustomerCardQuery,
             && ch.ChequeType == ChequeType.Received
             && ch.Status == ChequeStatus.InProcess, ct);
 
-        return new CustomerCardDto(c.Id, c.FullName, c.Code, c.CustomerType, c.PriceLevel,
+        return new CustomerCardDto(c.Id, c.FullName, c.Code, c.PartyType, c.PriceLevel,
             c.Mobile, c.Phone, c.NationalCode, c.EconomicCode, c.ContactPerson, c.Visitor,
             c.Province, c.City, c.Address, c.LoyaltyPoints, c.CreditDays, c.IsActive,
             c.Balance, c.CreditLimit, inProc.Sum(x => x.Amount));

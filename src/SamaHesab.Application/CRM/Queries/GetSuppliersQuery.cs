@@ -12,15 +12,15 @@ public record GetSuppliersQuery(string? Search = null) : IRequest<List<SupplierR
 
 public class GetSuppliersQueryHandler : IRequestHandler<GetSuppliersQuery, List<SupplierRowDto>>
 {
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
-    public GetSuppliersQueryHandler(IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+    public GetSuppliersQueryHandler(IRepository<Party> suppliers, ICurrentUserService currentUser)
     { _suppliers = suppliers; _currentUser = currentUser; }
 
     public async Task<List<SupplierRowDto>> Handle(GetSuppliersQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var all = await _suppliers.FindAsync(s => s.CompanyId == companyId, ct);
+        var all = await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct);
         var term = req.Search?.Trim();
         return all
             .Where(s => string.IsNullOrEmpty(term)

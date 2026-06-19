@@ -75,7 +75,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IAccountRepository _accountRepository;
     private readonly IVoucherRepository _voucherRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
-    private readonly IRepository<Domain.Entities.CRM.Customer> _customers;
+    private readonly IRepository<Domain.Entities.CRM.Party> _customers;
     private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
     private readonly IMediator _mediator;
 
@@ -89,7 +89,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IAccountRepository accountRepository,
         IVoucherRepository voucherRepository,
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
-        IRepository<Domain.Entities.CRM.Customer> customers,
+        IRepository<Domain.Entities.CRM.Party> customers,
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IMediator mediator)
     {

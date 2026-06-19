@@ -21,10 +21,10 @@ public record ReceivableDto(
 
 public class GetReceivablesQueryHandler : IRequestHandler<GetReceivablesQuery, List<ReceivableDto>>
 {
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly ICurrentUserService _currentUser;
 
-    public GetReceivablesQueryHandler(IRepository<Customer> customers, ICurrentUserService currentUser)
+    public GetReceivablesQueryHandler(IRepository<Party> customers, ICurrentUserService currentUser)
     {
         _customers = customers;
         _currentUser = currentUser;
@@ -34,7 +34,7 @@ public class GetReceivablesQueryHandler : IRequestHandler<GetReceivablesQuery, L
     {
         var companyId = _currentUser.CompanyId!.Value;
         var debtors = await _customers.FindAsync(
-            c => c.CompanyId == companyId && c.IsActive && c.Balance > 0.01m, ct);
+            c => c.CompanyId == companyId && c.IsCustomer && c.IsActive && c.Balance > 0.01m, ct);
 
         return debtors
             .OrderByDescending(c => c.Balance)

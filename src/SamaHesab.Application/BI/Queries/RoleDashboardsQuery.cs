@@ -24,13 +24,13 @@ public class GetAccountantDashboardQueryHandler
     : IRequestHandler<GetAccountantDashboardQuery, AccountantDashboardDto>
 {
     private readonly IRepository<Voucher> _vouchers;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _customers;
+    private readonly IRepository<Party> _suppliers;
     private readonly IChequeRepository _cheques;
     private readonly ICurrentUserService _currentUser;
 
     public GetAccountantDashboardQueryHandler(IRepository<Voucher> vouchers,
-        IRepository<Customer> customers, IRepository<Supplier> suppliers,
+        IRepository<Party> customers, IRepository<Party> suppliers,
         IChequeRepository cheques, ICurrentUserService currentUser)
     { _vouchers = vouchers; _customers = customers; _suppliers = suppliers; _cheques = cheques; _currentUser = currentUser; }
 
@@ -40,9 +40,9 @@ public class GetAccountantDashboardQueryHandler
 
         var drafts = await _vouchers.CountAsync(
             v => v.CompanyId == companyId && v.Status == VoucherStatus.Draft, ct);
-        var receivables = (await _customers.FindAsync(c => c.CompanyId == companyId && c.Balance > 0.01m, ct))
+        var receivables = (await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer && c.Balance > 0.01m, ct))
             .Sum(c => c.Balance);
-        var payables = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.Balance > 0.01m, ct))
+        var payables = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier && s.Balance > 0.01m, ct))
             .Sum(s => s.Balance);
 
         var inProcess = await _cheques.GetByStatusAsync(companyId, ChequeStatus.InProcess, ct);

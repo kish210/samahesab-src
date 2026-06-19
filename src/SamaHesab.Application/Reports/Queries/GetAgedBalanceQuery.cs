@@ -24,12 +24,12 @@ public class GetAgedBalanceQueryHandler : IRequestHandler<GetAgedBalanceQuery, L
     private readonly IPersianCalendarService _calendar;
     private readonly IRepository<SalesInvoice> _sales;
     private readonly IRepository<PurchaseInvoice> _purchases;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _customers;
+    private readonly IRepository<Party> _suppliers;
 
     public GetAgedBalanceQueryHandler(ICurrentUserService user, IPersianCalendarService calendar,
         IRepository<SalesInvoice> sales, IRepository<PurchaseInvoice> purchases,
-        IRepository<Customer> customers, IRepository<Supplier> suppliers)
+        IRepository<Party> customers, IRepository<Party> suppliers)
     {
         _user = user; _calendar = calendar; _sales = sales; _purchases = purchases;
         _customers = customers; _suppliers = suppliers;
@@ -60,7 +60,7 @@ public class GetAgedBalanceQueryHandler : IRequestHandler<GetAgedBalanceQuery, L
                 if (!byParty.TryGetValue(i.CustomerId, out var b)) byParty[i.CustomerId] = b = new AgingBuckets();
                 b.Add(i.RemainAmount, Age(i.DueDate, i.InvoiceDate));
             }
-            foreach (var c in await _customers.FindAsync(c => c.CompanyId == companyId, ct))
+            foreach (var c in await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct))
                 names[c.Id] = c.FullName;
         }
         else
@@ -72,7 +72,7 @@ public class GetAgedBalanceQueryHandler : IRequestHandler<GetAgedBalanceQuery, L
                 if (!byParty.TryGetValue(i.SupplierId, out var b)) byParty[i.SupplierId] = b = new AgingBuckets();
                 b.Add(i.RemainAmount, Age(i.DueDate, i.InvoiceDate));
             }
-            foreach (var s in await _suppliers.FindAsync(s => s.CompanyId == companyId, ct))
+            foreach (var s in await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct))
                 names[s.Id] = s.FullName;
         }
 

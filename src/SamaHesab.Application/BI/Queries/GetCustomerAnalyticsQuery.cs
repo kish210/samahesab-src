@@ -28,12 +28,12 @@ public class GetCustomerAnalyticsQueryHandler
 {
     private readonly IRepository<SalesInvoice> _invoices;
     private readonly IRepository<SalesInvoiceItem> _items;
-    private readonly IRepository<Customer> _customers;
+    private readonly IRepository<Party> _customers;
     private readonly IRepository<SamaHesab.Domain.Entities.Inventory.Product> _products;
     private readonly ICurrentUserService _currentUser;
 
     public GetCustomerAnalyticsQueryHandler(IRepository<SalesInvoice> invoices,
-        IRepository<SalesInvoiceItem> items, IRepository<Customer> customers,
+        IRepository<SalesInvoiceItem> items, IRepository<Party> customers,
         IRepository<SamaHesab.Domain.Entities.Inventory.Product> products, ICurrentUserService currentUser)
     { _invoices = invoices; _items = items; _customers = customers; _products = products; _currentUser = currentUser; }
 

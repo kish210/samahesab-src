@@ -16,11 +16,11 @@ public record GetPurchaseInvoicesQuery(string? FromDate = null, string? ToDate =
 public class GetPurchaseInvoicesQueryHandler : IRequestHandler<GetPurchaseInvoicesQuery, List<PurchaseInvoiceRowDto>>
 {
     private readonly IRepository<PurchaseInvoice> _invoices;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
 
     public GetPurchaseInvoicesQueryHandler(IRepository<PurchaseInvoice> invoices,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser)
+        IRepository<Party> suppliers, ICurrentUserService currentUser)
     { _invoices = invoices; _suppliers = suppliers; _currentUser = currentUser; }
 
     private static bool InRange(string date, string? from, string? to)
@@ -31,7 +31,7 @@ public class GetPurchaseInvoicesQueryHandler : IRequestHandler<GetPurchaseInvoic
     {
         var companyId = _currentUser.CompanyId ?? 1;
         var list = await _invoices.FindAsync(i => i.CompanyId == companyId, ct);
-        var suppliers = (await _suppliers.FindAsync(s => s.CompanyId == companyId, ct))
+        var suppliers = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct))
             .ToDictionary(s => s.Id, s => s.FullName);
 
         var term = req.Search?.Trim();

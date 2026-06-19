@@ -16,50 +16,39 @@ public record CreateCustomerCommand(
 
 public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Result<int>>
 {
-    private readonly IRepository<Customer> _customers;
     private readonly IRepository<Party> _parties;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _currentUser;
 
-    public CreateCustomerCommandHandler(IRepository<Customer> customers, IRepository<Party> parties,
-        IUnitOfWork uow, ICurrentUserService currentUser)
-    { _customers = customers; _parties = parties; _uow = uow; _currentUser = currentUser; }
+    public CreateCustomerCommandHandler(IRepository<Party> parties, IUnitOfWork uow, ICurrentUserService currentUser)
+    { _parties = parties; _uow = uow; _currentUser = currentUser; }
 
     public async Task<Result<int>> Handle(CreateCustomerCommand req, CancellationToken ct)
     {
         try
         {
             var companyId = _currentUser.CompanyId ?? 1;
-            var entity = Customer.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName);
-            entity.UpdateContactInfo(req.Phone, req.Mobile, req.Email, req.Province, req.City, req.Address, req.PostalCode);
-            entity.UpdateCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);
-            entity.SetDetails(req.NationalCode, req.EconomicCode, req.GroupId, req.Notes);
-            entity.SetContactPerson(req.ContactPerson, req.Visitor);
-            if (!string.IsNullOrWhiteSpace(req.BirthDate)) entity.SetBirthDate(req.BirthDate!);
 
-            await _customers.AddAsync(entity, ct);
-            await _uow.SaveChangesAsync(ct);
+            // 🧱 طرف‌حسابِ یکپارچه: اگر شخصی با همین کد ملی هست، فقط نقشِ مشتری اضافه می‌شود؛ وگرنه طرف‌حسابِ جدید.
+            Party? party = null;
+            if (!string.IsNullOrWhiteSpace(req.NationalCode))
+                party = (await _parties.FindAsync(p => p.CompanyId == companyId && p.NationalCode == req.NationalCode, ct)).FirstOrDefault();
 
-            // 🧱 dual-write به طرف‌حساب (Party) تا directoryِ اشخاص به‌روز بماند —
-            // اگر شخصی با همین کد ملی هست، فقط نقشِ مشتری اضافه می‌شود؛ وگرنه طرف‌حسابِ جدید.
-            try
+            if (party != null)
             {
-                Party? party = null;
-                if (!string.IsNullOrWhiteSpace(req.NationalCode))
-                    party = (await _parties.FindAsync(p => p.CompanyId == companyId && p.NationalCode == req.NationalCode, ct)).FirstOrDefault();
-                if (party != null) { party.MarkCustomer(); party.SetLegacy(entity.Id, party.LegacySupplierId); _parties.Update(party); }
-                else
-                {
-                    var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
-                    np.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
-                    np.SetLegacy(entity.Id, null);
-                    await _parties.AddAsync(np, ct);
-                }
+                party.MarkCustomer();
+                party.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
+                _parties.Update(party);
                 await _uow.SaveChangesAsync(ct);
+                return Result<int>.Success(party.Id);
             }
-            catch { /* همگام‌سازیِ Party اختیاری است؛ نباید ساختِ مشتری را بشکند */ }
 
-            return Result<int>.Success(entity.Id);
+            var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
+            np.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
+            np.SetCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);
+            await _parties.AddAsync(np, ct);
+            await _uow.SaveChangesAsync(ct);
+            return Result<int>.Success(np.Id);
         }
         catch (System.Exception ex) { return Result<int>.Failure(ex.GetBaseException().Message); }
     }

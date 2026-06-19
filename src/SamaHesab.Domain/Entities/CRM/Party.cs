@@ -75,6 +75,10 @@ public class Party : AuditableEntity
         NationalCode = nationalCode; Mobile = mobile; Phone = phone; Email = email;
         Province = province; City = city; Address = address; SetAudit(null);
     }
+    public void SetTaxIds(string? nationalCode, string? economicCode, string? notes = null)
+    { NationalCode = nationalCode; EconomicCode = economicCode; if (notes != null) Notes = notes; SetAudit(null); }
+    public void SetCreditTerms(decimal creditLimit, int creditDays, string priceLevel, decimal discount)
+    { CreditLimit = creditLimit; CreditDays = creditDays; if (!string.IsNullOrWhiteSpace(priceLevel)) PriceLevel = priceLevel; Discount = discount; SetAudit(null); }
     public void UpdateBalance(decimal amount) { Balance = amount; SetAudit(null); }
     public void Deactivate() { IsActive = false; SetAudit(null); }
     public void Activate() { IsActive = true; SetAudit(null); }

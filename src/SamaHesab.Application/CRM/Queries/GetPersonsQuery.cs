@@ -18,13 +18,10 @@ public record GetPersonsQuery(string? Search = null, int? RoleFilter = null) : I
 public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<PersonDto>>
 {
     private readonly IRepository<Party> _parties;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<Supplier> _suppliers;
     private readonly ICurrentUserService _currentUser;
 
-    public GetPersonsQueryHandler(IRepository<Party> parties, IRepository<Customer> customers,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser)
-    { _parties = parties; _customers = customers; _suppliers = suppliers; _currentUser = currentUser; }
+    public GetPersonsQueryHandler(IRepository<Party> parties, ICurrentUserService currentUser)
+    { _parties = parties; _currentUser = currentUser; }
 
     private static string RoleText(bool c, bool s, bool e)
     {
@@ -40,10 +37,6 @@ public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<Pers
         var companyId = _currentUser.CompanyId ?? 1;
         var parties = await _parties.FindAsync(p => p.CompanyId == companyId, ct);
 
-        // ماندهٔ زنده از منابعِ اصلی (با LegacyId) تا کهنه نشود.
-        var custBal = (await _customers.FindAsync(c => c.CompanyId == companyId, ct)).ToDictionary(c => c.Id, c => c.Balance);
-        var suppBal = (await _suppliers.FindAsync(s => s.CompanyId == companyId, ct)).ToDictionary(s => s.Id, s => s.Balance);
-
         IEnumerable<Party> q = parties;
         if (req.RoleFilter == 1) q = q.Where(p => p.IsCustomer);
         else if (req.RoleFilter == 2) q = q.Where(p => p.IsSupplier);
@@ -53,10 +46,7 @@ public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<Pers
         var list = new List<PersonDto>();
         foreach (var p in q)
         {
-            decimal bal = 0;
-            if (p.LegacyCustomerId is int lc && custBal.TryGetValue(lc, out var cb)) bal += cb;
-            if (p.LegacySupplierId is int ls && suppBal.TryGetValue(ls, out var sb)) bal += sb;
-
+            var bal = p.Balance;   // پس از ادغام، Party.Balance منبعِ واحدِ مانده است
             var name = p.FullName;
             if (!string.IsNullOrEmpty(term) && !(name.Contains(term) || (p.Code ?? "").Contains(term) || (p.Mobile ?? "").Contains(term)))
                 continue;

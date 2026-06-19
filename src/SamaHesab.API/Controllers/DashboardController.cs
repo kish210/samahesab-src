@@ -14,13 +14,13 @@ namespace SamaHesab.API.Controllers;
 public class DashboardController : ControllerBase
 {
     private readonly IProductRepository _products;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _customers;
+    private readonly IRepository<Party> _suppliers;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
 
-    public DashboardController(IProductRepository products, IRepository<Customer> customers,
-        IRepository<Supplier> suppliers, ICurrentUserService currentUser, IMediator mediator)
+    public DashboardController(IProductRepository products, IRepository<Party> customers,
+        IRepository<Party> suppliers, ICurrentUserService currentUser, IMediator mediator)
     {
         _products = products; _customers = customers; _suppliers = suppliers; _currentUser = currentUser; _mediator = mediator;
     }
@@ -36,8 +36,8 @@ public class DashboardController : ControllerBase
     {
         var companyId = _currentUser.CompanyId ?? 1;
         var products = await _products.FindAsync(p => p.CompanyId == companyId, ct);
-        var customers = await _customers.FindAsync(c => c.CompanyId == companyId, ct);
-        var suppliers = await _suppliers.FindAsync(s => s.CompanyId == companyId, ct);
+        var customers = await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct);
+        var suppliers = await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct);
 
         return Ok(new
         {

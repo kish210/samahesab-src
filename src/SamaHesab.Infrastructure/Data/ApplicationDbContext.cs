@@ -83,9 +83,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<SamaHesab.Domain.Entities.Inventory.ProductDiscountTier> ProductDiscountTiers { get; set; }
 
     // CRM
-    public DbSet<Customer> Customers { get; set; }
     public DbSet<SamaHesab.Domain.Entities.CRM.CustomerAttachment> CustomerAttachments { get; set; }
-    public DbSet<Supplier> Suppliers { get; set; }
     public DbSet<Party> Parties { get; set; }   // طرف‌حساب یکپارچه (Customer+Supplier)
 
     // Sales
@@ -181,9 +179,7 @@ public class ApplicationDbContext : DbContext
             b.Property(x => x.PurchasePrice).HasColumnType("decimal(18,2)");
             b.HasIndex(x => new { x.ProductId, x.SerialNumber }).IsUnique();
         });
-        modelBuilder.Entity<Customer>().ToTable("Customers", "Crm");
         modelBuilder.Entity<SamaHesab.Domain.Entities.CRM.CustomerAttachment>().ToTable("CustomerAttachments", "Crm");
-        modelBuilder.Entity<Supplier>().ToTable("Suppliers", "Crm");
         modelBuilder.Entity<Party>().ToTable("Parties", "Crm");   // طرف‌حساب یکپارچه
         modelBuilder.Entity<SalesInvoice>().ToTable("SalesInvoices", "Sal");
         modelBuilder.Entity<SalesInvoiceItem>().ToTable("SalesInvoiceItems", "Sal");

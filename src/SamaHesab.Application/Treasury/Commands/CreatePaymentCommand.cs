@@ -31,12 +31,12 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly ICurrentUserService _currentUser;
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _suppliers;
     private readonly IRepository<PurchaseInvoice> _invoices;
     private readonly IRepository<FiscalYear> _fiscalYears;
 
     public CreatePaymentCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
-        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Supplier> suppliers,
+        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Party> suppliers,
         IRepository<PurchaseInvoice> invoices, IRepository<FiscalYear> fiscalYears)
     { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; }
 

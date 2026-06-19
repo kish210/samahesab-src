@@ -24,13 +24,13 @@ public class GetManagerDashboardQueryHandler : IRequestHandler<GetManagerDashboa
 {
     private readonly IMediator _mediator;
     private readonly IRepository<SalesInvoice> _invoices;
-    private readonly IRepository<Customer> _customers;
-    private readonly IRepository<Supplier> _suppliers;
+    private readonly IRepository<Party> _customers;
+    private readonly IRepository<Party> _suppliers;
     private readonly IChequeRepository _cheques;
     private readonly ICurrentUserService _currentUser;
 
     public GetManagerDashboardQueryHandler(IMediator mediator, IRepository<SalesInvoice> invoices,
-        IRepository<Customer> customers, IRepository<Supplier> suppliers,
+        IRepository<Party> customers, IRepository<Party> suppliers,
         IChequeRepository cheques, ICurrentUserService currentUser)
     {
         _mediator = mediator; _invoices = invoices; _customers = customers;
@@ -50,9 +50,9 @@ public class GetManagerDashboardQueryHandler : IRequestHandler<GetManagerDashboa
         var profit = await _mediator.Send(new GetProfitAnalysisQuery(monthStart, monthEnd, 5), ct);
         var topCustomers = await _mediator.Send(new GetTopCustomersQuery(monthStart, monthEnd, 5), ct);
 
-        var receivables = (await _customers.FindAsync(c => c.CompanyId == companyId && c.Balance > 0.01m, ct))
+        var receivables = (await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer && c.Balance > 0.01m, ct))
             .Sum(c => c.Balance);
-        var payables = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.Balance > 0.01m, ct))
+        var payables = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier && s.Balance > 0.01m, ct))
             .Sum(s => s.Balance);
         var chequesInProcess = (await _cheques.GetByStatusAsync(companyId, ChequeStatus.InProcess, ct)).Count;
 

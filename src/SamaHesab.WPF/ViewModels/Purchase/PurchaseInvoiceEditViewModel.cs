@@ -90,8 +90,9 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     private PrintDocumentData BuildPrintData()
     {
         var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId)?.Name ?? "—";
-        var lines = InvoiceItems.Where(i => i.ProductId > 0).Select(i => new PrintLine(
-            i.RowNumber, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
+        var lines = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0)
+            .Select((i, idx) => new PrintLine(
+                idx + 1, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
         return new PrintDocumentData("فاکتور خرید", InvoiceNumber, InvoiceDate, "تأمین‌کننده", supplier,
             lines, SubTotal, TotalDiscount, TotalTax, Shipping, GrandTotal, PaidAmount, RemainAmount, Description);
     }

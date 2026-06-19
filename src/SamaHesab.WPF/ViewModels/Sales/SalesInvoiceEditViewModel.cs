@@ -143,8 +143,10 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     private PrintDocumentData BuildPrintData()
     {
         var customerName = Customers.FirstOrDefault(c => c.Id == SelectedCustomerId)?.Name ?? "—";
-        var lines = InvoiceItems.Select(i => new PrintLine(
-            i.RowNumber, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
+        // فقط ردیف‌های واقعی (ردیف‌های خالیِ seed‌شده چاپ نشوند) + شمارهٔ ردیفِ پیوسته
+        var lines = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0)
+            .Select((i, idx) => new PrintLine(
+                idx + 1, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
         return new PrintDocumentData("فاکتور فروش", InvoiceNumber, InvoiceDate, "مشتری", customerName,
             lines, SubTotal, TotalDiscount + InvoiceDiscount, TotalTax, Shipping, GrandTotal, PaidAmount, RemainAmount, Description);
     }

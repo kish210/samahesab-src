@@ -488,6 +488,34 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // رندرِ نمونهٔ چاپِ فاکتور به PNG (برای بازبینیِ پولیشِ چاپ).
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_INVOICE") == "1")
+        {
+            var ps = (Services.PrintService)_host.Services.GetRequiredService<Services.IPrintService>();
+            var settings = Services.AppSettingsStore.GetPrintSettings();
+            var lines = new List<Services.PrintLine>
+            {
+                new(1, "K1001", "روغن موتور ۲۰W-۵۰ بهران", 3, 850000, 50000, 2500000),
+                new(2, "K1002", "فیلتر روغن پراید", 5, 120000, 0, 600000),
+                new(3, "K1003", "لنت ترمز جلو", 2, 480000, 60000, 900000),
+            };
+            var data = new Services.PrintDocumentData("فاکتور فروش", "1001", "1405/03/26", "مشتری",
+                "بازرگانی پارس خودرو", lines, 4000000, 110000, 360000, 50000, 4300000, 3000000, 1300000,
+                "تسویه طیِ ۳۰ روز.");
+            var doc = ps.Build(data, settings, receipt: false);
+            // مثلِ پیش‌نمایشِ واقعی: سند داخلِ FlowDocumentScrollViewer در یک پنجره
+            var viewer = new System.Windows.Controls.FlowDocumentScrollViewer { Document = doc, FlowDirection = FlowDirection.RightToLeft };
+            var iwin = new Window { Width = 820, Height = 1123, WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                FlowDirection = FlowDirection.RightToLeft, Content = viewer };
+            iwin.Show(); await Task.Delay(900); iwin.UpdateLayout();
+            var idir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(idir);
+            var irtb = new System.Windows.Media.Imaging.RenderTargetBitmap(820, 1123, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            irtb.Render(iwin);
+            var ienc = new System.Windows.Media.Imaging.PngBitmapEncoder(); ienc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(irtb));
+            using (var ifs = System.IO.File.Create(System.IO.Path.Combine(idir, "invoice_print.png"))) ienc.Save(ifs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_LICENSE") == "1")
         {
             var lwin = new Views.Licensing.LicenseActivationWindow(

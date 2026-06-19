@@ -25,6 +25,10 @@ public interface IPrintService
 
 public class PrintService : IPrintService
 {
+    private readonly SamaHesab.Application.Common.Interfaces.IPersianCalendarService? _calendar;
+    public PrintService(SamaHesab.Application.Common.Interfaces.IPersianCalendarService? calendar = null)
+        => _calendar = calendar;
+
     private static FontFamily Vazir =>
         (FontFamily?)System.Windows.Application.Current.TryFindResource("VazirFont") ?? new FontFamily("Tahoma");
 
@@ -125,7 +129,6 @@ public class PrintService : IPrintService
             FlowDirection = FlowDirection.RightToLeft,
             FontFamily = Vazir,
             PagePadding = new Thickness(receipt ? 8 : 36),
-            ColumnWidth = double.MaxValue,
             Background = Brushes.White,
             Foreground = Brushes.Black,
             FontSize = receipt ? 11 : 12
@@ -133,6 +136,11 @@ public class PrintService : IPrintService
         if (receipt) { doc.PageWidth = 300; }   // ~80mm thermal
         else if (s.Paper == PaperKind.A5) { doc.PageWidth = 559; doc.PageHeight = 794; }
         else { doc.PageWidth = 794; doc.PageHeight = 1123; } // A4 @96dpi
+
+        // عرضِ ستونِ متن = عرضِ مفیدِ صفحه (تک‌ستونی). نبودِ این مقدار → جدولِ Star به‌هم می‌ریزد.
+        double pad = receipt ? 8 : 36;
+        double contentWidth = doc.PageWidth - 2 * pad;
+        doc.ColumnWidth = contentWidth;
 
         // header
         doc.Blocks.Add(new Paragraph(new Run(s.HeaderTitle))
@@ -154,13 +162,15 @@ public class PrintService : IPrintService
 
         // items table
         var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 6, 0, 6) };
-        double[] widths = receipt ? new double[] { 22, 100, 34, 60 } : new double[] { 36, 90, 240, 60, 70, 90 };
-        foreach (var w in widths) table.Columns.Add(new TableColumn { Width = new GridLength(w, GridUnitType.Star) });
+        double[] widths = receipt ? new double[] { 22, 100, 34, 60 } : new double[] { 30, 70, 200, 48, 80, 66, 86 };
+        double wsum = widths.Sum();
+        // پیکسلِ قطعی (نسبت‌ها روی عرضِ مفیدِ صفحه) — قابل‌اعتمادتر از Star در FlowDocument.
+        foreach (var w in widths) table.Columns.Add(new TableColumn { Width = new GridLength(w / wsum * contentWidth, GridUnitType.Pixel) });
         var head = new TableRowGroup();
         var hr = new TableRow { Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x3A, 0x5F)) };
         string[] headers = receipt
             ? new[] { "#", "کالا", "تعداد", "مبلغ" }
-            : new[] { "ردیف", "کد", "نام کالا", "مقدار", "قیمت", "مبلغ خالص" };
+            : new[] { "ردیف", "کد", "نام کالا", "تعداد", "قیمت واحد", "تخفیف", "مبلغ" };
         foreach (var h in headers) hr.Cells.Add(HeadCell(h));
         head.Rows.Add(hr);
         table.RowGroups.Add(head);
@@ -178,16 +188,35 @@ public class PrintService : IPrintService
             }
             else
             {
-                r.Cells.Add(Cell(ln.Row.ToString()));
+                r.Cells.Add(Cell(Fa(ln.Row.ToString())));
                 r.Cells.Add(Cell(ln.Code));
                 r.Cells.Add(Cell(ln.Name));
                 r.Cells.Add(Cell(Fa(ln.Qty.ToString("#,##0.##"))));
                 r.Cells.Add(Cell(Money(ln.UnitPrice), TextAlignment.Left));
+                r.Cells.Add(Cell(Money(ln.Discount), TextAlignment.Left));
                 r.Cells.Add(Cell(Money(ln.Net), TextAlignment.Left));
             }
             body.Rows.Add(r);
         }
         table.RowGroups.Add(body);
+
+        // ردیفِ جمعِ جدول (تعدادِ کل، تخفیفِ کل، مبلغِ کل) — فقط A4
+        if (!receipt && d.Lines.Count > 0)
+        {
+            TableCell B(string t, TextAlignment a = TextAlignment.Right) { var c = Cell(t, a); c.FontWeight = FontWeights.Bold; return c; }
+            var foot = new TableRowGroup();
+            var fr = new TableRow { Background = new SolidColorBrush(Color.FromRgb(0xEE, 0xF2, 0xF7)) };
+            var lbl = B($"جمع ({Fa(d.Lines.Count.ToString())} ردیف)", TextAlignment.Center);
+            lbl.ColumnSpan = 3;
+            fr.Cells.Add(lbl);
+            fr.Cells.Add(B(Fa(d.Lines.Sum(x => x.Qty).ToString("#,##0.##"))));
+            fr.Cells.Add(B("", TextAlignment.Left));
+            fr.Cells.Add(B(Money(d.Lines.Sum(x => x.Discount)), TextAlignment.Left));
+            fr.Cells.Add(B(Money(d.Lines.Sum(x => x.Net)), TextAlignment.Left));
+            foot.Rows.Add(fr);
+            table.RowGroups.Add(foot);
+        }
+
         doc.Blocks.Add(table);
 
         doc.Blocks.Add(Rule());
@@ -202,6 +231,13 @@ public class PrintService : IPrintService
         }, receipt));
         doc.Blocks.Add(new Paragraph(new Run($"مبلغ قابل پرداخت: {Money(d.GrandTotal)} ریال"))
         { FontWeight = FontWeights.Bold, FontSize = receipt ? 13 : 15, TextAlignment = TextAlignment.Left, Margin = new Thickness(0, 4, 0, 2) });
+
+        // مبلغ به حروف (در صورتِ دسترسی به سرویسِ تبدیل)
+        var words = _calendar?.NumberToWords(decimal.Truncate(d.GrandTotal));
+        if (!string.IsNullOrWhiteSpace(words))
+            doc.Blocks.Add(new Paragraph(new Run($"به حروف: {words} ریال"))
+            { FontSize = receipt ? 9 : 11, Foreground = Brushes.DimGray, Margin = new Thickness(0, 0, 0, 2) });
+
         doc.Blocks.Add(KeyVals(new[] { ("پرداختی", Money(d.Paid)), ("مانده", Money(d.Remain)) }, receipt));
 
         if (!string.IsNullOrWhiteSpace(d.Description))

@@ -477,6 +477,17 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // اجرای تعاملیِ ویزاردِ راه‌اندازی (برای تست/بازبینی) — مودال و تایپ‌پذیر، بدونِ اسکرین‌شات.
+        if (Environment.GetEnvironmentVariable("SAMA_RUN_WIZARD") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
+            var rwin = new Views.Onboarding.FirstRunWizardWindow(
+                _host.Services.GetRequiredService<ViewModels.Onboarding.FirstRunWizardViewModel>());
+            rwin.ShowDialog();
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_LICENSE") == "1")
         {
             var lwin = new Views.Licensing.LicenseActivationWindow(

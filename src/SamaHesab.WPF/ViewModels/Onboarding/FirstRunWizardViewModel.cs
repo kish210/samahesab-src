@@ -23,6 +23,7 @@ public partial class FirstRunWizardViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _user;
+    private readonly IUnitLookup _units;
 
     // شرکت
     [ObservableProperty] private string _companyName = string.Empty;
@@ -59,11 +60,11 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     /// <summary>پنجره با این رویداد خود را می‌بندد (اتمام یا «بعداً»).</summary>
     public event System.Action? Finished;
 
-    public FirstRunWizardViewModel(IMediator mediator, ICurrentUserService user,
+    public FirstRunWizardViewModel(IMediator mediator, ICurrentUserService user, IUnitLookup units,
         IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _user = user;
+        _mediator = mediator; _user = user; _units = units;
 
         // پیش‌پُر از تنظیماتِ موجود + پیشنهادِ سالِ مالیِ جاری.
         var g = AppSettingsStore.GetGeneral();
@@ -133,12 +134,13 @@ public partial class FirstRunWizardViewModel : BaseViewModel
                 if ((await _mediator.Send(new CreateWarehouseCommand(w.Name!.Trim()))).Succeeded) whN++;
 
             int kseq = 1001;
+            var defaultUnit = _units.DefaultUnitId() ?? 1;
             foreach (var p in Products.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
             {
                 var code = string.IsNullOrWhiteSpace(p.Code) ? $"K{kseq++}" : p.Code!.Trim();
                 var r = await _mediator.Send(new CreateProductCommand(
                     Code: code, Barcode: null, Name: p.Name!.Trim(), NameEn: null, GroupId: null, BrandId: null,
-                    UnitId: 1, ProductType: p.IsService ? ProductType.Service : ProductType.Product,
+                    UnitId: defaultUnit, ProductType: p.IsService ? ProductType.Service : ProductType.Product,
                     PurchasePrice: p.PurchasePrice, SalePrice: p.SalePrice,
                     WholesalePrice: p.SalePrice, ConsumerPrice: p.SalePrice,
                     MinStock: 0, MaxStock: null, HasSerial: false, HasBatch: false, HasExpiry: false,

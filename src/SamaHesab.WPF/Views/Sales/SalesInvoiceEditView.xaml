@@ -296,6 +296,8 @@
                         <Button Grid.Column="4" Style="{StaticResource PayBtn}" Content="چک" Command="{Binding SetPayCommand}" CommandParameter="چک"/>
                         <Button Grid.Column="6" Style="{StaticResource PayBtn}" Content="نسیه" Command="{Binding SetPayCommand}" CommandParameter="نسیه"/>
                     </Grid>
+                    <Button Style="{StaticResource PayBtn}" Height="28" Margin="0,4,0,0" Content="🧾 ترکیبی (نقد + کارت + نسیه)"
+                            Command="{Binding SetPayCommand}" CommandParameter="ترکیبی"/>
                     <Grid Margin="0,5,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Text="پرداختی" Foreground="{StaticResource ErpTextMuted}" FontSize="11" VerticalAlignment="Center"/>
@@ -312,6 +314,31 @@
                         <TextBlock Text="{Binding CardPaymentInfo}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
                                    Foreground="{StaticResource ErpTextMuted}"/>
                     </StackPanel>
+
+                    <!-- 🧾 POS-IR-3 — پرداختِ ترکیبی (نقد + کارت + نسیه) -->
+                    <Border Margin="0,6,0,0" Padding="9,7" Background="{StaticResource ErpAppBg}" BorderBrush="{StaticResource ErpBorder}"
+                            BorderThickness="1" CornerRadius="4"
+                            Visibility="{Binding IsMixedPayment, Converter={StaticResource BoolVis}}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="سهمِ نقد" Foreground="{StaticResource ErpTextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                                <TextBox Grid.Column="1" Style="{StaticResource ErpInput}" Height="26" Margin="5,0,0,0" FlowDirection="LeftToRight" Text="{Binding CashAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="سهمِ کارت" Foreground="{StaticResource ErpTextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                                <TextBox Grid.Column="1" Style="{StaticResource ErpInput}" Height="26" Margin="5,0,0,0" FlowDirection="LeftToRight" Text="{Binding CardAmount, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Margin="0,6,0,0" Content="💳 دریافتِ سهمِ کارت"
+                                    Command="{Binding ChargeCardShareCommand}"/>
+                            <TextBlock Margin="0,5,0,0" VerticalAlignment="Center">
+                                <Run Text="نسیه (باقیمانده): " Foreground="{StaticResource ErpTextMuted}" FontSize="11"/><Run Text="{Binding MixedCreditAmount, Converter={StaticResource Num}, Mode=OneWay}" FontWeight="Bold" Foreground="{StaticResource ErpDanger500}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding CardPaymentInfo}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                       Foreground="{StaticResource ErpTextMuted}"/>
+                        </StackPanel>
+                    </Border>
 
                     <Button Style="{StaticResource ErpBtnSuccess}" Height="42" Margin="0,7,0,0" FontSize="14" FontWeight="Bold"
                             Command="{Binding PostInvoiceCommand}" Content="✓ ثبت نهایی فاکتور — F9"/>

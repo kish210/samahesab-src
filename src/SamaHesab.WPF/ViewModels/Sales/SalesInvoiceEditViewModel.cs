@@ -80,7 +80,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     public List<ProjectItem> Projects { get; private set; } = new();
     public List<string> InvoiceTypes { get; } = new() { "فروش", "برگشت از فروش", "پیش‌فاکتور" };
     public List<string> PriceLevels { get; } = new() { "خرده", "عمده", "ویژه" };
-    public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "چک", "نسیه", "اقساط" };
+    public List<string> PaymentTypes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی", "چک", "نسیه", "اقساط" };
 
 
     /// <summary>تعدادِ کلِ اقلامِ واقعی (ردیف‌های دارای کالا) — برای نوارِ جمع.</summary>
@@ -98,7 +98,40 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     // 💳 CR-1 — نتیجهٔ پرداختِ کارت‌خوان
     [ObservableProperty] private string? _cardPaymentInfo;
     public bool IsCardPayment => PaymentType is "کارتخوان";
-    partial void OnPaymentTypeChanged(string value) => OnPropertyChanged(nameof(IsCardPayment));
+
+    // 💳 POS-IR-3 — پرداختِ ترکیبی (نقد + کارت + نسیه)
+    /// <summary>سهمِ نقدِ پرداختِ ترکیبی.</summary>
+    [ObservableProperty] private decimal _cashAmount;
+    /// <summary>سهمِ کارت‌خوانِ پرداختِ ترکیبی (با CR-1 دریافت می‌شود).</summary>
+    [ObservableProperty] private decimal _cardAmount;
+    public bool IsMixedPayment => PaymentType is "ترکیبی";
+    /// <summary>باقیماندهٔ نسیه در پرداختِ ترکیبی (فقط برای نمایش؛ منفی=اضافه‌پرداخت).</summary>
+    public decimal MixedCreditAmount => GrandTotal - CashAmount - CardAmount;
+
+    partial void OnPaymentTypeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsCardPayment));
+        OnPropertyChanged(nameof(IsMixedPayment));
+        if (value is "ترکیبی")
+        {
+            // پیش‌فرض: کلِ مبلغ نقد، کارت ۰ — کاربر تفکیک می‌کند.
+            CashAmount = GrandTotal;
+            CardAmount = 0;
+        }
+    }
+
+    partial void OnCashAmountChanged(decimal value) => SyncMixedPaid();
+    partial void OnCardAmountChanged(decimal value) => SyncMixedPaid();
+
+    /// <summary>در حالتِ ترکیبی: پرداختی = نقد + کارت؛ مابقی خودکار نسیه می‌شود.</summary>
+    private void SyncMixedPaid()
+    {
+        if (!IsMixedPayment) return;
+        if (CashAmount < 0) CashAmount = 0;
+        if (CardAmount < 0) CardAmount = 0;
+        PaidAmount = CashAmount + CardAmount;
+        OnPropertyChanged(nameof(MixedCreditAmount));
+    }
 
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         ApiClient api,
@@ -128,6 +161,23 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             // ثبتِ مرجعِ تراکنش روی فاکتور (در «ارجاع»).
             Reference = $"کارت‌خوان RRN:{res.Rrn}";
             CardPaymentInfo = $"✔ تأیید شد · پایانه {res.TerminalId} · پیگیری {res.TraceNo} · کارت {res.MaskedPan} · RRN {res.Rrn}";
+        }, "در حال ارتباط با کارت‌خوان...");
+    }
+
+    /// <summary>💳 POS-IR-3 — دریافتِ «سهمِ کارت»ِ پرداختِ ترکیبی با کارت‌خوان. اگر سهمِ کارت ۰ باشد، باقیماندهٔ مبلغ (مبلغِ کل منهای نقد) را می‌گیرد.</summary>
+    [RelayCommand]
+    private async Task ChargeCardShareAsync()
+    {
+        var amount = CardAmount > 0 ? CardAmount : GrandTotal - CashAmount;
+        if (amount <= 0) { await _dialogService.ShowWarningAsync("سهمِ کارت صفر است؛ ابتدا مبلغِ کارت یا نقد را تنظیم کنید."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _terminal.PayAsync(new SamaHesab.Application.Payments.CardPaymentRequest(amount, InvoiceNumber));
+            if (!res.Approved) { CardPaymentInfo = "❌ " + res.Message; await _dialogService.ShowErrorAsync(res.Message); return; }
+
+            CardAmount = res.Amount;                 // SyncMixedPaid → PaidAmount = نقد+کارت
+            Reference = $"ترکیبی نقد:{CashAmount:N0} کارت:{CardAmount:N0} نسیه:{MixedCreditAmount:N0} RRN:{res.Rrn}";
+            CardPaymentInfo = $"✔ سهمِ کارت تأیید شد · پایانه {res.TerminalId} · پیگیری {res.TraceNo} · کارت {res.MaskedPan} · RRN {res.Rrn}";
         }, "در حال ارتباط با کارت‌خوان...");
     }
 
@@ -413,6 +463,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         GrandTotal = SubTotal - TotalDiscount - InvoiceDiscount + TotalTax + Shipping + OtherCosts;
         if (GrandTotal < 0) GrandTotal = 0;
         RemainAmount = GrandTotal - PaidAmount;
+        OnPropertyChanged(nameof(MixedCreditAmount));   // POS-IR-3 — نسیه با تغییرِ مبلغِ کل به‌روز شود
     }
 
     /// <summary>افزودنِ ردیفِ خالیِ قابلِ‌ویرایش در گرید (سبکِ کلاسیک).</summary>
@@ -448,6 +499,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
         var ok = await _dialogService.ConfirmAsync($"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
         if (!ok) return;
+        // POS-IR-3 — در پرداختِ ترکیبی اگر ارجاع خالی است، تفکیکِ نقد/کارت/نسیه را ثبت کن.
+        if (IsMixedPayment && string.IsNullOrWhiteSpace(Reference))
+            Reference = $"ترکیبی نقد:{CashAmount:N0} کارت:{CardAmount:N0} نسیه:{MixedCreditAmount:N0}";
         await ExecuteAsync(async () =>
         {
                         var cmd = new CreateSalesInvoiceCommand(
@@ -484,7 +538,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         Reference = string.Empty; Title = string.Empty; SelectedProjectId = null;
         Description = null; DueDate = null; InvoiceItems.Clear();
         SeedEmptyRows();
-        PaidAmount = 0; RecalculateTotals();
+        PaidAmount = 0; CashAmount = 0; CardAmount = 0; CardPaymentInfo = null;
+        RecalculateTotals();
     }
 
     [RelayCommand]

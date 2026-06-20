@@ -1227,4 +1227,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 - [x] (pc) بهینه‌سازیِ «کارتابلِ تأیید» (چگالی+کیبورد): ✅ Selected + RefreshCommand + میان‌برهای Enter/Del/F5 (PreviewKeyDown، CanUserDeleteRows=False) + نوارِ عملیاتِ همیشه‌دیدنی + گریدِ فشرده (RowHeight30/یک‌درمیان) + شمارش در هدر (نوارِ پایینیِ خالی حذف) + ردیفِ اول خودکار انتخاب. رندر تأیید شد. (LoadCommand در XAMLِ قبلی ناموجود بود → دکمهٔ بروزرسانی کار نمی‌کرد؛ رفع شد.)
 
-- [~] 🚧 (pc) ارتقای «مرکزِ اعلان‌ها» به لانچ‌پدِ اکشن‌پذیر: انتخاب + Enter/دابل‌کلیک → ناوبری به منبعِ اعلان (چک/کالا/دریافتنی/انبار). فایل‌ها: AlertsViewModel.cs + AlertsView (claim).
+- [x] (pc) ارتقای «مرکزِ اعلان‌ها» به لانچ‌پدِ اکشن‌پذیر: ✅ ListBox انتخاب‌پذیر + Selected + OpenSelectedCommand + NavKey (نگاشتِ Kind→صفحه: چک→ChequeBoard، موجودی→Products، دریافتنی→Receivables، انقضا→InventoryReport). Enter/دابل‌کلیک → ناوبری؛ F5 تازه‌سازی. رندر تأیید شد.

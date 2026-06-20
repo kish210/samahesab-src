@@ -22,7 +22,7 @@
             <StackPanel>
                 <TextBlock Text="🔔 مرکزِ اعلان‌ها" FontSize="19" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryText}"/>
-                <TextBlock Text="چکِ سررسید · کسریِ موجودی · بدهیِ معوق · انقضای موجودی"
+                <TextBlock Text="چکِ سررسید · کسریِ موجودی · بدهیِ معوق · انقضای موجودی — Enter/دابل‌کلیک: باز کردنِ منبع"
                            FontSize="12" Foreground="{DynamicResource MutedText}" Margin="0,2,0,0"/>
             </StackPanel>
         </DockPanel>
@@ -51,41 +51,70 @@
             </Border>
         </StackPanel>
 
-        <!-- فهرستِ اعلان‌ها -->
+        <!-- فهرستِ اعلان‌ها (انتخاب‌پذیر + کیبورد) -->
         <Grid Grid.Row="2">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Alerts}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="0,0,0,8" CornerRadius="8" BorderThickness="1,1,5,1"
-                                    BorderBrush="{Binding Accent}" Background="{DynamicResource CardBackground}">
-                                <Grid Margin="12,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Icon}" FontSize="18"
-                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
-                                                   TextWrapping="Wrap" Foreground="{DynamicResource PrimaryText}"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                            <Border CornerRadius="4" Padding="7,1" Background="{Binding Accent}">
-                                                <TextBlock Text="{Binding KindLabel}" FontSize="11" Foreground="White"/>
-                                            </Border>
-                                            <TextBlock Text="{Binding AmountText}" FontSize="12" Margin="8,0,0,0"
-                                                       VerticalAlignment="Center" Foreground="{DynamicResource MutedText}"/>
-                                        </StackPanel>
+            <ListBox x:Name="AlertList" ItemsSource="{Binding Alerts}"
+                     SelectedItem="{Binding Selected, Mode=TwoWay}"
+                     Background="Transparent" BorderThickness="0"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     PreviewKeyDown="AlertList_PreviewKeyDown" MouseDoubleClick="AlertList_DoubleClick">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,0,0,8" CornerRadius="8" BorderThickness="1,1,5,1" Cursor="Hand"
+                                BorderBrush="{Binding Accent}" Background="{DynamicResource CardBackground}">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource SurfaceBackground}"/>
+                                            <Setter Property="BorderThickness" Value="2,2,6,2"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Margin="12,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Icon}" FontSize="18"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold"
+                                               TextWrapping="Wrap" Foreground="{DynamicResource PrimaryText}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                        <Border CornerRadius="4" Padding="7,1" Background="{Binding Accent}">
+                                            <TextBlock Text="{Binding KindLabel}" FontSize="11" Foreground="White"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding AmountText}" FontSize="12" Margin="8,0,0,0"
+                                                   VerticalAlignment="Center" Foreground="{DynamicResource MutedText}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="2" Text="{Binding SeverityText}" FontSize="11"
-                                               VerticalAlignment="Center" Foreground="{Binding Accent}" FontWeight="Bold"/>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SeverityText}" FontSize="11" Foreground="{Binding Accent}" FontWeight="Bold" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="↗ باز کردن" FontSize="10.5" Foreground="{DynamicResource MutedText}" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
             <!-- حالتِ خالی -->
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"

@@ -554,6 +554,14 @@ public partial class App : System.Windows.Application
                 .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
             var avm = _host.Services.GetRequiredService<ViewModels.Automation.AlertsViewModel>();
             await avm.LoadAsync();
+            if (avm.Alerts.Count == 0)   // اگر DB امروز اعلانی ندارد، نمونه برای بازبینیِ چیدمان
+            {
+                avm.Alerts.Add(ViewModels.Automation.AlertRow.From(new SamaHesab.Application.Automation.Alert("ChequeOverdue", SamaHesab.Application.Automation.AlertSeverity.Critical, "چکِ ۱۲۳۴ بانک ملت سررسید گذشته (۳ روز)", 5, 45000000)));
+                avm.Alerts.Add(ViewModels.Automation.AlertRow.From(new SamaHesab.Application.Automation.Alert("OverdueReceivable", SamaHesab.Application.Automation.AlertSeverity.Critical, "فاکتور F-۱۰۲۱: ماندهٔ معوقِ مشتری", 9, 12500000)));
+                avm.Alerts.Add(ViewModels.Automation.AlertRow.From(new SamaHesab.Application.Automation.Alert("LowStock", SamaHesab.Application.Automation.AlertSeverity.Warning, "روغن موتور ۲۰W-۵۰: موجودی ۲ زیرِ حداقل ۱۰", 7, 0)));
+                avm.Alerts.Add(ViewModels.Automation.AlertRow.From(new SamaHesab.Application.Automation.Alert("ExpiringSoon", SamaHesab.Application.Automation.AlertSeverity.Warning, "بچ B-۴۴ کالای دارویی: ۱۵ روز تا انقضا", 3, 0)));
+                avm.Selected = avm.Alerts[0];
+            }
             var aview = new Views.Automation.AlertsView { DataContext = avm };
             var awin = new Window { Width = 840, Height = 720, WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 FlowDirection = FlowDirection.RightToLeft, Content = aview };

@@ -28,11 +28,20 @@ public partial class AlertsViewModel : BaseViewModel
     [ObservableProperty] private int _infoCount;
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private bool _isEmpty;
+    [ObservableProperty] private AlertRow? _selected;   // برای ناوبریِ کیبوردی
 
     public AlertsViewModel(IMediator mediator, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     { _mediator = mediator; _calendar = calendar; }
+
+    /// <summary>اعلانِ انتخاب‌شده را باز کن: ناوبری به صفحهٔ منبع (چک/کالا/دریافتنی/انبار).</summary>
+    [RelayCommand]
+    private void OpenSelected()
+    {
+        var key = Selected?.NavKey;
+        if (!string.IsNullOrEmpty(key)) _navigationService.NavigateTo(key!);
+    }
 
     public override Task LoadAsync() => RefreshAsync();
 
@@ -65,6 +74,7 @@ public class AlertRow
     public string KindLabel { get; init; } = "";
     public string Title { get; init; } = "";
     public string AmountText { get; init; } = "";
+    public string NavKey { get; init; } = "";   // صفحهٔ مقصد برای «باز کردن» اعلان
 
     public static AlertRow From(Alert a)
     {
@@ -82,8 +92,19 @@ public class AlertRow
             KindLabel = KindFa(a.Kind),
             Title = a.Title,
             AmountText = a.Amount > 0 ? Fa(a.Amount.ToString("#,##0", CultureInfo.InvariantCulture)) + " ریال" : "",
+            NavKey = NavOf(a.Kind),
         };
     }
+
+    /// <summary>نگاشتِ نوعِ اعلان → کلیدِ صفحهٔ مقصد (برای ناوبری از مرکزِ اعلان‌ها).</summary>
+    private static string NavOf(string kind) => kind switch
+    {
+        "ChequeOverdue" or "ChequeDueToday"          => "ChequeBoard",   // تابلوی چک
+        "OutOfStock" or "LowStock"                    => "Products",      // مدیریت کالا
+        "OverdueReceivable" or "ReceivableDueToday"   => "Receivables",   // دریافتنی/پرداختنی
+        "Expired" or "ExpiringSoon"                    => "InventoryReport", // گزارش انبار
+        _                                              => "Dashboard",
+    };
 
     private static string KindFa(string kind) => kind switch
     {

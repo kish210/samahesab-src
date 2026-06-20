@@ -5,6 +5,9 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding LoadRecordsCommand}"/>
+    </UserControl.InputBindings>
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -48,7 +51,7 @@
         </UniformGrid>
 
         <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
-            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Records}"
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Records}" RowHeight="28" FontSize="12.5"
                                 
                                  FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>

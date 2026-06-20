@@ -5,6 +5,9 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding AddNewCommand}"/>
+    </UserControl.InputBindings>
     <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

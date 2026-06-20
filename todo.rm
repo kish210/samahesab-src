@@ -1253,3 +1253,8 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - ✅ (pc) فازِ بهینه‌سازیِ صفحاتِ lane pc تکمیل شد: کارتابلِ تأیید · تابلوی چک · مدیریت چک · دریافتنی/پرداختنی · مرکزِ اعلان‌ها · لاگِ حسابرسی · مغایرت‌گیری بانکی · نمودار حساب‌ها · درآمد/سود · داشبورد(اعلان‌ها) — همه کیبوردمحور/متراکم. (FinancialReports/VoucherEdit از قبل بهینه؛ AccountList فقط stub.)
 
 - [x] (pc) ریلیزِ **v2.5.9** روی گیت‌هاب (kish210/samahesab) ساخته شد + پرتابلِ `SamaHesab-2.5.9-portable.zip` پیوست؛ تگ روی mainِ تمیز (سورس‌زیپ تمیز). ⏳ laptop نصابِ Setup.exe (شاملِ SQL Express) را با ISCC بسازد و به همین ریلیز attach کند. بهینه‌سازیِ pc + داشبوردِ فروشندهٔ C2 + کارت‌خوان همگی در این نسخه‌اند.
+
+### پایانِ کارهای lane pc (pc @ 2026-06-20)
+- [x] (pc) بهینه‌سازیِ HR: EmployeeListView (F2 افزودن) + AttendanceView (F5 بارگذاری + چگالیِ RowHeight28). build سبز.
+- [x] (pc) **مواردِ کهنهٔ Party (خطوطِ ~۱۰۸۲–۱۰۸۷) SUPERSEDED**: با PARTY-CUTOVER (a82be2c) محقق شدند — یکپارچهٔ Crm.Parties، حذفِ جداولِ Customers/Suppliers، repointِ CustomerId/SupplierId→Party.Id، و GetPersonsQuery از Parties. (رویکردِ «افزودنِ ستونِ PartyId جدید» منسوخ شد؛ ستون‌های موجود همان FKِ Party شدند.)
+- ✅ (pc) کارهای lane pc تمام: بهینه‌سازیِ کاملِ صفحات (حسابداری/خزانه/گزارش/امنیت/HR/داشبورد) + رفعِ نصبِ SQL Express + ریلیزِ v2.5.9. باقیِ backlog یا lane لپ‌تاپ است یا deferred (کلاینتِ وب).

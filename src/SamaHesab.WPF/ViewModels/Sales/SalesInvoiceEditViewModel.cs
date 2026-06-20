@@ -235,7 +235,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var lines = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0)
             .Select((i, idx) => new PrintLine(
                 idx + 1, i.ProductCode, i.ProductName, i.Quantity, i.UnitPrice, i.DiscountAmount, i.NetAmount)).ToList();
-        return new PrintDocumentData("فاکتور فروش", InvoiceNumber, InvoiceDate, "مشتری", customerName,
+        // عنوانِ چاپ متناسب با نوعِ فاکتور (فروش/برگشت/پیش‌فاکتور).
+        var docTitle = IsReturnInvoice ? "برگشت از فروش" : IsQuotationInvoice ? "پیش‌فاکتور" : "فاکتور فروش";
+        return new PrintDocumentData(docTitle, InvoiceNumber, InvoiceDate, "مشتری", customerName,
             lines, SubTotal, TotalDiscount + InvoiceDiscount, TotalTax, Shipping, GrandTotal, PaidAmount, RemainAmount, Description);
     }
 

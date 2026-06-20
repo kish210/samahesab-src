@@ -662,12 +662,36 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     /// <summary>با انتخاب مشتری، وضعیت اعتبار (مانده/سقف) را از Application می‌خواند و نوار اطلاعات را پر می‌کند.</summary>
     partial void OnSelectedCustomerIdChanged(int value)
     {
-        if (value <= 0) { HasCustomerInfo = false; return; }
+        if (value <= 0) { HasCustomerInfo = false; RecentProducts.Clear(); return; }
         _ = LoadCustomerCreditAsync(value);
+        _ = LoadRecentProductsAsync(value);   // UX-SALES-2
         // کار #۳۹: ثبت استفاده برای فهرست «مشتریان اخیر»
         var name = Customers.FirstOrDefault(c => c.Id == value)?.Name;
         if (!string.IsNullOrWhiteSpace(name))
             _ = _mediator.Send(new SamaHesab.Application.Common.Favorites.TouchRecentItemCommand("customer", value, name!));
+    }
+
+    // UX-SALES-2 — کالاهای اخیراً خریداری‌شدهٔ مشتری (چیپ‌های افزودنِ سریع / سفارشِ مجدد).
+    public ObservableCollection<ProductSearchResult> RecentProducts { get; } = new();
+
+    private async Task LoadRecentProductsAsync(int customerId)
+    {
+        try
+        {
+            RecentProducts.Clear();
+            var items = await _mediator.Send(new SamaHesab.Application.Sales.Queries.GetCustomerRecentProductsQuery(customerId));
+            foreach (var p in items)
+                RecentProducts.Add(new ProductSearchResult(p.ProductId, p.Code, p.Name, p.Barcode, p.Price, p.TaxRate));
+        }
+        catch { /* چیپ‌های پیشنهادی نباید فرم را بشکنند */ }
+    }
+
+    /// <summary>کلیک روی چیپِ کالای اخیرِ مشتری → افزودنِ فوری به سبد.</summary>
+    [RelayCommand]
+    private async Task AddRecentProduct(ProductSearchResult? product)
+    {
+        if (product == null) return;
+        await AddToCartAsync(product);
     }
 
     private async Task LoadCustomerCreditAsync(int customerId)

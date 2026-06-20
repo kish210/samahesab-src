@@ -252,6 +252,24 @@
                         <Button Style="{StaticResource ActBtn}" Command="{Binding AddEmptyRowCommand}" Content="＋ افزودن ردیف  F7"/>
                         <Button Style="{StaticResource ActBtn}" Click="FocusBarcode_Click" Content="▮▮ بارکد"/>
                     </WrapPanel>
+
+                    <!-- UX-SALES-2 — خریدهای اخیرِ مشتری: چیپِ افزودنِ سریع (سفارشِ مجدد) -->
+                    <StackPanel Margin="0,5,0,0" Visibility="{Binding RecentProducts.Count, Converter={StaticResource GtzVis}}">
+                        <TextBlock Text="🔁 خریدهای اخیرِ این مشتری (کلیک=افزودن):" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}" Margin="2,0,0,3"/>
+                        <ItemsControl ItemsSource="{Binding RecentProducts}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource ErpBtnGhost}" Height="26" Margin="0,0,5,5" Padding="9,0" FontSize="11"
+                                            Content="{Binding Name}" ToolTip="{Binding Price, StringFormat='افزودن — فی {0:N0}'}"
+                                            Command="{Binding DataContext.AddRecentProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                     <!-- ورودِ سریعِ بارکد/کد کالا -->
                     <Grid Margin="0,7,0,0">
                         <Grid.ColumnDefinitions>

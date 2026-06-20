@@ -1210,4 +1210,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
       (ACCOUNTANT→AccountantDash، WAREHOUSE→WarehouseDash، CASHIER→PosDashboard، MANAGER→ManagerDash، بقیه→عمومی)
       با fallback امن؛ منوی «داشبورد» عمومی می‌مانَد. build سبز.
 
-- [~] 🚧 (pc) #25 مرکزِ اعلان‌ها — صفحهٔ مصرف‌کنندهٔ GetAlertsQuery/AlertEngine (چک/موجودی/بدهی/انقضا). فایل‌های جدید: AlertsViewModel/AlertsView (claim).
+- [x] (pc) #25 مرکزِ اعلان‌ها — ✅ AlertsViewModel/AlertsView (مصرف‌کنندهٔ GetAlertsQuery/AlertEngine: چک/موجودی/بدهی/انقضا) + ثبت در nav/DI/DataTemplate + زنگولهٔ پوسته به آن وصل و شمارندهٔ واقعی گرفت. رندرِ واقعیِ DB تأیید شد.

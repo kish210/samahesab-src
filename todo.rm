@@ -919,7 +919,7 @@
 - [~] ۲. دریافتنی/پرداختنی — ✅ بک‌اند: تخصیص خودکار FIFO در ثبت دریافت/پرداخت + Query فهرست بدهکاران/بستانکاران · UI فهرست و ثبت سریع مانده
 - [x] ۳. اسکن بارکد یکپارچه — ✅ `BarcodeParser`+`ResolveBarcodeQuery`+`/api/barcode/resolve` + POS متصل (کلود ۲)
 - [~] ۴. مدیریت چک — ✅ بک‌اند: تابلوی چک‌های در جریان (GetChequeBoardQuery + classifier سررسید) + ChangeChequeStatusCommand (وصول با سند خودکار/برگشت/واگذاری) · UI تابلو
-- [ ] ۵. داشبورد نقش‌محور (مدیر/حسابدار/انباردار/صندوق)
+- [x] ✅C2 ۵. داشبورد نقش‌محور (مدیر/حسابدار/انباردار/صندوق) — از قبل به‌صورتِ «کار #۹» پیاده شده و تأیید شد (@2026-06-20): `MainViewModel.PickRoleDashboard()` (خط ۲۱۵) هنگامِ ورود کاربر را بر اساسِ نقش به داشبوردِ اختصاصی می‌برد — `AccountantDash`/`ManagerDash`/`WarehouseDash`/`PosDashboard` (با fallback به داشبوردِ عمومی برای ادمین/فروش/خرید/HR). هر چهار داشبورد VM+View+کوئریِ واقعی دارند (مثلاً `PosDashboardViewModel` → `GetCashierDashboardQuery`/`GetRestaurantDashboardQuery`) و در منو هستند. کدِ تازه لازم نبود.
 - [x] ۶. مغایرت‌گیری بانکی — ✅ بک‌اند (BankReconciliation + پارسر CSV) + ✅ Query دفتر بانک + ماندگاری وضعیت تطبیق + UI (R4، کلود ۱)
 - [x] ✅C1 ۷. انبارگردانی سندی — تکمیل شد (`StockCount*` + `StockCountView`: شمارشِ گروهی + سندِ تعدیلِ مغایرت).
 

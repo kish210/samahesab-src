@@ -177,6 +177,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
             // ── Automatic accounting voucher (debit inventory, credit payable) ──
             var voucherId = await TryCreatePurchaseVoucherAsync(companyId, request, ct);
             if (voucherId.HasValue) invoice.Post(voucherId.Value);
+            else invoice.Confirm();   // کار #۵ — بدونِ چارتِ حساب هم از «پیش‌نویس» خارج شود (قطعی)
             _invoiceRepository.Update(invoice);
 
             await _unitOfWork.SaveChangesAsync(ct);

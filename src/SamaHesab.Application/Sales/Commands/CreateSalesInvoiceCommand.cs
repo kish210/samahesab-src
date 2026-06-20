@@ -235,6 +235,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             else
                 await TryCreateSalesVoucherAsync(invoice, companyId, request, ct);
 
+            // کار #۵ — اگر سندِ خودکار به‌خاطرِ نبودِ چارتِ حساب ساخته نشد، فاکتور نباید در «پیش‌نویس» بماند؛
+            // حداقل «قطعی» (Confirmed) شود تا در گزارش‌ها/تحلیل‌ها (سود/فروش) لحاظ گردد.
+            if (invoice.Status == Domain.Enums.InvoiceStatus.Draft)
+            {
+                invoice.Confirm();
+                _invoiceRepository.Update(invoice);
+            }
+
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
 

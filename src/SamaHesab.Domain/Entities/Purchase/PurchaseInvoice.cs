@@ -89,6 +89,12 @@ public class PurchaseInvoice : AuditableEntity, IBranchScoped   // MB-2: جدا�
         UpdatedAt = DateTime.Now;
     }
 
+    /// <summary>کار #۵ — نهایی‌سازیِ فاکتور بدونِ سندِ حسابداری (وقتی چارتِ حساب تنظیم نشده): از «پیش‌نویس» به «قطعی».</summary>
+    public void Confirm()
+    {
+        if (StatusCode == "پیش‌نویس") { StatusCode = "قطعی"; UpdatedAt = DateTime.Now; }
+    }
+
     public void SetVoucher(int voucherId) { VoucherId = voucherId; UpdatedAt = DateTime.Now; }
 
     public void SetReturnedFrom(int originalInvoiceId) { ReturnedFromId = originalInvoiceId; UpdatedAt = DateTime.Now; }

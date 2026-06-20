@@ -47,7 +47,9 @@ public class GetIncomeSummaryQueryHandler : IRequestHandler<GetIncomeSummaryQuer
         var companyId = _currentUser.CompanyId ?? 1;
 
         // فروشِ قطعی‌شده در بازه (خالصِ بدونِ مالیات + مالیاتِ فروش)
-        var sales = (await _sales.FindAsync(i => i.CompanyId == companyId && i.Status == InvoiceStatus.Posted, ct))
+        // قطعی = Posted (دارای سند) یا Confirmed (نهایی بدونِ سند، وقتی چارتِ حساب تنظیم نشده) — هر دو فروشِ واقعی‌اند.
+        var sales = (await _sales.FindAsync(i => i.CompanyId == companyId
+                        && (i.Status == InvoiceStatus.Posted || i.Status == InvoiceStatus.Confirmed), ct))
             .Where(i => (req.BranchId == null || i.BranchId == req.BranchId) && InRange(i.InvoiceDate, req.FromDate, req.ToDate))
             .ToList();
 

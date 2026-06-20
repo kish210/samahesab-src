@@ -136,6 +136,7 @@ public partial class App : System.Windows.Application
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();
                 services.AddTransient<DashboardViewModel>();
+                services.AddTransient<ViewModels.Automation.AlertsViewModel>();   // کار #۲۵ — مرکزِ اعلان‌ها
                 services.AddTransient<VoucherListViewModel>();
                 services.AddTransient<VoucherEditViewModel>();
                 services.AddTransient<ChartOfAccountsViewModel>();
@@ -521,6 +522,25 @@ public partial class App : System.Windows.Application
             irtb.Render(iwin);
             var ienc = new System.Windows.Media.Imaging.PngBitmapEncoder(); ienc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(irtb));
             using (var ifs = System.IO.File.Create(System.IO.Path.Combine(idir, "invoice_print.png"))) ienc.Save(ifs);
+            Shutdown(); return;
+        }
+
+        // رندرِ مرکزِ اعلان‌ها با دادهٔ واقعیِ DB (بازبینیِ کار #۲۵).
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_ALERTS") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
+            var avm = _host.Services.GetRequiredService<ViewModels.Automation.AlertsViewModel>();
+            await avm.LoadAsync();
+            var aview = new Views.Automation.AlertsView { DataContext = avm };
+            var awin = new Window { Width = 840, Height = 720, WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                FlowDirection = FlowDirection.RightToLeft, Content = aview };
+            awin.Show(); await Task.Delay(800); awin.UpdateLayout();
+            var adir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(adir);
+            var artb = new System.Windows.Media.Imaging.RenderTargetBitmap(840, 720, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            artb.Render(awin);
+            var aenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); aenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(artb));
+            using (var afs = System.IO.File.Create(System.IO.Path.Combine(adir, "alerts.png"))) aenc.Save(afs);
             Shutdown(); return;
         }
 

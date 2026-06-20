@@ -114,6 +114,7 @@ public partial class MainViewModel : BaseViewModel
         _pages = new Dictionary<string, (string, Func<IServiceProvider, BaseViewModel>)>
         {
             ["Dashboard"]       = ("داشبورد",            sp => sp.GetRequiredService<DashboardViewModel>()),
+            ["Alerts"]          = ("مرکزِ اعلان‌ها",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Automation.AlertsViewModel>()),   // کار #۲۵
             ["Vouchers"]        = ("اسناد حسابداری",      sp => sp.GetRequiredService<VoucherListViewModel>()),
             ["VoucherEdit"]     = ("ثبت سند",             sp => sp.GetRequiredService<VoucherEditViewModel>()),
             ["ChartOfAccounts"] = ("نمودار حساب‌ها",      sp => sp.GetRequiredService<ChartOfAccountsViewModel>()),
@@ -212,6 +213,21 @@ public partial class MainViewModel : BaseViewModel
         TodayPersianDate = _calendar.GetCurrentPersianDate();
         RaiseAccessFlags();   // منوها بر اساس مجوزِ کاربرِ واردشده
         await NavigateToAsync(PickRoleDashboard());   // کار #۹ — ورودِ اولیه به داشبوردِ متناسب با نقش
+        await RefreshNotificationCountAsync();         // کار #۲۵ — شمارندهٔ واقعیِ زنگوله
+    }
+
+    /// <summary>کار #۲۵ — تعدادِ اعلان‌های فعال برای بَجِ زنگوله (best-effort؛ نباید پوسته را بشکند).</summary>
+    private async Task RefreshNotificationCountAsync()
+    {
+        try
+        {
+            var mediator = _services.GetService<MediatR.IMediator>();
+            if (mediator is null) return;
+            var alerts = await mediator.Send(
+                new SamaHesab.Application.Automation.Queries.GetAlertsQuery(_calendar.GetCurrentPersianDate()));
+            NotificationCount = alerts.Count;
+        }
+        catch { /* بَج نباید پوسته را بشکند */ }
     }
 
     /// <summary>
@@ -356,7 +372,8 @@ public partial class MainViewModel : BaseViewModel
         System.Windows.Application.Current.Shutdown();
     }
 
-    [RelayCommand] private async Task ShowNotificationsAsync() => await _dialogService.ShowInfoAsync($"{NotificationCount} اعلان جدید دارید.");
+    // کار #۲۵ — زنگولهٔ اعلان → بازکردنِ مرکزِ اعلان‌ها.
+    [RelayCommand] private async Task ShowNotificationsAsync() => await NavigateToAsync("Alerts");
     [RelayCommand] private async Task ShowMessagesAsync() => await _dialogService.ShowInfoAsync($"{MessageCount} پیام جدید دارید.");
     [RelayCommand] private async Task OpenCalculatorAsync()
     {

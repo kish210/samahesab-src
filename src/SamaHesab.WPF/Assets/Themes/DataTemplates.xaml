@@ -26,7 +26,12 @@
                     xmlns:sec="clr-namespace:SamaHesab.WPF.ViewModels.Security"
                     xmlns:vsec="clr-namespace:SamaHesab.WPF.Views.Security"
                     xmlns:sup="clr-namespace:SamaHesab.WPF.ViewModels.Support"
-                    xmlns:vsup="clr-namespace:SamaHesab.WPF.Views.Support">
+                    xmlns:vsup="clr-namespace:SamaHesab.WPF.Views.Support"
+                    xmlns:auto="clr-namespace:SamaHesab.WPF.ViewModels.Automation"
+                    xmlns:vauto="clr-namespace:SamaHesab.WPF.Views.Automation">
+
+    <!-- کار #۲۵ — مرکزِ اعلان‌ها -->
+    <DataTemplate DataType="{x:Type auto:AlertsViewModel}"><vauto:AlertsView/></DataTemplate>
 
     <!-- 🆘 HC-1 — مرکزِ پشتیبانی -->
     <DataTemplate DataType="{x:Type sup:HelpCenterViewModel}"><vsup:HelpCenterView/></DataTemplate>

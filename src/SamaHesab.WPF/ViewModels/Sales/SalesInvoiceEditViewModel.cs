@@ -105,6 +105,15 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     /// <summary>سهمِ کارت‌خوانِ پرداختِ ترکیبی (با CR-1 دریافت می‌شود).</summary>
     [ObservableProperty] private decimal _cardAmount;
     public bool IsMixedPayment => PaymentType is "ترکیبی";
+
+    // 🔁 مرجوعی (برگشت از فروش) — برچسبِ دکمهٔ ثبت متناسب می‌شود.
+    public bool IsReturnInvoice => InvoiceType == "برگشت از فروش";
+    public string PostButtonText => IsReturnInvoice ? "↩ ثبت برگشت از فروش — F9" : "✓ ثبت نهایی فاکتور — F9";
+    partial void OnInvoiceTypeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsReturnInvoice));
+        OnPropertyChanged(nameof(PostButtonText));
+    }
     /// <summary>باقیماندهٔ نسیه در پرداختِ ترکیبی (فقط برای نمایش؛ منفی=اضافه‌پرداخت).</summary>
     public decimal MixedCreditAmount => GrandTotal - CashAmount - CardAmount;
 
@@ -498,10 +507,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
 
+        var isReturn = InvoiceType == "برگشت از فروش";
+
         // 🛡 کنترلِ سقفِ اعتبارِ مشتری: سهمِ نسیهٔ این فاکتور (نپرداخته) به ماندهٔ بدهی افزوده می‌شود.
         // سقف۰ = نامحدود؛ فقط وقتی اطلاعاتِ اعتبار بارگذاری شده و سقف معنادار است کنترل می‌کنیم.
+        // در مرجوعی کنترلِ سقف لازم نیست (مرجوعی ماندهٔ بدهی را کاهش می‌دهد).
         var creditPortion = RemainAmount > 0 ? RemainAmount : 0;
-        if (HasCustomerInfo && !CustomerUnlimitedCredit && CustomerCreditLimit > 0 && creditPortion > 0)
+        if (!isReturn && HasCustomerInfo && !CustomerUnlimitedCredit && CustomerCreditLimit > 0 && creditPortion > 0)
         {
             var projected = CustomerBalance + creditPortion;
             if (projected > CustomerCreditLimit)
@@ -517,6 +529,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                     $"با مسئولیتِ خود ادامه می‌دهید؟");
                 if (!pass) return;
             }
+        }
+
+        // 🔁 مسیرِ مرجوعی (برگشت از فروش): به CreateSalesReturnCommand می‌رود نه فروشِ معمول.
+        if (isReturn)
+        {
+            await PostSalesReturnAsync(realItems);
+            return;
         }
 
         var ok = await _dialogService.ConfirmAsync($"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
@@ -548,6 +567,29 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             if (result.Succeeded) { await _dialogService.ShowSuccessAsync("فاکتور فروش ثبت شد."); NewInvoice(); }
             else await _dialogService.ShowErrorAsync(result.ErrorMessage);
         }, "در حال ثبت فاکتور...");
+    }
+
+    /// <summary>ثبتِ «برگشت از فروش»: بازگشتِ موجودی + سندِ معکوس. بازپرداختِ نقدی اگر روشِ پرداخت نقدی باشد.</summary>
+    private async Task PostSalesReturnAsync(List<SalesInvoiceItemRow> realItems)
+    {
+        var refundCash = PaymentType is "نقدی" or "کارتخوان";
+        var ok = await _dialogService.ConfirmAsync(
+            $"برگشت از فروش به مبلغِ {GrandTotal:N0} ریال ثبت شود؟\n" +
+            (refundCash ? "(بازپرداختِ نقدی)" : "(کاهشِ ماندهٔ بدهیِ مشتری)"));
+        if (!ok) return;
+        await ExecuteAsync(async () =>
+        {
+            var cmd = new CreateSalesReturnCommand(
+                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                Date: InvoiceDate, CustomerId: SelectedCustomerId, WarehouseId: SelectedWarehouseId,
+                Items: realItems.Select(i => new SalesReturnItemDto(
+                    i.ProductId, i.Quantity, i.UnitPrice, i.TaxPct)).ToList(),
+                Description: string.IsNullOrWhiteSpace(Description) ? "برگشت از فروش" : Description,
+                RefundCash: refundCash);
+            var result = await _mediator.Send(cmd);
+            if (result.Succeeded) { await _dialogService.ShowSuccessAsync("برگشت از فروش ثبت شد."); NewInvoice(); }
+            else await _dialogService.ShowErrorAsync(result.ErrorMessage);
+        }, "در حال ثبت برگشت از فروش...");
     }
 
     [RelayCommand]

@@ -44,6 +44,9 @@
                 <!-- نوار اکشن + عنوانِ فاکتور -->
                 <DockPanel Margin="0,0,0,7">
                     <TextBlock Text="فاکتور فروش" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpBlue700}" VerticalAlignment="Center"/>
+                    <ComboBox Height="28" Width="130" Margin="10,0,0,0" VerticalAlignment="Center"
+                              ItemsSource="{Binding InvoiceTypes}" SelectedItem="{Binding InvoiceType}"
+                              ToolTip="نوع فاکتور — «برگشت از فروش» مرجوعی ثبت می‌کند"/>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
                         <Button Style="{StaticResource ErpBtnGhost}" Height="30" Padding="10,0" Command="{Binding NewInvoiceCommand}">
                             <StackPanel Orientation="Horizontal">
@@ -341,7 +344,7 @@
                     </Border>
 
                     <Button Style="{StaticResource ErpBtnSuccess}" Height="42" Margin="0,7,0,0" FontSize="14" FontWeight="Bold"
-                            Command="{Binding PostInvoiceCommand}" Content="✓ ثبت نهایی فاکتور — F9"/>
+                            Command="{Binding PostInvoiceCommand}" Content="{Binding PostButtonText}"/>
                 </StackPanel>
             </Grid>
         </Border>

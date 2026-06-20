@@ -28,6 +28,8 @@ public partial class ReceivablesViewModel : BaseViewModel
 
     [ObservableProperty] private decimal _totalReceivable;
     [ObservableProperty] private decimal _totalPayable;
+    [ObservableProperty] private ReceivableDto? _selectedReceivable;   // برای میان‌برهای کیبورد
+    [ObservableProperty] private PayableDto? _selectedPayable;
 
     public ReceivablesViewModel(IMediator mediator, ICurrentUserService user,
         IPersianCalendarService calendar, IBarcodeService barcode,
@@ -47,8 +49,18 @@ public partial class ReceivablesViewModel : BaseViewModel
             Payables.Clear(); foreach (var p in pay) Payables.Add(p);
             TotalReceivable = recv.Sum(r => r.Balance);
             TotalPayable = pay.Sum(p => p.Balance);
+            SelectedReceivable = Receivables.FirstOrDefault();   // انتخابِ خودکار برای کارِ کیبوردی
+            SelectedPayable = Payables.FirstOrDefault();
         }, "در حال بارگیری مطالبات...");
     }
+
+    [RelayCommand] private Task RefreshAsync() => LoadAsync();
+
+    // میان‌برهای کیبورد روی ردیفِ انتخاب‌شدهٔ هر گرید (Enter=کامل · Ctrl+Enter=مبلغِ دلخواه).
+    [RelayCommand] private Task ReceiveFullSelectedAsync() => ReceiveFullAsync(SelectedReceivable);
+    [RelayCommand] private Task ReceiveCustomSelectedAsync() => ReceiveCustomAsync(SelectedReceivable);
+    [RelayCommand] private Task PayFullSelectedAsync() => PayFullAsync(SelectedPayable);
+    [RelayCommand] private Task PayCustomSelectedAsync() => PayCustomAsync(SelectedPayable);
 
     [RelayCommand]
     private Task ReceiveFullAsync(ReceivableDto? r)

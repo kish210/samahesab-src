@@ -156,6 +156,42 @@
                     <Button Grid.Column="0" Style="{StaticResource QaBtn}" Content="🧾 تسویه حساب" Command="{Binding ReceiptCommand}"/>
                     <Button Grid.Column="2" Style="{StaticResource QaBtn}" Content="🧾 چک‌های مشتری"/>
                 </Grid>
+
+                <!-- 📊 تحلیلِ خرید — پرخریدترین کالاها + روندِ ماهانه (داده از GetCustomerAnalyticsQuery) -->
+                <Border Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Padding="13,11" Margin="0,10,0,0"
+                        Visibility="{Binding HasData, Converter={StaticResource BoolVis}}">
+                    <StackPanel>
+                        <TextBlock Text="📊 تحلیلِ خرید" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ErpBlue700}"/>
+
+                        <TextBlock Text="پرخریدترین کالاها" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,9,0,3"/>
+                        <ItemsControl ItemsSource="{Binding TopProducts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{StaticResource ErpTextStrong}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Total, Converter={StaticResource Num}}" FontSize="11" FontWeight="SemiBold" FlowDirection="LeftToRight" Margin="6,0,0,0" Foreground="{StaticResource ErpBlue700}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="روندِ ماهانهٔ خرید (امسال)" FontSize="11" Foreground="{StaticResource ErpTextMuted}" Margin="0,11,0,3"/>
+                        <ItemsControl ItemsSource="{Binding MonthlyTrend}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Period}" FontSize="10" FlowDirection="LeftToRight" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" HorizontalAlignment="Left" Height="12" CornerRadius="3"
+                                                Background="{StaticResource ErpBlue700}" Width="{Binding BarWidth}"
+                                                ToolTip="{Binding Total, Converter={StaticResource Num}}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
             <!-- ── ستون اصلی ── -->

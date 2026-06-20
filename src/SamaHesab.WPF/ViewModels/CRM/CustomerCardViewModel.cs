@@ -53,6 +53,11 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private decimal _chequeInProgress;  // R16/کارِ۱۰: مجموعِ چکِ دریافتیِ در جریانِ مشتری
     [ObservableProperty] private string? _lastInvoiceDate;
 
+    // ── تحلیل خرید (روند ماهانه + پرخریدترین کالاها) ──
+    public ObservableCollection<TopProductRow> TopProducts { get; } = new();
+    public ObservableCollection<TrendBar> MonthlyTrend { get; } = new();
+    [ObservableProperty] private string? _firstInvoiceDate;
+
     // ── گردش حساب ──
     public ObservableCollection<LedgerRow> Ledger { get; } = new();
     [ObservableProperty] private decimal _ledgerTotalDebit;
@@ -135,6 +140,22 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             InvoiceCount = an.InvoiceCount;
             AveragePerInvoice = an.AveragePerInvoice;
             LastInvoiceDate = an.LastInvoiceDate;
+            FirstInvoiceDate = an.FirstInvoiceDate;
+
+            // پرخریدترین کالاها (۵ تای برتر بر اساسِ مبلغ)
+            TopProducts.Clear();
+            foreach (var p in an.TopProducts.Take(5))
+                TopProducts.Add(new TopProductRow(p.Name, p.Total, p.LineCount));
+
+            // روندِ ماهانهٔ خرید — عرضِ نوار نسبت به بیشترین ماه (حداکثر ۱۱۰px).
+            MonthlyTrend.Clear();
+            var maxMonth = an.MonthlyTrend.Count == 0 ? 0m : an.MonthlyTrend.Max(t => t.Total);
+            foreach (var t in an.MonthlyTrend)
+            {
+                var width = maxMonth <= 0 ? 0d : (double)(t.Total / maxMonth) * 110d;
+                if (width is > 0 and < 3) width = 3;   // حداقلِ دیداری
+                MonthlyTrend.Add(new TrendBar(t.Period, t.Total, t.Count, width));
+            }
 
             // گردش حساب
             Ledger.Clear();
@@ -277,3 +298,9 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
 /// <summary>ردیف گردش حساب مشتری (برای گرید کارت ۳۶۰°).</summary>
 public record LedgerRow(string Date, string DocNumber, string Description,
     decimal Debit, decimal Credit, decimal Balance, string Side);
+
+/// <summary>ردیفِ پرخریدترین کالاهای مشتری (تحلیل خرید).</summary>
+public record TopProductRow(string Name, decimal Total, int LineCount);
+
+/// <summary>ماهِ روندِ خرید + عرضِ نوار (px) برای نمودارِ میله‌ای ساده.</summary>
+public record TrendBar(string Period, decimal Total, int Count, double BarWidth);

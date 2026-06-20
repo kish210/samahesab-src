@@ -305,6 +305,14 @@
                         </TextBlock>
                     </Grid>
 
+                    <!-- 💳 CR-1 — دریافت با کارت‌خوانِ بانکی (فقط وقتی روشِ پرداخت «کارتخوان» است) -->
+                    <StackPanel Margin="0,6,0,0" Visibility="{Binding IsCardPayment, Converter={StaticResource BoolVis}}">
+                        <Button Style="{StaticResource ErpBtnPrimary}" Height="32" Content="💳 دریافت با کارت‌خوان"
+                                Command="{Binding ChargeCardCommand}"/>
+                        <TextBlock Text="{Binding CardPaymentInfo}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                   Foreground="{StaticResource ErpTextMuted}"/>
+                    </StackPanel>
+
                     <Button Style="{StaticResource ErpBtnSuccess}" Height="42" Margin="0,7,0,0" FontSize="14" FontWeight="Bold"
                             Command="{Binding PostInvoiceCommand}" Content="✓ ثبت نهایی فاکتور — F9"/>
                 </StackPanel>

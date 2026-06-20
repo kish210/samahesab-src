@@ -33,6 +33,7 @@ public static class AppSettingsStore
         public Dictionary<string, bool>? Modules { get; set; }
         public GeneralSettings? General { get; set; }
         public SupportSettings? Support { get; set; }   // 🆘 HC-2
+        public PaymentTerminalSettings? PaymentTerminal { get; set; }   // 💳 CR-1
     }
 
     private static Model Load()
@@ -130,6 +131,16 @@ public static class AppSettingsStore
     }
 
     /// <summary>🆘 HC-2 — تنظیماتِ اتصال به سرورِ پشتیبانیِ وردپرس (کلید-API).</summary>
+    /// <summary>💳 CR-1 — تنظیماتِ کارت‌خوانِ بانکی.</summary>
+    public static PaymentTerminalSettings GetPaymentTerminal() => Load().PaymentTerminal ?? new PaymentTerminalSettings();
+
+    public static void SavePaymentTerminal(PaymentTerminalSettings s)
+    {
+        var m = Load();
+        m.PaymentTerminal = s;
+        Save(m);
+    }
+
     public static SupportSettings GetSupport() => Load().Support ?? new SupportSettings();
 
     public static void SaveSupport(SupportSettings s)
@@ -204,5 +215,15 @@ public class SupportSettings
     public string CustomerId { get; set; } = "";                    // شناسهٔ مشتری (از پنلِ پشتیبانی)
     public string ApiKey { get; set; } = "";                        // کلیدِ API
     public string LicenseId { get; set; } = "";                     // شناسهٔ لایسنس
+}
+
+/// <summary>💳 CR-1 — تنظیماتِ کارت‌خوانِ بانکی (POS). درایورِ واقعیِ هر PSP بعداً وصل می‌شود.</summary>
+public class PaymentTerminalSettings
+{
+    public bool Enabled { get; set; }                       // کارت‌خوان فعال است؟
+    public string Driver { get; set; } = "simulator";       // درایور: simulator | behpardakht | sep | parsian | …
+    public string TerminalId { get; set; } = "";            // شناسهٔ پایانه
+    public string Port { get; set; } = "";                  // درگاهِ سریال (COMx) یا IP:Port
+    public int TimeoutSeconds { get; set; } = 60;
 }
 

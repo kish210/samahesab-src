@@ -123,6 +123,10 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<Services.LicenseService>();   // فاز ۱۲ P-G7 — رانتایمِ لایسنس
                 services.AddSingleton<Services.DiagnosticsCollector>();   // 🆘 HC-1 — عکسِ تشخیصیِ سیستم
                 services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, Services.SupportApiClient>();   // 🆘 HC-2
+                // 💳 CR-1 — کارت‌خوانِ بانکی: فعلاً درایورِ شبیه‌ساز (نقطهٔ توسعه برای PSPِ واقعی).
+                services.AddSingleton<SamaHesab.Application.Payments.IPaymentTerminalService>(
+                    _ => new SamaHesab.Application.Payments.SimulatedPaymentTerminal(
+                        Services.AppSettingsStore.GetPaymentTerminal().TerminalId));
                 services.AddTransient<ViewModels.Support.HelpCenterViewModel>();   // 🆘 HC-1
                 services.AddTransient<ViewModels.Support.DiagnosticsViewModel>();  // 🆘 HC-1
                 services.AddTransient<ViewModels.Support.BugReportViewModel>();    // 🆘 HC-3

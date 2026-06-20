@@ -88,22 +88,47 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     private readonly IPrintService _printService;
     private readonly IBarcodeService _barcode;   // L6 — تصویرِ QR برای چاپِ قالبی
+    private readonly SamaHesab.Application.Payments.IPaymentTerminalService _terminal;   // 💳 CR-1
 
     /// <summary>موجودیِ انبارِ انتخابی به‌ازای هر کالا (OPT-5: نمایشِ موجودی هنگام فروش).</summary>
     private Dictionary<int, decimal> _onHand = new();
     /// <summary>موجودیِ کالایِ نوارِ ورود (کالای انتخاب/اسکن‌شده).</summary>
     [ObservableProperty] private decimal _entryOnHand;
 
+    // 💳 CR-1 — نتیجهٔ پرداختِ کارت‌خوان
+    [ObservableProperty] private string? _cardPaymentInfo;
+    public bool IsCardPayment => PaymentType is "کارتخوان";
+    partial void OnPaymentTypeChanged(string value) => OnPropertyChanged(nameof(IsCardPayment));
+
     public SalesInvoiceEditViewModel(IMediator mediator, ICurrentUserService currentUser,
         ApiClient api,
         IDialogService dialogService,
         INavigationService navigationService, IPersianCalendarService calendar,
-        IPrintService printService, IBarcodeService barcode)
+        IPrintService printService, IBarcodeService barcode,
+        SamaHesab.Application.Payments.IPaymentTerminalService terminal)
         : base(dialogService, navigationService)
     {
         _mediator = mediator; _currentUser = currentUser;
         _api = api; _calendar = calendar;
-        _printService = printService; _barcode = barcode;
+        _printService = printService; _barcode = barcode; _terminal = terminal;
+    }
+
+    /// <summary>💳 CR-1 — دریافتِ مبلغِ فاکتور با کارت‌خوانِ بانکی؛ در صورتِ تأیید، پرداختی پر و RRN ثبت می‌شود.</summary>
+    [RelayCommand]
+    private async Task ChargeCardAsync()
+    {
+        if (GrandTotal <= 0) { await _dialogService.ShowWarningAsync("مبلغِ فاکتور صفر است."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _terminal.PayAsync(new SamaHesab.Application.Payments.CardPaymentRequest(GrandTotal, InvoiceNumber));
+            if (!res.Approved) { CardPaymentInfo = "❌ " + res.Message; await _dialogService.ShowErrorAsync(res.Message); return; }
+
+            PaidAmount = res.Amount;
+            RemainAmount = GrandTotal - res.Amount;
+            // ثبتِ مرجعِ تراکنش روی فاکتور (در «ارجاع»).
+            Reference = $"کارت‌خوان RRN:{res.Rrn}";
+            CardPaymentInfo = $"✔ تأیید شد · پایانه {res.TerminalId} · پیگیری {res.TraceNo} · کارت {res.MaskedPan} · RRN {res.Rrn}";
+        }, "در حال ارتباط با کارت‌خوان...");
     }
 
     /// <summary>OPT-5: بارگذاریِ موجودیِ انبارِ انتخابی (productId→qty). 🏛️ کلاینت→API، دسکتاپ→Application.</summary>

@@ -116,3 +116,6 @@ telerik-license.txt
 # Build/publish artifacts for installers
 /dist/
 /installer/Output/
+
+# مخزنِ سورسِ خصوصی (clone محلی — نباید درون این مخزن باشد)
+samahesab-src/

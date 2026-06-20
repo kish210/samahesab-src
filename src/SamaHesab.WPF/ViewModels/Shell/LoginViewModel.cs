@@ -119,17 +119,8 @@ public partial class LoginViewModel : ObservableObject
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,
                 fullName, roles, permissions);
 
-            // فاز ۱۲ G3 — اولین اجرا: ویزاردِ راه‌اندازیِ اولیه (یک‌بار) پیش از ورود به پوسته.
-            if (!Services.AppSettingsStore.GetGeneral().SetupCompleted)
-            {
-                try
-                {
-                    var wiz = new Views.Onboarding.FirstRunWizardWindow(
-                        App.GetService<Onboarding.FirstRunWizardViewModel>());
-                    wiz.ShowDialog();
-                }
-                catch { /* ویزارد نباید مانعِ ورود شود */ }
-            }
+            // یادداشت: ویزاردِ راه‌اندازیِ اولیه از این‌جا حذف شد و حالا **پیش از لاگین** (در App.OnStartup) اجرا می‌شود
+            //   تا کاربر اطلاعاتِ شرکت/دادهٔ پایه را قبل از ورود وارد کند (یک‌بار، بر اساسِ SetupCompleted).
 
             // فاز ۱۲ P-G7 — گیتِ لایسنس: اگر تریال منقضی/لایسنس نامعتبر بود، پنجرهٔ فعال‌سازی (مسدودکننده).
             try

@@ -1273,3 +1273,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc) DT-8 سخت‌سازیِ مارکت‌پلیسِ قالب — ✅ از قبل: DocumentTemplatePackageValidator (فرمت/نسخه/نوع/نام/بدنه) در هر دو مسیرِ واردات.
 - [x] (pc) گزارشِ per-branch — ✅ از قبل: BranchReport (VM/View) + BranchPerformanceDto + IBranchScoped (جداسازیِ شعبه). افزودنِ BranchId به دادهٔ پایه عمداً انجام نشد (دادهٔ پایه شرکت‌محور است، نه شعبه‌محور).
 - ✅ نتیجه: **کلِ کارِ فعالِ lane pc تمام است.** باقیِ موارد یا lane لپ‌تاپ‌اند یا deferred (وب/موبایل).
+
+- [x] (pc) انتقالِ ویزاردِ راه‌اندازیِ اولیه به **پیش از لاگین**: از LoginViewModel (بعدِ لاگین) برداشته شد و در App.OnStartup (بعدِ بوت‌استرپِ DB + بررسیِ آپدیت، پیش از LoginWindow) با gateِ !SetupCompleted اجرا می‌شود — با زمینهٔ موقتِ ادمین/شرکت۱ تا عملیاتِ DBِ ویزارد کار کند. یک‌بار (SetupCompleted). smoke-test: ویزارد قبل از login آمد (login/main=۰). build سبز.

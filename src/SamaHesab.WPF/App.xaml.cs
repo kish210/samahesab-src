@@ -1049,6 +1049,24 @@ public partial class App : System.Windows.Application
         // ─── به‌روزرسانیِ خودکار از GitHub (فقط حالا که سیستم بیکار است، پیش از ورود) ──
         if (await CheckForUpdateAsync()) return;   // اگر کاربر به‌روزرسانی را پذیرفت، نصاب اجرا و اپ بسته می‌شود
 
+        // ─── ویزاردِ راه‌اندازیِ اولیه — یک‌بار، **پیش از لاگین** ───
+        //   کاربر اطلاعاتِ شرکت + سالِ مالی + دادهٔ پایه (انبار/کالا/مشتری) + رمزِ ادمین را وارد می‌کند،
+        //   سپس به صفحهٔ ورود می‌رود. (DB در همین OnStartup قبلاً بوت‌استرپ و ادمین seed شده است.)
+        if (!Services.AppSettingsStore.GetGeneral().SetupCompleted)
+        {
+            try
+            {
+                // زمینهٔ موقتِ ادمینِ پیش‌فرض (شرکت/کاربر/شعبهٔ ۱) تا عملیاتِ DBِ ویزارد
+                // (سالِ مالی، دادهٔ پایه، تغییرِ رمزِ ادمین) با CompanyId/UserId معتبر اجرا شود.
+                ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                    .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
+                new Views.Onboarding.FirstRunWizardWindow(
+                    _host.Services.GetRequiredService<ViewModels.Onboarding.FirstRunWizardViewModel>())
+                    .ShowDialog();
+            }
+            catch (Exception ex) { Log.Warning(ex, "ویزاردِ راه‌اندازیِ اولیه (پیش از لاگین) اجرا نشد"); }
+        }
+
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();
     }

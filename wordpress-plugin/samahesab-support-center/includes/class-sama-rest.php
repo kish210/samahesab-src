@@ -38,6 +38,11 @@ class SamaHesab_REST {
             'callback'            => array( $this, 'create_ticket' ),
             'permission_callback' => $perm,
         ) );
+        register_rest_route( SAMAHESAB_SC_NS, '/remote', array(
+            'methods'             => 'POST',
+            'callback'            => array( $this, 'create_remote' ),
+            'permission_callback' => $perm,
+        ) );
         register_rest_route( SAMAHESAB_SC_NS, '/releases', array(
             'methods'             => 'GET',
             'callback'            => array( $this, 'list_releases' ),
@@ -123,6 +128,22 @@ class SamaHesab_REST {
             array(
                 'category' => isset( $b['Category'] ) ? intval( $b['Category'] ) : 10,
                 'status'   => 1, // باز
+            ),
+            $request
+        );
+    }
+
+    public function create_remote( $request ) {
+        $b = $request->get_json_params();
+        return $this->insert( 'samahesab_remote',
+            isset( $b['Code'] ) ? $b['Code'] : 'نشستِ ریموت',
+            isset( $b['Note'] ) ? $b['Note'] : '',
+            array(
+                'tool'        => isset( $b['Tool'] ) ? $b['Tool'] : 'rustdesk',
+                'connect_id'  => isset( $b['ConnectId'] ) ? $b['ConnectId'] : '',
+                'requested_by'=> isset( $b['RequestedBy'] ) ? $b['RequestedBy'] : '',
+                'diag'        => isset( $b['DiagnosticsJson'] ) ? $b['DiagnosticsJson'] : '',
+                'status'      => 0, // در انتظار
             ),
             $request
         );

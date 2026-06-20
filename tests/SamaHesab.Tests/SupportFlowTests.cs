@@ -64,6 +64,7 @@ public class SupportFlowTests
         public Task<Result<IReadOnlyList<ReleaseDto>>> GetReleasesAsync(CancellationToken ct = default) => Task.FromResult(Result<IReadOnlyList<ReleaseDto>>.Failure("x"));
         public Task<Result<IReadOnlyList<ArticleDto>>> GetArticlesAsync(string? s, CancellationToken ct = default) => Task.FromResult(Result<IReadOnlyList<ArticleDto>>.Failure("x"));
         public Task<Result<RemoteStatusDto>> GetStatusAsync(string id, CancellationToken ct = default) => Task.FromResult(Result<RemoteStatusDto>.Failure("x"));
+        public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto d, CancellationToken ct = default) => Task.FromResult(Result<string>.Failure("x"));
     }
 
     [Fact]
@@ -168,11 +169,13 @@ public class SupportFlowTests
     public async Task Generate_And_End_Remote_Session()
     {
         var repo = new Repo<RemoteSupportSession>();
-        var gen = new GenerateSupportCodeCommandHandler(repo, new Uow(), new User());
-        var res = await gen.Handle(new GenerateSupportCodeCommand("بررسیِ گزارش", 30), default);
+        var gen = new GenerateSupportCodeCommandHandler(repo, new Uow(), new User(), new OfflineApi());
+        var res = await gen.Handle(new GenerateSupportCodeCommand("بررسیِ گزارش", "123456789", 30), default);
 
         Assert.True(res.Succeeded);
         Assert.Equal("در انتظار", res.Value!.StatusText);
+        Assert.Equal("123456789", res.Value.ConnectId);   // HC-6b — شناسهٔ RustDesk حفظ شد
+        Assert.Equal("در صفِ ارسال", res.Value.SyncText);  // آفلاین → صف
         Assert.Single(repo.Items);
 
         var end = new EndRemoteSessionCommandHandler(repo, new Uow());

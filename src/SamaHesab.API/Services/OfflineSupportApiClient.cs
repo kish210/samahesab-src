@@ -26,4 +26,6 @@ public sealed class OfflineSupportApiClient : ISupportApiClient
         => Task.FromResult(Result<IReadOnlyList<ArticleDto>>.Success(System.Array.Empty<ArticleDto>()));
     public Task<Result<RemoteStatusDto>> GetStatusAsync(string remoteId, CancellationToken ct = default)
         => Task.FromResult(Result<RemoteStatusDto>.Failure(Msg));
+    public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default)
+        => Task.FromResult(Result<string>.Failure(Msg));
 }

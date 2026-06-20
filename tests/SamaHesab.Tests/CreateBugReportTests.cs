@@ -67,6 +67,7 @@ public class CreateBugReportTests
         public Task<Result<IReadOnlyList<ReleaseDto>>> GetReleasesAsync(CancellationToken ct = default) => Task.FromResult(Result<IReadOnlyList<ReleaseDto>>.Failure("n/a"));
         public Task<Result<IReadOnlyList<ArticleDto>>> GetArticlesAsync(string? s, CancellationToken ct = default) => Task.FromResult(Result<IReadOnlyList<ArticleDto>>.Failure("n/a"));
         public Task<Result<RemoteStatusDto>> GetStatusAsync(string id, CancellationToken ct = default) => Task.FromResult(Result<RemoteStatusDto>.Failure("n/a"));
+        public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto d, CancellationToken ct = default) => Task.FromResult(Result<string>.Failure("n/a"));
     }
 
     private static CreateBugReportCommand Cmd() => new(

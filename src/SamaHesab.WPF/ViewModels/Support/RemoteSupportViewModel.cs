@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
@@ -10,8 +12,10 @@ using SamaHesab.WPF.ViewModels.Shell;
 namespace SamaHesab.WPF.ViewModels.Support;
 
 /// <summary>
-/// 🆘 HC-6 — پشتیبانیِ ریموت: تولیدِ «کدِ پشتیبانیِ» یک‌بارمصرف برای کارشناس + ثبتِ نشست و لاگ.
-/// (بدونِ کنترلِ ریموتِ واقعی — کد/نشست/لاگ برای هماهنگی و ردگیری.)
+/// 🆘 HC-6b — پشتیبانیِ ریموت با RustDesk:
+/// مشتری «کدِ پشتیبانی» + «شناسهٔ RustDesk» را می‌سازد؛ نشست به سرورِ vendor (وردپرس) ثبت می‌شود
+/// تا کارشناس در داشبورد ببیند. سپس کارشناس با RustDesk به شناسهٔ مشتری وصل می‌شود (کد = تأییدِ هویت).
+/// کنترلِ صفحه با خودِ RustDesk (متن‌باز، قابلِ self-host) انجام می‌شود — نه بازسازیِ آن.
 /// </summary>
 public partial class RemoteSupportViewModel : BaseViewModel
 {
@@ -20,6 +24,7 @@ public partial class RemoteSupportViewModel : BaseViewModel
 
     [ObservableProperty] private string? _currentCode;
     [ObservableProperty] private string _note = string.Empty;
+    [ObservableProperty] private string _rustDeskId = string.Empty;   // شناسهٔ RustDeskِ مشتری
     [ObservableProperty] private RemoteSessionDto? _selected;
     [ObservableProperty] private string? _infoMessage;
 
@@ -32,7 +37,11 @@ public partial class RemoteSupportViewModel : BaseViewModel
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService) { _mediator = mediator; _collector = collector; }
 
-    public override Task LoadAsync() => RefreshAsync();
+    public override Task LoadAsync()
+    {
+        TryDetectRustDeskId();   // اگر RustDesk نصب است، شناسه را خودکار پر کن
+        return RefreshAsync();
+    }
 
     [RelayCommand]
     private async Task RefreshAsync()
@@ -47,28 +56,34 @@ public partial class RemoteSupportViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            var res = await _mediator.Send(new GenerateSupportCodeCommand(string.IsNullOrWhiteSpace(Note) ? null : Note.Trim()));
+            // عکسِ تشخیصی (فقط دادهٔ فنی) برای کارشناس همراهِ درخواست.
+            string? diagJson = null;
+            try { diagJson = JsonSerializer.Serialize(await _collector.CollectAsync()); } catch { }
+
+            var res = await _mediator.Send(new GenerateSupportCodeCommand(
+                string.IsNullOrWhiteSpace(Note) ? null : Note.Trim(),
+                string.IsNullOrWhiteSpace(RustDeskId) ? null : RustDeskId.Trim(),
+                60, diagJson));
             if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
 
             CurrentCode = res.Value!.Code;
-            InfoMessage = $"این کد را به کارشناسِ پشتیبانی بدهید. تا {res.Value.ExpiresAt:HH:mm} معتبر است.";
+            InfoMessage = res.Value.Message + $"  (معتبر تا {res.Value.ExpiresAt:HH:mm})";
 
-            // لاگِ نشست (فقط دادهٔ فنی) را روی دیسک ذخیره می‌کنیم.
+            // لاگِ نشست را هم محلی ذخیره می‌کنیم (شاملِ شناسهٔ RustDesk).
             try
             {
                 var info = await _collector.CollectAsync();
                 var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SamaHesab", "پشتیبانی");
                 Directory.CreateDirectory(dir);
-                var path = Path.Combine(dir, $"session_{res.Value.Code}.txt");
-                await File.WriteAllTextAsync(path,
-                    $"نشستِ پشتیبانیِ {res.Value.Code}\nشروع: {DateTime.Now:yyyy-MM-dd HH:mm}\nیادداشت: {Note}\n\n{info.ToReportText()}",
+                await File.WriteAllTextAsync(Path.Combine(dir, $"session_{res.Value.Code}.txt"),
+                    $"نشستِ پشتیبانیِ {res.Value.Code}\nشروع: {DateTime.Now:yyyy-MM-dd HH:mm}\nشناسهٔ RustDesk: {RustDeskId}\nیادداشت: {Note}\n\n{info.ToReportText()}",
                     new System.Text.UTF8Encoding(true));
             }
-            catch { /* لاگ best-effort است */ }
+            catch { /* best-effort */ }
 
             Note = string.Empty;
             await RefreshAsync();
-        }, "در حال تولیدِ کدِ پشتیبانی...");
+        }, "در حال ساختِ درخواستِ پشتیبانی...");
     }
 
     [RelayCommand]
@@ -76,6 +91,20 @@ public partial class RemoteSupportViewModel : BaseViewModel
     {
         if (string.IsNullOrEmpty(CurrentCode)) return;
         try { System.Windows.Clipboard.SetText(CurrentCode); } catch { }
+    }
+
+    /// <summary>بازکردنِ RustDesk (اگر نصب است) وگرنه صفحهٔ دانلود.</summary>
+    [RelayCommand]
+    private void OpenRustDesk()
+    {
+        var exe = FindRustDesk();
+        try
+        {
+            if (exe is not null) Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+            else Process.Start(new ProcessStartInfo("https://rustdesk.com/") { UseShellExecute = true });
+        }
+        catch { }
+        TryDetectRustDeskId();
     }
 
     [RelayCommand]
@@ -88,5 +117,36 @@ public partial class RemoteSupportViewModel : BaseViewModel
         await _mediator.Send(new EndRemoteSessionCommand(session.Id, File.Exists(logPath) ? logPath : null));
         if (CurrentCode == session.Code) CurrentCode = null;
         await RefreshAsync();
+    }
+
+    // ── RustDesk helpers ──
+    private static string? FindRustDesk()
+    {
+        foreach (var p in new[]
+        {
+            @"C:\Program Files\RustDesk\rustdesk.exe",
+            @"C:\Program Files (x86)\RustDesk\rustdesk.exe",
+        })
+            if (File.Exists(p)) return p;
+        return null;
+    }
+
+    /// <summary>تلاش برای خواندنِ خودکارِ شناسهٔ RustDeskِ این دستگاه (`rustdesk --get-id`).</summary>
+    private void TryDetectRustDeskId()
+    {
+        if (!string.IsNullOrWhiteSpace(RustDeskId)) return;
+        var exe = FindRustDesk();
+        if (exe is null) return;
+        try
+        {
+            var psi = new ProcessStartInfo(exe, "--get-id")
+            { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true };
+            using var p = Process.Start(psi);
+            if (p is null) return;
+            var id = p.StandardOutput.ReadToEnd().Trim();
+            p.WaitForExit(3000);
+            if (!string.IsNullOrWhiteSpace(id) && id.All(char.IsDigit)) RustDeskId = id;
+        }
+        catch { /* best-effort */ }
     }
 }

@@ -25,6 +25,7 @@ class SamaHesab_CPT {
             'samahesab_feature' => array( 'درخواستِ قابلیت', 'درخواست‌های قابلیت', 'dashicons-lightbulb' ),
             'samahesab_release' => array( 'یادداشتِ نسخه', 'یادداشت‌های نسخه', 'dashicons-update' ),
             'samahesab_article' => array( 'مقالهٔ دانشنامه', 'دانشنامه', 'dashicons-book' ),
+            'samahesab_remote'  => array( 'نشستِ ریموت', 'پشتیبانیِ ریموت', 'dashicons-desktop' ),
         );
     }
 

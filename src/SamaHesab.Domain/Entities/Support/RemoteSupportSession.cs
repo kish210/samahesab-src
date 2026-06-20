@@ -13,14 +13,21 @@ public class RemoteSupportSession : AuditableEntity
     public RemoteSessionStatus Status { get; private set; } = RemoteSessionStatus.Pending;
     public string? RequestedBy { get; private set; }
     public string? Note { get; private set; }
+    /// <summary>HC-6b — شناسهٔ ابزارِ ریموتِ مشتری (AnyDesk/RustDesk) که کارشناس با آن وصل می‌شود.</summary>
+    public string? ConnectId { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? EndedAt { get; private set; }
     public DateTime ExpiresAt { get; private set; }
     public string? LogPath { get; private set; }
 
+    // HC-6b — ثبت روی سرورِ vendor (وردپرس) تا کارشناس درخواست را ببیند.
+    public SyncState Sync { get; private set; } = SyncState.Local;
+    public string? RemoteId { get; private set; }
+
     private RemoteSupportSession() { }
 
-    public static RemoteSupportSession Open(int companyId, string code, string? requestedBy, string? note, int validMinutes = 60)
+    public static RemoteSupportSession Open(int companyId, string code, string? requestedBy, string? note,
+        int validMinutes = 60, string? connectId = null)
     {
         if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("کدِ پشتیبانی الزامی است.");
         return new RemoteSupportSession
@@ -29,9 +36,19 @@ public class RemoteSupportSession : AuditableEntity
             Code = code.Trim(),
             RequestedBy = requestedBy,
             Note = note,
+            ConnectId = string.IsNullOrWhiteSpace(connectId) ? null : connectId.Trim(),
             ExpiresAt = DateTime.Now.AddMinutes(validMinutes <= 0 ? 60 : validMinutes),
         };
     }
+
+    /// <summary>HC-6b — پس از ثبتِ موفق روی vendor.</summary>
+    public void MarkSynced(string remoteId)
+    {
+        RemoteId = remoteId;
+        Sync = SyncState.Synced;
+    }
+
+    public void MarkQueued() => Sync = SyncState.Queued;
 
     public void Activate()
     {

@@ -430,6 +430,8 @@ public class ApplicationDbContext : DbContext
             b.Property(x => x.Code).IsRequired().HasMaxLength(40);
             b.Property(x => x.RequestedBy).HasMaxLength(120);
             b.Property(x => x.LogPath).HasMaxLength(400);
+            b.Property(x => x.ConnectId).HasMaxLength(80);   // HC-6b — شناسهٔ RustDesk
+            b.Property(x => x.RemoteId).HasMaxLength(60);
             b.HasIndex(x => new { x.CompanyId, x.Code }).IsUnique();
         });
 

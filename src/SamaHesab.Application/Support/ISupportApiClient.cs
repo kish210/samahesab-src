@@ -23,6 +23,9 @@ public interface ISupportApiClient
 
     /// <summary>وضعیتِ یک تیکت/گزارشِ ارسال‌شده را از سرور می‌خواند (برای «درخواست‌های من»).</summary>
     Task<Result<RemoteStatusDto>> GetStatusAsync(string remoteId, CancellationToken ct = default);
+
+    /// <summary>🆘 HC-6b — ثبتِ نشستِ پشتیبانیِ ریموت روی سرورِ vendor تا کارشناس آن را ببیند و وصل شود.</summary>
+    Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default);
 }
 
 /// <summary>کلید-APIِ نصبِ ERP (از تنظیماتِ پشتیبانی خوانده می‌شود).</summary>
@@ -54,3 +57,7 @@ public sealed record ArticleDto(string RemoteId, string Title, int Category,
     string? Summary, string? Body, string? Url, string Kind, DateTime? PublishedAt);
 
 public sealed record RemoteStatusDto(string RemoteId, int Status, string? StatusText, DateTime? UpdatedAt);
+
+/// <summary>🆘 HC-6b — درخواستِ نشستِ ریموت برای vendor. Tool = ابزارِ ریموت (پیش‌فرض «rustdesk»)؛ ConnectId = شناسهٔ ابزار.</summary>
+public sealed record RemoteSessionSubmitDto(
+    string Code, string? RequestedBy, string? Note, string Tool, string? ConnectId, string? DiagnosticsJson);

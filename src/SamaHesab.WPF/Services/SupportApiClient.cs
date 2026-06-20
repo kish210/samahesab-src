@@ -63,6 +63,9 @@ public sealed class SupportApiClient : ISupportApiClient
     public Task<Result<string>> SubmitTicketAsync(TicketSubmitDto dto, CancellationToken ct = default)
         => PostForIdAsync("/ticket", dto, ct);
 
+    public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default)
+        => PostForIdAsync("/remote", dto, ct);   // 🆘 HC-6b — ثبتِ نشستِ ریموت روی vendor
+
     public async Task<Result<IReadOnlyList<ReleaseDto>>> GetReleasesAsync(CancellationToken ct = default)
     {
         var o = Options();

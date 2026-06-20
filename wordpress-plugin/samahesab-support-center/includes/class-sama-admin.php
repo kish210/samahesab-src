@@ -15,6 +15,31 @@ class SamaHesab_Admin {
     public function hooks() {
         add_action( 'admin_menu', array( $this, 'menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
+        // 🆘 HC-6b — ستون‌های فهرستِ پشتیبانیِ ریموت (کد/شناسهٔ RustDesk/مشتری).
+        add_filter( 'manage_samahesab_remote_posts_columns', array( $this, 'remote_columns' ) );
+        add_action( 'manage_samahesab_remote_posts_custom_column', array( $this, 'remote_column' ), 10, 2 );
+    }
+
+    public function remote_columns( $cols ) {
+        return array(
+            'cb'         => isset( $cols['cb'] ) ? $cols['cb'] : '',
+            'title'      => 'کدِ پشتیبانی',
+            'sh_connect' => 'شناسهٔ RustDesk',
+            'sh_tool'    => 'ابزار',
+            'sh_cust'    => 'مشتری / درخواست‌کننده',
+            'date'       => 'تاریخ',
+        );
+    }
+
+    public function remote_column( $col, $post_id ) {
+        if ( 'sh_connect' === $col ) {
+            $id = get_post_meta( $post_id, 'sh_connect_id', true );
+            echo $id ? '<code>' . esc_html( $id ) . '</code>' : '—';
+        } elseif ( 'sh_tool' === $col ) {
+            echo esc_html( get_post_meta( $post_id, 'sh_tool', true ) ?: 'rustdesk' );
+        } elseif ( 'sh_cust' === $col ) {
+            echo esc_html( get_post_meta( $post_id, 'sh_customer_id', true ) . ' · ' . get_post_meta( $post_id, 'sh_requested_by', true ) );
+        }
     }
 
     public function menu() {

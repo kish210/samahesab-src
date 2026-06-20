@@ -4,7 +4,7 @@ Tags: support, helpdesk, tickets, bug-report, erp
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 License: GPLv2 or later
 
 مرکزِ پشتیبانی و بازخوردِ سما حساب برای وردپرس — دریافتِ گزارشِ باگ/درخواستِ قابلیت/تیکت از نصب‌های ERP،
@@ -30,6 +30,7 @@ License: GPLv2 or later
 * `POST /bug`              — ثبتِ گزارشِ باگ → `{ "Id": "<شناسه>" }`
 * `POST /feature`          — ثبتِ درخواستِ قابلیت → `{ "Id": "..." }`
 * `POST /ticket`           — ثبتِ تیکت → `{ "Id": "..." }`
+* `POST /remote`           — ثبتِ نشستِ پشتیبانیِ ریموت (کد + شناسهٔ RustDesk) → `{ "Id": "..." }`
 * `GET  /releases`         — فهرستِ یادداشت‌های نسخه
 * `GET  /articles?search=` — جست‌وجوی دانشنامه
 * `GET  /status/<id>`      — وضعیتِ یک رکورد
@@ -49,6 +50,9 @@ License: GPLv2 or later
 4. کلید/شناسهٔ مشتری/آدرسِ سایت را در «تنظیماتِ پشتیبانیِ» سما حساب وارد کنید.
 
 == Changelog ==
+
+= 1.3.0 =
+* پشتیبانیِ ریموت با RustDesk: CPTِ `samahesab_remote` + endpointِ `POST /remote` (کد + شناسهٔ RustDesk + اطلاعاتِ فنی) + ستون‌های فهرستِ ادمین (کد/شناسهٔ RustDesk/مشتری) تا کارشناس درخواست را ببیند و وصل شود.
 
 = 1.2.2 =
 * رفعِ ناخوانایی روی تم‌های تیره: بخشِ معرفی حالا **خودبسنده** است — پس‌زمینهٔ سفید، فونتِ صریحِ Vazirmatn، رنگ‌های ثابتِ خوانا (مستقل از رنگ/فونتِ تمِ سایت). حذفِ `color-mix`.

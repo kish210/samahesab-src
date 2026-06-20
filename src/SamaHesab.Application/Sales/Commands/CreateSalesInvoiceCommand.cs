@@ -230,9 +230,10 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             }
 
             // ── Automatic accounting voucher ──
+            // پیش‌فاکتور (Quotation)/حواله سندِ مالی نمی‌سازند؛ فقط فروش و برگشت از فروش.
             if (request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
                 await TryCreateSalesReturnVoucherAsync(invoice, companyId, request, ct);
-            else
+            else if (request.InvoiceType == Domain.Enums.InvoiceType.Sale)
                 await TryCreateSalesVoucherAsync(invoice, companyId, request, ct);
 
             // کار #۵ — اگر سندِ خودکار به‌خاطرِ نبودِ چارتِ حساب ساخته نشد، فاکتور نباید در «پیش‌نویس» بماند؛

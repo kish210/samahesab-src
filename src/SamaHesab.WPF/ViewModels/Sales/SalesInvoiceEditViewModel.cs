@@ -106,12 +106,16 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [ObservableProperty] private decimal _cardAmount;
     public bool IsMixedPayment => PaymentType is "ترکیبی";
 
-    // 🔁 مرجوعی (برگشت از فروش) — برچسبِ دکمهٔ ثبت متناسب می‌شود.
+    // 🔁 مرجوعی (برگشت از فروش) / 📄 پیش‌فاکتور — برچسبِ دکمهٔ ثبت متناسب می‌شود.
     public bool IsReturnInvoice => InvoiceType == "برگشت از فروش";
-    public string PostButtonText => IsReturnInvoice ? "↩ ثبت برگشت از فروش — F9" : "✓ ثبت نهایی فاکتور — F9";
+    public bool IsQuotationInvoice => InvoiceType == "پیش‌فاکتور";
+    public string PostButtonText => IsReturnInvoice ? "↩ ثبت برگشت از فروش — F9"
+        : IsQuotationInvoice ? "📄 ثبت پیش‌فاکتور — F9"
+        : "✓ ثبت نهایی فاکتور — F9";
     partial void OnInvoiceTypeChanged(string value)
     {
         OnPropertyChanged(nameof(IsReturnInvoice));
+        OnPropertyChanged(nameof(IsQuotationInvoice));
         OnPropertyChanged(nameof(PostButtonText));
     }
     /// <summary>باقیماندهٔ نسیه در پرداختِ ترکیبی (فقط برای نمایش؛ منفی=اضافه‌پرداخت).</summary>
@@ -508,12 +512,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
 
         var isReturn = InvoiceType == "برگشت از فروش";
+        var isQuote = InvoiceType == "پیش‌فاکتور";
 
         // 🛡 کنترلِ سقفِ اعتبارِ مشتری: سهمِ نسیهٔ این فاکتور (نپرداخته) به ماندهٔ بدهی افزوده می‌شود.
         // سقف۰ = نامحدود؛ فقط وقتی اطلاعاتِ اعتبار بارگذاری شده و سقف معنادار است کنترل می‌کنیم.
-        // در مرجوعی کنترلِ سقف لازم نیست (مرجوعی ماندهٔ بدهی را کاهش می‌دهد).
+        // در مرجوعی/پیش‌فاکتور کنترلِ سقف لازم نیست (مرجوعی بدهی را کم می‌کند؛ پیش‌فاکتور اثرِ مالی ندارد).
         var creditPortion = RemainAmount > 0 ? RemainAmount : 0;
-        if (!isReturn && HasCustomerInfo && !CustomerUnlimitedCredit && CustomerCreditLimit > 0 && creditPortion > 0)
+        if (!isReturn && !isQuote && HasCustomerInfo && !CustomerUnlimitedCredit && CustomerCreditLimit > 0 && creditPortion > 0)
         {
             var projected = CustomerBalance + creditPortion;
             if (projected > CustomerCreditLimit)
@@ -538,7 +543,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
             return;
         }
 
-        var ok = await _dialogService.ConfirmAsync($"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
+        var ok = await _dialogService.ConfirmAsync(isQuote
+            ? $"پیش‌فاکتور به مبلغِ {GrandTotal:N0} ریال ثبت شود؟ (بدونِ خروجِ موجودی و سندِ مالی)"
+            : $"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
         if (!ok) return;
         // POS-IR-3 — در پرداختِ ترکیبی اگر ارجاع خالی است، تفکیکِ نقد/کارت/نسیه را ثبت کن.
         if (IsMixedPayment && string.IsNullOrWhiteSpace(Reference))
@@ -548,7 +555,8 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                         var cmd = new CreateSalesInvoiceCommand(
                 BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
                 InvoiceDate: InvoiceDate, CustomerId: SelectedCustomerId,
-                WarehouseId: SelectedWarehouseId, InvoiceType: Domain.Enums.InvoiceType.Sale,
+                WarehouseId: SelectedWarehouseId,
+                InvoiceType: isQuote ? Domain.Enums.InvoiceType.Quotation : Domain.Enums.InvoiceType.Sale,
                 PriceLevel: PriceLevel,
                 SalesRepId: CommissionPercent > 0 ? (_currentUser.UserId ?? 1) : (int?)null,
                 DueDate: DueDate, Description: Description,
@@ -557,16 +565,16 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
                     i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct,
                     string.IsNullOrWhiteSpace(i.Description) ? null : i.Description, null, null)).ToList(),
                 InvoiceDiscount: InvoiceDiscount,
-                PaidAmount: PaidAmount,
+                PaidAmount: isQuote ? 0 : PaidAmount,   // پیش‌فاکتور پرداختی ثبت نمی‌کند
                 PaymentMethod: PaymentType,
                 CommissionPercent: CommissionPercent,
                 Reference: string.IsNullOrWhiteSpace(Reference) ? null : Reference,
                 Title: string.IsNullOrWhiteSpace(Title) ? null : Title,
                 ProjectId: SelectedProjectId);
             var result = await _mediator.Send(cmd);
-            if (result.Succeeded) { await _dialogService.ShowSuccessAsync("فاکتور فروش ثبت شد."); NewInvoice(); }
+            if (result.Succeeded) { await _dialogService.ShowSuccessAsync(isQuote ? "پیش‌فاکتور ثبت شد." : "فاکتور فروش ثبت شد."); NewInvoice(); }
             else await _dialogService.ShowErrorAsync(result.ErrorMessage);
-        }, "در حال ثبت فاکتور...");
+        }, isQuote ? "در حال ثبت پیش‌فاکتور..." : "در حال ثبت فاکتور...");
     }
 
     /// <summary>ثبتِ «برگشت از فروش»: بازگشتِ موجودی + سندِ معکوس. بازپرداختِ نقدی اگر روشِ پرداخت نقدی باشد.</summary>

@@ -51,7 +51,14 @@ public partial class CustomerListViewModel : BaseViewModel
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private void NewCustomer() => _navigationService.NavigateTo("CustomerEdit");
-    [RelayCommand] private void EditCustomer() { }
+
+    /// <summary>UX-CRM-EDIT — ویرایشِ مشتریِ انتخاب‌شده (پیش‌تر no-op بود).</summary>
+    [RelayCommand]
+    private void EditCustomer(CustomerListItem? c)
+    {
+        var item = c ?? SelectedCustomer;
+        if (item != null) _navigationService.NavigateTo("CustomerEdit", item.Id);
+    }
 
     /// <summary>CC-5 — کارتِ ۳۶۰°ِ مشتریِ انتخاب‌شده (راست‌کلیک/دابل‌کلیک).</summary>
     [RelayCommand]

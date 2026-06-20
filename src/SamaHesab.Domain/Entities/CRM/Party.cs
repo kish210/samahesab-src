@@ -79,6 +79,14 @@ public class Party : AuditableEntity
     { NationalCode = nationalCode; EconomicCode = economicCode; if (notes != null) Notes = notes; SetAudit(null); }
     public void SetCreditTerms(decimal creditLimit, int creditDays, string priceLevel, decimal discount)
     { CreditLimit = creditLimit; CreditDays = creditDays; if (!string.IsNullOrWhiteSpace(priceLevel)) PriceLevel = priceLevel; Discount = discount; SetAudit(null); }
+    /// <summary>UX-CRM-EDIT — به‌روزرسانیِ مشخصاتِ پایهٔ ویرایش (نام/نوع/کدپستی/رابط/ویزیتور).</summary>
+    public void EditCore(string partyType, string? firstName, string? lastName, string? companyName,
+        string? postalCode, string? contactPerson, string? visitor)
+    {
+        if (!string.IsNullOrWhiteSpace(partyType)) PartyType = partyType;
+        FirstName = firstName; LastName = lastName; CompanyName = companyName;
+        PostalCode = postalCode; ContactPerson = contactPerson; Visitor = visitor; SetAudit(null);
+    }
     public void UpdateBalance(decimal amount) { Balance = amount; SetAudit(null); }
     public void Deactivate() { IsActive = false; SetAudit(null); }
     public void Activate() { IsActive = true; SetAudit(null); }

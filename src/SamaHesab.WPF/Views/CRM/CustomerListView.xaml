@@ -46,6 +46,9 @@
                         <MenuItem Header="👤 کارتِ مشتری (۳۶۰°)"
                                   Command="{Binding PlacementTarget.DataContext.OpenCardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                   CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <MenuItem Header="✏ ویرایشِ مشتری"
+                                  Command="{Binding PlacementTarget.DataContext.EditCustomerCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>

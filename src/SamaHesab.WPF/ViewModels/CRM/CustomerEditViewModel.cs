@@ -9,7 +9,7 @@ using SamaHesab.WPF.ViewModels.Shell;
 namespace SamaHesab.WPF.ViewModels.CRM;
 
 /// <summary>ویرایش/ساختِ مشتری — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application (CreateCustomerCommand). بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class CustomerEditViewModel : BaseViewModel
+public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IPersianCalendarService _calendar;
@@ -56,12 +56,28 @@ public partial class CustomerEditViewModel : BaseViewModel
         : base(dialogService, navigationService)
     { _currentUser = currentUser; _calendar = calendar; _mediator = mediator; _api = api; }
 
+    /// <summary>UX-CRM-EDIT — بازکردنِ فرم برای ویرایشِ مشتریِ مشخص (Param=Id از فهرست).</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is int id && id > 0) { EditingId = id; await LoadAsync(); }
+    }
+
     public override async Task LoadAsync()
     {
         Groups = new List<CustomerGroupItem> { new(1,"مشتریان عادی"), new(2,"مشتریان طلایی"), new(3,"عمده‌فروشان") };
         OnPropertyChanged(nameof(Groups));
-        if (!IsEditing) Code = "C" + DateTime.Now.ToString("yyMMddHH");
-        await Task.CompletedTask;
+        if (!IsEditing) { Code = "C" + DateTime.Now.ToString("yyMMddHH"); return; }
+
+        // UX-CRM-EDIT — بارگذاریِ فیلدهای مشتری برای ویرایش (دسکتاپ→Application).
+        var dto = await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetCustomerForEditQuery(EditingId));
+        if (dto == null) return;
+        Code = dto.Code; CustomerType = dto.CustomerType;
+        FirstName = dto.FirstName; LastName = dto.LastName; CompanyName = dto.CompanyName;
+        NationalCode = dto.NationalCode; EconomicCode = dto.EconomicCode;
+        Phone = dto.Phone; Mobile = dto.Mobile; Email = dto.Email;
+        Province = dto.Province; City = dto.City; Address = dto.Address; PostalCode = dto.PostalCode;
+        CreditLimit = dto.CreditLimit; CreditDays = dto.CreditDays; PriceLevel = dto.PriceLevel; Discount = dto.Discount;
+        Notes = dto.Notes; ContactPerson = dto.ContactPerson; Visitor = dto.Visitor;
     }
 
     partial void OnCustomerTypeChanged(string value) { IsPersonal = value == "حقیقی"; IsCompany = value == "حقوقی"; }
@@ -87,18 +103,29 @@ public partial class CustomerEditViewModel : BaseViewModel
         {
             try
             {
-                // 🏛️ مسیرِ نوشتن: کلاینت→API، دسکتاپ→Application (کامندِ مشترک).
-                var cmd = new CreateCustomerCommand(Code, CustomerType, FirstName, LastName, CompanyName,
-                    Phone, Mobile, Email, Province, City, Address, PostalCode,
-                    CreditLimit, CreditDays, PriceLevel, Discount,
-                    NationalCode, EconomicCode, GroupId, Notes, ContactPerson, Visitor, BirthDate);
-
                 bool ok; string? err = null;
-                if (!string.IsNullOrWhiteSpace(_api.BaseUrl)) (ok, err) = await _api.CreateCustomerAsync(cmd);
-                else { var r = await _mediator.Send(cmd); ok = r.Succeeded; err = r.ErrorMessage; }
+                if (IsEditing)
+                {
+                    // UX-CRM-EDIT — به‌روزرسانیِ مشتریِ موجود (نه ساختِ تکراری).
+                    var ucmd = new UpdateCustomerCommand(EditingId, CustomerType, FirstName, LastName, CompanyName,
+                        Phone, Mobile, Email, Province, City, Address, PostalCode,
+                        CreditLimit, CreditDays, PriceLevel, Discount,
+                        NationalCode, EconomicCode, Notes, ContactPerson, Visitor);
+                    var r = await _mediator.Send(ucmd); ok = r.Succeeded; err = r.ErrorMessage;
+                }
+                else
+                {
+                    // 🏛️ مسیرِ نوشتن: کلاینت→API، دسکتاپ→Application (کامندِ مشترک).
+                    var cmd = new CreateCustomerCommand(Code, CustomerType, FirstName, LastName, CompanyName,
+                        Phone, Mobile, Email, Province, City, Address, PostalCode,
+                        CreditLimit, CreditDays, PriceLevel, Discount,
+                        NationalCode, EconomicCode, GroupId, Notes, ContactPerson, Visitor, BirthDate);
+                    if (!string.IsNullOrWhiteSpace(_api.BaseUrl)) (ok, err) = await _api.CreateCustomerAsync(cmd);
+                    else { var r = await _mediator.Send(cmd); ok = r.Succeeded; err = r.ErrorMessage; }
+                }
 
                 if (!ok) { await _dialogService.ShowErrorAsync("خطا در ذخیره مشتری: " + err); return; }
-                await _dialogService.ShowSuccessAsync("مشتری با موفقیت ذخیره شد.");
+                await _dialogService.ShowSuccessAsync(IsEditing ? "مشتری به‌روزرسانی شد." : "مشتری با موفقیت ذخیره شد.");
                 _navigationService.NavigateTo("Customers");
             }
             catch (Exception ex)

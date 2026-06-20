@@ -274,10 +274,18 @@ public partial class App : System.Windows.Application
                                       || (DateTime.UtcNow - last).TotalDays >= System.Math.Max(1, g.BackupIntervalDays);
                             if (due)
                             {
-                                await scope.ServiceProvider.GetRequiredService<IBackupService>().AutoBackupAsync();
+                                var bkFile = await scope.ServiceProvider.GetRequiredService<IBackupService>().AutoBackupAsync();
                                 g.LastBackupUtc = DateTime.UtcNow.ToString("o");
                                 Services.AppSettingsStore.SaveGeneral(g);
                                 Log.Information("[backup] پشتیبانِ خودکار اجرا شد.");
+
+                                // ☁ کپیِ خودکار در پوشهٔ Google Drive (در صورتِ تنظیم) — تکمیلِ بکاپِ ابری.
+                                try
+                                {
+                                    var dest = Services.CloudBackup.CopyIfConfigured(bkFile);
+                                    if (dest != null) Log.Information("[backup] نسخهٔ ابری در Google Drive: {Dest}", dest);
+                                }
+                                catch (Exception cex) { Log.Warning(cex, "[backup] کپیِ ابریِ بکاپِ خودکار ناموفق بود"); }
                             }
                         }
                     }

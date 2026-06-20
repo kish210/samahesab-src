@@ -53,16 +53,13 @@ public partial class BackupViewModel : BaseViewModel
     }
 
     /// <summary>کپیِ فایلِ بکاپ در پوشهٔ ابری (Google Drive for Desktop) در صورتِ تنظیم. پیامِ نتیجه را برمی‌گرداند.</summary>
-    private string CopyToCloud(string backupFile)
+    private static string CopyToCloud(string backupFile)
     {
-        var folder = (CloudBackupPath ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(folder)) return "";
+        if (!CloudBackup.IsConfigured) return "";
         try
         {
-            System.IO.Directory.CreateDirectory(folder);
-            var dest = System.IO.Path.Combine(folder, System.IO.Path.GetFileName(backupFile));
-            System.IO.File.Copy(backupFile, dest, overwrite: true);
-            return $"\n☁ نسخهٔ ابری (Google Drive): {dest}";
+            var dest = CloudBackup.CopyIfConfigured(backupFile);
+            return dest != null ? $"\n☁ نسخهٔ ابری (Google Drive): {dest}" : "";
         }
         catch (System.Exception ex) { return "\n⚠ کپیِ ابری ناموفق: " + ex.Message; }
     }

@@ -114,18 +114,19 @@ public class BackupService : IBackupService
         return results;
     }
 
-    public async Task AutoBackupAsync(CancellationToken ct = default)
+    public async Task<string?> AutoBackupAsync(CancellationToken ct = default)
     {
         try
         {
             _logger.LogInformation("شروع پشتیبان‌گیری خودکار...");
-            await BackupAsync(ct: ct);
+            var file = await BackupAsync(ct: ct);
 
             // Cleanup old backups (keep last 30)
             var files = Directory.GetFiles(_defaultBackupPath, "SamaHesab_*.bak")
                                   .OrderByDescending(f => f).Skip(30).ToList();
             foreach (var f in files) { File.Delete(f); _logger.LogInformation("حذف پشتیبان قدیمی: {File}", f); }
+            return file;
         }
-        catch (Exception ex) { _logger.LogError(ex, "خطا در پشتیبان‌گیری خودکار"); }
+        catch (Exception ex) { _logger.LogError(ex, "خطا در پشتیبان‌گیری خودکار"); return null; }
     }
 }

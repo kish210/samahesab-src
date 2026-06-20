@@ -172,6 +172,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<InventoryReportViewModel>();
                 services.AddTransient<ViewModels.Inventory.ReorderReportViewModel>();
                 services.AddTransient<ViewModels.Inventory.WarehouseDashboardViewModel>();
+                services.AddTransient<ViewModels.Inventory.WarehouseOverviewViewModel>();   // UX-INV-1 — نمای انبار
                 services.AddTransient<ViewModels.Inventory.PriceListViewModel>();   // کارِ ۷ — مدیریت لیست‌قیمت
                 services.AddTransient<ViewModels.Inventory.DiscountTiersViewModel>();   // U6 — تخفیف پلکانی
                 services.AddTransient<ProductEditViewModel>();

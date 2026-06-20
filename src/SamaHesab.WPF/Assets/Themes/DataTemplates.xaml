@@ -76,6 +76,7 @@
     <DataTemplate DataType="{x:Type inv:BatchSerialViewModel}"><vi:BatchSerialView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:InventoryReportViewModel}"><vi:InventoryReportView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:WarehouseDashboardViewModel}"><vi:WarehouseDashboardView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:WarehouseOverviewViewModel}"><vi:WarehouseOverviewView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:ReorderReportViewModel}"><vi:ReorderReportView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:PriceListViewModel}"><vi:PriceListView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:DiscountTiersViewModel}"><vi:DiscountTiersView/></DataTemplate>

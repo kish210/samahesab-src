@@ -53,15 +53,26 @@ public partial class MainWindow : MetroWindow
         System.Windows.Application.Current.Shutdown();
     }
 
-    // DL-C1-E: Ctrl+K = فوکوس به جست‌وجوی سراسری (بقیهٔ میان‌برها در XAML InputBindings).
+    // DL-C1-E / CC-2: Ctrl+K = بازکردنِ Command Palette (مودال). (بقیهٔ میان‌برها در XAML InputBindings.)
     private void OnGlobalKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         if (e.Key == System.Windows.Input.Key.K &&
             (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) == System.Windows.Input.ModifierKeys.Control)
         {
-            GlobalSearchBox.Focus();
+            OpenCommandPalette();
             e.Handled = true;
         }
+    }
+
+    /// <summary>CC-2 — Command Palette: دستورهای ناوبری + نتایجِ زندهٔ جست‌وجو؛ اجرا از مسیرِ مشترکِ OpenSearchResult.</summary>
+    private void OpenCommandPalette()
+    {
+        if (Vm is not { } vm) return;
+        var palette = new CommandPaletteWindow(
+            vm.BuildPaletteCommands(),
+            vm.SearchService,
+            chosen => vm.OpenSearchResultCommand.Execute(chosen)) { Owner = this };
+        palette.ShowDialog();
     }
 
     // ── CC-1 — ناوبریِ کیبوردیِ جست‌وجوی سراسری ──

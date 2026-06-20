@@ -332,6 +332,22 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_PALETTE") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
+            var mvm = _host.Services.GetRequiredService<ViewModels.Shell.MainViewModel>();
+            var pal = new Views.Shell.CommandPaletteWindow(mvm.BuildPaletteCommands(), mvm.SearchService, _ => { })
+            { WindowStartupLocation = WindowStartupLocation.Manual, Left = 60, Top = 60 };
+            pal.Show(); await Task.Delay(800); pal.UpdateLayout();
+            var idir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(idir);
+            var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(600, 460, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtb.Render(pal);
+            var enc = new System.Windows.Media.Imaging.PngBitmapEncoder(); enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+            using (var fs = System.IO.File.Create(System.IO.Path.Combine(idir, "command_palette.png"))) enc.Save(fs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_POS") == "1")
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())

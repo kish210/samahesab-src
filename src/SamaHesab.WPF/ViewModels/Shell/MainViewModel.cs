@@ -289,6 +289,18 @@ public partial class MainViewModel : BaseViewModel
         catch { /* جست‌وجو نباید پوسته را بشکند */ }
     }
 
+    // ── CC-2 — Command Palette: دستورهای ناوبری (همهٔ صفحات) برای ادغام با نتایجِ CC-1 ──
+    /// <summary>فهرستِ دستورهای ناوبری از نقشهٔ صفحات (گروه «برو به») — paletteِ Ctrl+K از این می‌سازد.</summary>
+    public IReadOnlyList<Services.Search.GlobalSearchResult> BuildPaletteCommands()
+        => _pages.Select(kv => new Services.Search.GlobalSearchResult(
+                "برو به", "→", kv.Value.Title, string.Empty, kv.Key))
+            .OrderBy(r => r.Title)
+            .ToList();
+
+    /// <summary>سرویسِ جست‌وجوی سراسری برای ادغامِ نتایجِ دادهٔ زنده در palette.</summary>
+    public Services.Search.IGlobalSearchService SearchService
+        => _services.GetRequiredService<Services.Search.IGlobalSearchService>();
+
     [RelayCommand]
     private async Task OpenSearchResultAsync(Services.Search.GlobalSearchResult? r)
     {

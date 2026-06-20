@@ -525,6 +525,28 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // رندرِ کارتابلِ تأییدِ بهینه‌شده با ردیف‌های نمونه (بازبینیِ چگالی/کیبورد).
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_APPROVALS") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
+            var pvm = _host.Services.GetRequiredService<ViewModels.Accounting.VoucherApprovalsViewModel>();
+            pvm.Pending.Add(new SamaHesab.Application.Accounting.Queries.PendingApprovalDto(1, "۱۴۰۵-۱۰۲", "۱۴۰۵/۰۳/۲۰", "بابتِ خریدِ ملزوماتِ اداری", 12500000));
+            pvm.Pending.Add(new SamaHesab.Application.Accounting.Queries.PendingApprovalDto(2, "۱۴۰۵-۱۰۳", "۱۴۰۵/۰۳/۲۱", "حقوقِ خرداد", 85000000));
+            pvm.Pending.Add(new SamaHesab.Application.Accounting.Queries.PendingApprovalDto(3, "۱۴۰۵-۱۰۴", "۱۴۰۵/۰۳/۲۲", "تنخواهِ فروشگاه", 3200000));
+            pvm.Selected = pvm.Pending[0];
+            var pview = new Views.Accounting.VoucherApprovalsView { DataContext = pvm };
+            var pwin = new Window { Width = 880, Height = 560, WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                FlowDirection = FlowDirection.RightToLeft, Content = pview };
+            pwin.Show(); await Task.Delay(700); pwin.UpdateLayout();
+            var pdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(pdir);
+            var prtb = new System.Windows.Media.Imaging.RenderTargetBitmap(880, 560, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            prtb.Render(pwin);
+            var penc = new System.Windows.Media.Imaging.PngBitmapEncoder(); penc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(prtb));
+            using (var pfs = System.IO.File.Create(System.IO.Path.Combine(pdir, "approvals.png"))) penc.Save(pfs);
+            Shutdown(); return;
+        }
+
         // رندرِ مرکزِ اعلان‌ها با دادهٔ واقعیِ DB (بازبینیِ کار #۲۵).
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_ALERTS") == "1")
         {

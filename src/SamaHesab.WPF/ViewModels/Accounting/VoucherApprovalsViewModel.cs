@@ -6,6 +6,7 @@ using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
@@ -17,6 +18,7 @@ public partial class VoucherApprovalsViewModel : BaseViewModel
     public ObservableCollection<PendingApprovalDto> Pending { get; } = new();
 
     [ObservableProperty] private int _count;
+    [ObservableProperty] private PendingApprovalDto? _selected;   // برای میان‌برهای کیبورد
 
     public VoucherApprovalsViewModel(IMediator mediator,
         IDialogService dialogService, INavigationService navigationService)
@@ -31,8 +33,15 @@ public partial class VoucherApprovalsViewModel : BaseViewModel
             Pending.Clear();
             foreach (var r in rows) Pending.Add(r);
             Count = Pending.Count;
+            Selected = Pending.FirstOrDefault();   // ردیفِ اول برای کارِ سریعِ کیبوردی
         }, "در حال بارگیریِ کارتابلِ تأیید...");
     }
+
+    [RelayCommand] private Task RefreshAsync() => LoadAsync();
+
+    // میان‌برهای کیبورد روی ردیفِ انتخاب‌شده (Enter=تأیید · Del=رد) — کاهشِ کلیک.
+    [RelayCommand] private Task ApproveSelectedAsync() => ApproveAsync(Selected);
+    [RelayCommand] private Task RejectSelectedAsync() => RejectAsync(Selected);
 
     [RelayCommand]
     private async Task ApproveAsync(PendingApprovalDto? row)

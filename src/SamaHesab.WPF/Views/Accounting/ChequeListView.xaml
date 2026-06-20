@@ -245,7 +245,8 @@
                     </StackPanel>
                 </DockPanel>
             </Border>
-            <DataGrid ItemsSource="{Binding Cheques}" SelectedItem="{Binding SelectedCheque}" AutoGenerateColumns="False" IsReadOnly="True"
+            <DataGrid x:Name="Grid" ItemsSource="{Binding Cheques}" SelectedItem="{Binding SelectedCheque}" AutoGenerateColumns="False" IsReadOnly="True"
+                      PreviewKeyDown="Grid_PreviewKeyDown"
                       HeadersVisibility="Column" CanUserAddRows="False" Background="White"
                       GridLinesVisibility="All" HorizontalGridLinesBrush="#EDEFF3" VerticalGridLinesBrush="#EDEFF3"
                       RowBackground="White" AlternatingRowBackground="{StaticResource Zebra}" RowHeight="30" FontSize="12.5"

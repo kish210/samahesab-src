@@ -1265,3 +1265,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - ⏳ (laptop) **نصابِ Setup.exe نسخهٔ 2.5.10**: روی این PC ساختنی نیست (نه ISCC، نه dist/app+dist/api+لانچرها). لپ‌تاپ: build process (dist/app+api+pos/restoran/mohajerat) را بساز → `redist/SQLEXPR_x64_ENU.exe` بگذار → `ISCC installer/SamaHesab_Setup.iss` → خروجی را به ریلیزِ v2.5.10 attach کن. (.iss آماده: SQL Express + نسخه 2.5.10.)
 
 - [x] (pc) تکمیلِ یکپارچگیِ اعلانِ داشبورد: دستهٔ **انقضای موجودی** (بچِ منقضی/نزدیکِ انقضا) هم افزوده شد (batch repo + افقِ ۳۰روز + AddDaysPersian). حالا داشبورد هر ۴ دستهٔ AlertEngine را دارد (چک/موجودی/بدهی/انقضا). ۴۱۵ تست. [samahesab-src]
+
+- [~] 🚧 (pc) نسخه‌بندیِ API (P7): افزودنِ Asp.Versioning با پیش‌فرضِ v1 + Header/QueryStringِ نسخه (X-Api-Version/api-version) + AssumeDefaultVersionWhenUnspecified — بدونِ تغییرِ مسیرها/کلاینت (URL-segment ریسکِ شکستِ ده‌ها مسیرِ هاردکد دارد). claim.

@@ -221,6 +221,7 @@
                             Visibility="{Binding CanSales, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="داشبورد فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesDash"/>
                                 <MenuItem Header="فروش جدید" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
                                 <MenuItem Header="فاکتور سریع (صندوق)" Command="{Binding NavigateCommand}" CommandParameter="POS" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
                                 <Separator/>

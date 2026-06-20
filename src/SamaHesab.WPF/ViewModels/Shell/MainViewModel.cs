@@ -153,6 +153,7 @@ public partial class MainViewModel : BaseViewModel
             ["ProductCard"]     = ("کارت کالا",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>()),
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
+            ["SalesDash"]       = ("داشبورد فروش",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.SalesDashboardViewModel>()),
             ["RecurringInvoices"]= ("فاکتورهای تکرارشونده", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.RecurringInvoiceListViewModel>()),
             ["Income"]          = ("درآمد و سود",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),
             ["IncomeList"]      = ("لیست درآمدها",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),
@@ -240,8 +241,9 @@ public partial class MainViewModel : BaseViewModel
         if (roles.Contains("ACCOUNTANT")) return "AccountantDash";
         if (roles.Contains("WAREHOUSE")) return "WarehouseDash";
         if (roles.Contains("CASHIER") && _modules.IsEnabled(ModuleService.Pos)) return "PosDashboard";
+        if (roles.Contains("SALES")) return "SalesDash";
         if (roles.Contains("MANAGER")) return "ManagerDash";
-        return "Dashboard";   // ادمین/فروش/خرید/HR/مشاهده‌کننده/ناشناخته → داشبوردِ عمومی
+        return "Dashboard";   // ادمین/خرید/HR/مشاهده‌کننده/ناشناخته → داشبوردِ عمومی
     }
 
     private void OnNavigationRequested(object? sender, NavigationEventArgs e) =>

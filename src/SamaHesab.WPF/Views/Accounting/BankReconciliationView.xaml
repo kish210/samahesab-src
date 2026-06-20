@@ -5,6 +5,12 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- کیبوردمحور: F5 بارگذاری دفتر · Enter تطبیقِ خودکار · Ctrl+S ثبتِ تطبیق -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding LoadLedgerCommand}"/>
+        <KeyBinding Key="Enter" Command="{Binding ReconcileCommand}"/>
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding CommitReconcileCommand}"/>
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
@@ -83,7 +89,7 @@
                             <TextBox Text="{Binding ToDate}" Style="{StaticResource BrInput}"/>
                         </StackPanel>
                     </Grid>
-                    <Button Content="بارگذاری دفتر بانک" Command="{Binding LoadLedgerCommand}"
+                    <Button Content="بارگذاری دفتر بانک (F5)" Command="{Binding LoadLedgerCommand}"
                             Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}"
                             BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" Padding="14,7"
                             Cursor="Hand" HorizontalAlignment="Right"/>
@@ -123,7 +129,7 @@
                         <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center"
                                    Text="{Binding MatchedCount, Converter={StaticResource Num}, ConverterParameter=منطبق ✓}"
                                    FontWeight="SemiBold" Foreground="{DynamicResource SuccessColor}"/>
-                        <Button DockPanel.Dock="Left" Content="ثبت تطبیق" Command="{Binding CommitReconcileCommand}"
+                        <Button DockPanel.Dock="Left" Content="ثبت تطبیق (Ctrl+S)" Command="{Binding CommitReconcileCommand}"
                                 Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0"
                                 Padding="12,5" FontSize="11.5" Cursor="Hand"/>
                     </DockPanel>

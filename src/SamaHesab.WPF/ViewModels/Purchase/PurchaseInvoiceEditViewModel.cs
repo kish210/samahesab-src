@@ -133,13 +133,88 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     }
 
     partial void OnSelectedProductItemChanged(ProductSearchResult? value)
-        => EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
+    {
+        EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
+        _ = LoadEntryPriceHintAsync(value?.Id ?? 0);   // UX-PURCHASE-1
+    }
 
     partial void OnSelectedSupplierIdChanged(int value)
     {
         var s = Suppliers.FirstOrDefault(x => x.Id == value);
         HasSupplierInfo = s != null;
         SupplierBalance = s?.Balance ?? 0;
+        _ = LoadRecentProductsAsync(value);   // UX-PURCHASE-1
+    }
+
+    // UX-PURCHASE-1 — تقارن با فروش: هینتِ آخرین قیمتِ خرید + خریدهای اخیر از تأمین‌کننده.
+    [ObservableProperty] private string? _entryPriceHint;
+    public ObservableCollection<ProductSearchResult> RecentProducts { get; } = new();
+
+    private async Task LoadEntryPriceHintAsync(int productId)
+    {
+        if (productId <= 0) { EntryPriceHint = null; return; }
+        try
+        {
+            var dto = await _mediator.Send(new SamaHesab.Application.Purchase.Queries.GetProductLastPurchasePriceQuery(
+                productId, SelectedSupplierId > 0 ? SelectedSupplierId : (int?)null));
+            if (dto.LastPrice is null) { EntryPriceHint = "بدونِ سابقهٔ خرید"; return; }
+            var s = $"آخرین خرید: {dto.LastPrice:N0}";
+            if (!string.IsNullOrEmpty(dto.LastDate)) s += $" ({dto.LastDate})";
+            if (dto.LastPriceForSupplier is decimal ps)
+                s += $" · از این تأمین‌کننده: {ps:N0}" + (string.IsNullOrEmpty(dto.LastDateForSupplier) ? "" : $" ({dto.LastDateForSupplier})");
+            EntryPriceHint = s;
+        }
+        catch { EntryPriceHint = null; }
+    }
+
+    private async Task LoadRecentProductsAsync(int supplierId)
+    {
+        try
+        {
+            RecentProducts.Clear();
+            if (supplierId <= 0) return;
+            var items = await _mediator.Send(new SamaHesab.Application.Purchase.Queries.GetSupplierRecentProductsQuery(supplierId));
+            foreach (var p in items)
+                RecentProducts.Add(new ProductSearchResult(p.ProductId, p.Code, p.Name, p.Barcode, p.Price, p.TaxRate));
+        }
+        catch { /* چیپ‌های پیشنهادی نباید فرم را بشکنند */ }
+    }
+
+    /// <summary>کلیک روی چیپِ کالای اخیرِ تأمین‌کننده → افزودنِ فوریِ ردیف.</summary>
+    [RelayCommand]
+    private void AddRecentProduct(ProductSearchResult? product)
+    {
+        if (product == null) return;
+        var existing = InvoiceItems.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existing != null) { existing.Quantity += 1; existing.Recalculate(); RecalculateTotals(); return; }
+        var row = new PurchaseInvoiceItemRow
+        {
+            ProductId = product.Id, ProductCode = product.Code, ProductName = product.Name,
+            Unit = "عدد", Quantity = 1, UnitPrice = product.Price, TaxPct = product.TaxRate
+        };
+        row.Recalculate();
+        row.PropertyChanged += (_, _) => RecalculateTotals();
+        InvoiceItems.Add(row);
+        RenumberRows();
+        RecalculateTotals();
+    }
+
+    /// <summary>CC-5 — تکرارِ ردیفِ خرید (راست‌کلیک).</summary>
+    [RelayCommand]
+    private void DuplicateRow(PurchaseInvoiceItemRow? i)
+    {
+        if (i == null || i.ProductId <= 0) return;
+        var row = new PurchaseInvoiceItemRow
+        {
+            ProductId = i.ProductId, ProductCode = i.ProductCode, ProductName = i.ProductName,
+            Unit = i.Unit, Quantity = i.Quantity, UnitPrice = i.UnitPrice,
+            DiscountPct = i.DiscountPct, TaxPct = i.TaxPct, Description = i.Description
+        };
+        row.Recalculate();
+        row.PropertyChanged += (_, _) => RecalculateTotals();
+        InvoiceItems.Insert(InvoiceItems.IndexOf(i) + 1, row);
+        RenumberRows();
+        RecalculateTotals();
     }
 
     public override async Task LoadAsync()

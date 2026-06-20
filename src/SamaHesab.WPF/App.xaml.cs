@@ -115,6 +115,10 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<Services.Search.IGlobalSearchService, Services.Search.GlobalSearchService>();
                 services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.AccountsSearchProvider>();
                 services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.ChequesSearchProvider>();
+                // CC-1/C2 — providerهای lane لپ‌تاپ: کالا/مشتری/فاکتورِ فروش.
+                services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.ProductsSearchProvider>();
+                services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.CustomersSearchProvider>();
+                services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.SalesInvoicesSearchProvider>();
                 services.AddSingleton<Services.ApiClient>();
                 services.AddSingleton<Services.UpdateService>();   // به‌روزرسانِ خودکار از GitHub
                 services.AddSingleton<ModuleService>();   // سیستم ماژولار (واحد)

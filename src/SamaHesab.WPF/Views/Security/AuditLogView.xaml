@@ -4,9 +4,13 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
-    <!-- F5 = نمایش/تازه‌سازیِ لاگ (کیبوردمحور، هم‌راستا با فهرست‌ها/گزارش‌ها) -->
+    <!-- کیبوردمحور: F5 نمایش · Ctrl+PgDn/PgUp صفحهٔ بعد/قبل · Ctrl+E اکسل · Ctrl+P پی‌دی‌اف -->
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RunCommand}"/>
+        <KeyBinding Modifiers="Control" Key="Next"  Command="{Binding NextPageCommand}"/>
+        <KeyBinding Modifiers="Control" Key="Prior" Command="{Binding PrevPageCommand}"/>
+        <KeyBinding Modifiers="Control" Key="E" Command="{Binding ExportCsvCommand}"/>
+        <KeyBinding Modifiers="Control" Key="P" Command="{Binding ExportPdfCommand}"/>
     </UserControl.InputBindings>
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -18,8 +22,8 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,10">
             <TextBlock Text="لاگِ حسابرسی" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
-            <TextBlock Text="ردِّ عملیاتِ حساس (حرکاتِ انبار و …) — برای کنترل و پیگیری."
-                       Foreground="{DynamicResource SecondaryText}" FontSize="12.5" Margin="0,4,0,0"/>
+            <TextBlock Text="ردِّ عملیاتِ حساس (حرکاتِ انبار و …) — میان‌بر: F5 نمایش · Ctrl+PgDn/PgUp صفحه · Ctrl+E اکسل · Ctrl+P پی‌دی‌اف"
+                       Foreground="{DynamicResource SecondaryText}" FontSize="12" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- نوار ابزار -->
@@ -43,8 +47,8 @@
             <Button Content="PDF" Command="{Binding ExportPdfCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
         </StackPanel>
 
-        <!-- گرید (ظاهر از استایلِ ضمنیِ ErpDataGrid) -->
-        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True">
+        <!-- گرید (ظاهر از استایلِ ضمنیِ ErpDataGrid) — چگالیِ بیشتر -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True" RowHeight="28" FontSize="12.5">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="تاریخ" Binding="{Binding When}" Width="150"/>
                 <DataGridTextColumn Header="کاربر" Binding="{Binding User}" Width="120"/>

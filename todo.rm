@@ -1302,3 +1302,6 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 > **تقسیم:** زیرساختِ شل (search/palette/favorites sidebar) = C1؛ providerها و یکسان‌سازیِ میان‌بر/چگالیِ فرم‌ها = هر lane.
 > claimها ذیلِ همین بخش زده می‌شوند.
 - [~] 🚧C2 **UX-SALES-1 (claim @2026-06-21) — تاریخچهٔ قیمت در فاکتور فروش (SALES UX).** بارکد-اول از قبل کامل است؛ شکاف = نبودِ «آخرین قیمت». کار: `GetProductLastPriceQuery(ProductId, CustomerId?)` (آخرین فروشِ کلی + آخرین فروش به همین مشتری) + نمایشِ هینت زیرِ نوارِ ورودِ کالا هنگام انتخاب/اسکن. مستقل از کارِ شلِ C1. *(لِینِ C2 — فروش)*
+
+## CC-1 جست‌وجوی سراسری (UX_ROADMAP فاز ۰، P0)
+- [~] 🚧 (pc/C1) CC-1 زیرساختِ شل: IGlobalSearchProvider + IGlobalSearchService (تجمیعِ providerها) + سیمِ جعبهٔ QuickSearch/Ctrl+K به Popupِ نتایجِ گروه‌بندی‌شده + Enter→بازکردن در Tab + providerهای lane pc (حساب/سند/چک). providerهای فروش/کالا/مشتری/انبار → C2. claim.

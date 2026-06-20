@@ -10,8 +10,16 @@ using System.Linq;
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
 /// <summary>کارت کالا (۳۶۰°) — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class ProductCardViewModel : BaseViewModel
+public partial class ProductCardViewModel : BaseViewModel, INavigationAware
 {
+    /// <summary>CC-5 — بازکردنِ کارتِ یک کالای مشخص از فهرست (Param=Id). LoadAsync پیش از این صدا زده شده.</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (Products.Count == 0) await LoadAsync();
+        if (parameter is int id && id > 0)
+            SelectedProduct = Products.FirstOrDefault(p => p.Id == id) ?? SelectedProduct;
+    }
+
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
 

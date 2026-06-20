@@ -60,6 +60,17 @@
                                  ItemsSource="{Binding Products}"
                                  SelectedItem="{Binding SelectedProduct}"
                                  RowHeight="28">
+                <!-- CC-5 — دابل‌کلیک/راست‌کلیک → کارتِ ۳۶۰°ِ کالا -->
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenCardCommand}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="📦 کارتِ کالا (۳۶۰°)"
+                                  Command="{Binding PlacementTarget.DataContext.OpenCardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
                     <DataGridTextColumn Header="بارکد" Binding="{Binding Barcode}" Width="130"/>

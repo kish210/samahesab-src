@@ -99,6 +99,14 @@ public partial class ProductListViewModel : BaseViewModel
         _navigationService.NavigateTo("ProductEdit");
     }
 
+    /// <summary>CC-5 — کارتِ ۳۶۰°ِ کالای انتخاب‌شده (راست‌کلیک/دابل‌کلیک).</summary>
+    [RelayCommand]
+    private void OpenCard(ProductListItem? p)
+    {
+        var item = p ?? SelectedProduct;
+        if (item != null) _navigationService.NavigateTo("ProductCard", item.Id);
+    }
+
     [RelayCommand]
     private async Task DeleteProductAsync()
     {

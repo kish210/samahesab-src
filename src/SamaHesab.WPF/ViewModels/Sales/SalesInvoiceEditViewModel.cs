@@ -497,6 +497,28 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         if (SelectedCustomerId == 0) { await _dialogService.ShowErrorAsync("مشتری را انتخاب کنید."); return; }
         var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
+
+        // 🛡 کنترلِ سقفِ اعتبارِ مشتری: سهمِ نسیهٔ این فاکتور (نپرداخته) به ماندهٔ بدهی افزوده می‌شود.
+        // سقف۰ = نامحدود؛ فقط وقتی اطلاعاتِ اعتبار بارگذاری شده و سقف معنادار است کنترل می‌کنیم.
+        var creditPortion = RemainAmount > 0 ? RemainAmount : 0;
+        if (HasCustomerInfo && !CustomerUnlimitedCredit && CustomerCreditLimit > 0 && creditPortion > 0)
+        {
+            var projected = CustomerBalance + creditPortion;
+            if (projected > CustomerCreditLimit)
+            {
+                var over = projected - CustomerCreditLimit;
+                var pass = await _dialogService.ConfirmAsync(
+                    $"⚠ این فاکتور از سقفِ اعتبارِ مشتری عبور می‌کند.\n\n" +
+                    $"ماندهٔ بدهیِ فعلی: {CustomerBalance:N0} ریال\n" +
+                    $"نسیهٔ این فاکتور: {creditPortion:N0} ریال\n" +
+                    $"ماندهٔ پس از ثبت: {projected:N0} ریال\n" +
+                    $"سقفِ اعتبار: {CustomerCreditLimit:N0} ریال\n" +
+                    $"مازاد بر سقف: {over:N0} ریال\n\n" +
+                    $"با مسئولیتِ خود ادامه می‌دهید؟");
+                if (!pass) return;
+            }
+        }
+
         var ok = await _dialogService.ConfirmAsync($"فاکتور فروش {GrandTotal:N0} ریال قطعی شود؟");
         if (!ok) return;
         // POS-IR-3 — در پرداختِ ترکیبی اگر ارجاع خالی است، تفکیکِ نقد/کارت/نسیه را ثبت کن.

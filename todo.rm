@@ -1079,12 +1079,12 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
   - [x] (pc) ✅ روی DBِ واقعی تست شد: ۳۴ مشتری + ۱۰ تأمین‌کننده = ۴۴ طرف‌حساب، idempotent
 
 ### مرحلهٔ B — مهاجرتِ خواندن (امن)
-- [ ] (pc) `GetPersonsQuery`/کارت‌ها از `Crm.Parties` بخوانند (با dedup بر کد ملی/موبایل)
+- [x] (pc) `GetPersonsQuery`/کارت‌ها از `Crm.Parties` — ✅ انجام‌شده (PARTY-CUTOVER).
 
-### مرحلهٔ C — Cutover (نیازمندِ بکاپ + تستِ DBِ واقعی؛ مخرّب)
-- [ ] (pc) افزودنِ `PartyId` به SalesInvoice/PurchaseInvoice/Cheque (نول‌پذیر) + backfill
-- [ ] (pc) سوییچِ کامندها/کوئری‌ها به `PartyId`
-- [ ] (pc) حذفِ ستون‌های CustomerId/SupplierId و جداولِ Customers/Suppliers (آخرین گام، پس از تأیید)
+### مرحلهٔ C — Cutover ✅ انجام‌شده (a82be2c؛ روی DBِ واقعی تست شد)
+- [x] (pc) ~~افزودنِ PartyId~~ → **رویکردِ نهایی:** CustomerId/SupplierId مستقیماً به Party.Id repoint شدند (ستونِ جدید لازم نشد).
+- [x] (pc) سوییچِ کامندها/کوئری‌ها — ✅ همه به Crm.Parties (با نقشِ IsCustomer/IsSupplier).
+- [x] (pc) حذفِ جداولِ Customers/Suppliers — ✅ انجام‌شد (ستون‌های CustomerId/SupplierId به‌عنوان FKِ Party حفظ شدند، نه حذف).
 
 ### مرحلهٔ B — مهاجرتِ خواندن ✅ (تست‌شده روی DB واقعی)
 - [x] (pc) نقشِ کارمند به Party (سه‌نقشه: مشتری/تأمین‌کننده/کارمند)

@@ -1229,4 +1229,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 - [x] (pc) ارتقای «مرکزِ اعلان‌ها» به لانچ‌پدِ اکشن‌پذیر: ✅ ListBox انتخاب‌پذیر + Selected + OpenSelectedCommand + NavKey (نگاشتِ Kind→صفحه: چک→ChequeBoard، موجودی→Products، دریافتنی→Receivables، انقضا→InventoryReport). Enter/دابل‌کلیک → ناوبری؛ F5 تازه‌سازی. رندر تأیید شد.
 
-- [~] 🚧 (pc) بهینه‌سازیِ «تابلوی چک» (چگالی+کیبورد): Selected + RefreshCommand + ClearSelected/ReturnSelected + میان‌برهای Enter(وصول)/Del(برگشت)/F5 + نوارِ عملیاتِ همیشه‌دیدنی + گریدِ فشرده. فایل‌ها: ChequeBoardViewModel.cs + View (claim). [در samahesab-src]
+- [x] (pc) بهینه‌سازیِ «تابلوی چک» (چگالی+کیبورد): ✅ Selected + RefreshCommand + ClearSelected/ReturnSelected + میان‌برهای Enter(وصول)/Del(برگشت)/F5 (PreviewKeyDown، CanUserDeleteRows=False) + نوارِ عملیاتِ همیشه‌دیدنی + گریدِ فشرده (RowHeight30) + انتخابِ خودکارِ ردیفِ اول. رندر تأیید شد. [samahesab-src]

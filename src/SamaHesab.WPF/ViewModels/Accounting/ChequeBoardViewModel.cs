@@ -22,6 +22,7 @@ public partial class ChequeBoardViewModel : BaseViewModel
     public ObservableCollection<ChequeRow> Cheques { get; } = new();
     [ObservableProperty] private decimal _totalAmount;
     [ObservableProperty] private int _overdueCount;
+    [ObservableProperty] private ChequeRow? _selected;   // برای میان‌برهای کیبورد
 
     public ChequeBoardViewModel(IMediator mediator, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
@@ -38,6 +39,7 @@ public partial class ChequeBoardViewModel : BaseViewModel
             foreach (var c in board) Cheques.Add(ChequeRow.From(c));
             TotalAmount = board.Sum(c => c.Amount);
             OverdueCount = Cheques.Count(c => c.StateCode == 2);
+            Selected = Cheques.FirstOrDefault();   // ردیفِ اول برای کارِ سریعِ کیبوردی
         }, "در حال بارگیری تابلوی چک...");
     }
 
@@ -57,6 +59,12 @@ public partial class ChequeBoardViewModel : BaseViewModel
         if (string.IsNullOrWhiteSpace(reason)) return;
         await ChangeAsync(c.Id, ChequeAction.Return, reason, "برگشت ثبت شد");
     }
+
+    [RelayCommand] private Task RefreshAsync() => LoadAsync();
+
+    // میان‌برهای کیبورد روی ردیفِ انتخاب‌شده (Enter=وصول · Del=برگشت) — کاهشِ کلیک.
+    [RelayCommand] private Task ClearSelectedAsync() => ClearChequeAsync(Selected);
+    [RelayCommand] private Task ReturnSelectedAsync() => ReturnChequeAsync(Selected);
 
     private async Task ChangeAsync(int id, ChequeAction action, string? reason, string okMsg)
     {

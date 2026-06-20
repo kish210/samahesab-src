@@ -547,6 +547,28 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // رندرِ تابلوی چکِ بهینه‌شده با نمونه (بازبینیِ چگالی/کیبورد).
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_CHEQUEBOARD") == "1")
+        {
+            ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, new[] { "*" });
+            var cvm = _host.Services.GetRequiredService<ViewModels.Accounting.ChequeBoardViewModel>();
+            cvm.Cheques.Add(new ViewModels.Accounting.ChequeRow { Id = 1, ChequeNumber = "۸۸۱۲۳۴", BankName = "بانک ملت", Amount = 45000000, DueDate = "۱۴۰۵/۰۳/۱۸", Type = "دریافتی", StateFa = "سررسید گذشته", StateCode = 2 });
+            cvm.Cheques.Add(new ViewModels.Accounting.ChequeRow { Id = 2, ChequeNumber = "۹۰۴۵۲۱", BankName = "بانک صادرات", Amount = 12500000, DueDate = "۱۴۰۵/۰۳/۲۶", Type = "پرداختی", StateFa = "امروز", StateCode = 1 });
+            cvm.Cheques.Add(new ViewModels.Accounting.ChequeRow { Id = 3, ChequeNumber = "۷۷۳۳۱۱", BankName = "بانک ملی", Amount = 8200000, DueDate = "۱۴۰۵/۰۴/۰۵", Type = "دریافتی", StateFa = "آینده", StateCode = 0 });
+            cvm.Selected = cvm.Cheques[0];
+            var cview = new Views.Accounting.ChequeBoardView { DataContext = cvm };
+            var cwin = new Window { Width = 920, Height = 520, WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                FlowDirection = FlowDirection.RightToLeft, Content = cview };
+            cwin.Show(); await Task.Delay(700); cwin.UpdateLayout();
+            var cdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(cdir);
+            var crtb = new System.Windows.Media.Imaging.RenderTargetBitmap(920, 520, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            crtb.Render(cwin);
+            var cenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); cenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(crtb));
+            using (var cfs = System.IO.File.Create(System.IO.Path.Combine(cdir, "chequeboard.png"))) cenc.Save(cfs);
+            Shutdown(); return;
+        }
+
         // رندرِ مرکزِ اعلان‌ها با دادهٔ واقعیِ DB (بازبینیِ کار #۲۵).
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_ALERTS") == "1")
         {

@@ -7,6 +7,7 @@
     <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -21,8 +22,23 @@
             </DockPanel>
         </Border>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Cheques}" AutoGenerateColumns="False" IsReadOnly="True"
-                  HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False"
+        <!-- نوارِ عملیاتِ همیشه‌دیدنی (روی ردیفِ انتخابی) + راهنمای میان‌بر -->
+        <DockPanel Grid.Row="1" Margin="0,0,0,8" LastChildFill="False">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <Button Content="✓ وصول (Enter)" Padding="14,6" Margin="0,0,6,0" Cursor="Hand" Foreground="White"
+                        BorderThickness="0" Background="#2E7D52" Command="{Binding ClearSelectedCommand}"/>
+                <Button Content="↩ برگشت (Del)" Padding="14,6" Margin="0,0,6,0" Cursor="Hand" Foreground="White"
+                        BorderThickness="0" Background="#C2403A" Command="{Binding ReturnSelectedCommand}"/>
+                <Button Content="↻ بروزرسانی (F5)" Padding="12,6" Cursor="Hand" Command="{Binding RefreshCommand}"/>
+            </StackPanel>
+            <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" FontSize="11.5" Foreground="{DynamicResource MutedText}"
+                       Text="میان‌بر: Enter وصول · Del برگشت · F5 بروزرسانی"/>
+        </DockPanel>
+
+        <DataGrid Grid.Row="2" x:Name="Grid" ItemsSource="{Binding Cheques}" AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectedItem="{Binding Selected, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
+                  HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False" CanUserDeleteRows="False"
+                  RowHeight="30" FontSize="12.5" PreviewKeyDown="Grid_PreviewKeyDown"
                   Background="Transparent" RowBackground="Transparent">
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">

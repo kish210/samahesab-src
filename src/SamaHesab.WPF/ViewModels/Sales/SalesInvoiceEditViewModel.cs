@@ -491,6 +491,25 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
 
     [RelayCommand] private void RemoveItem(SalesInvoiceItemRow? i) { if (i != null) { InvoiceItems.Remove(i); RenumberRows(); RecalculateTotals(); } }
 
+    /// <summary>CC-5 — تکرارِ ردیف (راست‌کلیک): کالا/فی/تخفیف/مالیاتِ ردیف را در ردیفِ بعد کپی می‌کند.</summary>
+    [RelayCommand]
+    private void DuplicateRow(SalesInvoiceItemRow? i)
+    {
+        if (i == null || i.ProductId <= 0) return;
+        var row = new SalesInvoiceItemRow
+        {
+            ProductId = i.ProductId, ProductCode = i.ProductCode, ProductName = i.ProductName,
+            Unit = i.Unit, Quantity = i.Quantity, UnitPrice = i.UnitPrice,
+            DiscountPct = i.DiscountPct, TaxPct = i.TaxPct, Description = i.Description,
+            StockOnHand = i.StockOnHand
+        };
+        row.Recalculate();
+        row.PropertyChanged += (_, _) => RecalculateTotals();
+        InvoiceItems.Insert(InvoiceItems.IndexOf(i) + 1, row);
+        RenumberRows();
+        RecalculateTotals();
+    }
+
     private void RecalculateTotals()
     {
         SubTotal = InvoiceItems.Sum(i => i.Quantity * i.UnitPrice);

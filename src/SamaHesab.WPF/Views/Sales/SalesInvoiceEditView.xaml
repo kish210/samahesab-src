@@ -173,6 +173,18 @@
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
                       ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                       RowHeight="30" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                <!-- CC-5 — منوی راست‌کلیکِ ردیف (تکرار/حذف). PlacementTarget=DataGrid → DataContext=VM، SelectedItem=ردیف. -->
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="📄 تکرارِ ردیف"
+                                  Command="{Binding PlacementTarget.DataContext.DuplicateRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <Separator/>
+                        <MenuItem Header="🗑 حذفِ ردیف"
+                                  Command="{Binding PlacementTarget.DataContext.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="#" Binding="{Binding RowNumber}" Width="36" IsReadOnly="True"/>
                     <!-- کالا: انتخابِ درون‌گرید -->

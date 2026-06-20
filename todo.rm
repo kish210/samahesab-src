@@ -1268,3 +1268,8 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc) تکمیلِ یکپارچگیِ اعلانِ داشبورد: دستهٔ **انقضای موجودی** (بچِ منقضی/نزدیکِ انقضا) هم افزوده شد (batch repo + افقِ ۳۰روز + AddDaysPersian). حالا داشبورد هر ۴ دستهٔ AlertEngine را دارد (چک/موجودی/بدهی/انقضا). ۴۱۵ تست. [samahesab-src]
 
 - [x] (pc) نسخه‌بندیِ API (P7): Asp.Versioning افزوده شد — پیش‌فرض v1، خوانشِ نسخه از هدرِ X-Api-Version یا کوئریِ api-version، AssumeDefaultVersionWhenUnspecified. مسیرها/کلاینت دست‌نخورده (URL-segment نزدم تا ده‌ها مسیرِ هاردکد نشکند). تأیید: API بالا آمد، /api/products→401 (resolve)، Swagger 200. آماده برای endpointهای v2 در آینده.
+
+### بررسیِ نهاییِ مواردِ اختیاریِ pc (pc @ 2026-06-20) — همه انجام‌شده
+- [x] (pc) DT-8 سخت‌سازیِ مارکت‌پلیسِ قالب — ✅ از قبل: DocumentTemplatePackageValidator (فرمت/نسخه/نوع/نام/بدنه) در هر دو مسیرِ واردات.
+- [x] (pc) گزارشِ per-branch — ✅ از قبل: BranchReport (VM/View) + BranchPerformanceDto + IBranchScoped (جداسازیِ شعبه). افزودنِ BranchId به دادهٔ پایه عمداً انجام نشد (دادهٔ پایه شرکت‌محور است، نه شعبه‌محور).
+- ✅ نتیجه: **کلِ کارِ فعالِ lane pc تمام است.** باقیِ موارد یا lane لپ‌تاپ‌اند یا deferred (وب/موبایل).

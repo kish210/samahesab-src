@@ -146,6 +146,9 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _companyPostalCode = string.Empty;
     [ObservableProperty] private string _companyEmail = string.Empty;
     [ObservableProperty] private string _companyWebsite = string.Empty;
+    [ObservableProperty] private string? _companyLogoPath;   // لوگوی سربرگِ فاکتور/گزارشِ چاپی
+    public bool HasLogo => !string.IsNullOrWhiteSpace(CompanyLogoPath) && System.IO.File.Exists(CompanyLogoPath);
+    partial void OnCompanyLogoPathChanged(string? value) => OnPropertyChanged(nameof(HasLogo));
     [ObservableProperty] private string _fiscalYearStart = string.Empty;
     [ObservableProperty] private string _fiscalYearEnd = string.Empty;
     [ObservableProperty] private decimal _defaultVatRate = 9;
@@ -188,6 +191,7 @@ public partial class SettingsViewModel : BaseViewModel
         CompanyPostalCode = g.CompanyPostalCode ?? "";
         CompanyEmail = g.CompanyEmail ?? "";
         CompanyWebsite = g.CompanyWebsite ?? "";
+        CompanyLogoPath = g.CompanyLogoPath;
         FiscalYearStart = string.IsNullOrWhiteSpace(g.FiscalYearStart) ? "1404/01/01" : g.FiscalYearStart!;
         FiscalYearEnd = string.IsNullOrWhiteSpace(g.FiscalYearEnd) ? "1404/12/29" : g.FiscalYearEnd!;
         SelectedCurrency = g.Currency;
@@ -216,6 +220,7 @@ public partial class SettingsViewModel : BaseViewModel
             g.CompanyNationalId = CompanyNationalId; g.CompanyEconomicCode = CompanyEconomicCode;
             g.CompanyRegNumber = CompanyRegNumber; g.CompanyAddress = CompanyAddress;
             g.CompanyPostalCode = CompanyPostalCode; g.CompanyEmail = CompanyEmail; g.CompanyWebsite = CompanyWebsite;
+            g.CompanyLogoPath = CompanyLogoPath;
             g.FiscalYearStart = FiscalYearStart; g.FiscalYearEnd = FiscalYearEnd;
             g.Currency = SelectedCurrency; g.DefaultVatRate = DefaultVatRate; g.DecimalPlaces = DecimalPlaces;
             g.VoucherPrefix = VoucherPrefix; g.InvoicePrefix = InvoicePrefix;
@@ -227,6 +232,21 @@ public partial class SettingsViewModel : BaseViewModel
             await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد.");
         }, "در حال ذخیرهٔ تنظیمات...");
     }
+
+    // ── لوگوی شرکت (سربرگِ چاپ) ──
+    [RelayCommand]
+    private void BrowseLogo()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "انتخابِ لوگوی شرکت",
+            Filter = "تصاویر|*.png;*.jpg;*.jpeg;*.bmp;*.gif|همهٔ فایل‌ها|*.*"
+        };
+        if (dlg.ShowDialog() == true) CompanyLogoPath = dlg.FileName;
+    }
+
+    [RelayCommand]
+    private void ClearLogo() => CompanyLogoPath = null;
 
     [RelayCommand]
     private async Task TestSmsAsync()

@@ -120,6 +120,29 @@
                                 <TextBox Text="{Binding CompanyAddress}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="48"/>
                             </Border>
                         </StackPanel>
+                        <!-- لوگوی شرکت — روی سربرگِ فاکتور/گزارشِ چاپی نمایش داده می‌شود -->
+                        <StackPanel Margin="0,12,0,0">
+                            <TextBlock Style="{StaticResource FormLabel}" Text="لوگوی شرکت (روی سربرگِ فاکتور/گزارشِ چاپی)"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="6"/><ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="64" Height="64" Background="{DynamicResource InputBackground}"
+                                        BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <Image Source="{Binding CompanyLogoPath}" Stretch="Uniform" Margin="4"/>
+                                </Border>
+                                <Border Grid.Column="2" VerticalAlignment="Center" Background="{DynamicResource InputBackground}"
+                                        BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding CompanyLogoPath}" IsReadOnly="True" Background="Transparent" BorderThickness="0"
+                                             Foreground="{DynamicResource SecondaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight"/>
+                                </Border>
+                                <Button Grid.Column="4" Content="📁 انتخاب" Style="{StaticResource SecondaryButton}" Height="36"
+                                        VerticalAlignment="Center" FontFamily="{StaticResource VazirFont}" Command="{Binding BrowseLogoCommand}"/>
+                                <Button Grid.Column="6" Content="🗑 حذف" Style="{StaticResource SecondaryButton}" Height="36"
+                                        VerticalAlignment="Center" FontFamily="{StaticResource VazirFont}" Command="{Binding ClearLogoCommand}"/>
+                            </Grid>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

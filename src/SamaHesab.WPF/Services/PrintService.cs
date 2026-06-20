@@ -143,6 +143,30 @@ public class PrintService : IPrintService
         doc.ColumnWidth = contentWidth;
 
         // header
+        // لوگوی شرکت (در صورتِ تنظیم) بالای سربرگ — فقط چاپِ A4/A5، نه رسیدِ حرارتی.
+        if (!receipt)
+        {
+            var logoPath = AppSettingsStore.GetGeneral().CompanyLogoPath;
+            if (!string.IsNullOrWhiteSpace(logoPath) && System.IO.File.Exists(logoPath))
+            {
+                try
+                {
+                    var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;   // فایل قفل نشود
+                    bmp.UriSource = new Uri(logoPath, UriKind.Absolute);
+                    bmp.EndInit();
+                    var img = new System.Windows.Controls.Image
+                    {
+                        Source = bmp, Height = 64,
+                        Stretch = System.Windows.Media.Stretch.Uniform,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                    };
+                    doc.Blocks.Add(new BlockUIContainer(img) { Margin = new Thickness(0, 0, 0, 4) });
+                }
+                catch { /* لوگوی نامعتبر/خراب → بی‌خیالِ لوگو */ }
+            }
+        }
         doc.Blocks.Add(new Paragraph(new Run(s.HeaderTitle))
         { FontSize = receipt ? 15 : 20, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0) });
         if (!string.IsNullOrWhiteSpace(s.HeaderLine2))

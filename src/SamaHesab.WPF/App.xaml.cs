@@ -111,6 +111,10 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IDialogService, DialogService>();
                 services.AddSingleton<INavigationService, NavigationService>();
                 services.AddSingleton<IPrintService, PrintService>();
+                // CC-1 (UX_ROADMAP) — جست‌وجوی سراسری: سرویسِ تجمیع (singleton) + providerهای lane pc (scoped).
+                services.AddSingleton<Services.Search.IGlobalSearchService, Services.Search.GlobalSearchService>();
+                services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.AccountsSearchProvider>();
+                services.AddScoped<Services.Search.IGlobalSearchProvider, Services.Search.ChequesSearchProvider>();
                 services.AddSingleton<Services.ApiClient>();
                 services.AddSingleton<Services.UpdateService>();   // به‌روزرسانِ خودکار از GitHub
                 services.AddSingleton<ModuleService>();   // سیستم ماژولار (واحد)

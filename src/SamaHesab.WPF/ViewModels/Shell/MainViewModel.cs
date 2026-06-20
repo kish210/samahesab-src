@@ -63,6 +63,12 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty] private BaseViewModel? _currentPage;
     [ObservableProperty] private WorkspaceTab? _selectedTab;
     public ObservableCollection<WorkspaceTab> OpenTabs { get; } = new();
+
+    // CC-1 — جست‌وجوی سراسری: نتایج + وضعیتِ Popup + انتخاب (+ توکنِ debounce).
+    public ObservableCollection<Services.Search.GlobalSearchResult> SearchResults { get; } = new();
+    [ObservableProperty] private bool _isSearchOpen;
+    [ObservableProperty] private Services.Search.GlobalSearchResult? _selectedSearchResult;
+    private System.Threading.CancellationTokenSource? _searchCts;
     [ObservableProperty] private string _activeMenu = "Dashboard";
     [ObservableProperty] private string _quickSearch = string.Empty;
     [ObservableProperty] private int _notificationCount = 3;
@@ -251,6 +257,48 @@ public partial class MainViewModel : BaseViewModel
 
     [RelayCommand]
     private async Task NavigateAsync(string page) => await NavigateToAsync(page);
+
+    // ── CC-1 — جست‌وجوی سراسری: debounce روی تایپ → Popupِ نتایج؛ Enter/کلیک → بازکردن در Tab ──
+    partial void OnQuickSearchChanged(string value)
+    {
+        _searchCts?.Cancel();
+        var term = (value ?? string.Empty).Trim();
+        if (term.Length < 2) { SearchResults.Clear(); IsSearchOpen = false; return; }
+        var cts = new System.Threading.CancellationTokenSource();
+        _searchCts = cts;
+        _ = RunSearchAsync(term, cts.Token);
+    }
+
+    private async Task RunSearchAsync(string term, System.Threading.CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(250, ct);   // debounce — تا با هر کلید کوئری نزنیم
+            var svc = _services.GetRequiredService<Services.Search.IGlobalSearchService>();
+            var res = await svc.SearchAsync(term, perGroupCap: 6, ct);
+            if (ct.IsCancellationRequested) return;
+            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            {
+                SearchResults.Clear();
+                foreach (var r in res.Take(40)) SearchResults.Add(r);
+                SelectedSearchResult = SearchResults.Count > 0 ? SearchResults[0] : null;
+                IsSearchOpen = SearchResults.Count > 0;
+            });
+        }
+        catch (TaskCanceledException) { }
+        catch { /* جست‌وجو نباید پوسته را بشکند */ }
+    }
+
+    [RelayCommand]
+    private async Task OpenSearchResultAsync(Services.Search.GlobalSearchResult? r)
+    {
+        r ??= SelectedSearchResult;
+        if (r == null) return;
+        IsSearchOpen = false;
+        QuickSearch = string.Empty;
+        SearchResults.Clear();
+        await NavigateToAsync(r.NavKey, r.Param);
+    }
 
     private void RaiseAccessFlags()
     {

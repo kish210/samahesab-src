@@ -354,9 +354,39 @@
                         <Path Grid.Column="0" Data="{StaticResource IcSearch}" Style="{StaticResource TopSvgIcon}" Stroke="#9FB0D0" Width="15" Height="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1" x:Name="GlobalSearchBox" Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
                                  Background="Transparent" BorderThickness="0" Foreground="White" CaretBrush="White" Padding="8,0"
+                                 KeyDown="GlobalSearchBox_KeyDown"
                                  materialDesign:HintAssist.Hint="جستجو در همه‌جا…  Ctrl+K" materialDesign:HintAssist.Foreground="#8294B6"/>
                     </Grid>
                 </Border>
+
+                <!-- CC-1 — Popupِ نتایجِ جست‌وجوی سراسری (زیرِ جعبه) -->
+                <Popup IsOpen="{Binding IsSearchOpen}" PlacementTarget="{Binding ElementName=GlobalSearchBox}" Placement="Bottom"
+                       StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade" Width="360" MaxHeight="430">
+                    <Border Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                            BorderThickness="1" CornerRadius="6" Margin="0,4,0,0" FlowDirection="RightToLeft">
+                        <ListBox x:Name="SearchResultsList" ItemsSource="{Binding SearchResults}" SelectedItem="{Binding SelectedSearchResult}"
+                                 Background="Transparent" BorderThickness="0" MaxHeight="428"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 MouseDoubleClick="SearchResult_Activate" KeyDown="SearchResultsList_KeyDown">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="2,3">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Icon}" FontSize="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Group}" Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" FontSize="10" FontWeight="Bold" Opacity="0.75"/>
+                                                <TextBlock Text="  ·  " Foreground="{DynamicResource SecondaryText}" FontSize="10"/>
+                                                <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="10" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Popup>
 
                 <!-- آیکون‌ها (مطابق طرح: ماشین‌حساب · راهنما · اعلان‌ها با نقطهٔ پینگ) -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">

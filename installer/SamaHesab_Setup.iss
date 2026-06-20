@@ -11,6 +11,13 @@
 #define MyAppExeName   "SamaHesab.exe"
 #define MyAppId        "{{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 
+; نصابِ آفلاینِ SQL Server Express (اختیاری ولی توصیه‌شده برای نصبِ بدونِ اینترنت):
+;   فایلِ کاملِ مایکروسافت (SQLEXPR_x64_ENU.exe، ~۲۷۰MB) را در installer\redist\ بگذارید
+;   تا در نصاب bundle و آفلاین نصب شود؛ نبودش → نصاب آن را از اینترنت دانلود می‌کند.
+#if FileExists(SourcePath + "redist\SQLEXPR_x64_ENU.exe")
+  #define SqlExprBundle
+#endif
+
 [Setup]
 AppId={#MyAppId}
 AppName={#MyAppName}
@@ -64,6 +71,11 @@ Source: "..\docs\SamaHesab-Tutorial.pdf"; DestDir: "{app}\docs"; DestName: "Tuto
 ; اسکریپت‌های پایگاه‌داده (همهٔ مهاجرت‌ها ۰۱..۲۲ — برای اجرای دستی روی SQL Server)
 Source: "..\database\*.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 
+#ifdef SqlExprBundle
+; نصابِ آفلاینِ SQL Server Express — هنگامِ نیاز در {tmp} استخراج می‌شود (در {app} کپی نمی‌شود)
+Source: "redist\SQLEXPR_x64_ENU.exe"; Flags: dontcopy
+#endif
+
 [Icons]
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
 Name: "{group}\صندوقِ فروش (POS)";               Filename: "{app}\pos.exe"; WorkingDir: "{app}"
@@ -113,13 +125,17 @@ begin
     and (ResultCode = 0);
 end;
 
-// ─── Check SQL Server ──────────────────────────────────────────────────────
-function IsSqlServerInstalled: Boolean;
+// ─── تشخیصِ دقیقِ نمونهٔ SQLEXPRESS ─────────────────────────────────────────
+//   ⚠️ قبلاً فقط وجودِ کلیدِ «Microsoft SQL Server» چک می‌شد که با هر باقی‌ماندهٔ
+//   SQL (SSMS/درایور/LocalDB) true می‌شد و نصبِ SQL Express را به‌اشتباه رد می‌کرد.
+//   حالا مستقیماً وجودِ نمونهٔ نام‌گذاری‌شدهٔ SQLEXPRESS (مقدارِ نمونه یا سرویسِ آن) بررسی می‌شود.
+function IsSqlExpressInstalled: Boolean;
 var
-  Subkey: String;
+  Val: String;
 begin
-  Subkey := 'SOFTWARE\Microsoft\Microsoft SQL Server';
-  Result := RegKeyExists(HKLM, Subkey);
+  Result :=
+    RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL', 'SQLEXPRESS', Val)
+    or RegKeyExists(HKLM, 'SYSTEM\CurrentControlSet\Services\MSSQL$SQLEXPRESS');
 end;
 
 // ─── پیش‌نیاز = SQL Server. اگر نباشد، نصاب خودش SQL Express را دانلود و نصب می‌کند ───
@@ -145,14 +161,18 @@ function InitializeSetup: Boolean;
 begin
   Result := True;
   NeedSqlInstall := False;
-  if IsSqlServerInstalled then Exit;
+  if IsSqlExpressInstalled then Exit;
 
   if MsgBox(
       'بررسیِ پیش‌نیازها:' + #13#10#13#10 +
       '✗ Microsoft SQL Server روی این سیستم پیدا نشد.' + #13#10 +
       '   سما حساب بدونِ آن کار نمی‌کند.' + #13#10#13#10 +
-      'آیا نصاب خودش SQL Server Express (رایگان) را دانلود و نصب کند؟' + #13#10 +
+      'آیا نصاب خودش SQL Server Express (رایگان) را نصب کند؟' + #13#10 +
+#ifdef SqlExprBundle
+      '(آفلاین — همراهِ نصاب؛ چند دقیقه طول می‌کشد. «خیر» = لغوِ نصب.)',
+#else
       '(نیازمندِ اینترنت؛ چند دقیقه طول می‌کشد. «خیر» = لغوِ نصب.)',
+#endif
       mbConfirmation, MB_YESNO) = IDYES then
     NeedSqlInstall := True
   else
@@ -173,13 +193,32 @@ begin
     'در حال دریافتِ بستهٔ نصبِ SQL Server Express…', @OnDownloadProgress);
 end;
 
-// دانلود + نصبِ بی‌صدای SQL Express، سپس راستی‌آزمایی. true = نصب شد و تأیید گردید.
-function InstallSqlExpress: Boolean;
+// اجرای بی‌صدای نصابِ SQL + بررسیِ کدِ خروجی (۳۰۱۰ = موفق با نیاز به ری‌استارت).
+function RunSqlSetup(const ExePath, Params: String): Boolean;
 var
   Rc: Integer;
 begin
+  WizardForm.StatusLabel.Caption := 'در حال نصبِ SQL Server Express… (چند دقیقه طول می‌کشد، صبور باشید)';
+  Result := Exec(ExePath, Params, '', SW_SHOW, ewWaitUntilTerminated, Rc) and ((Rc = 0) or (Rc = 3010));
+  if not Result then
+    MsgBox('نصبِ SQL Server Express ناموفق بود (کدِ خروجی: ' + IntToStr(Rc) + ').' + #13#10 +
+      'می‌توانید SQL Server Express را دستی نصب و سپس نصابِ سما حساب را دوباره اجرا کنید.', mbError, MB_OK);
+end;
+
+// نصبِ SQL Express (آفلاین از bundle، یا آنلاین با دانلود)، سپس راستی‌آزمایی. true = نصب و تأیید شد.
+function InstallSqlExpress: Boolean;
+begin
   Result := False;
-  // ۱) دانلودِ بوت‌استرپرِ SQL Express (با صفحهٔ پیشرفتِ Inno)
+#ifdef SqlExprBundle
+  // آفلاین: نصابِ کاملِ همراهِ نصاب (پارامترهای کاملِ setup.exe)
+  WizardForm.StatusLabel.Caption := 'در حال آماده‌سازیِ نصابِ SQL Server Express…';
+  ExtractTemporaryFile('SQLEXPR_x64_ENU.exe');
+  Result := RunSqlSetup(ExpandConstant('{tmp}\SQLEXPR_x64_ENU.exe'),
+    '/QS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS ' +
+    '/SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" ' +
+    '/SQLSVCSTARTUPTYPE=Automatic /TCPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS');
+#else
+  // آنلاین: دانلودِ بوت‌استرپرِ رسمی (نمونهٔ پیش‌فرضِ SQLEXPRESS را نصب می‌کند)
   DownloadPage.Clear;
   DownloadPage.Add(SqlExprUrl, 'SQL-Express-Setup.exe', '');
   DownloadPage.Show;
@@ -194,23 +233,15 @@ begin
   finally
     DownloadPage.Hide;
   end;
+  Result := RunSqlSetup(ExpandConstant('{tmp}\SQL-Express-Setup.exe'),
+    '/ACTION=Install /QUIET /HIDEPROGRESSBAR /IACCEPTSQLSERVERLICENSETERMS');
+#endif
 
-  // ۲) اجرای بی‌صدای نصابِ SQL Express (فقط موتورِ DB، نمونهٔ SQLEXPRESS)
-  WizardForm.StatusLabel.Caption := 'در حال نصبِ SQL Server Express… (چند دقیقه طول می‌کشد)';
-  if not Exec(ExpandConstant('{tmp}\SQL-Express-Setup.exe'),
-      '/ACTION=Install /QUIET /IACCEPTSQLSERVERLICENSETERMS /FEATURES=SQLENGINE ' +
-      '/INSTANCENAME=SQLEXPRESS /TCPENABLED=1 /HIDEPROGRESSBAR',
-      '', SW_SHOW, ewWaitUntilTerminated, Rc) then
-  begin
-    MsgBox('اجرای نصابِ SQL Server ناموفق بود (کدِ ' + IntToStr(Rc) + ').', mbError, MB_OK);
-    Exit;
-  end;
-
-  // ۳) راستی‌آزماییِ نصب
-  Result := IsSqlServerInstalled;
+  // راستی‌آزماییِ نهایی: واقعاً نمونهٔ SQLEXPRESS ساخته شد؟
+  if Result then Result := IsSqlExpressInstalled;
   if not Result then
-    MsgBox('نصبِ SQL Server کامل تأیید نشد (شاید به ری‌استارت نیاز باشد).' + #13#10 +
-      'پس از ری‌استارتِ ویندوز، نصبِ سما حساب را دوباره اجرا کنید.', mbError, MB_OK);
+    MsgBox('نصبِ SQL Server کامل تأیید نشد (شاید به ری‌استارتِ ویندوز نیاز باشد).' + #13#10 +
+      'پس از ری‌استارت، نصابِ سما حساب را دوباره اجرا کنید.', mbError, MB_OK);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;

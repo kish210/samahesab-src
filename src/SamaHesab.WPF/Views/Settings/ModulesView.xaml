@@ -61,6 +61,13 @@
             <Button Content="ذخیره ماژول‌ها" Command="{Binding SaveCommand}"
                     Background="{DynamicResource PrimaryAccent}" Foreground="White" BorderThickness="0"
                     Padding="20,9" Cursor="Hand" FontWeight="SemiBold"/>
+            <!-- یکپارچه‌سازیِ منوها بین ماشین‌ها: خروجی/ورودیِ تنظیماتِ ماژول -->
+            <Button Content="⬆ خروجی تنظیمات" Command="{Binding ExportCommand}"
+                    Margin="10,0,0,0" Padding="16,9" Cursor="Hand"
+                    ToolTip="ذخیرهٔ ماژول‌های فعال در یک فایل برای انتقال به ماشینِ دیگر"/>
+            <Button Content="⬇ ورودی تنظیمات" Command="{Binding ImportCommand}"
+                    Margin="8,0,0,0" Padding="16,9" Cursor="Hand"
+                    ToolTip="بارگذاریِ تنظیماتِ ماژول از فایلِ ماشینِ دیگر — منوها یکسان می‌شوند"/>
         </StackPanel>
     </Grid>
 </UserControl>

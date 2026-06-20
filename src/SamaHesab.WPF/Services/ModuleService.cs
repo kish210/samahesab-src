@@ -45,6 +45,9 @@ public class ModuleService
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");
 
+    /// <summary>مسیرِ فایلِ تنظیماتِ ماژول (برای کپیِ دستی بین ماشین‌ها).</summary>
+    public static string ConfigFilePath => FilePath;
+
     private HashSet<string> _enabled;
     public event Action? Changed;
 
@@ -58,6 +61,21 @@ public class ModuleService
     {
         if (CoreModules.Any(m => m.Key == key)) return;   // هسته غیرقابل تغییر
         if (enabled) _enabled.Add(key); else _enabled.Remove(key);
+        Save();
+        Changed?.Invoke();
+    }
+
+    /// <summary>کلیدهای ماژول‌های اختیاریِ فعالِ فعلی (برای خروجی/انتقال بین ماشین‌ها).</summary>
+    public string[] GetEnabledKeys() => _enabled.OrderBy(k => k).ToArray();
+
+    /// <summary>
+    /// جایگزینیِ کاملِ مجموعهٔ ماژول‌های فعال (ورودی از فایلِ ماشینِ دیگر) + ذخیره + اطلاعِ پوسته.
+    /// فقط کلیدهای معتبرِ اختیاری پذیرفته می‌شوند (هسته نادیده گرفته می‌شود).
+    /// </summary>
+    public void ReplaceEnabled(IEnumerable<string> keys)
+    {
+        var valid = OptionalModules.Select(m => m.Key).ToHashSet();
+        _enabled = new HashSet<string>(keys.Where(valid.Contains));
         Save();
         Changed?.Invoke();
     }

@@ -34,6 +34,49 @@ public partial class ModulesViewModel : BaseViewModel
         await _dialogService.ShowSuccessAsync(
             "ماژول‌ها ذخیره شد. منوها و صفحات مطابق ماژول‌های فعال به‌روزرسانی می‌شوند.");
     }
+
+    /// <summary>خروجیِ تنظیماتِ ماژول‌ها به فایل — برای انتقال به ماشینِ دیگر (یکپارچه‌سازیِ منوها).</summary>
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        var dlg = new Microsoft.Win32.SaveFileDialog
+        {
+            FileName = "samahesab-modules.json",
+            Filter = "تنظیماتِ ماژول (*.json)|*.json",
+            Title = "خروجیِ تنظیماتِ ماژول",
+        };
+        if (dlg.ShowDialog() != true) return;
+        try
+        {
+            foreach (var t in OptionalModules) _modules.SetEnabled(t.Key, t.IsEnabled);   // اول وضعیتِ جاری اعمال شود
+            System.IO.File.WriteAllText(dlg.FileName, System.Text.Json.JsonSerializer.Serialize(
+                _modules.GetEnabledKeys(), new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+            await _dialogService.ShowSuccessAsync(
+                $"تنظیماتِ ماژول ذخیره شد:\n{dlg.FileName}\nاین فایل را روی ماشینِ دیگر «ورودی» بگیرید تا منوها یکسان شوند.");
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("خطا در خروجی: " + ex.Message); }
+    }
+
+    /// <summary>ورودیِ تنظیماتِ ماژول از فایلِ ماشینِ دیگر — منوها فوراً یکپارچه می‌شوند.</summary>
+    [RelayCommand]
+    private async Task ImportAsync()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "تنظیماتِ ماژول (*.json)|*.json|همه فایل‌ها (*.*)|*.*",
+            Title = "ورودیِ تنظیماتِ ماژول",
+        };
+        if (dlg.ShowDialog() != true) return;
+        try
+        {
+            var keys = System.Text.Json.JsonSerializer.Deserialize<string[]>(System.IO.File.ReadAllText(dlg.FileName))
+                       ?? System.Array.Empty<string>();
+            _modules.ReplaceEnabled(keys);
+            foreach (var t in OptionalModules) t.IsEnabled = _modules.IsEnabled(t.Key);   // بازتاب در UI
+            await _dialogService.ShowSuccessAsync("تنظیماتِ ماژول وارد شد. منوها و صفحات به‌روزرسانی شدند.");
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("خطا در ورودی: " + ex.Message); }
+    }
 }
 
 public partial class ModuleToggle : ObservableObject

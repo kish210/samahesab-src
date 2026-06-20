@@ -293,6 +293,10 @@
                                             <Button DockPanel.Dock="Left" Width="26" Height="26" Content="✎" FontSize="13" Cursor="Hand"
                                                     Background="White" BorderBrush="{StaticResource ErpBorder}" ToolTip="یادداشت آشپزخانه"
                                                     Command="{Binding DataContext.EditNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                                            <!-- حذفِ کاملِ ردیف (برای ردیفِ چندتایی، بدونِ نیاز به چند بار −) -->
+                                            <Button DockPanel.Dock="Left" Width="26" Height="26" Content="🗑" FontSize="12" Cursor="Hand" Margin="4,0,0,0"
+                                                    Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpDanger500}" ToolTip="حذف ردیف"
+                                                    Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                                             <!-- نام + یادداشت + وضعیتِ آشپزخانهٔ سطح‌آیتم (U8) -->
                                             <StackPanel VerticalAlignment="Center" Margin="6,0,0,0">
                                                 <StackPanel Orientation="Horizontal">

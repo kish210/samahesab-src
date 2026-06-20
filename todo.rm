@@ -1209,3 +1209,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc) #9 داشبوردِ نقش‌محور: مسیردهیِ خودکارِ ورودِ اولیه بر اساسِ نقش
       (ACCOUNTANT→AccountantDash، WAREHOUSE→WarehouseDash، CASHIER→PosDashboard، MANAGER→ManagerDash، بقیه→عمومی)
       با fallback امن؛ منوی «داشبورد» عمومی می‌مانَد. build سبز.
+
+- [~] 🚧 (pc) #25 مرکزِ اعلان‌ها — صفحهٔ مصرف‌کنندهٔ GetAlertsQuery/AlertEngine (چک/موجودی/بدهی/انقضا). فایل‌های جدید: AlertsViewModel/AlertsView (claim).

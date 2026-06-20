@@ -1202,3 +1202,10 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
       فاکتورِ فروش `Confirm()`→Confirmed و فاکتورِ خرید `Confirm()`→«قطعی» می‌شود (به‌جای ماندن در Draft).
       + PurchaseInvoice.Confirm() جدید + IncomeSummary فروشِ Confirmed را هم می‌شمارد.
       تحلیل‌ها/هشدارها (که از !=Draft استفاده می‌کنند) حالا این فاکتورها را لحاظ می‌کنند. ۳ تستِ جدید (۴۰۸ سبز).
+
+### کارهای lane pc — به‌ترتیب (pc @ 2026-06-20)
+- [x] (pc) #7 دادهٔ اسناد/چک به موتورِ قالب — **از قبل انجام شده** (VoucherEdit/ChequeList دارای PrintWithTemplateAsync).
+- [x] (pc) باگِ GetVouchersQuery.TotalDebit=۰ — **از قبل رفع شده** (GetByDateRangeAsync حالا Include(Items) دارد).
+- [x] (pc) #9 داشبوردِ نقش‌محور: مسیردهیِ خودکارِ ورودِ اولیه بر اساسِ نقش
+      (ACCOUNTANT→AccountantDash، WAREHOUSE→WarehouseDash، CASHIER→PosDashboard، MANAGER→ManagerDash، بقیه→عمومی)
+      با fallback امن؛ منوی «داشبورد» عمومی می‌مانَد. build سبز.

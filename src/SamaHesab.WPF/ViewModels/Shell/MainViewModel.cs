@@ -211,7 +211,21 @@ public partial class MainViewModel : BaseViewModel
         CurrentUserRole = string.Join(", ", _currentUser.GetRoles());
         TodayPersianDate = _calendar.GetCurrentPersianDate();
         RaiseAccessFlags();   // منوها بر اساس مجوزِ کاربرِ واردشده
-        await NavigateToAsync("Dashboard");
+        await NavigateToAsync(PickRoleDashboard());   // کار #۹ — ورودِ اولیه به داشبوردِ متناسب با نقش
+    }
+
+    /// <summary>
+    /// کار #۹ — داشبوردِ متناسب با نقشِ کاربر برای ورودِ اولیه (با fallback به داشبوردِ عمومیِ جامع).
+    /// منوی «داشبورد» همچنان عمومی است؛ این فقط صفحهٔ آغازین را هوشمند می‌کند.
+    /// </summary>
+    private string PickRoleDashboard()
+    {
+        var roles = _currentUser.GetRoles().Select(r => r.ToUpperInvariant()).ToHashSet();
+        if (roles.Contains("ACCOUNTANT")) return "AccountantDash";
+        if (roles.Contains("WAREHOUSE")) return "WarehouseDash";
+        if (roles.Contains("CASHIER") && _modules.IsEnabled(ModuleService.Pos)) return "PosDashboard";
+        if (roles.Contains("MANAGER")) return "ManagerDash";
+        return "Dashboard";   // ادمین/فروش/خرید/HR/مشاهده‌کننده/ناشناخته → داشبوردِ عمومی
     }
 
     private void OnNavigationRequested(object? sender, NavigationEventArgs e) =>

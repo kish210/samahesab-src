@@ -27,7 +27,11 @@ public partial class RecurringInvoiceListViewModel : BaseViewModel
     public List<CustomerItem> Customers { get; private set; } = new();
     public List<WarehouseItem> Warehouses { get; private set; } = new();
     public List<ProductSearchResult> Products { get; private set; } = new();
-    public List<FreqOption> Frequencies { get; } = new() { new(0, "ماهانه"), new(1, "سالانه") };
+    public List<FreqOption> Frequencies { get; } = new()
+        { new(0, "ماهانه"), new(2, "فصلی (هر ۳ ماه)"), new(3, "شش‌ماهه"), new(1, "سالانه") };
+
+    /// <summary>نمایشِ فارسیِ کدِ بسامد (هم‌راستا با RecurrenceFrequency).</summary>
+    private static string FreqFa(int f) => f switch { 1 => "سالانه", 2 => "فصلی", 3 => "شش‌ماهه", _ => "ماهانه" };
 
     // فرمِ تعریفِ جدید
     [ObservableProperty] private string _newName = string.Empty;
@@ -78,7 +82,7 @@ public partial class RecurringInvoiceListViewModel : BaseViewModel
         Items.Clear();
         foreach (var d in await _mediator.Send(new GetRecurringInvoicesQuery()))
             Items.Add(new RecurringRow(d.Id, d.Name, names.TryGetValue(d.CustomerId, out var n) ? n : $"#{d.CustomerId}",
-                d.Frequency == 1 ? "سالانه" : "ماهانه", d.NextDate, d.LastGeneratedDate ?? "—", d.IsActive));
+                FreqFa(d.Frequency), d.NextDate, d.LastGeneratedDate ?? "—", d.IsActive));
     }
 
     partial void OnLineProductChanged(ProductSearchResult? value)

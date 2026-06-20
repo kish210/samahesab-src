@@ -1,10 +1,10 @@
 namespace SamaHesab.Application.Accounting;
 
-public enum RecurrenceFrequency { Monthly = 0, Yearly = 1 }
+public enum RecurrenceFrequency { Monthly = 0, Yearly = 1, Quarterly = 2, SemiAnnual = 3 }
 
 /// <summary>
 /// زمان‌بندی اسناد تکرارشونده — منطق خالص و تست‌پذیر روی تاریخ شمسی «YYYY/MM/DD».
-/// فقط دوره‌های ماهانه/سالانه (که با محاسبه‌ی رشته‌ای بدون تبدیل تقویم قابل‌انجام‌اند) پشتیبانی می‌شوند.
+/// دوره‌های ماه‌محور: ماهانه/فصلی/شش‌ماهه/سالانه (همه با محاسبه‌ی رشته‌ای بدون تبدیل تقویم).
 /// روزِ بزرگ‌تر از ۲۹ به ۲۹ محدود می‌شود تا از تاریخ نامعتبر (مثل ۳۱ اسفند) جلوگیری شود.
 /// </summary>
 public static class RecurrenceSchedule
@@ -23,16 +23,17 @@ public static class RecurrenceSchedule
             || !int.TryParse(parts[2], out var d))
             throw new ArgumentException($"تاریخ نامعتبر: {date}");
 
-        switch (frequency)
+        // همهٔ دوره‌ها ماه‌محورند (بدونِ نیاز به تبدیلِ تقویم): ماهانه=۱ · فصلی=۳ · شش‌ماهه=۶ · سالانه=۱۲ ماه.
+        var addMonths = frequency switch
         {
-            case RecurrenceFrequency.Monthly:
-                m++;
-                if (m > 12) { m = 1; y++; }
-                break;
-            case RecurrenceFrequency.Yearly:
-                y++;
-                break;
-        }
+            RecurrenceFrequency.Monthly    => 1,
+            RecurrenceFrequency.Quarterly  => 3,
+            RecurrenceFrequency.SemiAnnual => 6,
+            RecurrenceFrequency.Yearly     => 12,
+            _                               => 1,
+        };
+        m += addMonths;
+        while (m > 12) { m -= 12; y++; }
         if (d > 29) d = 29;
         return $"{y:0000}/{m:00}/{d:00}";
     }

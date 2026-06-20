@@ -1259,4 +1259,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc) **مواردِ کهنهٔ Party (خطوطِ ~۱۰۸۲–۱۰۸۷) SUPERSEDED**: با PARTY-CUTOVER (a82be2c) محقق شدند — یکپارچهٔ Crm.Parties، حذفِ جداولِ Customers/Suppliers، repointِ CustomerId/SupplierId→Party.Id، و GetPersonsQuery از Parties. (رویکردِ «افزودنِ ستونِ PartyId جدید» منسوخ شد؛ ستون‌های موجود همان FKِ Party شدند.)
 - ✅ (pc) کارهای lane pc تمام: بهینه‌سازیِ کاملِ صفحات (حسابداری/خزانه/گزارش/امنیت/HR/داشبورد) + رفعِ نصبِ SQL Express + ریلیزِ v2.5.9. باقیِ backlog یا lane لپ‌تاپ است یا deferred (کلاینتِ وب).
 
-- [~] 🚧 (pc) بسامدهای بیشترِ فاکتور/سندِ دوره‌ای (برای اشتراکِ اینترنت/پشتیبانی): افزودنِ Quarterly(۳ماه)/SemiAnnual(۶ماه) به RecurrenceFrequency + NextAfter (محاسبهٔ ماه‌محورِ یکپارچه) + گزینه‌های UIِ فاکتورِ تکرارشونده. (فاکتورهای دوره‌ای از قبل کامل بودند: ماهانه/سالانه + scheduler + UI.) claim.
+- [x] (pc) بسامدهای بیشترِ دوره‌ای (اشتراکِ اینترنت/پشتیبانی): Quarterly(۳ماه)/SemiAnnual(۶ماه) به RecurrenceFrequency + NextAfter ماه‌محورِ یکپارچه + گزینه‌های UIِ فاکتورِ تکرارشونده + FreqFa. ۳ تستِ جدید (۴۱۵). (فاکتورهای دوره‌ای از قبل کامل: ماهانه/سالانه + scheduler + UI.)

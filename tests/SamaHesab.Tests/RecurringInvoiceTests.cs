@@ -37,6 +37,19 @@ public class RecurringInvoiceTests
         Assert.Equal("1405/05/10", next);
     }
 
+    // بسامدهای اشتراکیِ جدید (اینترنت/پشتیبانی): فصلی=۳ماه · شش‌ماهه=۶ماه، با سرریزِ سال.
+    [Fact]
+    public void Quarterly_Advances_Three_Months()
+        => Assert.Equal("1404/05/10", RecurrenceSchedule.NextAfter("1404/02/10", RecurrenceFrequency.Quarterly));
+
+    [Fact]
+    public void Quarterly_Wraps_Year()
+        => Assert.Equal("1405/01/10", RecurrenceSchedule.NextAfter("1404/10/10", RecurrenceFrequency.Quarterly));
+
+    [Fact]
+    public void SemiAnnual_Advances_Six_Months_With_Wrap()
+        => Assert.Equal("1405/02/10", RecurrenceSchedule.NextAfter("1404/08/10", RecurrenceFrequency.SemiAnnual));
+
     [Fact]
     public void Deactivate_Sets_Inactive()
     {

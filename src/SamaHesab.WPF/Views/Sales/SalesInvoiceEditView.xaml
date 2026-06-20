@@ -10,6 +10,7 @@
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
+        <conv:NullToVisibilityConverter x:Key="NullVis"/>
         <Style x:Key="Cap" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10.5"/><Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="Margin" Value="2,0,0,2"/>
@@ -263,6 +264,10 @@
                                      Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}">
                                 <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding ProcessBarcodeCommand}"/></TextBox.InputBindings>
                             </TextBox>
+                            <!-- UX-SALES-1 — هینتِ تاریخچهٔ قیمت (آخرین فروشِ کالا، کلی + به این مشتری) -->
+                            <TextBlock Text="{Binding EntryPriceHint}" FontSize="10.5" Foreground="{StaticResource ErpBlue700}"
+                                       TextTrimming="CharacterEllipsis" Margin="2,2,0,0"
+                                       Visibility="{Binding EntryPriceHint, Converter={StaticResource NullVis}}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="توضیحاتِ فاکتور" Style="{StaticResource Cap}"/>

@@ -221,11 +221,33 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         if (SelectedProductItem != null) EntryOnHand = OnHandOf(SelectedProductItem.Id);
     }
 
+    // UX-SALES-1 — هینتِ تاریخچهٔ قیمت برای کالای نوارِ ورود (آخرین قیمتِ فروش).
+    [ObservableProperty] private string? _entryPriceHint;
+
     partial void OnSelectedProductItemChanged(ProductSearchResult? value)
     {
         EntryOnHand = value != null ? OnHandOf(value.Id) : 0;
         // با انتخابِ کالا، «فی» و «مالیات ٪» نوارِ ورود از خودِ کالا پر شود.
         if (value != null) { AddUnitPrice = value.Price; AddTaxPct = value.TaxRate; }
+        _ = LoadEntryPriceHintAsync(value?.Id ?? 0);
+    }
+
+    /// <summary>آخرین قیمتِ فروشِ کالا (کلی + به همین مشتری) را برای هینت می‌خوانَد.</summary>
+    private async Task LoadEntryPriceHintAsync(int productId)
+    {
+        if (productId <= 0) { EntryPriceHint = null; return; }
+        try
+        {
+            var dto = await _mediator.Send(new SamaHesab.Application.Sales.Queries.GetProductLastPriceQuery(
+                productId, SelectedCustomerId > 0 ? SelectedCustomerId : (int?)null));
+            if (dto.LastPrice is null) { EntryPriceHint = "بدونِ سابقهٔ فروش"; return; }
+            var s = $"آخرین فروش: {dto.LastPrice:N0}";
+            if (!string.IsNullOrEmpty(dto.LastDate)) s += $" ({dto.LastDate})";
+            if (dto.LastPriceForCustomer is decimal pc)
+                s += $" · به این مشتری: {pc:N0}" + (string.IsNullOrEmpty(dto.LastDateForCustomer) ? "" : $" ({dto.LastDateForCustomer})");
+            EntryPriceHint = s;
+        }
+        catch { EntryPriceHint = null; }
     }
 
     private PrintDocumentData BuildPrintData()

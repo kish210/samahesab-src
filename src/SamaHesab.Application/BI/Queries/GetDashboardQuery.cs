@@ -1,5 +1,6 @@
 using SamaHesab.Domain.Entities.CRM;
 using MediatR;
+using SamaHesab.Application.Automation;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -81,10 +82,12 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         var overdue = due.Count(c => string.CompareOrdinal(c.DueDate, today) < 0);
 
         var lowStock = new List<DashLowStock>();
+        var stockInputs = new List<StockAlertInput>();
         foreach (var p in products)
         {
             var qty = await _stock.GetTotalQuantityAsync(p.Id, ct);
             if (p.MinStock > 0 && qty <= p.MinStock) lowStock.Add(new DashLowStock(p.Code, p.Name, qty, p.MinStock));
+            if (p.MinStock > 0 || p.ReorderPoint > 0) stockInputs.Add(new StockAlertInput(p.Id, p.Name, qty, p.MinStock, p.ReorderPoint));
         }
 
         var topCustomers = customers.OrderByDescending(c => c.Balance).Take(8).Select(c => new DashPartyBalance(c.FullName, c.Balance)).ToList();
@@ -96,10 +99,30 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         var monthSales = sales.Where(i => i.InvoiceDate.StartsWith(month)).Sum(i => i.GrandTotal);
         var monthPurch = purchases.Where(i => i.InvoiceDate.StartsWith(month)).Sum(i => i.GrandTotal);
 
+        // ── اعلان‌ها: هم‌منطق با مرکزِ اعلان‌ها (AlertEngine)، سپس خلاصه‌سازی بر اساسِ دسته ──
+        //   چک/موجودی/بدهی از همان موتور می‌آیند (انقضا این‌جا صرف‌نظر — batch بار نمی‌شود).
+        var chequeInputs = cheques.Where(c => c.Status == ChequeStatus.InProcess)
+            .Select(c => new ChequeAlertInput(c.Id, c.ChequeNumber, c.DueDate, c.Amount, c.ChequeType.ToString()));
+        var debtInputs = sales.Where(i => i.RemainAmount > 0.01m && i.DueDate != null
+                && i.Status != InvoiceStatus.Draft && i.Status != InvoiceStatus.Cancelled)
+            .Select(i => new ReceivableAlertInput(i.Id, i.InvoiceNumber, i.DueDate, i.RemainAmount));
+        var engineAlerts = AlertEngine.ChequeAlerts(chequeInputs, today)
+            .Concat(AlertEngine.LowStockAlerts(stockInputs))
+            .Concat(AlertEngine.DebtAlerts(debtInputs, today))
+            .ToList();
+
         var alerts = new List<DashAlert>();
-        if (lowStock.Count > 0) alerts.Add(new DashAlert("⚠", $"{lowStock.Count} کالا به حداقل موجودی رسیده‌اند.", "warning", "Products"));
-        if (overdue > 0) alerts.Add(new DashAlert("🔴", $"{overdue} چک سررسید گذشته دارید.", "danger", "Cheques"));
-        if (receivable > 0) alerts.Add(new DashAlert("📥", $"مانده دریافتنی از مشتریان: {receivable:#,##0} ریال", "info", "Customers"));
+        void AddCat(string kind, string icon, string level, string nav, string label)
+        {
+            var n = engineAlerts.Count(a => a.Kind == kind);
+            if (n > 0) alerts.Add(new DashAlert(icon, $"{n} {label}", level, nav));
+        }
+        AddCat("ChequeOverdue",      "🔴", "danger",  "ChequeBoard", "چک سررسیدگذشته");
+        AddCat("ChequeDueToday",     "🟡", "warning", "ChequeBoard", "چک سررسیدِ امروز");
+        AddCat("OutOfStock",         "🔴", "danger",  "Products",    "کالای ناموجود");
+        AddCat("LowStock",           "⚠",  "warning", "Products",    "کالا زیرِ حداقلِ موجودی");
+        AddCat("OverdueReceivable",  "🔴", "danger",  "Receivables", "فاکتورِ معوقِ دریافتنی");
+        AddCat("ReceivableDueToday", "🟡", "warning", "Receivables", "فاکتورِ سررسیدِ امروز");
 
         return new DashboardDto(
             sales.Where(i => i.InvoiceDate == today).Sum(i => i.GrandTotal), monthSales,

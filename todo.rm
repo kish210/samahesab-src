@@ -1211,3 +1211,16 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
       با fallback امن؛ منوی «داشبورد» عمومی می‌مانَد. build سبز.
 
 - [x] (pc) #25 مرکزِ اعلان‌ها — ✅ AlertsViewModel/AlertsView (مصرف‌کنندهٔ GetAlertsQuery/AlertEngine: چک/موجودی/بدهی/انقضا) + ثبت در nav/DI/DataTemplate + زنگولهٔ پوسته به آن وصل و شمارندهٔ واقعی گرفت. رندرِ واقعیِ DB تأیید شد.
+
+### بازبینیِ کاملِ backlogِ lane pc (pc @ 2026-06-20) — همه تأیید شد
+این موارد در بررسی، **از قبل انجام‌شده** یافت شدند (backlog قدیمی بود):
+- [x] (pc) #3 API + Swagger — Swagger کامل در Program.cs (Swashbuckle 7.2 + Bearer + /swagger).
+- [x] (pc) #6 موتورِ گردش‌کار/تأیید — ApprovalWorkflow + VoucherApprovalCommands + GetPendingApprovalsQuery
+      + VoucherApprovalsViewModel/View + nav/DI/DataTemplate + منوی «کارتابلِ تأیید اسناد». کامل.
+- [x] (pc) #28 موتورِ گزارش‌ساز — export/print در ۱۰+ گزارش (سند/مشتری/کالا/انبار/نقطهٔ سفارش/…). کامل.
+- [x] (pc) #26 اسناد/فاکتورهای تکراری — RecurringInvoiceList VM/View + nav. کامل.
+- [x] (pc) #27 پیشنهاد سفارش خرید — ReorderReport VM + nav. کامل.
+- [x] (pc) گزارشِ «درآمد و سود» (IncomeSummary) — IncomeReport VM + nav «درآمد و سود»/«لیست درآمدها». کامل.
+
+نتیجه: **backlogِ featureِ lane pc تمام است.** باقی‌مانده: فقط #4 (کلاینتِ وب/موبایل — به‌تعویقِ کاربر) + کارهای laptop.
+گامِ بعدیِ پیشنهادی (طبقِ راهبرد): فازِ بهینه‌سازی/بلوغِ هستهٔ ERP (چگالی/کیبورد/سرعت) روی صفحاتِ حسابداری/خزانه/گزارش — به‌انتخابِ کاربر.

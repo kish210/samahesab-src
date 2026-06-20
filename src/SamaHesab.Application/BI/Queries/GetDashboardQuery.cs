@@ -34,6 +34,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
     private readonly IRepository<Party> _suppliers;
     private readonly IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> _sales;
     private readonly IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> _purchases;
+    private readonly IRepository<SamaHesab.Domain.Entities.Inventory.Batch> _batches;
     private readonly ICurrentUserService _currentUser;
 
     public GetDashboardQueryHandler(IStockItemRepository stock, IChequeRepository cheques,
@@ -42,9 +43,10 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         IRepository<Party> suppliers,
         IRepository<SamaHesab.Domain.Entities.Sales.SalesInvoice> sales,
         IRepository<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> purchases,
+        IRepository<SamaHesab.Domain.Entities.Inventory.Batch> batches,
         ICurrentUserService currentUser)
     { _stock = stock; _cheques = cheques; _products = products; _customers = customers;
-      _suppliers = suppliers; _sales = sales; _purchases = purchases; _currentUser = currentUser; }
+      _suppliers = suppliers; _sales = sales; _purchases = purchases; _batches = batches; _currentUser = currentUser; }
 
     private static string StatusFa(InvoiceStatus s) => s switch
     {
@@ -100,15 +102,25 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         var monthPurch = purchases.Where(i => i.InvoiceDate.StartsWith(month)).Sum(i => i.GrandTotal);
 
         // ── اعلان‌ها: هم‌منطق با مرکزِ اعلان‌ها (AlertEngine)، سپس خلاصه‌سازی بر اساسِ دسته ──
-        //   چک/موجودی/بدهی از همان موتور می‌آیند (انقضا این‌جا صرف‌نظر — batch بار نمی‌شود).
+        //   چک/موجودی/بدهی/انقضا همگی از همان موتور (هم‌منطق با مرکزِ اعلان‌ها).
         var chequeInputs = cheques.Where(c => c.Status == ChequeStatus.InProcess)
             .Select(c => new ChequeAlertInput(c.Id, c.ChequeNumber, c.DueDate, c.Amount, c.ChequeType.ToString()));
         var debtInputs = sales.Where(i => i.RemainAmount > 0.01m && i.DueDate != null
                 && i.Status != InvoiceStatus.Draft && i.Status != InvoiceStatus.Cancelled)
             .Select(i => new ReceivableAlertInput(i.Id, i.InvoiceNumber, i.DueDate, i.RemainAmount));
+        // انقضای موجودی: بچ‌های دارای موجودی، افقِ ۳۰ روز.
+        var productNames = products.ToDictionary(p => p.Id, p => p.Name);
+        var prodIds = products.Select(p => p.Id).ToList();
+        var batches = await _batches.FindAsync(
+            b => prodIds.Contains(b.ProductId) && b.Quantity > 0 && b.ExpiryDate != null, ct);
+        var batchInputs = batches.Select(b => new BatchAlertInput(
+            b.Id, productNames.TryGetValue(b.ProductId, out var bn) ? bn : $"#{b.ProductId}",
+            b.BatchNumber, b.ExpiryDate, b.Quantity));
+        var horizon = AddDaysPersian(today, 30);
         var engineAlerts = AlertEngine.ChequeAlerts(chequeInputs, today)
             .Concat(AlertEngine.LowStockAlerts(stockInputs))
             .Concat(AlertEngine.DebtAlerts(debtInputs, today))
+            .Concat(AlertEngine.ExpiryAlerts(batchInputs, today, horizon))
             .ToList();
 
         var alerts = new List<DashAlert>();
@@ -123,6 +135,8 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         AddCat("LowStock",           "⚠",  "warning", "Products",    "کالا زیرِ حداقلِ موجودی");
         AddCat("OverdueReceivable",  "🔴", "danger",  "Receivables", "فاکتورِ معوقِ دریافتنی");
         AddCat("ReceivableDueToday", "🟡", "warning", "Receivables", "فاکتورِ سررسیدِ امروز");
+        AddCat("Expired",            "🔴", "danger",  "InventoryReport", "بچِ منقضی‌شده");
+        AddCat("ExpiringSoon",       "🟡", "warning", "InventoryReport", "بچِ نزدیکِ انقضا");
 
         return new DashboardDto(
             sales.Where(i => i.InvoiceDate == today).Sum(i => i.GrandTotal), monthSales,
@@ -132,5 +146,18 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
             sales.Where(i => i.InvoiceDate == today).Sum(i => i.PaidAmount),
             purchases.Where(i => i.InvoiceDate == today).Sum(i => i.PaidAmount),
             recentSales, recentPurch, due, lowStock, topCustomers, debtors, creditors, alerts);
+    }
+
+    /// <summary>افزودن n روز به تاریخ شمسی yyyy/MM/dd (با تبدیل امن میلادی↔شمسی) — برای افقِ انقضا.</summary>
+    private static string AddDaysPersian(string persian, int days)
+    {
+        try
+        {
+            var p = persian.Split('/');
+            var pc = new System.Globalization.PersianCalendar();
+            var dt = pc.ToDateTime(int.Parse(p[0]), int.Parse(p[1]), int.Parse(p[2]), 0, 0, 0, 0).AddDays(days);
+            return $"{pc.GetYear(dt):0000}/{pc.GetMonth(dt):00}/{pc.GetDayOfMonth(dt):00}";
+        }
+        catch { return persian; }
     }
 }

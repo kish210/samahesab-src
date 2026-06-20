@@ -6,6 +6,13 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- کیبوردمحور: F2 افزودن · Enter ویرایشِ حسابِ انتخابی · Delete حذف · Ctrl+S ذخیره -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding AddAccountCommand}"/>
+        <KeyBinding Key="Enter" Command="{Binding EditAccountCommand}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteAccountCommand}"/>
+        <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveAccountCommand}"/>
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

@@ -1302,6 +1302,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 > **تقسیم:** زیرساختِ شل (search/palette/favorites sidebar) = C1؛ providerها و یکسان‌سازیِ میان‌بر/چگالیِ فرم‌ها = هر lane.
 > claimها ذیلِ همین بخش زده می‌شوند.
 - [x] ✅C2 **UX-SALES-1 — تاریخچهٔ قیمت در فاکتور فروش (SALES UX).** انجام شد: `GetProductLastPriceQuery(ProductId, CustomerId?)` → آخرین قیمتِ فروشِ کالا (کلی + به همین مشتری، روی فاکتورهای قطعی/تأییدِ فروش). در `SalesInvoiceEditViewModel` با انتخابِ کالا `EntryPriceHint` پر می‌شود؛ زیرِ نوارِ بارکد به‌صورتِ «آخرین فروش: X (تاریخ) · به این مشتری: Y» نمایش داده می‌شود (یا «بدونِ سابقهٔ فروش»). فروشنده پیش از افزودن، قیمتِ مرجع را می‌بیند → قیمت‌گذاریِ سریع‌تر/سازگارتر. (بارکد-اول از قبل کامل بود.) build سبز، ۴۱۵ تست. *(لِینِ C2 — فروش)*
+- [~] 🚧C2 **UX-SALES-2 (claim @2026-06-21) — خریدهای اخیرِ مشتری در فاکتور فروش (Recent Purchases، SALES UX).** با انتخابِ مشتری، چیپ‌های کالاهای اخیراً خریداری‌شده نمایش داده شود؛ کلیک = افزودنِ فوری (گردشِ سفارشِ مجدد). `GetCustomerRecentProductsQuery` + `RecentProducts` + `AddRecentProductCommand`. الگو: همان چیپ‌های `RecentCustomers`. مستقل از شلِ C1. *(لِینِ C2 — فروش)*
 
 ## CC-1 جست‌وجوی سراسری (UX_ROADMAP فاز ۰، P0)
 - [~] 🚧 (pc/C1) CC-1 زیرساختِ شل: IGlobalSearchProvider + IGlobalSearchService (تجمیعِ providerها) + سیمِ جعبهٔ QuickSearch/Ctrl+K به Popupِ نتایجِ گروه‌بندی‌شده + Enter→بازکردن در Tab + providerهای lane pc (حساب/سند/چک). providerهای فروش/کالا/مشتری/انبار → C2. claim.

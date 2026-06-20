@@ -36,7 +36,18 @@
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Customers}" RowHeight="28"
-                                >
+                      SelectedItem="{Binding SelectedCustomer}">
+                <!-- CC-5 — دابل‌کلیک/راست‌کلیک → کارتِ ۳۶۰° -->
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenCardCommand}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="👤 کارتِ مشتری (۳۶۰°)"
+                                  Command="{Binding PlacementTarget.DataContext.OpenCardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
                     <DataGridTextColumn Header="نام / شرکت" Binding="{Binding Name}" Width="2*"/>

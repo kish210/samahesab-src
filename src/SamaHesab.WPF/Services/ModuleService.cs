@@ -91,8 +91,10 @@ public class ModuleService
             }
         }
         catch { /* fall through to default */ }
-        // پیش‌فرض: ماژول‌های ساخته‌شده فعال‌اند تا رفتار فعلی حفظ شود؛ گردشگری/هتل خاموش.
-        return new HashSet<string> { Pos, Restaurant, Hr, Crm };
+        // پیش‌فرضِ یکپارچه (در گیت، منبعِ واحدِ همهٔ ماشین‌ها): چون هر ماشین DB محلیِ خودش را دارد،
+        // تنها کانالِ مشترک git است؛ پس مجموعهٔ پیش‌فرض این‌جا تعریف می‌شود تا منوها بین PC/لپ‌تاپ یکسان بماند.
+        // گردشگری/هتل خاموش. برای تفاوتِ عمدیِ هر ماشین از «خروجی/ورودیِ تنظیمات» استفاده شود.
+        return new HashSet<string> { Pos, Restaurant, Hr, Crm, Support };
     }
 
     private void Save()

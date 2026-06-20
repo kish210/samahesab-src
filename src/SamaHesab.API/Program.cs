@@ -1,4 +1,5 @@
 using System.Text;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -55,6 +56,22 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();   // پاسخِ خطای یکدستِ JSON (RFC 7807)
+
+// ── نسخه‌بندیِ API (P7): پیش‌فرض v1؛ نسخه از هدرِ X-Api-Version یا کوئریِ api-version.
+//    AssumeDefaultVersionWhenUnspecified → مسیرهای موجود و کلاینتِ فعلی بدونِ تغییر کار می‌کنند (v1).
+builder.Services.AddApiVersioning(o =>
+{
+    o.DefaultApiVersion = new ApiVersion(1, 0);
+    o.AssumeDefaultVersionWhenUnspecified = true;
+    o.ReportApiVersions = true;   // هدرِ api-supported-versions در پاسخ
+    o.ApiVersionReader = ApiVersionReader.Combine(
+        new HeaderApiVersionReader("X-Api-Version"),
+        new QueryStringApiVersionReader("api-version"));
+}).AddApiExplorer(o =>
+{
+    o.GroupNameFormat = "'v'VVV";       // v1، v2، …
+    o.SubstituteApiVersionInUrl = false; // مسیرها URL-segment ندارند (سازگار با کلاینتِ فعلی)
+});
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 

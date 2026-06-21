@@ -10,6 +10,16 @@ public partial class PosView : UserControl
         InitializeComponent();
         // OPT-11: فوکوسِ همیشگیِ نوارِ بارکد برای اسکنِ پیوسته و سریع
         Loaded += (_, _) => BarcodeBox.Focus();
+        // POS-CUSTOMER — F6: فوکوس/بازکردنِ انتخاب‌گرِ مشتری.
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key == System.Windows.Input.Key.F6)
+            {
+                CustomerPicker.Focus();
+                CustomerPicker.IsDropDownOpen = true;
+                e.Handled = true;
+            }
+        };
     }
 
     private void ServerSettings_Click(object sender, RoutedEventArgs e)

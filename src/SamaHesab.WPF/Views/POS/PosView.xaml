@@ -80,7 +80,17 @@
                     <Border Grid.Row="0" Background="#F6F7F9" CornerRadius="9,9,0,0" Padding="12,9" BorderBrush="{StaticResource ErpBorder}" BorderThickness="0,0,0,1">
                         <DockPanel>
                             <TextBlock Text="{Binding ReceiptNumber, StringFormat='فاکتور صندوق {0}'}" FontWeight="Bold" FontSize="12.5" Foreground="{StaticResource ErpBlue700}"/>
-                            <TextBlock DockPanel.Dock="Left" Text="مشتری: متفرقه" FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center"/>
+                            <!-- POS-CUSTOMER — انتخاب‌گرِ مشتری (سرچ‌پذیر، F6). پیش‌فرض «متفرقه». -->
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="مشتری:" FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <ComboBox x:Name="CustomerPicker" Width="170" Height="26" IsEditable="True" IsTextSearchEnabled="True"
+                                          ItemsSource="{Binding Customers}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedCustomerId}"
+                                          Text="{Binding CustomerDisplay, Mode=OneWay}" ToolTip="انتخابِ مشتری — F6"/>
+                                <Button Content="✕" Width="22" Height="22" Margin="3,0,0,0" Padding="0" Cursor="Hand"
+                                        Background="Transparent" BorderThickness="0" ToolTip="حذفِ مشتری (متفرقه)"
+                                        Command="{Binding ClearCustomerCommand}"/>
+                            </StackPanel>
                         </DockPanel>
                     </Border>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

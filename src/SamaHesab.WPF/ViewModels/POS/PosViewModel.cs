@@ -51,6 +51,17 @@ public partial class PosViewModel : BaseViewModel
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
     public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };
 
+    // POS-CUSTOMER — انتخابِ مشتری در صندوق (پیش‌فرض «متفرقه»). برای فروشِ نسیه/باشگاه.
+    public ObservableCollection<PosCustomer> Customers { get; } = new();
+    public string CustomerDisplay => string.IsNullOrWhiteSpace(SelectedCustomerName) ? "متفرقه" : SelectedCustomerName!;
+    partial void OnSelectedCustomerNameChanged(string? value) => OnPropertyChanged(nameof(CustomerDisplay));
+    partial void OnSelectedCustomerIdChanged(int? value)
+    {
+        var c = Customers.FirstOrDefault(x => x.Id == value);
+        SelectedCustomerName = c?.Name;
+    }
+    [RelayCommand] private void ClearCustomer() { SelectedCustomerId = null; SelectedCustomerName = null; }
+
     // U11 — فاکتورهای معلق (Hold/Recall، کار #۳۳). فهرستِ فاکتورهای پارک‌شده برای فراخوانِ بعدی.
     public ObservableCollection<HeldSaleRow> HeldSales { get; } = new();
     [ObservableProperty] private bool _hasHeldSales;
@@ -110,6 +121,17 @@ public partial class PosViewModel : BaseViewModel
             try { foreach (var g in (await _groupRepo.FindAsync(g => g.CompanyId == companyId)).OrderBy(g => g.Code)) Categories.Add(new PosCategoryTile(g.Id, g.Name)); }
             catch { }
         }
+
+        // POS-CUSTOMER — فهرستِ مشتری برای انتخاب‌گرِ هدر.
+        try
+        {
+            Customers.Clear();
+            var custs = UseApi
+                ? (await _api.GetCustomersAsync()).Select(c => new PosCustomer(c.Id, c.Name))
+                : (await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetCustomersQuery())).Select(c => new PosCustomer(c.Id, c.Name));
+            foreach (var c in custs) Customers.Add(c);
+        }
+        catch { /* انتخاب‌گرِ مشتری نباید صندوق را بشکند */ }
 
         await LoadFavoritesAsync();
         await LoadHeldSalesAsync();
@@ -523,6 +545,7 @@ public partial class PosCartItem : ObservableObject
 }
 
 public record PosCategoryTile(int Id, string Name);
+public record PosCustomer(int Id, string Name);
 public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId,
     SamaHesab.Domain.Enums.ProductType Type = SamaHesab.Domain.Enums.ProductType.Product);
 public record HeldSaleRow(int Id, string Label, decimal Total, DateTime CreatedAt);

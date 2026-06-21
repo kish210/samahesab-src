@@ -92,28 +92,32 @@
 
         <!-- ═══ mini-kpi (نوار فشرده) ═══ -->
         <UniformGrid Grid.Row="1" Rows="1" Columns="4">
-            <Border Style="{StaticResource MiniKpi}">
+            <Border Style="{StaticResource MiniKpi}" Cursor="Hand" ToolTip="باز کردنِ فاکتورِ فروش">
+                <Border.InputBindings><MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToCommand}" CommandParameter="SalesInvoice"/></Border.InputBindings>
                 <StackPanel>
                     <TextBlock Text="فروش امروز" FontSize="11" Foreground="{DynamicResource MutedText}"/>
                     <TextBlock Text="{Binding TodaySales, Converter={StaticResource Num}, ConverterParameter=ریال}" FontSize="16" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryText}" Margin="0,3,0,0"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource MiniKpi}">
+            <Border Style="{StaticResource MiniKpi}" Cursor="Hand" ToolTip="باز کردنِ دریافتنی/پرداختنی">
+                <Border.InputBindings><MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToCommand}" CommandParameter="Receivables"/></Border.InputBindings>
                 <StackPanel>
                     <TextBlock Text="دریافتنی کل" FontSize="11" Foreground="{DynamicResource MutedText}"/>
                     <TextBlock Text="{Binding Receivable, Converter={StaticResource Num}}" FontSize="16" FontWeight="Bold"
                                Foreground="{DynamicResource DangerColor}" Margin="0,3,0,0"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource MiniKpi}">
+            <Border Style="{StaticResource MiniKpi}" Cursor="Hand" ToolTip="باز کردنِ تابلوی چک">
+                <Border.InputBindings><MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToCommand}" CommandParameter="ChequeBoard"/></Border.InputBindings>
                 <StackPanel>
                     <TextBlock Text="چک سررسید" FontSize="11" Foreground="{DynamicResource MutedText}"/>
                     <TextBlock Text="{Binding ChequesDueCount, Converter={StaticResource Num}, ConverterParameter=فقره}" FontSize="16" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryText}" Margin="0,3,0,0"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource MiniKpi}">
+            <Border Style="{StaticResource MiniKpi}" Cursor="Hand" ToolTip="باز کردنِ فهرستِ کالا">
+                <Border.InputBindings><MouseBinding MouseAction="LeftClick" Command="{Binding NavigateToCommand}" CommandParameter="Products"/></Border.InputBindings>
                 <StackPanel>
                     <TextBlock Text="کالای کم‌موجود" FontSize="11" Foreground="{DynamicResource MutedText}"/>
                     <TextBlock Text="{Binding LowStockCount, Converter={StaticResource Num}, ConverterParameter=قلم}" FontSize="16" FontWeight="Bold"

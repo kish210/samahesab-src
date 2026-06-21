@@ -499,9 +499,6 @@ public partial class MainViewModel : BaseViewModel
             return;
         }
 
-        // CC-3 — ثبتِ صفحه برای «اخیر/پین‌شده» (fire-and-forget، خارج از قفلِ ناوبری).
-        _ = TouchScreenAsync(page);
-
         // Activate the tab if it is already open
         var existing = OpenTabs.FirstOrDefault(t => t.Key == page);
         if (existing != null)

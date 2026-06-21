@@ -532,19 +532,6 @@
                     </EventTrigger>
                 </Border.Triggers>
                 <StackPanel VerticalAlignment="Top" Margin="0,10">
-                    <!-- CC-3 — دسترسیِ سریع: صفحاتِ اخیر/پرکاربرد (بدونِ دکمهٔ ستاره) -->
-                    <ItemsControl ItemsSource="{Binding DataContext.QuickAccess, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Style="{StaticResource SideItem}" Height="34" CommandParameter="{Binding Key}" ToolTip="{Binding Title}">
-                                    <TextBlock Text="{Binding Title}" Margin="20,0,0,0" VerticalAlignment="Center" FontSize="12.5" Foreground="#D6E0F0" TextTrimming="CharacterEllipsis"/>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Rectangle Height="1" Fill="#14FFFFFF" Margin="14,6"
-                               Visibility="{Binding DataContext.HasQuickAccess, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}, Converter={StaticResource BoolVis}}"/>
-
                     <Button Style="{StaticResource SideItem}" CommandParameter="Dashboard">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcHome}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>

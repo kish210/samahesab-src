@@ -75,6 +75,8 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         return await _mediator.Send(new GetAccountsQuery());
     }
 
+    [RelayCommand] private Task RefreshAsync() => LoadAsync();   // CC-4 — F5 بازخوانی
+
     public override async Task LoadAsync()
     {
         await ExecuteAsync(async () =>

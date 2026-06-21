@@ -177,6 +177,7 @@ public partial class VoucherListViewModel : BaseViewModel
     [RelayCommand] private Task PrevPageAsync()  { if (!CanPrevPage) return Task.CompletedTask; PageNumber--; return LoadPageAsync(); }
     [RelayCommand] private Task NextPageAsync()  { if (!CanNextPage) return Task.CompletedTask; PageNumber++; return LoadPageAsync(); }
     [RelayCommand] private Task LastPageAsync()  { if (PageNumber == TotalPages) return Task.CompletedTask; PageNumber = TotalPages; return LoadPageAsync(); }
+    [RelayCommand] private Task RefreshAsync() => LoadPageAsync();   // CC-4 — F5 بازخوانی
 
     [RelayCommand]
     private void NewVoucher() => _navigationService.NavigateTo("VoucherEdit");

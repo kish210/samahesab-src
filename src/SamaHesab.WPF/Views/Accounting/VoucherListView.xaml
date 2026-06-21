@@ -9,6 +9,7 @@
     <!-- میان‌برهای کیبورد (OPT-2): F2=سند جدید · Enter=باز کردنِ سندِ انتخاب‌شده -->
     <UserControl.InputBindings>
         <KeyBinding Key="F2" Command="{Binding NewVoucherCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
         <KeyBinding Key="Return" Command="{Binding EditVoucherCommand}"/>
     </UserControl.InputBindings>
     <UserControl.Resources>

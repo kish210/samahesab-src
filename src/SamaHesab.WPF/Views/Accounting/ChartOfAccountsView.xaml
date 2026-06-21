@@ -9,6 +9,7 @@
     <!-- کیبوردمحور: F2 افزودن · Enter ویرایشِ حسابِ انتخابی · Delete حذف · Ctrl+S ذخیره -->
     <UserControl.InputBindings>
         <KeyBinding Key="F2" Command="{Binding AddAccountCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
         <KeyBinding Key="Enter" Command="{Binding EditAccountCommand}"/>
         <KeyBinding Key="Delete" Command="{Binding DeleteAccountCommand}"/>
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveAccountCommand}"/>

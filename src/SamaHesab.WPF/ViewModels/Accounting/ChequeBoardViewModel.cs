@@ -24,6 +24,21 @@ public partial class ChequeBoardViewModel : BaseViewModel
     [ObservableProperty] private int _overdueCount;
     [ObservableProperty] private ChequeRow? _selected;   // برای میان‌برهای کیبورد
 
+    // فیلترِ سریعِ نما: all=همه · today=سررسیدِ امروز(۱) · overdue=معوق(۲)
+    private readonly List<ChequeRow> _all = new();
+    [ObservableProperty] private string _filterMode = "all";
+    [RelayCommand] private void ShowAll()     { FilterMode = "all"; ApplyFilter(); }
+    [RelayCommand] private void ShowToday()   { FilterMode = "today"; ApplyFilter(); }
+    [RelayCommand] private void ShowOverdue() { FilterMode = "overdue"; ApplyFilter(); }
+    private void ApplyFilter()
+    {
+        Cheques.Clear();
+        foreach (var c in _all.Where(c => FilterMode switch
+                 { "today" => c.StateCode == 1, "overdue" => c.StateCode == 2, _ => true }))
+            Cheques.Add(c);
+        Selected = Cheques.FirstOrDefault();
+    }
+
     public ChequeBoardViewModel(IMediator mediator, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
@@ -35,11 +50,11 @@ public partial class ChequeBoardViewModel : BaseViewModel
         {
             var today = _calendar.GetCurrentPersianDate();
             var board = await _mediator.Send(new GetChequeBoardQuery(today));
-            Cheques.Clear();
-            foreach (var c in board) Cheques.Add(ChequeRow.From(c));
+            _all.Clear();
+            foreach (var c in board) _all.Add(ChequeRow.From(c));
             TotalAmount = board.Sum(c => c.Amount);
-            OverdueCount = Cheques.Count(c => c.StateCode == 2);
-            Selected = Cheques.FirstOrDefault();   // ردیفِ اول برای کارِ سریعِ کیبوردی
+            OverdueCount = _all.Count(c => c.StateCode == 2);
+            ApplyFilter();   // نمایش بر اساسِ فیلترِ فعلی (+ انتخابِ ردیفِ اول)
         }, "در حال بارگیری تابلوی چک...");
     }
 

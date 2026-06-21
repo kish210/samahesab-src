@@ -22,8 +22,14 @@
             </DockPanel>
         </Border>
 
-        <!-- نوارِ عملیاتِ همیشه‌دیدنی (روی ردیفِ انتخابی) + راهنمای میان‌بر -->
+        <!-- نوارِ عملیاتِ همیشه‌دیدنی (روی ردیفِ انتخابی) + فیلترِ نما + راهنمای میان‌بر -->
         <DockPanel Grid.Row="1" Margin="0,0,0,8" LastChildFill="False">
+            <!-- فیلترِ سریعِ نما -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="0,0,16,0">
+                <Button Content="همه" Padding="10,6" Margin="0,0,4,0" Cursor="Hand" Command="{Binding ShowAllCommand}"/>
+                <Button Content="سررسیدِ امروز" Padding="10,6" Margin="0,0,4,0" Cursor="Hand" Command="{Binding ShowTodayCommand}"/>
+                <Button Content="معوق" Padding="10,6" Cursor="Hand" Command="{Binding ShowOverdueCommand}"/>
+            </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                 <Button Content="✓ وصول (Enter)" Padding="14,6" Margin="0,0,6,0" Cursor="Hand" Foreground="White"
                         BorderThickness="0" Background="#2E7D52" Command="{Binding ClearSelectedCommand}"/>

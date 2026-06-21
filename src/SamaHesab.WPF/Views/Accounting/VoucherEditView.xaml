@@ -11,6 +11,7 @@
     <!-- میان‌برهای کیبورد (طبق سند طراحی: F2/F7/F8/F9 + «=» توازن خودکار) -->
     <UserControl.InputBindings>
         <KeyBinding Key="F2" Command="{Binding NewCommand}"/>
+        <KeyBinding Modifiers="Control+Shift" Key="V" Command="{Binding PasteRowsCommand}"/>
         <KeyBinding Key="F7" Command="{Binding SaveCommand}"/>
         <KeyBinding Key="F8" Command="{Binding PrintCommand}"/>
         <KeyBinding Key="F9" Command="{Binding PostCommand}"/>
@@ -300,9 +301,15 @@
                             <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding AddRowCommand}"/></TextBox.InputBindings>
                         </TextBox>
                     </StackPanel>
-                    <Button Grid.Column="10" VerticalAlignment="Bottom" Height="{DynamicResource ErpDensInputHeight}" Padding="14,0" Cursor="Hand"
-                            Background="{StaticResource Blue600}" Foreground="White" BorderThickness="0"
-                            Content="افزودن ⏎" Command="{Binding AddRowCommand}"/>
+                    <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Button Height="{DynamicResource ErpDensInputHeight}" Padding="10,0" Cursor="Hand" Margin="0,0,6,0"
+                                Background="{StaticResource Zebra}" Foreground="{StaticResource Blue700}" BorderThickness="1" BorderBrush="{StaticResource Line}"
+                                Content="📋 ورودِ انبوه" Command="{Binding PasteRowsCommand}"
+                                ToolTip="چسباندنِ ردیف‌ها از اکسل (حساب ⭾ شرح ⭾ بدهکار ⭾ بستانکار) — Ctrl+Shift+V"/>
+                        <Button Height="{DynamicResource ErpDensInputHeight}" Padding="14,0" Cursor="Hand"
+                                Background="{StaticResource Blue600}" Foreground="White" BorderThickness="0"
+                                Content="افزودن ⏎" Command="{Binding AddRowCommand}"/>
+                    </StackPanel>
                 </Grid>
               </StackPanel>
             </Border>

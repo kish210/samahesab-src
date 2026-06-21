@@ -183,6 +183,50 @@ public partial class VoucherEditViewModel : BaseViewModel, SamaHesab.WPF.Service
     /// <summary>پس از افزودنِ موفقِ یک ردیف رخ می‌دهد — View فوکوس را به نوارِ ورود برمی‌گرداند.</summary>
     public event Action? RowAdded;
 
+    /// <summary>ورودِ انبوه: ردیف‌های کپی‌شده از اکسل (TSV) را تجزیه و با تطبیقِ حساب (کد/نام) می‌افزاید.</summary>
+    [RelayCommand]
+    private void PasteRows()
+    {
+        string text;
+        try { text = System.Windows.Clipboard.GetText(); } catch { text = string.Empty; }
+        var parsed = VoucherPasteParser.Parse(text);
+        if (parsed.Count == 0)
+        {
+            _ = _dialogService.ShowInfoAsync(
+                "ردیفی برای افزودن یافت نشد. از اکسل ستون‌ها را کپی کنید: «حساب ⭾ شرح ⭾ بدهکار ⭾ بستانکار» (یا حساب/بدهکار/بستانکار).");
+            return;
+        }
+
+        int added = 0, noAccount = 0;
+        foreach (var p in parsed)
+        {
+            var acc = ResolveAccount(p.AccountToken);
+            if (acc is null) { noAccount++; continue; }
+            var row = new VoucherItemRow
+            {
+                RowNumber = NewRowNumber++,
+                AccountId = acc.Id, AccountCode = acc.Code, AccountName = acc.Name,
+                Description = p.Description, Debit = p.Debit, Credit = p.Credit
+            };
+            row.PropertyChanged += (_, _) => Recalculate();
+            Items.Add(row);
+            added++;
+        }
+        Recalculate();
+        _ = _dialogService.ShowInfoAsync(
+            $"{added} ردیف افزوده شد" + (noAccount > 0 ? $"؛ {noAccount} ردیف به‌خاطرِ نیافتنِ حساب نادیده گرفته شد." : "."));
+    }
+
+    /// <summary>تطبیقِ توکنِ حساب: کدِ دقیق → کدِ آغازین → نامِ شامل.</summary>
+    private VoucherAccountItem? ResolveAccount(string token)
+    {
+        token = token.Trim();
+        if (token.Length == 0) return null;
+        return LeafAccounts.FirstOrDefault(a => a.Code == token)
+            ?? LeafAccounts.FirstOrDefault(a => a.Code.StartsWith(token))
+            ?? LeafAccounts.FirstOrDefault(a => a.Name.Contains(token, StringComparison.OrdinalIgnoreCase));
+    }
+
     private async Task TouchAccountAsync(int accountId, string label)
     {
         try

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Common.Favorites;   // CC-3 — Recent/Pinned screens
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Dashboard;
 using SamaHesab.WPF.ViewModels.Accounting;
@@ -313,6 +314,71 @@ public partial class MainViewModel : BaseViewModel
         await NavigateToAsync(r.NavKey, r.Param);
     }
 
+    // ── CC-3 — دسترسیِ سریع: صفحاتِ پین‌شده (★) + اخیر (☆) در سایدبار ──
+    public ObservableCollection<QuickAccessItem> QuickAccess { get; } = new();
+    public bool HasQuickAccess => QuickAccess.Count > 0;
+
+    /// <summary>هشِ پایدارِ کلیدِ صفحه (FNV-1a) — EntityIdِ یکتا برای UserItemRef.</summary>
+    private static int ScreenId(string key)
+    {
+        unchecked { uint h = 2166136261; foreach (var c in key) { h ^= c; h *= 16777619; } return (int)(h & 0x7FFFFFFF); }
+    }
+
+    private async Task TouchScreenAsync(string key)
+    {
+        try
+        {
+            if (!_pages.ContainsKey(key)) return;
+            using var scope = _services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<MediatR.IMediator>()
+                .Send(new TouchRecentItemCommand("Screen", ScreenId(key), key));
+            await LoadQuickAccessAsync();
+        }
+        catch { /* ردیابیِ اخیر نباید ناوبری را بشکند */ }
+    }
+
+    /// <summary>بازخوانیِ پین‌شده‌ها + اخیرها برای سایدبار (پین‌شده اول، بدونِ تکرار، فقط کلیدهای معتبر).</summary>
+    public async Task LoadQuickAccessAsync()
+    {
+        try
+        {
+            List<ItemRefDto> pinned, recent;
+            using (var scope = _services.CreateScope())
+            {
+                var med = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                pinned = await med.Send(new GetPinnedItemsQuery("Screen"));
+                recent = await med.Send(new GetRecentItemsQuery("Screen", 6));
+            }
+            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            {
+                QuickAccess.Clear();
+                var seen = new HashSet<string>();
+                foreach (var p in pinned)
+                    if (_pages.TryGetValue(p.Label, out var e) && seen.Add(p.Label))
+                        QuickAccess.Add(new QuickAccessItem(p.Label, e.Title, true));
+                foreach (var r in recent)
+                    if (_pages.TryGetValue(r.Label, out var e) && seen.Add(r.Label))
+                        QuickAccess.Add(new QuickAccessItem(r.Label, e.Title, false));
+                OnPropertyChanged(nameof(HasQuickAccess));
+            });
+        }
+        catch { /* سایدبار نباید پوسته را بشکند */ }
+    }
+
+    [RelayCommand]
+    private async Task TogglePinScreenAsync(QuickAccessItem? item)
+    {
+        if (item is null) return;
+        try
+        {
+            using (var scope = _services.CreateScope())
+                await scope.ServiceProvider.GetRequiredService<MediatR.IMediator>()
+                    .Send(new SetPinnedItemCommand("Screen", ScreenId(item.Key), item.Key, !item.Pinned));
+            await LoadQuickAccessAsync();
+        }
+        catch { }
+    }
+
     private void RaiseAccessFlags()
     {
         OnPropertyChanged(nameof(CanAccounting)); OnPropertyChanged(nameof(CanTreasury));
@@ -339,6 +405,9 @@ public partial class MainViewModel : BaseViewModel
             await _dialogService.ShowInfoAsync("این بخش به ماژولی تعلق دارد که غیرفعال است. از «تنظیمات → مدیریت ماژول‌ها» آن را فعال کنید.");
             return;
         }
+
+        // CC-3 — ثبتِ صفحه برای «اخیر/پین‌شده» (fire-and-forget، خارج از قفلِ ناوبری).
+        _ = TouchScreenAsync(page);
 
         // Activate the tab if it is already open
         var existing = OpenTabs.FirstOrDefault(t => t.Key == page);
@@ -482,4 +551,10 @@ public partial class WorkspaceTab : CommunityToolkit.Mvvm.ComponentModel.Observa
     }
 
     public void Dispose() => _scope?.Dispose();
+}
+
+/// <summary>CC-3 — یک آیتمِ «دسترسیِ سریع» در سایدبار (صفحهٔ پین‌شده یا اخیر).</summary>
+public record QuickAccessItem(string Key, string Title, bool Pinned)
+{
+    public string PinGlyph => Pinned ? "★" : "☆";
 }

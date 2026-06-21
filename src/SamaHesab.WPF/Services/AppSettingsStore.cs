@@ -177,6 +177,7 @@ public class GeneralSettings
 
     public string? FiscalYearStart { get; set; }
     public string? FiscalYearEnd { get; set; }
+    public string? BusinessType { get; set; }   // صنف/شغلِ شرکت (از ویزاردِ راه‌اندازی)
 
     // ── مالی ──
     public string Currency { get; set; } = "ریال";

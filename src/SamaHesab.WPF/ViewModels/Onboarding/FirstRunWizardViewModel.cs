@@ -49,6 +49,70 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     /// <summary>تیکِ «ورودِ داده‌های نمونه/دمو» — برای آشنایی/آزمایش (مشتری/کالا/فاکتورِ نمونه).</summary>
     [ObservableProperty] private bool _loadDemoData;
 
+    // ── ویزاردِ مرحله‌به‌مرحله ──
+    public const int StepCount = 5;
+    [ObservableProperty] private int _step;   // ۰..۴
+    public bool IsFirstStep => Step == 0;
+    public bool IsLastStep => Step >= StepCount - 1;
+    public string StepTitle => Step switch
+    {
+        0 => "گام ۱ از ۵ — اطلاعاتِ شرکت و صنف",
+        1 => "گام ۲ از ۵ — ماژول‌های موردِ استفاده",
+        2 => "گام ۳ از ۵ — سالِ مالی",
+        3 => "گام ۴ از ۵ — دادهٔ پایه و دموی متناسب",
+        _ => "گام ۵ از ۵ — رمزِ مدیر و اتمام",
+    };
+    partial void OnStepChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsFirstStep));
+        OnPropertyChanged(nameof(IsLastStep));
+        OnPropertyChanged(nameof(StepTitle));
+    }
+
+    [RelayCommand] private void Back() { if (Step > 0) Step--; }
+
+    [RelayCommand]
+    private async Task NextAsync()
+    {
+        if (Step == 0 && string.IsNullOrWhiteSpace(CompanyName))
+        { await _dialogService.ShowWarningAsync("نامِ شرکت الزامی است."); return; }
+        if (Step < StepCount - 1) Step++;
+    }
+
+    // ── صنف/شغلِ شرکت + پیش‌پُرِ کالاهای نمونهٔ متناسب ──
+    [ObservableProperty] private string? _businessType;
+    public List<string> BusinessTypes { get; } = new()
+    {
+        "فروشگاه / سوپرمارکت", "رستوران / کافه / فست‌فود", "پوشاک و البسه", "خدمات / مشاوره",
+        "پخش و بازرگانی", "تولیدی / کارگاه", "آرایشی و بهداشتی", "طلا و جواهر", "داروخانه",
+        "لوازم خانگی / دیجیتال", "نمایشگاه خودرو", "سایر"
+    };
+
+    /// <summary>پیش‌پُر کردنِ کالاهای نمونه بر اساسِ صنفِ انتخاب‌شده (کاربر می‌تواند ویرایش/حذف کند).</summary>
+    [RelayCommand]
+    private async Task ApplyBusinessPresetAsync()
+    {
+        var samples = DemoPreset(BusinessType);
+        if (samples.Count == 0)
+        { await _dialogService.ShowInfoAsync("برای این صنف نمونهٔ آماده‌ای نیست؛ کالاها را دستی وارد کنید."); return; }
+        Products.Clear();
+        foreach (var (name, isService, sale) in samples)
+            Products.Add(new WizProduct { Name = name, IsService = isService, SalePrice = sale });
+    }
+
+    private static List<(string Name, bool IsService, decimal Sale)> DemoPreset(string? type) => type switch
+    {
+        "رستوران / کافه / فست‌فود" => new() { ("چلوکباب کوبیده", false, 1850000), ("جوجه‌کباب", false, 1650000), ("نوشابه", false, 250000), ("چای", false, 150000), ("قهوه", false, 450000), ("سالاد فصل", false, 350000) },
+        "فروشگاه / سوپرمارکت" => new() { ("برنج ایرانی (کیلو)", false, 1200000), ("روغن مایع", false, 850000), ("شکر (کیلو)", false, 380000), ("نوشابه خانواده", false, 320000), ("ماکارونی", false, 280000) },
+        "پوشاک و البسه" => new() { ("پیراهن مردانه", false, 1850000), ("شلوار جین", false, 2400000), ("مانتو", false, 3200000), ("تی‌شرت", false, 950000) },
+        "خدمات / مشاوره" => new() { ("مشاورهٔ ساعتی", true, 2500000), ("پشتیبانیِ ماهانه", true, 5000000), ("نصب و راه‌اندازی", true, 3500000) },
+        "آرایشی و بهداشتی" => new() { ("شامپو", false, 480000), ("کرم مرطوب‌کننده", false, 650000), ("عطر", false, 2800000), ("لوازم آرایش", false, 1200000) },
+        "داروخانه" => new() { ("استامینوفن", false, 85000), ("ویتامین C", false, 220000), ("ماسک", false, 35000), ("شربت سرماخوردگی", false, 180000) },
+        "لوازم خانگی / دیجیتال" => new() { ("گوشی موبایل", false, 95000000), ("هندزفری", false, 1800000), ("شارژر", false, 850000), ("کابل USB", false, 250000) },
+        "طلا و جواهر" => new() { ("انگشتر طلا (گرم)", false, 0), ("سرویس طلا", false, 0), ("سکه تمام", false, 0) },
+        _ => new()
+    };
+
     // ── مراحلِ دادهٔ پایه (اختیاری): انبارها / کالاها و خدمات / مشتری‌ها ──
     public ObservableCollection<WizWarehouse> Warehouses { get; } = new();
     public ObservableCollection<WizProduct> Products { get; } = new();
@@ -81,6 +145,7 @@ public partial class FirstRunWizardViewModel : BaseViewModel
         CompanyPhone = g.CompanyPhone; CompanyNationalId = g.CompanyNationalId;
         CompanyEconomicCode = g.CompanyEconomicCode; CompanyAddress = g.CompanyAddress;
         LogoPath = g.CompanyLogoPath;
+        BusinessType = g.BusinessType;
 
         var today = calendar.GetCurrentPersianDate();                 // "1405/03/26"
         var year = today.Length >= 4 ? today[..4] : "1405";
@@ -121,6 +186,7 @@ public partial class FirstRunWizardViewModel : BaseViewModel
             g.CompanyName = CompanyName; g.CompanyPhone = CompanyPhone;
             g.CompanyNationalId = CompanyNationalId; g.CompanyEconomicCode = CompanyEconomicCode;
             g.CompanyAddress = CompanyAddress; g.CompanyLogoPath = LogoPath;
+            g.BusinessType = BusinessType;
             g.FiscalYearStart = FiscalStart; g.FiscalYearEnd = FiscalEnd;
 
             // ۲) سالِ مالی → DB (command موجود)

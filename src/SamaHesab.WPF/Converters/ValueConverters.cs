@@ -206,3 +206,17 @@ public class BoolToChevronConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// <summary>int == ConverterParameter → Visible، وگرنه Collapsed — برای نمایشِ مرحلهٔ جاریِ ویزارد.</summary>
+public class IntEqualsVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var v = value?.ToString();
+        var p = parameter?.ToString();
+        return v == p ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}

@@ -1074,6 +1074,27 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── Data-migration / Excel-import GUI (mohajerat.exe / --import / SAMA_IMPORT=1) ──
+        // ابزارِ مهاجرت با رابطِ گرافیکی: همان صفحهٔ «ورودِ داده از اکسل» روی DBِ محلی
+        // (DB در همین OnStartup قبلاً بوت‌استرپ شده). جایگزینِ ابزارِ کنسولیِ قدیمی.
+        if (e.Args.Contains("--import") || Environment.GetEnvironmentVariable("SAMA_IMPORT") == "1")
+        {
+            ((Services.CurrentUserService)_host!.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "ابزارِ مهاجرت", new[] { "ADMIN" }, Array.Empty<string>());
+            var ivm = _host.Services.GetRequiredService<ViewModels.Settings.DataImportViewModel>();
+            _ = ivm.LoadAsync();
+            new Window
+            {
+                Title = "ابزارِ مهاجرت / ورودِ داده از اکسل — سما حساب",
+                Content = new Views.Settings.DataImportView { DataContext = ivm },
+                DataContext = ivm,
+                WindowState = WindowState.Maximized,
+                FlowDirection = FlowDirection.RightToLeft,
+                FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
+            }.Show();
+            return;
+        }
+
         // ─── Show Login (or skip straight to the shell for UI smoke-tests) ─────
         if (Environment.GetEnvironmentVariable("SAMA_SKIP_LOGIN") == "1")
         {

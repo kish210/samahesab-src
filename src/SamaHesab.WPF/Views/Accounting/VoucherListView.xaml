@@ -147,11 +147,23 @@
                             </StackPanel>
                         </DockPanel>
                     </Border>
-                    <DataGrid ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}" Style="{StaticResource ErpDataGrid}" IsReadOnly="True">
+                    <DataGrid ItemsSource="{Binding Vouchers}" SelectedItem="{Binding SelectedVoucher}" Style="{StaticResource ErpDataGrid}" IsReadOnly="True"
+                              PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown">
                         <DataGrid.InputBindings>
                             <!-- دابل‌کلیک روی ردیف = باز کردنِ سند (OPT-2) -->
                             <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditVoucherCommand}"/>
                         </DataGrid.InputBindings>
+                        <!-- CC-5 — منوی راست‌کلیک روی ردیفِ سند -->
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="✏ ویرایشِ سند" Command="{Binding EditVoucherCommand}"/>
+                                <MenuItem Header="✅ قطعی‌سازی" Command="{Binding PostVoucherCommand}"/>
+                                <MenuItem Header="🖨 چاپِ سند" Command="{Binding PrintVoucherCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="＋ سندِ جدید (F2)" Command="{Binding NewVoucherCommand}"/>
+                                <MenuItem Header="🔄 بازخوانی (F5)" Command="{Binding RefreshCommand}"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Width="34">
                                 <DataGridTemplateColumn.CellTemplate>

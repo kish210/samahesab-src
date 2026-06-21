@@ -166,8 +166,22 @@
                 <Button Content="+ افزودنِ مشتری" Command="{Binding AddCustomerCommand}"
                         HorizontalAlignment="Right" Margin="0,4,0,0" Padding="12,3" Cursor="Hand"/>
 
-                <!-- ۷) داده‌های نمونه/دمو (اختیاری) -->
-                <TextBlock Text="۷) داده‌های نمونه" Style="{StaticResource Sec}"/>
+                <!-- ۷) ماژول‌های موردِ استفاده (اختیاری) -->
+                <TextBlock Text="۷) ماژول‌های موردِ استفاده" Style="{StaticResource Sec}"/>
+                <TextBlock Text="فقط ماژول‌هایی را که استفاده می‌کنید روشن کنید؛ بقیه از منو پنهان می‌مانند. بعداً از «تنظیمات → مدیریت ماژول‌ها» قابلِ تغییر است." Style="{StaticResource Cap}"/>
+                <ItemsControl ItemsSource="{Binding Modules}" Margin="0,4,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" Margin="0,0,18,6" MinWidth="150"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ۸) داده‌های نمونه/دمو (اختیاری) -->
+                <TextBlock Text="۸) داده‌های نمونه" Style="{StaticResource Sec}"/>
                 <CheckBox IsChecked="{Binding LoadDemoData}" Margin="0,2,0,0"
                           Content="ورودِ داده‌های دمو (مشتری/کالا/فاکتورِ نمونه) برای آشنایی و آزمایش"/>
             </StackPanel>

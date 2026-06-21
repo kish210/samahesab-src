@@ -24,6 +24,10 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _user;
     private readonly IUnitLookup _units;
+    private readonly ModuleService _modules;
+
+    /// <summary>ماژول‌های اختیاریِ قابلِ انتخاب در راه‌اندازیِ اولیه (POS/رستوران/گردشگری/HR/…)</summary>
+    public ObservableCollection<WizModule> Modules { get; } = new();
 
     // شرکت
     [ObservableProperty] private string _companyName = string.Empty;
@@ -61,10 +65,15 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     public event System.Action? Finished;
 
     public FirstRunWizardViewModel(IMediator mediator, ICurrentUserService user, IUnitLookup units,
+        ModuleService modules,
         IPersianCalendarService calendar, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
-        _mediator = mediator; _user = user; _units = units;
+        _mediator = mediator; _user = user; _units = units; _modules = modules;
+
+        // ماژول‌های اختیاری — وضعیتِ فعلی پیش‌انتخاب می‌شود (پیش‌فرض: خاموش، مگر قبلاً روشن).
+        foreach (var m in _modules.OptionalModules)
+            Modules.Add(new WizModule(m.Key, m.Name) { IsSelected = _modules.IsEnabled(m.Key) });
 
         // پیش‌پُر از تنظیماتِ موجود + پیشنهادِ سالِ مالیِ جاری.
         var g = AppSettingsStore.GetGeneral();
@@ -169,7 +178,11 @@ public partial class FirstRunWizardViewModel : BaseViewModel
                 catch (System.Exception ex) { await _dialogService.ShowWarningAsync("ورودِ داده‌های دمو کامل نشد: " + ex.Message); }
             }
 
-            // ۶) علامتِ تکمیل و ذخیره
+            // ۶) ماژول‌های اختیاریِ انتخاب‌شده را فعال/غیرفعال کن.
+            foreach (var m in Modules)
+                _modules.SetEnabled(m.Key, m.IsSelected);
+
+            // ۷) علامتِ تکمیل و ذخیره
             g.SetupCompleted = true;
             AppSettingsStore.SaveGeneral(g);
 
@@ -200,4 +213,13 @@ public partial class WizCustomer : ObservableObject
     [ObservableProperty] private string? _name;
     [ObservableProperty] private string? _mobile;
     [ObservableProperty] private bool _isCompany;
+}
+
+/// <summary>ماژولِ اختیاریِ قابلِ انتخاب در ویزارد.</summary>
+public partial class WizModule : ObservableObject
+{
+    public string Key { get; }
+    public string Name { get; }
+    [ObservableProperty] private bool _isSelected;
+    public WizModule(string key, string name) { Key = key; Name = name; }
 }

@@ -172,7 +172,7 @@
         <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
                       ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
-                      RowHeight="30" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                      RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                 <!-- CC-5 — منوی راست‌کلیکِ ردیف (تکرار/حذف). PlacementTarget=DataGrid → DataContext=VM، SelectedItem=ردیف. -->
                 <DataGrid.ContextMenu>
                     <ContextMenu>

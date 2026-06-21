@@ -78,7 +78,7 @@
         <Border Grid.Row="3" Background="{DynamicResource CardBackground}" CornerRadius="10">
             <DataGrid ItemsSource="{Binding AttentionItems}" SelectedItem="{Binding SelectedItem}"
                       Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" IsReadOnly="True"
-                      CanUserAddRows="False" RowHeight="28" GridLinesVisibility="Horizontal"
+                      CanUserAddRows="False" RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="Horizontal"
                       FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                 <DataGrid.ContextMenu>
                     <ContextMenu>

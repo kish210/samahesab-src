@@ -40,7 +40,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Customers}" RowHeight="28"
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Customers}" RowHeight="{DynamicResource ErpDensRowHeight}"
                       SelectedItem="{Binding SelectedCustomer}">
                 <!-- CC-5 — دابل‌کلیک/راست‌کلیک → کارتِ ۳۶۰° -->
                 <DataGrid.InputBindings>

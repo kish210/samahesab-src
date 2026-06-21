@@ -41,7 +41,7 @@
             <!-- ═══ فهرستِ الگوها ═══ -->
             <Border Grid.Column="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="0">
                 <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                          ItemsSource="{Binding Items}" RowHeight="28" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                          ItemsSource="{Binding Items}" RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="نام الگو" Binding="{Binding Name}" Width="*"/>
                         <DataGridTextColumn Header="مشتری" Binding="{Binding CustomerName}" Width="160"/>

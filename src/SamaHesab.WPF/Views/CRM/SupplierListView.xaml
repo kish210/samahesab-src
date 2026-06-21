@@ -39,7 +39,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
-            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Suppliers}" RowHeight="28"
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Suppliers}" RowHeight="{DynamicResource ErpDensRowHeight}"
                       SelectedItem="{Binding SelectedSupplier}">
                 <!-- UX-SUPPLIER-PARITY — دابل‌کلیک/راست‌کلیک → صورت‌حسابِ تأمین‌کننده -->
                 <DataGrid.InputBindings>

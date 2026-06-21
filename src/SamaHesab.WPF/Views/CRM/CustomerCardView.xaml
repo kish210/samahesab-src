@@ -266,7 +266,7 @@
 
                         <DataGrid ItemsSource="{Binding Ledger}" AutoGenerateColumns="False" HeadersVisibility="Column"
                                   GridLinesVisibility="All" CanUserAddRows="False" IsReadOnly="True"
-                                  RowHeight="30" FontSize="12" Background="White" BorderThickness="0"
+                                  RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12" Background="White" BorderThickness="0"
                                   HorizontalGridLinesBrush="{StaticResource ErpGray100}" VerticalGridLinesBrush="{StaticResource ErpGray100}"
                                   AlternatingRowBackground="#FAFBFC" RowBackground="White">
                             <DataGrid.ColumnHeaderStyle>

@@ -64,7 +64,7 @@
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" x:Name="grid"
                                  ItemsSource="{Binding Products}"
                                  SelectedItem="{Binding SelectedProduct}"
-                                 RowHeight="28">
+                                 RowHeight="{DynamicResource ErpDensRowHeight}">
                 <!-- CC-5 — دابل‌کلیک/راست‌کلیک → کارتِ ۳۶۰°ِ کالا -->
                 <DataGrid.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenCardCommand}"/>

@@ -41,7 +41,7 @@
         </Border>
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0">
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Rows}" RowHeight="28"
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}"
                                 >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="120"/>

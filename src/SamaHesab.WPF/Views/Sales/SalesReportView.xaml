@@ -49,7 +49,7 @@
 
         <!-- گرید (ستون‌ها در code-behind از Headers ساخته می‌شوند) -->
         <DataGrid x:Name="grid" Grid.Row="2" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
-                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="28" FontSize="12.5"
+                  HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                   Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderColor}"
                   CanUserAddRows="False" Foreground="{DynamicResource PrimaryText}"/>
 

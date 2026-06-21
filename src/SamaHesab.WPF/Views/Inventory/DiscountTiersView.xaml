@@ -36,7 +36,7 @@
         <!-- گرید پله‌ها -->
         <Border Grid.Row="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6">
             <DataGrid ItemsSource="{Binding Tiers}" AutoGenerateColumns="False" CanUserAddRows="False"
-                      HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
+                      HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                       Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="حداقل مقدار" Binding="{Binding MinQty, UpdateSourceTrigger=LostFocus}" Width="160"/>

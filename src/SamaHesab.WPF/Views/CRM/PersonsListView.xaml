@@ -43,7 +43,7 @@
         <!-- گرید -->
         <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                      ItemsSource="{Binding Persons}" RowHeight="30" GridLinesVisibility="All" BorderThickness="0" FontFamily="{StaticResource VazirFont}">
+                      ItemsSource="{Binding Persons}" RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" BorderThickness="0" FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100"/>
                     <DataGridTextColumn Header="نام" Binding="{Binding Name}" Width="*"/>

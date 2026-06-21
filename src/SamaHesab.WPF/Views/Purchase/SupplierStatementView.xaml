@@ -44,7 +44,7 @@
         <!-- ═══ گرید تراکنش‌ها با ماندهٔ غلتان ═══ -->
         <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="6" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                      ItemsSource="{Binding Rows}" RowHeight="28" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
+                      ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="100"/>
                     <DataGridTextColumn Header="نوع سند" Binding="{Binding DocType}" Width="110"/>

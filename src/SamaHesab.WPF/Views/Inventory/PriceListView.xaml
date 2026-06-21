@@ -57,7 +57,7 @@
         <!-- editable price grid -->
         <Border Grid.Row="2" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False"
-                      ItemsSource="{Binding Rows}" RowHeight="28" IsReadOnly="False">
+                      ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}" IsReadOnly="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100" IsReadOnly="True"/>
                     <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="2*" IsReadOnly="True"/>

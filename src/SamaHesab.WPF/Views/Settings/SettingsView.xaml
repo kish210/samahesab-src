@@ -12,8 +12,12 @@
         <!-- Settings Menu -->
         <Border Background="{DynamicResource SurfaceBackground}"
                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
-            <StackPanel Margin="0,16,0,0">
-                <TextBlock Text="تنظیماتِ همین صفحه" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
+            <StackPanel x:Name="SettingsNav" Margin="0,16,0,0">
+                <!-- UX-SETTINGS-SEARCH — جست‌وجوی زندهٔ بخش‌های تنظیمات -->
+                <TextBox x:Name="SettingsSearchBox" Margin="12,0,12,10" Height="30" VerticalContentAlignment="Center"
+                         FontFamily="{StaticResource VazirFont}" TextChanged="SettingsSearch_Changed"
+                         ToolTip="جست‌وجوی تنظیمات…"/>
+                <TextBlock x:Name="HdrPage" Text="تنظیماتِ همین صفحه" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
                            FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,0,16,8"/>
                 <Button Content="🏢 اطلاعات شرکت"    Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Company"/>
                 <Button Content="🎨 ظاهر و ارز"      Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Appearance"/>
@@ -21,7 +25,7 @@
                 <Button Content="🔑 لایسنس و پشتیبانی" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Support"/>
                 <Button Content="ℹ نسخه و به‌روزرسانی" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="About"/>
 
-                <TextBlock Text="تنظیماتِ تخصصی" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
+                <TextBlock x:Name="HdrSpecial" Text="تنظیماتِ تخصصی" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
                            FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,18,16,8"/>
                 <Button Content="👤 کاربران و دسترسی‌ها" Style="{StaticResource SidebarItemButton}" Command="{Binding OpenSecurityCommand}"/>
                 <Button Content="🧩 مدیریت ماژول‌ها"     Style="{StaticResource SidebarItemButton}" Command="{Binding OpenModulesCommand}"/>

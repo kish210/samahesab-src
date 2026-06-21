@@ -37,14 +37,22 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             if (party != null)
             {
                 party.MarkCustomer();
+                party.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
+                    req.PostalCode, req.ContactPerson, req.Visitor);
                 party.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
+                party.SetTaxIds(req.NationalCode, req.EconomicCode, req.Notes);
+                party.SetCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);
                 _parties.Update(party);
                 await _uow.SaveChangesAsync(ct);
                 return Result<int>.Success(party.Id);
             }
 
             var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
+            // همهٔ فیلدهای فرم باید ذخیره شوند (کدپستی/کدِ اقتصادی/یادداشت/رابط/ویزیتور قبلاً می‌افتادند).
+            np.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
+                req.PostalCode, req.ContactPerson, req.Visitor);
             np.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
+            np.SetTaxIds(req.NationalCode, req.EconomicCode, req.Notes);
             np.SetCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);
             await _parties.AddAsync(np, ct);
             await _uow.SaveChangesAsync(ct);

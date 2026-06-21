@@ -23,6 +23,18 @@ public class PartyEditTests
     }
 
     [Fact]
+    public void SetTaxIds_Persists_EconomicCode_And_Notes()
+    {
+        // فیلدهایی که CreateCustomerCommandHandler قبلاً می‌انداخت.
+        var p = Party.Create(1, "C102", "حقوقی", companyName: "فناوران", isCustomer: true);
+        p.SetTaxIds(nationalCode: "10380284790", economicCode: "411111111111", notes: "مشتریِ کلیدی");
+
+        Assert.Equal("411111111111", p.EconomicCode);
+        Assert.Equal("مشتریِ کلیدی", p.Notes);
+        Assert.Equal("10380284790", p.NationalCode);
+    }
+
+    [Fact]
     public void Profile_And_CreditTerms_Update_In_Place()
     {
         var p = Party.Create(1, "C101", "حقیقی", firstName: "سارا", lastName: "محمدی", isCustomer: true);

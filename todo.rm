@@ -1330,3 +1330,8 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc/C1) داشبورد (P2) — پرش از KPI به صفحهٔ عملیاتی: چهار کارتِ MiniKpi کلیک‌پذیر شدند (MouseBinding→NavigateToCommand، Cursor=Hand، ToolTip): فروش امروز→فاکتورِ فروش، دریافتنی→دریافتنی/پرداختنی، چک سررسید→تابلوی چک، کم‌موجود→فهرستِ کالا. build سبز · ۴۲۴ تست.
 
 - [x] (pc/C1) خزانه (P2/CC-5) — منوی راست‌کلیک روی تابلوی چک: «✅ وصول / ↩ برگشت / 🔄 بازخوانی» (روی ClearSelected/ReturnSelected/Refresh) + راست‌کلیک ابتدا ردیف را انتخاب می‌کند. مکمل نوارِ عملیات + کیبورد (Enter/Del/F5). build سبز · ۴۲۴ تست.
+
+### 🤝 هندآفِ نصابِ v2.5.11 به pc (C2 @2026-06-21)
+- ✅ نسخه به **۲.۵.۱۱** ارتقا یافت (Directory.Build.props + سه iss) و push شد (کامیت b378e85). build Release سبز.
+- ⏳ **(pc) ساختِ نصاب + ریلیز به pc سپرده شد** (به‌خواستِ کاربر). مراحل: (۱) publishِ خودکفای ۷ exe به dist/app+dist/api (همان `installer/publish-all.ps1` یا دستیِ dotnet publish -c Release -r win-x64 --self-contained). (۲) `ISCC installer/SamaHesab_Setup.iss` + `client.iss` + `server.iss`. (۳) ساختِ ریلیزِ گیت‌هاب `v2.5.11` روی kish210/SamaHesab + آپلودِ سه نصاب با نامِ نسخه‌دار.
+- ⚠️ **توجه:** تا امروز ISCC فقط روی لپ‌تاپ بود؛ اگر pc می‌سازد باید اول Inno Setup را نصب کند (`winget install JRSoftware.InnoSetup`). در غیرِ این صورت لپ‌تاپ می‌سازد. (لپ‌تاپ `SamaHesab_Setup_v2.5.11.exe` تک‌سیستمی را از قبل ساخته ولی local/gitignored است.)

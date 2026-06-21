@@ -251,6 +251,10 @@ public class ApplicationDbContext : DbContext
         });
         // AttendanceRecord موجودیتِ مستقل (BaseEntity)؛ ناوبریِ Employee.AttendanceRecords نادیده می‌ماند.
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceRecord>().ToTable("AttendanceRecords", "Hrm");
+        // SalarySlip موجودیتِ مستقل — برای persistِ فیش‌های محاسبه‌شده (PAY-C1-3) و گزارش‌ها (PAY-C1-4).
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.SalarySlip>().ToTable("SalarySlips", "Hrm");
+        // PAY-C1-5 — تنظیماتِ سالِ حقوق (نرخ‌ها/مبالغِ پایه).
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.PayrollSetting>().ToTable("PayrollSettings", "Hrm");
 
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>

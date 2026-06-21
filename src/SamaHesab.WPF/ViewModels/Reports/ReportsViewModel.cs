@@ -29,6 +29,20 @@ public partial class ReportsViewModel : BaseViewModel
         : base(dialogService, navigationService)
     { _reportService = reportService; _calendar = calendar; _currentUser = currentUser; }
 
+    // پیش‌تنظیم‌های بازهٔ تاریخ (پارامترِ پیش‌فرضِ سریع) — رشته‌محورِ شمسی، سازگار با فیلترِ گزارش‌ها.
+    [RelayCommand] private void RangeToday()     { var t = _calendar.GetCurrentPersianDate(); FromDate = t; ToDate = t; }
+    [RelayCommand] private void RangeThisMonth() { var t = _calendar.GetCurrentPersianDate(); FromDate = t.Substring(0, 8) + "01"; ToDate = t; }
+    [RelayCommand] private void RangeThisYear()  { var t = _calendar.GetCurrentPersianDate(); FromDate = t.Substring(0, 4) + "/01/01"; ToDate = t; }
+    [RelayCommand]
+    private void RangePrevMonth()
+    {
+        var p = _calendar.GetCurrentPersianDate().Split('/');
+        int y = int.Parse(p[0]), m = int.Parse(p[1]);
+        m--; if (m < 1) { m = 12; y--; }
+        FromDate = $"{y:0000}/{m:00}/01";
+        ToDate = $"{y:0000}/{m:00}/31";   // کرانِ بالا (مقایسهٔ رشته‌ای؛ روزِ ناموجود بی‌اثر)
+    }
+
     public override async Task LoadAsync()
     {
         var now = DateTime.Now;

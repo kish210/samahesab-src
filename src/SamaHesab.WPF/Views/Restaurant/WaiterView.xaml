@@ -5,6 +5,14 @@
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft"
              Background="#F4F5F7">
+    <!-- پولیشِ رستوران — میان‌برهای گارسون: F9 ارسال به آشپزخانه · F8 صورتحساب · F5 بازخوانی · Esc بازگشت به میزها · Ctrl+Enter تسویه -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F9" Command="{Binding SendToKitchenCommand}"/>
+        <KeyBinding Key="F8" Command="{Binding BillCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+        <KeyBinding Key="Escape" Command="{Binding BackToTablesCommand}"/>
+        <KeyBinding Modifiers="Control" Key="Return" Command="{Binding SettleCommand}"/>
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:NullToVisibilityConverter x:Key="NullVis"/>
@@ -345,7 +353,7 @@
             <Grid Grid.Row="1" Margin="0,10,0,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Button Grid.Row="0" Height="52" Background="{StaticResource ErpSuccess500}" Foreground="White" BorderThickness="0" Cursor="Hand"
-                        FontSize="15" FontWeight="Bold" Content="🍳  ارسال به آشپزخانه (KOT)" Command="{Binding SendToKitchenCommand}"/>
+                        FontSize="15" FontWeight="Bold" Content="🍳  ارسال به آشپزخانه (KOT) — F9" Command="{Binding SendToKitchenCommand}"/>
                 <Grid Grid.Row="1" Margin="0,7,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Height="46" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" FontWeight="SemiBold" Content="🖨  صورتحساب" Command="{Binding BillCommand}"/>

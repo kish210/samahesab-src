@@ -137,6 +137,12 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _smsProvider = "kavenegar";
     [ObservableProperty] private string _smsApiKey = string.Empty;
     [ObservableProperty] private string _smsSender = string.Empty;
+
+    // ── سرورِ پشتیبانی (HC-2) — اتصال به سایتِ وردپرس ──
+    [ObservableProperty] private string _supportBaseUrl = "https://kishwifi.com";
+    [ObservableProperty] private string _supportCustomerId = string.Empty;
+    [ObservableProperty] private string _supportApiKey = string.Empty;
+    [ObservableProperty] private string _supportLicenseId = string.Empty;
     [ObservableProperty] private string _companyName = string.Empty;
     [ObservableProperty] private string _companyPhone = string.Empty;
     [ObservableProperty] private string _companyNationalId = string.Empty;
@@ -203,6 +209,10 @@ public partial class SettingsViewModel : BaseViewModel
         IdleTimeoutMinutes = g.IdleTimeoutMinutes;
         SmsEnabled = g.SmsEnabled; SmsProvider = g.SmsProvider;
         SmsApiKey = g.SmsApiKey ?? ""; SmsSender = g.SmsSender ?? "";
+
+        var sup = AppSettingsStore.GetSupport();
+        SupportBaseUrl = sup.BaseUrl; SupportCustomerId = sup.CustomerId;
+        SupportApiKey = sup.ApiKey; SupportLicenseId = sup.LicenseId;
         await Task.CompletedTask;
     }
 
@@ -229,8 +239,30 @@ public partial class SettingsViewModel : BaseViewModel
             g.SmsEnabled = SmsEnabled; g.SmsProvider = SmsProvider;
             g.SmsApiKey = SmsApiKey; g.SmsSender = SmsSender;
             AppSettingsStore.SaveGeneral(g);
+
+            // سرورِ پشتیبانی (HC-2)
+            AppSettingsStore.SaveSupport(new SupportSettings
+            {
+                BaseUrl = string.IsNullOrWhiteSpace(SupportBaseUrl) ? "https://kishwifi.com" : SupportBaseUrl.Trim(),
+                CustomerId = SupportCustomerId?.Trim() ?? "",
+                ApiKey = SupportApiKey?.Trim() ?? "",
+                LicenseId = SupportLicenseId?.Trim() ?? ""
+            });
             await _dialogService.ShowSuccessAsync("تنظیمات ذخیره شد.");
         }, "در حال ذخیرهٔ تنظیمات...");
+    }
+
+    /// <summary>بازکردنِ پنجرهٔ فعال‌سازی/واردکردنِ لایسنس (همان پنجرهٔ زمانِ ورود).</summary>
+    [RelayCommand]
+    private void OpenLicense()
+    {
+        try
+        {
+            new SamaHesab.WPF.Views.Licensing.LicenseActivationWindow(
+                SamaHesab.WPF.App.GetService<SamaHesab.WPF.ViewModels.Licensing.LicenseActivationViewModel>())
+                .ShowDialog();
+        }
+        catch (System.Exception ex) { _ = _dialogService.ShowErrorAsync("بازکردنِ پنجرهٔ لایسنس ناموفق بود: " + ex.Message); }
     }
 
     // ── لوگوی شرکت (سربرگِ چاپ) ──

@@ -276,13 +276,17 @@ public partial class MainViewModel : BaseViewModel
         try
         {
             await Task.Delay(250, ct);   // debounce — تا با هر کلید کوئری نزنیم
+            // دستورهای ناوبری (همیشه در دسترس، حتی روی DBِ خالی) + نتایجِ دادهٔ زنده.
+            var cmds = BuildPaletteCommands()
+                .Where(c => c.Title.Contains(term, StringComparison.OrdinalIgnoreCase))
+                .Take(8).ToList();
             var svc = _services.GetRequiredService<Services.Search.IGlobalSearchService>();
             var res = await svc.SearchAsync(term, perGroupCap: 6, ct);
             if (ct.IsCancellationRequested) return;
             System.Windows.Application.Current?.Dispatcher.Invoke(() =>
             {
                 SearchResults.Clear();
-                foreach (var r in res.Take(40)) SearchResults.Add(r);
+                foreach (var r in cmds.Concat(res).Take(40)) SearchResults.Add(r);
                 SelectedSearchResult = SearchResults.Count > 0 ? SearchResults[0] : null;
                 IsSearchOpen = SearchResults.Count > 0;
             });

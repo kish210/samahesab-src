@@ -16,6 +16,7 @@ public partial class SettingsView : UserControl
             "Company" => CompanySection,
             "Appearance" => AppearanceSection,
             "Sms" => SmsSection,
+            "Support" => SupportSection,
             "About" => AboutSection,
             _ => null
         };

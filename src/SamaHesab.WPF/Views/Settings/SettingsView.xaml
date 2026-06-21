@@ -18,6 +18,7 @@
                 <Button Content="🏢 اطلاعات شرکت"    Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Company"/>
                 <Button Content="🎨 ظاهر و ارز"      Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Appearance"/>
                 <Button Content="📱 پیام کوتاه (SMS)" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Sms"/>
+                <Button Content="🔑 لایسنس و پشتیبانی" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="Support"/>
                 <Button Content="ℹ نسخه و به‌روزرسانی" Style="{StaticResource SidebarItemButton}" Click="Section_Click" Tag="About"/>
 
                 <TextBlock Text="تنظیماتِ تخصصی" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
@@ -288,6 +289,56 @@
                                 <Button Grid.Column="2" Content="🧪 آزمایش ارسال" Style="{StaticResource SecondaryButton}" Height="36" IsEnabled="{Binding SmsEnabled}" Command="{Binding TestSmsCommand}"/>
                             </Grid>
                         </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- License & Support server -->
+                <Border x:Name="SupportSection" Style="{StaticResource Card}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="🔑 لایسنس و سرورِ پشتیبانی" FontWeight="Bold" FontSize="15"
+                                   Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,0,14"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}"
+                                       FontFamily="{StaticResource VazirFont}" FontSize="12" TextWrapping="Wrap"
+                                       Text="برای فعال‌سازی یا واردکردنِ کدِ لایسنس، دکمهٔ روبه‌رو را بزنید."/>
+                            <Button Grid.Column="1" Content="🔑 فعال‌سازی / واردکردنِ لایسنس" Style="{StaticResource PrimaryButton}"
+                                    Height="40" FontFamily="{StaticResource VazirFont}" Command="{Binding OpenLicenseCommand}"/>
+                        </Grid>
+
+                        <Separator Margin="0,16"/>
+                        <TextBlock Text="🛟 اتصال به سرورِ پشتیبانی (به‌روزرسانی/تیکت/دانش‌نامه)" FontWeight="SemiBold" FontSize="13"
+                                   Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="آدرسِ سرور (BaseUrl)"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding SupportBaseUrl}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="شناسهٔ مشتری"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding SupportCustomerId}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="کلیدِ API"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding SupportApiKey}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FormLabel}" Text="شناسهٔ لایسنس"/>
+                                <Border Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="4">
+                                    <TextBox Text="{Binding SupportLicenseId}" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource PrimaryText}" Padding="10,8" FontFamily="{StaticResource VazirFont}" FlowDirection="LeftToRight"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

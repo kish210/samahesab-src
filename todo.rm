@@ -1391,3 +1391,10 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] ✅C2 **PAY-C2-3 — فایل‌های خروجیِ حقوق.** انجام شد: `PayrollExportService` (خالص/CSV/RFC4180) با ورودیِ `PayrollExportRow`/`PayrollPeriod` — `BuildInsuranceList` (لیستِ بیمه: شمارهٔ بیمه/کدملی/روزکارکرد/مشمول/سهمِ کارمند۷٪/کارفرما۲۳٪ + جمع) · `BuildTaxList` (مالیات: مشمول/مالیات + جمع) · `BuildBankFile` (پرداختِ دسته‌ای؛ ردیف‌های بی‌شبا/خالصِ غیرمثبت حذف). **۴ تستِ واحد (۴۳۵ کل).** ⏭️ C1: PAY-C1-3/4 ردیف‌ها را از فیش‌های ذخیره‌شده پر می‌کند. *(لِینِ C2 — خروجی)*
 - [x] ✅C2 **PAY-C2-2 — فیشِ حقوقیِ چاپ.** انجام شد: `PayslipHtmlBuilder.Build(PayslipHeader, FullPayrollResult)` — HTMLِ راست‌چینِ A5، دو ستونِ مزایا/کسورات (ردیف‌های صفر حذف) + مأخذِ بیمه + سهمِ کارفرما۲۳٪ (اطلاعاتی) + خالصِ پرداختی، ارقامِ فارسی، escapeِ HTML. خالص/تست‌پذیر؛ لایهٔ WPF در WebView/چاپ نمایش می‌دهد. **۴ تستِ واحد (۴۳۹ کل).** ⏭️ PAY-C2-4 آن را به صفحهٔ حقوق وصل می‌کند. *(لِینِ C2 — چاپ)*
 - [x] (pc/C1) PAY-C1-1 + PAY-C1-2 — اسکیمـای حقوقِ کامل: Employee گرفت ChildrenCount + PriorServiceMonths + UpdatePayrollInfo؛ SalarySlip گرفت HousingAllowance/FoodAllowance/ChildAllowance/SeniorityPay/NightShiftPay/HolidayPay (در ناخالص) + EmployerInsurance (جدا) با گسترشِ Create؛ migrationِ idempotent 39_PayrollFullSchema.sql (روی DBِ محلی تست شد). قرارداد برای موتورِ PAY-C2-1 آماده است. build سبز · ۴۲۴ تست.
+
+## 🕒 ماژولِ حضور و غیابِ کامل (@2026-06-22) — تحلیل+تقسیم در `docs/ATTENDANCE_MODULE.md`
+> پلِ ورودیِ حقوق. **HR لِینِ C1**؛ C2 موتورهای خالص + UXِ عملیاتی.
+> **🖥 C1:** ATT-C1-1 موجودیت‌های Shift/WorkCalendar/LeaveRequest+migration · ATT-C1-2 فرمان‌های ثبت/مرخصی · ATT-C1-3 تجمیعِ ماهانه→حقوق · ATT-C1-4 ایمپورت+گزارش.
+> **💻 C2:** ATT-C2-1 AttendanceCalculatorِ خالص (روز+تجمیعِ ماه) · ATT-C2-2 LeaveBalanceCalculatorِ خالص · ATT-C2-3 UXِ صفحهٔ تردد [وابسته به ATT-C1-2].
+
+- [~] 🚧C2 **ATT-C2-1 (claim @2026-06-22) — موتورِ خالصِ تردد (`AttendanceCalculator`).** `ComputeDay` (کارکرد/اضافه‌کاری/شب‌کاری۲۲–۶/جمعه‌کاری/تأخیر/تعجیل از ورود‌وخروج+شیفت+تعطیلی) + `AggregateMonth` (جمعِ ماهانه که فیلدهای `FullPayrollInput`ِ PAY-C2-1 را پر می‌کند) + تستِ جامع. بدونِ وابستگیِ DB. *(لِینِ C2 — موتورِ تردد)*

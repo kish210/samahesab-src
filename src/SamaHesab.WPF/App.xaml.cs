@@ -1207,7 +1207,7 @@ public partial class App : System.Windows.Application
             ("VoucherEdit","03_ثبت_سند"), ("ChartOfAccounts","04_نمودار_حسابها"),
             ("Cheques","05_چکها"), ("BankAccounts","06_حسابهای_بانکی"),
             ("Products","07_کالاها"), ("ProductEdit","08_ویرایش_کالا"),
-            ("Warehouses","09_انبارها"), ("StockAdjust","10_تعدیل_موجودی"),
+            ("Warehouses","09_انبارها"), ("WarehouseOverview","09b_نمای_انبار"), ("StockAdjust","10_تعدیل_موجودی"),
             ("SalesInvoice","11_فاکتور_فروش"), ("SalesInvoiceList","12_لیست_فروش"),
             ("PurchaseInvoice","13_فاکتور_خرید"), ("POS","14_صندوق_فروش"),
             ("Customers","15_مشتریان"), ("CustomerEdit","16_ویرایش_مشتری"),

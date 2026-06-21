@@ -78,6 +78,7 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
         Province = dto.Province; City = dto.City; Address = dto.Address; PostalCode = dto.PostalCode;
         CreditLimit = dto.CreditLimit; CreditDays = dto.CreditDays; PriceLevel = dto.PriceLevel; Discount = dto.Discount;
         Notes = dto.Notes; ContactPerson = dto.ContactPerson; Visitor = dto.Visitor;
+        GroupId = dto.GroupId; BirthDate = dto.BirthDate;
     }
 
     partial void OnCustomerTypeChanged(string value) { IsPersonal = value == "حقیقی"; IsCompany = value == "حقوقی"; }
@@ -110,7 +111,7 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
                     var ucmd = new UpdateCustomerCommand(EditingId, CustomerType, FirstName, LastName, CompanyName,
                         Phone, Mobile, Email, Province, City, Address, PostalCode,
                         CreditLimit, CreditDays, PriceLevel, Discount,
-                        NationalCode, EconomicCode, Notes, ContactPerson, Visitor);
+                        NationalCode, EconomicCode, Notes, ContactPerson, Visitor, GroupId, BirthDate);
                     var r = await _mediator.Send(ucmd); ok = r.Succeeded; err = r.ErrorMessage;
                 }
                 else

@@ -23,6 +23,17 @@ public class PartyEditTests
     }
 
     [Fact]
+    public void EditCore_Persists_Group_And_BirthDate()
+    {
+        var p = Party.Create(1, "C103", "حقیقی", firstName: "نگار", lastName: "کریمی", isCustomer: true);
+        p.EditCore("حقیقی", "نگار", "کریمی", null, postalCode: null, contactPerson: null, visitor: null,
+            groupId: 2, birthDate: "1370/05/12");
+
+        Assert.Equal(2, p.GroupId);
+        Assert.Equal("1370/05/12", p.BirthDate);
+    }
+
+    [Fact]
     public void SetTaxIds_Persists_EconomicCode_And_Notes()
     {
         // فیلدهایی که CreateCustomerCommandHandler قبلاً می‌انداخت.

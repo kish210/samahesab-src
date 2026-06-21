@@ -14,7 +14,7 @@ public record UpdateCustomerCommand(
     string? Phone, string? Mobile, string? Email, string? Province, string? City, string? Address, string? PostalCode,
     decimal CreditLimit, int CreditDays, string PriceLevel, decimal Discount,
     string? NationalCode, string? EconomicCode, string? Notes,
-    string? ContactPerson, string? Visitor) : IRequest<Result<int>>;
+    string? ContactPerson, string? Visitor, int? GroupId = null, string? BirthDate = null) : IRequest<Result<int>>;
 
 public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<int>>
 {
@@ -31,7 +31,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
             if (p == null) return Result<int>.Failure("مشتری یافت نشد.");
 
             p.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
-                req.PostalCode, req.ContactPerson, req.Visitor);
+                req.PostalCode, req.ContactPerson, req.Visitor, req.GroupId, req.BirthDate);
             p.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
             p.SetTaxIds(req.NationalCode, req.EconomicCode, req.Notes);
             p.SetCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);

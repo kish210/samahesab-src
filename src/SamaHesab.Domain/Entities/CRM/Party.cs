@@ -34,6 +34,8 @@ public class Party : AuditableEntity
     public string? Notes { get; private set; }
     public string? ContactPerson { get; private set; }
     public string? Visitor { get; private set; }
+    public int? GroupId { get; private set; }        // گروهِ مشتری (عادی/طلایی/عمده) — UX-CRM-FORM
+    public string? BirthDate { get; private set; }   // تاریخِ تولد (شمسی، رشته‌ای مثلِ سایرِ تاریخ‌ها)
 
     // نقش‌ها (یک طرف‌حساب می‌تواند چند نقش داشته باشد: مشتری/تأمین‌کننده/کارمند)
     public bool IsCustomer { get; private set; }
@@ -81,11 +83,13 @@ public class Party : AuditableEntity
     { CreditLimit = creditLimit; CreditDays = creditDays; if (!string.IsNullOrWhiteSpace(priceLevel)) PriceLevel = priceLevel; Discount = discount; SetAudit(null); }
     /// <summary>UX-CRM-EDIT — به‌روزرسانیِ مشخصاتِ پایهٔ ویرایش (نام/نوع/کدپستی/رابط/ویزیتور).</summary>
     public void EditCore(string partyType, string? firstName, string? lastName, string? companyName,
-        string? postalCode, string? contactPerson, string? visitor)
+        string? postalCode, string? contactPerson, string? visitor,
+        int? groupId = null, string? birthDate = null)
     {
         if (!string.IsNullOrWhiteSpace(partyType)) PartyType = partyType;
         FirstName = firstName; LastName = lastName; CompanyName = companyName;
-        PostalCode = postalCode; ContactPerson = contactPerson; Visitor = visitor; SetAudit(null);
+        PostalCode = postalCode; ContactPerson = contactPerson; Visitor = visitor;
+        GroupId = groupId; BirthDate = birthDate; SetAudit(null);
     }
     public void UpdateBalance(decimal amount) { Balance = amount; SetAudit(null); }
     public void Deactivate() { IsActive = false; SetAudit(null); }

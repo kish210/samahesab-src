@@ -30,6 +30,8 @@
         <conv:NavActiveToVisibilityConverter x:Key="NavActive"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
+        <conv:KeyToGeometryConverter x:Key="KeyToGeom"/>
+        <conv:BoolToChevronConverter x:Key="BoolChevron"/>
 
         <!-- آیتم‌های فهرست بازشونده‌ی منوی بالا: متن تیره روی پس‌زمینه‌ی روشن (خوانا) -->
         <Style TargetType="MenuItem">
@@ -557,35 +559,40 @@
                     <Button Style="{StaticResource SideItem}" CommandParameter="Dashboard">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcHome}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="میز کار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="Vouchers">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcAccounting}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="حسابداری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="SalesInvoice">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSales}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="PurchaseInvoice">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPurchasing}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="خرید" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="Products">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcInventory}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="انبار" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="ChequeBoard">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcTreasury}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="خزانه‌داری" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="POS"
-                            Visibility="{Binding DataContext.PosEnabled, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}, Converter={StaticResource BoolVis}}">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPos}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="صندوق فروش" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="Customers">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPeople}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="اشخاص" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="Reports">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcReports}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="گزارش‌ها" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
-                    <Rectangle Height="1" Fill="#14FFFFFF" Margin="14,8"/>
-                    <Button Style="{StaticResource SideItem}" CommandParameter="Settings">
-                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSettings}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/><TextBlock Text="تنظیمات" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/></StackPanel>
-                    </Button>
+                    <!-- سایدبارِ آکاردئونی: هر بخش با کلیک باز می‌شود و زیرمنوهایش زیرش ظاهر می‌شوند -->
+                    <ItemsControl ItemsSource="{Binding DataContext.NavGroups, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <!-- سرِ بخش: آیکون + عنوان + شِورون (کلیک = باز/بستن) -->
+                                    <Button Style="{StaticResource SideItem}"
+                                            Command="{Binding DataContext.ToggleGroupCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                            CommandParameter="{Binding}">
+                                        <Grid>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="{Binding IconKey, Converter={StaticResource KeyToGeom}}" Style="{StaticResource SideSvgIcon}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Title}" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13" Foreground="White"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding IsExpanded, Converter={StaticResource BoolChevron}}" HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" Foreground="#9FB0D0" FontSize="10" Margin="0,0,2,0"/>
+                                        </Grid>
+                                    </Button>
+                                    <!-- زیرمنوها (فقط وقتی بخش باز است) -->
+                                    <ItemsControl ItemsSource="{Binding Links}"
+                                                  Visibility="{Binding IsExpanded, Converter={StaticResource BoolVis}}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource SideItem}" Height="34"
+                                                        CommandParameter="{Binding Key}">
+                                                    <TextBlock Text="{Binding Title}" Margin="40,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="#D6E0F0" TextTrimming="CharacterEllipsis"/>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
         </Grid>

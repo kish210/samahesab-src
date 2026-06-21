@@ -213,6 +213,8 @@ public partial class MainViewModel : BaseViewModel
 
         // Navigation service
         navigationService.Navigated += OnNavigationRequested;
+
+        BuildNav();   // سایدبارِ آکاردئونی (بر اساسِ مجوز/ماژول)
     }
 
     public override async Task LoadAsync()
@@ -397,6 +399,78 @@ public partial class MainViewModel : BaseViewModel
         OnPropertyChanged(nameof(TourismEnabled)); OnPropertyChanged(nameof(HrEnabled));
         OnPropertyChanged(nameof(CrmEnabled)); OnPropertyChanged(nameof(HotelEnabled));
         OnPropertyChanged(nameof(SupportEnabled));
+        BuildNav();   // بازسازیِ سایدبارِ آکاردئونی با تغییرِ ماژول‌ها
+    }
+
+    // ── CC-3+ — سایدبارِ آکاردئونی (داده‌محور، با رعایتِ RBAC/ماژول؛ منعکسِ منوی بالا) ──
+    public ObservableCollection<NavGroup> NavGroups { get; } = new();
+
+    [RelayCommand]
+    private void ToggleGroup(NavGroup? g)
+    {
+        if (g is null) return;
+        bool wasOpen = g.IsExpanded;
+        foreach (var x in NavGroups) x.IsExpanded = false;   // آکاردئون: یک بخشِ باز
+        g.IsExpanded = !wasOpen;
+    }
+
+    private void BuildNav()
+    {
+        NavGroups.Clear();
+        void Add(bool show, string title, string icon, params NavLink[] links)
+        { if (show && links.Length > 0) NavGroups.Add(new NavGroup { Title = title, IconKey = icon, Links = links }); }
+
+        Add(CanAccounting, "حسابداری", "IcAccounting",
+            new("ثبت سند", "VoucherEdit"), new("اسناد حسابداری", "Vouchers"), new("نمودار حساب‌ها", "ChartOfAccounts"),
+            new("ابعاد حسابداری", "AccDimensions"), new("بهره‌وری سند", "VoucherTools"), new("عملیات پایان دوره", "EndOfPeriod"),
+            new("کارتابلِ تأیید", "VoucherApprovals"), new("داشبورد حسابدار", "AccountantDash"), new("داشبورد مدیریتی", "ManagerDash"));
+
+        Add(CanTreasury, "خزانه‌داری", "IcTreasury",
+            new("مدیریت چک", "Cheques"), new("تابلوی چک", "ChequeBoard"), new("دریافتنی/پرداختنی", "Receivables"),
+            new("تسویهٔ بین‌شعبه", "InterBranch"), new("حساب‌های بانکی", "BankAccounts"), new("مغایرت‌گیری بانکی", "BankRecon"));
+
+        Add(CanSales, "فروش و درآمد", "IcSales",
+            new("داشبورد فروش", "SalesDash"), new("فروش جدید", "SalesInvoice"), new("فاکتورهای فروش", "SalesInvoiceList"),
+            new("فاکتورهای تکرارشونده", "RecurringInvoices"), new("درآمد و سود", "Income"), new("لیست درآمدها", "IncomeList"),
+            new("گزارش فروش", "SalesReport"));
+
+        Add(CanPurchase, "خرید", "IcPurchasing",
+            new("فاکتور خرید", "PurchaseInvoice"), new("لیست خریدها", "PurchaseInvoiceList"), new("سفارش‌های خرید", "PurchaseOrders"),
+            new("گزارش خرید", "PurchaseReport"), new("صورت‌حساب تأمین‌کننده", "SupplierStatement"));
+
+        Add(CanInventory, "انبار", "IcInventory",
+            new("کالاها", "Products"), new("مدیریت لیست‌قیمت", "PriceList"), new("تخفیف پلکانی", "DiscountTiers"),
+            new("بچ و سریال (انقضا)", "BatchSerial"), new("گزارش موجودی/ارزش انبار", "InventoryReport"), new("گزارش نقطهٔ سفارش", "ReorderReport"),
+            new("نمای انبار", "WarehouseOverview"), new("انبارها", "Warehouses"), new("تعدیل موجودی", "StockAdjust"),
+            new("انبارگردانی", "StockCount"), new("انتقال بین انبار", "StockTransfer"), new("کاردکس کالا", "Kardex"));
+
+        Add(CanCustomers, "اشخاص", "IcPeople",
+            new("همهٔ اشخاص", "Persons"), new("مشتریان", "Customers"), new("تأمین‌کنندگان", "Suppliers"));
+
+        Add(CanReports, "گزارشات", "IcReports",
+            new("گزارش‌ها", "Reports"), new("گزارش‌های مالی", "FinancialReports"), new("گزارش تطبیقی شعب", "BranchReport"),
+            new("ماندهٔ سنی‌شده", "AgedBalance"), new("خلاصهٔ مالیات ارزش‌افزوده", "VatSummary"), new("دفترِ روزنامه", "Daybook"),
+            new("کالای راکد", "DeadStock"), new("سود و زیانِ کالا", "ProductProfit"), new("تحلیلِ ABC", "AbcAnalysis"), new("گردشِ موجودی", "Turnover"));
+
+        // سیستم — همیشه (با گیتِ داخلیِ هر آیتم)
+        var sys = new List<NavLink> { new("میز کار / داشبورد", "Dashboard") };
+        if (CanSecurity) { sys.Add(new("امنیت و دسترسی", "Security")); sys.Add(new("لاگِ حسابرسی", "AuditLog")); sys.Add(new("مدیریت شعب", "Branches")); }
+        if (HrEnabled)  { sys.Add(new("کارکنان", "Employees")); sys.Add(new("حقوق و دستمزد", "Salary")); }
+        sys.Add(new("مدیریت ماژول‌ها", "Modules")); sys.Add(new("قالبِ اسناد", "DocumentTemplates"));
+        sys.Add(new("ورودِ داده از اکسل", "DataImport")); sys.Add(new("تنظیمات", "Settings")); sys.Add(new("پشتیبان‌گیری", "Backup"));
+        NavGroups.Add(new NavGroup { Title = "سیستم", IconKey = "IcSettings", Links = sys });
+
+        if (TourismEnabled)
+            Add(true, "گردشگری", "IcSales",
+                new("رزروها", "TourismBookings"), new("تورها", "TourismTours"), new("هتل‌ها", "TourismHotels"),
+                new("پروازها", "TourismFlights"), new("ترانسفر", "TourismTransfer"), new("واچرها", "TourismVouchers"),
+                new("کمیسیون‌ها", "TourismCommissions"), new("گزارشات گردشگری", "TourismReports"));
+
+        if (SupportEnabled)
+            Add(true, "مرکزِ پشتیبانی", "IcReports",
+                new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),
+                new("تیکتِ پشتیبانی", "SupportTicket"), new("درخواست‌های من", "MyRequests"), new("دانشنامه", "KnowledgeBase"),
+                new("یادداشت‌های نسخه", "ReleaseNotes"), new("پشتیبانیِ ریموت", "RemoteSupport"), new("عیب‌یابیِ سیستم", "Diagnostics"));
     }
 
     private async Task NavigateToAsync(string page, object? parameter = null)
@@ -561,4 +635,16 @@ public partial class WorkspaceTab : CommunityToolkit.Mvvm.ComponentModel.Observa
 public record QuickAccessItem(string Key, string Title, bool Pinned)
 {
     public string PinGlyph => Pinned ? "★" : "☆";
+}
+
+/// <summary>یک پیوندِ زیرمنوی سایدبار (عنوان + کلیدِ صفحه).</summary>
+public record NavLink(string Title, string Key);
+
+/// <summary>یک بخشِ آکاردئونیِ سایدبار (عنوان + آیکون + زیرمنوها + وضعیتِ باز/بسته).</summary>
+public partial class NavGroup : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+{
+    public string Title { get; init; } = "";
+    public string IconKey { get; init; } = "";
+    public IReadOnlyList<NavLink> Links { get; init; } = System.Array.Empty<NavLink>();
+    [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty] private bool _isExpanded;
 }

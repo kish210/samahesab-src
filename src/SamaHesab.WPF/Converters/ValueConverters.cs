@@ -184,3 +184,25 @@ public class NullToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// <summary>کلیدِ منبعِ هندسه (مثل "IcAccounting") → Geometry — برای آیکونِ داده‌محورِ سایدبارِ آکاردئونی.</summary>
+public class KeyToGeometryConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is string key && !string.IsNullOrEmpty(key)
+            ? System.Windows.Application.Current?.TryFindResource(key) as System.Windows.Media.Geometry
+            : null;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>bool باز/بسته → شِورونِ آکاردئون (▾ باز / ◂ بسته در RTL).</summary>
+public class BoolToChevronConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => (value is bool b && b) ? "▾" : "◂";
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}

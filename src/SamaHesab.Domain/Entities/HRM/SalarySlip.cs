@@ -12,6 +12,14 @@ public class SalarySlip : BaseEntity
     public decimal Allowances { get; private set; }
     public decimal Commission { get; private set; }
     public decimal Bonuses { get; private set; }
+    // PAY-C1-2 — اجزای تفکیکیِ حقوقِ ایرانی (مزایا) — هرکدام در ناخالص لحاظ می‌شوند.
+    public decimal HousingAllowance { get; private set; }   // حق مسکن
+    public decimal FoodAllowance { get; private set; }       // بن کارگری/خواربار
+    public decimal ChildAllowance { get; private set; }      // حق اولاد
+    public decimal SeniorityPay { get; private set; }        // حق سنوات
+    public decimal NightShiftPay { get; private set; }       // شب‌کاری
+    public decimal HolidayPay { get; private set; }          // جمعه/تعطیل‌کاری
+    public decimal EmployerInsurance { get; private set; }   // سهمِ کارفرما ۲۳٪ (جدا از خالص — برای لیستِ بیمه)
     public decimal GrossSalary { get; private set; }
     public decimal InsuranceDeduct { get; private set; }
     public decimal TaxDeduct { get; private set; }
@@ -29,9 +37,15 @@ public class SalarySlip : BaseEntity
         decimal baseSalary, decimal overtimePay = 0, decimal allowances = 0,
         decimal commission = 0, decimal bonuses = 0,
         decimal insuranceDeduct = 0, decimal taxDeduct = 0, decimal otherDeductions = 0,
-        string? notes = null)
+        string? notes = null,
+        // PAY-C1-2 — اجزای تفکیکیِ ایرانی (اختیاری؛ موتورِ کاملِ حقوق پرشان می‌کند).
+        decimal housingAllowance = 0, decimal foodAllowance = 0, decimal childAllowance = 0,
+        decimal seniorityPay = 0, decimal nightShiftPay = 0, decimal holidayPay = 0,
+        decimal employerInsurance = 0)
     {
-        var gross = baseSalary + overtimePay + allowances + commission + bonuses;
+        // اجزای تفکیکی هم جزوِ ناخالص‌اند (سهمِ کارفرما جدا — در ناخالص/خالص نمی‌آید).
+        var gross = baseSalary + overtimePay + allowances + commission + bonuses
+                  + housingAllowance + foodAllowance + childAllowance + seniorityPay + nightShiftPay + holidayPay;
         var net = gross - insuranceDeduct - taxDeduct - otherDeductions;
 
         return new SalarySlip
@@ -44,6 +58,13 @@ public class SalarySlip : BaseEntity
             Allowances = allowances,
             Commission = commission,
             Bonuses = bonuses,
+            HousingAllowance = housingAllowance,
+            FoodAllowance = foodAllowance,
+            ChildAllowance = childAllowance,
+            SeniorityPay = seniorityPay,
+            NightShiftPay = nightShiftPay,
+            HolidayPay = holidayPay,
+            EmployerInsurance = employerInsurance,
             GrossSalary = gross,
             InsuranceDeduct = insuranceDeduct,
             TaxDeduct = taxDeduct,

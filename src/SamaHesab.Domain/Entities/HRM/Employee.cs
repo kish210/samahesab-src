@@ -37,6 +37,9 @@ public class Employee : AuditableEntity
     public int? UserId { get; private set; }
     public int? AccountId { get; private set; }
     public string? Notes { get; private set; }
+    // PAY-C1-1 — اقلامِ موردِ نیازِ حقوقِ کامل.
+    public int ChildrenCount { get; private set; }        // تعدادِ فرزندِ مشمولِ حق اولاد (تا ۲)
+    public int PriorServiceMonths { get; private set; }   // سابقهٔ پیش از استخدام (ماه) — برای پایهٔ سنوات
 
     public ICollection<AttendanceRecord> AttendanceRecords { get; private set; } = new List<AttendanceRecord>();
     public ICollection<SalarySlip> SalarySlips { get; private set; } = new List<SalarySlip>();
@@ -96,6 +99,15 @@ public class Employee : AuditableEntity
         BankName = bankName;
         BankAccount = bankAccount;
         ShebaNumber = shebaNumber;
+        UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>PAY-C1-1 — اقلامِ حقوقی: شمارهٔ بیمه، تعدادِ فرزندِ مشمول، سابقهٔ پیشین (ماه).</summary>
+    public void UpdatePayrollInfo(string? insuranceNumber, int childrenCount, int priorServiceMonths)
+    {
+        InsuranceNumber = insuranceNumber;
+        ChildrenCount = childrenCount < 0 ? 0 : childrenCount;
+        PriorServiceMonths = priorServiceMonths < 0 ? 0 : priorServiceMonths;
         UpdatedAt = DateTime.Now;
     }
 

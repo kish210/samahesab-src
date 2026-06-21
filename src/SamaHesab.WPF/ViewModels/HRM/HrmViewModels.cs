@@ -177,6 +177,53 @@ public partial class SalaryViewModel : BaseViewModel
         }, "در حال محاسبه حقوق...");
     }
 
+    /// <summary>PAY-C2-4 — محاسبهٔ دسته‌ایِ حقوقِ ماه و ذخیرهٔ فیش‌ها (RunMonthlyPayrollCommand).</summary>
+    [RelayCommand]
+    private async Task RunBatchAsync()
+    {
+        var ok = await _dialogService.ConfirmAsync(
+            $"حقوقِ همهٔ کارکنانِ فعال برای {SelectedMonth}/{SelectedYear} محاسبه و فیش‌ها ذخیره شود؟\n" +
+            "(فیش‌های موجودِ این ماه دوباره محاسبه و جایگزین می‌شوند.)");
+        if (!ok) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new RunMonthlyPayrollCommand(SelectedYear, (byte)SelectedMonth, Overwrite: true));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            var r = res.Value!;
+            await LoadSlipsAsync();
+            await _dialogService.ShowSuccessAsync(
+                $"محاسبه انجام شد: {r.Created} فیش صادر شد.\n" +
+                $"جمعِ ناخالص {r.TotalGross:N0} · خالص {r.TotalNet:N0} ریال\n" +
+                $"بیمهٔ کارفرما {r.TotalEmployerInsurance:N0} · مالیات {r.TotalTax:N0} ریال");
+        }, "در حال محاسبهٔ دسته‌ای...");
+    }
+
+    /// <summary>PAY-C2-4 — تولید و ذخیرهٔ فایل‌های خروجی (بیمه/مالیات/بانک) از فیش‌های ماه.</summary>
+    [RelayCommand]
+    private async Task ExportFilesAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new GetPayrollExportQuery(SelectedYear, (byte)SelectedMonth));
+            if (res.EmployeeCount == 0)
+            {
+                await _dialogService.ShowWarningAsync("برای این ماه فیشی ذخیره نشده. ابتدا «محاسبهٔ دسته‌ای» را بزنید.");
+                return;
+            }
+            var dir = System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments),
+                "SamaHesab", "حقوق", $"{SelectedYear}-{SelectedMonth:00}");
+            System.IO.Directory.CreateDirectory(dir);
+            var enc = new System.Text.UTF8Encoding(true);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "لیست_بیمه.csv"), res.InsuranceListCsv, enc);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "لیست_مالیات.csv"), res.TaxListCsv, enc);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "فایل_بانک.csv"), res.BankFileCsv, enc);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(dir) { UseShellExecute = true });
+            await _dialogService.ShowSuccessAsync(
+                $"۳ فایلِ خروجی برای {res.EmployeeCount} نفر ذخیره شد:\n{dir}");
+        }, "در حال تولیدِ فایل‌های خروجی...");
+    }
+
     [RelayCommand]
     private async Task PostAllAsync()
     {
@@ -192,10 +239,34 @@ public partial class SalaryViewModel : BaseViewModel
         }, "در حال ثبت حقوق...");
     }
 
+    /// <summary>PAY-C2-4 — چاپِ فیشِ حقوقی: HTMLِ راست‌چین (PayslipHtmlBuilder) در مرورگرِ پیش‌فرض.</summary>
     [RelayCommand] private async Task PrintSlipAsync(SalarySlipRow? row)
     {
-        if (row == null) return;
-        await _dialogService.ShowInfoAsync($"در حال چاپ فیش حقوقی {row.EmployeeName}...");
+        var item = row ?? SelectedSlip;
+        if (item == null) { await _dialogService.ShowWarningAsync("ابتدا یک فیش را انتخاب کنید."); return; }
+        try
+        {
+            // بازسازیِ نتیجهٔ حقوق از مقادیرِ ردیف (سهمِ کارفرما۲۳٪ از مأخذِ بیمه برای نمایش).
+            var insurableBase = item.GrossSalary;
+            var employer = System.Math.Round(insurableBase * 0.23m, 0);
+            var result = new FullPayrollResult(
+                OvertimePay: item.OvertimePay, NightPay: 0, HolidayPay: 0, ChildAllowance: 0,
+                Gross: item.GrossSalary, InsurableBase: insurableBase,
+                EmployeeInsurance: item.InsuranceDeduct, EmployerInsurance: employer,
+                Tax: item.TaxDeduct, TotalDeductions: item.InsuranceDeduct + item.TaxDeduct,
+                Net: item.NetSalary);
+            var header = new PayslipHeader(
+                CompanyName: AppSettingsStore.GetGeneral().CompanyName ?? "سما حساب",
+                EmployeeName: item.EmployeeName, PersonnelCode: item.EmployeeId.ToString(),
+                NationalCode: "", Year: int.TryParse(SelectedYear, out var y) ? y : 0, Month: SelectedMonth);
+            var html = PayslipHtmlBuilder.Build(header, result);
+
+            var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                $"payslip_{item.EmployeeId}_{SelectedYear}{SelectedMonth:00}.html");
+            System.IO.File.WriteAllText(path, html, new System.Text.UTF8Encoding(true));
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync(ex.Message); }
     }
 }
 

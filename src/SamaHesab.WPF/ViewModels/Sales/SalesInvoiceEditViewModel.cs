@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace SamaHesab.WPF.ViewModels.Sales;
 
-public partial class SalesInvoiceEditViewModel : BaseViewModel
+public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
@@ -109,7 +109,13 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     // 🔁 مرجوعی (برگشت از فروش) / 📄 پیش‌فاکتور — برچسبِ دکمهٔ ثبت متناسب می‌شود.
     public bool IsReturnInvoice => InvoiceType == "برگشت از فروش";
     public bool IsQuotationInvoice => InvoiceType == "پیش‌فاکتور";
-    public string PostButtonText => IsReturnInvoice ? "↩ ثبت برگشت از فروش — F9"
+
+    // 👁 UX-SALES-VIEW — حالتِ مشاهدهٔ فاکتورِ ثبت‌شده (ثبتِ دوباره مجاز نیست).
+    [ObservableProperty] private bool _isViewingExisting;
+    partial void OnIsViewingExistingChanged(bool value) => OnPropertyChanged(nameof(PostButtonText));
+
+    public string PostButtonText => IsViewingExisting ? "👁 فاکتورِ ثبت‌شده — فقط مشاهده/چاپ"
+        : IsReturnInvoice ? "↩ ثبت برگشت از فروش — F9"
         : IsQuotationInvoice ? "📄 ثبت پیش‌فاکتور — F9"
         : "✓ ثبت نهایی فاکتور — F9";
     partial void OnInvoiceTypeChanged(string value)
@@ -117,6 +123,45 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         OnPropertyChanged(nameof(IsReturnInvoice));
         OnPropertyChanged(nameof(IsQuotationInvoice));
         OnPropertyChanged(nameof(PostButtonText));
+    }
+
+    /// <summary>UX-SALES-VIEW — بازکردنِ فاکتورِ موجود از فهرست (Param=Id) در حالتِ مشاهده.</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is int id && id > 0) await LoadExistingAsync(id);
+    }
+
+    private async Task LoadExistingAsync(int id)
+    {
+        await ExecuteAsync(async () =>
+        {
+            var d = await _mediator.Send(new SamaHesab.Application.Sales.Queries.GetSalesInvoiceByIdQuery(id));
+            if (d == null) { await _dialogService.ShowErrorAsync("فاکتور یافت نشد."); return; }
+
+            AutoNumber = false; InvoiceNumber = d.Number; InvoiceDate = d.Date;
+            SelectedCustomerId = d.CustomerId; SelectedWarehouseId = d.WarehouseId;
+            PriceLevel = d.PriceLevel; InvoiceType = d.InvoiceType;
+            Shipping = d.Shipping; OtherCosts = d.OtherCosts;
+            DueDate = d.DueDate; Description = d.Description;
+            Reference = d.Reference ?? string.Empty; Title = d.Title ?? string.Empty;
+
+            InvoiceItems.Clear();
+            foreach (var it in d.Items)
+            {
+                var row = new SalesInvoiceItemRow
+                {
+                    ProductId = it.ProductId, ProductCode = it.Code, ProductName = it.Name,
+                    Quantity = it.Quantity, UnitPrice = it.UnitPrice,
+                    DiscountPct = it.DiscountPct, TaxPct = it.TaxPct, Description = it.Description
+                };
+                row.Recalculate();
+                InvoiceItems.Add(row);
+            }
+            RenumberRows();
+            RecalculateTotals();
+            PaidAmount = d.PaidAmount;
+            IsViewingExisting = true;   // قفلِ ثبتِ دوباره
+        }, "در حال بازکردنِ فاکتور...");
     }
     /// <summary>باقیماندهٔ نسیه در پرداختِ ترکیبی (فقط برای نمایش؛ منفی=اضافه‌پرداخت).</summary>
     public decimal MixedCreditAmount => GrandTotal - CashAmount - CardAmount;
@@ -550,6 +595,12 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private async Task PostInvoiceAsync()
     {
+        // 👁 UX-SALES-VIEW — فاکتورِ ثبت‌شده فقط مشاهده/چاپ است؛ ثبتِ دوباره سندِ تکراری می‌سازد.
+        if (IsViewingExisting)
+        {
+            await _dialogService.ShowWarningAsync("این فاکتور قبلاً ثبت شده و فقط برای مشاهده/چاپ باز شده است. برای فروشِ جدید، «فاکتورِ جدید (F2)» را بزنید.");
+            return;
+        }
         if (SelectedCustomerId == 0) { await _dialogService.ShowErrorAsync("مشتری را انتخاب کنید."); return; }
         var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
@@ -654,6 +705,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel
         Description = null; DueDate = null; InvoiceItems.Clear();
         SeedEmptyRows();
         PaidAmount = 0; CashAmount = 0; CardAmount = 0; CardPaymentInfo = null;
+        IsViewingExisting = false;   // خروج از حالتِ مشاهده
         RecalculateTotals();
     }
 

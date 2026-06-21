@@ -30,6 +30,15 @@ public partial class SalesInvoiceListViewModel : BaseViewModel
 
     public ObservableCollection<SalesInvoiceListItem> Invoices { get; } = new();
     public List<string> StatusList { get; } = new() { "همه", "پیش‌نویس", "قطعی", "لغو شده" };
+    [ObservableProperty] private SalesInvoiceListItem? _selectedInvoice;
+
+    /// <summary>UX-SALES-VIEW — بازکردنِ فاکتورِ انتخاب‌شده در حالتِ مشاهده (راست‌کلیک/دابل‌کلیک).</summary>
+    [RelayCommand]
+    private void OpenInvoice(SalesInvoiceListItem? i)
+    {
+        var item = i ?? SelectedInvoice;
+        if (item != null) _navigationService.NavigateTo("SalesInvoice", item.Id);
+    }
 
     public SalesInvoiceListViewModel(IPersianCalendarService calendar,
         IMediator mediator, ApiClient api,

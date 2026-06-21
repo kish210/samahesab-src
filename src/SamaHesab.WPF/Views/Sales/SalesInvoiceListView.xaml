@@ -41,9 +41,19 @@
 
         <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Invoices}"
-                                
-                                
+                                 SelectedItem="{Binding SelectedInvoice}"
                                  FontFamily="{StaticResource VazirFont}">
+                <!-- UX-SALES-VIEW — دابل‌کلیک/راست‌کلیک → بازکردنِ فاکتور (حالتِ مشاهده) -->
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenInvoiceCommand}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="👁 مشاهدهٔ فاکتور"
+                                  Command="{Binding PlacementTarget.DataContext.OpenInvoiceCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="شماره" Binding="{Binding Number}" Width="110"/>
                     <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>

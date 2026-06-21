@@ -490,7 +490,12 @@ public partial class MainViewModel : BaseViewModel
         // میان‌برِ سراسری: راهنمای میان‌بر (F1) — پنجرهٔ مودال، نه Tab.
         if (page == "ShortcutHelp") { ShowShortcutHelp(); return; }
 
-        if (!_pages.TryGetValue(page, out var entry)) return;
+        // کلیدِ ثبت‌نشده (مثلِ بخش‌های هنوز پیاده‌نشدهٔ گردشگری) → پیامِ محترمانه به‌جای کلیکِ مرده.
+        if (!_pages.TryGetValue(page, out var entry))
+        {
+            await _dialogService.ShowInfoAsync("این بخش هنوز در دسترس نیست (در نسخه‌های بعدی فعال می‌شود).");
+            return;
+        }
 
         // M3: گیتِ ماژول — اگر صفحه به ماژولِ خاموش تعلق دارد، بازنشو
         if (_pageModule.TryGetValue(page, out var mod) && !_modules.IsEnabled(mod))

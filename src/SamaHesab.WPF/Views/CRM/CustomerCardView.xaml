@@ -49,8 +49,8 @@
         <!-- ═══ تولبار ═══ -->
         <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1"
                 CornerRadius="8" Padding="8,6" Margin="0,0,0,10">
-            <DockPanel>
-                <StackPanel Orientation="Horizontal">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button Style="{StaticResource TBtnPrimary}" Content="✎  ویرایش" Command="{Binding EditCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="🧾  فاکتور جدید" Command="{Binding NewInvoiceCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="💵  دریافت وجه" Command="{Binding ReceiptCommand}"/>
@@ -58,7 +58,7 @@
                     <Button Style="{StaticResource TBtn}" Content="🖨  صورت‌حساب (F8)" Command="{Binding PrintStatementCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="✉  پیامک مانده" Command="{Binding SmsBalanceCommand}"/>
                 </StackPanel>
-                <Border DockPanel.Dock="Left" HorizontalAlignment="Left" Background="#E7F3EC" CornerRadius="6" Padding="10,4">
+                <Border DockPanel.Dock="Left" VerticalAlignment="Center" Background="#E7F3EC" CornerRadius="6" Padding="10,4">
                     <TextBlock VerticalAlignment="Center" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource ErpSuccess700}">
                         <Run Text="●"/><Run Text="{Binding StatusLabel, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding GroupLabel, Mode=OneWay}"/>
                     </TextBlock>

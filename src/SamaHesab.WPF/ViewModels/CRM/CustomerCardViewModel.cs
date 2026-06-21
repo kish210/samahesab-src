@@ -270,8 +270,10 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
         => SamaHesab.WPF.Converters.NumberFormatConverter.ToPersian(s);
 
     [RelayCommand] private void Edit() => _navigationService.NavigateTo("CustomerEdit", CustomerId);
-    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoiceEdit");
-    [RelayCommand] private async Task Receipt() => await _dialogService.ShowInfoAsync("ثبت دریافت وجه از مشتری…");
+    // کلیدِ صفحهٔ فاکتورِ فروش «SalesInvoice» است (نه SalesInvoiceEdit) — باگِ قبلی: دکمه کاری نمی‌کرد.
+    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice", CustomerId);
+    // دریافتِ وجه → صفحهٔ دریافتنی/پرداختنی (به‌جای پیامِ خالی).
+    [RelayCommand] private void Receipt() => _navigationService.NavigateTo("Receivables", CustomerId);
     [RelayCommand]
     private async Task PrintStatement()
     {

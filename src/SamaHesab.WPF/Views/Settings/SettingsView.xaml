@@ -192,13 +192,13 @@
                 <!-- Backup config -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,20">
                     <StackPanel>
-                        <Grid Margin="0,0,0,16">
-                            <TextBlock Text="💾 پشتیبان‌گیری" FontWeight="Bold" FontSize="15"
-                                       Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"/>
-                            <CheckBox Content="پشتیبان‌گیریِ خودکار" IsChecked="{Binding AutoBackupEnabled}"
-                                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                        <DockPanel Margin="0,0,0,16" LastChildFill="False">
+                            <CheckBox DockPanel.Dock="Left" Content="پشتیبان‌گیریِ خودکار" IsChecked="{Binding AutoBackupEnabled}"
+                                      VerticalAlignment="Center"
                                       Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"/>
-                        </Grid>
+                            <TextBlock Text="💾 پشتیبان‌گیری" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"/>
+                        </DockPanel>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
@@ -259,15 +259,15 @@
                 <!-- SMS Settings -->
                 <Border x:Name="SmsSection" Style="{StaticResource Card}" Margin="0,0,0,20">
                     <StackPanel>
-                        <Grid Margin="0,0,0,16">
-                            <TextBlock Text="📱 تنظیمات پیام کوتاه" FontWeight="Bold" FontSize="15"
-                                       Foreground="{DynamicResource PrimaryText}"
-                                       FontFamily="{StaticResource VazirFont}"/>
-                            <CheckBox Content="فعال‌سازی SMS" IsChecked="{Binding SmsEnabled}"
-                                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                        <DockPanel Margin="0,0,0,16" LastChildFill="False">
+                            <CheckBox DockPanel.Dock="Left" Content="فعال‌سازی SMS" IsChecked="{Binding SmsEnabled}"
+                                      VerticalAlignment="Center"
                                       Foreground="{DynamicResource PrimaryText}"
                                       FontFamily="{StaticResource VazirFont}"/>
-                        </Grid>
+                            <TextBlock Text="📱 تنظیمات پیام کوتاه" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryText}"
+                                       FontFamily="{StaticResource VazirFont}"/>
+                        </DockPanel>
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">

@@ -58,6 +58,36 @@ class SamaHesab_REST {
             'callback'            => array( $this, 'get_status' ),
             'permission_callback' => $perm,
         ) );
+        // 🔑 وضعیتِ لایسنسِ این نصب (انقضا/سقفِ سند) — ERP برای فعال‌سازی/اعمالِ محدودیت می‌خوانَد.
+        register_rest_route( SAMAHESAB_SC_NS, '/license', array(
+            'methods'             => 'GET',
+            'callback'            => array( $this, 'get_license' ),
+            'permission_callback' => $perm,
+        ) );
+    }
+
+    /** وضعیتِ لایسنسِ کلیدِ احرازشده: معتبر؟ انقضا؟ روزِ باقی‌مانده؟ سقفِ سند؟ */
+    public function get_license( $request ) {
+        $row = SamaHesab_Auth::authenticate( $request );
+        if ( null === $row ) {
+            return new WP_REST_Response( array( 'valid' => false ), 401 );
+        }
+        $expiry  = (string) ( $row['expiry'] ?? '' );
+        $limit   = intval( $row['doc_limit'] ?? 0 );
+        $expired = ( '' !== $expiry && strtotime( $expiry ) < current_time( 'timestamp' ) );
+        $days    = ( '' !== $expiry )
+            ? (int) ceil( ( strtotime( $expiry ) - current_time( 'timestamp' ) ) / DAY_IN_SECONDS )
+            : null;
+        return new WP_REST_Response( array(
+            'valid'          => ! $expired,
+            'expired'        => $expired,
+            'expiry'         => $expiry,                 // YYYY-MM-DD یا «»=دائمی
+            'days_remaining' => $days,                   // null=دائمی
+            'doc_limit'      => $limit,                  // ۰=نامحدود
+            'license_id'     => (string) ( $row['license_id'] ?? '' ),
+            'customer_id'    => (string) ( $row['customer_id'] ?? '' ),
+            'label'          => (string) ( $row['label'] ?? '' ),
+        ), 200 );
     }
 
     private function customer_id( $request ) {

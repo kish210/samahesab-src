@@ -193,9 +193,33 @@ class SamaHesab_Admin {
                 'api_key'     => wp_generate_password( 32, false ),
                 'license_id'  => sanitize_text_field( wp_unslash( $_POST['license_id'] ?? '' ) ),
                 'label'       => sanitize_text_field( wp_unslash( $_POST['label'] ?? '' ) ),
+                // 🔑 محدودیتِ لایسنس: تاریخِ انقضا (YYYY-MM-DD، خالی=بدونِ انقضا) و سقفِ تعدادِ سند (۰=نامحدود).
+                'expiry'      => sanitize_text_field( wp_unslash( $_POST['expiry'] ?? '' ) ),
+                'doc_limit'   => max( 0, intval( $_POST['doc_limit'] ?? 0 ) ),
             );
             update_option( 'samahesab_api_keys', $keys );
             echo '<div class="notice notice-success"><p>کلیدِ جدید ساخته شد.</p></div>';
+        }
+        // به‌روزرسانیِ محدودیتِ یک لایسنسِ موجود (انقضا/سقفِ سند).
+        if ( isset( $_POST['samahesab_update_limit'] ) && check_admin_referer( 'samahesab_keys' ) ) {
+            $keys = SamaHesab_Auth::keys();
+            $i    = intval( $_POST['idx'] ?? -1 );
+            if ( isset( $keys[ $i ] ) ) {
+                $keys[ $i ]['expiry']    = sanitize_text_field( wp_unslash( $_POST['expiry'] ?? '' ) );
+                $keys[ $i ]['doc_limit'] = max( 0, intval( $_POST['doc_limit'] ?? 0 ) );
+                update_option( 'samahesab_api_keys', $keys );
+                echo '<div class="notice notice-success"><p>محدودیتِ لایسنس به‌روزرسانی شد.</p></div>';
+            }
+        }
+        // حذفِ یک لایسنس.
+        if ( isset( $_POST['samahesab_del_key'] ) && check_admin_referer( 'samahesab_keys' ) ) {
+            $keys = SamaHesab_Auth::keys();
+            $i    = intval( $_POST['idx'] ?? -1 );
+            if ( isset( $keys[ $i ] ) ) {
+                array_splice( $keys, $i, 1 );
+                update_option( 'samahesab_api_keys', $keys );
+                echo '<div class="notice notice-success"><p>لایسنس حذف شد.</p></div>';
+            }
         }
         $keys = SamaHesab_Auth::keys();
         ?>
@@ -203,14 +227,33 @@ class SamaHesab_Admin {
             <h1>مشتریان و کلید-API</h1>
             <p>هر نصبِ ERP یک رکورد دارد. کلید را در «تنظیماتِ پشتیبانیِ» سما حساب وارد کنید.</p>
             <table class="widefat striped">
-                <thead><tr><th>برچسب</th><th>شناسهٔ مشتری</th><th>کلید-API</th><th>شناسهٔ لایسنس</th></tr></thead>
+                <thead><tr><th>برچسب</th><th>شناسهٔ مشتری</th><th>کلید-API</th><th>شناسهٔ لایسنس</th><th>انقضا</th><th>سقفِ سند</th><th>وضعیت</th><th>عملیات</th></tr></thead>
                 <tbody>
-                <?php foreach ( $keys as $row ) : ?>
+                <?php foreach ( $keys as $i => $row ) :
+                    $expiry  = $row['expiry'] ?? '';
+                    $limit   = intval( $row['doc_limit'] ?? 0 );
+                    $expired = ( '' !== $expiry && strtotime( $expiry ) < current_time( 'timestamp' ) );
+                    ?>
                     <tr>
                         <td><?php echo esc_html( $row['label'] ?? '' ); ?></td>
                         <td><code><?php echo esc_html( $row['customer_id'] ?? '' ); ?></code></td>
-                        <td><code><?php echo esc_html( $row['api_key'] ?? '' ); ?></code></td>
+                        <td><code style="font-size:11px"><?php echo esc_html( $row['api_key'] ?? '' ); ?></code></td>
                         <td><?php echo esc_html( $row['license_id'] ?? '' ); ?></td>
+                        <td><?php echo $expiry ? esc_html( $expiry ) : '<span style="color:#888">بدونِ انقضا</span>'; ?></td>
+                        <td><?php echo $limit > 0 ? esc_html( number_format_i18n( $limit ) ) : '<span style="color:#888">نامحدود</span>'; ?></td>
+                        <td><?php echo $expired
+                            ? '<span style="color:#c0392b;font-weight:bold">منقضی</span>'
+                            : '<span style="color:#27ae60;font-weight:bold">فعال</span>'; ?></td>
+                        <td>
+                            <form method="post" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                                <?php wp_nonce_field( 'samahesab_keys' ); ?>
+                                <input type="hidden" name="idx" value="<?php echo intval( $i ); ?>">
+                                <input name="expiry" type="date" value="<?php echo esc_attr( $expiry ); ?>" style="width:140px">
+                                <input name="doc_limit" type="number" min="0" value="<?php echo intval( $limit ); ?>" style="width:90px" title="سقفِ تعدادِ سند (۰=نامحدود)">
+                                <button class="button button-small" name="samahesab_update_limit" value="1">ذخیره</button>
+                                <button class="button button-small" name="samahesab_del_key" value="1" onclick="return confirm('این لایسنس حذف شود؟')">حذف</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -222,7 +265,9 @@ class SamaHesab_Admin {
                 <table class="form-table">
                     <tr><th>برچسب</th><td><input name="label" type="text" class="regular-text" required></td></tr>
                     <tr><th>شناسهٔ مشتری</th><td><input name="customer_id" type="text" class="regular-text" required></td></tr>
-                    <tr><th>شناسهٔ لایسنس</th><td><input name="license_id" type="text" class="regular-text"></td></tr>
+                    <tr><th>شناسهٔ لایسنس</th><td><input name="license_id" type="text" class="regular-text" placeholder="مثلاً TIER-PRO یا کدِ دلخواه"></td></tr>
+                    <tr><th>تاریخِ انقضا</th><td><input name="expiry" type="date" class="regular-text"> <span class="description">خالی = بدونِ انقضا (دائمی)</span></td></tr>
+                    <tr><th>سقفِ تعدادِ سند</th><td><input name="doc_limit" type="number" min="0" value="0" class="regular-text"> <span class="description">۰ = نامحدود</span></td></tr>
                 </table>
                 <p><button class="button button-primary" name="samahesab_add_key" value="1">ساختِ کلید-API</button></p>
             </form>

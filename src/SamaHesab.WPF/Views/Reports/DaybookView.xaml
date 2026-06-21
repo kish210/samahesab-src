@@ -40,7 +40,16 @@
             <Button Content="چاپ" Command="{Binding PrintCommand}" Margin="6,0,0,0" Style="{StaticResource ErpBtnSecondary}"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True">
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}" IsReadOnly="True"
+                  SelectedItem="{Binding SelectedRow}" SelectionMode="Single" SelectionUnit="FullRow">
+            <!-- drill-down به سند: دابل‌کلیک یا Enter یا منوی راست‌کلیک -->
+            <DataGrid.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenVoucherCommand}"/>
+                <KeyBinding Key="Return" Command="{Binding OpenVoucherCommand}"/>
+            </DataGrid.InputBindings>
+            <DataGrid.ContextMenu>
+                <ContextMenu><MenuItem Header="📄 بازکردنِ سند" Command="{Binding OpenVoucherCommand}"/></ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="100"/>
                 <DataGridTextColumn Header="شمارهٔ سند" Binding="{Binding VoucherNumber}" Width="100"/>

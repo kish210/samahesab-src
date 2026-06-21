@@ -6,7 +6,7 @@ namespace SamaHesab.Application.Reports.Queries;
 
 /// <summary>یک ردیفِ دفترِ روزنامه (هر آرتیکلِ سند، به‌ترتیبِ زمانی).</summary>
 public record DaybookRow(string Date, string VoucherNumber, string AccountCode, string AccountName,
-    string Description, decimal Debit, decimal Credit);
+    string Description, decimal Debit, decimal Credit, int VoucherId = 0);
 
 /// <summary>
 /// فاز ۱۲ (RC-6) — دفترِ روزنامه (Daybook/Journal): فهرستِ زمانیِ همهٔ آرتیکل‌های اسنادِ یک بازه.
@@ -39,7 +39,7 @@ public class GetDaybookQueryHandler : IRequestHandler<GetDaybookQuery, List<Dayb
                 rows.Add(new DaybookRow(
                     v.VoucherDate, v.VoucherNumber, code, name,
                     string.IsNullOrWhiteSpace(it.Description) ? (v.Description ?? "") : it.Description!,
-                    it.Debit, it.Credit));
+                    it.Debit, it.Credit, v.Id));
             }
         }
         return rows;

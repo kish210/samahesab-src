@@ -23,6 +23,15 @@ public partial class DaybookViewModel : BaseViewModel
     [ObservableProperty] private string _toDate = string.Empty;
     [ObservableProperty] private decimal _totalDebit;
     [ObservableProperty] private decimal _totalCredit;
+    [ObservableProperty] private DaybookRow? _selectedRow;   // drill-down به سند
+
+    /// <summary>drill-down: بازکردنِ سندِ همان ردیف در یک Tab (دابل‌کلیک/Enter/منو).</summary>
+    [RelayCommand]
+    private void OpenVoucher()
+    {
+        if (SelectedRow is { VoucherId: > 0 } r)
+            _navigationService.NavigateTo("VoucherEdit", r.VoucherId);
+    }
 
     public DaybookViewModel(IMediator mediator, IPersianCalendarService calendar, IPdfService pdf,
         IDialogService dialogService, INavigationService navigationService)

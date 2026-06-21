@@ -333,6 +333,19 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_HELP") == "1")
+        {
+            var hw = new Views.Shell.ShortcutHelpWindow
+            { WindowStartupLocation = WindowStartupLocation.Manual, Left = 60, Top = 60, SizeToContent = System.Windows.SizeToContent.Manual, Height = 620 };
+            hw.Show(); await Task.Delay(600); hw.UpdateLayout();
+            var idir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(idir);
+            var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(560, 620, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            rtb.Render(hw);
+            var enc = new System.Windows.Media.Imaging.PngBitmapEncoder(); enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(rtb));
+            using (var fs = System.IO.File.Create(System.IO.Path.Combine(idir, "shortcut_help.png"))) enc.Save(fs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_PALETTE") == "1")
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())

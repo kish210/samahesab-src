@@ -62,6 +62,12 @@ public partial class MainWindow : MetroWindow
             OpenCommandPalette();
             e.Handled = true;
         }
+        // CC-4 — F1: راهنمای میان‌برِ صفحه‌کلید (سراسری).
+        else if (e.Key == System.Windows.Input.Key.F1)
+        {
+            new ShortcutHelpWindow { Owner = this }.ShowDialog();
+            e.Handled = true;
+        }
     }
 
     /// <summary>CC-2 — Command Palette: دستورهای ناوبری + نتایجِ زندهٔ جست‌وجو؛ اجرا از مسیرِ مشترکِ OpenSearchResult.</summary>

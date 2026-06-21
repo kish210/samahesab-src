@@ -16,8 +16,9 @@
         <KeyBinding Key="F8" Command="{Binding PrintCommand}"/>
         <KeyBinding Key="F9" Command="{Binding PostCommand}"/>
         <KeyBinding Key="OemPlus" Command="{Binding FillBalanceCommand}"/>
-        <!-- میان‌برِ استانداردِ ذخیره (علاوه بر F7) برای کاربرانِ پرکار -->
+        <!-- CC-4 — میان‌برهای استانداردِ واحد (علاوه بر F7/F8 برای سازگاری): Ctrl+S ذخیره، Ctrl+P چاپ -->
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}"/>
+        <KeyBinding Modifiers="Control" Key="P" Command="{Binding PrintCommand}"/>
     </UserControl.InputBindings>
 
     <UserControl.Resources>

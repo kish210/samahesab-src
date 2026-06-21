@@ -1221,7 +1221,9 @@ public partial class App : System.Windows.Application
     {
         var settings = Services.AppSettingsStore.GetApiSettings();
         // --setup forces the server-connection dialog first (set/verify the server IP).
-        if (args.Contains("--setup"))
+        // همچنین در «اولین اجرا» که آدرسِ سرور هنوز تنظیم نشده، خودکار پنجرهٔ تنظیماتِ سرور
+        // را باز می‌کنیم تا کاربر پیش از دیدنِ فرمِ لاگین آدرسِ سرور را وارد کند (فعال‌سازیِ کلاینت).
+        if (args.Contains("--setup") || string.IsNullOrWhiteSpace(settings.BaseUrl))
         {
             new Views.Shell.ApiSettingsWindow().ShowDialog();
             settings = Services.AppSettingsStore.GetApiSettings();

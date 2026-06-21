@@ -64,6 +64,31 @@ class SamaHesab_REST {
             'callback'            => array( $this, 'get_license' ),
             'permission_callback' => $perm,
         ) );
+        // 🖥 اعلامِ نصب + گرفتنِ وضعیتِ تأیید/لایسنس. باز است (نصبِ تازه هنوز کلید ندارد؛ با machine_id شناخته می‌شود).
+        register_rest_route( SAMAHESAB_SC_NS, '/register', array(
+            'methods'             => 'POST',
+            'callback'            => array( $this, 'register_install' ),
+            'permission_callback' => '__return_true',
+        ) );
+    }
+
+    /** ثبت/به‌روزرسانیِ نصب و بازگرداندنِ وضعیتِ تأیید/لایسنس (api_key فقط پس از تأییدِ مدیر فاش می‌شود). */
+    public function register_install( $request ) {
+        $machine = trim( (string) ( $request->get_param( 'machine_id' ) ) );
+        if ( '' === $machine ) {
+            return new WP_REST_Response( array( 'ok' => false, 'error' => 'machine_id لازم است.' ), 400 );
+        }
+        $row = SamaHesab_Installs::upsert( $machine, array(
+            'company'       => (string) $request->get_param( 'company' ),
+            'business_type' => (string) $request->get_param( 'business_type' ),
+            'version'       => (string) $request->get_param( 'version' ),
+        ) );
+        if ( null === $row ) {
+            return new WP_REST_Response( array( 'ok' => false ), 400 );
+        }
+        $payload = SamaHesab_Installs::status_payload( $row );
+        $payload['ok'] = true;
+        return new WP_REST_Response( $payload, 200 );
     }
 
     /** وضعیتِ لایسنسِ کلیدِ احرازشده: معتبر؟ انقضا؟ روزِ باقی‌مانده؟ سقفِ سند؟ */

@@ -65,6 +65,7 @@ public class SupportFlowTests
         public Task<Result<IReadOnlyList<ArticleDto>>> GetArticlesAsync(string? s, CancellationToken ct = default) => Task.FromResult(Result<IReadOnlyList<ArticleDto>>.Failure("x"));
         public Task<Result<RemoteStatusDto>> GetStatusAsync(string id, CancellationToken ct = default) => Task.FromResult(Result<RemoteStatusDto>.Failure("x"));
         public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto d, CancellationToken ct = default) => Task.FromResult(Result<string>.Failure("x"));
+        public Task<Result<InstallStatusDto>> RegisterInstallAsync(InstallInfo info, CancellationToken ct = default) => Task.FromResult(Result<InstallStatusDto>.Failure("x"));
     }
 
     [Fact]

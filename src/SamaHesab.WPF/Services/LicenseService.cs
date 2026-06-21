@@ -50,6 +50,18 @@ public sealed class LicenseService
             };
         }
 
+        // ۱.۵) فعال‌سازیِ سروری (تأییدِ سایت از /register): اگر انقضای ذخیره‌شده در آینده باشد → فعال.
+        var gs = AppSettingsStore.GetGeneral();
+        if (!string.IsNullOrWhiteSpace(gs.ServerLicenseExpiryUtc) &&
+            DateTime.TryParse(gs.ServerLicenseExpiryUtc, null,
+                System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+                out var srvExp) && srvExp > DateTime.UtcNow)
+        {
+            var d = (int)Math.Ceiling((srvExp - DateTime.UtcNow).TotalDays);
+            return new(AppLicenseState.Activated,
+                $"فعال (تأییدِ سایت) — {d} روز باقی‌مانده · رده {gs.ServerLicenseTier}", null, null, null);
+        }
+
         // ۲) نسخهٔ آزمایشی (۱۲۰ روز یا ۲۰۰ سند)
         var install = GetOrSetTrialInstall();
         var (state, days, vouchers) = TrialPolicy.Evaluate(install, DateTime.UtcNow, voucherCount);

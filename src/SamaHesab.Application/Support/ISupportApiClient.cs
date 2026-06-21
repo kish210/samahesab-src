@@ -26,6 +26,9 @@ public interface ISupportApiClient
 
     /// <summary>🆘 HC-6b — ثبتِ نشستِ پشتیبانیِ ریموت روی سرورِ vendor تا کارشناس آن را ببیند و وصل شود.</summary>
     Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default);
+
+    /// <summary>🖥 اعلامِ نصب به سایت + گرفتنِ وضعیتِ تأیید/لایسنس (تمدیدِ از-راه-دور). نیازی به کلید-API ندارد.</summary>
+    Task<Result<InstallStatusDto>> RegisterInstallAsync(InstallInfo info, CancellationToken ct = default);
 }
 
 /// <summary>کلید-APIِ نصبِ ERP (از تنظیماتِ پشتیبانی خوانده می‌شود).</summary>
@@ -61,3 +64,12 @@ public sealed record RemoteStatusDto(string RemoteId, int Status, string? Status
 /// <summary>🆘 HC-6b — درخواستِ نشستِ ریموت برای vendor. Tool = ابزارِ ریموت (پیش‌فرض «rustdesk»)؛ ConnectId = شناسهٔ ابزار.</summary>
 public sealed record RemoteSessionSubmitDto(
     string Code, string? RequestedBy, string? Note, string Tool, string? ConnectId, string? DiagnosticsJson);
+
+// ── 🖥 ثبتِ نصب + وضعیتِ لایسنسِ از-راه-دور ──
+/// <summary>اطلاعاتِ نصب که به سایت اعلام می‌شود (machine = شناسهٔ یکتای کامپیوتر).</summary>
+public sealed record InstallInfo(string MachineId, string Company, string BusinessType, string Version);
+
+/// <summary>وضعیتِ بازگشتی از سایت: تأیید/اعتبار + کلید/لایسنس (پس از تأیید) + انقضا/سقفِ سند.</summary>
+public sealed record InstallStatusDto(
+    bool Approved, bool Valid, bool Expired,
+    string? ApiKey, string? LicenseId, string? Expiry, int? DaysRemaining, int DocLimit);

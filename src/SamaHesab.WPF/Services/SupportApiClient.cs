@@ -66,6 +66,29 @@ public sealed class SupportApiClient : ISupportApiClient
     public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default)
         => PostForIdAsync("/remote", dto, ct);   // 🆘 HC-6b — ثبتِ نشستِ ریموت روی vendor
 
+    /// <summary>🖥 اعلامِ نصب به سایت + گرفتنِ وضعیتِ تأیید/لایسنس. endpointِ باز — فقط BaseUrl لازم است (نه کلید).</summary>
+    public async Task<Result<InstallStatusDto>> RegisterInstallAsync(InstallInfo info, CancellationToken ct = default)
+    {
+        var o = Options();
+        if (string.IsNullOrWhiteSpace(o.BaseUrl))
+            return Result<InstallStatusDto>.Failure("آدرسِ سرورِ پشتیبانی تنظیم نشده است.");
+        try
+        {
+            var body = new { machine_id = info.MachineId, company = info.Company, business_type = info.BusinessType, version = info.Version };
+            using var resp = await _http.SendAsync(Build(HttpMethod.Post, "/register", body, o), ct);
+            if (!resp.IsSuccessStatusCode)
+                return Result<InstallStatusDto>.Failure($"خطای سرور ({(int)resp.StatusCode}).");
+            var d = await resp.Content.ReadFromJsonAsync<RegisterResponse>(cancellationToken: ct);
+            if (d is null) return Result<InstallStatusDto>.Failure("پاسخِ نامعتبر از سرور.");
+            return Result<InstallStatusDto>.Success(new InstallStatusDto(
+                d.approved, d.valid, d.expired, d.api_key, d.license_id, d.expiry, d.days_remaining, d.doc_limit));
+        }
+        catch (Exception ex) { return Result<InstallStatusDto>.Failure("اتصال ناموفق: " + ex.Message); }
+    }
+
+    private sealed record RegisterResponse(bool ok, bool approved, bool valid, bool expired,
+        string? api_key, string? license_id, string? expiry, int? days_remaining, int doc_limit);
+
     public async Task<Result<IReadOnlyList<ReleaseDto>>> GetReleasesAsync(CancellationToken ct = default)
     {
         var o = Options();

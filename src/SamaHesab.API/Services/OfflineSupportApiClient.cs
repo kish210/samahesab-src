@@ -28,4 +28,6 @@ public sealed class OfflineSupportApiClient : ISupportApiClient
         => Task.FromResult(Result<RemoteStatusDto>.Failure(Msg));
     public Task<Result<string>> SubmitRemoteSessionAsync(RemoteSessionSubmitDto dto, CancellationToken ct = default)
         => Task.FromResult(Result<string>.Failure(Msg));
+    public Task<Result<InstallStatusDto>> RegisterInstallAsync(InstallInfo info, CancellationToken ct = default)
+        => Task.FromResult(Result<InstallStatusDto>.Failure(Msg));
 }

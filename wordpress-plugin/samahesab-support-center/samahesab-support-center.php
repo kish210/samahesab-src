@@ -26,6 +26,7 @@ define( 'SAMAHESAB_SC_NS', 'samahesab/v1' );
 
 require_once SAMAHESAB_SC_DIR . 'includes/class-sama-cpt.php';
 require_once SAMAHESAB_SC_DIR . 'includes/class-sama-auth.php';
+require_once SAMAHESAB_SC_DIR . 'includes/class-sama-installs.php';
 require_once SAMAHESAB_SC_DIR . 'includes/class-sama-rest.php';
 require_once SAMAHESAB_SC_DIR . 'includes/class-sama-admin.php';
 require_once SAMAHESAB_SC_DIR . 'includes/class-sama-email.php';
@@ -37,6 +38,7 @@ require_once SAMAHESAB_SC_DIR . 'includes/class-sama-landing.php';
  */
 function samahesab_sc_boot() {
     SamaHesab_CPT::instance()->hooks();
+    SamaHesab_Installs::instance()->hooks();
     SamaHesab_REST::instance()->hooks();
     SamaHesab_Admin::instance()->hooks();
     SamaHesab_Email::instance()->hooks();

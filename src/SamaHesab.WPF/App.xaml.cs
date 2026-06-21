@@ -1084,6 +1084,9 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        // ─── 🖥 اعلامِ نصب به سایت + گرفتنِ تأیید/تمدیدِ لایسنس (هر استارتاپ، بدونِ بلاک‌کردنِ ورود) ──
+        _ = TryRegisterInstallAsync();
+
         // ─── به‌روزرسانیِ خودکار از GitHub (فقط حالا که سیستم بیکار است، پیش از ورود) ──
         if (await CheckForUpdateAsync()) return;   // اگر کاربر به‌روزرسانی را پذیرفت، نصاب اجرا و اپ بسته می‌شود
 
@@ -1107,6 +1110,41 @@ public partial class App : System.Windows.Application
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();
+    }
+
+    /// <summary>🖥 اعلامِ نصب به سایت + اعمالِ تأیید/تمدیدِ لایسنس. آفلاین/خطا بی‌صدا رد می‌شود (مانعِ ورود نیست).</summary>
+    private async Task TryRegisterInstallAsync()
+    {
+        try
+        {
+            var support = _host!.Services.GetService<SamaHesab.Application.Support.ISupportApiClient>();
+            var lic = _host.Services.GetService<Services.LicenseService>();
+            if (support is null || lic is null) return;
+
+            var g = Services.AppSettingsStore.GetGeneral();
+            var info = new SamaHesab.Application.Support.InstallInfo(
+                lic.MachineFingerprint, g.CompanyName ?? "", g.BusinessType ?? "", Services.AppVersion.Display);
+            var r = await support.RegisterInstallAsync(info);
+            if (!r.Succeeded || r.Value is null) return;
+            var s = r.Value;
+
+            // پس از تأییدِ مدیر: کلید-API/لایسنس را ذخیره کن (شناسهٔ مشتری = اثرِ انگشتِ ماشین).
+            if (s.Approved && !string.IsNullOrWhiteSpace(s.ApiKey))
+            {
+                var sup = Services.AppSettingsStore.GetSupport();
+                sup.ApiKey = s.ApiKey!; sup.CustomerId = lic.MachineFingerprint;
+                if (!string.IsNullOrWhiteSpace(s.LicenseId)) sup.LicenseId = s.LicenseId!;
+                Services.AppSettingsStore.SaveSupport(sup);
+            }
+            // تمدید: انقضای سروری را محلی ذخیره کن (LicenseService آن را اعمال می‌کند).
+            if (s.Approved && !string.IsNullOrWhiteSpace(s.Expiry) && DateTime.TryParse(s.Expiry, out var exp))
+            {
+                g.ServerLicenseExpiryUtc = exp.ToUniversalTime().ToString("o");
+                g.ServerLicenseTier = s.LicenseId;
+                Services.AppSettingsStore.SaveGeneral(g);
+            }
+        }
+        catch (Exception ex) { Log.Warning(ex, "اعلامِ نصب/تمدیدِ لایسنس ناموفق"); }
     }
 
     /// <summary>

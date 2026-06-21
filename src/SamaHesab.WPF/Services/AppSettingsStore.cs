@@ -178,6 +178,9 @@ public class GeneralSettings
     public string? FiscalYearStart { get; set; }
     public string? FiscalYearEnd { get; set; }
     public string? BusinessType { get; set; }   // صنف/شغلِ شرکت (از ویزاردِ راه‌اندازی)
+    // فعال‌سازیِ سروری (تأییدِ سایت از /register): انقضای محلیِ ذخیره‌شده + ردهٔ لایسنس.
+    public string? ServerLicenseExpiryUtc { get; set; }   // ISO UTC؛ خالی = بدونِ فعال‌سازیِ سروری
+    public string? ServerLicenseTier { get; set; }
 
     // ── مالی ──
     public string Currency { get; set; } = "ریال";

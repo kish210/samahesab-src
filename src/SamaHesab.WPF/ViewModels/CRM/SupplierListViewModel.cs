@@ -47,8 +47,18 @@ public partial class SupplierListViewModel : BaseViewModel
         }, "در حال بارگذاری تأمین‌کنندگان...");
     }
 
+    [ObservableProperty] private SupplierListItem? _selectedSupplier;
+
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private async Task RefreshAsync() => await LoadAsync();
+
+    /// <summary>UX-SUPPLIER-PARITY — صورت‌حسابِ تأمین‌کنندهٔ انتخاب‌شده (راست‌کلیک/دابل‌کلیک).</summary>
+    [RelayCommand]
+    private void OpenStatement(SupplierListItem? s)
+    {
+        var item = s ?? SelectedSupplier;
+        if (item != null) _navigationService.NavigateTo("SupplierStatement", item.Id);
+    }
     [RelayCommand]
     private async Task ExportAsync()
     {

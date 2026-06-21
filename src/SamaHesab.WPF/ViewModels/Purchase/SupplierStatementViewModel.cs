@@ -14,10 +14,17 @@ namespace SamaHesab.WPF.ViewModels.Purchase;
 /// C2-C — صورت‌حساب/ماندهٔ تأمین‌کننده. 🏛️ الگوی API-only: دادهٔ صورت‌حساب و فهرستِ تأمین‌کننده
 /// از API (کلاینت) یا Application (دسکتاپ)؛ بدونِ ریپازیتوریِ مستقیم.
 /// </summary>
-public partial class SupplierStatementViewModel : BaseViewModel
+public partial class SupplierStatementViewModel : BaseViewModel, INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
+
+    /// <summary>UX-SUPPLIER-PARITY — بازکردنِ صورت‌حسابِ یک تأمین‌کنندهٔ مشخص از فهرست (Param=Id).</summary>
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (Suppliers.Count == 0) await LoadAsync();
+        if (parameter is int id && id > 0) SelectedSupplierId = id;   // → RunAsync
+    }
 
     public ObservableCollection<SupplierOption> Suppliers { get; } = new();
     public ObservableCollection<StatementRow> Rows { get; } = new();

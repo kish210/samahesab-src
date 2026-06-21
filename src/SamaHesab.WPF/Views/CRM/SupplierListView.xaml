@@ -36,7 +36,18 @@
 
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Margin="3" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Suppliers}" RowHeight="28"
-                                >
+                      SelectedItem="{Binding SelectedSupplier}">
+                <!-- UX-SUPPLIER-PARITY — دابل‌کلیک/راست‌کلیک → صورت‌حسابِ تأمین‌کننده -->
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenStatementCommand}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="📄 صورت‌حسابِ تأمین‌کننده"
+                                  Command="{Binding PlacementTarget.DataContext.OpenStatementCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100"/>
                     <DataGridTextColumn Header="نام / شرکت" Binding="{Binding Name}" Width="2*"/>

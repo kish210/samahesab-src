@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "2.5.11"
+#define MyAppVersion   "2.5.12"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
 #define MyAppExeName   "SamaHesab.exe"
@@ -53,7 +53,7 @@ VersionInfoProductName={#MyAppName}
 Name: "persian"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon";    Description: "ایجاد میانبر روی دسکتاپ";    GroupDescription: "میانبرها:"; Flags: unchecked
+Name: "desktopicon";    Description: "ایجاد میانبر روی دسکتاپ برای همهٔ برنامه‌ها";    GroupDescription: "میانبرها:"
 Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار وظیفه"; GroupDescription: "میانبرها:"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
@@ -80,13 +80,23 @@ Source: "redist\SQLEXPR_x64_ENU.exe"; Flags: dontcopy
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
 Name: "{group}\صندوقِ فروش (POS)";               Filename: "{app}\pos.exe"; WorkingDir: "{app}"
 Name: "{group}\رستوران";                         Filename: "{app}\restoran.exe"; WorkingDir: "{app}"
+Name: "{group}\گارسون";                          Filename: "{app}\waiter.exe"; WorkingDir: "{app}"
+Name: "{group}\آشپزخانه";                        Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"
+Name: "{group}\انبار";                           Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"
+Name: "{group}\سرورِ سما حساب (API)";            Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"
 Name: "{group}\ابزارِ مهاجرت داده";              Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"
 Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
 Name: "{group}\راهنمای کاربر";                   Filename: "{app}\docs\UserGuide.pdf"
 Name: "{group}\حذف {#MyAppName}";               Filename: "{uninstallexe}"
+; میانبرهای دسکتاپ برای همهٔ برنامه‌های اجرایی (Tasks: desktopicon — پیش‌فرض فعال)
 Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\رستورانِ سما حساب";       Filename: "{app}\restoran.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{commondesktop}\صندوقِ فروشِ سما حساب";   Filename: "{app}\pos.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\رستورانِ سما حساب";       Filename: "{app}\restoran.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\گارسونِ سما حساب";        Filename: "{app}\waiter.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\آشپزخانهٔ سما حساب";       Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\انبارِ سما حساب";          Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\سرورِ سما حساب (API)";     Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"; Tasks: desktopicon
+Name: "{commondesktop}\ابزارِ مهاجرتِ سما حساب";  Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]

@@ -405,6 +405,17 @@ public partial class MainViewModel : BaseViewModel
     // ── CC-3+ — سایدبارِ آکاردئونی (داده‌محور، با رعایتِ RBAC/ماژول؛ منعکسِ منوی بالا) ──
     public ObservableCollection<NavGroup> NavGroups { get; } = new();
 
+    /// <summary>پنجرهٔ راهنمای میان‌برِ صفحه‌کلید (F1) — هم از منوی سیستم و هم از کلیدِ F1.</summary>
+    private void ShowShortcutHelp()
+    {
+        try
+        {
+            new SamaHesab.WPF.Views.Shell.ShortcutHelpWindow
+            { Owner = System.Windows.Application.Current?.MainWindow }.ShowDialog();
+        }
+        catch { /* راهنما نباید پوسته را بشکند */ }
+    }
+
     [RelayCommand]
     private void ToggleGroup(NavGroup? g)
     {
@@ -458,6 +469,7 @@ public partial class MainViewModel : BaseViewModel
         if (HrEnabled)  { sys.Add(new("کارکنان", "Employees")); sys.Add(new("حقوق و دستمزد", "Salary")); }
         sys.Add(new("مدیریت ماژول‌ها", "Modules")); sys.Add(new("قالبِ اسناد", "DocumentTemplates"));
         sys.Add(new("ورودِ داده از اکسل", "DataImport")); sys.Add(new("تنظیمات", "Settings")); sys.Add(new("پشتیبان‌گیری", "Backup"));
+        sys.Add(new("⌨ راهنمای میان‌بر (F1)", "ShortcutHelp"));
         NavGroups.Add(new NavGroup { Title = "سیستم", IconKey = "IcSettings", Links = sys });
 
         if (TourismEnabled)
@@ -475,6 +487,9 @@ public partial class MainViewModel : BaseViewModel
 
     private async Task NavigateToAsync(string page, object? parameter = null)
     {
+        // میان‌برِ سراسری: راهنمای میان‌بر (F1) — پنجرهٔ مودال، نه Tab.
+        if (page == "ShortcutHelp") { ShowShortcutHelp(); return; }
+
         if (!_pages.TryGetValue(page, out var entry)) return;
 
         // M3: گیتِ ماژول — اگر صفحه به ماژولِ خاموش تعلق دارد، بازنشو

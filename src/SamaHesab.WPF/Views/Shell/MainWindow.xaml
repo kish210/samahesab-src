@@ -308,6 +308,7 @@
                                 <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
                                 <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
                                 <Separator/>
+                                <MenuItem Header="⌨ راهنمای میان‌بر (F1)" Command="{Binding NavigateCommand}" CommandParameter="ShortcutHelp"/>
                                 <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
@@ -531,25 +532,13 @@
                     </EventTrigger>
                 </Border.Triggers>
                 <StackPanel VerticalAlignment="Top" Margin="0,10">
-                    <!-- CC-3 — دسترسیِ سریع: صفحاتِ پین‌شده (★) و اخیر (☆) -->
+                    <!-- CC-3 — دسترسیِ سریع: صفحاتِ اخیر/پرکاربرد (بدونِ دکمهٔ ستاره) -->
                     <ItemsControl ItemsSource="{Binding DataContext.QuickAccess, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Button Style="{StaticResource SideItem}" CommandParameter="{Binding Key}" ToolTip="{Binding Title}">
-                                        <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
-                                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="12.5" Foreground="White" TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <!-- ستارهٔ سنجاق (روی لبهٔ چپ) — کلیک: سنجاق/برداشتن -->
-                                    <Button HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0"
-                                            Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2"
-                                            ToolTip="سنجاق / برداشتنِ سنجاق"
-                                            Command="{Binding DataContext.TogglePinScreenCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                            CommandParameter="{Binding}">
-                                        <TextBlock Text="{Binding PinGlyph}" FontSize="13" Foreground="{StaticResource ErpGold500}"/>
-                                    </Button>
-                                </Grid>
+                                <Button Style="{StaticResource SideItem}" Height="34" CommandParameter="{Binding Key}" ToolTip="{Binding Title}">
+                                    <TextBlock Text="{Binding Title}" Margin="20,0,0,0" VerticalAlignment="Center" FontSize="12.5" Foreground="#D6E0F0" TextTrimming="CharacterEllipsis"/>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

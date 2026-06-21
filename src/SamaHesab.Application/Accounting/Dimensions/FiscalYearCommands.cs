@@ -53,7 +53,20 @@ public class SaveFiscalYearCommandHandler : IRequestHandler<SaveFiscalYearComman
         {
             if (req.Id == 0)
             {
-                var fy = FiscalYear.Create(_user.CompanyId ?? 1, req.Title, req.StartDate, req.EndDate);
+                var companyId = _user.CompanyId ?? 1;
+                // ایده‌مپوتنت: اگر سالِ مالیِ همان دوره (یا همان عنوان) از قبل هست (مثلاً seedِ نصب)،
+                // به‌جای ساختِ تکراری همان را برگردان — تا ویزاردِ راه‌اندازی با «سال مالیِ تکراری» نشکند.
+                var dup = (await _repo.FindAsync(
+                    f => f.CompanyId == companyId && (f.StartDate == req.StartDate || f.Title == req.Title), ct))
+                    .FirstOrDefault();
+                if (dup != null)
+                {
+                    dup.Update(req.Title, req.StartDate, req.EndDate);   // هم‌سان با ورودیِ کاربر
+                    _repo.Update(dup);
+                    await _uow.SaveChangesAsync(ct);
+                    return Result<int>.Success(dup.Id);
+                }
+                var fy = FiscalYear.Create(companyId, req.Title, req.StartDate, req.EndDate);
                 await _repo.AddAsync(fy, ct);
                 await _uow.SaveChangesAsync(ct);
                 return Result<int>.Success(fy.Id);

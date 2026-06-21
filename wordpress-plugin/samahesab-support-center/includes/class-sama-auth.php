@@ -7,10 +7,29 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class SamaHesab_Auth {
 
-    /** همهٔ کلیدهای تعریف‌شده. */
+    /** همهٔ کلیدهای معتبر: کلیدهای دستیِ ادمین + کلیدِ نصب‌های تأییدشده. */
     public static function keys() {
         $keys = get_option( 'samahesab_api_keys', array() );
-        return is_array( $keys ) ? $keys : array();
+        $keys = is_array( $keys ) ? $keys : array();
+
+        // 🖥 کلیدِ نصب‌های «تأییدشده» را هم لحاظ کن تا /bug,/ticket,/feature,/license با
+        //   کلیدی که حینِ «تأیید/تمدید» به همان کامپیوتر داده شده کار کنند (باگِ قبلی: فقط
+        //   samahesab_api_keys چک می‌شد و کلیدِ نصب‌ها در samahesab_installs نادیده می‌ماند → 401).
+        if ( class_exists( 'SamaHesab_Installs' ) ) {
+            foreach ( SamaHesab_Installs::all() as $machine => $row ) {
+                if ( ( $row['status'] ?? '' ) === 'approved' && ! empty( $row['api_key'] ) ) {
+                    $keys[] = array(
+                        'customer_id' => (string) $machine,
+                        'api_key'     => (string) $row['api_key'],
+                        'license_id'  => (string) ( $row['license_id'] ?? '' ),
+                        'label'       => (string) ( $row['company'] ?? '' ),
+                        'expiry'      => (string) ( $row['expiry'] ?? '' ),
+                        'doc_limit'   => intval( $row['doc_limit'] ?? 0 ),
+                    );
+                }
+            }
+        }
+        return $keys;
     }
 
     /**

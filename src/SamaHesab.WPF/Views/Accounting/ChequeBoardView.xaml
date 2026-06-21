@@ -39,7 +39,17 @@
                   SelectedItem="{Binding Selected, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False" CanUserDeleteRows="False"
                   RowHeight="30" FontSize="12.5" PreviewKeyDown="Grid_PreviewKeyDown"
+                  PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown"
                   Background="Transparent" RowBackground="Transparent">
+            <!-- CC-5/خزانه — منوی راست‌کلیک: وصول/برگشت روی ردیفِ انتخاب‌شده -->
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="✅ وصولِ چک" Command="{Binding ClearSelectedCommand}"/>
+                    <MenuItem Header="↩ برگشتِ چک" Command="{Binding ReturnSelectedCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="🔄 بازخوانی (F5)" Command="{Binding RefreshCommand}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
                     <Style.Triggers>

@@ -7,6 +7,7 @@
              FlowDirection="RightToLeft">
     <UserControl.InputBindings>
         <KeyBinding Key="F2" Command="{Binding NewInvoiceCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding SearchCommand}"/>
     </UserControl.InputBindings>
     <Grid Margin="6">
         <Grid.RowDefinitions>

@@ -5,6 +5,10 @@
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
+    <!-- CC-4 — میان‌برِ استانداردِ لیست: F5 بازخوانی -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
 
     <Grid Margin="3">
         <Grid.RowDefinitions>

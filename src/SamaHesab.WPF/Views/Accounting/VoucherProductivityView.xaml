@@ -85,7 +85,7 @@
 
                     <DataGrid ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemplate}"
                               AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
-                              GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
+                              GridLinesVisibility="All" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                               Background="Transparent" BorderThickness="0" CanUserAddRows="False"
                               Foreground="{DynamicResource PrimaryText}">
                         <DataGrid.Columns>
@@ -139,7 +139,7 @@
                     </Border>
 
                     <DataGrid ItemsSource="{Binding Recurring}" AutoGenerateColumns="False" IsReadOnly="True"
-                              HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="30" FontSize="12.5"
+                              HeadersVisibility="Column" GridLinesVisibility="All" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                               Background="Transparent" BorderThickness="0" CanUserAddRows="False"
                               Foreground="{DynamicResource PrimaryText}">
                         <DataGrid.Columns>

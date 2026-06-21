@@ -52,7 +52,7 @@
                   SelectedItem="{Binding Selected, Mode=TwoWay}"
                   IsReadOnly="True" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                   SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal" RowHeight="30" FontSize="12.5"
+                  GridLinesVisibility="Horizontal" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                   PreviewKeyDown="Grid_PreviewKeyDown"
                   AlternatingRowBackground="{DynamicResource SurfaceBackground}">
             <DataGrid.Columns>

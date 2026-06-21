@@ -249,7 +249,7 @@
                       PreviewKeyDown="Grid_PreviewKeyDown"
                       HeadersVisibility="Column" CanUserAddRows="False" Background="White"
                       GridLinesVisibility="All" HorizontalGridLinesBrush="#EDEFF3" VerticalGridLinesBrush="#EDEFF3"
-                      RowBackground="White" AlternatingRowBackground="{StaticResource Zebra}" RowHeight="30" FontSize="12.5"
+                      RowBackground="White" AlternatingRowBackground="{StaticResource Zebra}" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                       BorderThickness="0">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">

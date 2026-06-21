@@ -44,7 +44,7 @@
         <DataGrid Grid.Row="2" x:Name="Grid" ItemsSource="{Binding Cheques}" AutoGenerateColumns="False" IsReadOnly="True"
                   SelectedItem="{Binding Selected, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
                   HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False" CanUserDeleteRows="False"
-                  RowHeight="30" FontSize="12.5" PreviewKeyDown="Grid_PreviewKeyDown"
+                  RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5" PreviewKeyDown="Grid_PreviewKeyDown"
                   PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown"
                   Background="Transparent" RowBackground="Transparent">
             <!-- CC-5/خزانه — منوی راست‌کلیک: وصول/برگشت روی ردیفِ انتخاب‌شده -->

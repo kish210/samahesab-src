@@ -35,7 +35,7 @@
                 <DataGrid Grid.Row="1" x:Name="RecvGrid" ItemsSource="{Binding Receivables}" AutoGenerateColumns="False"
                           SelectedItem="{Binding SelectedReceivable, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
                           IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          RowHeight="29" FontSize="12.5" CanUserDeleteRows="False" PreviewKeyDown="Grid_PreviewKeyDown"
+                          RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5" CanUserDeleteRows="False" PreviewKeyDown="Grid_PreviewKeyDown"
                           Background="Transparent" RowBackground="Transparent" BorderThickness="0" CanUserAddRows="False">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="مشتری" Binding="{Binding Name}" Width="*"/>
@@ -73,7 +73,7 @@
                 <DataGrid Grid.Row="1" x:Name="PayGrid" ItemsSource="{Binding Payables}" AutoGenerateColumns="False"
                           SelectedItem="{Binding SelectedPayable, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
                           IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                          RowHeight="29" FontSize="12.5" CanUserDeleteRows="False" PreviewKeyDown="Grid_PreviewKeyDown"
+                          RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5" CanUserDeleteRows="False" PreviewKeyDown="Grid_PreviewKeyDown"
                           Background="Transparent" RowBackground="Transparent" BorderThickness="0" CanUserAddRows="False">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="تأمین‌کننده" Binding="{Binding Name}" Width="*"/>

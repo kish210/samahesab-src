@@ -22,6 +22,21 @@ public partial class SecurityManagementViewModel : BaseViewModel
 
     [ObservableProperty] private RoleDto? _selectedRole;
     [ObservableProperty] private SecurityUserDto? _selectedUser;
+
+    // جست‌وجوی کاربر (نام کاربری/نام) — روی کشِ کاملِ کاربران اعمال می‌شود.
+    private readonly List<SecurityUserDto> _allUsers = new();
+    [ObservableProperty] private string _userFilter = string.Empty;
+    partial void OnUserFilterChanged(string value) => ApplyUserFilter();
+    private void ApplyUserFilter()
+    {
+        var t = (UserFilter ?? string.Empty).Trim();
+        Users.Clear();
+        foreach (var u in _allUsers.Where(u => t.Length == 0
+                 || (u.Username?.Contains(t, System.StringComparison.OrdinalIgnoreCase) ?? false)
+                 || (u.FullName?.Contains(t, System.StringComparison.OrdinalIgnoreCase) ?? false)))
+            Users.Add(u);
+    }
+
     [ObservableProperty] private string _newRoleCode = string.Empty;
     [ObservableProperty] private string _newRoleName = string.Empty;
 
@@ -39,8 +54,9 @@ public partial class SecurityManagementViewModel : BaseViewModel
         {
             Roles.Clear();
             foreach (var r in await _mediator.Send(new GetRolesQuery())) Roles.Add(r);
-            Users.Clear();
-            foreach (var u in await _mediator.Send(new GetSecurityUsersQuery())) Users.Add(u);
+            _allUsers.Clear();
+            foreach (var u in await _mediator.Send(new GetSecurityUsersQuery())) _allUsers.Add(u);
+            ApplyUserFilter();
             SelectedRole ??= Roles.FirstOrDefault();
         }, "در حال بارگذاری امنیت...");
     }

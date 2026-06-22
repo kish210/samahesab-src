@@ -1456,3 +1456,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 - [x] (pc/C1) CON-C1-1 — ۶ موجودیتِ Con (ContractProject/ProgressStatement+Deductions/StatementDeduction/AdvancePayment/Guarantee/ContractingSetting) + enumها (ContractType/Status/StatementType/StatementStatus/DeductionType/GuaranteeType/GuaranteeStatus) + مپِ EF (schema Con، رابطهٔ Statement→Deductions، فیلترِ tenant خودکار) + migrationِ idempotent 43_Contracting.sql (۶ جدول با ستون‌های ممیزی). Infrastructure build سبز. ⏭️ CON-C1-2 تنظیمات.
 
+
+- [x] (pc/C1) CON-C1-2 — تنظیماتِ پیمانکاری: Get/SaveContractingSettingsCommand + ContractingSettingsDto (۸ حسابِ کنترلی + ۴ درصدِ پیش‌فرض + انتخابِ بُعد). build سبز.
+- [x] (pc/C1) **موتورِ آبشار (CON-C2-1 را C1 برد چون بلاکرِ C1-3 بود)** — `StatementWaterfallEngine` خالص/تست‌پذیر: کارکردِ دوره، ناخالص، کسورات (پایه×نرخ)، بازیافتِ سقف‌دارِ پیش‌پرداخت، خالص. ۲ تستِ واحد. ⚠️ C2 این را دوباره نسازد.
+- [x] (pc/C1) CON-C1-3 — صورت‌وضعیت: SaveProgressStatementCommand (محاسبهٔ آبشار، نرخِ پروژه>پیش‌فرضِ تنظیمات، Draft) + PostProgressStatementCommand (Approve→**سندِ متوازن**: Dr دریافتنی/سپرده‌ها/پیش‌پرداخت‌مالیات/بازیافتِ‌پیش‌پرداخت/جریمه — Cr درآمدِ پیمانِ تگ‌خوردهٔ پروژه) + بازیافتِ سقف‌دارِ پیش‌پرداخت روی رکوردها + ردیف‌های کسرِ ممیزی. ۱ تستِ end-to-end (۵۰۸ کل): سندِ متوازن + کسورات در حساب‌های درست + کاهشِ بدهیِ پیش‌پرداخت + تگِ پروژه. build سبز. ⏭️ CON-C1-4 پیش‌پرداخت/ضمانت.

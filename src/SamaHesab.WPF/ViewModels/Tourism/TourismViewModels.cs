@@ -9,6 +9,7 @@ using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Tourism;
 using SamaHesab.Application.Tourism.Commands;
+using SamaHesab.Application.Tourism.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 
@@ -122,6 +123,113 @@ public partial class TourismCommissionsViewModel : BaseViewModel
             foreach (var r in await _mediator.Send(new GetMonthlyCommissionByEmployeeQuery(PeriodYearMonth))) Rows.Add(r);
             TotalCommission = Rows.Sum(r => r.Commission);
         }, "در حال محاسبهٔ پورسانت...");
+    }
+}
+
+// ─── ثبتِ فروشِ گردشگری (TUR-C2-4) ────────────────────────────────────────────
+public partial class TourismSaleLineRow : ObservableObject
+{
+    public int ProductId { get; init; }
+    public string ProductName { get; init; } = "";
+    public decimal UnitCost { get; init; }
+    [ObservableProperty] private decimal _quantity = 1;
+    [ObservableProperty] private decimal _unitSalePrice;
+    [ObservableProperty] private decimal _discountAmount;
+    public decimal LineNet => Quantity * UnitSalePrice - DiscountAmount;
+    public decimal LineProfit => LineNet - Quantity * UnitCost;
+    partial void OnQuantityChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+    partial void OnUnitSalePriceChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+    partial void OnDiscountAmountChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+}
+
+public partial class TourismSaleViewModel : BaseViewModel
+{
+    private readonly IMediator _mediator;
+    private readonly IPersianCalendarService _calendar;
+    private readonly ICurrentUserService _user;
+
+    [ObservableProperty] private int _selectedSalespersonId;
+    [ObservableProperty] private int _selectedCustomerId;
+    [ObservableProperty] private string _paymentMethod = "نقد";
+    [ObservableProperty] private string _date = string.Empty;
+    [ObservableProperty] private int _selectedFiscalYearId;
+    [ObservableProperty] private TourismProductDto? _selectedProduct;
+    [ObservableProperty] private decimal _addQuantity = 1;
+    [ObservableProperty] private decimal _grandTotal;
+    [ObservableProperty] private decimal _totalProfit;
+
+    public ObservableCollection<PersonDto> Persons { get; } = new();
+    public ObservableCollection<TourismProductDto> Products { get; } = new();
+    public ObservableCollection<TourismSaleLineRow> Lines { get; } = new();
+    public ObservableCollection<FiscalYearDto> FiscalYears { get; } = new();
+    public string[] PaymentMethods { get; } = { "نقد", "بانک", "نسیه" };
+
+    public TourismSaleViewModel(IMediator mediator, IPersianCalendarService calendar,
+        ICurrentUserService user, IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _mediator = mediator; _calendar = calendar; _user = user; }
+
+    public override async Task LoadAsync()
+    {
+        Date = _calendar.GetCurrentPersianDate();
+        await ExecuteAsync(async () =>
+        {
+            Persons.Clear();
+            foreach (var p in await _mediator.Send(new GetPersonsQuery())) Persons.Add(p);
+            Products.Clear();
+            foreach (var p in await _mediator.Send(new GetTourismProductsQuery())) Products.Add(p);
+            FiscalYears.Clear();
+            foreach (var f in await _mediator.Send(new GetFiscalYearsQuery())) FiscalYears.Add(f);
+            if (SelectedFiscalYearId == 0)
+                SelectedFiscalYearId = FiscalYears.FirstOrDefault(f => f.IsActive)?.Id ?? FiscalYears.FirstOrDefault()?.Id ?? 0;
+        }, "در حال بارگذاری...");
+    }
+
+    partial void OnSelectedProductChanged(TourismProductDto? value)
+    { /* قیمتِ پیش‌فرض هنگامِ افزودن از محصول گرفته می‌شود */ }
+
+    [RelayCommand]
+    private void AddLine()
+    {
+        if (SelectedProduct is null) return;
+        var row = new TourismSaleLineRow
+        {
+            ProductId = SelectedProduct.Id, ProductName = SelectedProduct.Name,
+            UnitCost = SelectedProduct.PurchasePrice,
+            Quantity = AddQuantity > 0 ? AddQuantity : 1,
+            UnitSalePrice = SelectedProduct.DefaultSalePrice
+        };
+        row.PropertyChanged += (_, _) => Recalc();
+        Lines.Add(row);
+        AddQuantity = 1;
+        Recalc();
+    }
+
+    [RelayCommand] private void RemoveLine(TourismSaleLineRow? row) { if (row != null) { Lines.Remove(row); Recalc(); } }
+
+    private void Recalc()
+    {
+        GrandTotal = Lines.Sum(l => l.LineNet);
+        TotalProfit = Lines.Sum(l => l.LineProfit);
+    }
+
+    [RelayCommand]
+    private async Task SaveAsync()
+    {
+        if (SelectedSalespersonId <= 0) { await _dialogService.ShowWarningAsync("فروشنده را انتخاب کنید."); return; }
+        if (Lines.Count == 0) { await _dialogService.ShowWarningAsync("حداقل یک ردیفِ فروش لازم است."); return; }
+        if (SelectedFiscalYearId <= 0) { await _dialogService.ShowWarningAsync("سالِ مالی را انتخاب کنید."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var lines = Lines.Select(l => new TourismSaleLineDto(
+                l.ProductId, l.Quantity, l.UnitSalePrice, l.DiscountAmount)).ToList();
+            var res = await _mediator.Send(new CreateTourismSaleCommand(
+                _user.BranchId ?? 1, SelectedFiscalYearId, Date, SelectedSalespersonId,
+                SelectedCustomerId > 0 ? SelectedCustomerId : (int?)null, PaymentMethod, lines));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync($"فروش ثبت و سندِ حسابداری صادر شد (مبلغ {GrandTotal:N0} ریال، سود {TotalProfit:N0}).");
+            Lines.Clear(); Recalc();
+        }, "در حال ثبتِ فروش...");
     }
 }
 

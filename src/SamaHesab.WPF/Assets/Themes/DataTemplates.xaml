@@ -33,6 +33,7 @@
                     xmlns:vtur="clr-namespace:SamaHesab.WPF.Views.Tourism">
 
     <!-- ✈️ TUR-C2-4 — گردشگری -->
+    <DataTemplate DataType="{x:Type tur:TourismSaleViewModel}"><vtur:TourismSaleView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismDepositsViewModel}"><vtur:TourismDepositsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismCommissionsViewModel}"><vtur:TourismCommissionsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismSettingsViewModel}"><vtur:TourismSettingsView/></DataTemplate>

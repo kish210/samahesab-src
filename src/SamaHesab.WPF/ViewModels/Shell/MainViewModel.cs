@@ -60,7 +60,7 @@ public partial class MainViewModel : BaseViewModel
         ["ReleaseNotes"] = ModuleService.Support, ["KnowledgeBase"] = ModuleService.Support,   // 🆘 HC-5
         ["RemoteSupport"] = ModuleService.Support,   // 🆘 HC-6
         ["TourismDeposits"] = ModuleService.Tourism, ["TourismCommissions"] = ModuleService.Tourism,   // ✈️ TUR-C2-4
-        ["TourismSettings"] = ModuleService.Tourism,
+        ["TourismSettings"] = ModuleService.Tourism, ["TourismSale"] = ModuleService.Tourism,
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -207,6 +207,7 @@ public partial class MainViewModel : BaseViewModel
             ["KnowledgeBase"]   = ("دانشنامه",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.KnowledgeBaseViewModel>()),
             ["RemoteSupport"]   = ("پشتیبانیِ ریموت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.RemoteSupportViewModel>()),
             // ✈️ TUR-C2-4 — گردشگری
+            ["TourismSale"]        = ("ثبتِ فروشِ گردشگری",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSaleViewModel>()),
             ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
             ["TourismSettings"]    = ("تنظیماتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSettingsViewModel>()),
@@ -490,6 +491,7 @@ public partial class MainViewModel : BaseViewModel
 
         if (TourismEnabled)
             Add(true, "گردشگری", "IcSales",
+                new("ثبتِ فروش", "TourismSale"),
                 new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
                 new("پورسانتِ فروشندگان", "TourismCommissions"),
                 new("تنظیماتِ گردشگری", "TourismSettings"));

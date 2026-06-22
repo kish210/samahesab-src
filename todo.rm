@@ -1497,3 +1497,6 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc/C1) دیباگ — دور ۳: تکمیلِ اسکوپِ tenant در همهٔ کوئری‌های BaseEntity — فیلترِ کارمند/فروشِ شرکت به خودِ کوئری منتقل شد در GetAttendanceReport + GetMonthlyAttendance + RunMonthlyPayroll(UseAttendance) + MarkBatchAttendance + SupplierDailyReport (AttendanceRecord/TourismSaleLine بدونِ CompanyId بودند). RawPunch از قبل CompanyId داشت ✓. ۵۱۹ تست سبز.
 
 - [x] (pc/C1) دیباگ — دور ۴: گاردِ کهنگیِ بازیافتِ پیش‌پرداخت در PostProgressStatement — اگر AdvanceRecoveryِ ذخیره‌شده از ماندهٔ فعلیِ پیش‌پرداخت بیشتر باشد (صورت‌وضعیتِ دیگری بینِ Save و Post پست شده) → پیامِ «دوباره محاسبه کنید» به‌جای بدهکارکردنِ بیش‌ازحدِ حسابِ بدهیِ پیش‌پرداخت (ناهماهنگیِ GL). ۵۱۹ تست سبز.
+
+## 🛒 آمادگیِ تجاری (قابلِ فروش) — C1 (@2026-06-22)، طبقِ docs/COMMERCIAL_READINESS.md
+- [~] 🚧 (pc/C1) CR-C1 (claim @2026-06-22) — موارد بحرانیِ C1: X2 سیاستِ رمز (≥۸+پیچیدگی) · X3 زمان‌بندِ بکاپِ خودکار (اجراکنندهٔ AutoBackupAsync) · X1 کاملیِ Audit (ثبتِ همهٔ Create/Update/Delete). claim.

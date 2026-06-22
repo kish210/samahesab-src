@@ -84,19 +84,28 @@ class SamaHesab_Landing {
             return $fail();
         }
 
-        // یافتنِ نصابِ .exe از assets (اولویت با فایلی که «setup» دارد = نصابِ کامل).
-        $download = '';
+        // یافتنِ نصابِ .exe از assets — هدف: «نصابِ تک‌سیستمی» (کاملِ برنامه + پایگاه‌دادهٔ محلی).
+        // ترتیبِ اولویت: ۱) نصابِ تک‌سیستمی (شاملِ «setup» ولی نه «client»/«server») ۲) هر «setup» ۳) هر .exe.
+        $single = '';   // SamaHesab_Setup_vX.exe — تک‌سیستمی
+        $anySetup = '';
+        $anyExe = '';
         if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
             foreach ( $data['assets'] as $a ) {
                 $name = isset( $a['name'] ) ? strtolower( $a['name'] ) : '';
-                if ( '.exe' === substr( $name, -4 ) && ! empty( $a['browser_download_url'] ) ) {
-                    $download = $a['browser_download_url'];
-                    if ( false !== strpos( $name, 'setup' ) ) {
-                        break;
-                    }
+                $u    = ! empty( $a['browser_download_url'] ) ? $a['browser_download_url'] : '';
+                if ( '' === $u || '.exe' !== substr( $name, -4 ) ) {
+                    continue;
+                }
+                if ( '' === $anyExe ) { $anyExe = $u; }
+                $is_setup = ( false !== strpos( $name, 'setup' ) );
+                if ( $is_setup && '' === $anySetup ) { $anySetup = $u; }
+                // تک‌سیستمی = نصابِ setup که کلاینت/سرور نیست.
+                if ( $is_setup && false === strpos( $name, 'client' ) && false === strpos( $name, 'server' ) && '' === $single ) {
+                    $single = $u;
                 }
             }
         }
+        $download = $single ?: ( $anySetup ?: $anyExe );
         if ( '' === $download ) {
             $download = ! empty( $data['html_url'] ) ? $data['html_url'] : "https://github.com/{$repo}/releases/latest";
         }

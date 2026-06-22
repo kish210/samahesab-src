@@ -1475,3 +1475,9 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 ## 🏗 پیمانکاری — UI/دمو (C2، @2026-06-22)
 - [x] ✅C2 **CON-C2-2 + CON-C2-5 — UIِ پیمانکاری + رجیستری.** انجام شد: `GetContractProjectsQuery`ِ نو (لیست+نرخ‌ها+ماندهٔ پیش‌پرداخت) + **صفحهٔ ثبتِ صورت‌وضعیت با پیش‌نمایشِ زندهٔ آبشار** (`StatementWaterfallEngine.Compute` مستقیم در VM با نرخ‌های پیمان → کارکردِ دوره/ناخالص/بازیافت/حسن‌انجام/بیمه/مالیات/خالص زنده) + ذخیره (`SaveProgressStatementCommand`) + قطعی/سند (`PostProgressStatementCommand`) با F7/F9 · **داشبوردِ پیمان** (`GetProjectDashboardQuery`: ۹ KPI). + رجیستری: `ModuleDef(Contracting,"پیمانکاری")` + `ContractingEnabled` + گیتِ منو/nav/page/DI/DataTemplate. **build سبز · ۵۱۴ تست.** ماژولِ پیمانکاری حالا در ویزاردِ نصب/تنظیمات هم انتخاب‌پذیر است. *(لِینِ C2 — پیمانکاری)*
 - [x] ✅C2 **CON-C2-4 — دموِ فارسیِ پیمانکاری.** انجام شد: `database/44_DemoData_Contracting.sql` (idempotent، بدونِ USE، embedded) — یک پیمانِ فهرست‌بها (PRJ-1001، ۵۰ میلیارد، درصدهای پیش‌پرداخت۲۵/حسن‌انجام۱۰/بیمه۵/مالیات۳) + پیش‌پرداختِ اولیه + ضمانت‌نامهٔ حسنِ‌انجام. صورت‌وضعیت/سند از طریقِ کامند (توازن). build سبز. *(لِینِ C2 — پیمانکاری)*
+
+## 🕗 حضور و غیابِ حرفه‌ای (WinKart-class، @2026-06-22) — طرح در docs/ATTENDANCE_PRO.md
+> حضوروغیابِ تک‌صفحه‌ای ضعیف بود؛ باید اپلیکیشنِ مستقل (hozur.exe) با چند فرم باشد. HR لِینِ C1.
+> **💻 C2:** ATTP-C2-1 لانچر+کارگاه · ATTP-C2-2 فرم‌ها روی بک‌اندِ موجود · ATTP-C2-3 فرم‌های شیفت/تقویم/دستگاه+گزارش.
+> **🖥 C1:** ATTP-C1-1 شیفت‌CRUD+تخصیص · ATTP-C1-2 تقویم/تعطیلات · ATTP-C1-3 دستگاه+ترددِ خام+پردازش · ATTP-C1-4 گزارش‌های مفصل.
+- [~] 🚧C2 **ATTP-C2-1 (claim @2026-06-22) — اپلیکیشنِ مستقلِ حضوروغیاب.** پروژهٔ `SamaHesab.Attendance`→`hozur.exe` + پرچمِ `--attendance` در App.xaml.cs → `AttendanceWorkspaceWindow` (سایدبارِ بخش‌ها/محتوا، RTL، تمام‌صفحه) + نصاب/میانبر. *(لِینِ C2 — حضوروغیاب)*

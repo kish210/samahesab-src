@@ -32,9 +32,11 @@ public class GetPayrollExportQueryHandler : IRequestHandler<GetPayrollExportQuer
         var companyId = _user.CompanyId ?? 1;
         var emps = (await _employees.FindAsync(e => e.CompanyId == companyId, ct))
             .ToDictionary(e => e.Id, e => e);
+        var empIds = emps.Keys.ToHashSet();
 
-        var slips = (await _slips.FindAsync(s => s.PeriodYear == req.Year && s.PeriodMonth == req.Month, ct))
-            .Where(s => emps.ContainsKey(s.EmployeeId))
+        // فیلترِ کارمندِ شرکت در خودِ کوئری (SalarySlip بدونِ CompanyId است).
+        var slips = (await _slips.FindAsync(
+                s => s.PeriodYear == req.Year && s.PeriodMonth == req.Month && empIds.Contains(s.EmployeeId), ct))
             .ToList();
 
         var rows = slips.Select(s =>

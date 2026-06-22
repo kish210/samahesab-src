@@ -52,9 +52,9 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
         var rates = set.ToRates();
 
         var empIds = emps.Select(e => e.Id).ToHashSet();
+        // فیلترِ کارمندِ شرکت در خودِ کوئری (SalarySlip بدونِ CompanyId است؛ بدونِ این، فیش‌های همهٔ شرکت‌ها خوانده می‌شد).
         var existing = (await _slips.FindAsync(
-                s => s.PeriodYear == req.Year && s.PeriodMonth == req.Month, ct))
-            .Where(s => empIds.Contains(s.EmployeeId))
+                s => s.PeriodYear == req.Year && s.PeriodMonth == req.Month && empIds.Contains(s.EmployeeId), ct))
             .ToDictionary(s => s.EmployeeId, s => s);
 
         // پلِ تردد→حقوق (ATT-C1-3): اگر خواسته شد، رکوردهای ماه را به ساعت/غیبت تبدیل کن.

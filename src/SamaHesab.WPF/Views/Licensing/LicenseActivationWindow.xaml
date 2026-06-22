@@ -40,9 +40,25 @@
         <!-- بارگذاری فایل -->
         <Border Grid.Row="2" Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="12">
             <StackPanel>
-                <TextBlock Text="۲) فایلِ لایسنس (.lic) دریافتی را بارگذاری کنید:" FontSize="12.5" FontWeight="SemiBold"/>
-                <Button Content="📂 بارگذاریِ فایلِ لایسنس…" Height="34" Padding="16,0" Margin="0,8,0,0"
-                        HorizontalAlignment="Right" Click="LoadLicense_Click"/>
+                <TextBlock Text="۲) یکی از دو راهِ فعال‌سازی را انتخاب کنید:" FontSize="12.5" FontWeight="SemiBold"/>
+
+                <!-- آنلاین: فعال‌سازی از طریقِ سایتِ پشتیبانی -->
+                <DockPanel Margin="0,10,0,0">
+                    <Button DockPanel.Dock="Left" Content="🌐 فعال‌سازی از طریقِ سایت" Height="34" Padding="16,0"
+                            Command="{Binding ActivateOnlineCommand}"/>
+                    <TextBlock Text="(نیازمندِ اینترنت و آدرسِ سرورِ پشتیبانی در تنظیمات؛ کلید و انقضا خودکار دریافت می‌شود.)"
+                               FontSize="11" Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </DockPanel>
+
+                <!-- آفلاین: بارگذاریِ فایلِ امضاشده -->
+                <DockPanel Margin="0,8,0,0">
+                    <Button DockPanel.Dock="Left" Content="📂 فعال‌سازیِ آفلاین (فایلِ .lic)…" Height="34" Padding="16,0"
+                            Click="LoadLicense_Click"/>
+                    <TextBlock Text="(فایلِ لایسنسِ دریافتی از پشتیبانی را بارگذاری کنید — بدونِ نیاز به اینترنت.)"
+                               FontSize="11" Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </DockPanel>
             </StackPanel>
         </Border>
 

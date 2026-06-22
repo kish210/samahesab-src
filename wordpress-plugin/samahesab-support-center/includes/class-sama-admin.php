@@ -18,6 +18,8 @@ class SamaHesab_Admin {
         // 🆘 HC-6b — ستون‌های فهرستِ پشتیبانیِ ریموت (کد/شناسهٔ RustDesk/مشتری).
         add_filter( 'manage_samahesab_remote_posts_columns', array( $this, 'remote_columns' ) );
         add_action( 'manage_samahesab_remote_posts_custom_column', array( $this, 'remote_column' ), 10, 2 );
+        // خروجیِ اکسل (CSV) گزارش‌های باگِ دریافتی.
+        add_action( 'admin_post_samahesab_export_bugs', array( $this, 'export_bugs' ) );
     }
 
     public function remote_columns( $cols ) {
@@ -143,10 +145,74 @@ class SamaHesab_Admin {
                 $this->stat_card( 'درخواست‌های قابلیت', $features, '#27ae60' );
                 ?>
             </div>
-            <h2 style="margin-top:28px">آخرین گزارش‌ها</h2>
+            <p style="margin-top:22px">
+                <a class="button button-primary"
+                   href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=samahesab_export_bugs' ), 'samahesab_export_bugs' ) ); ?>">
+                   📥 خروجیِ اکسل (CSV) گزارش‌های باگ
+                </a>
+                <span style="color:#777;margin-right:8px">— همهٔ باگ‌های دریافتی از نصب‌های ERP، آماده برای باز شدن در اکسل.</span>
+            </p>
+            <h2 style="margin-top:18px">آخرین گزارش‌ها</h2>
             <?php $this->recent_table(); ?>
         </div>
         <?php
+    }
+
+    /**
+     * خروجیِ CSVِ همهٔ گزارش‌های باگِ دریافتی (سازگار با Excel — UTF-8 با BOM).
+     * فقط مدیر (manage_options) + nonce.
+     */
+    public function export_bugs() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'دسترسی غیرمجاز.' );
+        }
+        check_admin_referer( 'samahesab_export_bugs' );
+
+        $sev    = SamaHesab_CPT::severity_labels();   // 0=کم..3=بحرانی (شدت)
+        $status = SamaHesab_CPT::status_labels();
+
+        $posts = get_posts( array(
+            'post_type'   => 'samahesab_bug',
+            'post_status' => 'publish',
+            'numberposts' => -1,
+            'orderby'     => 'date',
+            'order'       => 'DESC',
+        ) );
+
+        nocache_headers();
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="samahesab-bugs-' . gmdate( 'Ymd-His' ) . '.csv"' );
+
+        $out = fopen( 'php://output', 'w' );
+        // BOM تا اکسل، UTF-8 و فارسی را درست نشان دهد.
+        fprintf( $out, "\xEF\xBB\xBF" );
+
+        fputcsv( $out, array(
+            'شناسه', 'تاریخ', 'عنوان', 'شدت', 'وضعیت', 'دسته', 'مشتری',
+            'صفحه', 'شرحِ مشکل', 'نتیجهٔ موردِانتظار', 'نتیجهٔ واقعی', 'گامِ بازتولید', 'تشخیص',
+        ) );
+
+        foreach ( $posts as $p ) {
+            $sv = (int) get_post_meta( $p->ID, 'sh_severity', true );
+            $st = (int) get_post_meta( $p->ID, 'sh_status', true );
+            fputcsv( $out, array(
+                $p->ID,
+                get_the_date( 'Y-m-d H:i', $p ),
+                get_the_title( $p ),
+                isset( $sev[ $sv ] ) ? $sev[ $sv ] : $sv,
+                isset( $status[ $st ] ) ? $status[ $st ] : $st,
+                get_post_meta( $p->ID, 'sh_category', true ),
+                get_post_meta( $p->ID, 'sh_customer_id', true ),
+                get_post_meta( $p->ID, 'sh_screen', true ),
+                wp_strip_all_tags( $p->post_content ),
+                get_post_meta( $p->ID, 'sh_expected', true ),
+                get_post_meta( $p->ID, 'sh_actual', true ),
+                get_post_meta( $p->ID, 'sh_steps', true ),
+                get_post_meta( $p->ID, 'sh_diag', true ),
+            ) );
+        }
+        fclose( $out );
+        exit;
     }
 
     private function stat_card( $label, $value, $color ) {

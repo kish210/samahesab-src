@@ -100,6 +100,16 @@ public class PostProgressStatementCommandHandler : IRequestHandler<PostProgressS
         if (st.NetPayable < 0)
             return Result<int>.Failure("کسورات از ناخالص بیشتر است (خالصِ منفی)؛ درصدها/تعدیل را بازبینی کنید.");
 
+        // گاردِ کهنگی: بازیافتِ ذخیره‌شده نباید از ماندهٔ فعلیِ پیش‌پرداخت بیشتر باشد (وگرنه سندِ بدهیِ
+        // پیش‌پرداخت بیش از رکوردها بدهکار می‌شد — ناهماهنگیِ GL، اگر صورت‌وضعیتِ دیگری بینِ Save و Post پست شده باشد).
+        if (st.AdvanceRecovery > 0)
+        {
+            var outstanding = (await _advances.FindAsync(
+                a => a.CompanyId == companyId && a.ContractProjectId == st.ContractProjectId, ct)).Sum(a => a.Outstanding);
+            if (st.AdvanceRecovery > outstanding + 0.01m)
+                return Result<int>.Failure("بازیافتِ پیش‌پرداختِ ذخیره‌شده از ماندهٔ فعلی بیشتر است؛ صورت‌وضعیت را دوباره ذخیره (محاسبه) کنید.");
+        }
+
         var fy = await _fiscalYears.GetByIdAsync(req.FiscalYearId, ct);
         var lockMsg = FiscalPeriodGuard.Check(fy, st.Date);
         if (lockMsg is not null) return Result<int>.Failure(lockMsg);

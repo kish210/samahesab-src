@@ -74,8 +74,9 @@ public class MarkBatchAttendanceCommandHandler : IRequestHandler<MarkBatchAttend
             .Where(e => ids.Contains(e.Id)).Select(e => e.Id).ToHashSet();
         if (emps.Count == 0) return Result<int>.Failure("کارمندِ معتبری یافت نشد.");
 
-        var existing = (await _records.FindAsync(a => a.WorkDate == req.WorkDate, ct))
-            .Where(a => emps.Contains(a.EmployeeId)).ToDictionary(a => a.EmployeeId, a => a);
+        // فیلترِ کارمندِ شرکت در خودِ کوئری (AttendanceRecord بدونِ CompanyId است).
+        var existing = (await _records.FindAsync(a => a.WorkDate == req.WorkDate && emps.Contains(a.EmployeeId), ct))
+            .ToDictionary(a => a.EmployeeId, a => a);
 
         int n = 0;
         foreach (var empId in emps)

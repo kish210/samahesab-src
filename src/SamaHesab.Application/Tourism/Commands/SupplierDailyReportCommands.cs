@@ -38,8 +38,9 @@ public class GenerateSupplierDailyReportCommandHandler
         // فروش‌های آن روز → خطوطِ همان تأمین‌کننده.
         var saleIds = (await _sales.FindAsync(s => s.CompanyId == companyId && s.Date == req.Date, ct))
             .Select(s => s.Id).ToHashSet();
-        var lines = (await _lines.FindAsync(l => l.SupplierPartyId == req.SupplierPartyId, ct))
-            .Where(l => saleIds.Contains(l.SaleId)).ToList();
+        // فیلترِ فروشِ همین شرکت در خودِ کوئری (TourismSaleLine بدونِ CompanyId است).
+        var lines = (await _lines.FindAsync(
+            l => l.SupplierPartyId == req.SupplierPartyId && saleIds.Contains(l.SaleId), ct)).ToList();
 
         var totalCost = lines.Sum(l => l.Quantity * l.UnitCost);
         var lineIds = lines.Select(l => l.Id).ToHashSet();

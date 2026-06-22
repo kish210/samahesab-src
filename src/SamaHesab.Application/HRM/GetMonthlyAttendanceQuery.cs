@@ -34,8 +34,8 @@ public class GetMonthlyAttendanceQueryHandler : IRequestHandler<GetMonthlyAttend
         var name = emp?.FullName ?? "—";
 
         var prefix = $"{req.Year}/{req.Month:D2}/";
-        var recs = (await _records.FindAsync(a => a.EmployeeId == req.EmployeeId, ct))
-            .Where(a => a.WorkDate != null && a.WorkDate.StartsWith(prefix)).ToList();
+        var recs = (await _records.FindAsync(
+            a => a.EmployeeId == req.EmployeeId && a.WorkDate != null && a.WorkDate.StartsWith(prefix), ct)).ToList();
         var holidaySet = (await _holidays.FindAsync(h => h.CompanyId == companyId, ct))
             .Select(h => h.Date).ToHashSet();
 

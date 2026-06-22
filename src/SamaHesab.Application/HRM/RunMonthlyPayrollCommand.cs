@@ -64,8 +64,8 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
             var prefix = $"{req.Year}/{req.Month:D2}/";
             var holidaySet = (await _holidays.FindAsync(h => h.CompanyId == companyId, ct))
                 .Select(h => h.Date).ToHashSet();
-            var monthRecs = (await _records.FindAsync(a => a.WorkDate != null && a.WorkDate.StartsWith(prefix), ct))
-                .Where(a => empIds.Contains(a.EmployeeId))
+            var monthRecs = (await _records.FindAsync(
+                    a => a.WorkDate != null && a.WorkDate.StartsWith(prefix) && empIds.Contains(a.EmployeeId), ct))
                 .GroupBy(a => a.EmployeeId);
             foreach (var g in monthRecs)
                 attByEmp[g.Key] = MonthlyAttendanceBuilder.Aggregate(g, holidaySet);

@@ -36,8 +36,9 @@ public class GetAttendanceReportQueryHandler : IRequestHandler<GetAttendanceRepo
 
         var empIds = emps.Select(e => e.Id).ToHashSet();
         var prefix = $"{req.Year}/{req.Month:D2}/";
-        var recsByEmp = (await _records.FindAsync(a => a.WorkDate != null && a.WorkDate.StartsWith(prefix), ct))
-            .Where(a => empIds.Contains(a.EmployeeId))
+        // فیلترِ کارمندِ شرکت در خودِ کوئری (AttendanceRecord بدونِ CompanyId است).
+        var recsByEmp = (await _records.FindAsync(
+                a => a.WorkDate != null && a.WorkDate.StartsWith(prefix) && empIds.Contains(a.EmployeeId), ct))
             .GroupBy(a => a.EmployeeId)
             .ToDictionary(g => g.Key, g => g.ToList());
         var holidaySet = (await _holidays.FindAsync(h => h.CompanyId == companyId, ct))

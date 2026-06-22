@@ -259,6 +259,9 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Shift>().ToTable("Shifts", "Hrm");
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Holiday>().ToTable("Holidays", "Hrm");
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.LeaveRequest>().ToTable("LeaveRequests", "Hrm");
+        // ATTP-C1-3 — دستگاهِ تردد + ترددِ خام.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceDevice>().ToTable("Devices", "Hrm");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.RawPunch>().ToTable("RawPunches", "Hrm");
 
         // ─── Tourism (TUR-C1-1): schema Tur ─────────────────────────────────────
         modelBuilder.Entity<Domain.Entities.Tourism.ProductGroup>().ToTable("ProductGroups", "Tur");

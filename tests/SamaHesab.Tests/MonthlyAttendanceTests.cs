@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.HRM;
 using SamaHesab.Domain.Entities.HRM;
+using SamaHesab.Domain.Entities.Tourism;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
 
@@ -90,7 +92,7 @@ public class MonthlyAttendanceTests
         recs.AddAsync(d).Wait();
         var slips = new FakeRepo<SalarySlip>(); var sets = new FakeRepo<PayrollSetting>();
         var hols = new FakeRepo<Holiday>(); var uow = new FakeUow(); var user = new FakeUser();
-        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets, recs, hols, uow, user);
+        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets, recs, hols, new FakeRepo<SalesCommissionEntry>(), new FakeRepo<Party>(), uow, user);
 
         var withAtt = await h.Handle(new RunMonthlyPayrollCommand("1404", 1, UseAttendance: true), default);
 

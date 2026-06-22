@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.HRM;
 using SamaHesab.Domain.Entities.HRM;
+using SamaHesab.Domain.Entities.Tourism;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
 
@@ -95,7 +97,7 @@ public class PayrollBatchTests
         Emp(emps, "111", 20_000_000m);
         Emp(emps, "222", 30_000_000m, children: 2);
 
-        var res = await new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), uow, user)
+        var res = await new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), new FakeRepo<SalesCommissionEntry>(), new FakeRepo<Party>(), uow, user)
             .Handle(new RunMonthlyPayrollCommand("1404", 1), default);
 
         Assert.True(res.Succeeded);
@@ -115,7 +117,7 @@ public class PayrollBatchTests
         var emps = new FakeRepo<Employee>(); var slips = new FakeRepo<SalarySlip>();
         var sets = new FakeRepo<PayrollSetting>(); var uow = new FakeUow(); var user = new FakeUser();
         Emp(emps, "111", 20_000_000m);
-        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), uow, user);
+        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), new FakeRepo<SalesCommissionEntry>(), new FakeRepo<Party>(), uow, user);
 
         await h.Handle(new RunMonthlyPayrollCommand("1404", 1), default);
         var second = await h.Handle(new RunMonthlyPayrollCommand("1404", 1), default);   // بدونِ Overwrite
@@ -136,7 +138,7 @@ public class PayrollBatchTests
         var sets = new FakeRepo<PayrollSetting>(); var uow = new FakeUow(); var user = new FakeUser();
         Emp(emps, "111", 20_000_000m);
         Emp(emps, "222", 30_000_000m);
-        await new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), uow, user)
+        await new RunMonthlyPayrollCommandHandler(emps, slips, sets, new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), new FakeRepo<SalesCommissionEntry>(), new FakeRepo<Party>(), uow, user)
             .Handle(new RunMonthlyPayrollCommand("1404", 1), default);
 
         var exp = await new GetPayrollExportQueryHandler(emps, slips, user)

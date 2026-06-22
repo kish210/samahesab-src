@@ -11,7 +11,8 @@ namespace SamaHesab.Application.HRM;
 /// نرخ‌ها/مبالغِ پایه از تنظیماتِ سالِ حقوق (PAY-C1-5) خوانده می‌شود؛ موتورِ محاسبه `PayrollCalculator.ComputeFull`.
 /// idempotent: اگر فیشِ همان کارمند/ماه باشد، رد می‌شود (مگر Overwrite=true که جایگزین می‌کند).
 /// </summary>
-public record RunMonthlyPayrollCommand(string Year, byte Month, bool Overwrite = false, bool UseAttendance = false)
+public record RunMonthlyPayrollCommand(string Year, byte Month, bool Overwrite = false,
+    bool UseAttendance = false, bool IncludeCommission = false)
     : IRequest<Result<RunPayrollResult>>;
 
 public record RunPayrollResult(
@@ -26,13 +27,16 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
     private readonly IRepository<PayrollSetting> _settings;
     private readonly IRepository<AttendanceRecord> _records;
     private readonly IRepository<Holiday> _holidays;
+    private readonly IRepository<Domain.Entities.Tourism.SalesCommissionEntry> _commissions;
+    private readonly IRepository<Domain.Entities.CRM.Party> _parties;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public RunMonthlyPayrollCommandHandler(IRepository<Employee> employees, IRepository<SalarySlip> slips,
         IRepository<PayrollSetting> settings, IRepository<AttendanceRecord> records, IRepository<Holiday> holidays,
+        IRepository<Domain.Entities.Tourism.SalesCommissionEntry> commissions, IRepository<Domain.Entities.CRM.Party> parties,
         IUnitOfWork uow, ICurrentUserService user)
-    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _uow = uow; _user = user; }
+    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _commissions = commissions; _parties = parties; _uow = uow; _user = user; }
 
     public async Task<Result<RunPayrollResult>> Handle(RunMonthlyPayrollCommand req, CancellationToken ct)
     {
@@ -67,6 +71,15 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 attByEmp[g.Key] = MonthlyAttendanceBuilder.Aggregate(g, holidaySet);
         }
 
+        // پلِ پورسانت→حقوق (TUR-C1-6): جمعِ پورسانتِ ماه per-کارمند به‌عنوانِ «پورسانت فروش» (مشمولِ بیمه/مالیات).
+        Dictionary<int, decimal> commissionByEmp = new();
+        if (req.IncludeCommission)
+        {
+            var ym = $"{req.Year}{req.Month:D2}";
+            commissionByEmp = await Tourism.CommissionPayrollBridge.ByEmployeeAsync(
+                _commissions, _parties, emps, companyId, ym, ct);
+        }
+
         int created = 0, skipped = 0;
         decimal tGross = 0, tNet = 0, tEmpIns = 0, tEmprIns = 0, tTax = 0;
         var toAdd = new List<SalarySlip>();
@@ -90,6 +103,8 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 absenceDeduction = dailyWage * (att.AbsentDays + att.UnpaidLeaveDays);
             }
 
+            var commission = commissionByEmp.GetValueOrDefault(e.Id);
+
             var input = new FullPayrollInput(
                 BaseSalary: e.BaseSalary,
                 SeniorityBase: 0,
@@ -99,12 +114,14 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 OvertimeHours: otHours,
                 NightHours: nightHours,
                 HolidayHours: holidayHours,
-                AbsenceDeduction: absenceDeduction);
+                AbsenceDeduction: absenceDeduction,
+                OtherEarnings: commission);   // پورسانت فروش (مشمولِ بیمه/مالیات)
             var r = PayrollCalculator.ComputeFull(input, rates);
 
             var slip = SalarySlip.Create(e.Id, req.Year, req.Month,
                 baseSalary: e.BaseSalary,
                 overtimePay: r.OvertimePay,
+                bonuses: commission,          // «پورسانت فروش» در ناخالصِ فیش
                 insuranceDeduct: r.EmployeeInsurance,
                 taxDeduct: r.Tax,
                 otherDeductions: absenceDeduction,

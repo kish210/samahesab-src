@@ -270,6 +270,63 @@ public partial class SalaryViewModel : BaseViewModel
     }
 }
 
+// ─── کارگاهِ مستقلِ حضور و غیاب (ATTP-C2-1) ──────────────────────────────────────
+public partial class AttendanceWorkspaceViewModel : BaseViewModel
+{
+    public AttendanceViewModel Daily { get; }
+    public AttendanceMonthlyViewModel Monthly { get; }
+
+    public AttendanceWorkspaceViewModel(AttendanceViewModel daily, AttendanceMonthlyViewModel monthly,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { Daily = daily; Monthly = monthly; }
+
+    public override async Task LoadAsync()
+    {
+        await Daily.LoadAsync();
+        await Monthly.LoadAsync();
+    }
+}
+
+// ─── کارکردِ ماهانه (ATTP-C2-2) ─────────────────────────────────────────────────
+public partial class AttendanceMonthlyViewModel : BaseViewModel
+{
+    private readonly IPersianCalendarService _calendar;
+    private readonly IMediator _mediator;
+
+    [ObservableProperty] private string _selectedYear = string.Empty;
+    [ObservableProperty] private int _selectedMonth = 1;
+
+    public ObservableCollection<AttendanceReportRow> Rows { get; } = new();
+    public List<string> Years { get; } = new() { "1403", "1404", "1405", "1406" };
+    public List<MonthItem> Months { get; } = Enumerable.Range(1, 12)
+        .Select(m => new MonthItem(m, new[]{"فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"}[m-1])).ToList();
+
+    public AttendanceMonthlyViewModel(IPersianCalendarService calendar, IMediator mediator,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _calendar = calendar; _mediator = mediator; }
+
+    public override async Task LoadAsync()
+    {
+        var now = System.DateTime.Now;
+        SelectedYear = _calendar.GetPersianYear(now).ToString();
+        SelectedMonth = _calendar.GetPersianMonth(now);
+        await LoadReportAsync();
+    }
+
+    [RelayCommand]
+    private async Task LoadReportAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            Rows.Clear();
+            foreach (var r in await _mediator.Send(new GetAttendanceReportQuery(SelectedYear, (byte)SelectedMonth)))
+                Rows.Add(r);
+        }, "در حال محاسبهٔ کارکردِ ماهانه...");
+    }
+}
+
 // ─── Attendance ───────────────────────────────────────────────────────────────
 public partial class AttendanceViewModel : BaseViewModel
 {

@@ -228,6 +228,9 @@ public partial class App : System.Windows.Application
                 services.AddTransient<EmployeeEditViewModel>();
                 services.AddTransient<SalaryViewModel>();
                 services.AddTransient<AttendanceViewModel>();
+                services.AddTransient<AttendanceMonthlyViewModel>();          // 🕗 ATTP-C2
+                services.AddTransient<AttendanceWorkspaceViewModel>();         // 🕗 ATTP-C2-1
+                services.AddTransient<Views.HRM.AttendanceWorkspaceWindow>();  // 🕗 ATTP-C2-1
                 services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<ModulesViewModel>();
@@ -1149,6 +1152,18 @@ public partial class App : System.Windows.Application
                 FlowDirection = FlowDirection.RightToLeft,
                 FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont")
             }.Show();
+            return;
+        }
+
+        // ─── 🕗 اپلیکیشنِ مستقلِ حضور و غیاب (hozur.exe / --attendance) ──────────
+        if (e.Args.Contains("--attendance") || Environment.GetEnvironmentVariable("SAMA_ATTENDANCE") == "1")
+        {
+            ((Services.CurrentUserService)_host!.Services.GetRequiredService<ICurrentUserService>())
+                .SetCurrentUser(1, 1, 1, "admin", "مدیرِ حضور و غیاب", new[] { "ADMIN" }, new[] { "*" });
+            _host.Services.GetRequiredService<ModuleService>().SetEnabled(ModuleService.Hr, true);
+            var awin = _host.Services.GetRequiredService<Views.HRM.AttendanceWorkspaceWindow>();
+            awin.WindowState = WindowState.Maximized;
+            awin.Show();
             return;
         }
 

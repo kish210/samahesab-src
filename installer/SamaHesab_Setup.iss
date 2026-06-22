@@ -95,6 +95,7 @@ Name: "{group}\رستوران";                         Filename: "{app}\restora
 Name: "{group}\گارسون";                          Filename: "{app}\waiter.exe"; WorkingDir: "{app}"
 Name: "{group}\آشپزخانه";                        Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"
 Name: "{group}\انبار";                           Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"
+Name: "{group}\حضور و غیاب";                     Filename: "{app}\hozur.exe"; WorkingDir: "{app}"
 Name: "{group}\سرورِ سما حساب (API)";            Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"
 Name: "{group}\ابزارِ مهاجرت داده";              Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"
 Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
@@ -113,7 +114,7 @@ Name: "{commondesktop}\سرورِ سما حساب (API)";     Filename: "{app}\s
 ; بخش‌های درون‌برنامه‌ای (exe جدا ندارند) — برنامهٔ اصلی را با --goto مستقیم به همان بخش باز می‌کنند:
 Name: "{commondesktop}\گردشگری — سما حساب";       Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=TourismDeposits"; WorkingDir: "{app}"; Tasks: sc_tourism
 Name: "{commondesktop}\حقوق و دستمزد — سما حساب";  Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Salary"; WorkingDir: "{app}"; Tasks: sc_salary
-Name: "{commondesktop}\حضور و غیاب — سما حساب";    Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Attendance"; WorkingDir: "{app}"; Tasks: sc_attendance
+Name: "{commondesktop}\حضور و غیاب — سما حساب";    Filename: "{app}\hozur.exe"; WorkingDir: "{app}"; Tasks: sc_attendance
 Name: "{commondesktop}\پیمانکاری — سما حساب";       Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=ContractingStatement"; WorkingDir: "{app}"; Tasks: sc_contracting
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 

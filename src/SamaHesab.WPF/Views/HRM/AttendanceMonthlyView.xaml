@@ -1,0 +1,43 @@
+<UserControl x:Class="SamaHesab.WPF.Views.HRM.AttendanceMonthlyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding LoadReportCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="کارکردِ ماهانه — سال:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
+                <ComboBox Width="90" Height="32" ItemsSource="{Binding Years}" SelectedItem="{Binding SelectedYear}" Margin="0,0,12,0"/>
+                <TextBlock Text="ماه:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
+                <ComboBox Width="110" Height="32" ItemsSource="{Binding Months}" DisplayMemberPath="Name" SelectedValuePath="Number" SelectedValue="{Binding SelectedMonth}" Margin="0,0,12,0"/>
+                <Button Content="🔄 محاسبه (F5)" Style="{StaticResource PrimaryButton}" Height="32" Command="{Binding LoadReportCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="کارمند" Binding="{Binding EmployeeName}" Width="*"/>
+                    <DataGridTextColumn Header="حاضر" Binding="{Binding PresentDays, Converter={StaticResource Num}}" Width="80" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="غایب" Binding="{Binding AbsentDays, Converter={StaticResource Num}}" Width="80" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="مرخصی" Binding="{Binding LeaveDays, Converter={StaticResource Num}}" Width="80" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="اضافه‌کاری(ساعت)" Binding="{Binding OvertimeHours, Converter={StaticResource Num}}" Width="120" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="شب‌کاری" Binding="{Binding NightHours, Converter={StaticResource Num}}" Width="90" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="جمعه‌کاری" Binding="{Binding HolidayHours, Converter={StaticResource Num}}" Width="100" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="تأخیر(دقیقه)" Binding="{Binding TardyMinutes, Converter={StaticResource Num}}" Width="110" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="تعجیل(دقیقه)" Binding="{Binding EarlyLeaveMinutes, Converter={StaticResource Num}}" Width="110" ElementStyle="{StaticResource NumCell}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

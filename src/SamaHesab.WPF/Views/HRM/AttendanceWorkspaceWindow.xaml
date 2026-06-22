@@ -1,0 +1,49 @@
+<Window x:Class="SamaHesab.WPF.Views.HRM.AttendanceWorkspaceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hrm="clr-namespace:SamaHesab.WPF.Views.HRM"
+        Title="حضور و غیاب — سما حساب" Height="800" Width="1280"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource VazirFont}"
+        FlowDirection="RightToLeft"
+        Background="{DynamicResource AppBackground}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="26"/>
+        </Grid.RowDefinitions>
+
+        <!-- هدر -->
+        <Border Grid.Row="0" Background="{DynamicResource ErpBlue700}">
+            <DockPanel Margin="14,0">
+                <TextBlock DockPanel.Dock="Right" Text="🕗 سامانهٔ حضور و غیاب" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="سما حساب" Foreground="#BAC5DD" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            </DockPanel>
+        </Border>
+
+        <!-- محتوا: تب‌های بخش‌ها -->
+        <TabControl Grid.Row="1" Margin="6" TabStripPlacement="Right" FontFamily="{StaticResource VazirFont}">
+            <TabItem Header="  تردد روزانه  ">
+                <hrm:AttendanceView DataContext="{Binding Daily}"/>
+            </TabItem>
+            <TabItem Header="  کارکردِ ماهانه  ">
+                <hrm:AttendanceMonthlyView DataContext="{Binding Monthly}"/>
+            </TabItem>
+            <TabItem Header="  شیفت‌ها  ">
+                <Border Padding="24"><TextBlock Text="مدیریتِ شیفت‌بندی — به‌زودی (نیازمندِ فرمان‌های CRUDِ شیفت از تیمِ دامنه)." Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"/></Border>
+            </TabItem>
+            <TabItem Header="  تقویم / تعطیلات  ">
+                <Border Padding="24"><TextBlock Text="تقویمِ کاری و تعطیلاتِ رسمی — به‌زودی." Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"/></Border>
+            </TabItem>
+            <TabItem Header="  دستگاه‌های تردد  ">
+                <Border Padding="24"><TextBlock Text="مدیریتِ دستگاه‌های اثرانگشت/کارت — نیازمندِ دستگاه/SDK؛ تا آن زمان «ایمپورتِ فایلِ تردد» در منوی اصلی." Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"/></Border>
+            </TabItem>
+        </TabControl>
+
+        <!-- نوار وضعیت -->
+        <Border Grid.Row="2" Background="{DynamicResource ErpBlue700}">
+            <TextBlock Text="حضور و غیابِ سما حساب · F5 بازخوانی" Foreground="#BAC5DD" FontSize="11" VerticalAlignment="Center" Margin="14,0"/>
+        </Border>
+    </Grid>
+</Window>

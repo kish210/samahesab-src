@@ -255,6 +255,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.SalarySlip>().ToTable("SalarySlips", "Hrm");
         // PAY-C1-5 — تنظیماتِ سالِ حقوق (نرخ‌ها/مبالغِ پایه).
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.PayrollSetting>().ToTable("PayrollSettings", "Hrm");
+        // ATT-C1-1 — موجودیت‌های حضوروغیاب: شیفت/تقویمِ تعطیلات/درخواستِ مرخصی.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Shift>().ToTable("Shifts", "Hrm");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Holiday>().ToTable("Holidays", "Hrm");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.LeaveRequest>().ToTable("LeaveRequests", "Hrm");
 
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>

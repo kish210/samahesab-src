@@ -67,13 +67,13 @@ public partial class ContractingStatementViewModel : BaseViewModel
     }
 
     partial void OnSelectedProjectChanged(ContractProjectListDto? value) => Recompute();
-    partial void OnCumulativeGrossWorkChanged(decimal v) => Recompute();
-    partial void OnPreviousCumulativeChanged(decimal v) => Recompute();
-    partial void OnAdjustmentAmountChanged(decimal v) => Recompute();
-    partial void OnMaterialDiffAmountChanged(decimal v) => Recompute();
-    partial void OnPenaltyChanged(decimal v) => Recompute();
-    partial void OnOtherChanged(decimal v) => Recompute();
-    partial void OnSavedStatementIdChanged(int v) => OnPropertyChanged(nameof(CanPost));
+    partial void OnCumulativeGrossWorkChanged(decimal value) => Recompute();
+    partial void OnPreviousCumulativeChanged(decimal value) => Recompute();
+    partial void OnAdjustmentAmountChanged(decimal value) => Recompute();
+    partial void OnMaterialDiffAmountChanged(decimal value) => Recompute();
+    partial void OnPenaltyChanged(decimal value) => Recompute();
+    partial void OnOtherChanged(decimal value) => Recompute();
+    partial void OnSavedStatementIdChanged(int value) => OnPropertyChanged(nameof(CanPost));
 
     /// <summary>پیش‌نمایشِ زنده — موتورِ خالصِ آبشار را با نرخ‌های پیمان مستقیم صدا می‌زند.</summary>
     private void Recompute()

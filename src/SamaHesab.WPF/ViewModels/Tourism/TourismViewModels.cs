@@ -137,9 +137,9 @@ public partial class TourismSaleLineRow : ObservableObject
     [ObservableProperty] private decimal _discountAmount;
     public decimal LineNet => Quantity * UnitSalePrice - DiscountAmount;
     public decimal LineProfit => LineNet - Quantity * UnitCost;
-    partial void OnQuantityChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
-    partial void OnUnitSalePriceChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
-    partial void OnDiscountAmountChanged(decimal v) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+    partial void OnQuantityChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+    partial void OnUnitSalePriceChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+    partial void OnDiscountAmountChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
 }
 
 public partial class TourismSaleViewModel : BaseViewModel

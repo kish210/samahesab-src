@@ -388,6 +388,144 @@ public partial class AttendanceImportViewModel : BaseViewModel
     }
 }
 
+// ─── مدیریتِ شیفت (ATTP-C2-3) ───────────────────────────────────────────────────
+public partial class ShiftManagementViewModel : BaseViewModel
+{
+    private readonly IMediator _mediator;
+
+    [ObservableProperty] private ShiftDto? _selectedShift;
+    [ObservableProperty] private int _editId;
+    [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private string _start = "08:00";
+    [ObservableProperty] private string _end = "16:00";
+    [ObservableProperty] private int _breakMinutes;
+    [ObservableProperty] private bool _isNight;
+    [ObservableProperty] private decimal _standardHours = 7.33m;
+    [ObservableProperty] private string? _notes;
+
+    public ObservableCollection<ShiftDto> Shifts { get; } = new();
+
+    public ShiftManagementViewModel(IMediator mediator, IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _mediator = mediator; }
+
+    public override async Task LoadAsync() => await ReloadAsync();
+    [RelayCommand] private async Task RefreshAsync() => await ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            Shifts.Clear();
+            foreach (var s in await _mediator.Send(new GetShiftsQuery())) Shifts.Add(s);
+        }, "در حال بارگذاریِ شیفت‌ها...");
+    }
+
+    partial void OnSelectedShiftChanged(ShiftDto? value)
+    {
+        if (value is null) return;
+        EditId = value.Id; Name = value.Name; Start = value.Start; End = value.End;
+        BreakMinutes = value.BreakMinutes; IsNight = value.IsNight; StandardHours = value.StandardHours; Notes = value.Notes;
+    }
+
+    [RelayCommand]
+    private void NewShift()
+    { EditId = 0; Name = string.Empty; Start = "08:00"; End = "16:00"; BreakMinutes = 0; IsNight = false; StandardHours = 7.33m; Notes = null; SelectedShift = null; }
+
+    [RelayCommand]
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(Name)) { await _dialogService.ShowWarningAsync("نامِ شیفت الزامی است."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new SaveShiftCommand(EditId, Name, Start, End, BreakMinutes, IsNight, StandardHours, true, Notes));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync("شیفت ذخیره شد.");
+            NewShift(); await ReloadAsync();
+        }, "در حال ذخیره...");
+    }
+
+    [RelayCommand]
+    private async Task DeleteAsync(ShiftDto? row)
+    {
+        var s = row ?? SelectedShift;
+        if (s is null) return;
+        if (!await _dialogService.ConfirmAsync($"شیفتِ «{s.Name}» حذف شود؟")) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new DeleteShiftCommand(s.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await ReloadAsync();
+        }, "در حال حذف...");
+    }
+}
+
+// ─── تقویمِ تعطیلات (ATTP-C2-3) ──────────────────────────────────────────────────
+public partial class HolidayCalendarViewModel : BaseViewModel
+{
+    private readonly IMediator _mediator;
+    private readonly IPersianCalendarService _calendar;
+
+    [ObservableProperty] private string _filterYear = string.Empty;
+    [ObservableProperty] private string _newDate = string.Empty;
+    [ObservableProperty] private string _newTitle = string.Empty;
+    [ObservableProperty] private bool _newIsOfficial = true;
+
+    public ObservableCollection<HolidayDto> Holidays { get; } = new();
+
+    public HolidayCalendarViewModel(IMediator mediator, IPersianCalendarService calendar,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _mediator = mediator; _calendar = calendar; }
+
+    public override async Task LoadAsync()
+    {
+        var now = System.DateTime.Now;
+        FilterYear = _calendar.GetPersianYear(now).ToString();
+        NewDate = _calendar.GetCurrentPersianDate();
+        await ReloadAsync();
+    }
+
+    [RelayCommand] private async Task RefreshAsync() => await ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            Holidays.Clear();
+            foreach (var h in await _mediator.Send(new GetHolidaysQuery(string.IsNullOrWhiteSpace(FilterYear) ? null : FilterYear)))
+                Holidays.Add(h);
+        }, "در حال بارگذاریِ تقویم...");
+    }
+
+    [RelayCommand]
+    private async Task AddHolidayAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewDate) || string.IsNullOrWhiteSpace(NewTitle))
+        { await _dialogService.ShowWarningAsync("تاریخ و عنوان الزامی است."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new SaveHolidayCommand(0, NewDate, NewTitle, NewIsOfficial));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            NewTitle = string.Empty;
+            await ReloadAsync();
+        }, "در حال ثبت...");
+    }
+
+    [RelayCommand]
+    private async Task DeleteHolidayAsync(HolidayDto? row)
+    {
+        if (row is null) return;
+        if (!await _dialogService.ConfirmAsync($"تعطیلیِ «{row.Title}» ({row.Date}) حذف شود؟")) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new DeleteHolidayCommand(row.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await ReloadAsync();
+        }, "در حال حذف...");
+    }
+}
+
 // ─── کارگاهِ مستقلِ حضور و غیاب (ATTP-C2-1) ──────────────────────────────────────
 public partial class AttendanceWorkspaceViewModel : BaseViewModel
 {
@@ -395,18 +533,23 @@ public partial class AttendanceWorkspaceViewModel : BaseViewModel
     public AttendanceMonthlyViewModel Monthly { get; }
     public LeaveManagementViewModel Leaves { get; }
     public AttendanceImportViewModel Import { get; }
+    public ShiftManagementViewModel Shifts { get; }
+    public HolidayCalendarViewModel Calendar { get; }
 
     public AttendanceWorkspaceViewModel(AttendanceViewModel daily, AttendanceMonthlyViewModel monthly,
         LeaveManagementViewModel leaves, AttendanceImportViewModel import,
+        ShiftManagementViewModel shifts, HolidayCalendarViewModel calendar,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { Daily = daily; Monthly = monthly; Leaves = leaves; Import = import; }
+    { Daily = daily; Monthly = monthly; Leaves = leaves; Import = import; Shifts = shifts; Calendar = calendar; }
 
     public override async Task LoadAsync()
     {
         await Daily.LoadAsync();
         await Monthly.LoadAsync();
         await Leaves.LoadAsync();
+        await Shifts.LoadAsync();
+        await Calendar.LoadAsync();
     }
 }
 

@@ -1,0 +1,56 @@
+<UserControl x:Class="SamaHesab.WPF.Views.HRM.HolidayCalendarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="تقویمِ تعطیلات — سال:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
+                <TextBox Width="90" Height="32" Text="{Binding FilterYear}" FlowDirection="LeftToRight" Margin="0,0,10,0"/>
+                <Button Content="🔄 نمایش (F5)" Style="{StaticResource SecondaryButton}" Height="32" Command="{Binding RefreshCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      ItemsSource="{Binding Holidays}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="140"/>
+                    <DataGridTextColumn Header="عنوان" Binding="{Binding Title}" Width="*"/>
+                    <DataGridCheckBoxColumn Header="رسمی" Binding="{Binding IsOfficial}" Width="80"/>
+                    <DataGridTemplateColumn Width="60">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="🗑" FontSize="12" Cursor="Hand" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource DangerColor}"
+                                        Command="{Binding DataContext.DeleteHolidayCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- افزودنِ تعطیلی -->
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="10" Margin="0,8,0,0">
+            <WrapPanel VerticalAlignment="Center">
+                <StackPanel Margin="0,0,10,0"><TextBlock Text="تاریخ" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="120" Height="30" Text="{Binding NewDate}" FlowDirection="LeftToRight"/></StackPanel>
+                <StackPanel Margin="0,0,10,0"><TextBlock Text="عنوان" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="260" Height="30" Text="{Binding NewTitle}"/></StackPanel>
+                <CheckBox Content="تعطیلِ رسمی" IsChecked="{Binding NewIsOfficial}" VerticalAlignment="Bottom" Margin="0,0,10,6"/>
+                <Button Content="➕ افزودن" Style="{StaticResource PrimaryButton}" Height="30" VerticalAlignment="Bottom" Command="{Binding AddHolidayCommand}"/>
+            </WrapPanel>
+        </Border>
+    </Grid>
+</UserControl>

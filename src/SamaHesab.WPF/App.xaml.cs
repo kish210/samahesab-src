@@ -231,6 +231,8 @@ public partial class App : System.Windows.Application
                 services.AddTransient<AttendanceMonthlyViewModel>();          // 🕗 ATTP-C2
                 services.AddTransient<LeaveManagementViewModel>();            // 🕗 ATTP-C2-2
                 services.AddTransient<AttendanceImportViewModel>();           // 🕗 ATTP-C2-2
+                services.AddTransient<ShiftManagementViewModel>();            // 🕗 ATTP-C2-3
+                services.AddTransient<HolidayCalendarViewModel>();            // 🕗 ATTP-C2-3
                 services.AddTransient<AttendanceWorkspaceViewModel>();         // 🕗 ATTP-C2-1
                 services.AddTransient<Views.HRM.AttendanceWorkspaceWindow>();  // 🕗 ATTP-C2-1
                 services.AddTransient<ReportsViewModel>();

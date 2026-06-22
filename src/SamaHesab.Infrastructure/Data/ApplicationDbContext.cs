@@ -480,6 +480,15 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>
             (!_tenantFilterEnabled || e.CompanyId == _companyId)
             && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
+
+        // MB-3 (تکمیل) — موجودیت‌های شعبه‌ایِ انبار/POS: انبارگردانی، شیفتِ صندوق، فاکتورِ معلق.
+        ApplyTenantAndBranchFilter<StockCountSession>(modelBuilder);
+        ApplyTenantAndBranchFilter<SamaHesab.Domain.Entities.POS.CashShift>(modelBuilder);
+        ApplyTenantAndBranchFilter<SamaHesab.Domain.Entities.POS.HeldSale>(modelBuilder);
+        // کاردکس (StockTransaction) موجودیتِ AuditableEntity نیست و BranchId آن nullable است → فیلترِ سفارشی.
+        modelBuilder.Entity<StockTransaction>().HasQueryFilter(e =>
+            (!_tenantFilterEnabled || e.CompanyId == _companyId)
+            && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -6,7 +6,7 @@ namespace SamaHesab.Domain.Entities.Inventory;
 /// سند انبارگردانی: شمارش فیزیکی یک انبار. هنگام شروع، موجودی سیستمی هر کالا snapshot می‌شود؛
 /// کاربر تعداد شمرده‌شده را وارد می‌کند؛ هنگام نهایی‌سازی، اختلاف‌ها به تعدیل موجودی تبدیل می‌شوند.
 /// </summary>
-public class StockCountSession : AuditableEntity
+public class StockCountSession : AuditableEntity, IBranchScoped   // MB-3: جداسازیِ شعبه
 {
     public int BranchId { get; private set; }
     public int WarehouseId { get; private set; }

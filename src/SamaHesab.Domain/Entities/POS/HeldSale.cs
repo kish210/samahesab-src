@@ -7,7 +7,7 @@ namespace SamaHesab.Domain.Entities.POS;
 /// فراخوان شود (مثلاً مشتری برای آوردن کالای دیگر می‌رود). Payload همان سبد به‌صورت JSON است
 /// (مبهم برای دامنه؛ کلاینت آن را می‌سازد/می‌خواند).
 /// </summary>
-public class HeldSale : AuditableEntity
+public class HeldSale : AuditableEntity, IBranchScoped   // MB-3: جداسازیِ شعبه
 {
     public int BranchId { get; private set; }
     public int UserId { get; private set; }

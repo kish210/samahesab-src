@@ -6,7 +6,7 @@ namespace SamaHesab.Domain.Entities.POS;
 /// کار #۳۰ — شیفت/صندوق POS: صندوق‌دار با موجودی اولیه باز می‌کند، فروش‌ها در طول شیفت
 /// جمع می‌شوند (نقد/کارت)، و هنگام بستن، مبلغ شمرده‌شده با مبلغِ موردانتظار مقایسه و مغایرت محاسبه می‌شود.
 /// </summary>
-public class CashShift : AuditableEntity
+public class CashShift : AuditableEntity, IBranchScoped   // MB-3: جداسازیِ شعبه
 {
     public int BranchId { get; private set; }
     public int UserId { get; private set; }

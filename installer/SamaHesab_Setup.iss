@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "2.5.17"
+#define MyAppVersion   "2.5.18"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
 #define MyAppExeName   "SamaHesab.exe"
@@ -53,8 +53,19 @@ VersionInfoProductName={#MyAppName}
 Name: "persian"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon";    Description: "ایجاد میانبر روی دسکتاپ برای همهٔ برنامه‌ها";    GroupDescription: "میانبرها:"
-Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار وظیفه"; GroupDescription: "میانبرها:"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
+; ── میانبرهای دسکتاپ به‌تفکیکِ بخش/ماژول — کاربر هنگامِ نصب فقط موردِ نیازش را تیک می‌زند ──
+Name: "sc_main";       Description: "سما حساب (برنامهٔ اصلی — حسابداری/فروش/خرید/انبار)"; GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"
+Name: "sc_pos";        Description: "صندوقِ فروش (POS)";                 GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_restaurant"; Description: "رستوران";                          GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_waiter";     Description: "گارسون (سفارش‌گیری سرِ میز)";        GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_kitchen";    Description: "آشپزخانه (نمایشگرِ سفارش)";          GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_warehouse";  Description: "انبار";                            GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_tourism";    Description: "گردشگری (ودیعه/پورسانت/فروش)";       GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_salary";     Description: "حقوق و دستمزد";                     GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_attendance"; Description: "حضور و غیاب (ورود/خروج)";           GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_migration";  Description: "ابزارِ مهاجرت / ورودِ داده از اکسل"; GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_server";     Description: "سرورِ سما حساب (API) — نصبِ مرکزی";  GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار وظیفه"; GroupDescription: "سایر:"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
 ; برنامهٔ دسکتاپ (خودکفا — شاملِ رانتایم؛ SamaHesab.exe + لانچرها)
@@ -88,15 +99,20 @@ Name: "{group}\ابزارِ مهاجرت داده";              Filename: "{app
 Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
 Name: "{group}\راهنمای کاربر";                   Filename: "{app}\docs\UserGuide.pdf"
 Name: "{group}\حذف {#MyAppName}";               Filename: "{uninstallexe}"
-; میانبرهای دسکتاپ برای همهٔ برنامه‌های اجرایی (Tasks: desktopicon — پیش‌فرض فعال)
-Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\صندوقِ فروشِ سما حساب";   Filename: "{app}\pos.exe"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\رستورانِ سما حساب";       Filename: "{app}\restoran.exe"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\گارسونِ سما حساب";        Filename: "{app}\waiter.exe"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\آشپزخانهٔ سما حساب";       Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\انبارِ سما حساب";          Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"; Tasks: desktopicon
-Name: "{commondesktop}\سرورِ سما حساب (API)";     Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"; Tasks: desktopicon
-Name: "{commondesktop}\ابزارِ مهاجرتِ سما حساب";  Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+; میانبرهای دسکتاپ — فقط برای بخش‌هایی که کاربر در صفحهٔ Tasks تیک زده است.
+; بخش‌های دارای برنامهٔ اجراییِ مستقل (POS/رستوران/گارسون/آشپزخانه/انبار/مهاجرت/سرور):
+Name: "{commondesktop}\{#MyAppName}";            Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: sc_main
+Name: "{commondesktop}\صندوقِ فروشِ سما حساب";   Filename: "{app}\pos.exe"; WorkingDir: "{app}"; Tasks: sc_pos
+Name: "{commondesktop}\رستورانِ سما حساب";       Filename: "{app}\restoran.exe"; WorkingDir: "{app}"; Tasks: sc_restaurant
+Name: "{commondesktop}\گارسونِ سما حساب";        Filename: "{app}\waiter.exe"; WorkingDir: "{app}"; Tasks: sc_waiter
+Name: "{commondesktop}\آشپزخانهٔ سما حساب";       Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"; Tasks: sc_kitchen
+Name: "{commondesktop}\انبارِ سما حساب";          Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"; Tasks: sc_warehouse
+Name: "{commondesktop}\ابزارِ مهاجرتِ سما حساب";  Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"; Tasks: sc_migration
+Name: "{commondesktop}\سرورِ سما حساب (API)";     Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"; Tasks: sc_server
+; بخش‌های درون‌برنامه‌ای (exe جدا ندارند) — برنامهٔ اصلی را با --goto مستقیم به همان بخش باز می‌کنند:
+Name: "{commondesktop}\گردشگری — سما حساب";       Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=TourismDeposits"; WorkingDir: "{app}"; Tasks: sc_tourism
+Name: "{commondesktop}\حقوق و دستمزد — سما حساب";  Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Salary"; WorkingDir: "{app}"; Tasks: sc_salary
+Name: "{commondesktop}\حضور و غیاب — سما حساب";    Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Attendance"; WorkingDir: "{app}"; Tasks: sc_attendance
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]

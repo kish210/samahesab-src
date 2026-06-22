@@ -231,6 +231,16 @@ public partial class MainViewModel : BaseViewModel
         RaiseAccessFlags();   // منوها بر اساس مجوزِ کاربرِ واردشده
         await NavigateToAsync(PickRoleDashboard());   // کار #۹ — ورودِ اولیه به داشبوردِ متناسب با نقش
         await RefreshNotificationCountAsync();         // کار #۲۵ — شمارندهٔ واقعیِ زنگوله
+
+        // ✈️ deep-link از میانبرِ دسکتاپ (--goto=<navKey>): ماژولِ مربوطه را فعال و به همان بخش برو.
+        var goKey = App.PendingDeepLinkNavKey;
+        App.PendingDeepLinkNavKey = null;
+        if (!string.IsNullOrWhiteSpace(goKey))
+        {
+            if (_pageModule.TryGetValue(goKey, out var mod) && !_modules.IsEnabled(mod))
+                _modules.SetEnabled(mod, true);   // ماژولِ پیش‌فرض‌خاموش (مثلِ گردشگری) را روشن کن تا بخش دیده شود
+            await NavigateToAsync(goKey);
+        }
     }
 
     /// <summary>کار #۲۵ — تعدادِ اعلان‌های فعال برای بَجِ زنگوله (best-effort؛ نباید پوسته را بشکند).</summary>

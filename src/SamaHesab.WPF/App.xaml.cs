@@ -29,6 +29,10 @@ public partial class App : System.Windows.Application
 {
     private IHost? _host;
 
+    /// <summary>✈️ مقصدِ deep-link از پرچمِ <c>--goto=&lt;navKey&gt;</c> (میانبرِ دسکتاپِ ماژول‌های درون‌برنامه‌ای).
+    /// پس از ورود، MainViewModel آن را مصرف و به همان بخش می‌رود.</summary>
+    public static string? PendingDeepLinkNavKey;
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -1131,6 +1135,11 @@ public partial class App : System.Windows.Application
             }
             catch (Exception ex) { Log.Warning(ex, "ویزاردِ راه‌اندازیِ اولیه (پیش از لاگین) اجرا نشد"); }
         }
+
+        // ✈️ --goto=<navKey>: میانبرِ دسکتاپِ یک ماژولِ درون‌برنامه‌ای (گردشگری/حقوق/حضوروغیاب/…)؛
+        //    پس از ورود، پوسته ماژول را فعال و به همان بخش می‌رود (MainViewModel.LoadAsync مصرف می‌کند).
+        var gotoArg = e.Args.FirstOrDefault(a => a.StartsWith("--goto=", StringComparison.OrdinalIgnoreCase));
+        if (gotoArg != null) PendingDeepLinkNavKey = gotoArg.Substring("--goto=".Length).Trim();
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         loginWindow.Show();

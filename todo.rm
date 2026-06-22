@@ -1470,4 +1470,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 - [x] (pc/C1) پولیشِ گزارشاتِ حسابداری + بررسیِ ux-prompt.md: ستون‌های مبلغ در FinancialReportsView (تراز/دفتر/سودوزیان/ترازنامه) و IncomeReportView از StringFormatِ رقمِ لاتین به **Num converter (ارقامِ فارسی + جداکنندهٔ هزارگان)** + استایلِ NumCell (FlowDirection LTR، چینش) تغییر کرد — رفعِ نقضِ قانونِ «همه مبالغ tabular + جداکنندهٔ فارسی + LTR در ستون» (ux-prompt §0/§4). بررسیِ چک‌لیستِ §4: زبرا/خطکشیِ گرید (ErpDataGrid سراسری) ✓، RTL ✓، رنگِ برند ✓، چگالی RowHeight=26 ✓، نوار جمع/تراز ✓، میانبرِ F5 ✓. BranchReportView از قبل Num داشت ✓. WPF build سبز.
 
-- [~] 🚧 (pc/C1→کمک به C2 با هماهنگی) CON-C2-3/5 (claim @2026-06-22) — گزارش‌سازِ پیمانکاری (صورت‌وضعیت/خلاصهٔ پروژه/سپرده/ضمانت) + رجیستریِ ModuleDef(Contracting) + ثبتِ صفحات. (لپ‌تاپ هنوز C2ی پیمانکاری را نزده.) claim.
+- [x] (pc→C2 با هماهنگی) CON-C2-3 — ContractingReportBuilder (خالص/تست‌پذیر، ReportTable→CSV/HTML RTL): چاپِ رسمیِ صورت‌وضعیت + خلاصهٔ مالیِ پیمان‌ها (با پیشرفت٪ و جمع) + سپرده‌های نگه‌داشته + دفترِ ضمانت‌نامه (روزِ ماندهٔ انقضا). ۴ تستِ نو (۵۱۴ کل). build سبز. ⏭️ CON-C2-5 رجیستری + CON-C2-2 UI.

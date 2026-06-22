@@ -20,7 +20,7 @@ public class ModuleService
     public const string Accounting = "Accounting", Treasury = "Treasury", Sales = "Sales",
         Purchase = "Purchase", Inventory = "Inventory", Customers = "Customers", Reports = "Reports";
     public const string Pos = "POS", Restaurant = "Restaurant", Tourism = "Tourism",
-        Hr = "HR", Crm = "CRM", Hotel = "Hotel", Support = "Support";
+        Hr = "HR", Crm = "CRM", Hotel = "Hotel", Support = "Support", Contracting = "Contracting";
 
     /// <summary>ماژول‌های هسته — همیشه فعال، در UI قفل.</summary>
     public IReadOnlyList<ModuleDef> CoreModules { get; } = new[]
@@ -47,6 +47,7 @@ public class ModuleService
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),
         new ModuleDef(Support, "پشتیبانیِ مشتری", false, "Lifebuoy"),
+        new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),   // CON-C2-5
     };
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");

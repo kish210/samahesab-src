@@ -36,6 +36,7 @@ public partial class MainViewModel : BaseViewModel
     public bool CrmEnabled => _modules.IsEnabled(ModuleService.Crm);
     public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
     public bool SupportEnabled => _modules.IsEnabled(ModuleService.Support);   // 🆘 HC-1
+    public bool ContractingEnabled => _modules.IsEnabled(ModuleService.Contracting);   // 🏗 CON-C2-5
 
     // ── دسترسی منو بر اساس مجوز (RBAC). ADMIN/«*» همه را true می‌کند. ──
     public bool CanAccounting => _currentUser.HasPermission("Accounting", "Voucher", "View");
@@ -61,6 +62,7 @@ public partial class MainViewModel : BaseViewModel
         ["RemoteSupport"] = ModuleService.Support,   // 🆘 HC-6
         ["TourismDeposits"] = ModuleService.Tourism, ["TourismCommissions"] = ModuleService.Tourism,   // ✈️ TUR-C2-4
         ["TourismSettings"] = ModuleService.Tourism, ["TourismSale"] = ModuleService.Tourism,
+        ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -207,6 +209,8 @@ public partial class MainViewModel : BaseViewModel
             ["KnowledgeBase"]   = ("دانشنامه",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.KnowledgeBaseViewModel>()),
             ["RemoteSupport"]   = ("پشتیبانیِ ریموت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.RemoteSupportViewModel>()),
             // ✈️ TUR-C2-4 — گردشگری
+            ["ContractingStatement"] = ("صورت‌وضعیتِ پیمان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingStatementViewModel>()),
+            ["ContractingDashboard"] = ("داشبوردِ پیمان",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingDashboardViewModel>()),
             ["TourismSale"]        = ("ثبتِ فروشِ گردشگری",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSaleViewModel>()),
             ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
@@ -415,7 +419,7 @@ public partial class MainViewModel : BaseViewModel
         OnPropertyChanged(nameof(PosEnabled)); OnPropertyChanged(nameof(RestaurantEnabled));
         OnPropertyChanged(nameof(TourismEnabled)); OnPropertyChanged(nameof(HrEnabled));
         OnPropertyChanged(nameof(CrmEnabled)); OnPropertyChanged(nameof(HotelEnabled));
-        OnPropertyChanged(nameof(SupportEnabled));
+        OnPropertyChanged(nameof(SupportEnabled)); OnPropertyChanged(nameof(ContractingEnabled));
         BuildNav();   // بازسازیِ سایدبارِ آکاردئونی با تغییرِ ماژول‌ها
     }
 
@@ -495,6 +499,11 @@ public partial class MainViewModel : BaseViewModel
                 new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
                 new("پورسانتِ فروشندگان", "TourismCommissions"),
                 new("تنظیماتِ گردشگری", "TourismSettings"));
+
+        if (ContractingEnabled)
+            Add(true, "پیمانکاری", "IcSales",
+                new("صورت‌وضعیت", "ContractingStatement"),
+                new("داشبوردِ پیمان", "ContractingDashboard"));
 
         if (SupportEnabled)
             Add(true, "مرکزِ پشتیبانی", "IcReports",

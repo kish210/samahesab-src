@@ -96,19 +96,19 @@
                         <DataGridTextColumn Header="دوره (ماه)" Binding="{Binding Period}" Width="120">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="فروش" Binding="{Binding Sales, StringFormat={}{0:#,##0}}" Width="*">
+                        <DataGridTextColumn Header="فروش" Binding="{Binding Sales, Converter={StaticResource Num}}" Width="*">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="خرید" Binding="{Binding Purchase, StringFormat={}{0:#,##0}}" Width="*">
+                        <DataGridTextColumn Header="خرید" Binding="{Binding Purchase, Converter={StaticResource Num}}" Width="*">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="هزینه" Binding="{Binding Expense, StringFormat={}{0:#,##0}}" Width="*">
+                        <DataGridTextColumn Header="هزینه" Binding="{Binding Expense, Converter={StaticResource Num}}" Width="*">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="مالیات" Binding="{Binding Tax, StringFormat={}{0:#,##0}}" Width="*">
+                        <DataGridTextColumn Header="مالیات" Binding="{Binding Tax, Converter={StaticResource Num}}" Width="*">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="سود" Binding="{Binding Profit, StringFormat={}{0:#,##0}}" Width="*">
+                        <DataGridTextColumn Header="سود" Binding="{Binding Profit, Converter={StaticResource Num}}" Width="*">
                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Foreground" Value="{StaticResource ErpSuccess700}"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                     </DataGrid.Columns>

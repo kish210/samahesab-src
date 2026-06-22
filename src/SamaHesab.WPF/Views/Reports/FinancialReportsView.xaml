@@ -10,6 +10,14 @@
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RunCommand}"/>
     </UserControl.InputBindings>
+    <UserControl.Resources>
+        <!-- ستونِ عددی: ارقامِ فارسی + جداکنندهٔ هزارگان + چینشِ LTR (مطابقِ ux-prompt §0/§4). -->
+        <Style x:Key="NumCell" TargetType="TextBlock">
+            <Setter Property="FlowDirection" Value="LeftToRight"/>
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="8,0"/>
+        </Style>
+    </UserControl.Resources>
     <Grid Margin="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -83,9 +91,9 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد حساب" Binding="{Binding Code}" Width="150"/>
                     <DataGridTextColumn Header="نام حساب" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat={}{0:#,##0}}" Width="160"/>
-                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat={}{0:#,##0}}" Width="160"/>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="160"/>
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="160" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="160" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="160" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -101,9 +109,9 @@
                     <DataGridTextColumn Header="کد حساب" Binding="{Binding Code}" Width="130"/>
                     <DataGridTextColumn Header="نام حساب" Binding="{Binding Name}" Width="*"/>
                     <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
-                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat={}{0:#,##0}}" Width="140"/>
-                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat={}{0:#,##0}}" Width="140"/>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="150"/>
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="140" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="140" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="150" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -118,7 +126,7 @@
                     <DataGridTextColumn Header="نوع" Binding="{Binding Kind}" Width="120"/>
                     <DataGridTextColumn Header="کد حساب" Binding="{Binding Code}" Width="150"/>
                     <DataGridTextColumn Header="نام حساب" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, StringFormat={}{0:#,##0}}" Width="180"/>
+                    <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, Converter={StaticResource Num}}" Width="180" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -133,7 +141,7 @@
                     <DataGridTextColumn Header="بخش" Binding="{Binding Section}" Width="180"/>
                     <DataGridTextColumn Header="کد حساب" Binding="{Binding Code}" Width="150"/>
                     <DataGridTextColumn Header="نام حساب" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, StringFormat={}{0:#,##0}}" Width="200"/>
+                    <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, Converter={StaticResource Num}}" Width="200" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

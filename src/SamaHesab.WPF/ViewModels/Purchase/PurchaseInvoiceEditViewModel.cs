@@ -15,7 +15,7 @@ using System.Linq;
 namespace SamaHesab.WPF.ViewModels.Purchase;
 
 /// <summary>ثبتِ فاکتور خرید — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class PurchaseInvoiceEditViewModel : BaseViewModel
+public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Services.INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
@@ -57,6 +57,57 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     // OPT-6: ماندهٔ تأمین‌کنندهٔ انتخابی + موجودیِ کالای نوارِ ورود
     [ObservableProperty] private decimal _supplierBalance;
     [ObservableProperty] private bool _hasSupplierInfo;
+
+    // UX-PURCHASE-VIEW — حالتِ مشاهدهٔ فاکتورِ ثبت‌شده (قفلِ ثبتِ دوباره)
+    [ObservableProperty] private bool _isViewingExisting;
+    partial void OnIsViewingExistingChanged(bool value) => OnPropertyChanged(nameof(PostButtonText));
+    public string PostButtonText => IsViewingExisting ? "👁 فاکتورِ ثبت‌شده — فقط مشاهده/چاپ"
+                                                       : "✓ ثبت نهایی خرید — F9";
+
+    public async Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is int id && id > 0) await LoadExistingAsync(id);
+    }
+
+    private async Task LoadExistingAsync(int id)
+    {
+        await ExecuteAsync(async () =>
+        {
+            var d = await _mediator.Send(new SamaHesab.Application.Purchase.Queries.GetPurchaseInvoiceByIdQuery(id));
+            if (d == null) { await _dialogService.ShowErrorAsync("فاکتور یافت نشد."); return; }
+
+            AutoNumber = false;
+            InvoiceNumber = d.Number;
+            InvoiceDate = d.Date;
+            InvoiceType = d.InvoiceType;
+            _suppressStockReload = true;
+            SelectedWarehouseId = d.WarehouseId;
+            _suppressStockReload = false;
+            SelectedSupplierId = d.SupplierId;
+            DueDate = d.DueDate;
+            Description = d.Description;
+            Shipping = d.Shipping;
+            OtherCosts = d.OtherCosts;
+            PaidAmount = d.PaidAmount;
+
+            InvoiceItems.Clear();
+            foreach (var it in d.Items)
+            {
+                var row = new PurchaseInvoiceItemRow
+                {
+                    RowNumber = InvoiceItems.Count + 1, ProductId = it.ProductId,
+                    ProductCode = it.Code, ProductName = it.Name,
+                    Quantity = it.Quantity, UnitPrice = it.UnitPrice,
+                    DiscountPct = it.DiscountPct, TaxPct = it.TaxPct, Description = it.Description
+                };
+                row.Recalculate();
+                row.PropertyChanged += (_, _) => RecalculateTotals();
+                InvoiceItems.Add(row);
+            }
+            RecalculateTotals();
+            IsViewingExisting = true;   // قفلِ ثبتِ دوباره
+        }, "در حال بارگذاریِ فاکتور...");
+    }
     [ObservableProperty] private decimal _entryOnHand;
 
     /// <summary>T10 — پس از افزودنِ هر ردیف، View نوارِ ورود را دوباره فوکوس می‌کند (ورودِ پیوسته).</summary>
@@ -343,6 +394,11 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
     [RelayCommand]
     private async Task PostInvoiceAsync()
     {
+        if (IsViewingExisting)
+        {
+            await _dialogService.ShowInfoAsync("این فاکتور قبلاً ثبت شده است؛ فقط قابلِ مشاهده/چاپ است. برای ثبتِ فاکتورِ تازه «فاکتور جدید» را بزنید.");
+            return;
+        }
         if (SelectedSupplierId == 0) { await _dialogService.ShowErrorAsync("تأمین‌کننده انتخاب کنید."); return; }
         var realItems = InvoiceItems.Where(i => i.ProductId > 0 && i.Quantity > 0).ToList();
         if (realItems.Count == 0) { await _dialogService.ShowErrorAsync("حداقل یک ردیفِ دارای کالا وارد کنید."); return; }
@@ -374,6 +430,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel
         InvoiceNumber = "--- خودکار ---";
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedSupplierId = 0; Description = null; DueDate = null;
+        IsViewingExisting = false;   // خروج از حالتِ مشاهده
         InvoiceItems.Clear(); SeedEmptyRows(); PaidAmount = 0; RecalculateTotals();
     }
 

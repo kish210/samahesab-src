@@ -22,8 +22,17 @@ public partial class PurchaseInvoiceListViewModel : BaseViewModel
     [ObservableProperty] private string _toDate = string.Empty;
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private decimal _totalAmount;
+    [ObservableProperty] private PurchaseInvoiceListItem? _selectedInvoice;
 
     public ObservableCollection<PurchaseInvoiceListItem> Invoices { get; } = new();
+
+    /// <summary>UX-PURCHASE-VIEW — بازکردنِ فاکتورِ خریدِ موجود در حالتِ مشاهده.</summary>
+    [RelayCommand]
+    private void OpenInvoice(PurchaseInvoiceListItem? item)
+    {
+        var inv = item ?? SelectedInvoice;
+        if (inv != null) _navigationService.NavigateTo("PurchaseInvoice", inv.Id);
+    }
 
     public PurchaseInvoiceListViewModel(IPersianCalendarService calendar,
         IMediator mediator, ApiClient api,

@@ -277,7 +277,7 @@
                     </Grid>
 
                     <Button Style="{StaticResource ErpBtnSuccess}" Height="42" Margin="0,7,0,0" FontSize="14" FontWeight="Bold"
-                            Command="{Binding PostInvoiceCommand}" Content="✓ ثبت نهایی خرید — F9"/>
+                            Command="{Binding PostInvoiceCommand}" Content="{Binding PostButtonText}"/>
                 </StackPanel>
             </Grid>
         </Border>

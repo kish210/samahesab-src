@@ -455,6 +455,51 @@ public partial class App : System.Windows.Application
             Shutdown(); return;
         }
 
+        // ✈️ گردشگری — فروش (دادهٔ دمو، بدونِ DB)
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_TOURISM") == "1")
+        {
+            var tvm = _host.Services.GetRequiredService<ViewModels.Tourism.TourismSaleViewModel>();
+            tvm.Persons.Add(new SamaHesab.Application.CRM.Queries.PersonDto(1, "E1", "مجید رضایی", "0912...", 0, "فروشنده", false, false, true, true));
+            tvm.Persons.Add(new SamaHesab.Application.CRM.Queries.PersonDto(2, "M1", "شرکتِ آلفا", "021...", 0, "مشتری", true, false, true));
+            void TP(int id, string n, decimal cost, decimal price) =>
+                tvm.Products.Add(new SamaHesab.Application.Tourism.Queries.TourismProductDto(id, n, 3, "آژانسِ الف", cost, price, null, n.Contains("گشت"), true));
+            TP(1, "گشتِ دورِ جزیره", 7000000, 10000000); TP(2, "بلیطِ پروازِ داخلی", 4200000, 4800000); TP(3, "ترانسفرِ فرودگاه", 800000, 1200000);
+            tvm.SelectedSalespersonId = 1; tvm.SelectedCustomerId = 2;
+            void TL(int pid, string n, decimal cost, decimal qty, decimal price)
+            { var r = new ViewModels.Tourism.TourismSaleLineRow { ProductId = pid, ProductName = n, UnitCost = cost, Quantity = qty, UnitSalePrice = price }; tvm.Lines.Add(r); }
+            TL(1, "گشتِ دورِ جزیره", 7000000, 2, 10000000); TL(2, "بلیطِ پروازِ داخلی", 4200000, 3, 4800000);
+            tvm.GrandTotal = 34400000; tvm.TotalProfit = 7800000;
+            var tview = new Views.Tourism.TourismSaleView { DataContext = tvm };
+            var twin = new Window { Content = tview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft, FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont") };
+            twin.Show(); await Task.Delay(1400); twin.UpdateLayout();
+            var tdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(tdir);
+            var trtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            trtb.Render(twin);
+            var tenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); tenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(trtb));
+            using (var tfs = System.IO.File.Create(System.IO.Path.Combine(tdir, "tourism.png"))) tenc.Save(tfs);
+            Shutdown(); return;
+        }
+
+        // 🏗 پیمانکاری — صورت‌وضعیت (دادهٔ دمو، بدونِ DB؛ پیش‌نمایشِ زندهٔ آبشار)
+        if (Environment.GetEnvironmentVariable("SAMA_SHOT_CONTRACTING") == "1")
+        {
+            var cvm = _host.Services.GetRequiredService<ViewModels.Contracting.ContractingStatementViewModel>();
+            cvm.Projects.Add(new SamaHesab.Application.Contracting.Queries.ContractProjectListDto(
+                1, "PRJ-1001", "احداثِ ساختمانِ اداری — فاز ۱", 5, "شهرداریِ منطقه ۳", 50000000000m, 25, 10, 5, 3, 12500000000m, "Active"));
+            cvm.SelectedProject = cvm.Projects[0];
+            cvm.Number = 2; cvm.Date = "1405/03/31";
+            cvm.CumulativeGrossWork = 18000000000m; cvm.PreviousCumulative = 10000000000m;
+            var cview = new Views.Contracting.ContractingStatementView { DataContext = cvm };
+            var cwin = new Window { Content = cview, Width = 1500, Height = 820, WindowStartupLocation = WindowStartupLocation.CenterScreen, FlowDirection = FlowDirection.RightToLeft, FontFamily = (System.Windows.Media.FontFamily?)TryFindResource("VazirFont") };
+            cwin.Show(); await Task.Delay(1400); cwin.UpdateLayout();
+            var cdir = @"D:\duc\sama-hesab\screenshot"; System.IO.Directory.CreateDirectory(cdir);
+            var crtb = new System.Windows.Media.Imaging.RenderTargetBitmap(1500, 820, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            crtb.Render(cwin);
+            var cenc = new System.Windows.Media.Imaging.PngBitmapEncoder(); cenc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(crtb));
+            using (var cfs = System.IO.File.Create(System.IO.Path.Combine(cdir, "contracting.png"))) cenc.Save(cfs);
+            Shutdown(); return;
+        }
+
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_WAREHOUSE") == "1")
         {
             var s = Services.AppSettingsStore.GetApiSettings();
@@ -942,7 +987,9 @@ public partial class App : System.Windows.Application
         {
             ((Services.CurrentUserService)_host.Services.GetRequiredService<ICurrentUserService>())
                 .SetCurrentUser(1, 1, 1, "admin", "مدیر سیستم", new[] { "ADMIN" }, Array.Empty<string>());
-            _host.Services.GetRequiredService<ModuleService>().SetEnabled(ModuleService.Support, true);   // 🆘 HC-1 — برای اسکرین‌شات
+            var ms = _host.Services.GetRequiredService<ModuleService>();
+            ms.SetEnabled(ModuleService.Support, true);   // 🆘 HC-1 — برای اسکرین‌شات
+            ms.SetEnabled(ModuleService.Tourism, true); ms.SetEnabled(ModuleService.Contracting, true);   // ✈️🏗 برای اسکرین‌شات
             var w = _host.Services.GetRequiredService<MainWindow>();
             w.Show();
             await RunScreenshotsAsync(w);
@@ -1298,6 +1345,8 @@ public partial class App : System.Windows.Application
             ("FeatureRequest","39_درخواست_قابلیت"), ("SupportTicket","40_تیکت"), ("MyRequests","41_درخواست‌های_من"),   // 🆘 HC-4
             ("KnowledgeBase","42_دانشنامه"), ("ReleaseNotes","43_یادداشت_نسخه"),   // 🆘 HC-5
             ("RemoteSupport","44_پشتیبانی_ریموت"),   // 🆘 HC-6
+            ("TourismSale","45_گردشگری_فروش"), ("TourismDeposits","46_گردشگری_ودیعه"),   // ✈️ TUR-C2-4
+            ("ContractingStatement","47_پیمانکاری_صورت‌وضعیت"), ("ContractingDashboard","48_پیمانکاری_داشبورد"),   // 🏗 CON-C2-2
         };
 
         await Task.Delay(1500); // let the shell + dashboard render

@@ -63,6 +63,7 @@ Name: "sc_warehouse";  Description: "انبار";                            Gro
 Name: "sc_tourism";    Description: "گردشگری (ودیعه/پورسانت/فروش)";       GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
 Name: "sc_salary";     Description: "حقوق و دستمزد";                     GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
 Name: "sc_attendance"; Description: "حضور و غیاب (ورود/خروج)";           GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
+Name: "sc_contracting"; Description: "پیمانکاری (صورت‌وضعیت)";          GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
 Name: "sc_migration";  Description: "ابزارِ مهاجرت / ورودِ داده از اکسل"; GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
 Name: "sc_server";     Description: "سرورِ سما حساب (API) — نصبِ مرکزی";  GroupDescription: "میانبرِ دسکتاپ برای کدام بخش‌ها ساخته شود؟"; Flags: unchecked
 Name: "quicklaunchicon"; Description: "ایجاد میانبر در نوار وظیفه"; GroupDescription: "سایر:"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
@@ -113,6 +114,7 @@ Name: "{commondesktop}\سرورِ سما حساب (API)";     Filename: "{app}\s
 Name: "{commondesktop}\گردشگری — سما حساب";       Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=TourismDeposits"; WorkingDir: "{app}"; Tasks: sc_tourism
 Name: "{commondesktop}\حقوق و دستمزد — سما حساب";  Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Salary"; WorkingDir: "{app}"; Tasks: sc_salary
 Name: "{commondesktop}\حضور و غیاب — سما حساب";    Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=Attendance"; WorkingDir: "{app}"; Tasks: sc_attendance
+Name: "{commondesktop}\پیمانکاری — سما حساب";       Filename: "{app}\{#MyAppExeName}"; Parameters: "--goto=ContractingStatement"; WorkingDir: "{app}"; Tasks: sc_contracting
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]

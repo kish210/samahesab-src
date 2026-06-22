@@ -73,6 +73,13 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <!-- نمای فشرده: کارتِ کوچک‌تر برای سالنِ پرمیز -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.CompactTables, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True">
+                    <Setter Property="Width" Value="98"/><Setter Property="Height" Value="84"/>
+                    <Setter Property="Margin" Value="0,0,7,7"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!-- تایل منو -->
@@ -123,6 +130,32 @@
             <DockPanel Grid.Row="0" Margin="0,0,0,10">
                 <!-- T14: سفارشِ غیرِسالن (بیرون‌بر/پیک) -->
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <ToggleButton IsChecked="{Binding CompactTables}" Height="32" Padding="12,0" Margin="0,0,6,0" Cursor="Hand" FontSize="12.5" FontWeight="SemiBold"
+                            ToolTip="نمای فشردهٔ میزها — کوچک‌کردنِ کارت‌ها برای دیدنِ سالنِ پرمیز در یک نگاه">
+                        <ToggleButton.Style>
+                            <Style TargetType="ToggleButton">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/>
+                                <Setter Property="Content" Value="▦  نمای فشرده"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border CornerRadius="8" Background="{TemplateBinding Background}" BorderBrush="{StaticResource ErpBlue600}" BorderThickness="1" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource ErpBlue700}"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Content" Value="▦  نمای عادی"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ToggleButton.Style>
+                    </ToggleButton>
                     <Button Content="🥡  بیرون‌بر" Height="32" Padding="12,0" Margin="0,0,6,0" Cursor="Hand" FontSize="12.5" FontWeight="SemiBold"
                             Background="White" Foreground="{StaticResource ErpBlue700}" BorderBrush="{StaticResource ErpBlue600}"
                             Command="{Binding OpenTakeawayCommand}"/>
@@ -183,7 +216,8 @@
                                             CommandParameter="{Binding}"/>
                                     <StackPanel VerticalAlignment="Top" Margin="0,2,0,0">
                                         <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
-                                        <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"/>
+                                        <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"
+                                                   Visibility="{Binding DataContext.CompactTables, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
                                         <!-- U8: مدتِ سپری‌شده از بازشدنِ میز -->
                                         <TextBlock Text="{Binding ElapsedText}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource ErpGold500}" FlowDirection="LeftToRight"
                                                    Visibility="{Binding ShowElapsed, Converter={StaticResource BoolVis}}"/>

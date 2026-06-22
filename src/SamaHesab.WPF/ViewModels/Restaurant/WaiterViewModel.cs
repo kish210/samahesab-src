@@ -40,6 +40,9 @@ public partial class WaiterViewModel : BaseViewModel
     [ObservableProperty] private decimal _grandTotal;
     [ObservableProperty] private int _currentSeats;
     [ObservableProperty] private string _statusText = string.Empty;
+    [ObservableProperty] private bool _compactTables;     // نمای فشردهٔ کارت‌های میز (سالنِ پرمیز)
+
+    [RelayCommand] private void ToggleCompactTables() => CompactTables = !CompactTables;
 
     private List<MenuTile> _allMenu = new();
     private readonly System.Windows.Threading.DispatcherTimer _elapsedTimer;

@@ -270,21 +270,143 @@ public partial class SalaryViewModel : BaseViewModel
     }
 }
 
+// ─── مدیریتِ مرخصی (ATTP-C2-2) ──────────────────────────────────────────────────
+public partial class LeaveManagementViewModel : BaseViewModel
+{
+    private readonly IMediator _mediator;
+    private readonly IPersianCalendarService _calendar;
+
+    [ObservableProperty] private bool _pendingOnly = true;
+    [ObservableProperty] private LeaveRequestDto? _selectedRequest;
+    // فرمِ درخواستِ نو
+    [ObservableProperty] private int _newEmployeeId;
+    [ObservableProperty] private string _newLeaveType = "استحقاقی";
+    [ObservableProperty] private string _newStartDate = string.Empty;
+    [ObservableProperty] private string _newEndDate = string.Empty;
+    [ObservableProperty] private decimal _newDays = 1;
+    [ObservableProperty] private decimal _newHours;
+    [ObservableProperty] private string? _newReason;
+
+    public ObservableCollection<LeaveRequestDto> Requests { get; } = new();
+    public ObservableCollection<EmployeeDto> Employees { get; } = new();
+    public string[] LeaveTypes { get; } = { "استحقاقی", "استعلاجی", "بدونِ‌حقوق", "ساعتی" };
+
+    public LeaveManagementViewModel(IMediator mediator, IPersianCalendarService calendar,
+        IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _mediator = mediator; _calendar = calendar; }
+
+    public override async Task LoadAsync()
+    {
+        NewStartDate = _calendar.GetCurrentPersianDate();
+        NewEndDate = NewStartDate;
+        await ExecuteAsync(async () =>
+        {
+            Employees.Clear();
+            foreach (var emp in await _mediator.Send(new GetEmployeesQuery())) Employees.Add(emp);
+            await ReloadAsync();
+        }, "در حال بارگذاری...");
+    }
+
+    [RelayCommand] private async Task RefreshAsync() => await ReloadAsync();
+    partial void OnPendingOnlyChanged(bool value) => _ = ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        Requests.Clear();
+        foreach (var r in await _mediator.Send(new GetLeaveRequestsQuery(PendingOnly))) Requests.Add(r);
+    }
+
+    [RelayCommand]
+    private async Task ApproveAsync(LeaveRequestDto? row) => await DecideAsync(row, true);
+    [RelayCommand]
+    private async Task RejectAsync(LeaveRequestDto? row) => await DecideAsync(row, false);
+
+    private async Task DecideAsync(LeaveRequestDto? row, bool approve)
+    {
+        var r = row ?? SelectedRequest;
+        if (r == null) { await _dialogService.ShowWarningAsync("یک درخواست را انتخاب کنید."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new DecideLeaveCommand(r.Id, approve, _calendar.GetCurrentPersianDate()));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await ReloadAsync();
+        }, approve ? "در حال تأیید..." : "در حال رد...");
+    }
+
+    [RelayCommand]
+    private async Task SubmitRequestAsync()
+    {
+        if (NewEmployeeId <= 0) { await _dialogService.ShowWarningAsync("کارمند را انتخاب کنید."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new RequestLeaveCommand(
+                NewEmployeeId, NewLeaveType, NewStartDate, NewEndDate, NewDays, NewHours, NewReason));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync("درخواستِ مرخصی ثبت شد.");
+            NewReason = null; NewDays = 1; NewHours = 0;
+            await ReloadAsync();
+        }, "در حال ثبتِ درخواست...");
+    }
+}
+
+// ─── ایمپورتِ ترددِ دستگاه/اکسل (ATTP-C2-2) ──────────────────────────────────────
+public partial class AttendanceImportViewModel : BaseViewModel
+{
+    private readonly IMediator _mediator;
+
+    [ObservableProperty] private string? _filePath;
+    [ObservableProperty] private string _resultText = string.Empty;
+
+    public AttendanceImportViewModel(IMediator mediator, IDialogService dialogService, INavigationService navigationService)
+        : base(dialogService, navigationService)
+    { _mediator = mediator; }
+
+    public override Task LoadAsync() => Task.CompletedTask;
+
+    [RelayCommand]
+    private void PickFile()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "فایلِ تردد (CSV/TXT)|*.csv;*.txt|همه|*.*" };
+        if (dlg.ShowDialog() == true) FilePath = dlg.FileName;
+    }
+
+    [RelayCommand]
+    private async Task ImportAsync()
+    {
+        if (string.IsNullOrWhiteSpace(FilePath) || !System.IO.File.Exists(FilePath))
+        { await _dialogService.ShowWarningAsync("ابتدا فایلِ تردد را انتخاب کنید."); return; }
+        await ExecuteAsync(async () =>
+        {
+            var csv = await System.IO.File.ReadAllTextAsync(FilePath);
+            var res = await _mediator.Send(new ImportAttendanceCommand(csv));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            var v = res.Value!;
+            ResultText = $"درج‌شده: {v.Imported} · ردشده: {v.Skipped}" +
+                         (v.Errors.Count > 0 ? "\nخطاها:\n• " + string.Join("\n• ", v.Errors.Take(20)) : "");
+        }, "در حال ایمپورت...");
+    }
+}
+
 // ─── کارگاهِ مستقلِ حضور و غیاب (ATTP-C2-1) ──────────────────────────────────────
 public partial class AttendanceWorkspaceViewModel : BaseViewModel
 {
     public AttendanceViewModel Daily { get; }
     public AttendanceMonthlyViewModel Monthly { get; }
+    public LeaveManagementViewModel Leaves { get; }
+    public AttendanceImportViewModel Import { get; }
 
     public AttendanceWorkspaceViewModel(AttendanceViewModel daily, AttendanceMonthlyViewModel monthly,
+        LeaveManagementViewModel leaves, AttendanceImportViewModel import,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { Daily = daily; Monthly = monthly; }
+    { Daily = daily; Monthly = monthly; Leaves = leaves; Import = import; }
 
     public override async Task LoadAsync()
     {
         await Daily.LoadAsync();
         await Monthly.LoadAsync();
+        await Leaves.LoadAsync();
     }
 }
 

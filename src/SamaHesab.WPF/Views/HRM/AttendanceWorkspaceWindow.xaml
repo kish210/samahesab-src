@@ -30,6 +30,12 @@
             <TabItem Header="  کارکردِ ماهانه  ">
                 <hrm:AttendanceMonthlyView DataContext="{Binding Monthly}"/>
             </TabItem>
+            <TabItem Header="  مرخصی‌ها  ">
+                <hrm:LeaveManagementView DataContext="{Binding Leaves}"/>
+            </TabItem>
+            <TabItem Header="  ایمپورتِ تردد  ">
+                <hrm:AttendanceImportView DataContext="{Binding Import}"/>
+            </TabItem>
             <TabItem Header="  شیفت‌ها  ">
                 <Border Padding="24"><TextBlock Text="مدیریتِ شیفت‌بندی — به‌زودی (نیازمندِ فرمان‌های CRUDِ شیفت از تیمِ دامنه)." Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap"/></Border>
             </TabItem>

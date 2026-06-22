@@ -94,6 +94,12 @@ public class PostProgressStatementCommandHandler : IRequestHandler<PostProgressS
             || set.AdvanceLiabilityAccountId is null || set.PenaltyExpenseAccountId is null)
             return Result<int>.Failure("نگاشتِ حساب‌های پیمانکاری در تنظیمات کامل نیست.");
 
+        // گاردِ مبلغ: سند نباید مبلغِ منفی/صفر داشته باشد (وگرنه VoucherItem.Create استثناءِ مبهم می‌دهد).
+        if (st.GrossThisPeriod <= 0)
+            return Result<int>.Failure("ناخالصِ این دوره صفر/منفی است؛ صورت‌وضعیت قابلِ ثبتِ سند نیست.");
+        if (st.NetPayable < 0)
+            return Result<int>.Failure("کسورات از ناخالص بیشتر است (خالصِ منفی)؛ درصدها/تعدیل را بازبینی کنید.");
+
         var fy = await _fiscalYears.GetByIdAsync(req.FiscalYearId, ct);
         var lockMsg = FiscalPeriodGuard.Check(fy, st.Date);
         if (lockMsg is not null) return Result<int>.Failure(lockMsg);

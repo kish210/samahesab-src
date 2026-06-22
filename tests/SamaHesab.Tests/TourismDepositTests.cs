@@ -63,8 +63,17 @@ public class TourismDepositTests
         // تأمین‌کننده ۱۲: برداشتِ ۱×۳۰۰ → مانده ۴۷۰۰ (>۷۰۰)
         lines.AddAsync(TourismSaleLine.Create(3, 12, quantity: 1, unitSalePrice: 500, discountAmount: 0, unitCost: 300)).Wait();
 
+        // تأمین‌کننده‌ها Party هستند (تننت‌اسکوپ‌شده) — برای جلوگیری از نشتِ چندمستأجری، کوئری به همین‌ها محدود است.
+        var parties = new FakeRepo<Party>();
+        foreach (var pid in new[] { 11, 12 })
+        {
+            var p = Party.Create(1, "P" + pid, "حقیقی", "تأمین‌کننده", pid.ToString());
+            typeof(Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(p, pid);
+            parties.Items.Add(p);
+        }
+
         var handler = new GetSupplierDepositBalancesQueryHandler(settings, deposits, lines,
-            new FakeRepo<Party>(), new FakeUser());
+            parties, new FakeUser());
 
         var all = await handler.Handle(new GetSupplierDepositBalancesQuery(), default);
 

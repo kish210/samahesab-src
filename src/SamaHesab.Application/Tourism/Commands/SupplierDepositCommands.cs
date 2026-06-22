@@ -116,17 +116,21 @@ public class GetSupplierDepositBalancesQueryHandler
             .GroupBy(d => d.SupplierPartyId)
             .ToDictionary(g => g.Key, g => g.Sum(d => d.Amount));
 
-        // برداشت = جمعِ بهای خطوطِ فروش per تأمین‌کننده (snapshotِ UnitCost).
-        var drawn = (await _lines.FindAsync(_ => true, ct))
+        // تأمین‌کننده‌های همین شرکت (Party تننت‌فیلتر است) — برای جلوگیری از نشتِ چندمستأجری.
+        var companyParties = (await _parties.FindAsync(p => p.CompanyId == companyId, ct))
+            .ToDictionary(p => p.Id, p => p.FullName);
+        var companyPartyIds = companyParties.Keys.ToHashSet();
+
+        // برداشت = جمعِ بهای خطوطِ فروش per تأمین‌کننده (snapshotِ UnitCost) — فقط تأمین‌کننده‌های همین شرکت.
+        // (TourismSaleLine بدونِ CompanyId است؛ پس صریحاً به تأمین‌کننده‌های شرکت محدود می‌کنیم — هم درست هم سبک.)
+        var drawn = (await _lines.FindAsync(l => companyPartyIds.Contains(l.SupplierPartyId), ct))
             .GroupBy(l => l.SupplierPartyId)
             .ToDictionary(g => g.Key, g => g.Sum(l => l.Quantity * l.UnitCost));
 
         var supplierIds = topUps.Keys.Union(drawn.Keys).ToHashSet();
         if (supplierIds.Count == 0) return new();
 
-        var names = (await _parties.FindAsync(p => p.CompanyId == companyId, ct))
-            .Where(p => supplierIds.Contains(p.Id))
-            .ToDictionary(p => p.Id, p => p.FullName);
+        var names = companyParties;
 
         var list = supplierIds.Select(id =>
         {

@@ -11,7 +11,7 @@ namespace SamaHesab.Application.HRM;
 /// نرخ‌ها/مبالغِ پایه از تنظیماتِ سالِ حقوق (PAY-C1-5) خوانده می‌شود؛ موتورِ محاسبه `PayrollCalculator.ComputeFull`.
 /// idempotent: اگر فیشِ همان کارمند/ماه باشد، رد می‌شود (مگر Overwrite=true که جایگزین می‌کند).
 /// </summary>
-public record RunMonthlyPayrollCommand(string Year, byte Month, bool Overwrite = false)
+public record RunMonthlyPayrollCommand(string Year, byte Month, bool Overwrite = false, bool UseAttendance = false)
     : IRequest<Result<RunPayrollResult>>;
 
 public record RunPayrollResult(
@@ -24,12 +24,15 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
     private readonly IRepository<Employee> _employees;
     private readonly IRepository<SalarySlip> _slips;
     private readonly IRepository<PayrollSetting> _settings;
+    private readonly IRepository<AttendanceRecord> _records;
+    private readonly IRepository<Holiday> _holidays;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public RunMonthlyPayrollCommandHandler(IRepository<Employee> employees, IRepository<SalarySlip> slips,
-        IRepository<PayrollSetting> settings, IUnitOfWork uow, ICurrentUserService user)
-    { _employees = employees; _slips = slips; _settings = settings; _uow = uow; _user = user; }
+        IRepository<PayrollSetting> settings, IRepository<AttendanceRecord> records, IRepository<Holiday> holidays,
+        IUnitOfWork uow, ICurrentUserService user)
+    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _uow = uow; _user = user; }
 
     public async Task<Result<RunPayrollResult>> Handle(RunMonthlyPayrollCommand req, CancellationToken ct)
     {
@@ -50,6 +53,20 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
             .Where(s => empIds.Contains(s.EmployeeId))
             .ToDictionary(s => s.EmployeeId, s => s);
 
+        // پلِ تردد→حقوق (ATT-C1-3): اگر خواسته شد، رکوردهای ماه را به ساعت/غیبت تبدیل کن.
+        Dictionary<int, MonthlyAttendance> attByEmp = new();
+        if (req.UseAttendance)
+        {
+            var prefix = $"{req.Year}/{req.Month:D2}/";
+            var holidaySet = (await _holidays.FindAsync(h => h.CompanyId == companyId, ct))
+                .Select(h => h.Date).ToHashSet();
+            var monthRecs = (await _records.FindAsync(a => a.WorkDate != null && a.WorkDate.StartsWith(prefix), ct))
+                .Where(a => empIds.Contains(a.EmployeeId))
+                .GroupBy(a => a.EmployeeId);
+            foreach (var g in monthRecs)
+                attByEmp[g.Key] = MonthlyAttendanceBuilder.Aggregate(g, holidaySet);
+        }
+
         int created = 0, skipped = 0;
         decimal tGross = 0, tNet = 0, tEmpIns = 0, tEmprIns = 0, tTax = 0;
         var toAdd = new List<SalarySlip>();
@@ -62,12 +79,27 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 _slips.Remove(old);
             }
 
+            // اضافه‌کاری/شب‌کاری/جمعه‌کاری و کسرِ غیبت از تجمیعِ تردد (در صورتِ فعال‌بودن).
+            decimal otHours = 0, nightHours = 0, holidayHours = 0, absenceDeduction = 0;
+            if (attByEmp.TryGetValue(e.Id, out var att))
+            {
+                otHours = att.OvertimeHours;
+                nightHours = att.NightHours;
+                holidayHours = att.HolidayHours;
+                var dailyWage = e.BaseSalary / 30m;
+                absenceDeduction = dailyWage * (att.AbsentDays + att.UnpaidLeaveDays);
+            }
+
             var input = new FullPayrollInput(
                 BaseSalary: e.BaseSalary,
                 SeniorityBase: 0,
                 HousingAllowance: set.HousingAllowance,
                 FoodAllowance: set.FoodAllowance,
-                Children: e.ChildrenCount);
+                Children: e.ChildrenCount,
+                OvertimeHours: otHours,
+                NightHours: nightHours,
+                HolidayHours: holidayHours,
+                AbsenceDeduction: absenceDeduction);
             var r = PayrollCalculator.ComputeFull(input, rates);
 
             var slip = SalarySlip.Create(e.Id, req.Year, req.Month,
@@ -75,6 +107,7 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 overtimePay: r.OvertimePay,
                 insuranceDeduct: r.EmployeeInsurance,
                 taxDeduct: r.Tax,
+                otherDeductions: absenceDeduction,
                 housingAllowance: set.HousingAllowance,
                 foodAllowance: set.FoodAllowance,
                 childAllowance: r.ChildAllowance,

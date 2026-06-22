@@ -21,17 +21,16 @@ public class TopUpSupplierDepositCommandHandler : IRequestHandler<TopUpSupplierD
 {
     private readonly IRepository<TourismSetting> _settings;
     private readonly IRepository<SupplierDeposit> _deposits;
-    private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<FiscalYear> _fiscalYears;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public TopUpSupplierDepositCommandHandler(IRepository<TourismSetting> settings, IRepository<SupplierDeposit> deposits,
-        IAccountRepository accounts, IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
+        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
         IUnitOfWork uow, ICurrentUserService user)
     {
-        _settings = settings; _deposits = deposits; _accounts = accounts; _vouchers = vouchers;
+        _settings = settings; _deposits = deposits; _vouchers = vouchers;
         _fiscalYears = fiscalYears; _uow = uow; _user = user;
     }
 

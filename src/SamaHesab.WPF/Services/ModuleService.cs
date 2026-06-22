@@ -47,7 +47,7 @@ public class ModuleService
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),
         new ModuleDef(Support, "پشتیبانیِ مشتری", false, "Lifebuoy"),
-        new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),   // CON-C2-5
+        new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
     };
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");

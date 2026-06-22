@@ -28,6 +28,34 @@ namespace SamaHesab.WPF;
 public partial class App : System.Windows.Application
 {
     private IHost? _host;
+    private System.Windows.Threading.DispatcherTimer? _backupTimer;
+
+    /// <summary>RC-3+ — هر ۲ ساعت بکاپِ سررسیده را اجرا می‌کند (برای نشست‌های طولانی/ترمینالِ همیشه‌روشن).</summary>
+    private void StartBackupScheduler()
+    {
+        _backupTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromHours(2) };
+        _backupTimer.Tick += async (_, _) =>
+        {
+            try
+            {
+                var g = Services.AppSettingsStore.GetGeneral();
+                if (!g.AutoBackupEnabled || _host is null) return;
+                var due = !DateTime.TryParse(g.LastBackupUtc, null,
+                              System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+                              out var last)
+                          || (DateTime.UtcNow - last).TotalDays >= System.Math.Max(1, g.BackupIntervalDays);
+                if (!due) return;
+                using var scope = _host.Services.CreateScope();
+                var bkFile = await scope.ServiceProvider.GetRequiredService<IBackupService>().AutoBackupAsync();
+                g.LastBackupUtc = DateTime.UtcNow.ToString("o");
+                Services.AppSettingsStore.SaveGeneral(g);
+                Log.Information("[backup] پشتیبانِ خودکارِ زمان‌بندی‌شده اجرا شد.");
+                try { Services.CloudBackup.CopyIfConfigured(bkFile); } catch { /* بهترین‌تلاش */ }
+            }
+            catch (Exception ex) { Log.Warning(ex, "[backup] بکاپِ زمان‌بندی‌شده ناموفق بود"); }
+        };
+        _backupTimer.Start();
+    }
 
     /// <summary>✈️ مقصدِ deep-link از پرچمِ <c>--goto=&lt;navKey&gt;</c> (میانبرِ دسکتاپِ ماژول‌های درون‌برنامه‌ای).
     /// پس از ورود، MainViewModel آن را مصرف و به همان بخش می‌رود.</summary>
@@ -251,6 +279,10 @@ public partial class App : System.Windows.Application
             .Build();
 
         await _host.StartAsync();
+
+        // RC-3+ — زمان‌بندِ بکاپِ دوره‌ای (علاوه بر چکِ استارت‌آپ): برای ترمینال‌های همیشه‌روشن که
+        // ممکن است روزها بسته نشوند، هر ۲ ساعت «بکاپِ سررسیده» را بررسی و اجرا می‌کند.
+        StartBackupScheduler();
 
         // ─── Database connectivity check (NON-blocking) ───────────────────────
         // Login does not need the DB, so never block the UI on it. Just probe in

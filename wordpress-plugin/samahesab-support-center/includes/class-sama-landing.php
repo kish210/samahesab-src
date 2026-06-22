@@ -134,14 +134,15 @@ class SamaHesab_Landing {
     }
 
     public function product( $atts ) {
-        // ویژگیِ شورت‌کد (در صورتِ تعیینِ صریح) بالاترین اولویت؛ وگرنه «آخرین Releaseِ زنده»؛ وگرنه تنظیماتِ دستی.
+        // «آخرین Releaseِ زندهٔ گیت‌هاب» بالاترین اولویت دارد (نسخه همیشه به‌روز می‌مانَد).
+        // فقط اگر گیت در دسترس نبود → ویژگیِ صریحِ شورت‌کد، سپس تنظیماتِ دستی (fallback).
         $atts   = shortcode_atts( array( 'version' => '', 'url' => '' ), $atts, 'samahesab_product' );
         $latest = $this->latest_release();
 
-        $version = '' !== $atts['version'] ? $atts['version']
-            : ( $latest ? $latest['version'] : get_option( 'samahesab_version', '2.5.0' ) );
-        $url = '' !== $atts['url'] ? $atts['url']
-            : ( $latest ? $latest['url'] : get_option( 'samahesab_download_url', 'https://github.com/' . $this->github_repo() . '/releases/latest' ) );
+        $version = $latest ? $latest['version']
+            : ( '' !== $atts['version'] ? $atts['version'] : get_option( 'samahesab_version', '2.5.0' ) );
+        $url = $latest ? $latest['url']
+            : ( '' !== $atts['url'] ? $atts['url'] : get_option( 'samahesab_download_url', 'https://github.com/' . $this->github_repo() . '/releases/latest' ) );
 
         $version = esc_html( $version );
         $url     = esc_url( $url );

@@ -53,9 +53,9 @@
                       ItemsSource="{Binding Balances}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="تأمین‌کننده" Binding="{Binding SupplierName}" Width="*"/>
-                    <DataGridTextColumn Header="جمعِ شارژ" Binding="{Binding ToppedUp, StringFormat={}{0:#,##0}}" Width="140"/>
-                    <DataGridTextColumn Header="برداشت" Binding="{Binding Drawn, StringFormat={}{0:#,##0}}" Width="140"/>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Remaining, StringFormat={}{0:#,##0}}" Width="150"/>
+                    <DataGridTextColumn Header="جمعِ شارژ" Binding="{Binding ToppedUp, Converter={StaticResource Num}}" Width="140" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="برداشت" Binding="{Binding Drawn, Converter={StaticResource Num}}" Width="140" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Remaining, Converter={StaticResource Num}}" Width="150" ElementStyle="{StaticResource NumCell}"/>
                     <DataGridTemplateColumn Header="وضعیت" Width="90">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -73,7 +73,8 @@
             <CheckBox DockPanel.Dock="Right" Content="فقط ودیعهٔ کم" IsChecked="{Binding OnlyLow}" VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="جمعِ ماندهٔ ودیعه: " Foreground="{DynamicResource SecondaryText}"/>
-                <TextBlock Text="{Binding TotalRemaining, StringFormat={}{0:#,##0} ریال}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+                <TextBlock Text="{Binding TotalRemaining, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+                <TextBlock Text=" ریال" Foreground="{DynamicResource SecondaryText}"/>
             </StackPanel>
         </DockPanel>
     </Grid>

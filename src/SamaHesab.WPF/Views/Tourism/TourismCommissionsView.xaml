@@ -21,7 +21,7 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="دوره (سال/ماه):" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
                 <TextBox Width="120" Height="32" Text="{Binding PeriodYearMonth}" FlowDirection="LeftToRight"/>
-                <Button Content="🔄 محاسبه" Style="{StaticResource PrimaryButton}" Height="32" Margin="10,0,0,0"
+                <Button Content="🔄 محاسبه (F5)" Style="{StaticResource PrimaryButton}" Height="32" Margin="10,0,0,0"
                         Command="{Binding LoadRowsCommand}"/>
             </StackPanel>
         </Border>
@@ -31,14 +31,15 @@
                       ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="فروشنده" Binding="{Binding EmployeeName}" Width="*"/>
-                    <DataGridTextColumn Header="پورسانت (ریال)" Binding="{Binding Commission, StringFormat={}{0:#,##0}}" Width="200"/>
+                    <DataGridTextColumn Header="پورسانت (ریال)" Binding="{Binding Commission, Converter={StaticResource Num}}" Width="200" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="2,8,2,0">
             <TextBlock Text="جمعِ پورسانت: " Foreground="{DynamicResource SecondaryText}"/>
-            <TextBlock Text="{Binding TotalCommission, StringFormat={}{0:#,##0} ریال}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+            <TextBlock Text="{Binding TotalCommission, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+            <TextBlock Text=" ریال" Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
     </Grid>
 </UserControl>

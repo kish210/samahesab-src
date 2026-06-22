@@ -62,15 +62,21 @@
             <Border Grid.Column="2" Style="{StaticResource FormSectionCard}" Padding="14" VerticalAlignment="Top">
                 <StackPanel>
                     <TextBlock Text="پیش‌نمایشِ آبشار (زنده)" FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
-                    <DockPanel Margin="0,3"><TextBlock Text="کارکردِ دوره" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding PeriodWork, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Margin="0,3"><TextBlock Text="ناخالصِ دوره" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding GrossThisPeriod, StringFormat={}{0:#,##0}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="کارکردِ دوره" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding PeriodWork, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="ناخالصِ دوره" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding GrossThisPeriod, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
                     <Separator Margin="0,6"/>
-                    <DockPanel Margin="0,3"><TextBlock Text="بازیافتِ پیش‌پرداخت" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding AdvanceRecovery, StringFormat={}{0:#,##0}}" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Margin="0,3"><TextBlock Text="حسنِ‌انجام (سپرده)" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Retention, StringFormat={}{0:#,##0}}" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Margin="0,3"><TextBlock Text="بیمه" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Insurance, StringFormat={}{0:#,##0}}" FlowDirection="LeftToRight"/></DockPanel>
-                    <DockPanel Margin="0,3"><TextBlock Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, StringFormat={}{0:#,##0}}" FlowDirection="LeftToRight"/></DockPanel>
-                    <Border Background="#EEF2F7" CornerRadius="6" Padding="10,8" Margin="0,8,0,0">
-                        <DockPanel><TextBlock Text="خالصِ پرداختی" FontWeight="Bold"/><TextBlock DockPanel.Dock="Left" Text="{Binding NetPayable, StringFormat={}{0:#,##0} ریال}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="بازیافتِ پیش‌پرداخت" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding AdvanceRecovery, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="حسنِ‌انجام (سپرده)" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Retention, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="بیمه" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Insurance, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Text="مالیات" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, Converter={StaticResource Num}}" FlowDirection="LeftToRight"/></DockPanel>
+                    <Border Background="{StaticResource ErpBlue50}" CornerRadius="6" Padding="10,8" Margin="0,8,0,0">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                <TextBlock Text="{Binding NetPayable, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+                                <TextBlock Text=" ریال" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="خالصِ پرداختی" FontWeight="Bold"/>
+                        </DockPanel>
                     </Border>
                 </StackPanel>
             </Border>

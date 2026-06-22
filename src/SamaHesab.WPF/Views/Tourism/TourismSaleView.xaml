@@ -67,10 +67,10 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="محصول" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="تعداد" Binding="{Binding Quantity}" Width="80"/>
-                    <DataGridTextColumn Header="فیِ فروش" Binding="{Binding UnitSalePrice, StringFormat={}{0:#,##0}}" Width="120"/>
-                    <DataGridTextColumn Header="تخفیف" Binding="{Binding DiscountAmount, StringFormat={}{0:#,##0}}" Width="110"/>
-                    <DataGridTextColumn Header="خالص" Binding="{Binding LineNet, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="سود" Binding="{Binding LineProfit, StringFormat={}{0:#,##0}}" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="فیِ فروش" Binding="{Binding UnitSalePrice, Converter={StaticResource Num}}" Width="120" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="تخفیف" Binding="{Binding DiscountAmount, Converter={StaticResource Num}}" Width="110" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="خالص" Binding="{Binding LineNet, Converter={StaticResource Num}}" Width="130" IsReadOnly="True" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="سود" Binding="{Binding LineProfit, Converter={StaticResource Num}}" Width="120" IsReadOnly="True" ElementStyle="{StaticResource NumCell}"/>
                     <DataGridTemplateColumn Width="60">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -90,9 +90,10 @@
             <Button DockPanel.Dock="Left" Content="💾 ثبتِ فروش (F9)" Style="{StaticResource PrimaryButton}" Height="38" Command="{Binding SaveCommand}"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="جمعِ کل: " Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Text="{Binding GrandTotal, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight" VerticalAlignment="Center" Margin="0,0,16,0"/>
                 <TextBlock Text="سود: " Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:#,##0} ریال}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" FlowDirection="LeftToRight" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding TotalProfit, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource SuccessColor}" FlowDirection="LeftToRight" VerticalAlignment="Center"/>
+                <TextBlock Text=" ریال" Foreground="{DynamicResource SecondaryText}" VerticalAlignment="Center"/>
             </StackPanel>
         </DockPanel>
     </Grid>

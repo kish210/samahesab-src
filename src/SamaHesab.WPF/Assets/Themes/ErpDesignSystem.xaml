@@ -7,6 +7,13 @@
          رنگ ۸۰٪ خاکستری / ۱۵٪ برند / ۵٪ وضعیت — هیچ رنگ خارج پالت.
          ============================================================ -->
 
+    <!-- ── سلولِ عددی (ux-prompt §۰/§۴): مبالغ داخلِ ستون LTR + چینشِ راست + tabular ── -->
+    <Style x:Key="NumCell" TargetType="TextBlock">
+        <Setter Property="FlowDirection" Value="LeftToRight"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="8,0"/>
+    </Style>
+
     <!-- ── Brand blue ── -->
     <SolidColorBrush x:Key="ErpBlue50"  Color="#EEF1F7"/>
     <SolidColorBrush x:Key="ErpBlue100" Color="#DCE2EE"/>

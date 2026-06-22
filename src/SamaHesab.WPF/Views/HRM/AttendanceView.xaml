@@ -28,9 +28,22 @@
                         <TextBlock Text="{Binding SelectedDate, StringFormat=تاریخ: {0}}" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
                     </StackPanel>
                 </StackPanel>
-                <Button DockPanel.Dock="Left" Style="{StaticResource ToolbarButton}" Command="{Binding LoadRecordsCommand}">
-                    <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
-                </Button>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding LoadRecordsCommand}">
+                        <StackPanel><materialDesign:PackIcon Kind="Refresh" Width="22" Height="22" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryText}"/><TextBlock Text="بروزرسانی" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                    </Button>
+                    <Border Width="1" Background="{DynamicResource BorderColor}" Margin="8,4"/>
+                    <TextBlock Text="انتخاب‌شده‌ها:" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource SecondaryText}" Margin="0,0,6,0"/>
+                    <Button Content="✓ حاضر" Height="32" Padding="12,0" Margin="0,0,6,0" Cursor="Hand" FontSize="12" FontWeight="SemiBold"
+                            Command="{Binding MarkBatchCommand}" CommandParameter="حاضر"
+                            Background="Transparent" Foreground="{DynamicResource SuccessColor}" BorderBrush="{DynamicResource SuccessColor}"/>
+                    <Button Content="🚫 غیبت" Height="32" Padding="12,0" Margin="0,0,6,0" Cursor="Hand" FontSize="12" FontWeight="SemiBold"
+                            Command="{Binding MarkBatchCommand}" CommandParameter="غایب"
+                            Background="Transparent" Foreground="{DynamicResource DangerColor}" BorderBrush="{DynamicResource DangerColor}"/>
+                    <Button Content="🌴 مرخصی" Height="32" Padding="12,0" Cursor="Hand" FontSize="12" FontWeight="SemiBold"
+                            Command="{Binding MarkBatchCommand}" CommandParameter="مرخصی"
+                            Background="Transparent" Foreground="{DynamicResource WarningColor}" BorderBrush="{DynamicResource WarningColor}"/>
+                </StackPanel>
             </DockPanel>
         </Border>
 
@@ -51,16 +64,36 @@
         </UniformGrid>
 
         <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
-            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Records}" RowHeight="28" FontSize="12.5"
-                                
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
+                                 ItemsSource="{Binding Records}" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
                                  FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="کارمند" Binding="{Binding EmployeeName}" Width="*"/>
-                    <DataGridTextColumn Header="ورود" Binding="{Binding CheckIn}" Width="100"/>
-                    <DataGridTextColumn Header="خروج" Binding="{Binding CheckOut}" Width="100"/>
-                    <DataGridTextColumn Header="ساعت کارکرد" Binding="{Binding WorkHours, StringFormat={}{0:0.##}}" Width="120"/>
-                    <DataGridTextColumn Header="اضافه‌کاری" Binding="{Binding OvertimeHours, StringFormat={}{0:0.##}}" Width="110"/>
-                    <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="110"/>
+                    <!-- تیکِ انتخاب برای علامت‌گذاریِ دسته‌ای -->
+                    <DataGridTemplateColumn Width="40" CanUserSort="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="کارمند" Binding="{Binding EmployeeName}" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="ورود (HH:mm)" Binding="{Binding CheckIn, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
+                    <DataGridTextColumn Header="خروج (HH:mm)" Binding="{Binding CheckOut, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
+                    <DataGridTextColumn Header="ساعت کارکرد" Binding="{Binding WorkHours, StringFormat={}{0:0.##}}" Width="110" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="اضافه‌کاری" Binding="{Binding OvertimeHours, StringFormat={}{0:0.##}}" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="100" IsReadOnly="True"/>
+                    <!-- ذخیرهٔ ورود/خروجِ همان ردیف -->
+                    <DataGridTemplateColumn Width="70" CanUserSort="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="💾 ثبت" FontSize="11" Padding="6,2" Cursor="Hand"
+                                        Foreground="{DynamicResource PrimaryAccent}" Background="Transparent" BorderThickness="0"
+                                        ToolTip="ثبتِ ورود/خروجِ این کارمند برای تاریخِ انتخابی"
+                                        Command="{Binding DataContext.SaveRowCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

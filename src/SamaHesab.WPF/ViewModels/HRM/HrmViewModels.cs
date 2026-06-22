@@ -309,6 +309,46 @@ public partial class AttendanceViewModel : BaseViewModel
             LeaveCount   = Records.Count(r => r.Status == "مرخصی");
         }, "در حال بارگذاری...");
     }
+
+    /// <summary>ATT-C2-3 — ثبت/ویرایشِ ورود و خروجِ یک کارمند (UpsertAttendanceCommand).</summary>
+    [RelayCommand]
+    private async Task SaveRowAsync(AttendanceRow? row)
+    {
+        if (row == null) return;
+        await ExecuteAsync(async () =>
+        {
+            var ci = ParseTime(row.CheckIn);
+            var co = ParseTime(row.CheckOut);
+            var res = await _mediator.Send(new UpsertAttendanceCommand(
+                row.EmployeeId, SelectedDate, ci, co, Status: "حاضر"));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await LoadRecordsAsync();
+        }, "در حال ثبتِ تردد...");
+    }
+
+    /// <summary>ATT-C2-3 — علامت‌گذاریِ دسته‌ایِ وضعیت برای ردیف‌های انتخاب‌شده (MarkBatchAttendanceCommand).</summary>
+    [RelayCommand]
+    private async Task MarkBatchAsync(string status)
+    {
+        var ids = Records.Where(r => r.IsSelected).Select(r => r.EmployeeId).ToList();
+        if (ids.Count == 0) { await _dialogService.ShowWarningAsync("ابتدا کارمندانِ موردِ نظر را تیک بزنید."); return; }
+        var leaveType = status == "مرخصی" ? "استحقاقی" : null;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new MarkBatchAttendanceCommand(ids, SelectedDate, status, leaveType));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await LoadRecordsAsync();
+            await _dialogService.ShowSuccessAsync($"وضعیتِ «{status}» برای {res.Value} نفر ثبت شد.");
+        }, "در حال علامت‌گذاری...");
+    }
+
+    /// <summary>تبدیلِ متنِ «HH:mm» (با ارقامِ فارسی/لاتین) به TimeOnly؛ خالی → null.</summary>
+    private static TimeOnly? ParseTime(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        var s = new string(text.Select(c => c >= '۰' && c <= '۹' ? (char)('0' + (c - '۰')) : c).ToArray()).Trim();
+        return TimeOnly.TryParse(s, out var t) ? t : (TimeOnly?)null;
+    }
 }
 
 // ─── Models ───────────────────────────────────────────────────────────────────
@@ -334,8 +374,25 @@ public partial class SalarySlipRow : ObservableObject
     }
 }
 
-public record AttendanceRow(int EmployeeId, string EmployeeName,
-    string CheckIn, string CheckOut, decimal WorkHours, decimal OvertimeHours, string Status);
+public partial class AttendanceRow : ObservableObject
+{
+    public int EmployeeId { get; }
+    public string EmployeeName { get; }
+    [ObservableProperty] private string _checkIn;
+    [ObservableProperty] private string _checkOut;
+    [ObservableProperty] private decimal _workHours;
+    [ObservableProperty] private decimal _overtimeHours;
+    [ObservableProperty] private string _status;
+    [ObservableProperty] private bool _isSelected;   // برای علامت‌گذاریِ دسته‌ای
+
+    public AttendanceRow(int employeeId, string employeeName, string checkIn, string checkOut,
+        decimal workHours, decimal overtimeHours, string status)
+    {
+        EmployeeId = employeeId; EmployeeName = employeeName;
+        _checkIn = checkIn; _checkOut = checkOut;
+        _workHours = workHours; _overtimeHours = overtimeHours; _status = status;
+    }
+}
 
 public record MonthItem(int Number, string Name);
 

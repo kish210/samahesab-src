@@ -144,6 +144,9 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Support.ReleaseNotesViewModel>();     // 🆘 HC-5
                 services.AddTransient<ViewModels.Support.KnowledgeBaseViewModel>();    // 🆘 HC-5
                 services.AddTransient<ViewModels.Support.RemoteSupportViewModel>();    // 🆘 HC-6
+                services.AddTransient<ViewModels.Tourism.TourismDepositsViewModel>();      // ✈️ TUR-C2-4
+                services.AddTransient<ViewModels.Tourism.TourismCommissionsViewModel>();   // ✈️ TUR-C2-4
+                services.AddTransient<ViewModels.Tourism.TourismSettingsViewModel>();      // ✈️ TUR-C2-4
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();

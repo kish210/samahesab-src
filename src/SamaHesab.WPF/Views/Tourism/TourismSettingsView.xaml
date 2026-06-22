@@ -1,0 +1,100 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Tourism.TourismSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <Style x:Key="AccCombo" TargetType="ComboBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="0,2,0,8"/>
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="True"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="تنظیماتِ گردشگری — نگاشتِ حساب‌های کنترلی" FontSize="18" FontWeight="Bold" Margin="2,0,0,8"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource FormSectionCard}" Padding="12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="حسابِ صندوق (نقد)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding CashAccountId}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="2">
+                        <TextBlock Text="حسابِ بانک" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding BankAccountId}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <TextBlock Text="حسابِ دریافتنی (مشتری)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding ReceivableAccountId}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2">
+                        <TextBlock Text="حسابِ درآمدِ فروش" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding RevenueAccountId}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="0">
+                        <TextBlock Text="حسابِ بهای تمام‌شده (COGS)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding CogsAccountId}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="2">
+                        <TextBlock Text="حسابِ ودیعهٔ تأمین‌کننده" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding SupplierDepositAccountId}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="0">
+                        <TextBlock Text="حسابِ تخفیفِ فروش" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding SalesDiscountAccountId}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Grid.Column="2">
+                        <TextBlock Text="حسابِ اختلافِ ودیعه" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding DepositDifferenceAccountId}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4" Grid.Column="0">
+                        <TextBlock Text="حسابِ هزینهٔ پورسانت" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding CommissionExpenseAccountId}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="4" Grid.Column="2">
+                        <TextBlock Text="حسابِ پرداختنیِ فروشنده" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox Style="{StaticResource AccCombo}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding SalespersonPayableAccountId}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="5" Grid.Column="0">
+                        <TextBlock Text="آستانهٔ هشدارِ ودیعهٔ کم (ریال)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBox Height="32" Margin="0,2,0,8" Text="{Binding LowDepositThreshold}" FlowDirection="LeftToRight"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,6,0,0">
+                        <CheckBox Content="مبنای پورسانت پس از تخفیف" IsChecked="{Binding SaleBaseAfterDiscountDefault}" Margin="0,3"/>
+                        <CheckBox Content="صدورِ سندِ حسابداری به‌ازای هر فروش (per-sale)" IsChecked="{Binding PostPerSale}" Margin="0,3"/>
+                        <CheckBox Content="پرداختِ پورسانت از طریقِ حقوق (نه مستقل)" IsChecked="{Binding CommissionThroughPayroll}" Margin="0,3"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Content="💾 ذخیرهٔ تنظیمات" Style="{StaticResource PrimaryButton}" Height="38"
+                HorizontalAlignment="Left" Margin="2,8,0,0" Command="{Binding SaveCommand}"/>
+    </Grid>
+</UserControl>

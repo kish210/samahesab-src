@@ -1,0 +1,44 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Tourism.TourismCommissionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding LoadRowsCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="پورسانتِ ماهانهٔ فروشندگان (گردشگری)" FontSize="18" FontWeight="Bold" Margin="2,0,0,8"/>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="دوره (سال/ماه):" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
+                <TextBox Width="120" Height="32" Text="{Binding PeriodYearMonth}" FlowDirection="LeftToRight"/>
+                <Button Content="🔄 محاسبه" Style="{StaticResource PrimaryButton}" Height="32" Margin="10,0,0,0"
+                        Command="{Binding LoadRowsCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      ItemsSource="{Binding Rows}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="فروشنده" Binding="{Binding EmployeeName}" Width="*"/>
+                    <DataGridTextColumn Header="پورسانت (ریال)" Binding="{Binding Commission, StringFormat={}{0:#,##0}}" Width="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="2,8,2,0">
+            <TextBlock Text="جمعِ پورسانت: " Foreground="{DynamicResource SecondaryText}"/>
+            <TextBlock Text="{Binding TotalCommission, StringFormat={}{0:#,##0} ریال}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

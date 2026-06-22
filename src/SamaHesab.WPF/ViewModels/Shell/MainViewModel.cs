@@ -59,6 +59,8 @@ public partial class MainViewModel : BaseViewModel
         ["MyRequests"] = ModuleService.Support,   // 🆘 HC-4
         ["ReleaseNotes"] = ModuleService.Support, ["KnowledgeBase"] = ModuleService.Support,   // 🆘 HC-5
         ["RemoteSupport"] = ModuleService.Support,   // 🆘 HC-6
+        ["TourismDeposits"] = ModuleService.Tourism, ["TourismCommissions"] = ModuleService.Tourism,   // ✈️ TUR-C2-4
+        ["TourismSettings"] = ModuleService.Tourism,
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -204,6 +206,10 @@ public partial class MainViewModel : BaseViewModel
             ["ReleaseNotes"]    = ("یادداشت‌های نسخه",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.ReleaseNotesViewModel>()),
             ["KnowledgeBase"]   = ("دانشنامه",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.KnowledgeBaseViewModel>()),
             ["RemoteSupport"]   = ("پشتیبانیِ ریموت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Support.RemoteSupportViewModel>()),
+            // ✈️ TUR-C2-4 — گردشگری
+            ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
+            ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
+            ["TourismSettings"]    = ("تنظیماتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSettingsViewModel>()),
         };
 
         // Clock timer
@@ -474,9 +480,9 @@ public partial class MainViewModel : BaseViewModel
 
         if (TourismEnabled)
             Add(true, "گردشگری", "IcSales",
-                new("رزروها", "TourismBookings"), new("تورها", "TourismTours"), new("هتل‌ها", "TourismHotels"),
-                new("پروازها", "TourismFlights"), new("ترانسفر", "TourismTransfer"), new("واچرها", "TourismVouchers"),
-                new("کمیسیون‌ها", "TourismCommissions"), new("گزارشات گردشگری", "TourismReports"));
+                new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
+                new("پورسانتِ فروشندگان", "TourismCommissions"),
+                new("تنظیماتِ گردشگری", "TourismSettings"));
 
         if (SupportEnabled)
             Add(true, "مرکزِ پشتیبانی", "IcReports",

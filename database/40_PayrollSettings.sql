@@ -27,3 +27,11 @@ BEGIN
     );
 END
 GO
+
+-- ستون‌های ممیزیِ AuditableEntity (EF لازم دارد) — idempotent.
+IF COL_LENGTH('Hrm.PayrollSettings', 'CreatedAt') IS NULL
+    ALTER TABLE Hrm.PayrollSettings ADD CreatedAt datetime NOT NULL CONSTRAINT DF_PaySet_Created DEFAULT GETDATE();
+GO
+IF COL_LENGTH('Hrm.PayrollSettings', 'UpdatedAt') IS NULL
+    ALTER TABLE Hrm.PayrollSettings ADD UpdatedAt datetime NULL;
+GO

@@ -260,6 +260,26 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Holiday>().ToTable("Holidays", "Hrm");
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.LeaveRequest>().ToTable("LeaveRequests", "Hrm");
 
+        // ─── Tourism (TUR-C1-1): schema Tur ─────────────────────────────────────
+        modelBuilder.Entity<Domain.Entities.Tourism.ProductGroup>().ToTable("ProductGroups", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.TourismProduct>().ToTable("Products", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.SupplierDeposit>().ToTable("SupplierDeposits", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.TourismSetting>().ToTable("Settings", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.CommissionRule>().ToTable("CommissionRules", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.SalesCommissionEntry>().ToTable("CommissionEntries", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.SupplierDailyReport>().ToTable("SupplierDailyReports", "Tur");
+        modelBuilder.Entity<Domain.Entities.Tourism.TourismSale>(b =>
+        {
+            b.ToTable("Sales", "Tur");
+            b.HasMany(s => s.Lines).WithOne().HasForeignKey(l => l.SaleId);
+        });
+        modelBuilder.Entity<Domain.Entities.Tourism.TourismSaleLine>(b =>
+        {
+            b.ToTable("SaleLines", "Tur");
+            b.HasMany(l => l.Passengers).WithOne().HasForeignKey(p => p.SaleLineId);
+        });
+        modelBuilder.Entity<Domain.Entities.Tourism.SalePassenger>().ToTable("SalePassengers", "Tur");
+
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>
         {
@@ -475,6 +495,8 @@ public class ApplicationDbContext : DbContext
         // MB-2 — گسترش به فروش/خرید (هماهنگی با C2). فقط برای کاربرِ بدونِ Security.AllBranches فعال می‌شود.
         ApplyTenantAndBranchFilter<Domain.Entities.Sales.SalesInvoice>(modelBuilder);
         ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
+        // TUR-C1-1 — فروشِ گردشگری شعبه‌ای است.
+        ApplyTenantAndBranchFilter<Domain.Entities.Tourism.TourismSale>(modelBuilder);
         // MB-3 — جداسازیِ شعبهٔ انبار (هماهنگی با C2). فیلترِ nullable-aware: انبارِ بدونِ شعبه (null)
         // مشترک و برای همه دیده می‌شود؛ وگرنه فقط شعبهٔ کاربر. ادمین/AllBranches همه را می‌بیند.
         modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>

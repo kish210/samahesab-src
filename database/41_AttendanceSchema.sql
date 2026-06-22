@@ -58,3 +58,20 @@ BEGIN
     CREATE INDEX IX_LeaveRequests_Company_Emp ON Hrm.LeaveRequests (CompanyId, EmployeeId);
 END
 GO
+
+-- ستون‌های ممیزیِ AuditableEntity (EF لازم دارد) — idempotent برای هر سه جدول.
+IF COL_LENGTH('Hrm.Shifts', 'CreatedAt') IS NULL
+    ALTER TABLE Hrm.Shifts ADD CreatedAt datetime NOT NULL CONSTRAINT DF_Shift_Created DEFAULT GETDATE();
+GO
+IF COL_LENGTH('Hrm.Shifts', 'UpdatedAt') IS NULL ALTER TABLE Hrm.Shifts ADD UpdatedAt datetime NULL;
+GO
+IF COL_LENGTH('Hrm.Holidays', 'CreatedAt') IS NULL
+    ALTER TABLE Hrm.Holidays ADD CreatedAt datetime NOT NULL CONSTRAINT DF_Holiday_Created DEFAULT GETDATE();
+GO
+IF COL_LENGTH('Hrm.Holidays', 'UpdatedAt') IS NULL ALTER TABLE Hrm.Holidays ADD UpdatedAt datetime NULL;
+GO
+IF COL_LENGTH('Hrm.LeaveRequests', 'CreatedAt') IS NULL
+    ALTER TABLE Hrm.LeaveRequests ADD CreatedAt datetime NOT NULL CONSTRAINT DF_Leave_Created DEFAULT GETDATE();
+GO
+IF COL_LENGTH('Hrm.LeaveRequests', 'UpdatedAt') IS NULL ALTER TABLE Hrm.LeaveRequests ADD UpdatedAt datetime NULL;
+GO

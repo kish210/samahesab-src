@@ -29,10 +29,24 @@ public partial class ModulesViewModel : BaseViewModel
     [RelayCommand]
     private async Task SaveAsync()
     {
-        foreach (var t in OptionalModules)
-            _modules.SetEnabled(t.Key, t.IsEnabled);   // SetEnabled خودش ذخیره می‌کند
-        await _dialogService.ShowSuccessAsync(
-            "ماژول‌ها ذخیره شد. منوها و صفحات مطابق ماژول‌های فعال به‌روزرسانی می‌شوند.");
+        // اول خاموش‌ها (تا تداخل با وضعیتِ نهایی سنجیده شود)، سپس روشن‌ها با کنترلِ تداخل.
+        foreach (var t in OptionalModules.Where(t => !t.IsEnabled))
+            _modules.SetEnabled(t.Key, false);
+
+        var blocked = new List<string>();
+        foreach (var t in OptionalModules.Where(t => t.IsEnabled))
+            if (!_modules.TrySetEnabled(t.Key, true, out var err) && err is not null)
+            {
+                blocked.Add(err);
+                t.IsEnabled = _modules.IsEnabled(t.Key);   // بازگرداندنِ تیک در UI
+            }
+
+        if (blocked.Count > 0)
+            await _dialogService.ShowWarningAsync(
+                "برخی ماژول‌ها به‌خاطرِ تداخل فعال نشدند:\n" + string.Join("\n", blocked));
+        else
+            await _dialogService.ShowSuccessAsync(
+                "ماژول‌ها ذخیره شد. منوها و صفحات مطابق ماژول‌های فعال به‌روزرسانی می‌شوند.");
     }
 
     /// <summary>خروجیِ تنظیماتِ ماژول‌ها به فایل — برای انتقال به ماشینِ دیگر (یکپارچه‌سازیِ منوها).</summary>

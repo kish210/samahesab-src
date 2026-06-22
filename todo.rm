@@ -1418,3 +1418,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 > **🖥 C1:** TUR-C1-1 موجودیت‌ها+migration · C1-2 تنظیمات · C1-3 فروش+سند · C1-4 ودیعه+مانده · C1-5 آشتی · C1-6 پلِ‌حقوق · C1-7 کنترلِ تداخلِ ماژول (تنظیمات+نصب).
 > **💻 C2:** TUR-C2-1 موتورِ پورسانت · C2-2 موتورِ سود/برداشت · C2-3 گزارش · C2-4 UX · C2-5 دمو.
 - [~] 🚧 (pc/C1) TUR-C1-1 (claim @2026-06-22) — موجودیت‌های Tur + EF map + migration. claim.
+
+- [x] (pc/C1) TUR-C1-7 — کنترلِ تداخلِ ماژول: ModuleDef گرفت Conflicts[]؛ ModuleService متدهای ConflictsOf/EnabledConflictName/TrySetEnabled (متقارن) + SetEnabled حالا فعال‌سازیِ متداخل را بلاک می‌کند؛ اعمال در تنظیمات (ModulesViewModel.Save: اول خاموش‌ها بعد روشن‌ها + پیامِ تداخل) و ویزاردِ نصب (FirstRunWizard finish). فعلاً تداخلی تعریف‌نشده (انتخابِ کاربر «فقط مکانیزم») — افزودنِ تداخل = یک ویرایش در ModuleDef. WPF build سبز.

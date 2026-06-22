@@ -3,8 +3,11 @@ using System.Text.Json;
 
 namespace SamaHesab.WPF.Services;
 
-/// <summary>تعریف یک ماژول. Core=هسته (همیشه فعال، غیرقابل خاموش).</summary>
-public record ModuleDef(string Key, string Name, bool Core, string Icon);
+/// <summary>
+/// تعریف یک ماژول. Core=هسته (همیشه فعال، غیرقابل خاموش).
+/// Conflicts=کلیدِ ماژول‌هایی که نباید هم‌زمان با این ماژول فعال باشند (تداخلِ متقابل، متقارن اعمال می‌شود).
+/// </summary>
+public record ModuleDef(string Key, string Name, bool Core, string Icon, string[]? Conflicts = null);
 
 /// <summary>
 /// سیستم فعال‌سازی ماژول‌ها — سماع‌حساب یک «بستر ERP ماژولار» است.
@@ -36,6 +39,9 @@ public class ModuleService
     {
         new ModuleDef(Pos, "صندوق فروش (POS)", false, "CreditCardOutline"),
         new ModuleDef(Restaurant, "رستوران", false, "Silverware"),
+        // برای ناسازگارکردنِ گردشگری با ماژولی، کلیدش را به Conflicts اضافه کنید، مثلِ:
+        //   new ModuleDef(Tourism, "گردشگری", false, "Airplane", Conflicts: new[] { Restaurant, Pos }),
+        // فعلاً تداخلی تعریف نشده (انتخابِ کاربر) — مکانیزمِ کنترل آماده است.
         new ModuleDef(Tourism, "گردشگری", false, "Airplane"),
         new ModuleDef(Hr, "منابع انسانی", false, "AccountTie"),
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
@@ -60,9 +66,50 @@ public class ModuleService
     public void SetEnabled(string key, bool enabled)
     {
         if (CoreModules.Any(m => m.Key == key)) return;   // هسته غیرقابل تغییر
+        // کنترلِ تداخل: ماژولی که با یک ماژولِ فعالِ دیگر تداخل دارد، فعال نمی‌شود.
+        if (enabled && EnabledConflictName(key) is not null) return;
         if (enabled) _enabled.Add(key); else _enabled.Remove(key);
         Save();
         Changed?.Invoke();
+    }
+
+    /// <summary>تلاش برای فعال/غیرفعال‌سازی با گزارشِ خطای تداخل (برای UI).</summary>
+    public bool TrySetEnabled(string key, bool enabled, out string? error)
+    {
+        error = null;
+        if (CoreModules.Any(m => m.Key == key)) return true;   // هسته — بی‌اثر، خطا نده
+        if (enabled && EnabledConflictName(key) is string conflict)
+        {
+            var name = AllModules.FirstOrDefault(m => m.Key == key)?.Name ?? key;
+            error = $"«{name}» با «{conflict}» تداخل دارد و هم‌زمان فعال نمی‌شود.";
+            return false;
+        }
+        SetEnabled(key, enabled);
+        return true;
+    }
+
+    /// <summary>همهٔ ماژول‌ها (هسته + اختیاری).</summary>
+    public IEnumerable<ModuleDef> AllModules => CoreModules.Concat(OptionalModules);
+
+    /// <summary>کلیدِ ماژول‌هایی که با <paramref name="key"/> تداخل دارند (متقارن: هر دو سمت).</summary>
+    public IReadOnlyCollection<string> ConflictsOf(string key)
+    {
+        var set = new HashSet<string>();
+        var self = AllModules.FirstOrDefault(m => m.Key == key);
+        if (self?.Conflicts is { } own) foreach (var c in own) set.Add(c);
+        foreach (var m in AllModules)
+            if (m.Conflicts is { } cs && cs.Contains(key)) set.Add(m.Key);
+        set.Remove(key);
+        return set;
+    }
+
+    /// <summary>اگر ماژولی که با <paramref name="key"/> تداخل دارد همین حالا فعال است، نامِ آن را برمی‌گرداند؛ وگرنه null.</summary>
+    public string? EnabledConflictName(string key)
+    {
+        foreach (var c in ConflictsOf(key))
+            if (IsEnabled(c))
+                return AllModules.FirstOrDefault(m => m.Key == c)?.Name ?? c;
+        return null;
     }
 
     /// <summary>کلیدهای ماژول‌های اختیاریِ فعالِ فعلی (برای خروجی/انتقال بین ماشین‌ها).</summary>

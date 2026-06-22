@@ -244,16 +244,23 @@ public partial class FirstRunWizardViewModel : BaseViewModel
                 catch (System.Exception ex) { await _dialogService.ShowWarningAsync("ورودِ داده‌های دمو کامل نشد: " + ex.Message); }
             }
 
-            // ۶) ماژول‌های اختیاریِ انتخاب‌شده را فعال/غیرفعال کن.
-            foreach (var m in Modules)
-                _modules.SetEnabled(m.Key, m.IsSelected);
+            // ۶) ماژول‌های اختیاریِ انتخاب‌شده را فعال/غیرفعال کن — اول خاموش‌ها، سپس روشن‌ها با کنترلِ تداخل.
+            foreach (var m in Modules.Where(m => !m.IsSelected))
+                _modules.SetEnabled(m.Key, false);
+            var blockedModules = new List<string>();
+            foreach (var m in Modules.Where(m => m.IsSelected))
+                if (!_modules.TrySetEnabled(m.Key, true, out var err) && err is not null)
+                    blockedModules.Add(err);
 
             // ۷) علامتِ تکمیل و ذخیره
             g.SetupCompleted = true;
             AppSettingsStore.SaveGeneral(g);
 
+            var conflictNote = blockedModules.Count > 0
+                ? "\n\nبرخی ماژول‌ها به‌خاطرِ تداخل فعال نشدند:\n" + string.Join("\n", blockedModules)
+                : string.Empty;
             await _dialogService.ShowSuccessAsync(
-                $"راه‌اندازیِ اولیه کامل شد. ({whN} انبار، {prN} کالا/خدمت، {cuN} مشتری ثبت شد) خوش آمدید!");
+                $"راه‌اندازیِ اولیه کامل شد. ({whN} انبار، {prN} کالا/خدمت، {cuN} مشتری ثبت شد) خوش آمدید!" + conflictNote);
             Finished?.Invoke();
         }, "در حال ذخیرهٔ راه‌اندازی...");
     }

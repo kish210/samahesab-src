@@ -16,6 +16,8 @@ public class TourismSaleLine : BaseEntity
     public decimal DiscountAmount { get; private set; }
     public decimal UnitCost { get; private set; }         // snapshot
     public decimal LineProfit { get; private set; }
+    /// <summary>تاریخِ سفر/استفاده (شمسی، اختیاری) — برای نمایش در ردیف و چاپِ واچر.</summary>
+    public string? TravelDate { get; private set; }
 
     private readonly List<SalePassenger> _passengers = new();
     public IReadOnlyCollection<SalePassenger> Passengers => _passengers.AsReadOnly();
@@ -23,7 +25,7 @@ public class TourismSaleLine : BaseEntity
     private TourismSaleLine() { }
 
     public static TourismSaleLine Create(int productId, int supplierPartyId, decimal quantity,
-        decimal unitSalePrice, decimal discountAmount, decimal unitCost)
+        decimal unitSalePrice, decimal discountAmount, decimal unitCost, string? travelDate = null)
     {
         if (productId <= 0) throw new ArgumentException("محصول الزامی است.");
         if (quantity <= 0) throw new ArgumentException("تعداد باید بزرگ‌تر از صفر باشد.");
@@ -34,7 +36,7 @@ public class TourismSaleLine : BaseEntity
         {
             ProductId = productId, SupplierPartyId = supplierPartyId, Quantity = quantity,
             UnitSalePrice = unitSalePrice, DiscountAmount = discountAmount, UnitCost = unitCost,
-            LineProfit = profit
+            LineProfit = profit, TravelDate = travelDate
         };
     }
 

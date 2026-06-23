@@ -12,7 +12,7 @@ namespace SamaHesab.Application.Tourism.Commands;
 
 public record TourismPassengerDto(string FullName, string? NationalIdOrPassport = null, string? Phone = null);
 public record TourismSaleLineDto(int ProductId, decimal Quantity, decimal UnitSalePrice,
-    decimal DiscountAmount = 0, IReadOnlyList<TourismPassengerDto>? Passengers = null);
+    decimal DiscountAmount = 0, IReadOnlyList<TourismPassengerDto>? Passengers = null, string? TravelDate = null);
 
 /// <summary>
 /// TUR-C1-3 — ثبتِ فروشِ گردشگری + سندِ متوازنِ خودکار (الگوی TryCreateSalesVoucher):
@@ -80,7 +80,7 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
                     return Fail($"برای «{prod.Name}» لیستِ مسافر الزامی است.");
 
                 var line = TourismSaleLine.Create(prod.Id, prod.SupplierPartyId, dto.Quantity,
-                    dto.UnitSalePrice, dto.DiscountAmount, prod.PurchasePrice);
+                    dto.UnitSalePrice, dto.DiscountAmount, prod.PurchasePrice, dto.TravelDate);
                 if (dto.Passengers is not null)
                     foreach (var p in dto.Passengers)
                         line.AddPassenger(SalePassenger.Create(p.FullName, p.NationalIdOrPassport, p.Phone));

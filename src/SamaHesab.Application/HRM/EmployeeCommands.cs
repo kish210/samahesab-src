@@ -97,22 +97,39 @@ public class SaveEmployeeCommandHandler : IRequestHandler<SaveEmployeeCommand, R
     }
 }
 
-// ── حذف (غیرفعال‌سازیِ نرم اگر تراکنش داشته باشد؛ این‌جا حذفِ ساده) ──────────────
+// ── حذف: اگر کارمند سابقهٔ فیش/تردد دارد → غیرفعال‌سازیِ نرم (حفظِ یکپارچگی)؛ وگرنه حذفِ سخت. ──
 public record DeleteEmployeeCommand(int Id) : IRequest<Result>;
 
 public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, Result>
 {
     private readonly IRepository<Employee> _repo;
+    private readonly IRepository<SalarySlip> _slips;
+    private readonly IRepository<AttendanceRecord> _attendance;
     private readonly IUnitOfWork _uow;
-    public DeleteEmployeeCommandHandler(IRepository<Employee> repo, IUnitOfWork uow)
-    { _repo = repo; _uow = uow; }
+    private readonly ICurrentUserService _user;
+    public DeleteEmployeeCommandHandler(IRepository<Employee> repo, IRepository<SalarySlip> slips,
+        IRepository<AttendanceRecord> attendance, IUnitOfWork uow, ICurrentUserService user)
+    { _repo = repo; _slips = slips; _attendance = attendance; _uow = uow; _user = user; }
 
     public async Task<Result> Handle(DeleteEmployeeCommand r, CancellationToken ct)
     {
         try
         {
-            var emp = await _repo.GetByIdAsync(r.Id, ct);
+            var companyId = _user.CompanyId ?? 1;
+            var emp = await _repo.FindSingleAsync(e => e.Id == r.Id && e.CompanyId == companyId, ct);
             if (emp is null) return Result.Failure("کارمند یافت نشد.");
+
+            // سوابقِ مالی/تردد → حذفِ سخت ممنوع (یتیم‌شدنِ رکورد)؛ غیرفعال می‌شود.
+            var hasHistory = await _slips.AnyAsync(s => s.EmployeeId == r.Id, ct)
+                          || await _attendance.AnyAsync(a => a.EmployeeId == r.Id, ct);
+            if (hasHistory)
+            {
+                emp.Deactivate();
+                _repo.Update(emp);
+                await _uow.SaveChangesAsync(ct);
+                return Result.Failure("کارمند دارای سابقهٔ فیشِ حقوق/تردد است؛ به‌جای حذف، «غیرفعال» شد.");
+            }
+
             _repo.Remove(emp);
             await _uow.SaveChangesAsync(ct);
             return Result.Success();

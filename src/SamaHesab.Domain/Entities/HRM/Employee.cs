@@ -132,6 +132,9 @@ public class Employee : AuditableEntity
         UpdatedAt = DateTime.Now;
     }
 
+    /// <summary>غیرفعال‌سازیِ نرم (وقتی کارمند سوابقِ فیش/تردد دارد و نباید سخت حذف شود).</summary>
+    public void Deactivate() { IsActive = false; UpdatedAt = DateTime.Now; }
+
     public void SetPhoto(byte[] photo) { Photo = photo; UpdatedAt = DateTime.Now; }
     public void LinkUser(int userId) { UserId = userId; UpdatedAt = DateTime.Now; }
 }

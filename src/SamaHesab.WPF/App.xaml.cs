@@ -180,6 +180,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Tourism.TourismDepositsViewModel>();      // ✈️ TUR-C2-4
                 services.AddTransient<ViewModels.Tourism.TourismCommissionsViewModel>();   // ✈️ TUR-C2-4
                 services.AddTransient<ViewModels.Tourism.TourismSettingsViewModel>();      // ✈️ TUR-C2-4
+                services.AddTransient<ViewModels.Tourism.TourismReportsViewModel>();       // ✈️ TUR-C2-5
                 services.AddTransient<ViewModels.Contracting.ContractingStatementViewModel>();   // 🏗 CON-C2-2
                 services.AddTransient<ViewModels.Contracting.ContractingDashboardViewModel>();   // 🏗 CON-C2-2
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();

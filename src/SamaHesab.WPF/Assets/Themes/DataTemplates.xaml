@@ -39,6 +39,7 @@
     <DataTemplate DataType="{x:Type tur:TourismDepositsViewModel}"><vtur:TourismDepositsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismCommissionsViewModel}"><vtur:TourismCommissionsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismSettingsViewModel}"><vtur:TourismSettingsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tur:TourismReportsViewModel}"><vtur:TourismReportsView/></DataTemplate>
 
     <!-- 🏗 CON-C2-2 — پیمانکاری -->
     <DataTemplate DataType="{x:Type con:ContractingStatementViewModel}"><vcon:ContractingStatementView/></DataTemplate>

@@ -62,6 +62,7 @@ public partial class MainViewModel : BaseViewModel
         ["RemoteSupport"] = ModuleService.Support,   // 🆘 HC-6
         ["TourismDeposits"] = ModuleService.Tourism, ["TourismCommissions"] = ModuleService.Tourism,   // ✈️ TUR-C2-4
         ["TourismSettings"] = ModuleService.Tourism, ["TourismSale"] = ModuleService.Tourism,
+        ["TourismReports"] = ModuleService.Tourism,   // ✈️ TUR-C2-5
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
     };
 
@@ -215,6 +216,7 @@ public partial class MainViewModel : BaseViewModel
             ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
             ["TourismSettings"]    = ("تنظیماتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSettingsViewModel>()),
+            ["TourismReports"]     = ("گزارش‌های گردشگری",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismReportsViewModel>()),
         };
 
         // Clock timer
@@ -498,7 +500,8 @@ public partial class MainViewModel : BaseViewModel
                 new("ثبتِ فروش", "TourismSale"),
                 new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
                 new("پورسانتِ فروشندگان", "TourismCommissions"),
-                new("تنظیماتِ گردشگری", "TourismSettings"));
+                new("تنظیماتِ گردشگری", "TourismSettings"),
+                new("گزارش‌های گردشگری", "TourismReports"));
 
         if (ContractingEnabled)
             Add(true, "پیمانکاری", "IcSales",

@@ -183,6 +183,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Tourism.TourismReportsViewModel>();       // ✈️ TUR-C2-5
                 services.AddTransient<ViewModels.Contracting.ContractingStatementViewModel>();   // 🏗 CON-C2-2
                 services.AddTransient<ViewModels.Contracting.ContractingDashboardViewModel>();   // 🏗 CON-C2-2
+                services.AddTransient<ViewModels.Contracting.ContractingReportsViewModel>();      // 🏗 CON-C2-6
                 services.AddTransient<ViewModels.Licensing.LicenseActivationViewModel>();
                 // override پیش‌فرضِ نامحدودِ Infrastructure با نسخهٔ واقعیِ کلاینت (سقفِ رده/تریال).
                 services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext, Services.WpfLicenseContext>();

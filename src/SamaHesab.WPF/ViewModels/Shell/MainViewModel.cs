@@ -64,6 +64,7 @@ public partial class MainViewModel : BaseViewModel
         ["TourismSettings"] = ModuleService.Tourism, ["TourismSale"] = ModuleService.Tourism,
         ["TourismReports"] = ModuleService.Tourism,   // ✈️ TUR-C2-5
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
+        ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -212,6 +213,7 @@ public partial class MainViewModel : BaseViewModel
             // ✈️ TUR-C2-4 — گردشگری
             ["ContractingStatement"] = ("صورت‌وضعیتِ پیمان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingStatementViewModel>()),
             ["ContractingDashboard"] = ("داشبوردِ پیمان",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingDashboardViewModel>()),
+            ["ContractingReports"]   = ("گزارش‌های پیمانکاری", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingReportsViewModel>()),
             ["TourismSale"]        = ("ثبتِ فروشِ گردشگری",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSaleViewModel>()),
             ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
@@ -506,7 +508,8 @@ public partial class MainViewModel : BaseViewModel
         if (ContractingEnabled)
             Add(true, "پیمانکاری", "IcSales",
                 new("صورت‌وضعیت", "ContractingStatement"),
-                new("داشبوردِ پیمان", "ContractingDashboard"));
+                new("داشبوردِ پیمان", "ContractingDashboard"),
+                new("گزارش‌های پیمانکاری", "ContractingReports"));
 
         if (SupportEnabled)
             Add(true, "مرکزِ پشتیبانی", "IcReports",

@@ -1589,3 +1589,11 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc/C1) رستوران-نقش‌محور + زمانِ انتظارِ میز: (الف) RBAC — Restaurant.Operate/Cashier/Kitchen/Manage در PermissionCatalog (تفکیکِ گارسون/صندوق/آشپزخانه/مدیر). (ب) بیلدرِ خالصِ TableWaitTime (انتظار=اکنون−بازشدنِ سفارش، آستانهٔ هشدار/بحرانی، میزِ آزاد، ضدِ منفی) برای رنگ‌بندیِ نقشهٔ میز. ۱۱ تست (۵۸۳ کل). ⏭️ گیتِ منو با مجوزها + وصلِ رنگ‌بندی به نقشهٔ میز — لِینِ C2 (هماهنگی).
 
 - [x] (pc/C1) گردشگری-واچر/کارتِ مسافر + تاریخِ سفر: (الف) فیلدِ TravelDate روی TourismSaleLine (شمسی، اختیاری) + wireِ CreateTourismSaleCommand/DTO + migration idempotent 49_TourismTravelDate.sql. (ب) بیلدرِ خالصِ TravelVoucherBuilder (سربرگ + خدمات با تاریخِ سفر + فهرستِ مسافران + جمع/تخفیف/خالص) + GetTravelVoucherQuery (مونتاژ از فروش با نامِ محصول/تأمین‌کننده/طرف). ۴ تست (۵۸۷ کل). ⏭️ صفحه/چاپِ واچر — لِینِ C2.
+
+## 🤝 تقسیمِ کارِ گردشگری — pc(C1) ↔ laptop(C2)  (@2026-06-24، نوشتهٔ pc)
+> هماهنگی با MODULARIZATION_PLAN: گردشگری «دامنهٔ ماژولی» است ولی تا زمانِ فاز-۲ استخراج، کارِ جاری دو لِین دارد:
+- **pc (C1) — بک‌اند/حسابداری/دامنه:** موجودیت‌ها، Commands/Queries، موتورهای خالص (CommissionEngine/Settlement/TravelVoucherBuilder)، migrationها، نگاشتِ EF، سند/حسابداری. (انجام‌شده: مدلِ ودیعه، پورسانت، گزارش‌ها، availability، هشدارِ ودیعهٔ کم، واچر/تاریخِ سفر.)
+- **laptop (C2) — UI/WPF:** Viewها/ViewModelها، گیتِ منو با مجوزها، صفحهٔ چاپِ واچر، نمای رزرو/تاریخِ سفر در گریدِ فروش، تجربهٔ فروشنده.
+- **قرارداد:** pc فایل‌های `Domain/Tourism/*`, `Application/Tourism/*`, `database/*Tourism*` را می‌زند؛ laptop فقط `WPF/**/Tourism/*`. قبل از دست‌زدن به فایلِ طرفِ مقابل، اینجا claim + push.
+- **بازِ pc (در حالِ انجام):** GetTourismSalesQuery — لیستِ فروش با «نزدیک‌ترین تاریخِ سفر + تعداد مسافر» برای ردیفِ گرید (بک‌اندِ موردِ رودمپِ «نمای رزرو/تاریخِ سفر در ردیف»). UIِ گرید → laptop.
+- **منتظرِ [C2-REPLY]:** تداخلِ دو مسیرِ سند (ودیعه ↔ GenerateTourismVoucher) هنوز بی‌پاسخ.

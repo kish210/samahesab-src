@@ -187,6 +187,10 @@ public partial class PosViewModel : BaseViewModel
 
     partial void OnQuickSearchChanged(string value) => ApplyFilter();
 
+    // باکسِ بالای کالاها هم‌زمان «بارکد» و «جست‌وجو» است: با تایپ، گریدِ کالاها زنده فیلتر می‌شود
+    // (تا قبل از این، QuickSearch هیچ‌گاه از UI پر نمی‌شد و فیلتر عملاً مرده بود).
+    partial void OnBarcodeInputChanged(string value) => QuickSearch = value ?? string.Empty;
+
     [RelayCommand]
     private void SelectCategory(PosCategoryTile? cat)
     {
@@ -280,7 +284,15 @@ public partial class PosViewModel : BaseViewModel
             if (b != null) hit = (b.ProductId, b.Code, b.Name, b.SalePrice, b.TaxRate);
         }
 
-        if (hit == null) { await _dialogService.ShowWarningAsync($"کالا با کد '{code}' یافت نشد."); BarcodeInput = string.Empty; return; }
+        if (hit == null)
+        {
+            // اولویتِ بارکد، سپس جست‌وجو: اگر رزولوِ بارکد/کد ناموفق بود، از نتیجهٔ زندهٔ جست‌وجو استفاده کن
+            // — تطبیقِ دقیقِ کد، یا وقتی فیلتر فقط یک کالا دارد (افزودنِ سریعِ کیبوردمحور).
+            var match = Products.FirstOrDefault(p => p.Code == code)
+                        ?? (Products.Count == 1 ? Products[0] : null);
+            if (match != null) { AddProduct(match); BarcodeInput = string.Empty; return; }
+            await _dialogService.ShowWarningAsync($"کالا با کد '{code}' یافت نشد."); BarcodeInput = string.Empty; return;
+        }
 
         var existing = CartItems.FirstOrDefault(i => i.ProductId == hit.Value.Id);
         if (existing != null) { existing.Quantity++; existing.Recalculate(); }

@@ -13,7 +13,8 @@ public record DashboardAlertsInput(
     int DueSoonChequeCount = 0, decimal DueSoonChequeAmount = 0,
     int OverdueReceivableCount = 0, decimal OverdueReceivableAmount = 0,
     int LowStockCount = 0,
-    int ExpiringGuaranteeCount = 0);
+    int ExpiringGuaranteeCount = 0,
+    int SupplierDepositLowCount = 0);
 
 /// <summary>
 /// سازندهٔ هشدارهای قابل‌اقدامِ داشبورد — منطقِ خالص و تست‌پذیر. رودمپ-تجربه:
@@ -41,6 +42,10 @@ public static class DashboardAlerts
         if (m.LowStockCount > 0)
             list.Add(new ActionableAlert(AlertSeverity.Warning, "stock-low",
                 "کالاهای زیرِ حداقلِ موجودی", m.LowStockCount, 0, "inventory-overview"));
+
+        if (m.SupplierDepositLowCount > 0)
+            list.Add(new ActionableAlert(AlertSeverity.Warning, "tourism-deposit-low",
+                "ودیعهٔ تأمین‌کنندهٔ رو به اتمام", m.SupplierDepositLowCount, 0, "tourism-deposits"));
 
         if (m.ExpiringGuaranteeCount > 0)
             list.Add(new ActionableAlert(AlertSeverity.Warning, "guarantee-expiring",

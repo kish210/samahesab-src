@@ -36,6 +36,16 @@ public class DashboardAlertsTests
     }
 
     [Fact]
+    public void Tourism_Low_Deposit_Produces_Warning_Alert()
+    {
+        var a = Assert.Single(DashboardAlerts.Build(new DashboardAlertsInput(SupplierDepositLowCount: 3)));
+        Assert.Equal("tourism-deposit-low", a.Key);
+        Assert.Equal(AlertSeverity.Warning, a.Severity);
+        Assert.Equal("tourism-deposits", a.NavTarget);
+        Assert.Equal(3, a.Count);
+    }
+
+    [Fact]
     public void Within_Same_Severity_Higher_Amount_First()
     {
         var alerts = DashboardAlerts.Build(new DashboardAlertsInput(

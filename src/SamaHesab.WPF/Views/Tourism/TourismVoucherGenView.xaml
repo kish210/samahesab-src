@@ -1,0 +1,118 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Tourism.TourismVoucherGenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F9" Command="{Binding GenerateCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="تولیدِ سندِ حسابداریِ گردشگری (از داده‌ی مالیِ رزرو)"
+                   FontSize="18" FontWeight="Bold" Margin="2,0,0,8"/>
+
+        <!-- ورودی‌ها -->
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="12">
+            <WrapPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="شمارهٔ رزرو/مرجع" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="150" Height="32" Text="{Binding BookingRef, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="تاریخ" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="110" Height="32" Text="{Binding Date}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="سالِ مالی" Foreground="{DynamicResource SecondaryText}"/>
+                    <ComboBox Width="130" Height="32" ItemsSource="{Binding FiscalYears}" DisplayMemberPath="Title"
+                              SelectedValuePath="Id" SelectedValue="{Binding SelectedFiscalYearId}"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="مبلغِ فروش (ریال)" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="150" Height="32" Text="{Binding SaleAmount, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="بهای تمام‌شده (ریال)" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="150" Height="32" Text="{Binding CostAmount, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="کمیسیون (٪)" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="80" Height="32" Text="{Binding CommissionPercent, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="پرداخت‌شده (ریال)" Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBox Width="150" Height="32" Text="{Binding PaidAmount, UpdateSourceTrigger=PropertyChanged}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,16,8">
+                    <TextBlock Text="روشِ پرداخت" Foreground="{DynamicResource SecondaryText}"/>
+                    <ComboBox Width="100" Height="32" ItemsSource="{Binding PaymentMethods}" SelectedItem="{Binding PaymentMethod}"/>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!-- پیش‌نمایشِ زندهٔ ردیف‌های سند -->
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+                      ItemsSource="{Binding Lines}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="حساب" Binding="{Binding Role}" Width="*"/>
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="170" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="170" ElementStyle="{StaticResource NumCell}"/>
+                    <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="2*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- نوار جمع/توازن + ثبت -->
+        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="12" Margin="0,8,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="جمعِ بدهکار: " Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding TotalDebit, Converter={StaticResource Num}}" FontWeight="Bold" FlowDirection="LeftToRight" Margin="0,0,16,0"/>
+                    <TextBlock Text="جمعِ بستانکار: " Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding TotalCredit, Converter={StaticResource Num}}" FontWeight="Bold" FlowDirection="LeftToRight" Margin="0,0,16,0"/>
+                    <TextBlock Text="کمیسیون: " Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding Commission, Converter={StaticResource Num}}" FlowDirection="LeftToRight" Margin="0,0,16,0"/>
+                    <TextBlock Text="سودِ خالص: " Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock Text="{Binding NetProfit, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource PrimaryAccent}" FlowDirection="LeftToRight"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Border CornerRadius="6" Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#E53935"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsBalanced}" Value="True">
+                                        <Setter Property="Background" Value="#2E7D32"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Foreground="White" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="نامتوازن"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBalanced}" Value="True">
+                                            <Setter Property="Text" Value="✓ متوازن"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="📑 ثبتِ سند (F9)" Style="{StaticResource PrimaryButton}" Height="36"
+                            Command="{Binding GenerateCommand}" IsEnabled="{Binding IsBalanced}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

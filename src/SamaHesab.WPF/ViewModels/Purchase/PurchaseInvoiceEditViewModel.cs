@@ -238,14 +238,19 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
         if (product == null) return;
         var existing = InvoiceItems.FirstOrDefault(i => i.ProductId == product.Id);
         if (existing != null) { existing.Quantity += 1; existing.Recalculate(); RecalculateTotals(); return; }
-        var row = new PurchaseInvoiceItemRow
+
+        // باگ: قبلاً همیشه به انتها افزوده می‌شد و بعد از ۵ ردیفِ خالیِ seed‌شده در ردیفِ ۶ می‌نشست.
+        // اگر ردیفِ خالی هست، همان را پر کن؛ وگرنه ردیفِ نو بساز.
+        var target = InvoiceItems.FirstOrDefault(i => i.ProductId <= 0 && string.IsNullOrWhiteSpace(i.ProductName));
+        if (target == null)
         {
-            ProductId = product.Id, ProductCode = product.Code, ProductName = product.Name,
-            Unit = "عدد", Quantity = 1, UnitPrice = product.Price, TaxPct = product.TaxRate
-        };
-        row.Recalculate();
-        row.PropertyChanged += (_, _) => RecalculateTotals();
-        InvoiceItems.Add(row);
+            target = new PurchaseInvoiceItemRow();
+            target.PropertyChanged += (_, _) => RecalculateTotals();
+            InvoiceItems.Add(target);
+        }
+        target.ProductId = product.Id; target.ProductCode = product.Code; target.ProductName = product.Name;
+        target.Unit = "عدد"; target.Quantity = 1; target.UnitPrice = product.Price; target.TaxPct = product.TaxRate;
+        target.Recalculate();
         RenumberRows();
         RecalculateTotals();
     }

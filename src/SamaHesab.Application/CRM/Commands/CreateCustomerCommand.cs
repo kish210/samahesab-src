@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
@@ -13,6 +14,27 @@ public record CreateCustomerCommand(
     decimal CreditLimit, int CreditDays, string PriceLevel, decimal Discount,
     string? NationalCode, string? EconomicCode, int? GroupId, string? Notes,
     string? ContactPerson, string? Visitor, string? BirthDate) : IRequest<Result<int>>;
+
+/// <summary>
+/// اعتبارسنجیِ مشتری (رفعِ باگ: قبلاً هیچ validationی نبود → نام‌های نامعتبر مثل «jhkj» ثبت می‌شد).
+/// نامِ معتبر الزامی است: برای «حقوقی» نامِ شرکت، برای «حقیقی» نام/نام‌خانوادگی — دستِ‌کم ۲ نویسه.
+/// </summary>
+public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
+{
+    public CreateCustomerCommandValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().WithMessage("کدِ مشتری الزامی است.");
+        RuleFor(x => x).Must(HasValidName)
+            .WithMessage("نامِ معتبرِ مشتری را وارد کنید (برای حقوقی «نامِ شرکت» و برای حقیقی «نام»، دستِ‌کم ۲ نویسه).");
+    }
+
+    private static bool HasValidName(CreateCustomerCommand c)
+    {
+        var isLegal = string.Equals(c.CustomerType?.Trim(), "حقوقی", System.StringComparison.Ordinal);
+        var name = (isLegal ? c.CompanyName : $"{c.FirstName} {c.LastName}")?.Trim() ?? string.Empty;
+        return name.Length >= 2;
+    }
+}
 
 public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Result<int>>
 {

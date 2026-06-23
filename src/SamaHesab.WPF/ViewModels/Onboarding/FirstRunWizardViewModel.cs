@@ -74,8 +74,8 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     [RelayCommand]
     private async Task NextAsync()
     {
-        if (Step == 0 && string.IsNullOrWhiteSpace(CompanyName))
-        { await _dialogService.ShowWarningAsync("نامِ شرکت الزامی است."); return; }
+        if (Step == 0 && (CompanyName?.Trim().Length ?? 0) < 2)
+        { await _dialogService.ShowWarningAsync("نامِ معتبرِ شرکت را وارد کنید (دستِ‌کم ۲ نویسه)."); return; }
         if (Step < StepCount - 1) Step++;
     }
 
@@ -168,8 +168,9 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     [RelayCommand]
     private async Task FinishAsync()
     {
-        if (string.IsNullOrWhiteSpace(CompanyName))
-        { await _dialogService.ShowWarningAsync("نامِ شرکت الزامی است."); return; }
+        if ((CompanyName?.Trim().Length ?? 0) < 2)
+        { await _dialogService.ShowWarningAsync("نامِ معتبرِ شرکت را وارد کنید (دستِ‌کم ۲ نویسه)."); return; }
+        CompanyName = CompanyName!.Trim();
 
         // رمز: اختیاری ولی اگر وارد شد باید تأیید بخورد.
         var wantsPassword = !string.IsNullOrWhiteSpace(NewPassword);

@@ -1511,3 +1511,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 - [x] (pc/C1) CR-X8 + CR-SoD — (الف) X8 زیرساختِ تنظیماتِ شرکتی در DB: موجودیتِ CompanySetting (Cfg.CompanySettings، کلید-مقدار، یکتا بر شرکت+کلید) + migration ۴۶ (روی DBِ محلی تست شد) + Get/SaveCompanySetting + CompanySettingsReader (قابلِ‌خواندن از لایهٔ Application). افزایشی و بی‌ریسک (ماشین‌محلی‌ها در AppSettingsStore می‌مانند؛ شرکت‌گسترها قابلِ انتقال به DB). (ب) SoD: ApproveVoucher با پرچمِ EnforceSoD (از تنظیماتِ شرکت، پیش‌فرض خاموش) ثبت‌کنندهٔ سند را از تأییدِ سندِ خودش منع می‌کند (CreatedByUserId≠تأییدکننده) — تک‌کاربر نمی‌شکند. ۳ تستِ نو (۵۲۴ کل). build Debug+Release سبز.
 
+
+- [x] (pc/C1) CR-SoD تکمیل — ۶ مجوزِ ریزدانه به PermissionCatalog افزوده شد (افزایشی، قابلِ تخصیص در UIِ امنیت، بدونِ تغییرِ اجبارِ فعلی): Sales.Discount.Override · Treasury.Payment.Approve · Accounting.Voucher.Adjust · Accounting.SoD.Bypass · Customers.Balance.View · Inventory.Cost.View. ۵۲۵ تست سبز.

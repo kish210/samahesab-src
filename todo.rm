@@ -1516,3 +1516,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 
 - [x] (pc/C1) CR-SoD تکمیل — ۶ مجوزِ ریزدانه به PermissionCatalog افزوده شد (افزایشی، قابلِ تخصیص در UIِ امنیت، بدونِ تغییرِ اجبارِ فعلی): Sales.Discount.Override · Treasury.Payment.Approve · Accounting.Voucher.Adjust · Accounting.SoD.Bypass · Customers.Balance.View · Inventory.Cost.View. ۵۲۵ تست سبز.
+
+## 🏨 ماژولِ هتل/PMS (@2026-06-22) — تحلیل+تقسیم در docs/PMS_MODULE.md
+> تأیید: کلیدِ Hotelِ موجود · معین در جداولِ Htl + حساب‌های کنترلی · رستوران راهِ A · UNIQUE(RoomId,Date).
+- [~] 🚧 (pc/C1) PMS-C1-1 (claim @2026-06-22) — ۱۴ موجودیتِ Htl + EF + migration ۴۷. claim.

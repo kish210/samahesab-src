@@ -24,15 +24,28 @@ public class VoucherApprovalCommandHandlers :
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IRepository<SamaHesab.Domain.Entities.Settings.CompanySetting> _companySettings;
 
-    public VoucherApprovalCommandHandlers(IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user)
-    { _vouchers = vouchers; _uow = uow; _user = user; }
+    public VoucherApprovalCommandHandlers(IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user,
+        IRepository<SamaHesab.Domain.Entities.Settings.CompanySetting> companySettings)
+    { _vouchers = vouchers; _uow = uow; _user = user; _companySettings = companySettings; }
 
     public Task<Result> Handle(SubmitVoucherForApprovalCommand r, CancellationToken ct)
         => MutateAsync(r.VoucherId, v => v.SubmitForApproval(), ct);
 
-    public Task<Result> Handle(ApproveVoucherCommand r, CancellationToken ct)
-        => MutateAsync(r.VoucherId, v => v.ApproveBy(_user.UserId ?? 0), ct);
+    public async Task<Result> Handle(ApproveVoucherCommand r, CancellationToken ct)
+    {
+        // CR-SoD — تفکیکِ وظایف (اختیاری، از تنظیماتِ شرکت): ثبت‌کنندهٔ سند نمی‌تواند خودش آن را تأیید کند.
+        var companyId = _user.CompanyId ?? 1;
+        if (await Settings.CompanySettingsReader.GetBoolAsync(_companySettings, companyId,
+                Settings.CompanySettingKeys.EnforceSoD, fallback: false, ct))
+        {
+            var v = await _vouchers.GetByIdAsync(r.VoucherId, ct);
+            if (v is not null && v.CreatedByUserId is int creator && creator != 0 && creator == (_user.UserId ?? -1))
+                return Result.Failure("تفکیکِ وظایف: ثبت‌کنندهٔ سند نمی‌تواند آن را تأیید کند.");
+        }
+        return await MutateAsync(r.VoucherId, v => v.ApproveBy(_user.UserId ?? 0), ct);
+    }
 
     public Task<Result> Handle(RejectVoucherCommand r, CancellationToken ct)
         => MutateAsync(r.VoucherId, v => v.RejectApproval(), ct);

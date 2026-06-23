@@ -262,6 +262,8 @@ public class ApplicationDbContext : DbContext
         // ATTP-C1-3 — دستگاهِ تردد + ترددِ خام.
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceDevice>().ToTable("Devices", "Hrm");
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.RawPunch>().ToTable("RawPunches", "Hrm");
+        // CR-X8 — تنظیماتِ شرکتیِ کلید-مقدار در DB.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.CompanySetting>().ToTable("CompanySettings", "Cfg");
 
         // ─── Tourism (TUR-C1-1): schema Tur ─────────────────────────────────────
         modelBuilder.Entity<Domain.Entities.Tourism.ProductGroup>().ToTable("ProductGroups", "Tur");

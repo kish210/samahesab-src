@@ -71,7 +71,9 @@ public partial class ContractingReportsViewModel : BaseViewModel
     {
         var dt = new DataTable();
         for (int i = 0; i < t.Headers.Count; i++) dt.Columns.Add(t.Headers[i], typeof(string));
-        foreach (var r in t.Rows) dt.Rows.Add(r.Cast<object>().ToArray());
+        // ارقامِ فارسی + جداکنندهٔ هزارگانِ فارسی برای نمایش (ux-prompt §0/§4)؛ خروجیِ CSV/PDF لاتین می‌ماند.
+        foreach (var r in t.Rows)
+            dt.Rows.Add(r.Select(c => (object)Converters.NumberFormatConverter.ToPersian(c)).ToArray());
         return dt;
     }
 

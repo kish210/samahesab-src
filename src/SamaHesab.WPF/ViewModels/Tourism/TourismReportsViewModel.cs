@@ -74,7 +74,9 @@ public partial class TourismReportsViewModel : BaseViewModel
     {
         var dt = new DataTable();
         foreach (var h in t.Headers) dt.Columns.Add(h, typeof(string));
-        foreach (var r in t.Rows) dt.Rows.Add(r.Cast<object>().ToArray());
+        // ارقامِ فارسی + جداکنندهٔ هزارگانِ فارسی برای نمایش (ux-prompt §0/§4)؛ خروجیِ CSV/PDF لاتین می‌ماند.
+        foreach (var r in t.Rows)
+            dt.Rows.Add(r.Select(c => (object)Converters.NumberFormatConverter.ToPersian(c)).ToArray());
         return dt;
     }
 

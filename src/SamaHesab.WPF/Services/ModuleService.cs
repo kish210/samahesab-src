@@ -47,7 +47,9 @@ public class ModuleService
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),
         new ModuleDef(Support, "پشتیبانیِ مشتری", false, "Lifebuoy"),
-        new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
+        // پیمانکاری فعلاً غیرفعال (به‌خواستِ کاربر) — از فهرستِ ارائه/منو خارج تا روشن نشود.
+        // برای بازگردانی، این خط را از کامنت دربیاورید (backendِ CON-C1 سرِ جایش است):
+        // new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
     };
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");
@@ -135,7 +137,13 @@ public class ModuleService
             if (File.Exists(FilePath))
             {
                 var arr = JsonSerializer.Deserialize<string[]>(File.ReadAllText(FilePath));
-                if (arr != null) return new HashSet<string>(arr);
+                if (arr != null)
+                {
+                    // هرسِ کلیدهای دیگر-ارائه‌نشده (مثلِ ماژولِ فعلاً غیرفعال‌شده): modules.jsonِ کهنه
+                    // نباید ماژولِ خارج‌شده از فهرست را روشن نگه دارد.
+                    var valid = OptionalModules.Select(m => m.Key).ToHashSet();
+                    return new HashSet<string>(arr.Where(valid.Contains));
+                }
             }
         }
         catch { /* fall through to default */ }

@@ -42,5 +42,25 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PurchaseOrderItems_Ord
 CREATE INDEX IX_PurchaseOrderItems_OrderId ON Pur.PurchaseOrderItems(OrderId);
 GO
 
-PRINT N'سفارش خرید (Pur.PurchaseOrders / PurchaseOrderItems) با موفقیت ساخته شد.';
+-- ── ارتقای idempotent برای پایگاه‌های قدیمی ──────────────────────────────────
+-- باگ: جدول روی DBهای قدیمی پیش از افزودنِ این ستون‌ها ساخته شده و چون CREATE فقط
+-- وقتی جدول نباشد اجرا می‌شد، ستون‌های جدید هرگز اضافه نمی‌شدند → خطای Invalid column name
+-- در صفحهٔ «سفارش‌های خرید». این ALTERها ستون‌های گمشده را روی جدولِ موجود می‌افزایند.
+IF COL_LENGTH('Pur.PurchaseOrders', 'StatusCode') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD StatusCode NVARCHAR(20) NOT NULL CONSTRAINT DF_PO_StatusCode DEFAULT N'پیش‌نویس';
+IF COL_LENGTH('Pur.PurchaseOrders', 'Source') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD Source NVARCHAR(20) NOT NULL CONSTRAINT DF_PO_Source DEFAULT N'دستی';
+IF COL_LENGTH('Pur.PurchaseOrders', 'Description') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD Description NVARCHAR(500) NULL;
+IF COL_LENGTH('Pur.PurchaseOrders', 'Total') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD Total DECIMAL(18,2) NOT NULL CONSTRAINT DF_PO_Total DEFAULT 0;
+IF COL_LENGTH('Pur.PurchaseOrders', 'CreatedAt') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD CreatedAt DATETIME2 NOT NULL CONSTRAINT DF_PO_CreatedAt DEFAULT GETDATE();
+IF COL_LENGTH('Pur.PurchaseOrders', 'UpdatedAt') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD UpdatedAt DATETIME2 NULL;
+IF COL_LENGTH('Pur.PurchaseOrders', 'SupplierId') IS NULL
+    ALTER TABLE Pur.PurchaseOrders ADD SupplierId INT NULL;
+GO
+
+PRINT N'سفارش خرید (Pur.PurchaseOrders / PurchaseOrderItems) با موفقیت ساخته/ارتقا یافت.';
 GO

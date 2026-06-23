@@ -47,6 +47,8 @@ public partial class PosViewModel : BaseViewModel
     partial void OnIsReturnModeChanged(bool value)
     { OnPropertyChanged(nameof(CheckoutLabel)); OnPropertyChanged(nameof(ReturnToggleLabel)); }
     [RelayCommand] private void ToggleReturnMode() => IsReturnMode = !IsReturnMode;
+    /// <summary>ESC در حالتِ مرجوعی → بازگشت به فروشِ عادی (باگ: قبلاً ESC حالت را برنمی‌گرداند).</summary>
+    [RelayCommand] private void ExitReturnMode() { if (IsReturnMode) IsReturnMode = false; }
 
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
     public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };

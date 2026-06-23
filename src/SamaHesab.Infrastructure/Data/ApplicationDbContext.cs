@@ -1,6 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SamaHesab.Modules.Abstractions;
 using SamaHesab.Application.Common.Events;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Common;
@@ -28,10 +31,14 @@ public class ApplicationDbContext : DbContext
     private readonly int _branchId;
     private readonly bool _branchScopeEnabled;
 
+    // ── ماژولارسازی (G4): مدلِ EFِ ماژول‌های نصب‌شده/فعال از DI می‌آید؛ هسته موجودیتِ ماژول را hard-code نمی‌کند. ──
+    private readonly IReadOnlyList<IModule> _modules;
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher,
-        ICurrentUserService? currentUser = null)
+        ICurrentUserService? currentUser = null, IEnumerable<IModule>? modules = null)
         : base(options)
     {
+        _modules = modules?.ToList() ?? new List<IModule>();
         _publisher = publisher;
         _companyId = currentUser?.CompanyId ?? 0;
         // وقتی کاربری احراز نشده (seeding/ورود/سرویس‌های پس‌زمینه) فیلتر غیرفعال است تا چیزی نشکند.
@@ -561,6 +568,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<StockTransaction>().HasQueryFilter(e =>
             (!_tenantFilterEnabled || e.CompanyId == _companyId)
             && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
+
+        // ── ماژولارسازی (G4): مدلِ موجودیتِ ماژول‌های نصب‌شده/فعال. ماژولِ غیرفعال → موجودیتش مپ نمی‌شود. ──
+        foreach (var module in _modules)
+            module.ConfigureModel(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -138,6 +138,11 @@ public partial class App : System.Windows.Application
                     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
                     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(Application.Common.Behaviors.AuditBehavior<,>)); // T19/T21
                 });
+                // BUG-8 — در WPF یک IServiceProviderِ ریشه‌ای هست؛ بدونِ scope-per-operation، ApplicationDbContextِ
+                // مشترک در عملیاتِ هم‌زمان تصادم می‌کند. این پوشش هر Send/Publishِ سطحِ بالا را در DI scopeِ مستقل
+                // اجرا می‌کند (با تشخیصِ re-entrancy از AsyncLocal تا تراکنش‌های تو‌در‌تو نشکنند). فقط در WPF.
+                services.AddTransient<MediatR.Mediator>();   // تایپِ بتنی تا ScopedMediator بدونِ حلقه resolveش کند
+                services.AddSingleton<MediatR.IMediator, SamaHesab.Infrastructure.Mediator.ScopedMediator>();
 
                 // WPF Services
                 services.AddSingleton<IDialogService, DialogService>();

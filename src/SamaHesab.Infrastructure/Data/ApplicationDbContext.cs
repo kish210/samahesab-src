@@ -297,6 +297,37 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<Domain.Entities.Contracting.StatementDeduction>().ToTable("StatementDeductions", "Con");
 
+        // ─── Hotel / PMS (PMS-C1-1): schema Htl ─────────────────────────────────
+        modelBuilder.Entity<Domain.Entities.Hotel.RoomType>().ToTable("RoomTypes", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.Room>().ToTable("Rooms", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.RatePlan>().ToTable("RatePlans", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.Reservation>(b =>
+        {
+            b.ToTable("Reservations", "Htl");
+            b.HasMany(r => r.Rooms).WithOne().HasForeignKey(rr => rr.ReservationId);
+        });
+        modelBuilder.Entity<Domain.Entities.Hotel.ReservationRoom>().ToTable("ReservationRooms", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.RoomNightBlock>().ToTable("RoomNightBlocks", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.Folio>(b =>
+        {
+            b.ToTable("Folios", "Htl");
+            b.Ignore(f => f.Balance);
+            b.Ignore(f => f.IsChargeable);
+            b.HasMany(f => f.Charges).WithOne().HasForeignKey(c => c.FolioId);
+            b.HasMany(f => f.Payments).WithOne().HasForeignKey(p => p.FolioId);
+        });
+        modelBuilder.Entity<Domain.Entities.Hotel.FolioCharge>().ToTable("FolioCharges", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.FolioPayment>().ToTable("FolioPayments", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.Deposit>(b =>
+        {
+            b.ToTable("Deposits", "Htl");
+            b.Ignore(d => d.Remaining);
+        });
+        modelBuilder.Entity<Domain.Entities.Hotel.HousekeepingTask>().ToTable("HousekeepingTasks", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.MaintenanceTicket>().ToTable("MaintenanceTickets", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.NightAuditRun>().ToTable("NightAuditRuns", "Htl");
+        modelBuilder.Entity<Domain.Entities.Hotel.PmsSettings>().ToTable("Settings", "Htl");
+
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>
         {
@@ -514,6 +545,8 @@ public class ApplicationDbContext : DbContext
         ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
         // TUR-C1-1 — فروشِ گردشگری شعبه‌ای است.
         ApplyTenantAndBranchFilter<Domain.Entities.Tourism.TourismSale>(modelBuilder);
+        // PMS-C1-1 — رزروِ هتل شعبه‌ای است.
+        ApplyTenantAndBranchFilter<Domain.Entities.Hotel.Reservation>(modelBuilder);
         // MB-3 — جداسازیِ شعبهٔ انبار (هماهنگی با C2). فیلترِ nullable-aware: انبارِ بدونِ شعبه (null)
         // مشترک و برای همه دیده می‌شود؛ وگرنه فقط شعبهٔ کاربر. ادمین/AllBranches همه را می‌بیند.
         modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>

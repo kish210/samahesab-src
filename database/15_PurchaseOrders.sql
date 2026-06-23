@@ -62,5 +62,16 @@ IF COL_LENGTH('Pur.PurchaseOrders', 'SupplierId') IS NULL
     ALTER TABLE Pur.PurchaseOrders ADD SupplierId INT NULL;
 GO
 
+-- روی DBهای با اسکیمای قدیمیِ ۰۲، ستون‌های FiscalYearId/SupplierId به‌صورتِ NOT NULL و بدونِ پیش‌فرض‌اند؛
+-- چون موجودیتِ نو این‌ها را نمی‌فرستد، درجِ سفارشِ نو هم شکست می‌خورد. اگر این ستون‌ها هستند و NOT NULL،
+-- nullable‌شان می‌کنیم تا درج با اسکیمای جدید کار کند (idempotent — فقط در صورتِ نیاز).
+IF COL_LENGTH('Pur.PurchaseOrders', 'FiscalYearId') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('Pur.PurchaseOrders'), 'FiscalYearId', 'AllowsNull') = 0
+    ALTER TABLE Pur.PurchaseOrders ALTER COLUMN FiscalYearId INT NULL;
+IF COL_LENGTH('Pur.PurchaseOrders', 'SupplierId') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('Pur.PurchaseOrders'), 'SupplierId', 'AllowsNull') = 0
+    ALTER TABLE Pur.PurchaseOrders ALTER COLUMN SupplierId INT NULL;
+GO
+
 PRINT N'سفارش خرید (Pur.PurchaseOrders / PurchaseOrderItems) با موفقیت ساخته/ارتقا یافت.';
 GO

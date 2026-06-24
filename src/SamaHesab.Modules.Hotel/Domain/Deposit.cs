@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 public enum DepositStatus { Held = 0, Applied = 1, Refunded = 2 }
 

@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 /// <summary>PMS-C1-1 — اتاق-شبِ رزروشده. UNIQUE(RoomId, Date) در DB → جلوگیری از رزروِ هم‌زمانِ یک اتاق-شب.</summary>
 public class RoomNightBlock : AuditableEntity

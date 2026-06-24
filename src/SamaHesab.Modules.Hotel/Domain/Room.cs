@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 public enum RoomStatus { Vacant_Clean = 0, Vacant_Dirty = 1, Occupied_Clean = 2, Occupied_Dirty = 3, Inspected = 4, OutOfOrder = 5, Blocked = 6 }
 

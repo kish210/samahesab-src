@@ -18,6 +18,9 @@ builder.Host.UseWindowsService(o => o.ServiceName = "SamaHesabApi");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// ── ماژول‌های نصب‌شده (فاز ۱): هتل. ApplicationDbContext این‌ها را برای مپِ مدلِ ماژول می‌گیرد. ──
+builder.Services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, SamaHesab.Modules.Hotel.HotelModule>();
+
 // همگام‌سازیِ پشتیبانی سمتِ کلاینت است؛ میزبانِ API نسخهٔ no-op می‌گیرد (رفعِ ValidateOnBuild در Development).
 builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.OfflineSupportApiClient>();
 

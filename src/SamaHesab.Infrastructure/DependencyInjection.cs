@@ -27,7 +27,9 @@ public static class DependencyInjection
                 // incompatible with the user-initiated transactions used in the
                 // command handlers (sales/purchase) and causes them to throw.
                 sqlOptions.CommandTimeout(15);
-            }));
+            })
+            // ماژولارسازی: کلیدِ کشِ مدل به ماژول‌های فعال وابسته شود تا نصب/حذفِ ماژول مدل را بازبسازد.
+            .ReplaceService<Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory, Data.ModuleAwareModelCacheKeyFactory>());
 
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();

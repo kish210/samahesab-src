@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 public enum FolioStatus { Open = 0, Closed = 1, Settled = 2 }
 

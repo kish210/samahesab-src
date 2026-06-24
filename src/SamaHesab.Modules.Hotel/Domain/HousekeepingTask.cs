@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 public enum HousekeepingType { DailyClean = 0, CheckoutClean = 1, Inspection = 2, Maintenance = 3 }
 public enum HousekeepingTaskStatus { Pending = 0, InProgress = 1, Done = 2, Failed = 3 }

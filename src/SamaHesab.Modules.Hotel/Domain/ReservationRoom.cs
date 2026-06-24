@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 /// <summary>PMS-C1-1 — خطِ اتاقِ رزرو. اتاقِ فیزیکی هنگام/نزدیکِ check-in تخصیص می‌یابد.</summary>
 public class ReservationRoom : BaseEntity

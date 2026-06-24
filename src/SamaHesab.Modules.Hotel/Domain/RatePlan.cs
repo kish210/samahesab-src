@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 /// <summary>PMS-C1-1 — پلنِ نرخِ نوعِ اتاق در بازهٔ تاریخیِ شمسی (+ شارژِ آخرِ‌هفته/تعطیل، صبحانه).</summary>
 public class RatePlan : AuditableEntity

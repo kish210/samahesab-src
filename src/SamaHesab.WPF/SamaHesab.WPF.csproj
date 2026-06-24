@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SamaHesab.Application\SamaHesab.Application.csproj" />
     <ProjectReference Include="..\SamaHesab.Infrastructure\SamaHesab.Infrastructure.csproj" />
+    <ProjectReference Include="..\SamaHesab.Modules.Hotel\SamaHesab.Modules.Hotel.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />

@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 /// <summary>PMS-C1-1 — اجرای ممیزیِ شبانه (Night Audit): بستنِ روزِ کاری + سندِ درآمدِ اتاق/عوارض. idempotent بر BusinessDate.</summary>
 public class NightAuditRun : AuditableEntity

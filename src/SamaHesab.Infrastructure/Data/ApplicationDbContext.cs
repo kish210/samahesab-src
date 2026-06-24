@@ -34,6 +34,9 @@ public class ApplicationDbContext : DbContext
     // ── ماژولارسازی (G4): مدلِ EFِ ماژول‌های نصب‌شده/فعال از DI می‌آید؛ هسته موجودیتِ ماژول را hard-code نمی‌کند. ──
     private readonly IReadOnlyList<IModule> _modules;
 
+    /// <summary>کلیدِ مجموعهٔ ماژول‌های فعال — تا کشِ مدلِ EF با تغییرِ ماژول‌ها بازساخته شود (removability).</summary>
+    public string ActiveModuleKeys => string.Join(",", _modules.Select(m => m.Key).OrderBy(k => k, System.StringComparer.Ordinal));
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IPublisher publisher,
         ICurrentUserService? currentUser = null, IEnumerable<IModule>? modules = null)
         : base(options)
@@ -304,36 +307,7 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<Domain.Entities.Contracting.StatementDeduction>().ToTable("StatementDeductions", "Con");
 
-        // ─── Hotel / PMS (PMS-C1-1): schema Htl ─────────────────────────────────
-        modelBuilder.Entity<Domain.Entities.Hotel.RoomType>().ToTable("RoomTypes", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.Room>().ToTable("Rooms", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.RatePlan>().ToTable("RatePlans", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.Reservation>(b =>
-        {
-            b.ToTable("Reservations", "Htl");
-            b.HasMany(r => r.Rooms).WithOne().HasForeignKey(rr => rr.ReservationId);
-        });
-        modelBuilder.Entity<Domain.Entities.Hotel.ReservationRoom>().ToTable("ReservationRooms", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.RoomNightBlock>().ToTable("RoomNightBlocks", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.Folio>(b =>
-        {
-            b.ToTable("Folios", "Htl");
-            b.Ignore(f => f.Balance);
-            b.Ignore(f => f.IsChargeable);
-            b.HasMany(f => f.Charges).WithOne().HasForeignKey(c => c.FolioId);
-            b.HasMany(f => f.Payments).WithOne().HasForeignKey(p => p.FolioId);
-        });
-        modelBuilder.Entity<Domain.Entities.Hotel.FolioCharge>().ToTable("FolioCharges", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.FolioPayment>().ToTable("FolioPayments", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.Deposit>(b =>
-        {
-            b.ToTable("Deposits", "Htl");
-            b.Ignore(d => d.Remaining);
-        });
-        modelBuilder.Entity<Domain.Entities.Hotel.HousekeepingTask>().ToTable("HousekeepingTasks", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.MaintenanceTicket>().ToTable("MaintenanceTickets", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.NightAuditRun>().ToTable("NightAuditRuns", "Htl");
-        modelBuilder.Entity<Domain.Entities.Hotel.PmsSettings>().ToTable("Settings", "Htl");
+        // ─── Hotel / PMS → استخراج شد به SamaHesab.Modules.Hotel (فاز ۱). مپش از HotelModule.ConfigureModel می‌آید. ───
 
         // ─── Voucher Templates (productivity): schema Acc ───────────────────────
         modelBuilder.Entity<VoucherTemplate>(b =>
@@ -527,6 +501,12 @@ public class ApplicationDbContext : DbContext
         // The audit-by-user columns are not present in every table created by the
         // SQL scripts. They are not used by the UI, so ignore them everywhere to
         // avoid "Invalid column name 'CreatedByUserId'" at query time.
+        // ── ماژولارسازی (G4): مدلِ موجودیتِ ماژول‌های نصب‌شده/فعال — *پیش از* حلقهٔ فیلترِ عمومی ثبت می‌شود
+        //    تا موجودیتِ ماژول (AuditableEntity) خودکار فیلترِ شرکت + Ignoreِ ستون‌های audit را بگیرد.
+        //    ماژولِ ثبت‌نشده (غیرفعال/حذف‌شده) → موجودیتش مپ نمی‌شود و هسته سالم می‌ماند.
+        foreach (var module in _modules)
+            module.ConfigureModel(modelBuilder);
+
         var applyTenant = typeof(ApplicationDbContext)
             .GetMethod(nameof(ApplyTenantFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
         foreach (var et in modelBuilder.Model.GetEntityTypes().ToList())
@@ -552,8 +532,8 @@ public class ApplicationDbContext : DbContext
         ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
         // TUR-C1-1 — فروشِ گردشگری شعبه‌ای است.
         ApplyTenantAndBranchFilter<Domain.Entities.Tourism.TourismSale>(modelBuilder);
-        // PMS-C1-1 — رزروِ هتل شعبه‌ای است.
-        ApplyTenantAndBranchFilter<Domain.Entities.Hotel.Reservation>(modelBuilder);
+        // PMS: رزروِ هتل به ماژولِ Hotel منتقل شد؛ فیلترِ شرکت (multi-tenant) از حلقهٔ عمومیِ بالا اعمال می‌شود.
+        //   فیلترِ شعبه‌ایِ موجودیتِ ماژول = follow-upِ سخت‌سازیِ seam (فاز ۴). Hotel هنوز دادهٔ تولیدی ندارد.
         // MB-3 — جداسازیِ شعبهٔ انبار (هماهنگی با C2). فیلترِ nullable-aware: انبارِ بدونِ شعبه (null)
         // مشترک و برای همه دیده می‌شود؛ وگرنه فقط شعبهٔ کاربر. ادمین/AllBranches همه را می‌بیند.
         modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>
@@ -568,10 +548,6 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<StockTransaction>().HasQueryFilter(e =>
             (!_tenantFilterEnabled || e.CompanyId == _companyId)
             && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
-
-        // ── ماژولارسازی (G4): مدلِ موجودیتِ ماژول‌های نصب‌شده/فعال. ماژولِ غیرفعال → موجودیتش مپ نمی‌شود. ──
-        foreach (var module in _modules)
-            module.ConfigureModel(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

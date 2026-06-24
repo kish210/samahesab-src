@@ -131,6 +131,10 @@ public partial class App : System.Windows.Application
                 // Infrastructure
                 services.AddInfrastructure(ctx.Configuration);
 
+                // ── ماژول‌های نصب‌شده (فاز ۱ — پایلوتِ استخراج): هتل. ApplicationDbContext این‌ها را
+                //    برای مپِ مدلِ ماژول از DI می‌گیرد (G4). افزودنِ ماژولِ نو = یک خطِ AddSingleton<IModule>. ──
+                services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, SamaHesab.Modules.Hotel.HotelModule>();
+
                 // MediatR + Pipelines
                 services.AddMediatR(cfg => {
                     cfg.RegisterServicesFromAssembly(typeof(Application.Accounting.Commands.CreateVoucherCommand).Assembly);

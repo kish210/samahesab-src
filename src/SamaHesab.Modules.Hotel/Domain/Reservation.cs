@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Hotel;
+namespace SamaHesab.Modules.Hotel.Domain;
 
 public enum ReservationSource { Direct = 0, Agency = 1, OTA = 2, Walkin = 3 }
 public enum ReservationStatus { Hold = 0, Confirmed = 1, Guaranteed = 2, CheckedIn = 3, CheckedOut = 4, Cancelled = 5, NoShow = 6 }

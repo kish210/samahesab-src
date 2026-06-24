@@ -16,6 +16,8 @@ $modules = @(
   @{ Key="Contracting"; Name="پیمانکاری";            Proj="SamaHesab.Modules.Contracting"; Schema="Con"; Desc="صورت‌وضعیتِ پیمان، آبشارِ کسورات، ضمانت‌نامه و گزارش‌ها." }
   @{ Key="Restaurant";  Name="رستوران";              Proj="SamaHesab.Modules.Restaurant";  Schema="Rst"; Desc="سالن/میز/سفارش/آشپزخانه — صندوقِ رستوران و گارسون." }
   @{ Key="POS";         Name="صندوق فروش (POS)";      Proj="SamaHesab.Modules.POS";         Schema="Pos"; Desc="شیفتِ صندوق (Z/X) + فاکتورِ معلق (Hold/Recall) برای فروشِ سریع." }
+  @{ Key="HR";          Name="منابع انسانی";          Proj="SamaHesab.Modules.HR";          Schema="Hrm"; Desc="حقوق و دستمزد، حضور و غیاب، کارمندان و فیش." }
+  @{ Key="CRM";         Name="باشگاه مشتریان (CRM)";  Proj="SamaHesab.Modules.CRM";         Schema="Crm"; Desc="امتیاز و وفاداریِ مشتریان (باشگاه)." }
 )
 
 $catalog = @()

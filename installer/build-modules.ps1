@@ -14,6 +14,7 @@ $coreVersion = ([xml](Get-Content (Join-Path $root "Directory.Build.props"))).Pr
 $modules = @(
   @{ Key="Hotel";       Name="هتل / اقامتگاه (PMS)"; Proj="SamaHesab.Modules.Hotel";       Schema="Htl"; Desc="مدیریتِ اقامتگاه: اتاق/نرخ/رزرو/فولیو/شب‌حسابرسی." }
   @{ Key="Contracting"; Name="پیمانکاری";            Proj="SamaHesab.Modules.Contracting"; Schema="Con"; Desc="صورت‌وضعیتِ پیمان، آبشارِ کسورات، ضمانت‌نامه و گزارش‌ها." }
+  @{ Key="Restaurant";  Name="رستوران";              Proj="SamaHesab.Modules.Restaurant";  Schema="Rst"; Desc="سالن/میز/سفارش/آشپزخانه — صندوقِ رستوران و گارسون." }
 )
 
 $catalog = @()

@@ -815,6 +815,21 @@
 - [x] ✅C2 **MOD-CON — فاز ۲: استخراجِ ماژولِ Contracting انجام شد.** `SamaHesab.Modules.Contracting` (۶ موجودیت + ۸ فایلِ Application، namespaceهای `SamaHesab.Modules.Contracting.*`) + `ContractingModule:IModule` (ConfigureModel مپِ schema Con · RegisterServices=AddMediatRِ اسمبلیِ ماژول · GetMenus · GetMigrationScripts). هسته صفر رفرنس به Contracting دارد. میزبان‌ها (WPF+API) با حلقهٔ ثبتِ ماژول‌ها (IModule + RegisterServices) وصل شدند. **اولین ماژولِ دارای لایهٔ Application/handler** — الگوی مرجعِ ماژول‌های بزرگ‌تر. ۲ تستِ removability + تست‌های موجودِ Contracting سبز. build کلِ solution سبز · ۵۹۸ تست. *(لِینِ C2 — ماژولارسازی)*
 - [x] ✅C2 **MOD-MARKET — بازارِ ماژول (به‌سپردهٔ کاربر).** `installer/build-modules.ps1` هر ماژول را به `<Name>.mspkg` (DLL+module.json+version.json) + `modules-catalog.json` بسته‌بندی می‌کند. صفحهٔ **تنظیمات → «بازارِ ماژول‌ها»** (`ModuleMarketplaceViewModel`/`View`) کاتالوگ را از releaseِ `modules`ِ مخزنِ عمومیِ `kish210/SamaHesab` می‌خواند و `.mspkg` را به `%AppData%/SamaHesab/modules` دانلود + در ModuleService فعال می‌کند. **منتشر شد:** https://github.com/kish210/SamaHesab/releases/tag/modules (Hotel.mspkg، Contracting.mspkg، modules-catalog.json). سورس فقط در samahesab-src · بسته‌ها فقط روی SamaHesab. ۶۰۵ تست. ⏭️ بارگذاریِ کاملِ runtimeِ DLL (ModuleLoaderِ AssemblyLoadContext) = فاز ۴ (پلتفرم/pc). *(لِینِ C2 — ماژولارسازی/بازار)*
 > **هماهنگی @2026-06-24:** pc فاز۳ (HrModule+CrmModule پشتِ IModule) را پیش می‌برد؛ laptop فاز۰ (seamِ G4) + پایلوتِ Hotel + Contracting + بازار را زد. باقی‌ماندهٔ استخراجِ C2 (Restaurant→POS→Tourism) با همان الگوی Contracting ادامه می‌یابد.
+>
+> ## 🧩 تقسیمِ کارِ استخراجِ ماژول‌ها (نهایی @2026-06-24)
+> | ماژول | مالک | وضعیت |
+> |------|------|--------|
+> | Abstractions/IModule + seam G4 | laptop | ✅ |
+> | Hotel (پایلوت) | laptop | ✅ |
+> | Contracting | laptop | ✅ |
+> | بازارِ ماژول + بسته‌بندی | laptop | ✅ |
+> | **HR (منابع انسانی)** | 🖥 pc | 🚧 HrModule پشتِ IModule (لِینِ C1) |
+> | **CRM (باشگاه)** | 🖥 pc | 🚧 CrmModule پشتِ IModule (لِینِ C1) |
+> | **فاز۴: ModuleLoader (AssemblyLoadContext)** | 🖥 pc/پلتفرم | ⬜ |
+> | **Restaurant** | 💻 laptop | [~] 🚧 شروع‌شده (MOD-REST) |
+> | **POS** | 💻 laptop | ⬜ بعدِ Restaurant |
+> | **Tourism** | 💻 laptop | ⬜ (بک‌اندِ TUR-C1 مالِ pc بود → هنگامِ استخراج هماهنگی) |
+> - [~] 🚧 laptop@MOD-REST — استخراجِ ماژولِ **Restaurant** به `SamaHesab.Modules.Restaurant`. 🖥 pc لطفاً `*/Restaurant/*` و `*/Entities/Restaurant/*` و `IRestaurantOrderRepository` را تا اتمام دست نزن.
 
 ### 🐞 باگ‌های گزارش‌شدهٔ کاربر (bug.xlsx @2026-06-23 — نسخهٔ ۲.۵.۲۱)
 - [x] ✅C2 **BUG-2 (اشخاص→مشتریان): نبودِ validationِ نام.** مشتری با نامِ نامعتبر «jhkj» ثبت می‌شد چون `CreateCustomerCommand` هیچ Validatorی نداشت. `CreateCustomerCommandValidator` افزوده شد: کد الزامی + نامِ معتبر (حقوقی=نامِ شرکت، حقیقی=نام؛ دستِ‌کم ۲ نویسه). ۵ تستِ نو (۵۳۱ کل). *(تشخیص: نامِ تصادفیِ کوتاه مثل «jhkj» چون ≥۲ نویسه است هنوز رد نمی‌شود؛ تشخیصِ «بی‌معنا بودن» برنامه‌نویسانه ممکن نیست — گاردِ خالی/تک‌نویسه بسته شد.)*

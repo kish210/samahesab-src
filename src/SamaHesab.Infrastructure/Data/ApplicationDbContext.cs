@@ -109,7 +109,7 @@ public class ApplicationDbContext : DbContext
     // HRM
     public DbSet<Employee> Employees { get; set; }
     public DbSet<SamaHesab.Domain.Entities.HRM.Department> Departments { get; set; }
-    public DbSet<SamaHesab.Domain.Entities.HRM.AttendanceRecord> AttendanceRecords { get; set; }
+    // AttendanceRecord و سایر موجودیت‌های حقوق/حضور به Modules.HR منتقل شدند (context.Set<T> از طریقِ مدلِ ماژول).
 
     // Restaurant (v2) → استخراج شد به SamaHesab.Modules.Restaurant؛ DbSet/مپ از RestaurantModule.
     public DbSet<SamaHesab.Domain.Entities.Documents.DocumentTemplate> DocumentTemplates { get; set; }   // فاز ۱۰ DT-2
@@ -242,29 +242,16 @@ public class ApplicationDbContext : DbContext
             b.HasKey(a => a.Id);
         });
 
+        // Employee/Department در هسته می‌مانند (داده‌پایهٔ سازمانیِ مشترک — فروش/رستوران/گردشگری مصرفش می‌کنند).
         modelBuilder.Entity<Employee>().ToTable("Employees", "Hrm");
-        // Avoid cascading the HR detail tables into the model for now.
-        modelBuilder.Entity<Employee>().Ignore(e => e.AttendanceRecords);
-        modelBuilder.Entity<Employee>().Ignore(e => e.SalarySlips);
         modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Department>(b =>
         {
             b.ToTable("Departments", "Hrm");
             b.Ignore(d => d.CreatedAt);   // Hrm.Departments ستون‌های تاریخِ ممیزی ندارد
             b.Ignore(d => d.UpdatedAt);
         });
-        // AttendanceRecord موجودیتِ مستقل (BaseEntity)؛ ناوبریِ Employee.AttendanceRecords نادیده می‌ماند.
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceRecord>().ToTable("AttendanceRecords", "Hrm");
-        // SalarySlip موجودیتِ مستقل — برای persistِ فیش‌های محاسبه‌شده (PAY-C1-3) و گزارش‌ها (PAY-C1-4).
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.SalarySlip>().ToTable("SalarySlips", "Hrm");
-        // PAY-C1-5 — تنظیماتِ سالِ حقوق (نرخ‌ها/مبالغِ پایه).
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.PayrollSetting>().ToTable("PayrollSettings", "Hrm");
-        // ATT-C1-1 — موجودیت‌های حضوروغیاب: شیفت/تقویمِ تعطیلات/درخواستِ مرخصی.
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Shift>().ToTable("Shifts", "Hrm");
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.Holiday>().ToTable("Holidays", "Hrm");
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.LeaveRequest>().ToTable("LeaveRequests", "Hrm");
-        // ATTP-C1-3 — دستگاهِ تردد + ترددِ خام.
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.AttendanceDevice>().ToTable("Devices", "Hrm");
-        modelBuilder.Entity<SamaHesab.Domain.Entities.HRM.RawPunch>().ToTable("RawPunches", "Hrm");
+        // حقوق+حضوروغیاب (SalarySlip/PayrollSetting/Shift/Holiday/LeaveRequest/AttendanceRecord/Device/RawPunch)
+        // به SamaHesab.Modules.HR منتقل شدند → نگاشتِ EFشان در HrModule.ConfigureModel است.
         // CR-X8 — تنظیماتِ شرکتیِ کلید-مقدار در DB.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.CompanySetting>().ToTable("CompanySettings", "Cfg");
 

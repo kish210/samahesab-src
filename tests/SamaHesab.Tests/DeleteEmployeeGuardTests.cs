@@ -51,6 +51,14 @@ public class DeleteEmployeeGuardTests
         public IEnumerable<string> GetRoles() => new[] { "ADMIN" };
     }
 
+    /// <summary>چک‌کنندهٔ ساختگیِ وابستگی (جایگزینِ پیاده‌سازیِ ماژولِ HR در تست).</summary>
+    private sealed class FakeChecker : IEmployeeDependencyChecker
+    {
+        private readonly bool _has;
+        public FakeChecker(bool has) => _has = has;
+        public Task<bool> HasHistoryAsync(int employeeId, CancellationToken ct = default) => Task.FromResult(_has);
+    }
+
     private static (FakeRepo<Employee> emps, Employee emp) Seed()
     {
         var emps = new FakeRepo<Employee>();
@@ -63,11 +71,9 @@ public class DeleteEmployeeGuardTests
     public async Task Delete_With_Payroll_History_Deactivates_Not_Removes()
     {
         var (emps, emp) = Seed();
-        var slips = new FakeRepo<SalarySlip>();
-        slips.AddAsync(SalarySlip.Create(emp.Id, "1404", 1, 10_000_000m)).Wait();   // سابقهٔ فیش
-        var att = new FakeRepo<AttendanceRecord>();
+        var checkers = new IEmployeeDependencyChecker[] { new FakeChecker(has: true) };   // سابقهٔ فیش/تردد
 
-        var res = await new DeleteEmployeeCommandHandler(emps, slips, att, new FakeUow(), new FakeUser())
+        var res = await new DeleteEmployeeCommandHandler(emps, checkers, new FakeUow(), new FakeUser())
             .Handle(new DeleteEmployeeCommand(emp.Id), default);
 
         Assert.False(res.Succeeded);                 // پیامِ «غیرفعال شد»
@@ -79,8 +85,9 @@ public class DeleteEmployeeGuardTests
     public async Task Delete_Without_History_Removes()
     {
         var (emps, emp) = Seed();
-        var res = await new DeleteEmployeeCommandHandler(emps, new FakeRepo<SalarySlip>(),
-            new FakeRepo<AttendanceRecord>(), new FakeUow(), new FakeUser())
+        // بدونِ ماژولِ HR هیچ چک‌کننده‌ای ثبت نمی‌شود ⇒ فهرستِ خالی ⇒ حذفِ سختِ امن.
+        var res = await new DeleteEmployeeCommandHandler(emps, System.Array.Empty<IEmployeeDependencyChecker>(),
+            new FakeUow(), new FakeUser())
             .Handle(new DeleteEmployeeCommand(emp.Id), default);
 
         Assert.True(res.Succeeded);

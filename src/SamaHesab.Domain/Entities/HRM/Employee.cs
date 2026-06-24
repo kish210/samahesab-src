@@ -41,8 +41,8 @@ public class Employee : AuditableEntity
     public int ChildrenCount { get; private set; }        // تعدادِ فرزندِ مشمولِ حق اولاد (تا ۲)
     public int PriorServiceMonths { get; private set; }   // سابقهٔ پیش از استخدام (ماه) — برای پایهٔ سنوات
 
-    public ICollection<AttendanceRecord> AttendanceRecords { get; private set; } = new List<AttendanceRecord>();
-    public ICollection<SalarySlip> SalarySlips { get; private set; } = new List<SalarySlip>();
+    // ناوبریِ AttendanceRecords/SalarySlips حذف شد: این موجودیت‌ها به ماژولِ HR منتقل شدند و
+    // هسته نباید به ماژول وابسته شود. کوئری‌ها از IRepository<...> مستقیم استفاده می‌کنند.
 
     private Employee() { }
 

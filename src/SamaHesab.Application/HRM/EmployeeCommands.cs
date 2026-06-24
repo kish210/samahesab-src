@@ -103,13 +103,12 @@ public record DeleteEmployeeCommand(int Id) : IRequest<Result>;
 public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, Result>
 {
     private readonly IRepository<Employee> _repo;
-    private readonly IRepository<SalarySlip> _slips;
-    private readonly IRepository<AttendanceRecord> _attendance;
+    private readonly IEnumerable<IEmployeeDependencyChecker> _checkers;   // ماژول‌ها (مثلِ HR) سابقه را گزارش می‌دهند
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
-    public DeleteEmployeeCommandHandler(IRepository<Employee> repo, IRepository<SalarySlip> slips,
-        IRepository<AttendanceRecord> attendance, IUnitOfWork uow, ICurrentUserService user)
-    { _repo = repo; _slips = slips; _attendance = attendance; _uow = uow; _user = user; }
+    public DeleteEmployeeCommandHandler(IRepository<Employee> repo, IEnumerable<IEmployeeDependencyChecker> checkers,
+        IUnitOfWork uow, ICurrentUserService user)
+    { _repo = repo; _checkers = checkers; _uow = uow; _user = user; }
 
     public async Task<Result> Handle(DeleteEmployeeCommand r, CancellationToken ct)
     {
@@ -119,9 +118,11 @@ public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeComman
             var emp = await _repo.FindSingleAsync(e => e.Id == r.Id && e.CompanyId == companyId, ct);
             if (emp is null) return Result.Failure("کارمند یافت نشد.");
 
-            // سوابقِ مالی/تردد → حذفِ سخت ممنوع (یتیم‌شدنِ رکورد)؛ غیرفعال می‌شود.
-            var hasHistory = await _slips.AnyAsync(s => s.EmployeeId == r.Id, ct)
-                          || await _attendance.AnyAsync(a => a.EmployeeId == r.Id, ct);
+            // سوابقِ مالی/تردد (از ماژول‌های ثبت‌شده) → حذفِ سخت ممنوع (یتیم‌شدنِ رکورد)؛ غیرفعال می‌شود.
+            // اگر ماژولِ HR نباشد، چک‌کننده‌ای ثبت نشده ⇒ سابقه‌ای نیست ⇒ حذفِ سخت امن است.
+            var hasHistory = false;
+            foreach (var checker in _checkers)
+                if (await checker.HasHistoryAsync(r.Id, ct)) { hasHistory = true; break; }
             if (hasHistory)
             {
                 emp.Deactivate();

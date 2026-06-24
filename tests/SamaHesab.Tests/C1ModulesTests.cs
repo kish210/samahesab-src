@@ -1,5 +1,5 @@
 using System.Linq;
-using SamaHesab.Infrastructure.Modules;   // HrModule (ثبتِ سبک)
+using SamaHesab.Modules.HR;                // HrModule (استخراجِ کامل)
 using SamaHesab.Modules.CRM;               // CrmModule (استخراجِ کامل)
 using SamaHesab.Modules.Abstractions;
 using Xunit;

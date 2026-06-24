@@ -126,7 +126,20 @@ public interface IModule
    `RegisterServices` → `RegisterEntities` → ثبتِ منو/مجوز/گزارش/ویجت.
 3. ماژولِ غیرفعال/حذف‌شده اصلاً بارگذاری نمی‌شود ⇒ منو/گزارش/مجوز/جدولش در دسترس نیست، **و هسته سالم می‌ماند**.
 
-**Module Manager (توسعهٔ `ModuleService` فعلی):** نصب · فعال · غیرفعال · به‌روزرسانی · حذف · لایسنس — همه روی همان مدلِ `ModuleDef`.
+**Module Manager (توسعهٔ `ModuleService` فعلی):** نصب · فعال · غیرفعال · به‌روزرسانی · حذف · لایسنس — همه روی همان مدلِ `ModuleDef`. مسیر: تنظیمات → مدیریت ماژول‌ها.
+
+**بسته‌بندی و مانیفستِ ماژول (فاز ۴):** هر ماژول به یک بسته کامپایل می‌شود:
+
+```
+SamaHesab.Modules.<Name>.dll      ← کدِ ماژول (Domain+Application+Infrastructure+Presentation)
+module.json                        ← Key, DisplayName, Version, Schema, Dependencies, Permissions
+version.json                       ← شمارهٔ نسخه + سازگاریِ هستهٔ کمینه
+icon.png                           ← آیکونِ ماژول
+```
+
+بستهٔ استقرار: `<Module>.mspkg` (مثلِ `POS.mspkg`, `Restaurant.mspkg`, `Tourism.mspkg`, `HR.mspkg`). **نصبِ ماژول بدونِ rebuildِ هسته.**
+
+**حذفِ ماژول (uninstall):** حذفِ منو + مجوز + گزارش + ویجت؛ **نگه‌داشتنِ دادهٔ تراکنشیِ تاریخی** (بدونِ drop مگر تأییدِ صریحِ کاربر)؛ هسته نمی‌شکند.
 
 ---
 

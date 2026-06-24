@@ -5,8 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.CRM.Queries;
-using SamaHesab.Application.Tourism.Commands;
-using SamaHesab.Application.Tourism.Queries;
+using SamaHesab.Modules.Tourism.Application.Commands;
+using SamaHesab.Modules.Tourism.Application.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

@@ -27,16 +27,14 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
     private readonly IRepository<PayrollSetting> _settings;
     private readonly IRepository<AttendanceRecord> _records;
     private readonly IRepository<Holiday> _holidays;
-    private readonly IRepository<Domain.Entities.Tourism.SalesCommissionEntry> _commissions;
-    private readonly IRepository<Domain.Entities.CRM.Party> _parties;
+    private readonly ISalesCommissionProvider? _commissionProvider;   // اختیاری — فقط اگر ماژولِ Tourism نصب باشد
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public RunMonthlyPayrollCommandHandler(IRepository<Employee> employees, IRepository<SalarySlip> slips,
         IRepository<PayrollSetting> settings, IRepository<AttendanceRecord> records, IRepository<Holiday> holidays,
-        IRepository<Domain.Entities.Tourism.SalesCommissionEntry> commissions, IRepository<Domain.Entities.CRM.Party> parties,
-        IUnitOfWork uow, ICurrentUserService user)
-    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _commissions = commissions; _parties = parties; _uow = uow; _user = user; }
+        IUnitOfWork uow, ICurrentUserService user, ISalesCommissionProvider? commissionProvider = null)
+    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _commissionProvider = commissionProvider; _uow = uow; _user = user; }
 
     public async Task<Result<RunPayrollResult>> Handle(RunMonthlyPayrollCommand req, CancellationToken ct)
     {
@@ -71,13 +69,12 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 attByEmp[g.Key] = MonthlyAttendanceBuilder.Aggregate(g, holidaySet);
         }
 
-        // پلِ پورسانت→حقوق (TUR-C1-6): جمعِ پورسانتِ ماه per-کارمند به‌عنوانِ «پورسانت فروش» (مشمولِ بیمه/مالیات).
+        // پلِ پورسانت→حقوق (TUR-C1-6): از قلابِ اختیاریِ ماژولِ Tourism (decouple؛ نبودِ ماژول → بدونِ پورسانت).
         Dictionary<int, decimal> commissionByEmp = new();
-        if (req.IncludeCommission)
+        if (req.IncludeCommission && _commissionProvider is not null)
         {
             var ym = $"{req.Year}{req.Month:D2}";
-            commissionByEmp = await Tourism.CommissionPayrollBridge.ByEmployeeAsync(
-                _commissions, _parties, emps, companyId, ym, ct);
+            commissionByEmp = await _commissionProvider.CommissionByEmployeeAsync(emps, companyId, ym, ct);
         }
 
         int created = 0, skipped = 0;

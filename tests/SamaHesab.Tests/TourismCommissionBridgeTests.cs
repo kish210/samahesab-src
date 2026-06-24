@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Tourism;
+using SamaHesab.Modules.Tourism.Application;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Entities.HRM;
-using SamaHesab.Domain.Entities.Tourism;
-using DomainBasis = SamaHesab.Domain.Entities.Tourism.CommissionBasis;
+using SamaHesab.Modules.Tourism.Domain;
+using DomainBasis = SamaHesab.Modules.Tourism.Domain.CommissionBasis;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
 

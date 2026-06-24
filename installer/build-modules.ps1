@@ -18,6 +18,7 @@ $modules = @(
   @{ Key="POS";         Name="صندوق فروش (POS)";      Proj="SamaHesab.Modules.POS";         Schema="Pos"; Desc="شیفتِ صندوق (Z/X) + فاکتورِ معلق (Hold/Recall) برای فروشِ سریع." }
   @{ Key="HR";          Name="منابع انسانی";          Proj="SamaHesab.Modules.HR";          Schema="Hrm"; Desc="حقوق و دستمزد، حضور و غیاب، کارمندان و فیش." }
   @{ Key="CRM";         Name="باشگاه مشتریان (CRM)";  Proj="SamaHesab.Modules.CRM";         Schema="Crm"; Desc="امتیاز و وفاداریِ مشتریان (باشگاه)." }
+  @{ Key="Tourism";     Name="گردشگری";              Proj="SamaHesab.Modules.Tourism";     Schema="Tur"; Desc="فروشِ خدماتِ گردشگری، ودیعهٔ تأمین‌کننده، پورسانت، سند و گزارش." }
 )
 
 $catalog = @()

@@ -1,4 +1,4 @@
-using SamaHesab.Application.Tourism.Commands;
+using SamaHesab.Modules.Tourism.Application.Commands;
 using Xunit;
 
 namespace SamaHesab.Tests;

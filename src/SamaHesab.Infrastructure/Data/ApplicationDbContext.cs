@@ -254,25 +254,7 @@ public class ApplicationDbContext : DbContext
         // CR-X8 — تنظیماتِ شرکتیِ کلید-مقدار در DB.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.CompanySetting>().ToTable("CompanySettings", "Cfg");
 
-        // ─── Tourism (TUR-C1-1): schema Tur ─────────────────────────────────────
-        modelBuilder.Entity<Domain.Entities.Tourism.ProductGroup>().ToTable("ProductGroups", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.TourismProduct>().ToTable("Products", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.SupplierDeposit>().ToTable("SupplierDeposits", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.TourismSetting>().ToTable("Settings", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.CommissionRule>().ToTable("CommissionRules", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.SalesCommissionEntry>().ToTable("CommissionEntries", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.SupplierDailyReport>().ToTable("SupplierDailyReports", "Tur");
-        modelBuilder.Entity<Domain.Entities.Tourism.TourismSale>(b =>
-        {
-            b.ToTable("Sales", "Tur");
-            b.HasMany(s => s.Lines).WithOne().HasForeignKey(l => l.SaleId);
-        });
-        modelBuilder.Entity<Domain.Entities.Tourism.TourismSaleLine>(b =>
-        {
-            b.ToTable("SaleLines", "Tur");
-            b.HasMany(l => l.Passengers).WithOne().HasForeignKey(p => p.SaleLineId);
-        });
-        modelBuilder.Entity<Domain.Entities.Tourism.SalePassenger>().ToTable("SalePassengers", "Tur");
+        // ─── Tourism → استخراج شد به SamaHesab.Modules.Tourism (MOD-TUR). مپش از TourismModule. ───
 
         // ─── Contracting → استخراج شد به SamaHesab.Modules.Contracting (فاز ۲). مپش از ContractingModule. ───
 

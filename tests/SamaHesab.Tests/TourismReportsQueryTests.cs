@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Tourism.Queries;
+using SamaHesab.Modules.Tourism.Application.Queries;
 using SamaHesab.Domain.Entities.CRM;
-using SamaHesab.Domain.Entities.Tourism;
+using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
 

@@ -7,9 +7,9 @@ using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Tourism;
-using SamaHesab.Application.Tourism.Commands;
-using SamaHesab.Application.Tourism.Queries;
+using SamaHesab.Modules.Tourism.Application;
+using SamaHesab.Modules.Tourism.Application.Commands;
+using SamaHesab.Modules.Tourism.Application.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

@@ -1,7 +1,6 @@
 using MediatR;
 using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Tourism.Commands;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
 
@@ -19,12 +18,15 @@ public class GetDashboardAlertsQueryHandler : IRequestHandler<GetDashboardAlerts
     private readonly IChequeRepository _cheques;
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+    private readonly ISupplierDepositAlertProvider? _deposits;   // اختیاری — فقط اگر ماژولِ Tourism نصب باشد
 
-    public GetDashboardAlertsQueryHandler(IChequeRepository cheques, IMediator mediator, ICurrentUserService currentUser)
+    public GetDashboardAlertsQueryHandler(IChequeRepository cheques, IMediator mediator,
+        ICurrentUserService currentUser, ISupplierDepositAlertProvider? deposits = null)
     {
         _cheques = cheques;
         _mediator = mediator;
         _currentUser = currentUser;
+        _deposits = deposits;
     }
 
     public async Task<List<ActionableAlert>> Handle(GetDashboardAlertsQuery request, CancellationToken ct)
@@ -39,8 +41,8 @@ public class GetDashboardAlertsQueryHandler : IRequestHandler<GetDashboardAlerts
         var overdue = cal.Buckets.Single(b => b.Key == "overdue");
         var week = cal.Buckets.Single(b => b.Key == "week");
 
-        // ودیعهٔ کمِ تأمین‌کنندگانِ گردشگری (در صورتِ نبودِ داده، فهرستِ خالی → هشداری ساخته نمی‌شود).
-        var lowDeposits = await _mediator.Send(new GetSupplierDepositBalancesQuery(OnlyLow: true), ct);
+        // ودیعهٔ کمِ تأمین‌کنندگانِ گردشگری (از قلابِ اختیاریِ ماژولِ Tourism؛ نبودِ ماژول → ۰).
+        var lowDepositCount = _deposits is null ? 0 : await _deposits.LowDepositCountAsync(ct);
 
         // دریافتنیِ معوقِ مشتریان از ماندهٔ سنی‌شده (معوق = کل − جاری، یعنی بالای ۳۰ روز).
         var aging = await _mediator.Send(new GetAgedBalanceQuery(Payable: false, AsOfDate: request.Today), ct);
@@ -55,7 +57,7 @@ public class GetDashboardAlertsQueryHandler : IRequestHandler<GetDashboardAlerts
             DueSoonChequeCount: week.TotalCount, DueSoonChequeAmount: week.PaidAmount + week.ReceivedAmount,
             OverdueReceivableCount: overdueRecvCount, OverdueReceivableAmount: overdueRecvAmount,
             LowStockCount: reorder.Count,
-            SupplierDepositLowCount: lowDeposits.Count);
+            SupplierDepositLowCount: lowDepositCount);
 
         return DashboardAlerts.Build(input);
     }

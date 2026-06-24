@@ -1,5 +1,5 @@
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Application.Tourism;
+using SamaHesab.Modules.Tourism.Application;
 using Xunit;
 
 namespace SamaHesab.Tests;

@@ -5,8 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Tourism;
-using SamaHesab.Application.Tourism.Commands;
+using SamaHesab.Modules.Tourism.Application;
+using SamaHesab.Modules.Tourism.Application.Commands;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Application.Tourism.Queries;
+using SamaHesab.Modules.Tourism.Application.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

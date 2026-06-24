@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SamaHesab.Application.Common.Security;
-using SamaHesab.Application.Tourism;
+using SamaHesab.Modules.Tourism.Application;
 using Xunit;
 
 namespace SamaHesab.Tests;

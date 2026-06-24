@@ -1604,3 +1604,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [خنثی] (pc@2026-06-24) — claimِ Hotel/فاز۱ آزاد شد (laptop آن را برداشت؛ WIP pc دور ریخته شد).
 - **مالکیتِ ماژولارسازی (اصلاح @2026-06-24 به‌خواستِ کاربر):** **laptop = فاز ۰ (مکانیزم: Loader/Manager/seam) + فاز ۲ (Tourism/Contracting/Restaurant/POS) + Hotel.** **pc = فاز ۳: ماژول‌های C1 پشتِ IModule → HR/حقوق/حضوروغیاب + CRM(باشگاه).**
 - [~] 🚧 pc@2026-06-24 — فاز ۳ ماژولارسازی: ساختِ `HrModule` و `CrmModule` (پیاده‌سازیِ قراردادِ IModuleِ laptop) با مجوز + اسکریپت‌های مهاجرتِ خودشان + ثبت در DI. نگاشتِ EF فعلاً در DbContext (انتقال در جلسهٔ مشترکِ G4 با laptop). فایل‌های `Infrastructure/Modules/*` و `Infrastructure/DependencyInjection.cs` claimِ pc.
+
+- [x] (pc/C1) فاز ۳ ماژولارسازی — HrModule + CrmModule پشتِ IModuleِ laptop: HrModule (Key=HR، ۷ مجوزِ پرسنل/حقوق/حضور/مرخصی + ۵ migrationِ Pay/Att) · CrmModule (Key=CRM، فقط باشگاه/امتیاز — اشخاص هسته است). ثبت در AddInfrastructure (هر دو هاست). ConfigureModel خالی (نگاشتِ EF در DbContext تا جلسهٔ G4). ۵ تست (۶۰۱ کل). build سبز.

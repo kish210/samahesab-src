@@ -31,6 +31,11 @@ public static class DependencyInjection
             // ماژولارسازی: کلیدِ کشِ مدل به ماژول‌های فعال وابسته شود تا نصب/حذفِ ماژول مدل را بازبسازد.
             .ReplaceService<Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory, Data.ModuleAwareModelCacheKeyFactory>());
 
+        // ماژول‌های لِینِ pc (فاز ۳ ماژولارسازی) — هر دو هاست (WPF/API) از همین‌جا می‌گیرند؛
+        // DbContext و کاتالوگِ مجوزِ میزبان ماژول‌های ثبت‌شده را می‌بینند. (Hotel/Tourism/… را laptop ثبت می‌کند.)
+        services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, Modules.HrModule>();
+        services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, Modules.CrmModule>();
+
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));

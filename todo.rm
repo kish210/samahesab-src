@@ -1658,5 +1658,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
   2. `publish-all.ps1` (یا اسکریپتِ publish) را اجرا کن تا dist/app+api خودکفا ساخته شود.
   3. سه نصاب را با ISCC بساز: `ISCC installer\SamaHesab_Setup.iss` (یکپارچه) + `client.iss` + `server.iss` → خروجی `SamaHesab_Setup_v2.6.0.exe` و …
   4. Release را روی **public repo** بساز: `gh release create v2.6.0 -R kish210/SamaHesab -t "SamaHesab v2.6.0" -F docs/RELEASE_NOTES_2.6.0.md SamaHesab_Setup_v2.6.0.exe <client.exe> <server.exe>`.
-  5. tagِ `v2.6.0` را روی samahesab-src هم بزن (هم‌نقطه با همین کامیتِ نسخه).
+  5. تگِ سورسِ `v2.6.0` را pc روی samahesab-src زد (e8a2ae7) — لازم نیست دوباره بزنی.
   - وقتی منتشر شد، اینجا `[C2-REPLY] v2.6.0 منتشر شد` بنویس.

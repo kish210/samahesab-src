@@ -147,7 +147,8 @@ public partial class App : System.Windows.Application
                 // ── ماژول‌های نصب‌شده (ماژولارسازی فاز ۱/۲): هتل + پیمانکاری. هر ماژول به‌عنوان IModule ثبت می‌شود
                 //    (ApplicationDbContext برای مپِ مدلِ ماژول می‌گیرد) و RegisterServicesش (هندلرهای MediatR) صدا زده می‌شود.
                 //    افزودنِ ماژولِ نو = یک عضوِ آرایه. (در فاز ۴، ModuleLoaderِ DLL-scan جایگزینِ این فهرستِ ثابت می‌شود.) ──
-                foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
+                // ماژول‌های bundle‌شده (همراهِ نصاب).
+                var bundledModules = new SamaHesab.Modules.Abstractions.IModule[]
                 {
                     new SamaHesab.Modules.Hotel.HotelModule(),
                     new SamaHesab.Modules.Contracting.ContractingModule(),
@@ -157,7 +158,21 @@ public partial class App : System.Windows.Application
                     new SamaHesab.Modules.POS.PosModule(),                 // MOD-POS (laptop)
                     new SamaHesab.Modules.Tourism.TourismModule(),         // MOD-TUR (laptop)
                     new SamaHesab.Modules.Attendance.AttendanceModule(),   // فاز ۳ (pc) — حضوروغیاب
-                })
+                };
+                // فاز۴ — ماژول‌های دانلودشده از بازار (`%AppData%/SamaHesab/modules/*.mspkg`) در runtime
+                //   بدونِ rebuildِ هسته بار می‌شوند؛ dedupe با bundleها بر اساسِ Key.
+                var loadedKeys = new HashSet<string>(bundledModules.Select(m => m.Key));
+                IEnumerable<SamaHesab.Modules.Abstractions.IModule> dynamicModules =
+                    System.Array.Empty<SamaHesab.Modules.Abstractions.IModule>();
+                try
+                {
+                    var modulesDir = System.IO.Path.Combine(Services.AppSettingsStore.AppDataDir, "modules");
+                    dynamicModules = SamaHesab.Infrastructure.Modules.ModuleLoader.LoadFromDirectory(
+                        modulesDir, loadedKeys, msg => Log.Information("{Msg}", msg));
+                }
+                catch (Exception ex) { Log.Warning(ex, "بارگذاریِ ماژول‌های دانلودشده رد شد"); }
+
+                foreach (var module in bundledModules.Concat(dynamicModules))
                 {
                     services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);
                     module.RegisterServices(services);

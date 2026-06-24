@@ -828,7 +828,7 @@
 > | **فاز۴: ModuleLoader (AssemblyLoadContext)** | 🖥 pc/پلتفرم | ⬜ |
 > | **Restaurant** | 💻 laptop | ✅ MOD-REST |
 > | **POS** | 💻 laptop | ✅ MOD-POS (CashShift/HeldSale + Application؛ seamِ فیلترِ شعبه به IBranchScopedِ عمومی تعمیم یافت) |
-> | **Tourism** | 💻 laptop | ⬜ (بک‌اندِ TUR-C1 مالِ pc بود → هنگامِ استخراج هماهنگی) |
+> | **Tourism** | 💻 laptop | [~] 🚧 laptop@MOD-TUR — استخراج. **decouple:** پلِ پورسانت→`ISalesCommissionProvider` + شمارشِ ودیعهٔ کم→`ISupplierDepositAlertProvider` (هر دو اینترفیسِ اختیاریِ هسته؛ Tourism پیاده‌سازی، HR/Dashboard وابسته به اینترفیس) تا چرخهٔ HR↔Tourism نشود (طبقِ یادداشتِ pc). 🖥 pc: `*/Tourism/*` + `CommissionPayrollBridge` دستِ من. |
 > - [x] ✅C2 **MOD-REST — استخراجِ Restaurant انجام شد.** کل به `SamaHesab.Modules.Restaurant`: ۵ موجودیت + Application + `IRestaurantOrderRepository` (جدا از فایلِ مشترک) + `RestaurantOrderRepository` (از Infrastructure) + `RestaurantSeeder` + `GetRestaurantDashboardQuery` (از BI). RestaurantModule مپِ Rst + repo/MediatR. هسته صفر رفرنس به رستوران. build سبز · ۶۱۷ تست.
 
 ### 🐞 باگ‌های گزارش‌شدهٔ کاربر (bug.xlsx @2026-06-23 — نسخهٔ ۲.۵.۲۱)

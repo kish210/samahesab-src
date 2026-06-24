@@ -1641,6 +1641,19 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 - [x] (pc/C1 @1abc0bf) فاز ۳ — **استخراجِ کاملِ ماژولِ CRM (loyalty)** انجام شد: پروژهٔ `SamaHesab.Modules.CRM` (Domain/LoyaltyTransaction + Application/{LoyaltyPolicy,LoyaltyCommands,GetCustomerLoyaltyQuery} + `CrmModule`:ConfigureModel(نگاشتِ Crm.LoyaltyTransactions)+RegisterServices(AddMediatR)+مجوزها). از Domain/Application/DbContext حذف؛ ثبتِ سبکِ Infrastructure حذف؛ در foreachِ هر دو هاست (WPF+API) + csprojها + sln + تست‌ها وصل. **namespaceِ دستور/کوئری حفظ شد** ⇒ VM/کنترلرها دست‌نخورده. build کامل سبز · ۶۱۷ تست. **الگوی مرجعِ HR.**
 - [x] (pc) فاز ۳ — استخراجِ کاملِ **HR** انجام شد (Modules.HR + Attendance جدا، @ef78f04/dc8aa12). خطِ کهنه بسته شد.
 
+## 🧭 کارهای باقی‌مانده + تقسیم‌بندی (@2026-06-24) — مرجعِ واحد
+> پلتفرمِ ماژولار کامل است (۹ ماژول استخراج‌شده + بازار + ModuleLoaderِ runtime + نسخهٔ ۲.۶.۲). فهرستِ زیر فقط کارهای واقعاً بازِ غیرِبلاک‌شده است؛ بقیهٔ `[ ]`های پایین آرشیو/انجام‌شده‌اند.
+>
+> | کار | مالک | وضعیت |
+> |-----|------|--------|
+> | **BUG-DATE** — کلیپِ ستونِ تاریخ در گریدها (Width تنگ) | 💻 laptop | [~] 🚧 laptop@BUG-DATE |
+> | افزودنِ **Attendance** به اسکریپتِ بسته‌بندیِ بازار (`build-modules.ps1`) | 💻 laptop | [~] 🚧 laptop |
+> | یکپارچه‌سازیِ «مدیریت ماژول‌ها» (Enable/Disable/Install/Update/Remove) | 💻 laptop | ✅ (`53657bf`) |
+> | **نصابِ per-module** (`.mspkg`→نصابِ مستقل) | 🖥 pc/پلتفرم | ⬜ |
+> | **CI** (build+test روی GitHub Actions) | 🖥 pc/زیرساخت | ⬜ |
+> | لایسنسِ per-module (Loader وضعیتِ لایسنسِ ماژول را بپرسد) | 🖥 pc/پلتفرم | ⬜ |
+> | کارت‌خوانِ سخت‌افزاری · کلاینتِ وب | ⏸ معوقِ کاربر | ⬜ |
+
 ## 🐞 یافته‌های تستِ زندهٔ ۲٫۶٫۱ روی PC (@2026-06-24) — فایلِ کامل: Desktop\SamaHesab_Issues_2.6.1.xlsx
 - [ ] 💻 **BUG-DATE (میز کار → اسناد اخیر) — لِینِ C2 (شل/XAML)، تشخیصِ pc:** ستونِ «تاریخ» رقمِ اولِ سال را کلیپ می‌کند («۴۰۵/...» به‌جای «۱۴۰۵/...»). **ریشه: داده سالم است** (DB و کوئری «۱۴۰۵/...» می‌دهند)؛ فقط `DashboardView.xaml:192` → `<DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="90"/>` تنگ است. **رفع: Width را به ~110 ببر** (یا `Width="Auto"`/`SizeToCells`). شدت: کم. (هشدارِ مشابه در ستون‌های تاریخِ دیگرِ گریدها هم چک شود.)
 - ✅ **BUG-1 تأیید شد** (فیلترِ contains کمبوی حساب کار می‌کند + Enter قطعی می‌کند). · ✅ نسخهٔ نمایشی فوتر = ۲٫۶٫۱.

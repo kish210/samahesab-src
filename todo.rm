@@ -825,7 +825,7 @@
 > | بازارِ ماژول + بسته‌بندی | laptop | ✅ |
 > | **HR (منابع انسانی)** | 🖥 pc | 🚧 HrModule پشتِ IModule (لِینِ C1) |
 > | **CRM (باشگاه)** | 🖥 pc | 🚧 CrmModule پشتِ IModule (لِینِ C1) |
-> | **فاز۴: ModuleLoader (AssemblyLoadContext)** | 🖥 pc/پلتفرم | ⬜ (سهمِ pc — laptop دست نمی‌زند؛ claimِ قبلیِ MOD-LOADER پس داده شد) |
+> | **فاز۴: ModuleLoader (AssemblyLoadContext)** | 💻 laptop (به‌سپردهٔ صریحِ کاربر) | [~] 🚧 laptop@MOD-LOADER — `%AppData%/SamaHesab/modules/*.mspkg` اکسترکت + DLL با AssemblyLoadContext.Default بار، کشفِ IModule، dedupe با ماژول‌های bundle، ثبت در DI/مپ. |
 > | **Restaurant** | 💻 laptop | ✅ MOD-REST |
 > | **POS** | 💻 laptop | ✅ MOD-POS (CashShift/HeldSale + Application؛ seamِ فیلترِ شعبه به IBranchScopedِ عمومی تعمیم یافت) |
 > | **Tourism** | 💻 laptop | ✅ MOD-TUR — استخراج شد به `SamaHesab.Modules.Tourism` (Domain+Application+CommissionPayrollBridge). **decouple با اینترفیسِ اختیاریِ هسته:** `ISalesCommissionProvider` (پورسانت→HR) + `ISupplierDepositAlertProvider` (ودیعه→داشبورد) — Tourism پیاده‌سازی، HR/Dashboard فقط به اینترفیسِ هسته وابسته؛ **چرخهٔ HR↔Tourism حذف شد**. هسته صفر رفرنس به Tourism. ۶۱۷ تست (شاملِ تستِ یکپارچگیِ پورسانت با provider). **همهٔ ماژول‌های لِینِ laptop کامل شد.** |

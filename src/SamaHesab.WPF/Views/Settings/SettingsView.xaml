@@ -28,7 +28,7 @@
                 <TextBlock x:Name="HdrSpecial" Text="تنظیماتِ تخصصی" FontWeight="Bold" Foreground="{DynamicResource SecondaryText}"
                            FontFamily="{StaticResource VazirFont}" FontSize="11" Margin="16,18,16,8"/>
                 <Button Content="👤 کاربران و دسترسی‌ها" Style="{StaticResource SidebarItemButton}" Command="{Binding OpenSecurityCommand}"/>
-                <Button Content="🧩 مدیریت ماژول‌ها"     Style="{StaticResource SidebarItemButton}" Command="{Binding OpenModulesCommand}"/>
+                <!-- «مدیریت ماژول‌ها» فقط از منوی «سیستم» (حذفِ ورودیِ تکراری از تنظیمات). -->
                 <Button Content="🏢 مدیریت شعب"          Style="{StaticResource SidebarItemButton}" Command="{Binding OpenBranchesCommand}"/>
                 <Button Content="💾 پشتیبان‌گیری"         Style="{StaticResource SidebarItemButton}" Command="{Binding OpenBackupCommand}"/>
             </StackPanel>

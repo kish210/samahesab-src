@@ -52,32 +52,72 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            Modules.Clear();
-            CatalogDto? cat;
+            // کاتالوگِ بازار (نسخه/دانلود) best-effort؛ نبودِ اینترنت → مدیریتِ آفلاینِ ماژول ادامه دارد.
+            var catByKey = new System.Collections.Generic.Dictionary<string, CatalogModule>();
+            string? coreVer = null;
             try
             {
                 if (!_http.DefaultRequestHeaders.Contains("User-Agent"))
                     _http.DefaultRequestHeaders.Add("User-Agent", "SamaHesab");
-                cat = await _http.GetFromJsonAsync<CatalogDto>(CatalogUrl);
+                var cat = await _http.GetFromJsonAsync<CatalogDto>(CatalogUrl);
+                coreVer = cat?.coreVersion;
+                foreach (var m in cat?.modules ?? System.Array.Empty<CatalogModule>()) catByKey[m.key] = m;
             }
-            catch (System.Exception ex)
-            {
-                Status = "خطا در دریافتِ فهرستِ بازار (اتصالِ اینترنت؟): " + ex.GetBaseException().Message;
-                return;
-            }
-            if (cat?.modules is null || cat.modules.Length == 0) { Status = "ماژولی در بازار موجود نیست."; return; }
+            catch { /* آفلاین — فقط مدیریتِ محلی */ }
 
-            foreach (var m in cat.modules)
+            Modules.Clear();
+            // ردیف‌ها از ماژول‌های اختیاریِ پلتفرم (همیشه دیده می‌شوند) + داده‌ی نسخه/دانلودِ کاتالوگ.
+            foreach (var def in _modules.OptionalModules)
             {
-                var installed = System.IO.File.Exists(System.IO.Path.Combine(ModulesDir, m.package));
-                Modules.Add(new MarketModuleRow(m.key, m.displayName, m.version, m.description ?? "", m.sizeKB, m.package)
+                catByKey.TryGetValue(def.Key, out var c);
+                var pkg = c?.package ?? (def.Key + ".mspkg");
+                Modules.Add(new MarketModuleRow(def.Key, def.Name, c?.version ?? "—", c?.description ?? "", c?.sizeKB ?? 0, pkg)
                 {
-                    Installed = installed,
-                    Enabled = _modules.IsEnabled(m.key),
+                    Enabled = _modules.IsEnabled(def.Key),
+                    Installed = System.IO.File.Exists(System.IO.Path.Combine(ModulesDir, pkg)),
+                    InCatalog = c != null,
                 });
             }
-            Status = $"{Modules.Count} ماژول در بازار · هستهٔ سازگار {cat.coreVersion}";
-        }, "در حال دریافتِ فهرستِ بازار...");
+            Status = catByKey.Count > 0
+                ? $"{Modules.Count} ماژول · بازار سازگار با هستهٔ {coreVer}"
+                : $"{Modules.Count} ماژول (بازارِ آنلاین در دسترس نیست؛ مدیریتِ محلی فعال است)";
+        }, "در حال بارگذاری ماژول‌ها...");
+    }
+
+    /// <summary>فعال/غیرفعال‌سازیِ ماژول (Enable/Disable) با کنترلِ تداخل.</summary>
+    [RelayCommand]
+    private async Task ToggleEnableAsync(MarketModuleRow? row)
+    {
+        if (row is null) return;
+        var target = !row.Enabled;
+        if (!_modules.TrySetEnabled(row.Key, target, out var err) && err is not null)
+        { await _dialogService.ShowWarningAsync(err); return; }
+        row.Enabled = _modules.IsEnabled(row.Key);
+        await _dialogService.ShowSuccessAsync(row.Enabled
+            ? $"ماژولِ «{row.DisplayName}» فعال شد. منو/صفحاتش به‌روزرسانی می‌شوند."
+            : $"ماژولِ «{row.DisplayName}» غیرفعال شد. (دادهٔ تاریخی حفظ می‌شود.)");
+    }
+
+    /// <summary>حذفِ ماژول (Remove): غیرفعال + پاک‌کردنِ بستهٔ دانلودشدهٔ محلی. دادهٔ DB حفظ می‌شود.</summary>
+    [RelayCommand]
+    private async Task RemoveAsync(MarketModuleRow? row)
+    {
+        if (row is null) return;
+        if (!await _dialogService.ConfirmAsync(
+            $"ماژولِ «{row.DisplayName}» غیرفعال و بستهٔ دانلودشده‌اش حذف شود؟ (دادهٔ تاریخیِ آن در پایگاه‌داده حفظ می‌ماند.)",
+            "حذف ماژول")) return;
+        _modules.SetEnabled(row.Key, false);
+        row.Enabled = false;
+        try
+        {
+            var pkg = System.IO.Path.Combine(ModulesDir, row.Package);
+            if (System.IO.File.Exists(pkg)) System.IO.File.Delete(pkg);
+            var ext = System.IO.Path.Combine(ModulesDir, System.IO.Path.GetFileNameWithoutExtension(row.Package));
+            if (System.IO.Directory.Exists(ext)) System.IO.Directory.Delete(ext, true);
+        }
+        catch { /* حذفِ فایل best-effort */ }
+        row.Installed = false;
+        await _dialogService.ShowSuccessAsync($"ماژولِ «{row.DisplayName}» حذف شد.");
     }
 
     [RelayCommand]
@@ -133,6 +173,7 @@ public partial class MarketModuleRow : ObservableObject
     public string Package { get; }
     [ObservableProperty] private bool _installed;
     [ObservableProperty] private bool _enabled;
+    [ObservableProperty] private bool _inCatalog;
     [ObservableProperty] private bool _isDownloading;
     [ObservableProperty] private int _progress;
     [ObservableProperty] private string _downloadedText = string.Empty;

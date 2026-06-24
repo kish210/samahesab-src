@@ -55,7 +55,7 @@
 **تقسیمِ کارِ فازها @2026-06-24:**
 - **انجام‌شده (laptop):** پروژهٔ `SamaHesab.Modules.Abstractions` + قراردادِ `IModule` + قلابِ `ApplicationDbContext` برای دریافتِ `IEnumerable<IModule>`.
 - **فاز ۰ بقیه (🖥 pc/پلتفرم):** `ModuleLoader` (کشف+بارگذاریِ ماژولِ فعال) + ارتقای `ModuleService`→Manager (نصب/فعال/غیرفعال/حذف/لایسنس) + صداکردنِ `ConfigureModel` فقط برای ماژول‌های فعال در `OnModelCreating`.
-- **فاز ۱ — پایلوتِ Hotel (🖥 pc):** کوچک‌ترین ماژول و مالِ pc → الگوی مرجعِ removability.
+- **✅ فاز ۱ — پایلوتِ Hotel (انجام شد، 💻 laptop @2026-06-24):** Hotel به `SamaHesab.Modules.Hotel` استخراج شد (موجودیت‌ها + `HotelModule:IModule` با ConfigureModel/مهاجرت)، هسته صفر رفرنس به Hotel دارد، `ModuleAwareModelCacheKeyFactory` (کشِ مدلِ ماژول‌آگاه)، ۲ تستِ removability. **الگوی مرجعِ بقیهٔ ماژول‌ها.** *(pc هنوز شروعش نکرده بود؛ برای پرهیز از دوباره‌کاری laptop انجامش داد — pc لطفاً Hotel را دوباره استخراج نکن.)*
 - **فاز ۲ — ماژول‌های C2 (💻 laptop):** Tourism → Contracting → Restaurant → POS. *نکته:* بک‌اندِ گردشگری مالِ pc است؛ استخراجش `Domain/Application/Tourism` را جابه‌جا می‌کند ⇒ laptop قبل از استخراجِ گردشگری از pc claim بگیرد.
 - **فاز ۳ — ماژول‌های C1 (🖥 pc):** HR/Payroll/Attendance · CRM(باشگاه/امتیاز).
 - **ریسکِ مشترک G4 (طراحیِ دونفره):** مدلِ شرطیِ EF — موجودیتِ ماژولِ غیرفعال نباید مپ شود.

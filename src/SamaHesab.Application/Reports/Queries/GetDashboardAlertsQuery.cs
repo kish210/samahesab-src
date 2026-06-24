@@ -47,10 +47,14 @@ public class GetDashboardAlertsQueryHandler : IRequestHandler<GetDashboardAlerts
         var (overdueRecvCount, overdueRecvAmount) =
             DashboardAlerts.OverdueFromAging(aging.Select(r => (r.Current, r.Total)));
 
+        // کالاهای زیرِ نقطهٔ سفارش/حداقلِ موجودی (پیشنهادهای ری‌اوردر).
+        var reorder = await _mediator.Send(new Automation.Queries.GetReorderSuggestionsQuery(), ct);
+
         var input = new DashboardAlertsInput(
             OverdueChequeCount: overdue.TotalCount, OverdueChequeAmount: overdue.PaidAmount + overdue.ReceivedAmount,
             DueSoonChequeCount: week.TotalCount, DueSoonChequeAmount: week.PaidAmount + week.ReceivedAmount,
             OverdueReceivableCount: overdueRecvCount, OverdueReceivableAmount: overdueRecvAmount,
+            LowStockCount: reorder.Count,
             SupplierDepositLowCount: lowDeposits.Count);
 
         return DashboardAlerts.Build(input);

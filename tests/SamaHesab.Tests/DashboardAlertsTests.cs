@@ -62,6 +62,16 @@ public class DashboardAlertsTests
     }
 
     [Fact]
+    public void Low_Stock_Produces_Warning_Alert()
+    {
+        var a = DashboardAlerts.Build(new DashboardAlertsInput(LowStockCount: 6))
+            .Single(x => x.Key == "stock-low");
+        Assert.Equal(AlertSeverity.Warning, a.Severity);
+        Assert.Equal("inventory-overview", a.NavTarget);
+        Assert.Equal(6, a.Count);
+    }
+
+    [Fact]
     public void Tourism_Low_Deposit_Produces_Warning_Alert()
     {
         var a = Assert.Single(DashboardAlerts.Build(new DashboardAlertsInput(SupplierDepositLowCount: 3)));

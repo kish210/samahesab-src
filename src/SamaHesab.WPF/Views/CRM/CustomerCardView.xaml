@@ -282,7 +282,7 @@
                                 </Style>
                             </DataGrid.ColumnHeaderStyle>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="90"/>
+                                <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>
                                 <DataGridTextColumn Header="سند" Binding="{Binding DocNumber}" Width="100"/>
                                 <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
                                 <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="120">

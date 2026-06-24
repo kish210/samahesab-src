@@ -117,7 +117,7 @@
                 <DataGrid ItemsSource="{Binding Kardex}" Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False"
                           IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="All" CanUserAddRows="False" Margin="6,4,6,6">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="95"/>
+                        <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>
                         <DataGridTextColumn Header="نوع" Binding="{Binding Type}" Width="90"/>
                         <DataGridTextColumn Header="سند" Binding="{Binding DocumentNumber}" Width="100"/>
                         <DataGridTextColumn Header="شرح" Binding="{Binding Notes}" Width="*"/>

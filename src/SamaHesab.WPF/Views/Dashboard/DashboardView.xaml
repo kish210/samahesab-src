@@ -189,7 +189,7 @@
                                   Foreground="{DynamicResource PrimaryText}" Margin="6,0,6,6">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="شماره" Binding="{Binding Number}" Width="80"/>
-                                <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="90"/>
+                                <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>
                                 <DataGridTextColumn Header="شرح/مشتری" Binding="{Binding CustomerName}" Width="*"/>
                                 <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, Converter={StaticResource Num}}" Width="130"/>
                                 <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="90"/>

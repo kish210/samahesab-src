@@ -176,7 +176,7 @@
                             <DataGridTextColumn Header="شماره" Binding="{Binding VoucherNumber}" Width="75">
                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="8,0"/></Style></DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="88">
+                            <DataGridTextColumn Header="تاریخ" Binding="{Binding VoucherDate}" Width="110">
                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/><Setter Property="Margin" Value="8,0"/></Style></DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <DataGridTemplateColumn Header="نوع" Width="80">

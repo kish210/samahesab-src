@@ -283,7 +283,7 @@
                     <DataGridTextColumn Header="صادرکننده / در وجه" Binding="{Binding IssuedBy}" Width="*">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="سررسید" Binding="{Binding DueDate}" Width="90">
+                    <DataGridTextColumn Header="سررسید" Binding="{Binding DueDate}" Width="110">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource TextMuted}"/><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="مانده تا سررسید" Binding="{Binding DaysLeftText}" Width="100">

@@ -52,4 +52,42 @@ public static class ApprovalWorkflow
         => Map.TryGetValue((from, action), out var to)
             ? new TransitionResult(true, to)
             : new TransitionResult(false, from, $"گذار نامعتبر: {action} از وضعیت {from}");
+
+    // ── P6 — تأییدِ چندسطحی + تفکیکِ وظایف (SoD) — افزایشی روی همان ماشینِ وضعیت ──
+
+    /// <summary>نتیجهٔ گذارِ سطح‌دار: وضعیت + سطحِ تأییدِ جاری (۱-مبنا؛ ۰=پیش‌نویس/ردشده).</summary>
+    public record LeveledTransition(bool Allowed, ApprovalState NewState, int NewLevel, string? Error = null);
+
+    /// <summary>
+    /// گذارِ تأییدِ چندسطحی: یک سند پیش از «تأییدِ نهایی» باید <paramref name="totalLevels"/> بار تأیید شود
+    /// (سلسله‌مراتبِ تأیید). <paramref name="enforceSoD"/>=true ⇒ ثبت‌کننده نمی‌تواند تأیید/رد کند.
+    ///   Draft/Rejected? → Submit → PendingApproval (سطح ۱)
+    ///   PendingApproval → Approve → اگر سطح<کل: همان وضعیت، سطح+۱ ؛ وگرنه Approved
+    ///   PendingApproval → Reject → Rejected ؛ Rejected → Reopen → Draft (سطح ۰)
+    /// </summary>
+    public static LeveledTransition ApplyLeveled(
+        ApprovalState from, ApprovalAction action, int currentLevel, int totalLevels,
+        int actorUserId, int? submitterUserId, bool enforceSoD = false)
+    {
+        var total = totalLevels < 1 ? 1 : totalLevels;
+
+        if (action is ApprovalAction.Approve or ApprovalAction.Reject
+            && enforceSoD && submitterUserId is int sub && sub == actorUserId)
+            return new(false, from, currentLevel, "تفکیکِ وظایف: ثبت‌کنندهٔ سند نمی‌تواند آن را تأیید/رد کند.");
+
+        if (action == ApprovalAction.Approve && from == ApprovalState.PendingApproval)
+            return currentLevel >= total
+                ? new(true, ApprovalState.Approved, currentLevel)
+                : new(true, ApprovalState.PendingApproval, currentLevel + 1);
+
+        var basic = Apply(from, action);
+        if (!basic.Allowed) return new(false, from, currentLevel, basic.Error);
+        var newLevel = basic.NewState switch
+        {
+            ApprovalState.PendingApproval => 1,   // Submit → سطحِ ۱
+            ApprovalState.Draft => 0,             // Reopen → پیش‌نویس
+            _ => currentLevel                     // Rejected/Approved سطح را نگه می‌دارد
+        };
+        return new(true, basic.NewState, newLevel);
+    }
 }

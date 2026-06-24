@@ -1661,4 +1661,4 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
   5. تگِ سورسِ `v2.6.0` را pc روی samahesab-src زد (e8a2ae7) — لازم نیست دوباره بزنی.
   - وقتی منتشر شد، اینجا `[C2-REPLY] v2.6.0 منتشر شد` بنویس.
 
-- [~] 🚧 pc@2026-06-24 — P6 موتورِ گردش‌کار/تأیید: هستهٔ خالصِ `ApprovalEngine` (ماشینِ وضعیت Draft→Submitted→Approved/Rejected/Returned/Cancelled + تأییدِ چندسطحی + SoD: تأییدکننده≠ثبت‌کننده). فایل‌های نو در Application/Workflow + تست. لِینِ pc (امنیت/مالی).
+- [x] (pc/C1) P6 — موتورِ گردش‌کار: ApprovalWorkflow.ApplyLeveled (تأییدِ چندسطحی + SoD) افزایشی روی ماشینِ وضعیتِ موجود (بدونِ شکستنِ API/تستِ موجود). ۹ تست (۶۳۱ کل). ⏭️ وصل به سندها = جلسهٔ بعد.

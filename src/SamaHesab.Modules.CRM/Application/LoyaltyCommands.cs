@@ -1,7 +1,7 @@
 using MediatR;
 using SamaHesab.Application.Common.Models;
-using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Modules.CRM.Domain;
 
 namespace SamaHesab.Application.CRM.Commands;
 

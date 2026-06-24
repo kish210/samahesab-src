@@ -24,6 +24,7 @@ foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
 {
     new SamaHesab.Modules.Hotel.HotelModule(),
     new SamaHesab.Modules.Contracting.ContractingModule(),
+    new SamaHesab.Modules.CRM.CrmModule(),   // فاز ۳ (pc) — باشگاه/امتیاز
 })
 {
     builder.Services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);

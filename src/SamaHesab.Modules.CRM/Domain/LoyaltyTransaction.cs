@@ -1,10 +1,10 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.CRM;
+namespace SamaHesab.Modules.CRM.Domain;
 
 /// <summary>
-/// کار #۳۸ — تراکنش امتیاز باشگاه مشتریان. نگاشت به جدولِ موجودِ `Crm.LoyaltyTransactions`
-/// (از اسکیمای اولیه). امتیاز مثبت = کسب، منفی = استفاده؛ موجودی = جمع امتیازها.
+/// تراکنشِ امتیازِ باشگاهِ مشتریان (ماژولِ CRM، فاز ۳ استخراج). نگاشت به جدولِ موجودِ
+/// `Crm.LoyaltyTransactions`. امتیاز مثبت = کسب، منفی = استفاده؛ موجودی = جمعِ امتیازها.
 /// </summary>
 public class LoyaltyTransaction : BaseEntity
 {

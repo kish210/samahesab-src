@@ -34,7 +34,7 @@ public static class DependencyInjection
         // ماژول‌های لِینِ pc (فاز ۳ ماژولارسازی) — هر دو هاست (WPF/API) از همین‌جا می‌گیرند؛
         // DbContext و کاتالوگِ مجوزِ میزبان ماژول‌های ثبت‌شده را می‌بینند. (Hotel/Tourism/… را laptop ثبت می‌کند.)
         services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, Modules.HrModule>();
-        services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, Modules.CrmModule>();
+        // CRM استخراجِ کامل شد → در هاست‌ها (foreach ماژول‌ها) ثبت می‌شود، نه این‌جا.
 
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();

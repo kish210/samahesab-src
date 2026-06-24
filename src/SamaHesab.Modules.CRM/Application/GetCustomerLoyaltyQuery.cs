@@ -1,10 +1,10 @@
 using MediatR;
-using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
+using SamaHesab.Modules.CRM.Domain;
 
 namespace SamaHesab.Application.CRM.Queries;
 
-/// <summary>موجودی امتیاز مشتری + آخرین تراکنش‌های باشگاه.</summary>
+/// <summary>موجودیِ امتیازِ مشتری + آخرین تراکنش‌های باشگاه.</summary>
 public record GetCustomerLoyaltyQuery(int CustomerId, int Recent = 10) : IRequest<CustomerLoyaltyDto>;
 
 public record LoyaltyTxnDto(int Points, string Type, string? Description, DateTime Date);

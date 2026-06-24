@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\src\SamaHesab.Infrastructure\SamaHesab.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\SamaHesab.Modules.Hotel\SamaHesab.Modules.Hotel.csproj" />
     <ProjectReference Include="..\..\src\SamaHesab.Modules.Contracting\SamaHesab.Modules.Contracting.csproj" />
+    <ProjectReference Include="..\..\src\SamaHesab.Modules.CRM\SamaHesab.Modules.CRM.csproj" />
   </ItemGroup>
 
 </Project>

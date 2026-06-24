@@ -1,5 +1,5 @@
 using SamaHesab.Application.CRM;
-using SamaHesab.Domain.Entities.CRM;
+using SamaHesab.Modules.CRM.Domain;
 using Xunit;
 
 namespace SamaHesab.Tests;

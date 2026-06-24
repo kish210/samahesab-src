@@ -18,6 +18,7 @@
     <ProjectReference Include="..\SamaHesab.Infrastructure\SamaHesab.Infrastructure.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Hotel\SamaHesab.Modules.Hotel.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Contracting\SamaHesab.Modules.Contracting.csproj" />
+    <ProjectReference Include="..\SamaHesab.Modules.CRM\SamaHesab.Modules.CRM.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />

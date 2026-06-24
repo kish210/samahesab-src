@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>نوعِ قرارداد پیمان.</summary>
 public enum ContractType { UnitPrice = 0, FixedPrice = 1, CostPlus = 2 }   // فهرست‌بها / مقطوع / امانی

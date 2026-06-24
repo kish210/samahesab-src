@@ -1,10 +1,10 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Contracting;
+namespace SamaHesab.Modules.Contracting.Application;
 
 /// <summary>CON-C1-2 — تنظیماتِ پیمانکاری (نگاشتِ حساب + درصدهای پیش‌فرض). هیچ AccountId/نرخ هاردکد نمی‌شود.</summary>
 public record ContractingSettingsDto(

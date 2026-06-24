@@ -131,10 +131,6 @@ public partial class App : System.Windows.Application
                 // Infrastructure
                 services.AddInfrastructure(ctx.Configuration);
 
-                // ── ماژول‌های نصب‌شده (فاز ۱ — پایلوتِ استخراج): هتل. ApplicationDbContext این‌ها را
-                //    برای مپِ مدلِ ماژول از DI می‌گیرد (G4). افزودنِ ماژولِ نو = یک خطِ AddSingleton<IModule>. ──
-                services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, SamaHesab.Modules.Hotel.HotelModule>();
-
                 // MediatR + Pipelines
                 services.AddMediatR(cfg => {
                     cfg.RegisterServicesFromAssembly(typeof(Application.Accounting.Commands.CreateVoucherCommand).Assembly);
@@ -147,6 +143,19 @@ public partial class App : System.Windows.Application
                 // اجرا می‌کند (با تشخیصِ re-entrancy از AsyncLocal تا تراکنش‌های تو‌در‌تو نشکنند). فقط در WPF.
                 services.AddTransient<MediatR.Mediator>();   // تایپِ بتنی تا ScopedMediator بدونِ حلقه resolveش کند
                 services.AddSingleton<MediatR.IMediator, SamaHesab.Infrastructure.Mediator.ScopedMediator>();
+
+                // ── ماژول‌های نصب‌شده (ماژولارسازی فاز ۱/۲): هتل + پیمانکاری. هر ماژول به‌عنوان IModule ثبت می‌شود
+                //    (ApplicationDbContext برای مپِ مدلِ ماژول می‌گیرد) و RegisterServicesش (هندلرهای MediatR) صدا زده می‌شود.
+                //    افزودنِ ماژولِ نو = یک عضوِ آرایه. (در فاز ۴، ModuleLoaderِ DLL-scan جایگزینِ این فهرستِ ثابت می‌شود.) ──
+                foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
+                {
+                    new SamaHesab.Modules.Hotel.HotelModule(),
+                    new SamaHesab.Modules.Contracting.ContractingModule(),
+                })
+                {
+                    services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);
+                    module.RegisterServices(services);
+                }
 
                 // WPF Services
                 services.AddSingleton<IDialogService, DialogService>();
@@ -536,7 +545,7 @@ public partial class App : System.Windows.Application
         if (Environment.GetEnvironmentVariable("SAMA_SHOT_CONTRACTING") == "1")
         {
             var cvm = _host.Services.GetRequiredService<ViewModels.Contracting.ContractingStatementViewModel>();
-            cvm.Projects.Add(new SamaHesab.Application.Contracting.Queries.ContractProjectListDto(
+            cvm.Projects.Add(new SamaHesab.Modules.Contracting.Application.Queries.ContractProjectListDto(
                 1, "PRJ-1001", "احداثِ ساختمانِ اداری — فاز ۱", 5, "شهرداریِ منطقه ۳", 50000000000m, 25, 10, 5, 3, 12500000000m, "Active"));
             cvm.SelectedProject = cvm.Projects[0];
             cvm.Number = 2; cvm.Date = "1405/03/31";

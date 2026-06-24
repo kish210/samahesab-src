@@ -1,8 +1,8 @@
 using MediatR;
 using SamaHesab.Application.Reports.Export;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 
-namespace SamaHesab.Application.Contracting.Queries;
+namespace SamaHesab.Modules.Contracting.Application.Queries;
 
 /// <summary>
 /// CON-C2-6 — گزارش‌های پیمانکاری. کوئری‌های تست‌شدهٔ موجود (داشبوردِ هر پیمان + ضمانت‌نامه‌ها) را

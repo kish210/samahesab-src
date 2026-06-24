@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>
 /// CON-C1-1 — پیش‌پرداختِ دریافتی از کارفرما (بدهیِ پیمانکار). در صورت‌وضعیت‌ها به‌مرور بازیافت می‌شود

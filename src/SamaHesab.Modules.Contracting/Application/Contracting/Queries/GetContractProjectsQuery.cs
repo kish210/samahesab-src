@@ -1,10 +1,10 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Contracting.Queries;
+namespace SamaHesab.Modules.Contracting.Application.Queries;
 
 /// <summary>فهرستِ پیمان‌ها (برای انتخاب‌گر و پیش‌نمایشِ زندهٔ آبشار در UIِ صورت‌وضعیت — CON-C2-2).</summary>
 public record GetContractProjectsQuery(bool ActiveOnly = false) : IRequest<List<ContractProjectListDto>>;

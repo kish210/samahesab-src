@@ -295,17 +295,7 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<Domain.Entities.Tourism.SalePassenger>().ToTable("SalePassengers", "Tur");
 
-        // ─── Contracting (CON-C1-1): schema Con ─────────────────────────────────
-        modelBuilder.Entity<Domain.Entities.Contracting.ContractProject>().ToTable("Projects", "Con");
-        modelBuilder.Entity<Domain.Entities.Contracting.ContractingSetting>().ToTable("Settings", "Con");
-        modelBuilder.Entity<Domain.Entities.Contracting.AdvancePayment>().ToTable("AdvancePayments", "Con");
-        modelBuilder.Entity<Domain.Entities.Contracting.Guarantee>().ToTable("Guarantees", "Con");
-        modelBuilder.Entity<Domain.Entities.Contracting.ProgressStatement>(b =>
-        {
-            b.ToTable("Statements", "Con");
-            b.HasMany(s => s.Deductions).WithOne().HasForeignKey(d => d.StatementId);
-        });
-        modelBuilder.Entity<Domain.Entities.Contracting.StatementDeduction>().ToTable("StatementDeductions", "Con");
+        // ─── Contracting → استخراج شد به SamaHesab.Modules.Contracting (فاز ۲). مپش از ContractingModule. ───
 
         // ─── Hotel / PMS → استخراج شد به SamaHesab.Modules.Hotel (فاز ۱). مپش از HotelModule.ConfigureModel می‌آید. ───
 

@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>نوعِ صورت‌وضعیت.</summary>
 public enum StatementType { Interim = 0, Final = 1 }   // موقت / قطعی

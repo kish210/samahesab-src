@@ -18,8 +18,17 @@ builder.Host.UseWindowsService(o => o.ServiceName = "SamaHesabApi");
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ── ماژول‌های نصب‌شده (فاز ۱): هتل. ApplicationDbContext این‌ها را برای مپِ مدلِ ماژول می‌گیرد. ──
-builder.Services.AddSingleton<SamaHesab.Modules.Abstractions.IModule, SamaHesab.Modules.Hotel.HotelModule>();
+// ── ماژول‌های نصب‌شده (ماژولارسازی فاز ۱/۲): هتل + پیمانکاری. هر ماژول IModule ثبت می‌شود
+//    (ApplicationDbContext برای مپِ مدل) و RegisterServicesش (هندلرهای MediatR) صدا زده می‌شود. ──
+foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
+{
+    new SamaHesab.Modules.Hotel.HotelModule(),
+    new SamaHesab.Modules.Contracting.ContractingModule(),
+})
+{
+    builder.Services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);
+    module.RegisterServices(builder.Services);
+}
 
 // همگام‌سازیِ پشتیبانی سمتِ کلاینت است؛ میزبانِ API نسخهٔ no-op می‌گیرد (رفعِ ValidateOnBuild در Development).
 builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.OfflineSupportApiClient>();

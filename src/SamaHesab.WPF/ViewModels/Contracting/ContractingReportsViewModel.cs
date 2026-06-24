@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Contracting.Queries;
+using SamaHesab.Modules.Contracting.Application.Queries;
 using SamaHesab.Application.Reports.Export;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;

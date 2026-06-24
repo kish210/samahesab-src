@@ -2,10 +2,10 @@ using System.Globalization;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.Accounting;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Contracting.Queries;
+namespace SamaHesab.Modules.Contracting.Application.Queries;
 
 /// <summary>CON-C1-6 — داشبوردِ مالیِ پیمان: پیشرفت، سپرده‌های نگه‌داشته، ماندهٔ پیش‌پرداخت، سود.</summary>
 public record GetProjectDashboardQuery(int ContractProjectId) : IRequest<ProjectDashboardDto?>;

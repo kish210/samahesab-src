@@ -1,5 +1,5 @@
 using System.Linq;
-using SamaHesab.Application.Contracting;
+using SamaHesab.Modules.Contracting.Application;
 using Xunit;
 
 namespace SamaHesab.Tests;

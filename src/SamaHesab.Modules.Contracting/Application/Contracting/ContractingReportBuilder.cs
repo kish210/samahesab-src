@@ -1,7 +1,7 @@
 using System.Globalization;
 using SamaHesab.Application.Reports.Export;
 
-namespace SamaHesab.Application.Contracting;
+namespace SamaHesab.Modules.Contracting.Application;
 
 // ── ورودی‌های گزارش (DTOهای ساده؛ C1 از جداولِ Con پر می‌کند) ──
 

@@ -3,10 +3,10 @@ using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Contracting.Commands;
+namespace SamaHesab.Modules.Contracting.Application.Commands;
 
 // ════════════════════════════════════════════════════════════════════════════
 // CON-C1-4 — پیش‌پرداختِ دریافتی (سندِ Dr بانک / Cr بدهیِ پیش‌پرداخت).

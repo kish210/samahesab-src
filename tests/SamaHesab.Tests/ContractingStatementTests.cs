@@ -5,10 +5,10 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Contracting;
-using SamaHesab.Application.Contracting.Commands;
+using SamaHesab.Modules.Contracting.Application;
+using SamaHesab.Modules.Contracting.Application.Commands;
 using SamaHesab.Domain.Entities.Accounting;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
 

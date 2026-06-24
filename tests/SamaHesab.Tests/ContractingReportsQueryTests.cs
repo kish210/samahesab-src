@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using SamaHesab.Application.Contracting.Queries;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Application.Queries;
+using SamaHesab.Modules.Contracting.Domain;
 using Xunit;
 
 namespace SamaHesab.Tests;

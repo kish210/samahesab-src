@@ -1,4 +1,4 @@
-namespace SamaHesab.Application.Contracting;
+namespace SamaHesab.Modules.Contracting.Application;
 
 /// <summary>ورودیِ آبشارِ محاسبهٔ صورت‌وضعیت. درصدها به‌صورتِ «۵ = ۵٪» تفسیر می‌شوند.</summary>
 public record WaterfallInput(

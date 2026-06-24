@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>نوعِ ضمانت‌نامه.</summary>
 public enum GuaranteeType { Advance = 0, Performance = 1, Tender = 2 }   // پیش‌پرداخت / حسن‌انجام‌کار / شرکت‌در‌مناقصه

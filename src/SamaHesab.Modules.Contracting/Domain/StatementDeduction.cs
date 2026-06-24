@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>نوعِ کسرِ صورت‌وضعیت.</summary>
 public enum DeductionType { AdvanceRecovery = 0, Retention = 1, Insurance = 2, Tax = 3, Penalty = 4, Other = 5 }

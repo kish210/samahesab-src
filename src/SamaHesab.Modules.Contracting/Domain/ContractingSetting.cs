@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Contracting;
+namespace SamaHesab.Modules.Contracting.Domain;
 
 /// <summary>
 /// CON-C1-2 — تنظیماتِ پیمانکاری: نگاشتِ حساب‌های کنترلی به‌ازای نوعِ کسر + درصدهای پیش‌فرضِ سراسری.

@@ -5,10 +5,10 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Application.Contracting;
-using SamaHesab.Application.Contracting.Commands;
-using SamaHesab.Application.Contracting.Queries;
-using SamaHesab.Domain.Entities.Contracting;
+using SamaHesab.Modules.Contracting.Application;
+using SamaHesab.Modules.Contracting.Application.Commands;
+using SamaHesab.Modules.Contracting.Application.Queries;
+using SamaHesab.Modules.Contracting.Domain;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

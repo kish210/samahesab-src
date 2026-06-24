@@ -212,7 +212,37 @@ public partial class ChequeListViewModel : BaseViewModel
     }
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
-    [RelayCommand] private void NewCheque() { }
+    /// <summary>BUG-4 — «چک جدید F2»: دیالوگِ ثبتِ چک → RegisterChequeCommand → تازه‌سازیِ فهرست.</summary>
+    [RelayCommand]
+    private async Task NewChequeAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
+        { await _dialogService.ShowWarningAsync("ثبتِ چکِ جدید فعلاً در حالتِ مستقیم به پایگاه داده در دسترس است."); return; }
+
+        List<Views.Accounting.NewChequeDialog.PartyItem> parties;
+        try
+        {
+            parties = (await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetPersonsQuery()))
+                .Select(p => new Views.Accounting.NewChequeDialog.PartyItem(p.Id, p.Name)).ToList();
+        }
+        catch (System.Exception ex) { await _dialogService.ShowErrorAsync("بارگذاریِ طرف‌حساب‌ها ناموفق: " + ex.GetBaseException().Message); return; }
+
+        var dlg = new Views.Accounting.NewChequeDialog(parties, _calendar.GetCurrentPersianDate())
+        {
+            Owner = System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive)
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(new RegisterChequeCommand(
+                dlg.ChequeType, dlg.ChequeNumber, dlg.BankName, dlg.Amount, dlg.DueDate,
+                dlg.PartyId, dlg.PartyTypeLabel, dlg.Date, dlg.IssuedBy, dlg.Description));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync($"چکِ شمارهٔ {dlg.ChequeNumber} ثبت شد (چک #{res.Value}).");
+            await LoadAsync();
+        }, "در حال ثبتِ چک...");
+    }
 
     /// <summary>وصولِ چکِ انتخاب‌شده (سند حسابداری خودکار در `ChangeChequeStatusCommand`).</summary>
     [RelayCommand]

@@ -1,0 +1,65 @@
+<Window x:Class="SamaHesab.WPF.Views.Accounting.NewChequeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ثبتِ چک جدید" Width="440" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        FontFamily="{StaticResource VazirFont}" FlowDirection="RightToLeft" Background="White">
+    <StackPanel Margin="16">
+        <TextBlock Text="ثبتِ چک جدید" FontSize="16" FontWeight="Bold" Margin="0,0,0,12"/>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <RadioButton x:Name="RbReceived" Content="دریافتی" IsChecked="True" GroupName="ct" Margin="0,0,16,0"/>
+            <RadioButton x:Name="RbPaid" Content="پرداختی" GroupName="ct"/>
+        </StackPanel>
+
+        <TextBlock Text="طرف‌حساب" Foreground="#6B7280"/>
+        <ComboBox x:Name="CmbParty" Height="32" Margin="0,2,0,8" IsEditable="True" IsTextSearchEnabled="True"
+                  DisplayMemberPath="Name" SelectedValuePath="Id" TextSearch.TextPath="Name"/>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="شمارهٔ چک" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtNumber" Height="32"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="نامِ بانک" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtBank" Height="32"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="مبلغ (ریال)" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtAmount" Height="32" FlowDirection="LeftToRight"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="تاریخِ سررسید" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtDue" Height="32" FlowDirection="LeftToRight"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="تاریخِ ثبت" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtDate" Height="32" FlowDirection="LeftToRight"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="صادرکننده (اختیاری)" Foreground="#6B7280"/>
+                <TextBox x:Name="TxtIssuedBy" Height="32"/>
+            </StackPanel>
+        </Grid>
+
+        <TextBlock Text="شرح (اختیاری)" Foreground="#6B7280"/>
+        <TextBox x:Name="TxtDesc" Height="32" Margin="0,2,0,8"/>
+
+        <TextBlock x:Name="TxtError" Foreground="#E53935" Visibility="Collapsed" Margin="0,0,0,6" TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,6,0,0">
+            <Button Content="انصراف" Width="90" Height="34" Click="BtnCancel_Click" Margin="0,0,8,0"/>
+            <Button Content="ثبت چک" Width="110" Height="34" Click="BtnSave_Click" Background="#2E7D32" Foreground="White" BorderThickness="0"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

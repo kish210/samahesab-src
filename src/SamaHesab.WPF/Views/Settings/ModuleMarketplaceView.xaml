@@ -38,14 +38,34 @@
                                     </StackPanel>
                                     <TextBlock Text="{Binding Description}" Foreground="{DynamicResource SecondaryText}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                                 </StackPanel>
-                                <Button Grid.Column="1" VerticalAlignment="Center" Height="34" MinWidth="110"
-                                        Style="{StaticResource PrimaryButton}"
+                                <!-- دکمهٔ دانلود (هنگامِ دانلود پنهان) -->
+                                <Button Grid.Column="1" VerticalAlignment="Center" Height="34" MinWidth="120"
                                         Command="{Binding DataContext.InstallCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                         CommandParameter="{Binding}">
-                                    <TextBlock>
-                                        <Run Text="⬇ دانلود و نصب"/>
-                                    </TextBlock>
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDownloading}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Installed}" Value="True">
+                                                    <Setter Property="Content" Value="⟳ به‌روزرسانی"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                            <Setter Property="Content" Value="⬇ دانلود و نصب"/>
+                                        </Style>
+                                    </Button.Style>
                                 </Button>
+                                <!-- نشانگرِ دانلود (نوارِ پیشرفت + درصد + حجم) -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Width="160"
+                                            Visibility="{Binding IsDownloading, Converter={StaticResource BoolVis}}">
+                                    <ProgressBar Height="10" Minimum="0" Maximum="100" Value="{Binding Progress}"/>
+                                    <TextBlock HorizontalAlignment="Center" Margin="0,3,0,0" FontSize="11" Foreground="{DynamicResource SecondaryText}">
+                                        <Run Text="در حال دانلود… "/><Run Text="{Binding Progress}"/><Run Text="٪"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding DownloadedText}" HorizontalAlignment="Center" FontSize="10"
+                                               Foreground="{DynamicResource SecondaryText}" FlowDirection="LeftToRight"/>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

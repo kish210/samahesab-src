@@ -83,19 +83,43 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
     [RelayCommand]
     private async Task InstallAsync(MarketModuleRow? row)
     {
-        if (row is null) return;
-        await ExecuteAsync(async () =>
+        if (row is null || row.IsDownloading) return;
+        var dest = System.IO.Path.Combine(ModulesDir, row.Package);
+        try
         {
-            var dest = System.IO.Path.Combine(ModulesDir, row.Package);
-            var bytes = await _http.GetByteArrayAsync(PackageBaseUrl + row.Package);
-            await System.IO.File.WriteAllBytesAsync(dest, bytes);
+            row.IsDownloading = true; row.Progress = 0; row.StatusText = "در حال دانلود...";
+
+            // دانلودِ جریانی با گزارشِ درصدِ پیشرفت (نوارِ دانلودِ per-row).
+            using var resp = await _http.GetAsync(PackageBaseUrl + row.Package, HttpCompletionOption.ResponseHeadersRead);
+            resp.EnsureSuccessStatusCode();
+            var total = resp.Content.Headers.ContentLength ?? (row.SizeKB * 1024L);
+            await using var src = await resp.Content.ReadAsStreamAsync();
+            await using var dst = System.IO.File.Create(dest);
+            var buffer = new byte[81920];
+            long read = 0; int n;
+            while ((n = await src.ReadAsync(buffer)) > 0)
+            {
+                await dst.WriteAsync(buffer.AsMemory(0, n));
+                read += n;
+                row.Progress = total > 0 ? (int)(read * 100 / total) : 0;
+                row.DownloadedText = $"{read / 1024} / {(total > 0 ? total / 1024 : row.SizeKB)} کیلوبایت";
+            }
+            row.Progress = 100;
+
             row.Installed = true;
-            // فعال‌سازیِ ماژول در ModuleService (منو/مجوز پس از بارگذاریِ ماژول دیده می‌شوند).
-            _modules.TrySetEnabled(row.Key, true, out _);
+            _modules.TrySetEnabled(row.Key, true, out _);   // فعال‌سازی در ModuleService
             row.Enabled = true;
+            row.StatusText = "✓ نصب شد";
             await _dialogService.ShowSuccessAsync(
-                $"ماژولِ «{row.DisplayName}» دانلود و فعال شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");
-        }, "در حال دانلود و نصب...");
+                $"ماژولِ «{row.DisplayName}» (نسخهٔ {row.Version}) دانلود و فعال شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");
+        }
+        catch (System.Exception ex)
+        {
+            try { if (System.IO.File.Exists(dest)) System.IO.File.Delete(dest); } catch { }
+            row.StatusText = "خطا در دانلود";
+            await _dialogService.ShowErrorAsync("دانلودِ ماژول ناموفق بود: " + ex.GetBaseException().Message);
+        }
+        finally { row.IsDownloading = false; }
     }
 }
 
@@ -109,6 +133,10 @@ public partial class MarketModuleRow : ObservableObject
     public string Package { get; }
     [ObservableProperty] private bool _installed;
     [ObservableProperty] private bool _enabled;
+    [ObservableProperty] private bool _isDownloading;
+    [ObservableProperty] private int _progress;
+    [ObservableProperty] private string _downloadedText = string.Empty;
+    [ObservableProperty] private string _statusText = string.Empty;
 
     public MarketModuleRow(string key, string displayName, string version, string description, int sizeKB, string package)
     { Key = key; DisplayName = displayName; Version = version; Description = description; SizeKB = sizeKB; Package = package; }

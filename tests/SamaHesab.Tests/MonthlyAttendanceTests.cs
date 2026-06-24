@@ -92,7 +92,9 @@ public class MonthlyAttendanceTests
         recs.AddAsync(d).Wait();
         var slips = new FakeRepo<SalarySlip>(); var sets = new FakeRepo<PayrollSetting>();
         var hols = new FakeRepo<Holiday>(); var uow = new FakeUow(); var user = new FakeUser();
-        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets, recs, hols, uow, user);
+        var attProvider = new SamaHesab.Modules.Attendance.Application.AttendanceAggregateProvider(recs, hols);
+        var h = new RunMonthlyPayrollCommandHandler(emps, slips, sets,
+            new IAttendanceAggregateProvider[] { attProvider }, uow, user);
 
         var withAtt = await h.Handle(new RunMonthlyPayrollCommand("1404", 1, UseAttendance: true), default);
 

@@ -25,16 +25,15 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
     private readonly IRepository<Employee> _employees;
     private readonly IRepository<SalarySlip> _slips;
     private readonly IRepository<PayrollSetting> _settings;
-    private readonly IRepository<AttendanceRecord> _records;
-    private readonly IRepository<Holiday> _holidays;
-    private readonly ISalesCommissionProvider? _commissionProvider;   // اختیاری — فقط اگر ماژولِ Tourism نصب باشد
+    private readonly IEnumerable<IAttendanceAggregateProvider> _attendanceProviders;   // ماژولِ Attendance (در صورتِ نصب)
+    private readonly ISalesCommissionProvider? _commissionProvider;   // ماژولِ Tourism (اختیاری)
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public RunMonthlyPayrollCommandHandler(IRepository<Employee> employees, IRepository<SalarySlip> slips,
-        IRepository<PayrollSetting> settings, IRepository<AttendanceRecord> records, IRepository<Holiday> holidays,
+        IRepository<PayrollSetting> settings, IEnumerable<IAttendanceAggregateProvider> attendanceProviders,
         IUnitOfWork uow, ICurrentUserService user, ISalesCommissionProvider? commissionProvider = null)
-    { _employees = employees; _slips = slips; _settings = settings; _records = records; _holidays = holidays; _commissionProvider = commissionProvider; _uow = uow; _user = user; }
+    { _employees = employees; _slips = slips; _settings = settings; _attendanceProviders = attendanceProviders; _commissionProvider = commissionProvider; _uow = uow; _user = user; }
 
     public async Task<Result<RunPayrollResult>> Handle(RunMonthlyPayrollCommand req, CancellationToken ct)
     {
@@ -55,21 +54,18 @@ public class RunMonthlyPayrollCommandHandler : IRequestHandler<RunMonthlyPayroll
                 s => s.PeriodYear == req.Year && s.PeriodMonth == req.Month && empIds.Contains(s.EmployeeId), ct))
             .ToDictionary(s => s.EmployeeId, s => s);
 
-        // پلِ تردد→حقوق (ATT-C1-3): اگر خواسته شد، رکوردهای ماه را به ساعت/غیبت تبدیل کن.
-        Dictionary<int, MonthlyAttendance> attByEmp = new();
+        // پلِ تردد→حقوق (ATT-C1-3): تجمیعِ ماه از ماژولِ Attendance (از طریقِ اینترفیسِ هسته، بدونِ وابستگیِ مستقیم).
+        // اگر ماژولِ حضور نصب نباشد، providerی نیست ⇒ بدونِ کسرِ غیبت/اضافه‌کاری.
+        IReadOnlyDictionary<int, MonthlyAttendanceAggregate> attByEmp =
+            new Dictionary<int, MonthlyAttendanceAggregate>();
         if (req.UseAttendance)
         {
-            var prefix = $"{req.Year}/{req.Month:D2}/";
-            var holidaySet = (await _holidays.FindAsync(h => h.CompanyId == companyId, ct))
-                .Select(h => h.Date).ToHashSet();
-            var monthRecs = (await _records.FindAsync(
-                    a => a.WorkDate != null && a.WorkDate.StartsWith(prefix) && empIds.Contains(a.EmployeeId), ct))
-                .GroupBy(a => a.EmployeeId);
-            foreach (var g in monthRecs)
-                attByEmp[g.Key] = MonthlyAttendanceBuilder.Aggregate(g, holidaySet);
+            var provider = _attendanceProviders.FirstOrDefault();
+            if (provider is not null)
+                attByEmp = await provider.GetMonthlyAsync(companyId, empIds.ToList(), req.Year, req.Month, ct);
         }
 
-        // پلِ پورسانت→حقوق (TUR-C1-6): از قلابِ اختیاریِ ماژولِ Tourism (decouple؛ نبودِ ماژول → بدونِ پورسانت).
+        // پلِ پورسانت→حقوق (TUR-C1-6): قلابِ اختیاریِ ماژولِ Tourism (ISalesCommissionProvider، کارِ laptop).
         Dictionary<int, decimal> commissionByEmp = new();
         if (req.IncludeCommission && _commissionProvider is not null)
         {

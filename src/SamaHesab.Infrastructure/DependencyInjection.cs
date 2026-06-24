@@ -31,7 +31,8 @@ public static class DependencyInjection
             // ماژولارسازی: کلیدِ کشِ مدل به ماژول‌های فعال وابسته شود تا نصب/حذفِ ماژول مدل را بازبسازد.
             .ReplaceService<Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory, Data.ModuleAwareModelCacheKeyFactory>());
 
-        // ماژول‌های لِینِ pc (HR/CRM) استخراجِ کامل شدند → مثلِ Hotel/Contracting در foreachِ هاست‌ها ثبت می‌شوند، نه این‌جا.
+        // ماژول‌های لِینِ pc (HR/CRM/Attendance) استخراجِ کامل شدند → در foreachِ هاست‌ها ثبت می‌شوند.
+        // پلِ پورسانت→حقوق توسطِ TourismModule (ISalesCommissionProvider، کارِ laptop) ثبت می‌شود.
 
         // Repositories
         services.AddScoped<IUnitOfWork, UnitOfWork>();

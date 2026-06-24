@@ -123,7 +123,7 @@ public class TourismPayrollIntegrationTests
 
         var slips = new FakeRepo<SalarySlip>();
         var handler = new RunMonthlyPayrollCommandHandler(emps, slips, new FakeRepo<PayrollSetting>(),
-            new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), new FakeUow(), new FakeUser(),
+            System.Array.Empty<IAttendanceAggregateProvider>(), new FakeUow(), new FakeUser(),
             new SamaHesab.Modules.Tourism.TourismSalesCommissionProvider(commissions, parties));
 
         var res = await handler.Handle(new RunMonthlyPayrollCommand("1404", 6, IncludeCommission: true), default);
@@ -148,7 +148,7 @@ public class TourismPayrollIntegrationTests
         commissions.AddAsync(SalesCommissionEntry.Create(1, 1, seller.Id, CommissionBasis.PercentOfSale, 40_000_000, 5, 2_000_000, "140406")).Wait();
         var slips = new FakeRepo<SalarySlip>();
         var handler = new RunMonthlyPayrollCommandHandler(emps, slips, new FakeRepo<PayrollSetting>(),
-            new FakeRepo<AttendanceRecord>(), new FakeRepo<Holiday>(), new FakeUow(), new FakeUser(),
+            System.Array.Empty<IAttendanceAggregateProvider>(), new FakeUow(), new FakeUser(),
             new SamaHesab.Modules.Tourism.TourismSalesCommissionProvider(commissions, parties));
 
         // بدونِ پرچمِ IncludeCommission → پورسانت اعمال نمی‌شود.

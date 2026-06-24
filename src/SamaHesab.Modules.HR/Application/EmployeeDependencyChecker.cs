@@ -5,19 +5,14 @@ using SamaHesab.Domain.Interfaces.Repositories;
 namespace SamaHesab.Modules.HR.Application;
 
 /// <summary>
-/// پیاده‌سازیِ HR از قراردادِ بررسیِ وابستگیِ کارمند: اگر کارمند فیشِ حقوق یا رکوردِ تردد دارد،
-/// حذفِ سختش ممنوع است (هسته به‌جای حذف، غیرفعالش می‌کند). با حذفِ ماژولِ HR این چک خودبه‌خود
-/// برداشته می‌شود و هسته سالم می‌ماند.
+/// چکِ وابستگیِ کارمند از منظرِ حقوق: اگر فیشِ حقوق دارد، حذفِ سختش ممنوع است (هسته غیرفعالش می‌کند).
+/// چکِ تردد در ماژولِ Attendance جداگانه ثبت می‌شود (هسته همهٔ چک‌کننده‌ها را با‌هم می‌بیند).
 /// </summary>
-public sealed class EmployeeDependencyChecker : IEmployeeDependencyChecker
+public sealed class PayrollEmployeeDependencyChecker : IEmployeeDependencyChecker
 {
     private readonly IRepository<SalarySlip> _slips;
-    private readonly IRepository<AttendanceRecord> _attendance;
+    public PayrollEmployeeDependencyChecker(IRepository<SalarySlip> slips) => _slips = slips;
 
-    public EmployeeDependencyChecker(IRepository<SalarySlip> slips, IRepository<AttendanceRecord> attendance)
-    { _slips = slips; _attendance = attendance; }
-
-    public async Task<bool> HasHistoryAsync(int employeeId, CancellationToken ct = default)
-        => await _slips.AnyAsync(s => s.EmployeeId == employeeId, ct)
-        || await _attendance.AnyAsync(a => a.EmployeeId == employeeId, ct);
+    public Task<bool> HasHistoryAsync(int employeeId, CancellationToken ct = default)
+        => _slips.AnyAsync(s => s.EmployeeId == employeeId, ct);
 }

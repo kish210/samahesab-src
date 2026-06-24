@@ -153,9 +153,10 @@ public partial class App : System.Windows.Application
                     new SamaHesab.Modules.Contracting.ContractingModule(),
                     new SamaHesab.Modules.CRM.CrmModule(),   // فاز ۳ (pc) — باشگاه/امتیاز
                     new SamaHesab.Modules.Restaurant.RestaurantModule(),   // MOD-REST (laptop)
-                    new SamaHesab.Modules.HR.HrModule(),     // فاز ۳ (pc) — حقوق/حضوروغیاب
+                    new SamaHesab.Modules.HR.HrModule(),     // فاز ۳ (pc) — حقوق
                     new SamaHesab.Modules.POS.PosModule(),                 // MOD-POS (laptop)
                     new SamaHesab.Modules.Tourism.TourismModule(),         // MOD-TUR (laptop)
+                    new SamaHesab.Modules.Attendance.AttendanceModule(),   // فاز ۳ (pc) — حضوروغیاب
                 })
                 {
                     services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);

@@ -55,6 +55,13 @@ public class Cheque : AuditableEntity
         PartyType = partyType;
     }
 
+    /// <summary>پیوندِ سندِ ثبتِ چکِ دریافتی (انتقالِ حسابِ دریافتنی → اسنادِ دریافتنی).</summary>
+    public void SetReceiveVoucher(int voucherId)
+    {
+        ReceiveVoucherId = voucherId;
+        UpdatedAt = DateTime.Now;
+    }
+
     public void Clear(int voucherId)
     {
         if (Status != ChequeStatus.InProcess)

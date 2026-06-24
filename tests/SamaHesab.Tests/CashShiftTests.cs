@@ -1,4 +1,4 @@
-using SamaHesab.Domain.Entities.POS;
+using SamaHesab.Modules.POS.Domain;
 using Xunit;
 
 namespace SamaHesab.Tests;

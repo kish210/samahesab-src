@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.POS;
+namespace SamaHesab.Modules.POS.Domain;
 
 /// <summary>
 /// کار #۳۳ — فاکتور معلق (Hold/Recall): سبدِ نیمه‌کاره‌ی صندوق ذخیره می‌شود تا بعداً

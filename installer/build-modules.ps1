@@ -15,6 +15,7 @@ $modules = @(
   @{ Key="Hotel";       Name="هتل / اقامتگاه (PMS)"; Proj="SamaHesab.Modules.Hotel";       Schema="Htl"; Desc="مدیریتِ اقامتگاه: اتاق/نرخ/رزرو/فولیو/شب‌حسابرسی." }
   @{ Key="Contracting"; Name="پیمانکاری";            Proj="SamaHesab.Modules.Contracting"; Schema="Con"; Desc="صورت‌وضعیتِ پیمان، آبشارِ کسورات، ضمانت‌نامه و گزارش‌ها." }
   @{ Key="Restaurant";  Name="رستوران";              Proj="SamaHesab.Modules.Restaurant";  Schema="Rst"; Desc="سالن/میز/سفارش/آشپزخانه — صندوقِ رستوران و گارسون." }
+  @{ Key="POS";         Name="صندوق فروش (POS)";      Proj="SamaHesab.Modules.POS";         Schema="Pos"; Desc="شیفتِ صندوق (Z/X) + فاکتورِ معلق (Hold/Recall) برای فروشِ سریع." }
 )
 
 $catalog = @()

@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SamaHesab.Application.POS;
+using SamaHesab.Modules.POS.Application;
 
 namespace SamaHesab.API.Controllers;
 

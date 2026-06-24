@@ -79,8 +79,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<SamaHesab.Domain.Entities.Security.RolePermission> RolePermissions { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Security.UserRole> UserRoles { get; set; }
     public DbSet<SamaHesab.Domain.Entities.Settings.UserItemRef> UserItemRefs { get; set; }
-    public DbSet<SamaHesab.Domain.Entities.POS.CashShift> CashShifts { get; set; }
-    public DbSet<SamaHesab.Domain.Entities.POS.HeldSale> HeldSales { get; set; }
+    // POS (CashShift/HeldSale) → استخراج شد به SamaHesab.Modules.POS؛ DbSet/مپ از PosModule.
     public DbSet<StockCountSession> StockCountSessions { get; set; }
     public DbSet<StockCountLine> StockCountLines { get; set; }
 
@@ -356,17 +355,7 @@ public class ApplicationDbContext : DbContext
             b.Property(x => x.Name).IsRequired().HasMaxLength(100);
             b.Ignore(x => x.Company);
         });
-        modelBuilder.Entity<SamaHesab.Domain.Entities.POS.CashShift>(b =>
-        {
-            b.ToTable("CashShifts", "Pos");
-            foreach (var p in new[] { "OpeningFloat", "CashSales", "CardSales", "CountedCash", "ExpectedCash", "Variance" })
-                b.Property(p).HasPrecision(18, 2);
-        });
-        modelBuilder.Entity<SamaHesab.Domain.Entities.POS.HeldSale>(b =>
-        {
-            b.ToTable("HeldSales", "Pos");
-            b.Property(h => h.Total).HasPrecision(18, 2);
-        });
+        // POS (CashShift/HeldSale) → استخراج شد به SamaHesab.Modules.POS (مپ از PosModule.ConfigureModel).
         // CRM(باشگاه/امتیاز) استخراج شد → نگاشتِ LoyaltyTransactions در CrmModule.ConfigureModel (Modules.CRM).
 
         // ─── Stock Count (انبارگردانی) — schema Inv ──────────────────────────────
@@ -458,6 +447,8 @@ public class ApplicationDbContext : DbContext
 
         var applyTenant = typeof(ApplicationDbContext)
             .GetMethod(nameof(ApplyTenantFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var applyBranch = typeof(ApplicationDbContext)
+            .GetMethod(nameof(ApplyTenantAndBranchFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
         foreach (var et in modelBuilder.Model.GetEntityTypes().ToList())
         {
             if (typeof(SamaHesab.Domain.Common.AuditableEntity).IsAssignableFrom(et.ClrType))
@@ -469,30 +460,21 @@ public class ApplicationDbContext : DbContext
                     eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.CreatedByUserId));
                 eb.Ignore(nameof(SamaHesab.Domain.Common.AuditableEntity.UpdatedByUserId));
 
-                // multi-tenant global query filter (scoped to current company)
-                applyTenant.MakeGenericMethod(et.ClrType).Invoke(this, new object[] { modelBuilder });
+                // فیلترِ سراسری: موجودیتِ IBranchScoped → شرکت+شعبه؛ وگرنه فقط شرکت. این به‌صورتِ عمومی
+                // موجودیت‌های هسته *و ماژول‌ها* (CashShift/HeldSale/SalesInvoice/… + موجودیتِ شعبه‌ایِ ماژول) را پوشش می‌دهد
+                // تا با استخراجِ ماژول، جداسازیِ شعبه از بین نرود (جایگزینِ فهرستِ صریحِ قبلی).
+                if (typeof(SamaHesab.Domain.Common.IBranchScoped).IsAssignableFrom(et.ClrType))
+                    applyBranch.MakeGenericMethod(et.ClrType).Invoke(this, new object[] { modelBuilder });
+                else
+                    applyTenant.MakeGenericMethod(et.ClrType).Invoke(this, new object[] { modelBuilder });
             }
         }
 
-        // فیلتر ترکیبیِ شرکت+شعبه روی موجودیت‌های شعبه‌ای — جایگزینِ فیلترِ فقط-شرکت بالا.
-        ApplyTenantAndBranchFilter<Voucher>(modelBuilder);
-        // MB-2 — گسترش به فروش/خرید (هماهنگی با C2). فقط برای کاربرِ بدونِ Security.AllBranches فعال می‌شود.
-        ApplyTenantAndBranchFilter<Domain.Entities.Sales.SalesInvoice>(modelBuilder);
-        ApplyTenantAndBranchFilter<Domain.Entities.Purchase.PurchaseInvoice>(modelBuilder);
-        // TUR-C1-1 — فروشِ گردشگری شعبه‌ای است.
-        ApplyTenantAndBranchFilter<Domain.Entities.Tourism.TourismSale>(modelBuilder);
-        // PMS: رزروِ هتل به ماژولِ Hotel منتقل شد؛ فیلترِ شرکت (multi-tenant) از حلقهٔ عمومیِ بالا اعمال می‌شود.
-        //   فیلترِ شعبه‌ایِ موجودیتِ ماژول = follow-upِ سخت‌سازیِ seam (فاز ۴). Hotel هنوز دادهٔ تولیدی ندارد.
-        // MB-3 — جداسازیِ شعبهٔ انبار (هماهنگی با C2). فیلترِ nullable-aware: انبارِ بدونِ شعبه (null)
-        // مشترک و برای همه دیده می‌شود؛ وگرنه فقط شعبهٔ کاربر. ادمین/AllBranches همه را می‌بیند.
+        // MB-3 — انبار: فیلترِ nullable-aware (انبارِ بدونِ شعبه=null مشترک و برای همه دیده می‌شود). IBranchScoped نیست.
         modelBuilder.Entity<Warehouse>().HasQueryFilter(e =>
             (!_tenantFilterEnabled || e.CompanyId == _companyId)
             && (!_branchScopeEnabled || e.BranchId == null || e.BranchId == _branchId));
 
-        // MB-3 (تکمیل) — موجودیت‌های شعبه‌ایِ انبار/POS: انبارگردانی، شیفتِ صندوق، فاکتورِ معلق.
-        ApplyTenantAndBranchFilter<StockCountSession>(modelBuilder);
-        ApplyTenantAndBranchFilter<SamaHesab.Domain.Entities.POS.CashShift>(modelBuilder);
-        ApplyTenantAndBranchFilter<SamaHesab.Domain.Entities.POS.HeldSale>(modelBuilder);
         // کاردکس (StockTransaction) موجودیتِ AuditableEntity نیست و BranchId آن nullable است → فیلترِ سفارشی.
         modelBuilder.Entity<StockTransaction>().HasQueryFilter(e =>
             (!_tenantFilterEnabled || e.CompanyId == _companyId)

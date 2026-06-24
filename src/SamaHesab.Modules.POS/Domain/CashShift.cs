@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.POS;
+namespace SamaHesab.Modules.POS.Domain;
 
 /// <summary>
 /// کار #۳۰ — شیفت/صندوق POS: صندوق‌دار با موجودی اولیه باز می‌کند، فروش‌ها در طول شیفت

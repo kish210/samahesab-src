@@ -42,6 +42,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamaHesab.Modules.Restaurant", "src\SamaHesab.Modules.Restaurant\SamaHesab.Modules.Restaurant.csproj", "{0ED718DB-DC17-4027-BB01-B7A1F8BB174C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamaHesab.Modules.HR", "src\SamaHesab.Modules.HR\SamaHesab.Modules.HR.csproj", "{48FCFDB3-3BAE-4D1F-9CB2-56E38E7ABE2F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamaHesab.Modules.POS", "src\SamaHesab.Modules.POS\SamaHesab.Modules.POS.csproj", "{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -269,6 +270,18 @@ Global
 		{48FCFDB3-3BAE-4D1F-9CB2-56E38E7ABE2F}.Release|x64.Build.0 = Release|Any CPU
 		{48FCFDB3-3BAE-4D1F-9CB2-56E38E7ABE2F}.Release|x86.ActiveCfg = Release|Any CPU
 		{48FCFDB3-3BAE-4D1F-9CB2-56E38E7ABE2F}.Release|x86.Build.0 = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|x64.Build.0 = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Debug|x86.Build.0 = Debug|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|x64.ActiveCfg = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|x64.Build.0 = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|x86.ActiveCfg = Release|Any CPU
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -288,5 +301,6 @@ Global
 		{17CC84E7-E5F7-4FF4-86FE-90288EBF3433} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{0ED718DB-DC17-4027-BB01-B7A1F8BB174C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{48FCFDB3-3BAE-4D1F-9CB2-56E38E7ABE2F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{E4DFDB0B-4E7F-4FF9-9DD3-2B486D7B7243} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

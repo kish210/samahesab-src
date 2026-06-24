@@ -2,10 +2,10 @@ using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
-using SamaHesab.Domain.Entities.POS;
+using SamaHesab.Modules.POS.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.POS;
+namespace SamaHesab.Modules.POS.Application;
 
 // ── باز کردن شیفت ─────────────────────────────────────────────────────────────
 public record OpenShiftCommand(decimal OpeningFloat) : IRequest<Result<int>>;
@@ -80,12 +80,12 @@ public class CloseShiftCommandHandler : IRequestHandler<CloseShiftCommand, Resul
     private readonly ICurrentUserService _user;
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
-    private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
+    private readonly IRepository<SamaHesab.Domain.Entities.Accounting.FiscalYear> _fiscalYears;
     private readonly IPersianCalendarService _calendar;
 
     public CloseShiftCommandHandler(IRepository<CashShift> shifts, IUnitOfWork uow, ICurrentUserService user,
         IAccountRepository accounts, IVoucherRepository vouchers,
-        IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears, IPersianCalendarService calendar)
+        IRepository<SamaHesab.Domain.Entities.Accounting.FiscalYear> fiscalYears, IPersianCalendarService calendar)
     {
         _shifts = shifts; _uow = uow; _user = user;
         _accounts = accounts; _vouchers = vouchers; _fiscalYears = fiscalYears; _calendar = calendar;
@@ -120,7 +120,7 @@ public class CloseShiftCommandHandler : IRequestHandler<CloseShiftCommand, Resul
     }
 
     /// <summary>سندِ مغایرت را در صورتِ اختلاف می‌سازد؛ نبودِ سال مالی/حساب → بی‌سند (بدونِ شکست).</summary>
-    private async Task<Domain.Entities.Accounting.Voucher?> TryCreateVarianceVoucherAsync(
+    private async Task<SamaHesab.Domain.Entities.Accounting.Voucher?> TryCreateVarianceVoucherAsync(
         int companyId, CashShift shift, CancellationToken ct)
     {
         if (shift.Variance == 0) return null;
@@ -136,19 +136,19 @@ public class CloseShiftCommandHandler : IRequestHandler<CloseShiftCommand, Resul
 
         var date = _calendar.GetCurrentPersianDate();
         var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-        var v = Domain.Entities.Accounting.Voucher.Create(companyId, shift.BranchId, fy.Id, number, date,
+        var v = SamaHesab.Domain.Entities.Accounting.Voucher.Create(companyId, shift.BranchId, fy.Id, number, date,
             GeneralVoucherTypeId, $"مغایرتِ نقدیِ بستنِ شیفت #{shift.Id} ({(isShortage ? "کسری" : "اضافه")})",
             $"SHIFT-{shift.Id}");
 
         if (isShortage)
         {
-            v.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 1, other.Id, amount, 0, "کسریِ صندوق"));
-            v.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 2, cash.Id, 0, amount, "کاهشِ موجودیِ صندوق"));
+            v.AddItem(SamaHesab.Domain.Entities.Accounting.VoucherItem.Create(0, 1, other.Id, amount, 0, "کسریِ صندوق"));
+            v.AddItem(SamaHesab.Domain.Entities.Accounting.VoucherItem.Create(0, 2, cash.Id, 0, amount, "کاهشِ موجودیِ صندوق"));
         }
         else
         {
-            v.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 1, cash.Id, amount, 0, "افزایشِ موجودیِ صندوق"));
-            v.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 2, other.Id, 0, amount, "اضافاتِ صندوق"));
+            v.AddItem(SamaHesab.Domain.Entities.Accounting.VoucherItem.Create(0, 1, cash.Id, amount, 0, "افزایشِ موجودیِ صندوق"));
+            v.AddItem(SamaHesab.Domain.Entities.Accounting.VoucherItem.Create(0, 2, other.Id, 0, amount, "اضافاتِ صندوق"));
         }
         v.Post(_user.UserId ?? 0);
         await _vouchers.AddAsync(v, ct);

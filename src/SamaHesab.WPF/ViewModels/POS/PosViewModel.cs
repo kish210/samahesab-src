@@ -324,7 +324,7 @@ public partial class PosViewModel : BaseViewModel
             if (UseApi)
                 rows = (await _api.GetHeldSalesAsync()).Select(h => new HeldSaleRow(h.Id, h.Label, h.Total, h.CreatedAt)).ToList();
             else
-                rows = (await _mediator.Send(new SamaHesab.Application.POS.GetHeldSalesQuery()))
+                rows = (await _mediator.Send(new SamaHesab.Modules.POS.Application.GetHeldSalesQuery()))
                     .Select(h => new HeldSaleRow(h.Id, h.Label, h.Total, h.CreatedAt)).ToList();
             HeldSales.Clear();
             foreach (var r in rows) HeldSales.Add(r);
@@ -350,7 +350,7 @@ public partial class PosViewModel : BaseViewModel
         if (UseApi) { (ok, _, error) = await _api.HoldSaleAsync(label, payload, GrandTotal); }
         else
         {
-            var r = await _mediator.Send(new SamaHesab.Application.POS.HoldSaleCommand(label, payload, GrandTotal));
+            var r = await _mediator.Send(new SamaHesab.Modules.POS.Application.HoldSaleCommand(label, payload, GrandTotal));
             ok = r.Succeeded; error = r.ErrorMessage;
         }
         if (!ok) { await _dialogService.ShowErrorAsync(error ?? "خطا در تعلیق فاکتور."); return; }
@@ -370,10 +370,10 @@ public partial class PosViewModel : BaseViewModel
             if (!ok) return;
         }
 
-        SamaHesab.Application.POS.HeldSaleDetailDto? detail = null;
+        SamaHesab.Modules.POS.Application.HeldSaleDetailDto? detail = null;
         string? payload = null;
         if (UseApi) { var d = await _api.GetHeldSaleAsync(row.Id); payload = d?.Payload; }
-        else { detail = await _mediator.Send(new SamaHesab.Application.POS.GetHeldSaleQuery(row.Id)); payload = detail?.Payload; }
+        else { detail = await _mediator.Send(new SamaHesab.Modules.POS.Application.GetHeldSaleQuery(row.Id)); payload = detail?.Payload; }
         if (string.IsNullOrWhiteSpace(payload)) { await _dialogService.ShowErrorAsync("فاکتور معلق یافت نشد."); await LoadHeldSalesAsync(); return; }
 
         HeldCart? cart;
@@ -395,7 +395,7 @@ public partial class PosViewModel : BaseViewModel
 
         // پس از فراخوان، رکوردِ معلق پاک می‌شود (یک‌بارمصرف).
         if (UseApi) await _api.DeleteHeldSaleAsync(row.Id);
-        else await _mediator.Send(new SamaHesab.Application.POS.DeleteHeldSaleCommand(row.Id));
+        else await _mediator.Send(new SamaHesab.Modules.POS.Application.DeleteHeldSaleCommand(row.Id));
         await LoadHeldSalesAsync();
     }
 
@@ -406,7 +406,7 @@ public partial class PosViewModel : BaseViewModel
         if (row == null) return;
         if (!await _dialogService.ConfirmAsync($"فاکتور معلق «{row.Label}» حذف شود؟")) return;
         if (UseApi) await _api.DeleteHeldSaleAsync(row.Id);
-        else await _mediator.Send(new SamaHesab.Application.POS.DeleteHeldSaleCommand(row.Id));
+        else await _mediator.Send(new SamaHesab.Modules.POS.Application.DeleteHeldSaleCommand(row.Id));
         await LoadHeldSalesAsync();
     }
 

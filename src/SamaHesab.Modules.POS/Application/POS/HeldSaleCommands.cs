@@ -1,10 +1,10 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
-using SamaHesab.Domain.Entities.POS;
+using SamaHesab.Modules.POS.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.POS;
+namespace SamaHesab.Modules.POS.Application;
 
 // ── تعلیق فاکتور ──────────────────────────────────────────────────────────────
 public record HoldSaleCommand(string Label, string Payload, decimal Total) : IRequest<Result<int>>;

@@ -826,8 +826,8 @@
 > | **HR (منابع انسانی)** | 🖥 pc | 🚧 HrModule پشتِ IModule (لِینِ C1) |
 > | **CRM (باشگاه)** | 🖥 pc | 🚧 CrmModule پشتِ IModule (لِینِ C1) |
 > | **فاز۴: ModuleLoader (AssemblyLoadContext)** | 🖥 pc/پلتفرم | ⬜ |
-> | **Restaurant** | 💻 laptop | [~] 🚧 شروع‌شده (MOD-REST) |
-> | **POS** | 💻 laptop | ⬜ بعدِ Restaurant |
+> | **Restaurant** | 💻 laptop | ✅ MOD-REST |
+> | **POS** | 💻 laptop | ✅ MOD-POS (CashShift/HeldSale + Application؛ seamِ فیلترِ شعبه به IBranchScopedِ عمومی تعمیم یافت) |
 > | **Tourism** | 💻 laptop | ⬜ (بک‌اندِ TUR-C1 مالِ pc بود → هنگامِ استخراج هماهنگی) |
 > - [x] ✅C2 **MOD-REST — استخراجِ Restaurant انجام شد.** کل به `SamaHesab.Modules.Restaurant`: ۵ موجودیت + Application + `IRestaurantOrderRepository` (جدا از فایلِ مشترک) + `RestaurantOrderRepository` (از Infrastructure) + `RestaurantSeeder` + `GetRestaurantDashboardQuery` (از BI). RestaurantModule مپِ Rst + repo/MediatR. هسته صفر رفرنس به رستوران. build سبز · ۶۱۷ تست.
 

@@ -3,11 +3,11 @@ using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Application.Sales.Commands;
-using SamaHesab.Domain.Entities.Restaurant;
+using SamaHesab.Modules.Restaurant.Domain;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Restaurant.Commands;
+namespace SamaHesab.Modules.Restaurant.Application.Commands;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // باز کردن سفارش روی میز (یا بیرون‌بر/پیک)

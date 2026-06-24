@@ -1,7 +1,7 @@
 using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Enums;
 
-namespace SamaHesab.Domain.Entities.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Domain;
 
 /// <summary>میز رستوران در یک سالن. وضعیت میز (آزاد/مشغول/رزرو/تسویه) مبنای صفحه‌ی گارسون است.</summary>
 public class DiningTable : AuditableEntity

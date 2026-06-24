@@ -1,4 +1,4 @@
-using SamaHesab.Domain.Entities.Restaurant;
+using SamaHesab.Modules.Restaurant.Domain;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Events;
 using Xunit;

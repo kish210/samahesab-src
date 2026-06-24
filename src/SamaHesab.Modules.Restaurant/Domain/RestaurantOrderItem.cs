@@ -1,7 +1,7 @@
 using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Enums;
 
-namespace SamaHesab.Domain.Entities.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Domain;
 
 /// <summary>یک ردیف از سفارش رستوران (یک غذا/نوشیدنی). وضعیت هر ردیف جدا دنبال می‌شود
 /// تا آشپزخانه و گارسون بدانند کدام آیتم آماده/سرو شده است.</summary>

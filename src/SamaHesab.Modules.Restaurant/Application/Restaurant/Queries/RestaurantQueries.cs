@@ -1,11 +1,11 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Entities.HRM;
-using SamaHesab.Domain.Entities.Restaurant;
+using SamaHesab.Modules.Restaurant.Domain;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
 
-namespace SamaHesab.Application.Restaurant.Queries;
+namespace SamaHesab.Modules.Restaurant.Application.Queries;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // U7 — فهرستِ گارسون‌ها (کارمندانِ فعال) برای انتخابگرِ تخصیصِ گارسون

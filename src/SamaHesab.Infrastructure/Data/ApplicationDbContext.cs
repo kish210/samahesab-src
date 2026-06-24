@@ -13,7 +13,6 @@ using SamaHesab.Domain.Entities.Settings;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Entities.Sales;
 using SamaHesab.Domain.Entities.HRM;
-using SamaHesab.Domain.Entities.Restaurant;
 
 namespace SamaHesab.Infrastructure.Data;
 
@@ -112,12 +111,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<SamaHesab.Domain.Entities.HRM.Department> Departments { get; set; }
     public DbSet<SamaHesab.Domain.Entities.HRM.AttendanceRecord> AttendanceRecords { get; set; }
 
-    // Restaurant (v2)
-    public DbSet<Hall> Halls { get; set; }
-    public DbSet<DiningTable> DiningTables { get; set; }
-    public DbSet<RestaurantOrder> RestaurantOrders { get; set; }
-    public DbSet<RestaurantOrderItem> RestaurantOrderItems { get; set; }
-    public DbSet<KitchenTicket> KitchenTickets { get; set; }
+    // Restaurant (v2) → استخراج شد به SamaHesab.Modules.Restaurant؛ DbSet/مپ از RestaurantModule.
     public DbSet<SamaHesab.Domain.Entities.Documents.DocumentTemplate> DocumentTemplates { get; set; }   // فاز ۱۰ DT-2
 
     // ─── 🆘 HC-2 — مرکزِ پشتیبانی (schema Sup) ──────────────────────────────
@@ -402,28 +396,7 @@ public class ApplicationDbContext : DbContext
             b.Property(l => l.CountedQty).HasPrecision(18, 3);
         });
 
-        // ─── Restaurant (v2): schema Rst, enums stored as INT ───────────────────
-        modelBuilder.Entity<Hall>(b =>
-        {
-            b.ToTable("Halls", "Rst");
-            b.Ignore(h => h.Tables);   // tables are queried directly by HallId
-        });
-        modelBuilder.Entity<DiningTable>().ToTable("DiningTables", "Rst");
-        modelBuilder.Entity<KitchenTicket>().ToTable("KitchenTickets", "Rst");
-        modelBuilder.Entity<RestaurantOrder>(b =>
-        {
-            b.ToTable("RestaurantOrders", "Rst");
-            b.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
-            foreach (var p in new[] { "SubTotal", "Discount", "ServiceCharge", "Tax", "Tip", "GrandTotal", "PaidAmount" })
-                b.Property(p).HasPrecision(18, 2);
-        });
-        modelBuilder.Entity<RestaurantOrderItem>(b =>
-        {
-            b.ToTable("RestaurantOrderItems", "Rst");
-            b.Property(i => i.Quantity).HasPrecision(18, 3);
-            foreach (var p in new[] { "UnitPrice", "DiscountAmount", "LineTotal" })
-                b.Property(p).HasPrecision(18, 2);
-        });
+        // ─── Restaurant → استخراج شد به SamaHesab.Modules.Restaurant (MOD-REST). مپش از RestaurantModule. ───
 
         // ─── 🆘 HC-2 — Support Center (schema Sup; enums به‌صورتِ INT) ───────────
         modelBuilder.Entity<SamaHesab.Domain.Entities.Support.BugReport>(b =>

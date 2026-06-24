@@ -1,4 +1,4 @@
-namespace SamaHesab.Application.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Application;
 
 /// <summary>وضعیتِ انتظارِ میز — مبنای رنگ‌بندی در نقشهٔ میز.</summary>
 public enum TableWaitState { Free = 0, Normal = 1, Warning = 2, Critical = 3 }

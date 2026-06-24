@@ -45,7 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IStockItemRepository, StockItemRepository>();
-        services.AddScoped<IRestaurantOrderRepository, RestaurantOrderRepository>();
+        // IRestaurantOrderRepository → ثبتش به RestaurantModule.RegisterServices منتقل شد (MOD-REST).
         services.AddScoped<IVoucherTemplateRepository, VoucherTemplateRepository>();
         services.AddScoped<IRecurringVoucherRepository, RecurringVoucherRepository>();
         services.AddScoped<IUserItemRefRepository, UserItemRefRepository>();

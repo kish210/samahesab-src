@@ -1,7 +1,7 @@
 using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Enums;
 
-namespace SamaHesab.Domain.Entities.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Domain;
 
 /// <summary>رسید آشپزخانه (Kitchen Display System). هنگام ارسال سفارش به آشپزخانه ساخته می‌شود
 /// و وضعیت آماده‌سازی را برای نمایشگر آشپزخانه نگه می‌دارد.</summary>

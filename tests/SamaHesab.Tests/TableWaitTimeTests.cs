@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using SamaHesab.Application.Common.Security;
-using SamaHesab.Application.Restaurant;
+using SamaHesab.Modules.Restaurant.Application;
 using Xunit;
 
 namespace SamaHesab.Tests;

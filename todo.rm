@@ -829,7 +829,7 @@
 > | **Restaurant** | 💻 laptop | [~] 🚧 شروع‌شده (MOD-REST) |
 > | **POS** | 💻 laptop | ⬜ بعدِ Restaurant |
 > | **Tourism** | 💻 laptop | ⬜ (بک‌اندِ TUR-C1 مالِ pc بود → هنگامِ استخراج هماهنگی) |
-> - [~] 🚧 laptop@MOD-REST — استخراجِ ماژولِ **Restaurant** به `SamaHesab.Modules.Restaurant`. 🖥 pc لطفاً `*/Restaurant/*` و `*/Entities/Restaurant/*` و `IRestaurantOrderRepository` را تا اتمام دست نزن.
+> - [x] ✅C2 **MOD-REST — استخراجِ Restaurant انجام شد.** کل به `SamaHesab.Modules.Restaurant`: ۵ موجودیت + Application + `IRestaurantOrderRepository` (جدا از فایلِ مشترک) + `RestaurantOrderRepository` (از Infrastructure) + `RestaurantSeeder` + `GetRestaurantDashboardQuery` (از BI). RestaurantModule مپِ Rst + repo/MediatR. هسته صفر رفرنس به رستوران. build سبز · ۶۱۷ تست.
 
 ### 🐞 باگ‌های گزارش‌شدهٔ کاربر (bug.xlsx @2026-06-23 — نسخهٔ ۲.۵.۲۱)
 - [x] ✅C2 **BUG-2 (اشخاص→مشتریان): نبودِ validationِ نام.** مشتری با نامِ نامعتبر «jhkj» ثبت می‌شد چون `CreateCustomerCommand` هیچ Validatorی نداشت. `CreateCustomerCommandValidator` افزوده شد: کد الزامی + نامِ معتبر (حقوقی=نامِ شرکت، حقیقی=نام؛ دستِ‌کم ۲ نویسه). ۵ تستِ نو (۵۳۱ کل). *(تشخیص: نامِ تصادفیِ کوتاه مثل «jhkj» چون ≥۲ نویسه است هنوز رد نمی‌شود؛ تشخیصِ «بی‌معنا بودن» برنامه‌نویسانه ممکن نیست — گاردِ خالی/تک‌نویسه بسته شد.)*

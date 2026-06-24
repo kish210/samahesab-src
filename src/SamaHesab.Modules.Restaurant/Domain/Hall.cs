@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Domain.Entities.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Domain;
 
 /// <summary>سالن رستوران (مثلاً سالن اصلی، تراس، طبقه‌ی دوم). میزها داخل سالن قرار می‌گیرند.</summary>
 public class Hall : AuditableEntity

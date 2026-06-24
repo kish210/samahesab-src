@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SamaHesab.Application.Restaurant.Commands;
-using SamaHesab.Application.Restaurant.Queries;
+using SamaHesab.Modules.Restaurant.Application.Commands;
+using SamaHesab.Modules.Restaurant.Application.Queries;
 
 namespace SamaHesab.API.Controllers;
 
@@ -128,5 +128,5 @@ public class RestaurantController : ControllerBase
     /// <summary>فهرستِ گارسون‌ها (کارمندانِ فعال) برای انتخابگرِ تخصیصِ گارسون (U7).</summary>
     [HttpGet("waiters")]
     public async Task<IActionResult> Waiters(CancellationToken ct)
-        => Ok(await _mediator.Send(new SamaHesab.Application.Restaurant.Queries.GetWaitersQuery(), ct));
+        => Ok(await _mediator.Send(new SamaHesab.Modules.Restaurant.Application.Queries.GetWaitersQuery(), ct));
 }

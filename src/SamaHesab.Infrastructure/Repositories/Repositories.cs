@@ -183,19 +183,7 @@ public class StockItemRepository : GenericRepository<StockItem>, IStockItemRepos
         => await DbSet.Where(s => s.ProductId == productId).SumAsync(s => s.Quantity, ct);
 }
 
-// Restaurant Repositories (v2)
-public class RestaurantOrderRepository
-    : GenericRepository<SamaHesab.Domain.Entities.Restaurant.RestaurantOrder>, IRestaurantOrderRepository
-{
-    public RestaurantOrderRepository(ApplicationDbContext context) : base(context) { }
-
-    public async Task<SamaHesab.Domain.Entities.Restaurant.RestaurantOrder?> GetWithItemsAsync(
-        int id, CancellationToken ct = default)
-        => await DbSet.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id, ct);
-
-    public async Task<int> CountByCompanyAsync(int companyId, CancellationToken ct = default)
-        => await DbSet.CountAsync(o => o.CompanyId == companyId, ct);
-}
+// RestaurantOrderRepository → منتقل شد به SamaHesab.Modules.Restaurant.Infrastructure (MOD-REST).
 
 // Voucher Templates (productivity)
 public class VoucherTemplateRepository

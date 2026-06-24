@@ -2,7 +2,7 @@ using SamaHesab.Domain.Common;
 using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Events;
 
-namespace SamaHesab.Domain.Entities.Restaurant;
+namespace SamaHesab.Modules.Restaurant.Domain;
 
 /// <summary>سفارش رستوران. هسته‌ی فرایند: باز شدن روی میز → افزودن آیتم → ارسال به آشپزخانه → سرو → تسویه.
 /// برخلاف فاکتور فروشگاهی، سفارش رستوران «باز» می‌ماند و به مرور آیتم می‌گیرد.</summary>

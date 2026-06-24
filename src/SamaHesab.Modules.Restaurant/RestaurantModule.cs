@@ -1,21 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SamaHesab.Modules.Abstractions;
+using SamaHesab.Modules.Restaurant.Domain;
+using SamaHesab.Modules.Restaurant.Infrastructure;
 
 namespace SamaHesab.Modules.Restaurant;
 
 /// <summary>
-/// ماژولِ رستوران (MOD-REST، در حالِ استخراج). schema: Rst.
-///
-/// وضعیت: اسکلتِ ماژول ساخته شد و در solution/میزبان ثبت می‌شود. انتقالِ کد به‌صورتِ گام‌به‌گامِ
-/// سبز انجام می‌شود (به‌خاطرِ کوپلینگِ بیشتر نسبت به Contracting):
-///   ۱) موجودیت‌ها (Domain/Entities/Restaurant) + Application/Restaurant → این اسمبلی.
-///   ۲) `IRestaurantOrderRepository` (از فایلِ مشترکِ IRestaurantRepositories جدا) + impl (از Infrastructure) → این‌جا.
-///   ۳) `RestaurantSeeder` (Infrastructure) → این‌جا.
-///   ۴) `GetRestaurantDashboardQuery` (از Application/BI/MoreRoleDashboardsQuery) → این‌جا (کوئریِ ماژول).
-///   ۵) حذفِ DbSet/مپِ Rst از ApplicationDbContext؛ مپ از ConfigureModelِ این ماژول.
-///   ۶) رفرنسِ کنترلرِ API + VMهای WPF به این اسمبلی؛ ثبت در حلقهٔ ماژولِ میزبان.
-/// تا تکمیلِ گام‌ها، مپ همچنان در هسته است و این ماژول no-op می‌ماند (build سبز).
+/// ماژولِ رستوران (MOD-REST). schema: Rst. کدِ Domain/Application/repository/seeder/داشبورد
+/// به این اسمبلیِ مستقل منتقل شد؛ هسته صفر رفرنس به رستوران دارد و فقط از طریقِ این IModule می‌شناسدش.
 /// </summary>
 public sealed class RestaurantModule : IModule
 {
@@ -23,11 +16,39 @@ public sealed class RestaurantModule : IModule
     public string DisplayName => "رستوران";
     public string Version => "1.0.0";
 
-    public void RegisterServices(IServiceCollection services) { /* گام ۲/۴: repo + MediatRِ ماژول */ }
+    public void RegisterServices(IServiceCollection services)
+    {
+        services.AddScoped<IRestaurantOrderRepository, RestaurantOrderRepository>();
+        services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(RestaurantModule).Assembly));
+    }
 
-    public void ConfigureModel(ModelBuilder modelBuilder) { /* گام ۵: مپِ schema Rst این‌جا منتقل می‌شود */ }
+    /// <summary>مپِ EFِ موجودیت‌های رستوران (G4) — منتقل‌شده از ApplicationDbContext. schema Rst.</summary>
+    public void ConfigureModel(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Hall>(b =>
+        {
+            b.ToTable("Halls", "Rst");
+            b.Ignore(h => h.Tables);   // tables are queried directly by HallId
+        });
+        modelBuilder.Entity<DiningTable>().ToTable("DiningTables", "Rst");
+        modelBuilder.Entity<KitchenTicket>().ToTable("KitchenTickets", "Rst");
+        modelBuilder.Entity<RestaurantOrder>(b =>
+        {
+            b.ToTable("RestaurantOrders", "Rst");
+            b.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
+            foreach (var p in new[] { "SubTotal", "Discount", "ServiceCharge", "Tax", "Tip", "GrandTotal", "PaidAmount" })
+                b.Property(p).HasPrecision(18, 2);
+        });
+        modelBuilder.Entity<RestaurantOrderItem>(b =>
+        {
+            b.ToTable("RestaurantOrderItems", "Rst");
+            b.Property(i => i.Quantity).HasPrecision(18, 3);
+            foreach (var p in new[] { "UnitPrice", "DiscountAmount", "LineTotal" })
+                b.Property(p).HasPrecision(18, 2);
+        });
+    }
 
-    public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();
+    public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();   // POS/میز/آشپزخانه لانچرِ مستقل دارند
     public IReadOnlyList<ModulePermission> GetPermissions() => System.Array.Empty<ModulePermission>();
     public IReadOnlyList<string> GetMigrationScripts() => new[] { "09_Restaurant.sql" };
 }

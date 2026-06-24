@@ -139,7 +139,7 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
                 string? payload = null;
                 // برای فرمان‌های حساس (مثلِ تغییرِ رمز) محتوای فرمان سریال نمی‌شود تا راز در لاگ نشت نکند.
                 if (!rule.Sensitive)
-                    try { payload = JsonSerializer.Serialize((object)request); } catch { /* ignore */ }
+                    try { payload = AuditPayload.Serialize((object)request); } catch { /* ignore */ }
                 await _audit.AddAsync(AuditLog.Create(
                     rule.AuditAction, _user.UserId, _user.Username, tableName: rule.Table, recordId: null, newValues: payload), ct);
                 await _uow.SaveChangesAsync(ct);

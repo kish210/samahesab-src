@@ -271,8 +271,8 @@
                         <ComboBox x:Name="AccCombo" Height="{DynamicResource ErpDensInputHeight}"
                                   ItemsSource="{Binding LeafAccounts}"
                                   SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
-                                  IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Display"
-                                  StaysOpenOnEdit="True" PreviewKeyDown="AccCombo_PreviewKeyDown">
+                                  IsEditable="True" IsTextSearchEnabled="False" TextSearch.TextPath="Display"
+                                  StaysOpenOnEdit="True" Loaded="AccCombo_Loaded" PreviewKeyDown="AccCombo_PreviewKeyDown">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <!-- U13: کد (راست) · نام (وسط) · ماندهٔ جاری (چپ، LTR) — مطابقِ DESIGN LAW ۲-ب -->

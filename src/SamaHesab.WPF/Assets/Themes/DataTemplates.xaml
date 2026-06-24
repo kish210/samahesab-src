@@ -148,6 +148,7 @@
     <!-- Settings -->
     <DataTemplate DataType="{x:Type cfg:SettingsViewModel}"><vcfg:SettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:ModulesViewModel}"><vcfg:ModulesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type cfg:ModuleMarketplaceViewModel}"><vcfg:ModuleMarketplaceView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:BackupViewModel}"><vcfg:BackupView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:DocumentTemplatesViewModel}"><vcfg:DocumentTemplatesView/></DataTemplate>
     <DataTemplate DataType="{x:Type cfg:DataImportViewModel}"><vcfg:DataImportView/></DataTemplate>

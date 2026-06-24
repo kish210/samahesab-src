@@ -199,6 +199,7 @@ public partial class MainViewModel : BaseViewModel
             ["Turnover"]        = ("گردشِ موجودی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.InventoryTurnoverViewModel>()),
             ["Settings"]        = ("تنظیمات",             sp => sp.GetRequiredService<SettingsViewModel>()),
             ["Modules"]         = ("مدیریت ماژول‌ها",     sp => sp.GetRequiredService<ModulesViewModel>()),
+            ["ModuleMarketplace"] = ("بازارِ ماژول‌ها",   sp => sp.GetRequiredService<ViewModels.Settings.ModuleMarketplaceViewModel>()),
             ["Backup"]          = ("پشتیبان‌گیری",         sp => sp.GetRequiredService<BackupViewModel>()),
             ["DocumentTemplates"]= ("قالبِ اسناد",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DocumentTemplatesViewModel>()),
             ["DataImport"]      = ("ورودِ داده از اکسل",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.DataImportViewModel>()),
@@ -496,7 +497,7 @@ public partial class MainViewModel : BaseViewModel
         var sys = new List<NavLink> { new("میز کار / داشبورد", "Dashboard") };
         if (CanSecurity) { sys.Add(new("امنیت و دسترسی", "Security")); sys.Add(new("لاگِ حسابرسی", "AuditLog")); sys.Add(new("مدیریت شعب", "Branches")); }
         if (HrEnabled)  { sys.Add(new("کارکنان", "Employees")); sys.Add(new("حقوق و دستمزد", "Salary")); }
-        sys.Add(new("مدیریت ماژول‌ها", "Modules")); sys.Add(new("قالبِ اسناد", "DocumentTemplates"));
+        sys.Add(new("مدیریت ماژول‌ها", "Modules")); sys.Add(new("بازارِ ماژول‌ها", "ModuleMarketplace")); sys.Add(new("قالبِ اسناد", "DocumentTemplates"));
         sys.Add(new("ورودِ داده از اکسل", "DataImport")); sys.Add(new("تنظیمات", "Settings")); sys.Add(new("پشتیبان‌گیری", "Backup"));
         sys.Add(new("⌨ راهنمای میان‌بر (F1)", "ShortcutHelp"));
         NavGroups.Add(new NavGroup { Title = "سیستم", IconKey = "IcSettings", Links = sys });

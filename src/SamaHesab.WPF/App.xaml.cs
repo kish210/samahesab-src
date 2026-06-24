@@ -289,6 +289,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<ModulesViewModel>();
+                services.AddTransient<ViewModels.Settings.ModuleMarketplaceViewModel>();   // بازارِ ماژول‌ها
                 services.AddTransient<CompanySettingsViewModel>();
                 services.AddTransient<BackupViewModel>();
                 services.AddTransient<ViewModels.Settings.DocumentTemplatesViewModel>();   // فاز ۱۰ DT-4

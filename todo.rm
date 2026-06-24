@@ -1665,5 +1665,5 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 ## 🧩 تکمیلِ ماژول‌ها — تقسیمِ کار (pc↔laptop @2026-06-24، بدونِ دوباره‌کاری)
 - **وضعیت:** هر ۹ ماژول استخراج شده ✅. تستِ removability فقط برای Contracting/Hotel/POS/Tourism هست (laptop).
-- [~] 🚧 pc@2026-06-24 — **تستِ removability برای CRM/HR/Attendance** (ماژول‌های pc) با همان الگوی HotelModuleRemovabilityTests. فقط فایلِ تستِ نو — بدونِ تداخل.
+- [x] (pc/C1) تستِ removability برای CRM/HR/Attendance — هسته بدونِ این ماژول‌ها سالم (Account+Employee/Department مپ)، با نصب مپ می‌شوند، و سه ماژول مستقل‌اند (HR≠Attendance). ۵ تست (۶۳۶ کل). حالا هر ۹ ماژول تستِ removability دارند.
 - ⏭️ **manifest (module.json/version.json/icon/.mspkg):** هیچ ماژولی ندارد، **و هیچ کدی هم فعلاً نمی‌خواندش** (loader هنوز فهرستِ ثابتِ foreach است). ⇒ تا ساختِ ModuleLoaderِ DLL-scan (فاز ۴، لِینِ laptop) ساختِ manifest بی‌مصرف است. **پیشنهاد:** وقتی laptop loaderِ واقعی را ساخت، قراردادِ module.json را تعریف کند تا هر دو ماشین manifestِ ماژول‌های خود را بسازند (هم‌فرمت). تا آن‌موقع نسازیم.

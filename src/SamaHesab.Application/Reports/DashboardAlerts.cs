@@ -23,6 +23,21 @@ public record DashboardAlertsInput(
 /// </summary>
 public static class DashboardAlerts
 {
+    /// <summary>
+    /// از ردیف‌های ماندهٔ سنی‌شده، «معوق» را استخراج می‌کند: معوق = کل − جاری (هر چیزِ بالای ۳۰ روز).
+    /// تعداد = طرف‌هایی با معوقِ مثبت · مبلغ = جمعِ معوق. منطقِ خالصِ تست‌پذیر.
+    /// </summary>
+    public static (int Count, decimal Amount) OverdueFromAging(IEnumerable<(decimal Current, decimal Total)> rows)
+    {
+        int count = 0; decimal amount = 0;
+        foreach (var (current, total) in rows)
+        {
+            var overdue = total - current;
+            if (overdue > 0.01m) { count++; amount += overdue; }
+        }
+        return (count, amount);
+    }
+
     public static List<ActionableAlert> Build(DashboardAlertsInput m)
     {
         var list = new List<ActionableAlert>();

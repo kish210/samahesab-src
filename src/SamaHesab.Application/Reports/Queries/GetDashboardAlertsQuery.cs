@@ -42,9 +42,15 @@ public class GetDashboardAlertsQueryHandler : IRequestHandler<GetDashboardAlerts
         // ودیعهٔ کمِ تأمین‌کنندگانِ گردشگری (در صورتِ نبودِ داده، فهرستِ خالی → هشداری ساخته نمی‌شود).
         var lowDeposits = await _mediator.Send(new GetSupplierDepositBalancesQuery(OnlyLow: true), ct);
 
+        // دریافتنیِ معوقِ مشتریان از ماندهٔ سنی‌شده (معوق = کل − جاری، یعنی بالای ۳۰ روز).
+        var aging = await _mediator.Send(new GetAgedBalanceQuery(Payable: false, AsOfDate: request.Today), ct);
+        var (overdueRecvCount, overdueRecvAmount) =
+            DashboardAlerts.OverdueFromAging(aging.Select(r => (r.Current, r.Total)));
+
         var input = new DashboardAlertsInput(
             OverdueChequeCount: overdue.TotalCount, OverdueChequeAmount: overdue.PaidAmount + overdue.ReceivedAmount,
             DueSoonChequeCount: week.TotalCount, DueSoonChequeAmount: week.PaidAmount + week.ReceivedAmount,
+            OverdueReceivableCount: overdueRecvCount, OverdueReceivableAmount: overdueRecvAmount,
             SupplierDepositLowCount: lowDeposits.Count);
 
         return DashboardAlerts.Build(input);

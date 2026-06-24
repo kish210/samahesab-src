@@ -36,6 +36,32 @@ public class DashboardAlertsTests
     }
 
     [Fact]
+    public void OverdueFromAging_Counts_And_Sums_Past_Current()
+    {
+        // (جاری، کل): معوق = کل − جاری
+        var (count, amount) = DashboardAlerts.OverdueFromAging(new[]
+        {
+            (100m, 100m),   // همه جاری → معوق ۰ → شمرده نمی‌شود
+            (50m, 200m),    // معوق ۱۵۰
+            (0m, 80m),      // معوق ۸۰
+            (10m, 10.005m), // معوقِ ناچیز (<۰٫۰۱) → نادیده
+        });
+        Assert.Equal(2, count);
+        Assert.Equal(230m, amount);
+    }
+
+    [Fact]
+    public void Overdue_Receivable_Produces_Critical_Alert()
+    {
+        var a = DashboardAlerts.Build(new DashboardAlertsInput(
+            OverdueReceivableCount: 4, OverdueReceivableAmount: 5_000_000))
+            .Single(x => x.Key == "receivable-overdue");
+        Assert.Equal(AlertSeverity.Critical, a.Severity);
+        Assert.Equal("party-aging", a.NavTarget);
+        Assert.Equal(5_000_000, a.Amount);
+    }
+
+    [Fact]
     public void Tourism_Low_Deposit_Produces_Warning_Alert()
     {
         var a = Assert.Single(DashboardAlerts.Build(new DashboardAlertsInput(SupplierDepositLowCount: 3)));

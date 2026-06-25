@@ -45,11 +45,27 @@ Write-Host "[6c/7] publish Attendance launcher (hozur.exe) ..." -ForegroundColor
 dotnet publish "$root\src\SamaHesab.Attendance\SamaHesab.Attendance.csproj" @common -o $app
 if ($LASTEXITCODE) { throw "Attendance launcher publish failed" }
 
-Write-Host "[7/7] publish API server (SamaHesab.API.exe) ..." -ForegroundColor Cyan
+Write-Host "[7/8] publish API server (SamaHesab.API.exe) ..." -ForegroundColor Cyan
 dotnet publish "$root\src\SamaHesab.API\SamaHesab.API.csproj" @common -o $api
 if ($LASTEXITCODE) { throw "API publish failed" }
 
+# SP-3b — پنلِ فروشِ گردشگری (Blazor WASM PWA): با base path = /seller منتشر و در
+# wwwroot/seller سرور قرار می‌گیرد تا API آن را روی http://<server>:5080/seller/ سرو کند
+# (نصب‌پذیر روی موبایل). UseStaticFilesِ موجودِ API فایل‌ها را سرو می‌کند.
+Write-Host "[8/8] publish Seller Web panel (PWA) -> /seller ..." -ForegroundColor Cyan
+$sellerPub = Join-Path $dist "sellerweb"
+dotnet publish "$root\src\SamaHesab.SellerWeb\SamaHesab.SellerWeb.csproj" -c Release -o $sellerPub --nologo -v m
+if ($LASTEXITCODE) { throw "Seller Web publish failed" }
+# base href باید /seller/ باشد تا وقتی API زیرِ /seller/ سرو می‌کند، _framework و دارایی‌ها درست بارگذاری شوند.
+$idxFile = Join-Path $sellerPub "wwwroot\index.html"
+(Get-Content $idxFile -Raw) -replace '<base href="/" />', '<base href="/seller/" />' | Set-Content $idxFile -Encoding UTF8 -NoNewline
+$sellerDst = Join-Path $api "wwwroot\seller"
+if (Test-Path $sellerDst) { Remove-Item $sellerDst -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $sellerDst | Out-Null
+Copy-Item (Join-Path $sellerPub "wwwroot\*") $sellerDst -Recurse -Force
+
 Write-Host "`nDONE." -ForegroundColor Green
+"seller web: " + (Test-Path "$sellerDst\index.html") + " (-> http://<server>:5080/seller/)"
 "app exe   : " + (Test-Path "$app\SamaHesab.exe")
 "pos exe   : " + (Test-Path "$app\pos.exe")
 "res exe   : " + (Test-Path "$app\restoran.exe")

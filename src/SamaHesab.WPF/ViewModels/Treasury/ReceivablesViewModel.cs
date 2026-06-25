@@ -56,6 +56,33 @@ public partial class ReceivablesViewModel : BaseViewModel
 
     [RelayCommand] private Task RefreshAsync() => LoadAsync();
 
+    /// <summary>P2 — ارسالِ پیامکیِ یادآورِ بدهیِ معوق + چکِ سررسید به طرف‌حساب‌ها (اقدامِ صریحِ کاربر).
+    /// ابتدا کوئریِ مونتاژ صدا زده می‌شود، خلاصه (تعداد/مبلغ) نمایش و تأیید گرفته می‌شود، سپس ارسال.</summary>
+    [RelayCommand]
+    private async Task SendOverdueRemindersAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var company = Services.AppSettingsStore.GetGeneral().CompanyName ?? "";
+            var reminders = await _mediator.Send(new SamaHesab.Application.Automation.Queries.GetOverdueRemindersQuery(
+                _calendar.GetCurrentPersianDate(), company));
+
+            if (reminders.Count == 0)
+            { await _dialogService.ShowInfoAsync("یادآوری برای ارسال نیست (طرف‌حسابی با بدهیِ معوق/چکِ سررسیدِ نزدیک و شمارهٔ موبایل یافت نشد)."); return; }
+
+            var total = reminders.Sum(r => r.Amount);
+            if (!await _dialogService.ConfirmAsync(
+                $"ارسالِ {reminders.Count:#,##0} پیامکِ یادآور (جمعِ مبلغ: {total:#,##0} ریال) به طرف‌حساب‌ها؟",
+                "ارسالِ یادآورِ پیامکی")) return;
+
+            var res = await _mediator.Send(new SamaHesab.Application.Automation.Commands.SendOverdueRemindersCommand(reminders));
+            if (res.Failed == 0)
+                await _dialogService.ShowSuccessAsync($"{res.Sent:#,##0} پیامکِ یادآور با موفقیت ارسال شد.");
+            else
+                await _dialogService.ShowWarningAsync($"ارسال انجام شد: {res.Sent:#,##0} موفق، {res.Failed:#,##0} ناموفق (پیکربندیِ سامانهٔ پیامک را بررسی کنید).");
+        }, "در حال ارسالِ یادآورها...");
+    }
+
     // میان‌برهای کیبورد روی ردیفِ انتخاب‌شدهٔ هر گرید (Enter=کامل · Ctrl+Enter=مبلغِ دلخواه).
     [RelayCommand] private Task ReceiveFullSelectedAsync() => ReceiveFullAsync(SelectedReceivable);
     [RelayCommand] private Task ReceiveCustomSelectedAsync() => ReceiveCustomAsync(SelectedReceivable);

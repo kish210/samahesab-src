@@ -30,9 +30,12 @@
                                 <StackPanel Grid.Column="0">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" FontSize="14"/>
-                                        <Border Background="#EEF2FF" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
-                                                Visibility="{Binding InCatalog, Converter={StaticResource BoolVis}}">
-                                            <TextBlock Text="{Binding Version}" FontSize="11" Foreground="#3B5BDB" FlowDirection="LeftToRight"/>
+                                        <!-- نسخهٔ در حالِ اجرا — همیشه دیده می‌شود تا پس از آپدیت معلوم باشد کدام نسخه فعال است -->
+                                        <Border Background="#EEF2FF" CornerRadius="4" Padding="6,1" Margin="8,0,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="v" FontSize="11" Foreground="#3B5BDB"/>
+                                                <TextBlock Text="{Binding Version}" FontSize="11" Foreground="#3B5BDB" FlowDirection="LeftToRight"/>
+                                            </StackPanel>
                                         </Border>
                                         <Border Background="#E8F5E9" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
                                                 Visibility="{Binding Enabled, Converter={StaticResource BoolVis}}">

@@ -7,7 +7,8 @@ namespace SamaHesab.WPF.Services;
 /// تعریف یک ماژول. Core=هسته (همیشه فعال، غیرقابل خاموش).
 /// Conflicts=کلیدِ ماژول‌هایی که نباید هم‌زمان با این ماژول فعال باشند (تداخلِ متقابل، متقارن اعمال می‌شود).
 /// </summary>
-public record ModuleDef(string Key, string Name, bool Core, string Icon, string[]? Conflicts = null);
+public record ModuleDef(string Key, string Name, bool Core, string Icon, string[]? Conflicts = null,
+    string Version = "1.0.0");
 
 /// <summary>
 /// سیستم فعال‌سازی ماژول‌ها — سماع‌حساب یک «بستر ERP ماژولار» است.
@@ -21,6 +22,8 @@ public class ModuleService
         Purchase = "Purchase", Inventory = "Inventory", Customers = "Customers", Reports = "Reports";
     public const string Pos = "POS", Restaurant = "Restaurant", Tourism = "Tourism",
         Hr = "HR", Crm = "CRM", Hotel = "Hotel", Support = "Support", Contracting = "Contracting";
+    // کلاینت‌های فروش به‌عنوان ماژولِ مستقل با نسخه‌گذاریِ خودشان (برای ردگیریِ به‌روزرسانی).
+    public const string Web = "Web", Mobile = "Mobile";
 
     /// <summary>ماژول‌های هسته — همیشه فعال، در UI قفل.</summary>
     public IReadOnlyList<ModuleDef> CoreModules { get; } = new[]
@@ -47,6 +50,9 @@ public class ModuleService
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),
         new ModuleDef(Support, "پشتیبانیِ مشتری", false, "Lifebuoy"),
+        // کلاینت‌های فروشِ گردشگری (SELLER-PANEL) — هرکدام نسخهٔ مستقل برای ردگیریِ آپدیت.
+        new ModuleDef(Web, "پنلِ وبِ فروش", false, "Web", Version: "0.1.0"),
+        new ModuleDef(Mobile, "اپِ موبایلِ فروش", false, "Cellphone", Version: "0.1.0"),
         // پیمانکاری فعلاً غیرفعال (به‌خواستِ کاربر) — از فهرستِ ارائه/منو خارج تا روشن نشود.
         // برای بازگردانی، این خط را از کامنت دربیاورید (backendِ CON-C1 سرِ جایش است):
         // new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),

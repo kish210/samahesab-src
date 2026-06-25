@@ -21,15 +21,24 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
     private const string PackageBaseUrl = "https://github.com/kish210/SamaHesab/releases/download/modules/";
 
     private readonly ModuleService _modules;
+    // نسخهٔ *در حالِ اجرا* per ماژول (از IModoleهای بارگذاری‌شده — شاملِ ماژولِ دانلودشدهٔ runtime).
+    private readonly Dictionary<string, string> _runningVersions;
     private static readonly HttpClient _http = new() { Timeout = System.TimeSpan.FromSeconds(20) };
 
     [ObservableProperty] private string _status = string.Empty;
 
     public ObservableCollection<MarketModuleRow> Modules { get; } = new();
 
-    public ModuleMarketplaceViewModel(ModuleService modules, IDialogService dialogService, INavigationService navigationService)
+    public ModuleMarketplaceViewModel(ModuleService modules, IDialogService dialogService,
+        INavigationService navigationService,
+        IEnumerable<SamaHesab.Modules.Abstractions.IModule>? loadedModules = null)
         : base(dialogService, navigationService)
-    { _modules = modules; }
+    {
+        _modules = modules;
+        _runningVersions = (loadedModules ?? Enumerable.Empty<SamaHesab.Modules.Abstractions.IModule>())
+            .GroupBy(m => m.Key)
+            .ToDictionary(g => g.Key, g => g.First().Version, System.StringComparer.OrdinalIgnoreCase);
+    }
 
     private static string ModulesDir
     {
@@ -82,11 +91,15 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
             CatalogModule? c = null;
             catByKey?.TryGetValue(def.Key, out c);
             var pkg = c?.package ?? (def.Key + ".mspkg");
-            Modules.Add(new MarketModuleRow(def.Key, def.Name, c?.version ?? "—", c?.description ?? "", c?.sizeKB ?? 0, pkg)
+            // نسخهٔ نمایش = نسخهٔ *در حالِ اجرا* (IModule)؛ برای ماژول‌های بدونِ IModule (Web/Mobile/پشتیبانی) از تعریفِ ماژول.
+            var runningVersion = _runningVersions.GetValueOrDefault(def.Key) ?? def.Version;
+            // اگر کاتالوگ نسخهٔ جدیدتری دارد، در دسترس بودنِ به‌روزرسانی با همان دکمهٔ Install دیده می‌شود.
+            Modules.Add(new MarketModuleRow(def.Key, def.Name, runningVersion, c?.description ?? "", c?.sizeKB ?? 0, pkg)
             {
                 Enabled = _modules.IsEnabled(def.Key),
                 Installed = System.IO.File.Exists(System.IO.Path.Combine(ModulesDir, pkg)),
                 InCatalog = c != null,
+                CatalogVersion = c?.version,
             });
         }
         Status = catByKey is { Count: > 0 }
@@ -184,6 +197,8 @@ public partial class MarketModuleRow : ObservableObject
     [ObservableProperty] private bool _installed;
     [ObservableProperty] private bool _enabled;
     [ObservableProperty] private bool _inCatalog;
+    /// <summary>نسخهٔ موجود در کاتالوگِ آنلاین (برای تشخیصِ به‌روزرسانی)؛ null اگر آفلاین/خارج از بازار.</summary>
+    [ObservableProperty] private string? _catalogVersion;
     [ObservableProperty] private bool _isDownloading;
     [ObservableProperty] private int _progress;
     [ObservableProperty] private string _downloadedText = string.Empty;

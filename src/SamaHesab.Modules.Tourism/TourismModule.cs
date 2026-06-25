@@ -15,7 +15,8 @@ public sealed class TourismModule : IModule
 {
     public string Key => "Tourism";
     public string DisplayName => "گردشگری";
-    public string Version => "1.0.0";
+    // 1.1.0 — SP-1: فروشِ فروشنده‌محور (تشخیصِ خودکارِ فروشنده از کاربر).
+    public string Version => "1.1.0";
 
     public void RegisterServices(IServiceCollection services)
     {

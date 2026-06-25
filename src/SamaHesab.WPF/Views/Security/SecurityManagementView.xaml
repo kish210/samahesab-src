@@ -146,6 +146,23 @@
                                 <Button DockPanel.Dock="Left" Content="ذخیره" Style="{StaticResource SPrimary}"
                                         Command="{Binding SaveUserRolesCommand}"/>
                             </DockPanel>
+                            <!-- SP-1 — تخصیصِ «فروشنده» به کاربر (پنلِ فروشِ گردشگریِ فروشنده‌محور) -->
+                            <Border DockPanel.Dock="Bottom" Margin="0,10,0,0" Padding="10"
+                                    Background="{DynamicResource SurfaceBackground}" BorderBrush="{DynamicResource BorderColor}"
+                                    BorderThickness="1" CornerRadius="8">
+                                <StackPanel>
+                                    <TextBlock Text="فروشندهٔ نگاشته (پنلِ فروشِ گردشگری)" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,2"/>
+                                    <TextBlock Text="اگر کاربر فروشنده باشد، در فروشِ گردشگری فروشنده خودکار خودِ اوست."
+                                               Foreground="{DynamicResource SecondaryText}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                    <DockPanel LastChildFill="True">
+                                        <Button DockPanel.Dock="Left" Content="ذخیرهٔ فروشنده" Style="{StaticResource SPrimary}"
+                                                Margin="6,0,0,0" Command="{Binding SaveUserSalespersonCommand}"/>
+                                        <ComboBox ItemsSource="{Binding Salespersons}" DisplayMemberPath="Name"
+                                                  SelectedValuePath="Id" SelectedValue="{Binding SelectedSalespersonPartyId}"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding UserRoleChecks}">
                                     <ItemsControl.ItemTemplate>

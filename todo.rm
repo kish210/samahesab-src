@@ -1660,7 +1660,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 ## 🆕 SELLER-PANEL — پنلِ فروشِ گردشگری (فروشنده‌محور، وب+موبایل) ‹درخواستِ کاربر @2026-06-25›
 > هدف: فروشنده‌های گردشگری پنلِ فروشِ شبیهِ POS داشته باشند که **فروشنده را خودکار از کاربرِ لاگین‌شده** تشخیص دهد و **روی وب و موبایل** کار کند.
 > **هماهنگی:** User/امنیت = pc؛ فروشِ گردشگری/UX = laptop؛ APIِ فروش + کلاینتِ وب = نو. فازبندی:
-- [~] 🚧 pc@2026-06-25 **SP-1 (بک‌اند، pc):** نگاشتِ `User.SalespersonPartyId?` (+EF +migrationِ idempotent) + تنظیمش در «کاربران». در `CreateTourismSaleCommand`: اگر کاربرِ جاری فروشنده‌ی نگاشته دارد و ADMIN نیست → فروشنده=خودِ او (قفل)؛ ادمین همچنان دستی انتخاب می‌کند. ⚠️ laptop: به `CreateTourismSaleCommand` (لِینِ تو) دست می‌زنم — اگر هم‌زمان رویش کار می‌کنی بگو.
+- [x] **SP-1 (بک‌اند+UI، pc)** انجام شد @2026-06-25 — `User.SalespersonPartyId` (migration 50) در سرتاسرِ زنجیرهٔ auth (AuthResult→JWT«seller»→ICurrentUserService، پیش‌فرضِ interface=null). `CreateTourismSaleCommand` با `SellerResolver`: کاربرِ فروشنده‌ی نگاشته (غیرادمین)=خودش (قفل)؛ ادمین آزاد. UIِ تخصیص در «امنیت → کاربران» (انتخابگرِ فروشنده + `SetUserSalespersonCommand`). ۴ تستِ نو (۶۶۵). ⚠️ laptop: به `CreateTourismSaleCommand` (لِینِ تو) فقط منطقِ فروشنده افزوده شد؛ امضای record دست‌نخورده.
 - [ ] **SP-2 (API):** endpointهای فروشِ گردشگری برای پنلِ وب (فهرست/ظرفیتِ محصولات + ثبتِ فروش با فروشنده‌ی خودکار از JWT).
 - [ ] **SP-3 (وب/PWA):** کلاینتِ وبِ سبکِ فروش (شبیهِ POS) که با API+JWT کار می‌کند؛ نصب‌پذیر روی موبایل (PWA). — تعهدِ بزرگ، هماهنگ با laptop.
 

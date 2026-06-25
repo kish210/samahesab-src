@@ -109,7 +109,8 @@ public class SetRolePermissionsCommandHandler : IRequestHandler<SetRolePermissio
 
 // ── کاربران + نقش‌هایشان ────────────────────────────────────────────────────────
 public record GetSecurityUsersQuery() : IRequest<List<SecurityUserDto>>;
-public record SecurityUserDto(int Id, string Username, string FullName, bool IsActive, int[] RoleIds);
+public record SecurityUserDto(int Id, string Username, string FullName, bool IsActive, int[] RoleIds,
+    int? SalespersonPartyId = null);
 
 public class GetSecurityUsersQueryHandler : IRequestHandler<GetSecurityUsersQuery, List<SecurityUserDto>>
 {
@@ -124,7 +125,29 @@ public class GetSecurityUsersQueryHandler : IRequestHandler<GetSecurityUsersQuer
         var links = await _userRoles.GetAllAsync(ct);
         return users.OrderBy(u => u.Username).Select(u => new SecurityUserDto(
             u.Id, u.Username, u.FullName, u.IsActive,
-            links.Where(l => l.UserId == u.Id).Select(l => l.RoleId).ToArray())).ToList();
+            links.Where(l => l.UserId == u.Id).Select(l => l.RoleId).ToArray(),
+            u.SalespersonPartyId)).ToList();
+    }
+}
+
+// ── SP-1: تخصیصِ «فروشنده» به کاربر (پنلِ فروشِ گردشگریِ فروشنده‌محور) ───────────────
+public record SetUserSalespersonCommand(int UserId, int? SalespersonPartyId) : IRequest<Result>;
+
+public class SetUserSalespersonCommandHandler : IRequestHandler<SetUserSalespersonCommand, Result>
+{
+    private readonly IRepository<User> _users;
+    private readonly IUnitOfWork _uow;
+    public SetUserSalespersonCommandHandler(IRepository<User> users, IUnitOfWork uow)
+    { _users = users; _uow = uow; }
+
+    public async Task<Result> Handle(SetUserSalespersonCommand req, CancellationToken ct)
+    {
+        var user = await _users.GetByIdAsync(req.UserId, ct);
+        if (user is null) return Result.Failure("کاربر یافت نشد.");
+        user.SetSalesperson(req.SalespersonPartyId);
+        _users.Update(user);
+        await _uow.SaveChangesAsync(ct);
+        return Result.Success();
     }
 }
 

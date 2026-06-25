@@ -19,9 +19,12 @@ public partial class SecurityManagementViewModel : BaseViewModel
     public ObservableCollection<PermCheck> Permissions { get; } = new();
     public ObservableCollection<SecurityUserDto> Users { get; } = new();
     public ObservableCollection<RoleCheck> UserRoleChecks { get; } = new();
+    // SP-1 — فهرستِ اشخاص برای تخصیصِ «فروشنده» به کاربر (پنلِ فروشِ گردشگری).
+    public ObservableCollection<SamaHesab.Application.CRM.Queries.PersonDto> Salespersons { get; } = new();
 
     [ObservableProperty] private RoleDto? _selectedRole;
     [ObservableProperty] private SecurityUserDto? _selectedUser;
+    [ObservableProperty] private int? _selectedSalespersonPartyId;   // SP-1
 
     // جست‌وجوی کاربر (نام کاربری/نام) — روی کشِ کاملِ کاربران اعمال می‌شود.
     private readonly List<SecurityUserDto> _allUsers = new();
@@ -58,6 +61,11 @@ public partial class SecurityManagementViewModel : BaseViewModel
             foreach (var u in await _mediator.Send(new GetSecurityUsersQuery())) _allUsers.Add(u);
             ApplyUserFilter();
             SelectedRole ??= Roles.FirstOrDefault();
+            // SP-1 — فهرستِ اشخاص برای انتخابِ فروشنده (یک گزینهٔ «—» برای حذفِ نگاشت).
+            Salespersons.Clear();
+            Salespersons.Add(new SamaHesab.Application.CRM.Queries.PersonDto(0, "", "— بدونِ فروشنده —", "", 0, "", false, false, true));
+            foreach (var p in await _mediator.Send(new SamaHesab.Application.CRM.Queries.GetPersonsQuery()))
+                Salespersons.Add(p);
         }, "در حال بارگذاری امنیت...");
     }
 
@@ -107,10 +115,26 @@ public partial class SecurityManagementViewModel : BaseViewModel
     partial void OnSelectedUserChanged(SecurityUserDto? value)
     {
         UserRoleChecks.Clear();
+        // SP-1 — انتخابگرِ فروشنده را روی نگاشتِ فعلیِ کاربر تنظیم کن (0 = بدونِ فروشنده).
+        SelectedSalespersonPartyId = value?.SalespersonPartyId ?? 0;
         if (value is null) return;
         var assigned = new HashSet<int>(value.RoleIds);
         foreach (var r in Roles)
             UserRoleChecks.Add(new RoleCheck(r.Id, $"{r.Code} — {r.Name}") { IsChecked = assigned.Contains(r.Id) });
+    }
+
+    /// <summary>SP-1 — ذخیرهٔ نگاشتِ «فروشنده» برای کاربرِ انتخاب‌شده (۰/خالی = حذفِ نگاشت).</summary>
+    [RelayCommand]
+    private async Task SaveUserSalespersonAsync()
+    {
+        if (SelectedUser is null) { await _dialogService.ShowWarningAsync("یک کاربر را انتخاب کنید."); return; }
+        var partyId = SelectedSalespersonPartyId is > 0 ? SelectedSalespersonPartyId : null;
+        await ExecuteAsync(async () =>
+        {
+            var r = await _mediator.Send(new SetUserSalespersonCommand(SelectedUser.Id, partyId));
+            if (r.Succeeded) { await RefreshAsync(); await _dialogService.ShowSuccessAsync("فروشندهٔ کاربر ذخیره شد."); }
+            else await _dialogService.ShowErrorAsync(r.ErrorMessage);
+        }, "در حال ذخیرهٔ فروشنده...");
     }
 
     [RelayCommand]

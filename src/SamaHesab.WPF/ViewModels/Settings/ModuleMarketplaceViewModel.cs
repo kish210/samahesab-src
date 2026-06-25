@@ -50,9 +50,13 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
     [RelayCommand]
     private async Task RefreshAsync()
     {
+        // ۱) ماژول‌های محلی را *فوری* نشان بده (بدونِ انتظارِ شبکه) تا صفحه آفلاین هم بلافاصله کار کند.
+        //    (پیش‌تر پرکردنِ ردیف‌ها پشتِ HTTPِ کاتالوگ بود؛ آفلاین تا ۲۰ثانیه «در حال بارگذاری» می‌ماند.)
+        PopulateRows(catByKey: null, coreVer: null);
+
+        // ۲) کاتالوگِ آنلاینِ بازار best-effort؛ موفق → ردیف‌ها با نسخه/توضیح/حجمِ دانلود غنی می‌شوند.
         await ExecuteAsync(async () =>
         {
-            // کاتالوگِ بازار (نسخه/دانلود) best-effort؛ نبودِ اینترنت → مدیریتِ آفلاینِ ماژول ادامه دارد.
             var catByKey = new System.Collections.Generic.Dictionary<string, CatalogModule>();
             string? coreVer = null;
             try
@@ -63,25 +67,31 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
                 coreVer = cat?.coreVersion;
                 foreach (var m in cat?.modules ?? System.Array.Empty<CatalogModule>()) catByKey[m.key] = m;
             }
-            catch { /* آفلاین — فقط مدیریتِ محلی */ }
+            catch { return; /* آفلاین — ردیف‌های محلیِ مرحلهٔ ۱ سرِجا می‌مانند */ }
 
-            Modules.Clear();
-            // ردیف‌ها از ماژول‌های اختیاریِ پلتفرم (همیشه دیده می‌شوند) + داده‌ی نسخه/دانلودِ کاتالوگ.
-            foreach (var def in _modules.OptionalModules)
+            if (catByKey.Count > 0) PopulateRows(catByKey, coreVer);
+        }, "بررسیِ بازارِ آنلاین...");
+    }
+
+    /// <summary>پرکردنِ فهرستِ ماژول‌ها از تعریف‌های محلی، با غنی‌سازیِ اختیاری از کاتالوگِ بازار.</summary>
+    private void PopulateRows(System.Collections.Generic.IReadOnlyDictionary<string, CatalogModule>? catByKey, string? coreVer)
+    {
+        Modules.Clear();
+        foreach (var def in _modules.OptionalModules)
+        {
+            CatalogModule? c = null;
+            catByKey?.TryGetValue(def.Key, out c);
+            var pkg = c?.package ?? (def.Key + ".mspkg");
+            Modules.Add(new MarketModuleRow(def.Key, def.Name, c?.version ?? "—", c?.description ?? "", c?.sizeKB ?? 0, pkg)
             {
-                catByKey.TryGetValue(def.Key, out var c);
-                var pkg = c?.package ?? (def.Key + ".mspkg");
-                Modules.Add(new MarketModuleRow(def.Key, def.Name, c?.version ?? "—", c?.description ?? "", c?.sizeKB ?? 0, pkg)
-                {
-                    Enabled = _modules.IsEnabled(def.Key),
-                    Installed = System.IO.File.Exists(System.IO.Path.Combine(ModulesDir, pkg)),
-                    InCatalog = c != null,
-                });
-            }
-            Status = catByKey.Count > 0
-                ? $"{Modules.Count} ماژول · بازار سازگار با هستهٔ {coreVer}"
-                : $"{Modules.Count} ماژول (بازارِ آنلاین در دسترس نیست؛ مدیریتِ محلی فعال است)";
-        }, "در حال بارگذاری ماژول‌ها...");
+                Enabled = _modules.IsEnabled(def.Key),
+                Installed = System.IO.File.Exists(System.IO.Path.Combine(ModulesDir, pkg)),
+                InCatalog = c != null,
+            });
+        }
+        Status = catByKey is { Count: > 0 }
+            ? $"{Modules.Count} ماژول · بازار سازگار با هستهٔ {coreVer}"
+            : $"{Modules.Count} ماژول (مدیریتِ محلی فعال است)";
     }
 
     /// <summary>فعال/غیرفعال‌سازیِ ماژول (Enable/Disable) با کنترلِ تداخل.</summary>

@@ -300,7 +300,6 @@
                                           Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
-                                <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
                                 <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="قالبِ اسناد" Command="{Binding NavigateCommand}" CommandParameter="DocumentTemplates"/>

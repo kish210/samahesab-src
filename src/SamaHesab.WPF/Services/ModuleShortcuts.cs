@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace SamaHesab.WPF.Services;
 
@@ -47,16 +48,53 @@ public static class ModuleShortcuts
         foreach (var key in Map.Keys) Sync(key, enabled.Contains(key));
     }
 
+    // ساختِ .lnk با IShellLinkW (یونیکدِ کامل) — برخلافِ WScript.Shell، نامِ فارسیِ فایل را درست ذخیره می‌کند.
     private static void CreateShortcut(string lnkPath, string targetExe, string? args, string workingDir)
     {
-        var shellType = System.Type.GetTypeFromProgID("WScript.Shell");
-        if (shellType is null) return;
-        dynamic shell = System.Activator.CreateInstance(shellType)!;
-        var sc = shell.CreateShortcut(lnkPath);
-        sc.TargetPath = targetExe;
-        sc.Arguments = args ?? "";
-        sc.WorkingDirectory = workingDir;
-        sc.IconLocation = targetExe + ",0";
-        sc.Save();
+        var link = (IShellLinkW)new ShellLink();
+        link.SetPath(targetExe);
+        if (!string.IsNullOrEmpty(args)) link.SetArguments(args);
+        link.SetWorkingDirectory(workingDir);
+        link.SetIconLocation(targetExe, 0);
+        ((IPersistFile)link).Save(lnkPath, false);
+    }
+
+    [ComImport, Guid("00021401-0000-0000-C000-000000000046")]
+    private class ShellLink { }
+
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
+     Guid("000214F9-0000-0000-C000-000000000046")]
+    private interface IShellLinkW
+    {
+        void GetPath([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszFile, int cch, System.IntPtr pfd, int fFlags);
+        void GetIDList(out System.IntPtr ppidl);
+        void SetIDList(System.IntPtr pidl);
+        void GetDescription([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszName, int cch);
+        void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string pszName);
+        void GetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszDir, int cch);
+        void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string pszDir);
+        void GetArguments([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszArgs, int cch);
+        void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
+        void GetHotkey(out short pwHotkey);
+        void SetHotkey(short wHotkey);
+        void GetShowCmd(out int piShowCmd);
+        void SetShowCmd(int iShowCmd);
+        void GetIconLocation([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pszIconPath, int cch, out int piIcon);
+        void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string pszIconPath, int iIcon);
+        void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pszPathRel, int dwReserved);
+        void Resolve(System.IntPtr hwnd, int fFlags);
+        void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
+    }
+
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
+     Guid("0000010b-0000-0000-C000-000000000046")]
+    private interface IPersistFile
+    {
+        void GetClassID(out System.Guid pClassID);
+        [PreserveSig] int IsDirty();
+        void Load([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, int dwMode);
+        void Save([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, [MarshalAs(UnmanagedType.Bool)] bool fRemember);
+        void SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
+        void GetCurFile([MarshalAs(UnmanagedType.LPWStr)] out string ppszFileName);
     }
 }

@@ -1,0 +1,45 @@
+:root { --erp-blue: #4B5F97; --erp-blue-700: #324A7A; --erp-gold: #B18A5A; }
+
+html, body { direction: rtl; font-family: Tahoma, Vazirmatn, sans-serif; background: #f4f6fb; margin: 0; height: 100%; }
+.seller-app { height: 100vh; display: flex; flex-direction: column; }
+
+/* ── ورود ── */
+.login-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.login-card { width: 100%; max-width: 380px; background: #fff; border-radius: 14px; padding: 24px;
+    box-shadow: 0 8px 30px rgba(27,40,67,.12); }
+.login-card h3 { color: var(--erp-blue-700); }
+.btn-primary { background: var(--erp-blue); border-color: var(--erp-blue); }
+.btn-primary:hover { background: var(--erp-blue-700); border-color: var(--erp-blue-700); }
+
+/* ── نوارِ بالای پنل ── */
+.panel-top { display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--erp-blue-700); color: #fff; }
+.panel-top .text-muted { color: #cfd8ee !important; }
+
+/* ── شبکهٔ فروش: محصولات + سبد ── */
+.sell-grid { flex: 1; display: grid; grid-template-columns: 1fr 320px; gap: 10px; padding: 10px; overflow: hidden; }
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-auto-rows: min-content; gap: 10px; overflow-y: auto; align-content: start; }
+.product { background: #fff; border: 1px solid #e2e6f0; border-radius: 12px; padding: 12px 10px;
+    text-align: center; cursor: pointer; transition: .12s; min-height: 92px; }
+.product:hover:not(:disabled) { border-color: var(--erp-blue); box-shadow: 0 4px 14px rgba(75,95,151,.15); }
+.product.soldout { opacity: .5; cursor: not-allowed; }
+.product .pname { font-weight: 700; font-size: 14px; color: #1B2843; }
+.product .pprice { color: var(--erp-blue-700); font-size: 13px; margin-top: 4px; direction: ltr; }
+.product .pcap { color: #8a93a6; font-size: 11px; margin-top: 4px; }
+
+.cart { background: #fff; border-radius: 12px; border: 1px solid #e2e6f0; display: flex; flex-direction: column; overflow: hidden; }
+.cart-lines { flex: 1; overflow-y: auto; padding: 0 8px; }
+.cart-line { display: grid; grid-template-columns: 1fr 64px 90px 24px; gap: 6px; align-items: center;
+    padding: 6px 0; border-bottom: 1px dashed #eef0f5; }
+.cart-line .cl-name { font-size: 13px; }
+.cart-line .cl-qty { text-align: center; }
+.cart-line .cl-sum { font-size: 12px; direction: ltr; text-align: left; color: var(--erp-blue-700); }
+.cart-total { padding: 10px 12px; font-size: 16px; border-top: 1px solid #eef0f5; }
+.cart-total strong { color: var(--erp-gold); direction: ltr; }
+.btn-success { background: #2E7D32; border-color: #2E7D32; }
+
+@media (max-width: 700px) {
+    .sell-grid { grid-template-columns: 1fr; }
+    .cart { max-height: 42vh; }
+}

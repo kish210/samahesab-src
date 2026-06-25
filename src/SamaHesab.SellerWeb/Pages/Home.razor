@@ -1,6 +1,7 @@
 @page "/"
 @using SamaHesab.SellerWeb.Services
 @inject SellerApi Api
+@inject NavigationManager Nav
 
 <PageTitle>پنلِ فروشِ گردشگری</PageTitle>
 
@@ -8,31 +9,28 @@
 {
     <div class="login-wrap">
         <div class="login-card">
-            <h3 class="mb-1">سما حساب — پنلِ فروش</h3>
-            <p class="text-muted small mb-3">فروشنده با کاربرِ خودش وارد می‌شود؛ فروش‌ها خودکار به‌نامِ او ثبت می‌شود.</p>
-            <div class="mb-2">
-                <label class="form-label small">آدرسِ سرور</label>
-                <input class="form-control" @bind="_server" placeholder="http://192.168.1.10:5080" />
-            </div>
-            <div class="row g-2 mb-2">
-                <div class="col-8">
-                    <label class="form-label small">نام کاربری</label>
-                    <input class="form-control" @bind="_user" />
-                </div>
-                <div class="col-4">
-                    <label class="form-label small">شرکت</label>
-                    <input class="form-control" type="number" @bind="_company" />
+            <div class="brand">
+                <div class="brand-mark">س</div>
+                <div class="brand-text">
+                    <div class="brand-name">سما حساب</div>
+                    <div class="brand-sub">پنلِ فروشِ گردشگری</div>
                 </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label small">رمز عبور</label>
-                <input class="form-control" type="password" @bind="_pass" @bind:event="oninput"
+
+            <div class="field">
+                <label>نام کاربری</label>
+                <input class="erp-input" @bind="_user" autocomplete="username" />
+            </div>
+            <div class="field">
+                <label>رمز عبور</label>
+                <input class="erp-input" type="password" @bind="_pass" @bind:event="oninput" autocomplete="current-password"
                        @onkeydown="@(e => { if (e.Key == "Enter") _ = DoLogin(); })" />
             </div>
-            @if (_error is not null) { <div class="alert alert-danger py-2 small">@_error</div> }
-            <button class="btn btn-primary w-100" @onclick="DoLogin" disabled="@_busy">
+            @if (_error is not null) { <div class="erp-error">@_error</div> }
+            <button class="erp-btn-primary" @onclick="DoLogin" disabled="@_busy">
                 @(_busy ? "در حال ورود…" : "ورود به سیستم")
             </button>
+            <div class="login-foot">سماع رایانه کیش</div>
         </div>
     </div>
 }
@@ -41,22 +39,20 @@ else
     <div class="panel-top">
         <div>
             <strong>@Api.Context?.FullName</strong>
-            <span class="text-muted small"> · سالِ مالی @Api.Context?.FiscalYearTitle</span>
+            <span class="sub"> · سالِ مالی @Api.Context?.FiscalYearTitle</span>
         </div>
-        <button class="btn btn-sm btn-outline-secondary" @onclick="Logout">خروج</button>
+        <button class="btn-logout" @onclick="Logout">خروج</button>
     </div>
 
     @if (Api.Context?.IsSeller != true)
     {
-        <div class="alert alert-warning py-2 small m-2">
-            این کاربر به «فروشنده» نگاشته نشده — مدیر باید در «امنیت ← کاربران» فروشنده را تعیین کند.
-        </div>
+        <div class="warn">این کاربر به «فروشنده» نگاشته نشده — مدیر باید در «امنیت ← کاربران» فروشنده را تعیین کند.</div>
     }
 
     <div class="sell-grid">
         <div class="products">
-            @if (_products is null) { <p class="p-3 text-muted">در حال بارگذاری…</p> }
-            else if (_products.Count == 0) { <p class="p-3 text-muted">محصولی تعریف نشده.</p> }
+            @if (_products is null) { <p class="muted">در حال بارگذاری…</p> }
+            else if (_products.Count == 0) { <p class="muted">محصولی تعریف نشده.</p> }
             else
             {
                 @foreach (var p in _products)
@@ -71,8 +67,8 @@ else
         </div>
 
         <div class="cart">
-            <h6 class="px-2 pt-2">سبدِ فروش</h6>
-            @if (_cart.Count == 0) { <p class="text-muted small px-2">محصولی انتخاب نشده.</p> }
+            <h6>سبدِ فروش</h6>
+            @if (_cart.Count == 0) { <p class="muted">محصولی انتخاب نشده.</p> }
             else
             {
                 <div class="cart-lines">
@@ -80,22 +76,22 @@ else
                     {
                         <div class="cart-line">
                             <div class="cl-name">@c.Name</div>
-                            <input class="cl-qty form-control form-control-sm" type="number" min="1"
+                            <input class="cl-qty" type="number" min="1"
                                    value="@c.Qty" @onchange="e => SetQty(c, e.Value?.ToString())" />
                             <div class="cl-sum">@Money(c.Qty * c.Price)</div>
-                            <button class="btn btn-sm btn-link text-danger p-0" @onclick="() => _cart.Remove(c)">✕</button>
+                            <button class="cl-del" @onclick="() => _cart.Remove(c)">✕</button>
                         </div>
                     }
                 </div>
-                <div class="cart-total">جمع: <strong>@Money(Total)</strong></div>
-                <div class="px-2">
-                    <select class="form-select form-select-sm mb-2" @bind="_payment">
+                <div class="cart-total"><span>جمع</span><strong>@Money(Total)</strong></div>
+                <div class="cart-actions">
+                    <select class="erp-select" @bind="_payment">
                         <option value="نقدی">نقدی</option>
                         <option value="کارت">کارت</option>
                         <option value="نسیه">نسیه</option>
                     </select>
-                    @if (_saleMsg is not null) { <div class="alert @(_saleOk ? "alert-success" : "alert-danger") py-1 small">@_saleMsg</div> }
-                    <button class="btn btn-success w-100" @onclick="Submit" disabled="@_submitting">
+                    @if (_saleMsg is not null) { <div class="@(_saleOk ? "sale-ok" : "sale-err")">@_saleMsg</div> }
+                    <button class="erp-btn-success" @onclick="Submit" disabled="@_submitting">
                         @(_submitting ? "در حال ثبت…" : "ثبتِ فروش")
                     </button>
                 </div>
@@ -105,9 +101,8 @@ else
 }
 
 @code {
-    string _server = "http://localhost:5080";
     string _user = "", _pass = "";
-    int _company = 1;
+    const int Company = 1;   // پیش‌فرض؛ فروشنده نیازی به دانستنِ کدِ شرکت ندارد
     bool _busy, _submitting, _saleOk;
     string? _error, _saleMsg, _payment = "نقدی";
 
@@ -117,10 +112,15 @@ else
 
     static string Money(decimal v) => v.ToString("#,0") + " ریال";
 
+    protected override void OnInitialized()
+        // آدرسِ سرور = همان originِ پنل (پنل از خودِ API روی /seller/ سرو می‌شود).
+        => Api.BaseUrl = new System.Uri(Nav.BaseUri).GetLeftPart(System.UriPartial.Authority);
+
     async Task DoLogin()
     {
+        if (string.IsNullOrWhiteSpace(_user)) { _error = "نام کاربری را وارد کنید."; return; }
         _busy = true; _error = null;
-        _error = await Api.LoginAsync(_server, _user.Trim(), _pass, _company);
+        _error = await Api.LoginAsync(_user.Trim(), _pass, Company);
         _busy = false;
         if (_error is null) await LoadProducts();
     }

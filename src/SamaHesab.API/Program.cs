@@ -133,9 +133,17 @@ catch (Exception ex) { app.Logger.LogWarning(ex, "Restaurant menu seeding skippe
 app.UseExceptionHandler();
 
 // PWAِ موبایل (MOBILE-1): فایل‌های wwwroot/app/* را سرو می‌کند → کلاینتِ موبایل در /app/.
+// SP-3b: پنلِ فروشِ Blazor در wwwroot/seller/* روی /seller/ سرو می‌شود.
 // هم‌مبدأ با API است، پس نیازی به CORS ندارد و JWT مستقیم کار می‌کند.
+// نکته: نوع‌های فایلِ runtimeِ Blazor (icudt*.dat / .blat / .dll) را ASP.NET به‌طورِ پیش‌فرض
+// سرو نمی‌کند (۴۰۴ → «Failed to start platform»). با ContentTypeProvider اضافه‌شان می‌کنیم.
+var blazorCtp = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+blazorCtp.Mappings[".dat"]  = "application/octet-stream";   // دادهٔ ICU گلوبالیزیشن
+blazorCtp.Mappings[".blat"] = "application/octet-stream";
+blazorCtp.Mappings[".dll"]  = "application/octet-stream";
+blazorCtp.Mappings[".wasm"] = "application/wasm";
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions { ContentTypeProvider = blazorCtp });
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SamaHesab ERP API v1"));

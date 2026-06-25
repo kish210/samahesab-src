@@ -51,7 +51,7 @@ public class ModuleService
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),
         new ModuleDef(Support, "پشتیبانیِ مشتری", false, "Lifebuoy"),
         // کلاینت‌های فروشِ گردشگری (SELLER-PANEL) — هرکدام نسخهٔ مستقل برای ردگیریِ آپدیت.
-        new ModuleDef(Web, "پنلِ وبِ فروش", false, "Web", Version: "0.1.0"),
+        new ModuleDef(Web, "پنلِ وبِ فروش", false, "Web", Version: "1.0.0"),
         new ModuleDef(Mobile, "اپِ موبایلِ فروش", false, "Cellphone", Version: "0.1.0"),
         // پیمانکاری فعلاً غیرفعال (به‌خواستِ کاربر) — از فهرستِ ارائه/منو خارج تا روشن نشود.
         // برای بازگردانی، این خط را از کامنت دربیاورید (backendِ CON-C1 سرِ جایش است):

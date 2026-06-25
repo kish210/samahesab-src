@@ -24,10 +24,10 @@ public class SellerApi
         return r;
     }
 
-    /// <summary>ورود → دریافتِ توکن + بارگذاریِ زمینهٔ پنل. خروجی: پیامِ خطا یا null در موفقیت.</summary>
-    public async Task<string?> LoginAsync(string baseUrl, string username, string password, int companyId)
+    /// <summary>ورود → دریافتِ توکن + بارگذاریِ زمینهٔ پنل. خروجی: پیامِ خطا یا null در موفقیت.
+    /// آدرسِ سرور از همان originِ پنل (`BaseUrl`) است؛ نیازی به ورودِ دستی نیست.</summary>
+    public async Task<string?> LoginAsync(string username, string password, int companyId)
     {
-        BaseUrl = baseUrl;
         try
         {
             var resp = await _http.PostAsJsonAsync(BaseUrl.TrimEnd('/') + "/api/auth/login",

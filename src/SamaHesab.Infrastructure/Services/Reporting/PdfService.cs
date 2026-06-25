@@ -60,7 +60,7 @@ public sealed class PdfService : IPdfService
     public byte[] RenderHtmlDocument(string html, PdfMeta? meta = null)
     {
         meta ??= new PdfMeta();
-        var lines = HtmlToLines(html);
+        var parts = SplitHtmlParts(html);
         return Document.Create(doc =>
         {
             doc.Page(page =>
@@ -69,8 +69,15 @@ public sealed class PdfService : IPdfService
                 page.Content().PaddingVertical(8).Column(col =>
                 {
                     col.Spacing(3);
-                    foreach (var line in lines)
-                        col.Item().Text(line).FontSize(10);
+                    foreach (var part in parts)
+                    {
+                        if (part.Image is { } bytes)
+                            // تصویرِ embedـشده (مثلِ QR/بارکد) — راست‌چین، با عرضِ مشخص‌شده در HTML.
+                            col.Item().AlignRight().Width(part.WidthPx).Image(bytes).FitWidth();
+                        else
+                            foreach (var line in HtmlToLines(part.Html!))
+                                col.Item().Text(line).FontSize(10);
+                    }
                 });
             });
         }).GeneratePdf();
@@ -120,6 +127,43 @@ public sealed class PdfService : IPdfService
         .Border(0.5f).BorderColor(Colors.Grey.Lighten2)
         .Padding(4)
         .DefaultTextStyle(x => x.FontSize(9));
+
+    // ---- تفکیکِ HTML به قطعاتِ متن/تصویر (برای embedِ QR/بارکد در PDF) ----
+
+    /// <summary>یک قطعه از سند: یا متنِ HTML یا یک تصویرِ embedـشده (data:base64) با عرضِ موردنظر.</summary>
+    private sealed record HtmlPart(string? Html, byte[]? Image, float WidthPx);
+
+    private static readonly Regex DataImgRx = new(
+        "<img[^>]*?src=\"data:image/(?:png|jpe?g);base64,(?<b64>[^\"]+)\"[^>]*?>",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex WidthAttrRx = new("width=\"(?<w>\\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>HTML را به‌ترتیب به قطعاتِ متن و تصویرِ data-URI می‌شکند تا تصاویر در PDF واقعی رندر شوند.</summary>
+    private static List<HtmlPart> SplitHtmlParts(string? html)
+    {
+        var parts = new List<HtmlPart>();
+        if (string.IsNullOrWhiteSpace(html)) return parts;
+
+        int pos = 0;
+        foreach (Match m in DataImgRx.Matches(html))
+        {
+            if (m.Index > pos)
+                parts.Add(new HtmlPart(html.Substring(pos, m.Index - pos), null, 0));
+
+            byte[]? bytes = null;
+            try { bytes = Convert.FromBase64String(m.Groups["b64"].Value); } catch { /* base64 خراب → نادیده */ }
+            if (bytes is { Length: > 0 })
+            {
+                var wm = WidthAttrRx.Match(m.Value);
+                float w = wm.Success && float.TryParse(wm.Groups["w"].Value, out var pw) ? pw : 120f;
+                parts.Add(new HtmlPart(null, bytes, w));
+            }
+            pos = m.Index + m.Length;
+        }
+        if (pos < html.Length)
+            parts.Add(new HtmlPart(html.Substring(pos), null, 0));
+        return parts;
+    }
 
     // ---- HTML → خطوطِ متنی (best-effort برای رندرِ سندِ قالب‌محور) ----
 

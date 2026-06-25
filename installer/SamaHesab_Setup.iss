@@ -78,6 +78,21 @@ Source: "..\database\*.sql"; DestDir: "{app}\database"; Flags: ignoreversion
 Source: "redist\SQLEXPR_x64_ENU.exe"; Flags: dontcopy
 #endif
 
+[InstallDelete]
+; پاک‌کردنِ میانبرهای قدیمیِ ماژول از دسکتاپ (نسخه‌های پیشین آن‌ها را می‌ساختند).
+; از این پس فقط «سما حساب» در نصاب است؛ میانبرِ هر ماژولِ فعال را خودِ برنامه می‌سازد.
+Type: files; Name: "{commondesktop}\صندوقِ فروشِ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\رستورانِ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\گارسونِ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\آشپزخانهٔ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\انبارِ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\ابزارِ مهاجرتِ سما حساب.lnk"
+Type: files; Name: "{commondesktop}\سرورِ سما حساب (API).lnk"
+Type: files; Name: "{commondesktop}\گردشگری — سما حساب.lnk"
+Type: files; Name: "{commondesktop}\حقوق و دستمزد — سما حساب.lnk"
+Type: files; Name: "{commondesktop}\حضور و غیاب — سما حساب.lnk"
+Type: files; Name: "{commondesktop}\پیمانکاری — سما حساب.lnk"
+
 [Icons]
 Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
 Name: "{group}\صندوقِ فروش (POS)";               Filename: "{app}\pos.exe"; WorkingDir: "{app}"

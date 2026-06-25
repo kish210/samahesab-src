@@ -47,7 +47,13 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
     public async Task<Result<int>> Handle(CreateTourismSaleCommand req, CancellationToken ct)
     {
         if (req.Lines is null || req.Lines.Count == 0) return Result<int>.Failure("فروش حداقل یک ردیف لازم دارد.");
-        if (req.SalespersonPartyId <= 0) return Result<int>.Failure("فروشنده الزامی است.");
+
+        // SP-1 — فروشنده‌ی مؤثر: اگر کاربرِ جاری به یک «فروشنده» نگاشته شده و ADMIN نیست،
+        // فروشنده همیشه خودِ اوست (پنلِ فروشنده‌محور؛ مقدارِ ارسالی نادیده گرفته می‌شود).
+        // ادمین/مدیر می‌تواند به‌جای هر فروشنده ثبت کند.
+        var isAdmin = _user.GetRoles().Contains("ADMIN");
+        var sellerPartyId = SellerResolver.Resolve(isAdmin, _user.SalespersonPartyId, req.SalespersonPartyId);
+        if (sellerPartyId <= 0) return Result<int>.Failure("فروشنده الزامی است.");
         var companyId = _user.CompanyId ?? 1;
 
         var fy = await _fiscalYears.GetByIdAsync(req.FiscalYearId, ct);
@@ -66,7 +72,7 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
         try
         {
             // ── ساختِ سربرگ + خطوط (snapshotِ تأمین‌کننده و بها از محصول) ──
-            var sale = TourismSale.Create(companyId, req.BranchId, req.Date, req.SalespersonPartyId,
+            var sale = TourismSale.Create(companyId, req.BranchId, req.Date, sellerPartyId,
                 req.CustomerPartyId, req.PaymentMethod, req.Note);
 
             var products = (await _products.FindAsync(p => p.CompanyId == companyId, ct)).ToDictionary(p => p.Id);
@@ -93,7 +99,7 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
             // ── سندِ متوازن ──
             var number = await _vouchers.GetNextNumberAsync(companyId, ct);
             var v = Voucher.Create(companyId, req.BranchId, req.FiscalYearId, number, req.Date,
-                9 /*عمومی*/, $"فروشِ گردشگری — فروشنده {req.SalespersonPartyId}", $"TUR-{number}");
+                9 /*عمومی*/, $"فروشِ گردشگری — فروشنده {sellerPartyId}", $"TUR-{number}");
             int row = 1;
             var netToCustomer = sale.TotalSale - sale.TotalDiscount;
             v.AddItem(VoucherItem.Create(0, row++, customerSideAcc.Value, netToCustomer, 0,
@@ -121,7 +127,7 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
 
             // ── پورسانت per-line (موتورِ TUR-C2-1) ──
             var rules = (await _rules.FindAsync(r => r.CompanyId == companyId
-                && r.SalespersonPartyId == req.SalespersonPartyId && r.Active, ct))
+                && r.SalespersonPartyId == sellerPartyId && r.Active, ct))
                 .Where(r => DateInRange(req.Date, r.EffectiveFrom, r.EffectiveTo))
                 .Select(r => new CommissionRuleSpec((EngineBasis)(int)r.Basis, r.Rate, r.ProductId, r.ProductGroupId))
                 .ToList();
@@ -141,7 +147,7 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
                     EngineBasis.PercentOfProfit => line.Quantity * line.UnitSalePrice - line.DiscountAmount - line.Quantity * line.UnitCost,
                     _ => (set.SaleBaseAfterDiscountDefault ? line.Quantity * line.UnitSalePrice - line.DiscountAmount : line.Quantity * line.UnitSalePrice)
                 };
-                await _commissions.AddAsync(SalesCommissionEntry.Create(companyId, line.Id, req.SalespersonPartyId,
+                await _commissions.AddAsync(SalesCommissionEntry.Create(companyId, line.Id, sellerPartyId,
                     (DomainBasis)(int)rule.Basis, baseAmount, rule.Rate, amount, ym), ct);
             }
 

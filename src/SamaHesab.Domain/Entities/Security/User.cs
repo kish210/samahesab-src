@@ -19,6 +19,9 @@ public class User : BaseEntity
     public int FailedAttempts { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
     public bool MustChangePass { get; private set; }
+    /// <summary>SP-1 — نگاشتِ کاربر به «فروشنده» (Crm.Parties). اگر مقدار داشته باشد، فروشِ گردشگری
+    /// فروشنده را خودکار از همین کاربر تشخیص می‌دهد (پنلِ فروشنده‌محور).</summary>
+    public int? SalespersonPartyId { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; private set; }
 
@@ -60,5 +63,12 @@ public class User : BaseEntity
     public void Unlock()
     {
         IsLocked = false; LockoutEnd = null; FailedAttempts = 0; UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>SP-1 — تنظیمِ نگاشتِ فروشنده (یا حذفِ آن با null).</summary>
+    public void SetSalesperson(int? partyId)
+    {
+        SalespersonPartyId = partyId is > 0 ? partyId : null;
+        UpdatedAt = DateTime.Now;
     }
 }

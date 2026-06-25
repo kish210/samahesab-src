@@ -25,6 +25,7 @@ public class HttpCurrentUserService : ICurrentUserService
     public int? BranchId => GetInt("branchId");
     public string? Username => User?.Identity?.Name ?? User?.FindFirst("username")?.Value;
     public string? FullName => User?.FindFirst("fullName")?.Value;
+    public int? SalespersonPartyId => GetInt("seller");   // SP-1 — هویتِ فروشنده از JWT
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
     public bool HasPermission(string moduleCode, string featureCode, string action)

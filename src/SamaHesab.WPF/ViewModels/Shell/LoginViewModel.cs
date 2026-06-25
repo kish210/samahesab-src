@@ -87,13 +87,15 @@ public partial class LoginViewModel : ObservableObject
                 ((CurrentUserService)_currentUser).SetCurrentUser(
                     me?.UserId ?? 1, me?.CompanyId ?? SelectedCompanyId, me?.BranchId ?? 1,
                     me?.Username ?? Username, me?.FullName ?? Username,
-                    me?.Roles ?? new[] { "ADMIN" }, me?.Permissions ?? Array.Empty<string>());
+                    me?.Roles ?? new[] { "ADMIN" }, me?.Permissions ?? Array.Empty<string>(),
+                    me?.SalespersonPartyId);
 
                 Authenticated?.Invoke();
                 return;
             }
 
             int userId = 1; int branchId = 1; string fullName = Username;
+            int? sellerPartyId = null;
             List<string> roles = new(); List<string> permissions = new();
 
             try
@@ -105,6 +107,7 @@ public partial class LoginViewModel : ObservableObject
                     userId = result.Value.UserId; branchId = result.Value.BranchId;
                     fullName = result.Value.FullName; roles = result.Value.Roles.ToList();
                     permissions = result.Value.Permissions.ToList();
+                    sellerPartyId = result.Value.SalespersonPartyId;   // SP-1
                 }
                 else { HasError = true; ErrorMessage = result.ErrorMessage; return; }
             }
@@ -117,7 +120,7 @@ public partial class LoginViewModel : ObservableObject
             }
 
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,
-                fullName, roles, permissions);
+                fullName, roles, permissions, sellerPartyId);
 
             // یادداشت: ویزاردِ راه‌اندازیِ اولیه از این‌جا حذف شد و حالا **پیش از لاگین** (در App.OnStartup) اجرا می‌شود
             //   تا کاربر اطلاعاتِ شرکت/دادهٔ پایه را قبل از ورود وارد کند (یک‌بار، بر اساسِ SetupCompleted).

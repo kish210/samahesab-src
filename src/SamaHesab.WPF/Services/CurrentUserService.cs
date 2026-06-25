@@ -9,6 +9,7 @@ public class CurrentUserService : ICurrentUserService
     private int? _branchId;
     private string? _username;
     private string? _fullName;
+    private int? _salespersonPartyId;
     private List<string> _roles = new();
     private HashSet<string> _permissions = new();
 
@@ -17,17 +18,19 @@ public class CurrentUserService : ICurrentUserService
     public int? BranchId => _branchId;
     public string? Username => _username;
     public string? FullName => _fullName;
+    public int? SalespersonPartyId => _salespersonPartyId;
     public bool IsAuthenticated => _userId.HasValue;
 
     public void SetCurrentUser(int userId, int companyId, int? branchId,
         string username, string fullName,
-        IEnumerable<string> roles, IEnumerable<string> permissions)
+        IEnumerable<string> roles, IEnumerable<string> permissions, int? salespersonPartyId = null)
     {
         _userId = userId;
         _companyId = companyId;
         _branchId = branchId;
         _username = username;
         _fullName = fullName;
+        _salespersonPartyId = salespersonPartyId;
         _roles = roles.ToList();
         _permissions = new HashSet<string>(permissions);
     }
@@ -39,6 +42,7 @@ public class CurrentUserService : ICurrentUserService
         _branchId = null;
         _username = null;
         _fullName = null;
+        _salespersonPartyId = null;
         _roles.Clear();
         _permissions.Clear();
     }

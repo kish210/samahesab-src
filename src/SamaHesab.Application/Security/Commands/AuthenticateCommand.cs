@@ -8,7 +8,7 @@ using SamaHesab.Domain.Interfaces.Repositories;
 namespace SamaHesab.Application.Security.Commands;
 
 public record AuthResult(int UserId, int CompanyId, int BranchId, string Username, string FullName,
-    string[] Roles, string[] Permissions);
+    string[] Roles, string[] Permissions, int? SalespersonPartyId = null);
 
 public record AuthenticateCommand(int CompanyId, string Username, string Password, string? IpAddress = null)
     : IRequest<Result<AuthResult>>;
@@ -77,6 +77,7 @@ public class AuthenticateCommandHandler : IRequestHandler<AuthenticateCommand, R
         else { roles = Array.Empty<string>(); permissions = Array.Empty<string>(); }
 
         return Result<AuthResult>.Success(new AuthResult(
-            user.Id, user.CompanyId, user.BranchId ?? 1, user.Username, user.FullName, roles, permissions));
+            user.Id, user.CompanyId, user.BranchId ?? 1, user.Username, user.FullName, roles, permissions,
+            user.SalespersonPartyId));
     }
 }

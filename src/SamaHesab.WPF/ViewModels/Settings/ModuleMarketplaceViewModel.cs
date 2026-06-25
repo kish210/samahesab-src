@@ -116,6 +116,7 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
         if (!_modules.TrySetEnabled(row.Key, target, out var err) && err is not null)
         { await _dialogService.ShowWarningAsync(err); return; }
         row.Enabled = _modules.IsEnabled(row.Key);
+        ModuleShortcuts.Sync(row.Key, row.Enabled);   // میانبرِ دسکتاپ را با وضعیت هم‌گام کن
         await _dialogService.ShowSuccessAsync(row.Enabled
             ? $"ماژولِ «{row.DisplayName}» فعال شد. منو/صفحاتش به‌روزرسانی می‌شوند."
             : $"ماژولِ «{row.DisplayName}» غیرفعال شد. (دادهٔ تاریخی حفظ می‌شود.)");
@@ -131,6 +132,7 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
             "حذف ماژول")) return;
         _modules.SetEnabled(row.Key, false);
         row.Enabled = false;
+        ModuleShortcuts.Sync(row.Key, false);   // میانبرِ دسکتاپِ ماژولِ حذف‌شده هم برداشته شود
         try
         {
             var pkg = System.IO.Path.Combine(ModulesDir, row.Package);
@@ -172,6 +174,7 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
             row.Installed = true;
             _modules.TrySetEnabled(row.Key, true, out _);   // فعال‌سازی در ModuleService
             row.Enabled = true;
+            ModuleShortcuts.Sync(row.Key, true);   // میانبرِ دسکتاپِ ماژولِ نصب‌شده
             row.StatusText = "✓ نصب شد";
             await _dialogService.ShowSuccessAsync(
                 $"ماژولِ «{row.DisplayName}» (نسخهٔ {row.Version}) دانلود و فعال شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");

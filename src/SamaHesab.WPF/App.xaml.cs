@@ -324,6 +324,11 @@ public partial class App : System.Windows.Application
 
         await _host.StartAsync();
 
+        // میانبرِ دسکتاپِ ماژول‌ها را با وضعیتِ فعال‌بودنشان هم‌گام کن (نصاب فقط میانبرِ اصلی را می‌سازد؛
+        // هر ماژولِ فعال میانبرِ خودش را روی دسکتاپ می‌گیرد و غیرفعال‌ها حذف می‌شوند).
+        try { Services.ModuleShortcuts.SyncAll(_host.Services.GetRequiredService<ModuleService>().GetEnabledKeys()); }
+        catch { /* میانبر حیاتی نیست */ }
+
         // RC-3+ — زمان‌بندِ بکاپِ دوره‌ای (علاوه بر چکِ استارت‌آپ): برای ترمینال‌های همیشه‌روشن که
         // ممکن است روزها بسته نشوند، هر ۲ ساعت «بکاپِ سررسیده» را بررسی و اجرا می‌کند.
         StartBackupScheduler();

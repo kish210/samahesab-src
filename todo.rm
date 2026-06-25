@@ -1651,7 +1651,7 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 > | **BUG-DATE** — کلیپِ ستونِ تاریخ در گریدها (Width تنگ) | 💻 laptop | ✅ (`ae53853`) ۵ ستون→Width=110 |
 > | افزودنِ **Attendance** به اسکریپتِ بسته‌بندیِ بازار (`build-modules.ps1`) | 💻 laptop | ✅ (`ae53853`) |
 > | یکپارچه‌سازیِ «مدیریت ماژول‌ها» (Enable/Disable/Install/Update/Remove) | 💻 laptop | ✅ (`53657bf`) |
-> | **رفعِ رگرسیونِ ۲٫۶٫۳** — «مدیریت ماژول‌ها» دو بار در منوی سیستم تکرار شده بود + صفحه آفلاین تا ۲۰ث «در حال بارگذاری» می‌ماند | 🖥 pc/پلتفرم | ✅ pc@2026-06-25: حذفِ ردیفِ تکراری در MainWindow.xaml + پرکردنِ *فوریِ* ردیف‌های محلی قبل از HTTPِ کاتالوگ (RefreshAsync). ⚠️ laptop: `ModulesViewModel`/`ModulesView`ِ قدیمی اکنون یتیم است (نگاشتِ nav ندارد) — می‌توان حذف کرد. |
+> | **رفعِ رگرسیونِ ۲٫۶٫۳** — «مدیریت ماژول‌ها»: (الف) دو بار در منوی سیستم تکرار شده بود؛ (ب) صفحه **کاملاً سفید** باز می‌شد | 🖥 pc/پلتفرم | ✅ pc@2026-06-25. علتِ سفیدبودن: **`ModuleMarketplaceView.xaml` هیچ code-behind (`.xaml.cs`) نداشت** ⇒ `InitializeComponent()` صدا زده نمی‌شد و UserControl خالی رندر می‌شد (همهٔ viewهای دیگر این فایل را دارند). رفع: افزودنِ `ModuleMarketplaceView.xaml.cs`. + حذفِ ردیفِ تکراریِ منو + پرکردنِ فوریِ ردیف‌های محلی (RefreshAsync). ⚠️ laptop: `ModulesViewModel`/`ModulesView`ِ قدیمی اکنون یتیم است — می‌توان حذف کرد. |
 > | **نصابِ per-module** (`.mspkg`→نصابِ مستقل) | 🖥 pc/پلتفرم | ⬜ |
 > | **CI** (build+test روی GitHub Actions) | 🖥 pc/زیرساخت | ⬜ |
 > | لایسنسِ per-module (Loader وضعیتِ لایسنسِ ماژول را بپرسد) | 🖥 pc/پلتفرم | ⬜ |

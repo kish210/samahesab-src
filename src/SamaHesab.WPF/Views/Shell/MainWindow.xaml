@@ -317,14 +317,15 @@
                             Visibility="{Binding TourismEnabled, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="رزروها" Command="{Binding NavigateCommand}" CommandParameter="TourismBookings"/>
-                                <MenuItem Header="تورها" Command="{Binding NavigateCommand}" CommandParameter="TourismTours"/>
-                                <MenuItem Header="هتل‌ها" Command="{Binding NavigateCommand}" CommandParameter="TourismHotels"/>
-                                <MenuItem Header="پروازها" Command="{Binding NavigateCommand}" CommandParameter="TourismFlights"/>
-                                <MenuItem Header="ترانسفر" Command="{Binding NavigateCommand}" CommandParameter="TourismTransfer"/>
-                                <MenuItem Header="واچرها" Command="{Binding NavigateCommand}" CommandParameter="TourismVouchers"/>
-                                <MenuItem Header="کمیسیون‌ها" Command="{Binding NavigateCommand}" CommandParameter="TourismCommissions"/>
-                                <MenuItem Header="گزارشات گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismReports"/>
+                                <MenuItem Header="محصولاتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismProducts"/>
+                                <MenuItem Header="ثبتِ فروش" Command="{Binding NavigateCommand}" CommandParameter="TourismSale"/>
+                                <Separator/>
+                                <MenuItem Header="ودیعهٔ تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="TourismDeposits"/>
+                                <MenuItem Header="پورسانتِ فروشندگان" Command="{Binding NavigateCommand}" CommandParameter="TourismCommissions"/>
+                                <MenuItem Header="سندِ خودکارِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismVoucherGen"/>
+                                <Separator/>
+                                <MenuItem Header="گزارش‌های گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismReports"/>
+                                <MenuItem Header="تنظیماتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismSettings"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

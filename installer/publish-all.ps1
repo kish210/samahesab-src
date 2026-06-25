@@ -56,9 +56,14 @@ Write-Host "[8/8] publish Seller Web panel (PWA) -> /seller ..." -ForegroundColo
 $sellerPub = Join-Path $dist "sellerweb"
 dotnet publish "$root\src\SamaHesab.SellerWeb\SamaHesab.SellerWeb.csproj" -c Release -o $sellerPub --nologo -v m
 if ($LASTEXITCODE) { throw "Seller Web publish failed" }
-# base href باید /seller/ باشد تا وقتی API زیرِ /seller/ سرو می‌کند، _framework و دارایی‌ها درست بارگذاری شوند.
+# base href و پایهٔ service worker باید /seller/ باشند تا وقتی API زیرِ /seller/ سرو می‌کند،
+# _framework/دارایی‌ها و تطبیقِ ناوبری/کش درست کار کنند. (Replaceِ literal — مقاوم به کاراکترهای خاص)
 $idxFile = Join-Path $sellerPub "wwwroot\index.html"
-(Get-Content $idxFile -Raw) -replace '<base href="/" />', '<base href="/seller/" />' | Set-Content $idxFile -Encoding UTF8 -NoNewline
+[IO.File]::WriteAllText($idxFile, ([IO.File]::ReadAllText($idxFile)).Replace('<base href="/" />', '<base href="/seller/" />'))
+$swFile = Join-Path $sellerPub "wwwroot\service-worker.js"
+if (Test-Path $swFile) {
+    [IO.File]::WriteAllText($swFile, ([IO.File]::ReadAllText($swFile)).Replace('const base = "/";', 'const base = "/seller/";'))
+}
 $sellerDst = Join-Path $api "wwwroot\seller"
 if (Test-Path $sellerDst) { Remove-Item $sellerDst -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $sellerDst | Out-Null

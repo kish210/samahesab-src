@@ -32,6 +32,7 @@ public partial class TourismReportsViewModel : BaseViewModel
         new(1, "سودِ محصولات"),
         new(2, "پورسانتِ ماهانهٔ فروشندگان"),
         new(3, "عملکردِ فروشندگان"),
+        new(4, "فهرستِ فروش (تاریخِ سفر/مسافر)"),
     ];
 
     [ObservableProperty] private int _selectedReportIndex;
@@ -56,7 +57,10 @@ public partial class TourismReportsViewModel : BaseViewModel
         {
             var period = string.IsNullOrWhiteSpace(Period) ? null : Period.Trim();
             var dto = await _mediator.Send(new GetTourismReportsQuery(period));
-            _tables = [dto.SupplierDeposits, dto.ProductProfit, dto.MonthlyCommission, dto.SellerPerformance];
+            // ✈️ رودمپ — فهرستِ فروش با تاریخِ سفر/مسافر (GetTourismSalesQuery، همهٔ دوره‌ها مثلِ بقیهٔ گزارش‌ها).
+            var sales = await _mediator.Send(new GetTourismSalesQuery());
+            _tables = [dto.SupplierDeposits, dto.ProductProfit, dto.MonthlyCommission, dto.SellerPerformance,
+                       BuildSalesTable(sales)];
             ShowSelected();
         }, "در حال تهیهٔ گزارش...");
     }
@@ -68,6 +72,21 @@ public partial class TourismReportsViewModel : BaseViewModel
         CurrentView = ToDataTable(t).DefaultView;
         CurrentTitle = t.Title;
         RowCount = t.Rows.Count;
+    }
+
+    /// <summary>فهرستِ فروشِ گردشگری → ReportTable (همان زیرساختِ گرید/خروجی/چاپ).</summary>
+    private static ReportTable BuildSalesTable(System.Collections.Generic.List<TourismSaleRowDto> rows)
+    {
+        static string M(decimal v) => v.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture);
+        var headers = new[] { "تاریخِ ثبت", "مشتری", "فروشنده", "نزدیک‌ترین سفر", "مسافر",
+                              "خالصِ فروش", "سود", "پرداخت", "وضعیت" };
+        var data = rows.Select(r => new[]
+        {
+            r.Date, r.CustomerName, r.SalespersonName, r.NearestTravelDate ?? "—",
+            r.PassengerCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            M(r.NetSale), M(r.Profit), r.PaymentMethod, r.IsPosted ? "ثبت‌شده" : "پیش‌نویس",
+        }).ToList();
+        return new ReportTable("فهرستِ فروش (تاریخِ سفر/مسافر)", headers, data);
     }
 
     private static DataTable ToDataTable(ReportTable t)

@@ -117,9 +117,20 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
         { await _dialogService.ShowWarningAsync(err); return; }
         row.Enabled = _modules.IsEnabled(row.Key);
         ModuleShortcuts.Sync(row.Key, row.Enabled);   // میانبرِ دسکتاپ را با وضعیت هم‌گام کن
+        // پیش‌نیازِ سرورِ API: اگر ماژولی نیازمندِ API فعال است، میانبرِ سرور را هم بساز/نگه‌دار.
+        ModuleShortcuts.SyncApiServer(_modules.OptionalModules.Any(
+            m => ModuleShortcuts.RequiresApi(m.Key) && _modules.IsEnabled(m.Key)));
         await _dialogService.ShowSuccessAsync(row.Enabled
             ? $"ماژولِ «{row.DisplayName}» فعال شد. منو/صفحاتش به‌روزرسانی می‌شوند."
             : $"ماژولِ «{row.DisplayName}» غیرفعال شد. (دادهٔ تاریخی حفظ می‌شود.)");
+
+        // اعلامِ پیش‌نیاز: ماژول‌های تحتِ‌وب (پنلِ فروش) بدونِ اجرای «سرورِ سما حساب (API)» کار نمی‌کنند.
+        if (row.Enabled && ModuleShortcuts.RequiresApi(row.Key))
+            await _dialogService.ShowInfoAsync(
+                $"ماژولِ «{row.DisplayName}» از طریقِ مرورگر کار می‌کند و **نیازمندِ سرورِ سما حساب (API)** است.\n" +
+                "۱) مطمئن شوید سرور اجراست (میانبرِ «سرورِ سما حساب (API)» روی دسکتاپ ساخته شد).\n" +
+                $"۲) سپس در مرورگر/موبایل به نشانیِ زیر بروید:\n{ModuleShortcuts.PanelUrl}\n" +
+                "(برای دستگاه‌های دیگر روی شبکه: به‌جای localhost آدرسِ آی‌پیِ این سرور را بگذارید.)");
     }
 
     /// <summary>حذفِ ماژول (Remove): غیرفعال + پاک‌کردنِ بستهٔ دانلودشدهٔ محلی. دادهٔ DB حفظ می‌شود.</summary>

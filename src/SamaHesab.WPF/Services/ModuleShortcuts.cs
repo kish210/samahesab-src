@@ -9,9 +9,9 @@ namespace SamaHesab.WPF.Services;
 /// </summary>
 public static class ModuleShortcuts
 {
-    private sealed record Target(string ShortcutName, string Exe, string? Args);
+    private sealed record Target(string ShortcutName, string? Exe, string? Args, string? Url = null);
 
-    // فقط ماژول‌هایی که میانبرِ مستقلِ معنادار دارند (لانچرِ جدا یا --goto به صفحهٔ خودشان).
+    // ماژول‌هایی که میانبرِ مستقل دارند (لانچرِ exe، یا --goto، یا URLِ تحتِ‌وب).
     private static readonly Dictionary<string, Target> Map = new(System.StringComparer.OrdinalIgnoreCase)
     {
         [ModuleService.Pos]        = new("صندوقِ فروشِ سما حساب", "pos.exe", null),
@@ -19,7 +19,19 @@ public static class ModuleShortcuts
         [ModuleService.Tourism]    = new("گردشگری — سما حساب", "SamaHesab.exe", "--goto=TourismDeposits"),
         [ModuleService.Hr]         = new("حقوق و دستمزدِ سما حساب", "SamaHesab.exe", "--goto=Salary"),
         [ModuleService.Support]    = new("مرکزِ پشتیبانیِ سما حساب", "SamaHesab.exe", "--goto=HelpCenter"),
+        // پنلِ وب: میانبرِ مرورگر به نشانیِ پنل (روی همین سیستم). نیازمندِ سرورِ API.
+        [ModuleService.Web]        = new("پنلِ وبِ فروشِ سما حساب", null, null, Url: PanelUrl),
     };
+
+    /// <summary>ماژول‌هایی که برای کار به «سرورِ سما حساب (API)» نیاز دارند (کلاینت‌های تحتِ‌وب).</summary>
+    private static readonly System.Collections.Generic.HashSet<string> ApiDependent =
+        new(System.StringComparer.OrdinalIgnoreCase) { ModuleService.Web, ModuleService.Mobile };
+
+    public const string PanelUrl = "http://localhost:5080/seller/";
+    private const string ApiServerName = "سرورِ سما حساب (API)";
+
+    /// <summary>آیا این ماژول برای کار به سرورِ API نیاز دارد؟ (برای اعلامِ پیش‌نیاز به کاربر)</summary>
+    public static bool RequiresApi(string moduleKey) => ApiDependent.Contains(moduleKey);
 
     private static string AppDir => System.AppDomain.CurrentDomain.BaseDirectory;
     private static string Desktop => System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory);
@@ -28,25 +40,47 @@ public static class ModuleShortcuts
     public static void Sync(string moduleKey, bool enabled)
     {
         if (!Map.TryGetValue(moduleKey, out var t)) return;   // ماژولِ بدونِ میانبرِ مستقل
-        var lnk = Path.Combine(Desktop, t.ShortcutName + ".lnk");
+        var ext = t.Url is not null ? ".url" : ".lnk";
+        var path = Path.Combine(Desktop, t.ShortcutName + ext);
         try
         {
             if (enabled)
             {
-                var exe = Path.Combine(AppDir, t.Exe);
-                if (File.Exists(exe)) CreateShortcut(lnk, exe, t.Args, AppDir);
+                if (t.Url is not null) CreateUrlShortcut(path, t.Url);
+                else { var exe = Path.Combine(AppDir, t.Exe!); if (File.Exists(exe)) CreateShortcut(path, exe, t.Args, AppDir); }
             }
-            else if (File.Exists(lnk)) File.Delete(lnk);
+            else if (File.Exists(path)) File.Delete(path);
         }
         catch { /* عدمِ ساختِ میانبر نباید جریانِ ماژول را بشکند */ }
     }
 
-    /// <summary>در استارت‌آپ: برای ماژول‌های فعال میانبرِ گم‌شده ساخته و برای غیرفعال‌ها حذف می‌شود.</summary>
+    /// <summary>میانبرِ پیش‌نیازِ «سرورِ سما حساب (API)» را بساز/حذف کن — وقتی ماژولی نیازمندِ API فعال است.</summary>
+    public static void SyncApiServer(bool needed)
+    {
+        var lnk = Path.Combine(Desktop, ApiServerName + ".lnk");
+        try
+        {
+            if (needed)
+            {
+                var api = Path.Combine(AppDir, "server", "SamaHesab.API.exe");
+                if (File.Exists(api)) CreateShortcut(lnk, api, null, Path.GetDirectoryName(api)!);
+            }
+            else if (File.Exists(lnk)) File.Delete(lnk);
+        }
+        catch { /* میانبرِ پیش‌نیاز حیاتی نیست */ }
+    }
+
+    /// <summary>در استارت‌آپ: میانبرِ ماژول‌های فعال ساخته و غیرفعال‌ها حذف می‌شود + میانبرِ پیش‌نیازِ سرور.</summary>
     public static void SyncAll(System.Collections.Generic.IEnumerable<string> enabledKeys)
     {
         var enabled = new System.Collections.Generic.HashSet<string>(enabledKeys, System.StringComparer.OrdinalIgnoreCase);
         foreach (var key in Map.Keys) Sync(key, enabled.Contains(key));
+        SyncApiServer(System.Linq.Enumerable.Any(ApiDependent, enabled.Contains));
     }
+
+    /// <summary>میانبرِ اینترنتیِ .url (بازکردنِ نشانی در مرورگرِ پیش‌فرض).</summary>
+    private static void CreateUrlShortcut(string urlPath, string url)
+        => File.WriteAllText(urlPath, "[InternetShortcut]\r\nURL=" + url + "\r\n");
 
     // ساختِ .lnk با IShellLinkW (یونیکدِ کامل) — برخلافِ WScript.Shell، نامِ فارسیِ فایل را درست ذخیره می‌کند.
     private static void CreateShortcut(string lnkPath, string targetExe, string? args, string workingDir)

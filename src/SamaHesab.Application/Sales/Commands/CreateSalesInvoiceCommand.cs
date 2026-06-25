@@ -159,6 +159,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             await _invoiceRepository.AddAsync(invoice, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
+            // INV-1 گام۴: جمعِ بهای تمام‌شدهٔ کالای فروش‌رفته برای ثبتِ دائمیِ COGS در سند.
+            decimal totalCost = 0;
+
             // ── Reduce warehouse stock (only for inventory-tracked products = کالا) ──
             if (request.InvoiceType == Domain.Enums.InvoiceType.Sale)
             {
@@ -177,6 +180,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                         request.WarehouseId, dto.Quantity, stock.AverageCost, product.ValuationMethod, ct);
                     stock.RemoveStock(dto.Quantity);
                     _stockRepository.Update(stock);
+                    totalCost += unitCost * dto.Quantity;   // INV-1 گام۴: انباشتِ COGS
 
                     // ── بچ/سریال (INV-1 گام۳): حواله/فروشِ بچ و سریالِ انتخاب‌شده ──
                     // SaveChanges را فراخواننده در همین تراکنش انجام می‌دهد؛ خطا → rollback کل فاکتور.
@@ -220,6 +224,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                     }
                     stock.AddStock(dto.Quantity, unitCost);
                     _stockRepository.Update(stock);
+                    totalCost += unitCost * dto.Quantity;   // INV-1 گام۴: بهای بازگشتیِ موجودی (معکوسِ COGS)
 
                     await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
                         companyId, request.BranchId, "ورود برگشت از فروش", invoiceNumber, request.InvoiceDate,
@@ -232,9 +237,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             // ── Automatic accounting voucher ──
             // پیش‌فاکتور (Quotation)/حواله سندِ مالی نمی‌سازند؛ فقط فروش و برگشت از فروش.
             if (request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
-                await TryCreateSalesReturnVoucherAsync(invoice, companyId, request, ct);
+                await TryCreateSalesReturnVoucherAsync(invoice, companyId, request, totalCost, ct);
             else if (request.InvoiceType == Domain.Enums.InvoiceType.Sale)
-                await TryCreateSalesVoucherAsync(invoice, companyId, request, ct);
+                await TryCreateSalesVoucherAsync(invoice, companyId, request, totalCost, ct);
 
             // کار #۵ — اگر سندِ خودکار به‌خاطرِ نبودِ چارتِ حساب ساخته نشد، فاکتور نباید در «پیش‌نویس» بماند؛
             // حداقل «قطعی» (Confirmed) شود تا در گزارش‌ها/تحلیل‌ها (سود/فروش) لحاظ گردد.
@@ -285,7 +290,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     /// بستانکار کردنِ صندوق/بانک (بازپرداخت) یا حساب دریافتنیِ مشتری.
     /// </summary>
     private async Task TryCreateSalesReturnVoucherAsync(SalesInvoice invoice, int companyId,
-        CreateSalesInvoiceCommand request, CancellationToken ct)
+        CreateSalesInvoiceCommand request, decimal totalCost, CancellationToken ct)
     {
         if (invoice.InvoiceType != Domain.Enums.InvoiceType.SaleReturn || invoice.GrandTotal <= 0) return;
 
@@ -333,6 +338,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         if (remain > 0)
             voucher.AddItem(VoucherItem.Create(0, row++, receivable.Id, 0, remain, $"برگشت از فروش {invoice.InvoiceNumber}"));
 
+        // INV-1 گام۴ — معکوسِ COGS: کالا به انبار بازگشت ⇒ بد «موجودی کالا» / بس «بهای تمام‌شده».
+        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: true, row, ct);
+
         await _voucherRepository.AddAsync(voucher, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
@@ -344,8 +352,27 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _invoiceRepository.Update(invoice);
     }
 
+    /// <summary>
+    /// INV-1 گام۴ — افزودنِ دو ردیفِ بهای تمام‌شده/موجودی به سند (perpetual).
+    /// فروش (reverse=false): بد «بهای تمام‌شده 7-01-001» / بس «موجودی کالا 1-05-001».
+    /// برگشت از فروش (reverse=true): معکوس. اگر بها ≤۰ یا حساب‌ها در چارت نباشند، بی‌صدا رد می‌شود
+    /// (سند با همان درآمد/مالیات متوازن می‌ماند).
+    /// </summary>
+    private async Task AddCogsLinesAsync(Voucher voucher, int companyId, decimal totalCost,
+        bool reverse, int row, CancellationToken ct)
+    {
+        if (totalCost <= 0) return;
+        // منبعِ واحدِ کدِ حساب‌ها = همان helperِ اسنادِ انبار (perpetual یکپارچه).
+        var cogs = await _accountRepository.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Cogs, ct);
+        var inventory = await _accountRepository.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+        if (cogs == null || inventory == null) return; // چارتِ بهای‌تمام‌شده/موجودی تنظیم نشده → رد
+
+        foreach (var line in Inventory.PerpetualCogs.Build(totalCost, cogs.Id, inventory.Id, reverse))
+            voucher.AddItem(VoucherItem.Create(0, row++, line.AccountId, line.Debit, line.Credit, line.Description));
+    }
+
     private async Task TryCreateSalesVoucherAsync(SalesInvoice invoice, int companyId,
-        CreateSalesInvoiceCommand request, CancellationToken ct)
+        CreateSalesInvoiceCommand request, decimal totalCost, CancellationToken ct)
     {
         if (invoice.InvoiceType != Domain.Enums.InvoiceType.Sale || invoice.GrandTotal <= 0) return;
 
@@ -391,6 +418,10 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         voucher.AddItem(VoucherItem.Create(0, row++, sales.Id, 0, salesAmount, "درآمد فروش"));
         if (invoice.TotalTax > 0 && vat != null)
             voucher.AddItem(VoucherItem.Create(0, row++, vat.Id, 0, invoice.TotalTax, "مالیات بر ارزش افزوده"));
+
+        // INV-1 گام۴ — ثبتِ دائمیِ بهای تمام‌شدهٔ کالای فروش‌رفته (perpetual COGS):
+        // بد «بهای تمام‌شده» / بس «موجودی کالا». با هر دو سمت متوازن می‌ماند و موجودیِ GL را کاهش می‌دهد.
+        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: false, row, ct);
 
         await _voucherRepository.AddAsync(voucher, ct);
         await _unitOfWork.SaveChangesAsync(ct);   // assigns voucher.Id

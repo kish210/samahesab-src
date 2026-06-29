@@ -33,6 +33,7 @@
             <BooleanToVisibilityConverter x:Key="BoolVis"/>
             <!-- ارقام فارسی tabular + جداکنندهٔ فارسی — سراسری (یکدستی همهٔ صفحات) -->
             <conv:NumberFormatConverter x:Key="Num"/>
+            <conv:MinutesToTimeConverter x:Key="MinToTime"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

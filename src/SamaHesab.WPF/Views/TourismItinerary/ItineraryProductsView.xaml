@@ -115,8 +115,8 @@
                                   MaxHeight="150" FontSize="12">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="برچسب" Binding="{Binding Label}" Width="*"/>
-                                <DataGridTextColumn Header="شروع (دقیقه)" Binding="{Binding StartMinute}" Width="Auto"/>
-                                <DataGridTextColumn Header="پایان (دقیقه)" Binding="{Binding EndMinute}" Width="Auto"/>
+                                <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
+                                <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
                                 <DataGridTextColumn Header="ظرفیت" Binding="{Binding Capacity}" Width="Auto"/>
                             </DataGrid.Columns>
                         </DataGrid>

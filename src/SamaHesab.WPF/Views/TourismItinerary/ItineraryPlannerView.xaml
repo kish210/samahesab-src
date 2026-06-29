@@ -69,8 +69,8 @@
                     <DataGridTextColumn Header="روز" Binding="{Binding Day}" Width="Auto"/>
                     <DataGridTextColumn Header="محصول" Binding="{Binding ProductName}" Width="*"/>
                     <DataGridTextColumn Header="سانس" Binding="{Binding SessionLabel}" Width="Auto"/>
-                    <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute}" Width="Auto"/>
-                    <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute}" Width="Auto"/>
+                    <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
+                    <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
                     <DataGridTextColumn Header="قیمت" Binding="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
                 </DataGrid.Columns>
             </DataGrid>

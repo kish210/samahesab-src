@@ -220,3 +220,16 @@ public class IntEqualsVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// <summary>دقیقه از نیمه‌شب → «HH:mm» (نمایشِ خوانای زمانِ سانس به‌جای عددِ دقیقه).</summary>
+public class MinutesToTimeConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int m && m >= 0)
+            return $"{m / 60:00}:{m % 60:00}";
+        return value?.ToString() ?? "";
+    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}

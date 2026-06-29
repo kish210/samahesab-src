@@ -20,6 +20,9 @@ public interface IPrintService
 {
     void PrintInvoice(PrintDocumentData data);
     void PrintReceipt(PrintDocumentData data);
+    /// <summary>چاپِ فیشِ حرارتی به یک پرینترِ مشخص (ایستگاهِ رستوران) — مستقیم، بدونِ دیالوگ.
+    /// printerNameِ خالی → پرینترِ پیش‌فرضِ تنظیماتِ چاپ، یا پیش‌فرضِ سیستم.</summary>
+    void PrintReceipt(PrintDocumentData data, string? printerName);
     void Preview(PrintDocumentData data);
 }
 
@@ -55,6 +58,28 @@ public class PrintService : IPrintService
         var s = AppSettingsStore.GetPrintSettings();
         var doc = Build(data, s, receipt: true);
         Send(doc, s);
+    }
+
+    /// <summary>چاپِ فیش به پرینترِ ایستگاهِ مشخص — مستقیم (بدونِ دیالوگ) تا جریانِ سفارش سریع بماند.</summary>
+    public void PrintReceipt(PrintDocumentData data, string? printerName)
+    {
+        var s = AppSettingsStore.GetPrintSettings();
+        var doc = Build(data, s, receipt: true);
+        var pd = new PrintDialog();
+        var target = string.IsNullOrWhiteSpace(printerName) ? s.PrinterName : printerName;
+        if (!string.IsNullOrWhiteSpace(target))
+        {
+            try
+            {
+                var server = new LocalPrintServer();
+                var queue = server.GetPrintQueues().FirstOrDefault(q => q.Name == target);
+                if (queue != null) pd.PrintQueue = queue;
+            }
+            catch { /* پیش‌فرضِ سیستم */ }
+        }
+        pd.PrintTicket.CopyCount = 1;
+        IDocumentPaginatorSource idp = doc;
+        pd.PrintDocument(idp.DocumentPaginator, doc.Name ?? "SamaHesab-Station");
     }
 
     public void Preview(PrintDocumentData data)

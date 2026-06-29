@@ -27,6 +27,8 @@
                     xmlns:vsec="clr-namespace:SamaHesab.WPF.Views.Security"
                     xmlns:sup="clr-namespace:SamaHesab.WPF.ViewModels.Support"
                     xmlns:vsup="clr-namespace:SamaHesab.WPF.Views.Support"
+                    xmlns:rst="clr-namespace:SamaHesab.WPF.ViewModels.Restaurant"
+                    xmlns:vrst="clr-namespace:SamaHesab.WPF.Views.Restaurant"
                     xmlns:auto="clr-namespace:SamaHesab.WPF.ViewModels.Automation"
                     xmlns:vauto="clr-namespace:SamaHesab.WPF.Views.Automation"
                     xmlns:tur="clr-namespace:SamaHesab.WPF.ViewModels.Tourism"
@@ -72,6 +74,7 @@
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
     <DataTemplate DataType="{x:Type tr:ChequeDueCalendarViewModel}"><vtr:ChequeDueCalendarView/></DataTemplate>
+    <DataTemplate DataType="{x:Type rst:PrintStationsSettingsViewModel}"><vrst:PrintStationsSettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tr:InterBranchTransferViewModel}"><vtr:InterBranchTransferView/></DataTemplate>
 
     <!-- Dashboard -->

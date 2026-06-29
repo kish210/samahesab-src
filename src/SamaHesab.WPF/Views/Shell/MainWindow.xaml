@@ -305,6 +305,8 @@
                                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
                                 <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="قالبِ اسناد" Command="{Binding NavigateCommand}" CommandParameter="DocumentTemplates"/>
+                                <MenuItem Header="🍽 ایستگاه‌های چاپِ رستوران" Command="{Binding NavigateCommand}" CommandParameter="RestaurantPrintStations"
+                                          Visibility="{Binding RestaurantEnabled, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="ورودِ داده از اکسل" Command="{Binding NavigateCommand}" CommandParameter="DataImport"/>
                                 <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
                                 <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>

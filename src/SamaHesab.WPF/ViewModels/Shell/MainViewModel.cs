@@ -66,6 +66,7 @@ public partial class MainViewModel : BaseViewModel
         ["TourismVoucherGen"] = ModuleService.Tourism,   // ✈️ M11-C2
         ["TourismProducts"] = ModuleService.Tourism,   // ✈️ TUR-C2-6
         ["ItineraryProducts"] = ModuleService.Tourism, ["ItineraryPlanner"] = ModuleService.Tourism,   // ✈️ برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری)
+        ["RestaurantPrintStations"] = ModuleService.Restaurant,   // 🍽 ایستگاه‌های چاپ
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
         ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
     };
@@ -228,6 +229,7 @@ public partial class MainViewModel : BaseViewModel
             ["TourismSettings"]    = ("تنظیماتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSettingsViewModel>()),
             ["TourismReports"]     = ("گزارش‌های گردشگری",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismReportsViewModel>()),
             ["TourismAvailability"]= ("نمای موجودی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismAvailabilityViewModel>()),
+            ["RestaurantPrintStations"] = ("ایستگاه‌های چاپِ رستوران", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Restaurant.PrintStationsSettingsViewModel>()),
             ["TourismVoucherGen"]  = ("سندِ خودکارِ گردشگری", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismVoucherGenViewModel>()),
             ["TourismProducts"]    = ("محصولاتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismProductsViewModel>()),
             ["ItineraryProducts"]  = ("محصولاتِ اقامتی",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryProductsViewModel>()),

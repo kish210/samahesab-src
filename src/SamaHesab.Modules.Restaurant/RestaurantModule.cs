@@ -14,7 +14,8 @@ public sealed class RestaurantModule : IModule
 {
     public string Key => "Restaurant";
     public string DisplayName => "رستوران";
-    public string Version => "1.0.0";
+    // 1.1.0 — ایستگاه‌های چاپ/فیش‌پرینتر + نگاشتِ کالا→ایستگاه + مسیریابیِ تیکت.
+    public string Version => "1.1.0";
 
     public void RegisterServices(IServiceCollection services)
     {
@@ -46,9 +47,16 @@ public sealed class RestaurantModule : IModule
             foreach (var p in new[] { "UnitPrice", "DiscountAmount", "LineTotal" })
                 b.Property(p).HasPrecision(18, 2);
         });
+        // ایستگاه‌های چاپ + نگاشتِ کالا→ایستگاه (مسیریابیِ فیش‌پرینتر).
+        modelBuilder.Entity<PrintStation>().ToTable("PrintStations", "Rst");
+        modelBuilder.Entity<ProductStationMap>(b =>
+        {
+            b.ToTable("ProductStationMaps", "Rst");
+            b.HasIndex(m => new { m.CompanyId, m.ProductId }).IsUnique();
+        });
     }
 
     public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();   // POS/میز/آشپزخانه لانچرِ مستقل دارند
     public IReadOnlyList<ModulePermission> GetPermissions() => System.Array.Empty<ModulePermission>();
-    public IReadOnlyList<string> GetMigrationScripts() => new[] { "09_Restaurant.sql" };
+    public IReadOnlyList<string> GetMigrationScripts() => new[] { "09_Restaurant.sql", "52_RestaurantPrintStations.sql" };
 }

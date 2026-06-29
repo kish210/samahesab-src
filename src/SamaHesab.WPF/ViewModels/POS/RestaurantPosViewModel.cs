@@ -177,7 +177,55 @@ public partial class RestaurantPosViewModel : BaseViewModel
             GrandTotal, CashPaid + PosPaid, Remain, $"{OrderType} | {CustomerName}");
     }
 
-    [RelayCommand] private void PrintTicket() { if (OrderLines.Any()) try { _printService.PrintReceipt(BuildBill("تیکت آشپزخانه")); } catch { } }
+    // REST-PRINT-STATIONS — کشِ ایستگاه‌های چاپ + نگاشتِ کالا (یک‌بار؛ نبودِ ایستگاه = تیکتِ واحدِ قبلی).
+    private List<SamaHesab.Modules.Restaurant.Application.Queries.PrintStationDto>? _stations;
+    private Dictionary<int, int>? _productStation;
+
+    private async Task EnsureStationsAsync()
+    {
+        if (_stations is not null) return;
+        try
+        {
+            _stations = await _mediator.Send(new SamaHesab.Modules.Restaurant.Application.Queries.GetPrintStationsQuery(ActiveOnly: true));
+            _productStation = await _mediator.Send(new SamaHesab.Modules.Restaurant.Application.Queries.GetProductStationMapQuery());
+        }
+        catch { _stations = new(); _productStation = new(); }   // حالتِ API/بدونِ داده → تیکتِ واحد
+    }
+
+    /// <summary>تیکتِ آشپزخانه: اگر ایستگاه تعریف شده باشد، هر ایستگاه به پرینترِ خودش؛ وگرنه یک تیکتِ واحد.</summary>
+    [RelayCommand]
+    private async Task PrintTicketAsync()
+    {
+        if (!OrderLines.Any()) return;
+        await EnsureStationsAsync();
+        if (_stations is not { Count: > 0 })
+        {
+            try { _printService.PrintReceipt(BuildBill("تیکت آشپزخانه")); } catch { }
+            return;
+        }
+        var defs = _stations
+            .Select(s => new SamaHesab.Modules.Restaurant.Application.StationDef(s.Id, s.Name, s.PrinterName, s.IsDefault))
+            .ToList();
+        var lines = OrderLines
+            .Select(l => new SamaHesab.Modules.Restaurant.Application.StationLine(l.ProductId, l.Name, l.Qty, null))
+            .ToList();
+        var tickets = SamaHesab.Modules.Restaurant.Application.KitchenStationRouter.Route(lines, _productStation ?? new(), defs);
+        foreach (var t in tickets)
+        {
+            try { _printService.PrintReceipt(BuildStationTicket(t.StationName, t.Lines), t.PrinterName); } catch { }
+        }
+    }
+
+    /// <summary>تیکتِ یک ایستگاه (فقط نام/تعداد — بدونِ قیمت).</summary>
+    private PrintDocumentData BuildStationTicket(string stationName, IReadOnlyList<SamaHesab.Modules.Restaurant.Application.StationLine> lines)
+    {
+        var pls = lines.Select((l, i) => new PrintLine(i + 1, "",
+            l.Name + (string.IsNullOrWhiteSpace(l.Notes) ? "" : $" ({l.Notes})"), l.Qty, 0, 0, 0)).ToList();
+        var party = OrderType == "سالن" ? $"میز {TableNumber} — {People} نفر" : OrderType == "پیک" ? "پیک" : "بیرون‌بر";
+        return new PrintDocumentData($"تیکت — {stationName}", OrderNumber, _calendar.GetCurrentPersianDate(),
+            "سفارش", party, pls, 0, 0, 0, 0, 0, 0, 0, $"{OrderType}");
+    }
+
     [RelayCommand] private void PrintBill() { if (OrderLines.Any()) try { _printService.PrintReceipt(BuildBill("صورتحساب")); } catch { } }
     [RelayCommand] private void PreviewBill() { if (OrderLines.Any()) try { _printService.Preview(BuildBill("صورتحساب")); } catch { } }
 

@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Reports;
+using SamaHesab.Application.Reports.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -95,7 +97,61 @@ public partial class DashboardViewModel : BaseViewModel
             foreach (var p in d.Creditors) Creditors.Add(new PartyBalanceRow(p.Name, p.Balance));
             Alerts.Clear();
             foreach (var a in d.Alerts) Alerts.Add(new DashboardAlert(a.Icon, a.Text, a.Level, a.Nav));
+
+            // «کارهای امروزِ من» نقش‌محور (بک‌اندِ pc: GetDashboardAlertsQuery + DashboardRoleFilter).
+            // فقط در حالتِ دسکتاپ (کوئریِ مستقیم)؛ نقشِ کاربر تعیین می‌کند کدام هشدارها دیده شوند
+            // (مدیر همه). در صورتِ موفقیت، جایگزینِ فهرستِ بالا می‌شود؛ خطا → همان fallback می‌ماند.
+            if (string.IsNullOrWhiteSpace(_api.BaseUrl))
+            {
+                try
+                {
+                    var raw = await _mediator.Send(new GetDashboardAlertsQuery(today));
+                    var mine = DashboardRoleFilter.For(MapDashboardRole(), raw);
+                    if (mine.Count > 0)
+                    {
+                        Alerts.Clear();
+                        foreach (var a in mine) Alerts.Add(ToDashboardAlert(a));
+                    }
+                }
+                catch { /* fallback: همان d.Alerts نمایش داده می‌شود */ }
+            }
         }, "در حال بارگذاری داشبورد...");
+    }
+
+    /// <summary>نگاشتِ نقش‌های کاربر به نقشِ داشبورد (مدیر همه را می‌بیند؛ پیش‌فرض = مدیر تا چیزی پنهان نشود).</summary>
+    private DashboardRole MapDashboardRole()
+    {
+        var roles = _currentUser.GetRoles().Select(r => r.ToLowerInvariant()).ToList();
+        bool Has(params string[] keys) => roles.Any(r => keys.Any(r.Contains));
+        if (Has("admin", "مدیر سیستم", "manager", "مدیر کل")) return DashboardRole.Manager;
+        if (Has("خزانه", "treasur")) return DashboardRole.Treasurer;
+        if (Has("حساب", "account")) return DashboardRole.Accountant;
+        if (Has("انبار", "invent", "warehouse")) return DashboardRole.InventoryManager;
+        if (Has("فروش", "sale")) return DashboardRole.Sales;
+        if (Has("گردش", "tourism")) return DashboardRole.TourismOperator;
+        if (Has("پروژه", "پیمان", "project")) return DashboardRole.ProjectManager;
+        return DashboardRole.Manager;   // پیش‌فرضِ امن: همه را ببیند
+    }
+
+    private static DashboardAlert ToDashboardAlert(ActionableAlert a)
+    {
+        var icon = a.Key switch
+        {
+            "cheque-overdue" or "cheque-due-soon" => "💳",
+            "receivable-overdue"                  => "📥",
+            "stock-low"                           => "📦",
+            "tourism-deposit-low"                 => "✈️",
+            "guarantee-expiring"                  => "🛡️",
+            _                                     => "⚠️"
+        };
+        var level = a.Severity switch
+        {
+            AlertSeverity.Critical => "critical",
+            AlertSeverity.Warning  => "warning",
+            _                      => "info"
+        };
+        var msg = a.Amount > 0 ? $"{a.Title} — {a.Amount:#,0} ریال" : a.Title;
+        return new DashboardAlert(icon, msg, level, a.NavTarget);
     }
 
     [RelayCommand]

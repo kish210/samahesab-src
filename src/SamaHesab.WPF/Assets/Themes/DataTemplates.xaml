@@ -42,6 +42,7 @@
     <DataTemplate DataType="{x:Type tur:TourismCommissionsViewModel}"><vtur:TourismCommissionsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismSettingsViewModel}"><vtur:TourismSettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismReportsViewModel}"><vtur:TourismReportsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tur:TourismAvailabilityViewModel}"><vtur:TourismAvailabilityView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismVoucherGenViewModel}"><vtur:TourismVoucherGenView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismProductsViewModel}"><vtur:TourismProductsView/></DataTemplate>
 
@@ -70,6 +71,7 @@
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tr:ChequeDueCalendarViewModel}"><vtr:ChequeDueCalendarView/></DataTemplate>
     <DataTemplate DataType="{x:Type tr:InterBranchTransferViewModel}"><vtr:InterBranchTransferView/></DataTemplate>
 
     <!-- Dashboard -->
@@ -80,6 +82,7 @@
     <!-- Accounting -->
     <DataTemplate DataType="{x:Type acc:VoucherEditViewModel}"><va:VoucherEditView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:VoucherListViewModel}"><va:VoucherListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type acc:AccountLedgerViewModel}"><va:AccountLedgerView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:ChartOfAccountsViewModel}"><va:ChartOfAccountsView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:ChequeListViewModel}"><va:ChequeListView/></DataTemplate>
     <DataTemplate DataType="{x:Type acc:ChequeBoardViewModel}"><va:ChequeBoardView/></DataTemplate>

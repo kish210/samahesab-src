@@ -1,0 +1,53 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Tourism.TourismAvailabilityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="نمای موجودیِ گردشگری" FontSize="18" FontWeight="Bold" Margin="2,0,0,8"/>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="🔄 بروزرسانی (F5)" Style="{StaticResource PrimaryButton}" Height="32"
+                        Command="{Binding RefreshCommand}"/>
+                <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" Foreground="{DynamicResource SecondaryText}"
+                           Text="{Binding SoldOutCount, StringFormat='محصولِ تمام‌شده: {0}'}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False"
+                      Background="Transparent" RowBackground="Transparent" BorderThickness="0" FontSize="12.5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="محصول" Binding="{Binding Name}" Width="*"/>
+                    <DataGridTextColumn Header="قیمتِ فروش" Binding="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="ظرفیت" Binding="{Binding Capacity}" Width="Auto"/>
+                    <DataGridTextColumn Header="فروش‌رفته" Binding="{Binding Sold, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="ماندهٔ ظرفیت" Binding="{Binding Remaining, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridCheckBoxColumn Header="نامحدود" Binding="{Binding Unlimited}" Width="Auto"/>
+                    <DataGridCheckBoxColumn Header="تمام‌شده" Binding="{Binding IsSoldOut}" Width="Auto"/>
+                </DataGrid.Columns>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSoldOut}" Value="True">
+                                <Setter Property="Background" Value="#33C2403A"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

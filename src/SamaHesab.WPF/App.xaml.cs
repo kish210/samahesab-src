@@ -220,6 +220,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.Tourism.TourismCommissionsViewModel>();   // ✈️ TUR-C2-4
                 services.AddTransient<ViewModels.Tourism.TourismSettingsViewModel>();      // ✈️ TUR-C2-4
                 services.AddTransient<ViewModels.Tourism.TourismReportsViewModel>();       // ✈️ TUR-C2-5
+                services.AddTransient<ViewModels.Tourism.TourismAvailabilityViewModel>();  // ✈️ نمای موجودی
                 services.AddTransient<ViewModels.Tourism.TourismVoucherGenViewModel>();    // ✈️ M11-C2
                 services.AddTransient<ViewModels.Tourism.TourismProductsViewModel>();      // ✈️ TUR-C2-6
                 services.AddTransient<ViewModels.TourismItinerary.ItineraryProductsViewModel>();   // ✈️ MOD-TIT
@@ -233,10 +234,12 @@ public partial class App : System.Windows.Application
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<ViewModels.Automation.AlertsViewModel>();   // کار #۲۵ — مرکزِ اعلان‌ها
                 services.AddTransient<VoucherListViewModel>();
+                services.AddTransient<AccountLedgerViewModel>();   // دفترِ معین (drill-down)
                 services.AddTransient<VoucherEditViewModel>();
                 services.AddTransient<ChartOfAccountsViewModel>();
                 services.AddTransient<ChequeListViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ChequeDueCalendarViewModel>();   // تقویمِ سررسیدِ چک
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>();
                 services.AddTransient<ChequeBoardViewModel>();
                 services.AddTransient<EndOfPeriodViewModel>();

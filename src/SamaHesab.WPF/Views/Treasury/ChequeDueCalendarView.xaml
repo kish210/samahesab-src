@@ -1,0 +1,64 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Treasury.ChequeDueCalendarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="تقویمِ سررسیدِ چک" FontSize="18" FontWeight="Bold" Margin="2,0,0,8"/>
+
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="10">
+            <Button Content="🔄 بروزرسانی (F5)" Style="{StaticResource PrimaryButton}" Height="32"
+                    HorizontalAlignment="Right" Command="{Binding RefreshCommand}"/>
+        </Border>
+
+        <!-- سطل‌های زمانی -->
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid ItemsSource="{Binding Buckets}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" CanUserAddRows="False" Background="Transparent"
+                      RowBackground="Transparent" BorderThickness="0" FontSize="12.5" MaxHeight="180">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="بازه" Binding="{Binding Label}" Width="*"/>
+                    <DataGridTextColumn Header="تعداد" Binding="{Binding TotalCount}" Width="Auto"/>
+                    <DataGridTextColumn Header="دریافتی" Binding="{Binding ReceivedAmount, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="پرداختی" Binding="{Binding PaidAmount, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="خالصِ نقدینگی" Binding="{Binding Net, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- ریزِ روزانه -->
+        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+            <DataGrid ItemsSource="{Binding Days}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False"
+                      Background="Transparent" RowBackground="Transparent" BorderThickness="0" FontSize="12.5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="تاریخِ سررسید" Binding="{Binding DueDate}" Width="120"/>
+                    <DataGridTextColumn Header="چکِ دریافتی" Binding="{Binding ReceivedCount}" Width="Auto"/>
+                    <DataGridTextColumn Header="مبلغِ دریافتی" Binding="{Binding ReceivedAmount, StringFormat='{}{0:#,##0}'}" Width="*"/>
+                    <DataGridTextColumn Header="چکِ پرداختی" Binding="{Binding PaidCount}" Width="Auto"/>
+                    <DataGridTextColumn Header="مبلغِ پرداختی" Binding="{Binding PaidAmount, StringFormat='{}{0:#,##0}'}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Border Grid.Row="4" Style="{StaticResource FormSectionCard}" Padding="10" Margin="0,8,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding TotalReceived, StringFormat='جمعِ دریافتی: {0:#,##0}'}" Margin="0,0,24,0" Foreground="#2E7D52"/>
+                <TextBlock Text="{Binding TotalPaid, StringFormat='جمعِ پرداختی: {0:#,##0}'}" Margin="0,0,24,0" Foreground="#C2403A"/>
+                <TextBlock Text="{Binding Net, StringFormat='خالصِ نقدینگی: {0:#,##0}'}" FontWeight="Bold" Foreground="#2E5A9C"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

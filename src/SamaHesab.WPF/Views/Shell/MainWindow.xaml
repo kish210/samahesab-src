@@ -184,6 +184,7 @@
                                 <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
                                 <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
                                 <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
+                                <MenuItem Header="دفترِ معین (پرش به سند)" Command="{Binding NavigateCommand}" CommandParameter="AccountLedger"/>
                                 <MenuItem Header="ابعاد حسابداری (سال مالی/مرکز هزینه/پروژه)" Command="{Binding NavigateCommand}" CommandParameter="AccDimensions"/>
                                 <Separator/>
                                 <MenuItem Header="بهره‌وری سند (الگو/تکرارشونده)" Command="{Binding NavigateCommand}" CommandParameter="VoucherTools"/>
@@ -199,6 +200,7 @@
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="مدیریت چک" Command="{Binding NavigateCommand}" CommandParameter="Cheques"/>
+                                <MenuItem Header="تقویمِ سررسیدِ چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeDueCalendar"/>
                                 <MenuItem Header="تابلوی چک" Command="{Binding NavigateCommand}" CommandParameter="ChequeBoard"/>
                                 <MenuItem Header="دریافتنی/پرداختنی" Command="{Binding NavigateCommand}" CommandParameter="Receivables"/>
                                 <MenuItem Header="تسویهٔ بین‌شعبه" Command="{Binding NavigateCommand}" CommandParameter="InterBranch"/>
@@ -325,6 +327,7 @@
                                 <MenuItem Header="سندِ خودکارِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismVoucherGen"/>
                                 <Separator/>
                                 <MenuItem Header="گزارش‌های گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismReports"/>
+                                <MenuItem Header="نمای موجودی" Command="{Binding NavigateCommand}" CommandParameter="TourismAvailability"/>
                                 <MenuItem Header="تنظیماتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismSettings"/>
                                 <Separator/>
                                 <!-- برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) -->

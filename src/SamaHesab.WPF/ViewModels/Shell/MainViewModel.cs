@@ -62,7 +62,7 @@ public partial class MainViewModel : BaseViewModel
         ["RemoteSupport"] = ModuleService.Support,   // 🆘 HC-6
         ["TourismDeposits"] = ModuleService.Tourism, ["TourismCommissions"] = ModuleService.Tourism,   // ✈️ TUR-C2-4
         ["TourismSettings"] = ModuleService.Tourism, ["TourismSale"] = ModuleService.Tourism,
-        ["TourismReports"] = ModuleService.Tourism,   // ✈️ TUR-C2-5
+        ["TourismReports"] = ModuleService.Tourism, ["TourismAvailability"] = ModuleService.Tourism,   // ✈️ TUR-C2-5
         ["TourismVoucherGen"] = ModuleService.Tourism,   // ✈️ M11-C2
         ["TourismProducts"] = ModuleService.Tourism,   // ✈️ TUR-C2-6
         ["ItineraryProducts"] = ModuleService.Tourism, ["ItineraryPlanner"] = ModuleService.Tourism,   // ✈️ برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری)
@@ -134,7 +134,11 @@ public partial class MainViewModel : BaseViewModel
             ["Vouchers"]        = ("اسناد حسابداری",      sp => sp.GetRequiredService<VoucherListViewModel>()),
             ["VoucherEdit"]     = ("ثبت سند",             sp => sp.GetRequiredService<VoucherEditViewModel>()),
             ["ChartOfAccounts"] = ("نمودار حساب‌ها",      sp => sp.GetRequiredService<ChartOfAccountsViewModel>()),
+            ["AccountLedger"]   = ("دفترِ معین",          sp => sp.GetRequiredService<AccountLedgerViewModel>()),
+
             ["Cheques"]         = ("مدیریت چک",           sp => sp.GetRequiredService<ChequeListViewModel>()),
+            ["ChequeDueCalendar"]= ("تقویمِ سررسیدِ چک",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ChequeDueCalendarViewModel>()),
+
             ["Receivables"]     = ("دریافتنی/پرداختنی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>()),
             ["InterBranch"]     = ("تسویهٔ بین‌شعبه",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>()),
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
@@ -223,6 +227,7 @@ public partial class MainViewModel : BaseViewModel
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
             ["TourismSettings"]    = ("تنظیماتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSettingsViewModel>()),
             ["TourismReports"]     = ("گزارش‌های گردشگری",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismReportsViewModel>()),
+            ["TourismAvailability"]= ("نمای موجودی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismAvailabilityViewModel>()),
             ["TourismVoucherGen"]  = ("سندِ خودکارِ گردشگری", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismVoucherGenViewModel>()),
             ["TourismProducts"]    = ("محصولاتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismProductsViewModel>()),
             ["ItineraryProducts"]  = ("محصولاتِ اقامتی",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryProductsViewModel>()),

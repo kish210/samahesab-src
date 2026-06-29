@@ -18,8 +18,22 @@ public partial class ItineraryPlannerViewModel : BaseViewModel
 {
     private readonly IMediator _mediator;
 
-    /// <summary>پایهٔ آدرسِ پنلِ مهمان (سرورِ API + مسیرِ صفحهٔ مهمان). نیازمندِ اجرای سرور.</summary>
-    public const string PortalBaseUrl = "http://localhost:5080/itinerary/";
+    /// <summary>پورتِ اختصاصیِ پنلِ مهمان — جدا از پورتِ API (۵۰۸۰). سرور روی هر دو گوش می‌دهد.</summary>
+    public const int GuestPortalPort = 5090;
+
+    /// <summary>لینکِ پنلِ مهمان: hostِ سرورِ پیکربندی‌شده (نه localhostِ ثابت) + پورتِ ۵۰۹۰ + توکن.</summary>
+    private static string BuildPortalLink(string token)
+    {
+        var host = "localhost";
+        try
+        {
+            var baseUrl = Services.AppSettingsStore.GetApiSettings().BaseUrl;
+            if (!string.IsNullOrWhiteSpace(baseUrl) && System.Uri.TryCreate(baseUrl, System.UriKind.Absolute, out var u))
+                host = u.Host;
+        }
+        catch { /* پیش‌فرض localhost */ }
+        return $"http://{host}:{GuestPortalPort}/itinerary/{token}";
+    }
 
     [ObservableProperty] private string _guestName = string.Empty;
     [ObservableProperty] private int _days = 3;
@@ -53,7 +67,7 @@ public partial class ItineraryPlannerViewModel : BaseViewModel
 
             var g = res.Value!;
             ResultToken = g.Token;
-            PortalLink = PortalBaseUrl + g.Token;
+            PortalLink = BuildPortalLink(g.Token);
             TotalSale = g.TotalSale; TotalProfit = g.TotalProfit; StopCount = g.StopCount;
 
             // بارگذاریِ اقلامِ کامل برای نمایش (همان دادهٔ پنلِ مهمان).

@@ -142,6 +142,30 @@ blazorCtp.Mappings[".dat"]  = "application/octet-stream";   // دادهٔ ICU گ
 blazorCtp.Mappings[".blat"] = "application/octet-stream";
 blazorCtp.Mappings[".dll"]  = "application/octet-stream";
 blazorCtp.Mappings[".wasm"] = "application/wasm";
+
+// ── پنلِ مهمانِ برنامه‌ریزیِ اقامتی روی پورتِ اختصاصی (۵۰۹۰)، جدا از پورتِ API (۵۰۸۰) ──
+//    سرور روی هر دو پورت گوش می‌دهد. روی ۵۰۹۰: اپِ Blazorِ مهمان (base href=/) از wwwroot/guest با
+//    SPA-fallback سرو می‌شود تا لینکِ عمیقِ /itinerary/{token} مستقیم باز شود. درخواست‌های /api روی
+//    ۵۰۹۰ به همان کنترلرها می‌روند (همان‌مبدأ، بی‌نیاز از CORS).
+const int guestPortalPort = 5090;
+var guestDir = System.IO.Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "guest");
+if (System.IO.Directory.Exists(guestDir))
+{
+    var guestFiles = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(guestDir);
+    app.MapWhen(
+        ctx => ctx.Connection.LocalPort == guestPortalPort && !ctx.Request.Path.StartsWithSegments("/api"),
+        branch =>
+        {
+            branch.UseDefaultFiles(new DefaultFilesOptions { FileProvider = guestFiles });
+            branch.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions { FileProvider = guestFiles, ContentTypeProvider = blazorCtp });
+            branch.Run(async ctx =>   // هر مسیرِ غیرفایلیِ Blazor (مثلِ /itinerary/{token}) → index.html
+            {
+                ctx.Response.ContentType = "text/html";
+                await ctx.Response.SendFileAsync(guestFiles.GetFileInfo("index.html"));
+            });
+        });
+}
+
 app.UseDefaultFiles();
 app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions { ContentTypeProvider = blazorCtp });
 

@@ -309,7 +309,7 @@ begin
       StringChangeEx(Srv, '\', '\\', True);   // فرار دادنِ بک‌اسلش برای JSON
       Content :=
         '{' + #13#10 +
-        '  "Urls": "http://0.0.0.0:5080",' + #13#10 +
+        '  "Urls": "http://0.0.0.0:5080;http://0.0.0.0:5090",' + #13#10 +
         '  "ConnectionStrings": {' + #13#10 +
         '    "DefaultConnection": "Server=' + Srv + ';Database=' + DatabaseName +
             ';Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"' + #13#10 +

@@ -56,6 +56,12 @@ Write-Host "[8/8] publish Seller Web panel (PWA) -> /seller ..." -ForegroundColo
 $sellerPub = Join-Path $dist "sellerweb"
 dotnet publish "$root\src\SamaHesab.SellerWeb\SamaHesab.SellerWeb.csproj" -c Release -o $sellerPub --nologo -v m
 if ($LASTEXITCODE) { throw "Seller Web publish failed" }
+# پنلِ مهمانِ برنامه‌ریزیِ اقامتی: همان buildِ Blazor روی پورتِ جداگانه (5090) در ریشه (base href=/).
+# باید *پیش از* بازنویسیِ base href به /seller/ کپی شود تا نسخهٔ مهمان base href=/ بماند.
+$guestDst = Join-Path $api "wwwroot\guest"
+if (Test-Path $guestDst) { Remove-Item $guestDst -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $guestDst | Out-Null
+Copy-Item (Join-Path $sellerPub "wwwroot\*") $guestDst -Recurse -Force
 # base href و پایهٔ service worker باید /seller/ باشند تا وقتی API زیرِ /seller/ سرو می‌کند،
 # _framework/دارایی‌ها و تطبیقِ ناوبری/کش درست کار کنند. (Replaceِ literal — مقاوم به کاراکترهای خاص)
 $idxFile = Join-Path $sellerPub "wwwroot\index.html"

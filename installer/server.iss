@@ -86,6 +86,10 @@ Filename: "powershell.exe"; \
 Filename: "netsh.exe"; \
   Parameters: "advfirewall firewall add rule name=""SamaHesab API 5080"" dir=in action=allow protocol=TCP localport=5080"; \
   Flags: runhidden; Tasks: firewall
+; پورتِ پنلِ مهمانِ برنامه‌ریزیِ اقامتی (جدا از API)
+Filename: "netsh.exe"; \
+  Parameters: "advfirewall firewall add rule name=""SamaHesab Guest 5090"" dir=in action=allow protocol=TCP localport=5090"; \
+  Flags: runhidden; Tasks: firewall
 
 ; اجرای سرور پس از نصب
 Filename: "{app}\server\{#ApiExe}"; Description: "راه‌اندازی سرور (API)"; \
@@ -93,6 +97,7 @@ Filename: "{app}\server\{#ApiExe}"; Description: "راه‌اندازی سرور
 
 [UninstallRun]
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""SamaHesab API 5080"""; Flags: runhidden; RunOnceId: "DelFwRule5080"
+Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""SamaHesab Guest 5090"""; Flags: runhidden; RunOnceId: "DelFwRule5090"
 
 [Registry]
 ; اجرای خودکار سرور هنگام ورود کاربر

@@ -20,6 +20,7 @@ $modules = @(
   @{ Key="CRM";         Name="باشگاه مشتریان (CRM)";  Proj="SamaHesab.Modules.CRM";         Schema="Crm"; Desc="امتیاز و وفاداریِ مشتریان (باشگاه)." }
   @{ Key="Tourism";     Name="گردشگری";              Proj="SamaHesab.Modules.Tourism";     Schema="Tur"; Desc="فروشِ خدماتِ گردشگری، ودیعهٔ تأمین‌کننده، پورسانت، سند و گزارش." }
   @{ Key="Attendance";  Name="حضور و غیاب";          Proj="SamaHesab.Modules.Attendance";  Schema="Hrm"; Desc="ورود/خروج، شیفت، تقویمِ تعطیلات، کارکردِ ماهانه (مستقل از حقوق)." }
+  @{ Key="TourismItinerary"; Name="برنامه‌ریزی اقامتی گردشگری"; Proj="SamaHesab.Modules.TourismItinerary"; Schema="Tit"; Desc="تعریفِ محصول/سانس + الگوریتمِ پیشنهادِ برنامهٔ اقامتی + پنلِ وبِ تأییدِ مهمان." }
 )
 
 $catalog = @()

@@ -71,7 +71,7 @@
                     <DataGridTextColumn Header="سانس" Binding="{Binding SessionLabel}" Width="Auto"/>
                     <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
                     <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
-                    <DataGridTextColumn Header="قیمت" Binding="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="قیمت" Binding="{Binding SalePrice, Mode=OneWay, Converter={StaticResource Num}}" Width="120"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

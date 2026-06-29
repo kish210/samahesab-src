@@ -63,7 +63,12 @@ public sealed class TourismModule : IModule
             e.HasIndex(g => g.Token).IsUnique();
             e.HasMany(g => g.Stops).WithOne().HasForeignKey(s => s.ItineraryId);
         });
-        modelBuilder.Entity<ItineraryStop>().ToTable("ItineraryStops", "Tur");
+        modelBuilder.Entity<ItineraryStop>(e =>
+        {
+            e.ToTable("ItineraryStops", "Tur");
+            e.Property(s => s.SalePrice).HasPrecision(18, 2);
+            e.Property(s => s.Cost).HasPrecision(18, 2);
+        });
     }
 
     public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();   // صفحاتش در منوی گردشگریِ هاست

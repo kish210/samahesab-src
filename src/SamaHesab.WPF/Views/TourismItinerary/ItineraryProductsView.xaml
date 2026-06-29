@@ -31,8 +31,10 @@
                           RowBackground="Transparent" BorderThickness="0" FontSize="12.5">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="نام" Binding="{Binding Name}" Width="*"/>
+                        <DataGridTextColumn Header="تأمین‌کننده" Binding="{Binding SupplierName}" Width="Auto"/>
                         <DataGridTextColumn Header="فروش" Binding="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
                         <DataGridTextColumn Header="سود" Binding="{Binding NetProfit, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                        <DataGridTextColumn Header="پورسانت" Binding="{Binding MarketerCommission, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
                         <DataGridTextColumn Header="ظرفیت" Binding="{Binding Capacity}" Width="Auto"/>
                         <DataGridCheckBoxColumn Header="فعال" Binding="{Binding Active}" Width="Auto"/>
                     </DataGrid.Columns>
@@ -51,6 +53,10 @@
                         <TextBlock Text="نام" Margin="0,4,0,2"/>
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
 
+                        <TextBlock Text="تأمین‌کننده (از او خریداری می‌شود)" Margin="0,6,0,2"/>
+                        <ComboBox ItemsSource="{Binding Suppliers}" SelectedValue="{Binding SupplierPartyId}"
+                                  SelectedValuePath="Id" DisplayMemberPath="Name" IsEditable="False"/>
+
                         <Grid Margin="0,6,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
@@ -66,11 +72,31 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2" Margin="4,0">
                                 <TextBlock Text="سودِ خالص"/>
-                                <TextBox Text="{Binding NetProfitPreview, StringFormat='{}{0:#,##0}'}" IsReadOnly="True" Foreground="#2E7D52"/>
+                                <TextBox Text="{Binding NetProfitPreview, StringFormat='{}{0:#,##0}', Mode=OneWay}" IsReadOnly="True" Foreground="#2E7D52"/>
                             </StackPanel>
                             <StackPanel Grid.Column="3" Margin="4,0,0,0">
                                 <TextBlock Text="ظرفیت"/>
                                 <TextBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- پورسانتِ بازاریاب -->
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                <TextBlock Text="پورسانتِ بازاریاب — مبنا"/>
+                                <ComboBox ItemsSource="{Binding CommissionBasisOptions}" SelectedValue="{Binding CommissionBasis}"
+                                          SelectedValuePath="Value" DisplayMemberPath="Label"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="4,0">
+                                <TextBlock Text="مقدار (مبلغ/درصد)"/>
+                                <TextBox Text="{Binding CommissionValue, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="4,0,0,0">
+                                <TextBlock Text="پورسانتِ هر واحد"/>
+                                <TextBox Text="{Binding CommissionPreview, StringFormat='{}{0:#,##0}', Mode=OneWay}" IsReadOnly="True" Foreground="#7A5BB0"/>
                             </StackPanel>
                         </Grid>
 

@@ -53,6 +53,7 @@ public sealed class TourismModule : IModule
         {
             e.ToTable("ItineraryProducts", "Tur");
             e.Ignore(p => p.NetProfit);
+            e.Ignore(p => p.MarketerCommission);
         });
         modelBuilder.Entity<ProductSession>().ToTable("ItineraryProductSessions", "Tur");
         modelBuilder.Entity<GuestItinerary>(e =>

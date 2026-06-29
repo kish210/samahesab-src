@@ -9,10 +9,13 @@ namespace SamaHesab.Modules.Tourism.Application.Itinerary.Commands;
 
 // ───────────────────────── محصولِ اقامتی ─────────────────────────
 
-/// <summary>ساخت/ویرایشِ محصولِ اقامتی. Id=0 → ساخت، وگرنه ویرایش.</summary>
+/// <summary>ساخت/ویرایشِ محصولِ اقامتی. Id=0 → ساخت، وگرنه ویرایش.
+/// شاملِ تأمین‌کننده (شخص) و پورسانتِ بازاریاب (مبنا + مقدار).</summary>
 public record SaveItineraryProductCommand(
     int Id, string Name, decimal SalePrice, decimal Cost, int Capacity,
-    int? SupplierPartyId = null, bool Active = true) : IRequest<Result<int>>;
+    int? SupplierPartyId = null, bool Active = true,
+    Domain.CommissionBasis CommissionBasis = Domain.CommissionBasis.PercentOfProfit, decimal CommissionValue = 0)
+    : IRequest<Result<int>>;
 
 public class SaveItineraryProductCommandValidator : AbstractValidator<SaveItineraryProductCommand>
 {
@@ -23,6 +26,9 @@ public class SaveItineraryProductCommandValidator : AbstractValidator<SaveItiner
         RuleFor(x => x.SalePrice).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Cost).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Capacity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.CommissionValue).GreaterThanOrEqualTo(0).WithMessage("پورسانت نمی‌تواند منفی باشد.");
+        RuleFor(x => x.SupplierPartyId).GreaterThan(0).When(x => x.SupplierPartyId.HasValue)
+            .WithMessage("تأمین‌کنندهٔ نامعتبر.");
     }
 }
 
@@ -44,13 +50,15 @@ public class SaveItineraryProductCommandHandler : IRequestHandler<SaveItineraryP
             {
                 var existing = await _products.FindSingleAsync(p => p.Id == req.Id && p.CompanyId == companyId, ct);
                 if (existing is null) return Result<int>.Failure("محصول یافت نشد.");
-                existing.Update(req.Name, req.SalePrice, req.Cost, req.Capacity, req.SupplierPartyId, req.Active, _user.UserId);
+                existing.Update(req.Name, req.SalePrice, req.Cost, req.Capacity, req.SupplierPartyId, req.Active,
+                    req.CommissionBasis, req.CommissionValue, _user.UserId);
                 _products.Update(existing);
                 await _uow.SaveChangesAsync(ct);
                 return Result<int>.Success(existing.Id);
             }
 
-            var np = ItineraryProduct.Create(companyId, req.Name, req.SalePrice, req.Cost, req.Capacity, req.SupplierPartyId);
+            var np = ItineraryProduct.Create(companyId, req.Name, req.SalePrice, req.Cost, req.Capacity,
+                req.SupplierPartyId, req.CommissionBasis, req.CommissionValue);
             await _products.AddAsync(np, ct);
             await _uow.SaveChangesAsync(ct);
             return Result<int>.Success(np.Id);
@@ -76,7 +84,8 @@ public class DeleteItineraryProductCommandHandler : IRequestHandler<DeleteItiner
         var companyId = _user.CompanyId ?? 1;
         var p = await _products.FindSingleAsync(x => x.Id == req.Id && x.CompanyId == companyId, ct);
         if (p is null) return Result.Failure("محصول یافت نشد.");
-        p.Update(p.Name, p.SalePrice, p.Cost, p.Capacity, p.SupplierPartyId, active: false, _user.UserId);
+        p.Update(p.Name, p.SalePrice, p.Cost, p.Capacity, p.SupplierPartyId, active: false,
+            p.MarketerCommissionBasis, p.MarketerCommissionValue, _user.UserId);
         _products.Update(p);
         await _uow.SaveChangesAsync(ct);
         return Result.Success();

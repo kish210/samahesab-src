@@ -4,16 +4,22 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Modules.Tourism.Application.Itinerary.Commands;
 using SamaHesab.Modules.Tourism.Application.Itinerary.Queries;
+using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 
 namespace SamaHesab.WPF.ViewModels.TourismItinerary;
 
+/// <summary>گزینهٔ مبنای پورسانت برای کمبوی فرم.</summary>
+public record CommissionBasisOption(int Value, string Label);
+
 /// <summary>
-/// مدیریتِ محصولاتِ اقامتی + سانس‌های زمانیِ هرکدام (بخشِ Operation). محصول: نام/قیمت/هزینه/ظرفیت؛
-/// سود خالص محاسبه و نمایش داده می‌شود. سانس: برچسب + بازهٔ «HH:mm» (تبدیل به دقیقه) + ظرفیت.
+/// مدیریتِ محصولاتِ اقامتی + سانس‌های زمانی (بخشِ Operation). هر محصول: نام/قیمت/هزینه/ظرفیت +
+/// **تأمین‌کننده** (شخص که محصول از او خریداری می‌شود) + **پورسانتِ بازاریاب** (مبلغ/درصدِ فروش/درصدِ سود).
+/// سود خالص و مبلغِ پورسانت زنده محاسبه می‌شوند.
 /// </summary>
 public partial class ItineraryProductsViewModel : BaseViewModel
 {
@@ -21,17 +27,38 @@ public partial class ItineraryProductsViewModel : BaseViewModel
 
     public ObservableCollection<ItineraryProductDto> Products { get; } = new();
     public ObservableCollection<ItineraryProductSessionDto> SelectedProductSessions { get; } = new();
+    public ObservableCollection<SupplierRowDto> Suppliers { get; } = new();
+
+    /// <summary>مبناهای پورسانت (مطابقِ enum گردشگری: ۰=مبلغ ۱=٪فروش ۲=٪سود).</summary>
+    public ObservableCollection<CommissionBasisOption> CommissionBasisOptions { get; } = new()
+    {
+        new(0, "مبلغِ ثابت (هر واحد)"),
+        new(1, "درصدی از فروش"),
+        new(2, "درصدی از سود"),
+    };
 
     [ObservableProperty] private ItineraryProductDto? _selectedProduct;
 
     // فرمِ محصول
     [ObservableProperty] private int _editId;
     [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private int _supplierPartyId;          // ۰ = بدونِ تأمین‌کننده
     [ObservableProperty] private decimal _salePrice;
     [ObservableProperty] private decimal _cost;
     [ObservableProperty] private int _capacity = 1;
     [ObservableProperty] private bool _active = true;
+    [ObservableProperty] private int _commissionBasis = 2;      // پیش‌فرض: درصدِ سود
+    [ObservableProperty] private decimal _commissionValue;
     public decimal NetProfitPreview => SalePrice - Cost;
+
+    /// <summary>مبلغِ پورسانتِ بازاریاب بر اساسِ مبنا + مقدار (نمایشِ زنده).</summary>
+    public decimal CommissionPreview => CommissionBasis switch
+    {
+        0 => CommissionValue,
+        1 => SalePrice * CommissionValue / 100m,
+        2 => (SalePrice - Cost) * CommissionValue / 100m,
+        _ => 0m
+    };
 
     // فرمِ سانس (برای محصولِ انتخاب‌شده)
     [ObservableProperty] private string _sessionLabel = string.Empty;
@@ -45,8 +72,10 @@ public partial class ItineraryProductsViewModel : BaseViewModel
 
     public override Task LoadAsync() => ReloadAsync();
 
-    partial void OnSalePriceChanged(decimal v) => OnPropertyChanged(nameof(NetProfitPreview));
-    partial void OnCostChanged(decimal v) => OnPropertyChanged(nameof(NetProfitPreview));
+    partial void OnSalePriceChanged(decimal v) { OnPropertyChanged(nameof(NetProfitPreview)); OnPropertyChanged(nameof(CommissionPreview)); }
+    partial void OnCostChanged(decimal v) { OnPropertyChanged(nameof(NetProfitPreview)); OnPropertyChanged(nameof(CommissionPreview)); }
+    partial void OnCommissionBasisChanged(int v) => OnPropertyChanged(nameof(CommissionPreview));
+    partial void OnCommissionValueChanged(decimal v) => OnPropertyChanged(nameof(CommissionPreview));
 
     partial void OnSelectedProductChanged(ItineraryProductDto? value)
     {
@@ -54,6 +83,9 @@ public partial class ItineraryProductsViewModel : BaseViewModel
         if (value is null) return;
         EditId = value.Id; Name = value.Name; SalePrice = value.SalePrice; Cost = value.Cost;
         Capacity = value.Capacity; Active = value.Active;
+        SupplierPartyId = value.SupplierPartyId ?? 0;
+        CommissionBasis = (int)value.MarketerCommissionBasis;
+        CommissionValue = value.MarketerCommissionValue;
         foreach (var s in value.Sessions) SelectedProductSessions.Add(s);
     }
 
@@ -61,6 +93,11 @@ public partial class ItineraryProductsViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
+            if (Suppliers.Count == 0)
+            {
+                Suppliers.Add(new SupplierRowDto(0, "", "— بدونِ تأمین‌کننده —", "", "", 0, true));
+                foreach (var s in await _mediator.Send(new GetSuppliersQuery())) Suppliers.Add(s);
+            }
             var keep = SelectedProduct?.Id;
             Products.Clear();
             foreach (var p in await _mediator.Send(new GetItineraryProductsQuery(ActiveOnly: false))) Products.Add(p);
@@ -73,6 +110,7 @@ public partial class ItineraryProductsViewModel : BaseViewModel
     {
         SelectedProduct = null;
         EditId = 0; Name = string.Empty; SalePrice = 0; Cost = 0; Capacity = 1; Active = true;
+        SupplierPartyId = 0; CommissionBasis = 2; CommissionValue = 0;
         SelectedProductSessions.Clear();
     }
 
@@ -81,7 +119,10 @@ public partial class ItineraryProductsViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            var res = await _mediator.Send(new SaveItineraryProductCommand(EditId, Name, SalePrice, Cost, Capacity, null, Active));
+            int? supplier = SupplierPartyId > 0 ? SupplierPartyId : null;
+            var res = await _mediator.Send(new SaveItineraryProductCommand(
+                EditId, Name, SalePrice, Cost, Capacity, supplier, Active,
+                (CommissionBasis)CommissionBasis, CommissionValue));
             if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
             await _dialogService.ShowSuccessAsync("محصول ذخیره شد.");
             EditId = res.Value;
@@ -125,8 +166,8 @@ public partial class ItineraryProductsViewModel : BaseViewModel
     {
         minute = 0;
         if (string.IsNullOrWhiteSpace(hhmm)) return false;
-        var parts = hhmm.Split(':');
-        if (parts.Length != 2 || !int.TryParse(parts[0], out var h) || !int.TryParse(parts[1], out var m)) return false;
+        var parts = hhmm.Trim().Split(':');
+        if (parts.Length < 2 || !int.TryParse(parts[0], out var h) || !int.TryParse(parts[1], out var m)) return false;
         if (h is < 0 or > 23 || m is < 0 or > 59) return false;
         minute = h * 60 + m;
         return true;

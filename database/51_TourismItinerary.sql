@@ -20,9 +20,19 @@ CREATE TABLE Tur.ItineraryProducts (
     Cost            decimal(18,2)  NOT NULL CONSTRAINT DF_TurItPrd_Cost DEFAULT 0,
     Capacity        int            NOT NULL CONSTRAINT DF_TurItPrd_Cap  DEFAULT 0,
     Active          bit            NOT NULL CONSTRAINT DF_TurItPrd_Active  DEFAULT 1,
+    MarketerCommissionBasis int    NOT NULL CONSTRAINT DF_TurItPrd_ComBasis DEFAULT 2,   -- 0=مبلغ 1=٪فروش 2=٪سود
+    MarketerCommissionValue decimal(18,2) NOT NULL CONSTRAINT DF_TurItPrd_ComVal DEFAULT 0,
     CreatedAt       datetime       NOT NULL CONSTRAINT DF_TurItPrd_Created DEFAULT GETDATE(),
     UpdatedAt       datetime       NULL
 );
+GO
+
+-- افزودنِ ستون‌های پورسانتِ بازاریاب اگر جدول از قبل بدونِ آن‌ها ساخته شده (ارتقای idempotent).
+IF COL_LENGTH('Tur.ItineraryProducts', 'MarketerCommissionBasis') IS NULL
+    ALTER TABLE Tur.ItineraryProducts ADD MarketerCommissionBasis int NOT NULL CONSTRAINT DF_TurItPrd_ComBasis DEFAULT 2;
+GO
+IF COL_LENGTH('Tur.ItineraryProducts', 'MarketerCommissionValue') IS NULL
+    ALTER TABLE Tur.ItineraryProducts ADD MarketerCommissionValue decimal(18,2) NOT NULL CONSTRAINT DF_TurItPrd_ComVal DEFAULT 0;
 GO
 
 -- ── سانسِ زمانیِ محصول ──

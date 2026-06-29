@@ -7,94 +7,10 @@ using SamaHesab.Modules.Tourism.Domain;
 
 namespace SamaHesab.Modules.Tourism.Application.Itinerary.Commands;
 
-// ───────────────────────── محصولِ اقامتی ─────────────────────────
+// ───────────────────────── سانسِ زمانیِ محصولِ گردشگری ─────────────────────────
+//  (محصولات یکپارچه شدند: همان TourismProduct؛ سانس‌ها زمان‌بندیِ سفرِ آن محصول‌اند.)
 
-/// <summary>ساخت/ویرایشِ محصولِ اقامتی. Id=0 → ساخت، وگرنه ویرایش.
-/// شاملِ تأمین‌کننده (شخص) و پورسانتِ بازاریاب (مبنا + مقدار).</summary>
-public record SaveItineraryProductCommand(
-    int Id, string Name, decimal SalePrice, decimal Cost, int Capacity,
-    int? SupplierPartyId = null, bool Active = true,
-    Domain.CommissionBasis CommissionBasis = Domain.CommissionBasis.PercentOfProfit, decimal CommissionValue = 0)
-    : IRequest<Result<int>>;
-
-public class SaveItineraryProductCommandValidator : AbstractValidator<SaveItineraryProductCommand>
-{
-    public SaveItineraryProductCommandValidator()
-    {
-        RuleFor(x => x.Name).NotEmpty().WithMessage("نامِ محصول الزامی است.")
-            .MinimumLength(2).WithMessage("نامِ محصول دستِ‌کم ۲ نویسه باشد.");
-        RuleFor(x => x.SalePrice).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.Cost).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.Capacity).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.CommissionValue).GreaterThanOrEqualTo(0).WithMessage("پورسانت نمی‌تواند منفی باشد.");
-        RuleFor(x => x.SupplierPartyId).GreaterThan(0).When(x => x.SupplierPartyId.HasValue)
-            .WithMessage("تأمین‌کنندهٔ نامعتبر.");
-    }
-}
-
-public class SaveItineraryProductCommandHandler : IRequestHandler<SaveItineraryProductCommand, Result<int>>
-{
-    private readonly IRepository<ItineraryProduct> _products;
-    private readonly IUnitOfWork _uow;
-    private readonly ICurrentUserService _user;
-
-    public SaveItineraryProductCommandHandler(IRepository<ItineraryProduct> products, IUnitOfWork uow, ICurrentUserService user)
-    { _products = products; _uow = uow; _user = user; }
-
-    public async Task<Result<int>> Handle(SaveItineraryProductCommand req, CancellationToken ct)
-    {
-        try
-        {
-            var companyId = _user.CompanyId ?? 1;
-            if (req.Id > 0)
-            {
-                var existing = await _products.FindSingleAsync(p => p.Id == req.Id && p.CompanyId == companyId, ct);
-                if (existing is null) return Result<int>.Failure("محصول یافت نشد.");
-                existing.Update(req.Name, req.SalePrice, req.Cost, req.Capacity, req.SupplierPartyId, req.Active,
-                    req.CommissionBasis, req.CommissionValue, _user.UserId);
-                _products.Update(existing);
-                await _uow.SaveChangesAsync(ct);
-                return Result<int>.Success(existing.Id);
-            }
-
-            var np = ItineraryProduct.Create(companyId, req.Name, req.SalePrice, req.Cost, req.Capacity,
-                req.SupplierPartyId, req.CommissionBasis, req.CommissionValue);
-            await _products.AddAsync(np, ct);
-            await _uow.SaveChangesAsync(ct);
-            return Result<int>.Success(np.Id);
-        }
-        catch (System.Exception ex) { return Result<int>.Failure(ex.GetBaseException().Message); }
-    }
-}
-
-/// <summary>حذفِ نرمِ محصولِ اقامتی (غیرفعال‌سازی — دادهٔ تاریخی حفظ می‌شود).</summary>
-public record DeleteItineraryProductCommand(int Id) : IRequest<Result>;
-
-public class DeleteItineraryProductCommandHandler : IRequestHandler<DeleteItineraryProductCommand, Result>
-{
-    private readonly IRepository<ItineraryProduct> _products;
-    private readonly IUnitOfWork _uow;
-    private readonly ICurrentUserService _user;
-
-    public DeleteItineraryProductCommandHandler(IRepository<ItineraryProduct> products, IUnitOfWork uow, ICurrentUserService user)
-    { _products = products; _uow = uow; _user = user; }
-
-    public async Task<Result> Handle(DeleteItineraryProductCommand req, CancellationToken ct)
-    {
-        var companyId = _user.CompanyId ?? 1;
-        var p = await _products.FindSingleAsync(x => x.Id == req.Id && x.CompanyId == companyId, ct);
-        if (p is null) return Result.Failure("محصول یافت نشد.");
-        p.Update(p.Name, p.SalePrice, p.Cost, p.Capacity, p.SupplierPartyId, active: false,
-            p.MarketerCommissionBasis, p.MarketerCommissionValue, _user.UserId);
-        _products.Update(p);
-        await _uow.SaveChangesAsync(ct);
-        return Result.Success();
-    }
-}
-
-// ───────────────────────── سانسِ زمانیِ محصول ─────────────────────────
-
-/// <summary>ساخت/ویرایشِ سانسِ زمانیِ یک محصول. Id=0 → ساخت.</summary>
+/// <summary>ساخت/ویرایشِ سانسِ زمانیِ یک محصولِ گردشگری. Id=0 → ساخت.</summary>
 public record SaveProductSessionCommand(
     int Id, int ProductId, string Label, int StartMinute, int EndMinute, int Capacity, bool Active = true)
     : IRequest<Result<int>>;
@@ -112,11 +28,11 @@ public class SaveProductSessionCommandValidator : AbstractValidator<SaveProductS
 public class SaveProductSessionCommandHandler : IRequestHandler<SaveProductSessionCommand, Result<int>>
 {
     private readonly IRepository<ProductSession> _sessions;
-    private readonly IRepository<ItineraryProduct> _products;
+    private readonly IRepository<TourismProduct> _products;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
-    public SaveProductSessionCommandHandler(IRepository<ProductSession> sessions, IRepository<ItineraryProduct> products,
+    public SaveProductSessionCommandHandler(IRepository<ProductSession> sessions, IRepository<TourismProduct> products,
         IUnitOfWork uow, ICurrentUserService user)
     { _sessions = sessions; _products = products; _uow = uow; _user = user; }
 
@@ -144,5 +60,28 @@ public class SaveProductSessionCommandHandler : IRequestHandler<SaveProductSessi
             return Result<int>.Success(ns.Id);
         }
         catch (System.Exception ex) { return Result<int>.Failure(ex.GetBaseException().Message); }
+    }
+}
+
+/// <summary>حذفِ سانس.</summary>
+public record DeleteProductSessionCommand(int Id) : IRequest<Result>;
+
+public class DeleteProductSessionCommandHandler : IRequestHandler<DeleteProductSessionCommand, Result>
+{
+    private readonly IRepository<ProductSession> _sessions;
+    private readonly IUnitOfWork _uow;
+    private readonly ICurrentUserService _user;
+
+    public DeleteProductSessionCommandHandler(IRepository<ProductSession> sessions, IUnitOfWork uow, ICurrentUserService user)
+    { _sessions = sessions; _uow = uow; _user = user; }
+
+    public async Task<Result> Handle(DeleteProductSessionCommand req, CancellationToken ct)
+    {
+        var companyId = _user.CompanyId ?? 1;
+        var s = await _sessions.FindSingleAsync(x => x.Id == req.Id && x.CompanyId == companyId, ct);
+        if (s is null) return Result.Failure("سانس یافت نشد.");
+        _sessions.Remove(s);
+        await _uow.SaveChangesAsync(ct);
+        return Result.Success();
     }
 }

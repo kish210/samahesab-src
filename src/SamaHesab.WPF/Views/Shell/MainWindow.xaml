@@ -331,7 +331,7 @@
                                 <MenuItem Header="تنظیماتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismSettings"/>
                                 <Separator/>
                                 <!-- برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) -->
-                                <MenuItem Header="محصولاتِ اقامتی" Command="{Binding NavigateCommand}" CommandParameter="ItineraryProducts"/>
+                                <MenuItem Header="سانس‌بندیِ سفر" Command="{Binding NavigateCommand}" CommandParameter="ItineraryProducts"/>
                                 <MenuItem Header="برنامه‌ریزِ اقامتی" Command="{Binding NavigateCommand}" CommandParameter="ItineraryPlanner"/>
                             </ContextMenu>
                         </Button.ContextMenu>

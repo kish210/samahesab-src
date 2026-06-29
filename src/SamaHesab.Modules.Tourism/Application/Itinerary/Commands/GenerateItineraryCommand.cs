@@ -31,7 +31,7 @@ public class GenerateItineraryCommandValidator : AbstractValidator<GenerateItine
 
 public class GenerateItineraryCommandHandler : IRequestHandler<GenerateItineraryCommand, Result<GeneratedItineraryDto>>
 {
-    private readonly IRepository<ItineraryProduct> _products;
+    private readonly IRepository<TourismProduct> _products;
     private readonly IRepository<ProductSession> _sessions;
     private readonly IRepository<GuestItinerary> _itineraries;
     private readonly IUnitOfWork _uow;
@@ -39,7 +39,7 @@ public class GenerateItineraryCommandHandler : IRequestHandler<GenerateItinerary
     private readonly IPersianCalendarService _calendar;
 
     public GenerateItineraryCommandHandler(
-        IRepository<ItineraryProduct> products, IRepository<ProductSession> sessions,
+        IRepository<TourismProduct> products, IRepository<ProductSession> sessions,
         IRepository<GuestItinerary> itineraries, IUnitOfWork uow,
         ICurrentUserService user, IPersianCalendarService calendar)
     {
@@ -71,7 +71,7 @@ public class GenerateItineraryCommandHandler : IRequestHandler<GenerateItinerary
                 {
                     var p = productById[s.ProductId];
                     candidates.Add(new PlanCandidate(
-                        p.Id, p.Name, s.Id, day, s.StartMinute, s.EndMinute, p.SalePrice, p.Cost));
+                        p.Id, p.Name, s.Id, day, s.StartMinute, s.EndMinute, p.DefaultSalePrice, p.PurchasePrice));
                 }
 
             var plan = ItineraryPlanner.Plan(candidates, new PlanOptions(req.Days, req.PreferVariety, req.MaxPerDay));

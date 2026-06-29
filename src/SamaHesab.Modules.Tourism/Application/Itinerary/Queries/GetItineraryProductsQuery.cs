@@ -19,12 +19,12 @@ public record ItineraryProductDto(
 
 public class GetItineraryProductsQueryHandler : IRequestHandler<GetItineraryProductsQuery, List<ItineraryProductDto>>
 {
-    private readonly IRepository<ItineraryProduct> _products;
+    private readonly IRepository<TourismProduct> _products;
     private readonly IRepository<ProductSession> _sessions;
     private readonly IRepository<Party> _parties;
     private readonly ICurrentUserService _user;
 
-    public GetItineraryProductsQueryHandler(IRepository<ItineraryProduct> products,
+    public GetItineraryProductsQueryHandler(IRepository<TourismProduct> products,
         IRepository<ProductSession> sessions, IRepository<Party> parties, ICurrentUserService user)
     { _products = products; _sessions = sessions; _parties = parties; _user = user; }
 
@@ -46,15 +46,15 @@ public class GetItineraryProductsQueryHandler : IRequestHandler<GetItineraryProd
                 .ToList());
 
         // نامِ تأمین‌کننده‌ها (از اشخاص) برای نمایش.
-        var supplierIds = products.Where(p => p.SupplierPartyId is int).Select(p => p.SupplierPartyId!.Value).ToHashSet();
+        var supplierIds = products.Select(p => p.SupplierPartyId).ToHashSet();
         var names = supplierIds.Count == 0 ? new Dictionary<int, string>()
             : (await _parties.FindAsync(p => supplierIds.Contains(p.Id), ct)).ToDictionary(p => p.Id, p => p.FullName);
 
         return products
             .OrderBy(p => p.Name)
             .Select(p => new ItineraryProductDto(
-                p.Id, p.Name, p.SalePrice, p.Cost, p.NetProfit, p.Capacity, p.SupplierPartyId,
-                p.SupplierPartyId is int sid ? names.GetValueOrDefault(sid, $"#{sid}") : "",
+                p.Id, p.Name, p.DefaultSalePrice, p.PurchasePrice, p.NetProfit, p.Capacity ?? 0, p.SupplierPartyId,
+                names.GetValueOrDefault(p.SupplierPartyId, $"#{p.SupplierPartyId}"),
                 p.Active, p.MarketerCommissionBasis, p.MarketerCommissionValue, p.MarketerCommission,
                 byProduct.GetValueOrDefault(p.Id, System.Array.Empty<ItineraryProductSessionDto>())))
             .ToList();

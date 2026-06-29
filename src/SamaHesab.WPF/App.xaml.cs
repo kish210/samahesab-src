@@ -556,7 +556,8 @@ public partial class App : System.Windows.Application
             tvm.Persons.Add(new SamaHesab.Application.CRM.Queries.PersonDto(1, "E1", "مجید رضایی", "0912...", 0, "فروشنده", false, false, true, true));
             tvm.Persons.Add(new SamaHesab.Application.CRM.Queries.PersonDto(2, "M1", "شرکتِ آلفا", "021...", 0, "مشتری", true, false, true));
             void TP(int id, string n, decimal cost, decimal price) =>
-                tvm.Products.Add(new SamaHesab.Modules.Tourism.Application.Queries.TourismProductDto(id, n, 3, "آژانسِ الف", cost, price, null, n.Contains("گشت"), true));
+                tvm.Products.Add(new SamaHesab.Modules.Tourism.Application.Queries.TourismProductDto(id, n, 3, "آژانسِ الف", cost, price, null, n.Contains("گشت"), true,
+                    price - cost, SamaHesab.Modules.Tourism.Domain.CommissionBasis.PercentOfProfit, 0, 0, null));
             TP(1, "گشتِ دورِ جزیره", 7000000, 10000000); TP(2, "بلیطِ پروازِ داخلی", 4200000, 4800000); TP(3, "ترانسفرِ فرودگاه", 800000, 1200000);
             tvm.SelectedSalespersonId = 1; tvm.SelectedCustomerId = 2;
             void TL(int pid, string n, decimal cost, decimal qty, decimal price)

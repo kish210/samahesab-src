@@ -27,11 +27,11 @@ public class GetGuestItineraryQueryHandler : IRequestHandler<GetGuestItineraryQu
 {
     private readonly IRepository<GuestItinerary> _itineraries;
     private readonly IRepository<ItineraryStop> _stops;
-    private readonly IRepository<ItineraryProduct> _products;
+    private readonly IRepository<TourismProduct> _products;
     private readonly IRepository<ProductSession> _sessions;
 
     public GetGuestItineraryQueryHandler(IRepository<GuestItinerary> itineraries, IRepository<ItineraryStop> stops,
-        IRepository<ItineraryProduct> products, IRepository<ProductSession> sessions)
+        IRepository<TourismProduct> products, IRepository<ProductSession> sessions)
     { _itineraries = itineraries; _stops = stops; _products = products; _sessions = sessions; }
 
     public async Task<Result<GuestItineraryDto>> Handle(GetGuestItineraryQuery req, CancellationToken ct)

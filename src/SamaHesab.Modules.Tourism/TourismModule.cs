@@ -30,7 +30,12 @@ public sealed class TourismModule : IModule
     public void ConfigureModel(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ProductGroup>().ToTable("ProductGroups", "Tur");
-        modelBuilder.Entity<TourismProduct>().ToTable("Products", "Tur");
+        modelBuilder.Entity<TourismProduct>(e =>
+        {
+            e.ToTable("Products", "Tur");
+            e.Ignore(p => p.NetProfit);
+            e.Ignore(p => p.MarketerCommission);
+        });
         modelBuilder.Entity<SupplierDeposit>().ToTable("SupplierDeposits", "Tur");
         modelBuilder.Entity<TourismSetting>().ToTable("Settings", "Tur");
         modelBuilder.Entity<CommissionRule>().ToTable("CommissionRules", "Tur");
@@ -48,13 +53,7 @@ public sealed class TourismModule : IModule
         });
         modelBuilder.Entity<SalePassenger>().ToTable("SalePassengers", "Tur");
 
-        // ── برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) — همان schema Tur با نام‌جدول‌های Itinerary* ──
-        modelBuilder.Entity<ItineraryProduct>(e =>
-        {
-            e.ToTable("ItineraryProducts", "Tur");
-            e.Ignore(p => p.NetProfit);
-            e.Ignore(p => p.MarketerCommission);
-        });
+        // ── برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) — روی همان TourismProduct؛ فقط سانس‌ها/برنامه جدا ──
         modelBuilder.Entity<ProductSession>().ToTable("ItineraryProductSessions", "Tur");
         modelBuilder.Entity<GuestItinerary>(e =>
         {
@@ -69,5 +68,5 @@ public sealed class TourismModule : IModule
 
     public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();   // صفحاتش در منوی گردشگریِ هاست
     public IReadOnlyList<ModulePermission> GetPermissions() => System.Array.Empty<ModulePermission>();
-    public IReadOnlyList<string> GetMigrationScripts() => new[] { "42_Tourism.sql", "51_TourismItinerary.sql" };
+    public IReadOnlyList<string> GetMigrationScripts() => new[] { "42_Tourism.sql", "51_TourismItinerary.sql", "53_TourismProductCommission.sql" };
 }

@@ -57,11 +57,10 @@ public class TourismModuleRemovabilityTests
     public void Itinerary_Planning_Mapped_Under_Tourism_Schema()
     {
         using var ctx = BuildContext(withTourism: true);
-        // برنامه‌ریزیِ اقامتی بخشی از گردشگری است: موجودیت‌هایش در همان schema Tur با نام‌جدول‌های Itinerary*.
-        var product = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.ItineraryProduct));
-        Assert.NotNull(product);
-        Assert.Equal("Tur", product!.GetSchema());
-        Assert.Equal("ItineraryProducts", product.GetTableName());
+        // برنامه‌ریزیِ اقامتی بخشی از گردشگری است (یکپارچه با TourismProduct): سانس + برنامهٔ مهمان در schema Tur.
+        var session = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.ProductSession));
+        Assert.NotNull(session);
+        Assert.Equal("Tur", session!.GetSchema());
 
         var itinerary = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.GuestItinerary));
         Assert.NotNull(itinerary);

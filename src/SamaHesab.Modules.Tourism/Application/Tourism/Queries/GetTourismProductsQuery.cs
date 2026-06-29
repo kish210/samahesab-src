@@ -11,7 +11,9 @@ public record GetTourismProductsQuery(bool ActiveOnly = true) : IRequest<List<To
 
 public record TourismProductDto(
     int Id, string Name, int SupplierPartyId, string SupplierName,
-    decimal PurchasePrice, decimal DefaultSalePrice, int? ProductGroupId, bool RequiresPassengerList, bool Active);
+    decimal PurchasePrice, decimal DefaultSalePrice, int? ProductGroupId, bool RequiresPassengerList, bool Active,
+    decimal NetProfit, Domain.CommissionBasis MarketerCommissionBasis, decimal MarketerCommissionValue, decimal MarketerCommission,
+    int? Capacity);
 
 public class GetTourismProductsQueryHandler : IRequestHandler<GetTourismProductsQuery, List<TourismProductDto>>
 {
@@ -37,7 +39,8 @@ public class GetTourismProductsQueryHandler : IRequestHandler<GetTourismProducts
             .OrderBy(p => p.Name)
             .Select(p => new TourismProductDto(
                 p.Id, p.Name, p.SupplierPartyId, names.GetValueOrDefault(p.SupplierPartyId, $"#{p.SupplierPartyId}"),
-                p.PurchasePrice, p.DefaultSalePrice, p.ProductGroupId, p.RequiresPassengerList, p.Active))
+                p.PurchasePrice, p.DefaultSalePrice, p.ProductGroupId, p.RequiresPassengerList, p.Active,
+                p.NetProfit, p.MarketerCommissionBasis, p.MarketerCommissionValue, p.MarketerCommission, p.Capacity))
             .ToList();
     }
 }

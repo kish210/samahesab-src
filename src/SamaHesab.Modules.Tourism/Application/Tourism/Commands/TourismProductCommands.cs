@@ -13,7 +13,8 @@ namespace SamaHesab.Modules.Tourism.Application.Commands;
 /// </summary>
 public record SaveTourismProductCommand(
     int Id, string Name, int SupplierPartyId, decimal PurchasePrice, decimal DefaultSalePrice,
-    int? ProductGroupId, bool RequiresPassengerList, bool Active = true, int? Capacity = null) : IRequest<Result<int>>;
+    int? ProductGroupId, bool RequiresPassengerList, bool Active = true, int? Capacity = null,
+    Domain.CommissionBasis CommissionBasis = Domain.CommissionBasis.PercentOfProfit, decimal CommissionValue = 0) : IRequest<Result<int>>;
 
 public class SaveTourismProductCommandValidator : AbstractValidator<SaveTourismProductCommand>
 {
@@ -46,14 +47,16 @@ public class SaveTourismProductCommandHandler : IRequestHandler<SaveTourismProdu
                 var existing = await _products.FindSingleAsync(p => p.Id == req.Id && p.CompanyId == companyId, ct);
                 if (existing is null) return Result<int>.Failure("محصول یافت نشد.");
                 existing.Update(req.Name, req.SupplierPartyId, req.PurchasePrice, req.DefaultSalePrice,
-                    req.ProductGroupId, req.RequiresPassengerList, req.Active, req.Capacity);
+                    req.ProductGroupId, req.RequiresPassengerList, req.Active, req.Capacity,
+                    req.CommissionBasis, req.CommissionValue);
                 _products.Update(existing);
                 await _uow.SaveChangesAsync(ct);
                 return Result<int>.Success(existing.Id);
             }
 
             var np = TourismProduct.Create(companyId, req.Name, req.SupplierPartyId,
-                req.PurchasePrice, req.DefaultSalePrice, req.ProductGroupId, req.RequiresPassengerList, req.Capacity);
+                req.PurchasePrice, req.DefaultSalePrice, req.ProductGroupId, req.RequiresPassengerList, req.Capacity,
+                req.CommissionBasis, req.CommissionValue);
             await _products.AddAsync(np, ct);
             await _uow.SaveChangesAsync(ct);
             return Result<int>.Success(np.Id);

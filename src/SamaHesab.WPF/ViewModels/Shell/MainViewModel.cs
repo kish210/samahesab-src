@@ -232,7 +232,7 @@ public partial class MainViewModel : BaseViewModel
             ["RestaurantPrintStations"] = ("ایستگاه‌های چاپِ رستوران", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Restaurant.PrintStationsSettingsViewModel>()),
             ["TourismVoucherGen"]  = ("سندِ خودکارِ گردشگری", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismVoucherGenViewModel>()),
             ["TourismProducts"]    = ("محصولاتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismProductsViewModel>()),
-            ["ItineraryProducts"]  = ("محصولاتِ اقامتی",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryProductsViewModel>()),
+            ["ItineraryProducts"]  = ("سانس‌بندیِ سفر",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryProductsViewModel>()),
             ["ItineraryPlanner"]   = ("برنامه‌ریزِ اقامتی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryPlannerViewModel>()),
         };
 

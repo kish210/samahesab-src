@@ -418,8 +418,23 @@ public partial class WaiterTable : ObservableObject
             return mins < 60 ? $"⏱ {mins} دقیقه" : $"⏱ {mins / 60}:{mins % 60:D2} ساعت";
         }
     }
-    /// <summary>U8 — تازه‌سازیِ نمایشِ زمانِ سپری‌شده (توسطِ تایمرِ VM فراخوانی می‌شود).</summary>
-    public void RefreshElapsed() { OnPropertyChanged(nameof(ElapsedText)); }
+    // رنگ‌بندیِ زمانِ انتظارِ میز — هم‌آستانه با موتورِ TableWaitTime (هشدار ۳۰ دقیقه، بحرانی ۶۰ دقیقه).
+    private int ElapsedMinutes => OccupiedSince is DateTime s && ShowElapsed
+        ? (int)Math.Max(0, (DateTime.Now - s).TotalMinutes) : 0;
+    /// <summary>رنگِ نوارِ کارتِ میز بر اساسِ زمانِ انتظار (سبز=عادی · کهربایی=هشدار · قرمز=بحرانی · شفاف=آزاد).</summary>
+    public System.Windows.Media.Brush WaitBrush
+    {
+        get
+        {
+            if (!ShowElapsed) return System.Windows.Media.Brushes.Transparent;
+            var m = ElapsedMinutes;
+            var hex = m >= 60 ? "#C2403A" : m >= 30 ? "#E0A21E" : "#2E7D52";
+            return (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString(hex)!;
+        }
+    }
+
+    /// <summary>U8 — تازه‌سازیِ نمایشِ زمانِ سپری‌شده + رنگِ انتظار (توسطِ تایمرِ VM فراخوانی می‌شود).</summary>
+    public void RefreshElapsed() { OnPropertyChanged(nameof(ElapsedText)); OnPropertyChanged(nameof(WaitBrush)); }
 
     public WaiterTable(int id, string name, int capacity, string status, int statusCode, int? currentOrderId,
         decimal openAmount = 0, DateTime? occupiedSince = null)

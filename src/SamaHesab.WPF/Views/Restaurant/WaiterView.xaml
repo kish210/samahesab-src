@@ -218,8 +218,8 @@
                                         <TextBlock Text="{Binding Name, StringFormat='میز {0}'}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource ErpTextStrong}"/>
                                         <TextBlock Text="{Binding Capacity, StringFormat='{}{0} نفره'}" FontSize="11" Foreground="{StaticResource ErpTextMuted}"
                                                    Visibility="{Binding DataContext.CompactTables, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BoolVis}, ConverterParameter=Invert}"/>
-                                        <!-- U8: مدتِ سپری‌شده از بازشدنِ میز -->
-                                        <TextBlock Text="{Binding ElapsedText}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource ErpGold500}" FlowDirection="LeftToRight"
+                                        <!-- U8: مدتِ سپری‌شده از بازشدنِ میز — رنگ بر اساسِ زمانِ انتظار (سبز/کهربایی/قرمز، هم‌آستانه با TableWaitTime) -->
+                                        <TextBlock Text="{Binding ElapsedText}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding WaitBrush}" FlowDirection="LeftToRight"
                                                    Visibility="{Binding ShowElapsed, Converter={StaticResource BoolVis}}"/>
                                     </StackPanel>
                                     <!-- R17: مبلغ سفارش باز برای میز فعال؛ در غیر این صورت متن وضعیت -->

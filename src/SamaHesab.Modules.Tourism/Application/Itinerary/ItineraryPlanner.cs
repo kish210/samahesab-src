@@ -1,4 +1,4 @@
-namespace SamaHesab.Modules.TourismItinerary.Application.Itinerary;
+namespace SamaHesab.Modules.Tourism.Application.Itinerary;
 
 /// <summary>یک گزینهٔ نامزدِ برنامه: محصول+سانس در یک روزِ مشخص (ورودیِ الگوریتم).</summary>
 public sealed record PlanCandidate(

@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Modules.TourismItinerary.Domain;
+namespace SamaHesab.Modules.Tourism.Domain;
 
 /// <summary>
 /// محصول/خدمتِ گردشگری برای برنامه‌ریزیِ اقامتی (تور، بازدید، فعالیت).

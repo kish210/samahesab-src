@@ -3,9 +3,9 @@ using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Interfaces.Repositories;
-using SamaHesab.Modules.TourismItinerary.Domain;
+using SamaHesab.Modules.Tourism.Domain;
 
-namespace SamaHesab.Modules.TourismItinerary.Application.Itinerary.Commands;
+namespace SamaHesab.Modules.Tourism.Application.Itinerary.Commands;
 
 // ───────────────────────── محصولِ اقامتی ─────────────────────────
 

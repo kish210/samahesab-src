@@ -1,9 +1,9 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Domain.Interfaces.Repositories;
-using SamaHesab.Modules.TourismItinerary.Domain;
+using SamaHesab.Modules.Tourism.Domain;
 
-namespace SamaHesab.Modules.TourismItinerary.Application.Itinerary.Queries;
+namespace SamaHesab.Modules.Tourism.Application.Itinerary.Queries;
 
 /// <summary>فهرستِ محصولاتِ اقامتی همراهِ سانس‌هایشان (برای صفحهٔ مدیریت + برنامه‌ریز).</summary>
 public record GetItineraryProductsQuery(bool ActiveOnly = true) : IRequest<List<ItineraryProductDto>>;

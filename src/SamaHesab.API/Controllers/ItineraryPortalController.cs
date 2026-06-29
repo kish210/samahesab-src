@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SamaHesab.Modules.TourismItinerary.Application.Itinerary;
+using SamaHesab.Modules.Tourism.Application.Itinerary;
 
 namespace SamaHesab.API.Controllers;
 

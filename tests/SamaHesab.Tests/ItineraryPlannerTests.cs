@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using SamaHesab.Modules.TourismItinerary.Application.Itinerary;
+using SamaHesab.Modules.Tourism.Application.Itinerary;
 using Xunit;
 
 namespace SamaHesab.Tests;

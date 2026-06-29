@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Modules.TourismItinerary.Domain;
+namespace SamaHesab.Modules.Tourism.Domain;
 
 /// <summary>
 /// یک قلمِ برنامهٔ اقامتی: محصول+سانس در یک روزِ مشخص. فرزندِ <see cref="GuestItinerary"/> است

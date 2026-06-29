@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Modules.TourismItinerary.Domain;
+namespace SamaHesab.Modules.Tourism.Domain;
 
 /// <summary>وضعیتِ برنامهٔ اقامتیِ مهمان.</summary>
 public enum ItineraryStatus

@@ -32,7 +32,6 @@ public partial class MainViewModel : BaseViewModel
     public bool PosEnabled => _modules.IsEnabled(ModuleService.Pos);
     public bool RestaurantEnabled => _modules.IsEnabled(ModuleService.Restaurant);
     public bool TourismEnabled => _modules.IsEnabled(ModuleService.Tourism);
-    public bool TourismItineraryEnabled => _modules.IsEnabled(ModuleService.TourismItinerary);
     public bool HrEnabled => _modules.IsEnabled(ModuleService.Hr);
     public bool CrmEnabled => _modules.IsEnabled(ModuleService.Crm);
     public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
@@ -66,7 +65,7 @@ public partial class MainViewModel : BaseViewModel
         ["TourismReports"] = ModuleService.Tourism,   // ✈️ TUR-C2-5
         ["TourismVoucherGen"] = ModuleService.Tourism,   // ✈️ M11-C2
         ["TourismProducts"] = ModuleService.Tourism,   // ✈️ TUR-C2-6
-        ["ItineraryProducts"] = ModuleService.TourismItinerary, ["ItineraryPlanner"] = ModuleService.TourismItinerary,   // ✈️ MOD-TIT
+        ["ItineraryProducts"] = ModuleService.Tourism, ["ItineraryPlanner"] = ModuleService.Tourism,   // ✈️ برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری)
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
         ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
     };
@@ -514,10 +513,7 @@ public partial class MainViewModel : BaseViewModel
                 new("پورسانتِ فروشندگان", "TourismCommissions"),
                 new("تنظیماتِ گردشگری", "TourismSettings"),
                 new("گزارش‌های گردشگری", "TourismReports"),
-                new("سندِ خودکارِ گردشگری", "TourismVoucherGen"));
-
-        if (TourismItineraryEnabled)
-            Add(true, "برنامه‌ریزی اقامتی", "IcSales",
+                new("سندِ خودکارِ گردشگری", "TourismVoucherGen"),
                 new("محصولاتِ اقامتی", "ItineraryProducts"),
                 new("برنامه‌ریزِ اقامتی", "ItineraryPlanner"));
 

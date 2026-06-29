@@ -15,8 +15,8 @@ public sealed class TourismModule : IModule
 {
     public string Key => "Tourism";
     public string DisplayName => "گردشگری";
-    // 1.1.0 — SP-1: فروشِ فروشنده‌محور (تشخیصِ خودکارِ فروشنده از کاربر).
-    public string Version => "1.1.0";
+    // 1.2.0 — برنامه‌ریزیِ اقامتی (محصول/سانس + الگوریتمِ پیشنهاد + پنلِ مهمان) به گردشگری افزوده شد.
+    public string Version => "1.2.0";
 
     public void RegisterServices(IServiceCollection services)
     {
@@ -47,9 +47,26 @@ public sealed class TourismModule : IModule
             b.HasMany(l => l.Passengers).WithOne().HasForeignKey(p => p.SaleLineId);
         });
         modelBuilder.Entity<SalePassenger>().ToTable("SalePassengers", "Tur");
+
+        // ── برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) — همان schema Tur با نام‌جدول‌های Itinerary* ──
+        modelBuilder.Entity<ItineraryProduct>(e =>
+        {
+            e.ToTable("ItineraryProducts", "Tur");
+            e.Ignore(p => p.NetProfit);
+        });
+        modelBuilder.Entity<ProductSession>().ToTable("ItineraryProductSessions", "Tur");
+        modelBuilder.Entity<GuestItinerary>(e =>
+        {
+            e.ToTable("GuestItineraries", "Tur");
+            e.Ignore(g => g.TotalSale);
+            e.Ignore(g => g.TotalProfit);
+            e.HasIndex(g => g.Token).IsUnique();
+            e.HasMany(g => g.Stops).WithOne().HasForeignKey(s => s.ItineraryId);
+        });
+        modelBuilder.Entity<ItineraryStop>().ToTable("ItineraryStops", "Tur");
     }
 
     public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();   // صفحاتش در منوی گردشگریِ هاست
     public IReadOnlyList<ModulePermission> GetPermissions() => System.Array.Empty<ModulePermission>();
-    public IReadOnlyList<string> GetMigrationScripts() => new[] { "42_Tourism.sql" };
+    public IReadOnlyList<string> GetMigrationScripts() => new[] { "42_Tourism.sql", "51_TourismItinerary.sql" };
 }

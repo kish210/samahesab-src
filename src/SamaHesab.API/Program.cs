@@ -29,7 +29,6 @@ foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
     new SamaHesab.Modules.HR.HrModule(),     // فاز ۳ (pc) — حقوق
     new SamaHesab.Modules.POS.PosModule(),                 // MOD-POS (laptop)
     new SamaHesab.Modules.Tourism.TourismModule(),         // MOD-TUR (laptop)
-    new SamaHesab.Modules.TourismItinerary.TourismItineraryModule(),   // MOD-TIT (laptop) — برنامه‌ریزی اقامتی
     new SamaHesab.Modules.Attendance.AttendanceModule(),   // فاز ۳ (pc) — حضوروغیاب
 })
 {

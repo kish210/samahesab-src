@@ -15,7 +15,6 @@
     <ProjectReference Include="..\SamaHesab.Modules.HR\SamaHesab.Modules.HR.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.POS\SamaHesab.Modules.POS.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Tourism\SamaHesab.Modules.Tourism.csproj" />
-    <ProjectReference Include="..\SamaHesab.Modules.TourismItinerary\SamaHesab.Modules.TourismItinerary.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Attendance\SamaHesab.Modules.Attendance.csproj" />
   </ItemGroup>
   <ItemGroup>

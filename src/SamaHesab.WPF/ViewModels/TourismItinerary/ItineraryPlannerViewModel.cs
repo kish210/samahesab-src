@@ -3,8 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
-using SamaHesab.Modules.TourismItinerary.Application.Itinerary;
-using SamaHesab.Modules.TourismItinerary.Application.Itinerary.Commands;
+using SamaHesab.Modules.Tourism.Application.Itinerary;
+using SamaHesab.Modules.Tourism.Application.Itinerary.Commands;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 

@@ -1,6 +1,6 @@
 using SamaHesab.Domain.Common;
 
-namespace SamaHesab.Modules.TourismItinerary.Domain;
+namespace SamaHesab.Modules.Tourism.Domain;
 
 /// <summary>
 /// سانسِ زمانیِ یک محصولِ گردشگری (مثلِ «صبح ۹–۱۲»). زمان به‌صورتِ دقیقه از نیمه‌شب ذخیره می‌شود

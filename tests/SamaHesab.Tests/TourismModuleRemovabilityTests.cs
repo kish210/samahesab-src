@@ -40,6 +40,8 @@ public class TourismModuleRemovabilityTests
         using var ctx = BuildContext(withTourism: false);
         Assert.NotNull(ctx.Model.FindEntityType(typeof(SamaHesab.Domain.Entities.Accounting.Account)));
         Assert.Null(ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.TourismSale)));
+        // برنامه‌ریزیِ اقامتی هم زیرمجموعهٔ گردشگری است → بدونِ ماژول مپ نمی‌شود.
+        Assert.Null(ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.GuestItinerary)));
     }
 
     [Fact]
@@ -49,5 +51,21 @@ public class TourismModuleRemovabilityTests
         var sale = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.TourismSale));
         Assert.NotNull(sale);
         Assert.Equal("Tur", sale!.GetSchema());
+    }
+
+    [Fact]
+    public void Itinerary_Planning_Mapped_Under_Tourism_Schema()
+    {
+        using var ctx = BuildContext(withTourism: true);
+        // برنامه‌ریزیِ اقامتی بخشی از گردشگری است: موجودیت‌هایش در همان schema Tur با نام‌جدول‌های Itinerary*.
+        var product = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.ItineraryProduct));
+        Assert.NotNull(product);
+        Assert.Equal("Tur", product!.GetSchema());
+        Assert.Equal("ItineraryProducts", product.GetTableName());
+
+        var itinerary = ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.GuestItinerary));
+        Assert.NotNull(itinerary);
+        Assert.Equal("Tur", itinerary!.GetSchema());
+        Assert.NotNull(ctx.Model.FindEntityType(typeof(SamaHesab.Modules.Tourism.Domain.ItineraryStop)));
     }
 }

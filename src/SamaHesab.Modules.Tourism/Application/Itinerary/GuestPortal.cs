@@ -2,9 +2,9 @@ using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Interfaces.Repositories;
-using SamaHesab.Modules.TourismItinerary.Domain;
+using SamaHesab.Modules.Tourism.Domain;
 
-namespace SamaHesab.Modules.TourismItinerary.Application.Itinerary;
+namespace SamaHesab.Modules.Tourism.Application.Itinerary;
 
 // ───────────────────────── کوئریِ مشاهدهٔ برنامه (پنلِ مهمان) ─────────────────────────
 

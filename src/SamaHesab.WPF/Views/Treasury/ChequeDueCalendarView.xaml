@@ -30,10 +30,10 @@
                       RowBackground="Transparent" BorderThickness="0" FontSize="12.5" MaxHeight="180">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="بازه" Binding="{Binding Label}" Width="*"/>
-                    <DataGridTextColumn Header="تعداد" Binding="{Binding TotalCount}" Width="Auto"/>
+                    <DataGridTextColumn Header="تعداد" Binding="{Binding TotalCount, Mode=OneWay}" Width="Auto"/>
                     <DataGridTextColumn Header="دریافتی" Binding="{Binding ReceivedAmount, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
                     <DataGridTextColumn Header="پرداختی" Binding="{Binding PaidAmount, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
-                    <DataGridTextColumn Header="خالصِ نقدینگی" Binding="{Binding Net, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                    <DataGridTextColumn Header="خالصِ نقدینگی" Binding="{Binding Net, StringFormat='{}{0:#,##0}', Mode=OneWay}" Width="Auto"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

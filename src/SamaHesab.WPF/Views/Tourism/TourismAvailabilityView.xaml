@@ -35,8 +35,8 @@
                     <DataGridTextColumn Header="ظرفیت" Binding="{Binding Capacity}" Width="Auto"/>
                     <DataGridTextColumn Header="فروش‌رفته" Binding="{Binding Sold, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
                     <DataGridTextColumn Header="ماندهٔ ظرفیت" Binding="{Binding Remaining, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
-                    <DataGridCheckBoxColumn Header="نامحدود" Binding="{Binding Unlimited}" Width="Auto"/>
-                    <DataGridCheckBoxColumn Header="تمام‌شده" Binding="{Binding IsSoldOut}" Width="Auto"/>
+                    <DataGridCheckBoxColumn Header="نامحدود" Binding="{Binding Unlimited, Mode=OneWay}" Width="Auto"/>
+                    <DataGridCheckBoxColumn Header="تمام‌شده" Binding="{Binding IsSoldOut, Mode=OneWay}" Width="Auto"/>
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">

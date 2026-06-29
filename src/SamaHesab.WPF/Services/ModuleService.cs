@@ -22,6 +22,7 @@ public class ModuleService
         Purchase = "Purchase", Inventory = "Inventory", Customers = "Customers", Reports = "Reports";
     public const string Pos = "POS", Restaurant = "Restaurant", Tourism = "Tourism",
         Hr = "HR", Crm = "CRM", Hotel = "Hotel", Support = "Support", Contracting = "Contracting";
+    public const string TourismItinerary = "TourismItinerary";   // برنامه‌ریزی اقامتی گردشگری
     // کلاینت‌های فروش به‌عنوان ماژولِ مستقل با نسخه‌گذاریِ خودشان (برای ردگیریِ به‌روزرسانی).
     public const string Web = "Web", Mobile = "Mobile";
 
@@ -46,6 +47,7 @@ public class ModuleService
         //   new ModuleDef(Tourism, "گردشگری", false, "Airplane", Conflicts: new[] { Restaurant, Pos }),
         // فعلاً تداخلی تعریف نشده (انتخابِ کاربر) — مکانیزمِ کنترل آماده است.
         new ModuleDef(Tourism, "گردشگری", false, "Airplane"),
+        new ModuleDef(TourismItinerary, "برنامه‌ریزی اقامتی گردشگری", false, "MapMarkerPath", Version: "1.0.0"),
         new ModuleDef(Hr, "منابع انسانی", false, "AccountTie"),
         new ModuleDef(Crm, "باشگاه مشتریان (CRM)", false, "AccountHeartOutline"),
         new ModuleDef(Hotel, "هتل", false, "BedOutline"),

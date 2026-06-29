@@ -32,7 +32,9 @@
                     xmlns:tur="clr-namespace:SamaHesab.WPF.ViewModels.Tourism"
                     xmlns:vtur="clr-namespace:SamaHesab.WPF.Views.Tourism"
                     xmlns:con="clr-namespace:SamaHesab.WPF.ViewModels.Contracting"
-                    xmlns:vcon="clr-namespace:SamaHesab.WPF.Views.Contracting">
+                    xmlns:vcon="clr-namespace:SamaHesab.WPF.Views.Contracting"
+                    xmlns:tit="clr-namespace:SamaHesab.WPF.ViewModels.TourismItinerary"
+                    xmlns:vtit="clr-namespace:SamaHesab.WPF.Views.TourismItinerary">
 
     <!-- ✈️ TUR-C2-4 — گردشگری -->
     <DataTemplate DataType="{x:Type tur:TourismSaleViewModel}"><vtur:TourismSaleView/></DataTemplate>
@@ -42,6 +44,10 @@
     <DataTemplate DataType="{x:Type tur:TourismReportsViewModel}"><vtur:TourismReportsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismVoucherGenViewModel}"><vtur:TourismVoucherGenView/></DataTemplate>
     <DataTemplate DataType="{x:Type tur:TourismProductsViewModel}"><vtur:TourismProductsView/></DataTemplate>
+
+    <!-- ✈️ MOD-TIT — برنامه‌ریزی اقامتی گردشگری -->
+    <DataTemplate DataType="{x:Type tit:ItineraryProductsViewModel}"><vtit:ItineraryProductsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tit:ItineraryPlannerViewModel}"><vtit:ItineraryPlannerView/></DataTemplate>
 
     <!-- 🏗 CON-C2-2 — پیمانکاری -->
     <DataTemplate DataType="{x:Type con:ContractingStatementViewModel}"><vcon:ContractingStatementView/></DataTemplate>

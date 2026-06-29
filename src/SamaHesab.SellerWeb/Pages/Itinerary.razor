@@ -1,0 +1,119 @@
+@page "/itinerary/{Token}"
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<PageTitle>برنامهٔ اقامتیِ شما</PageTitle>
+
+<div class="panel-top">
+    <div><strong>برنامهٔ اقامتیِ پیشنهادی</strong></div>
+</div>
+
+@if (_loading)
+{
+    <div class="erp-muted">در حال بارگذاری…</div>
+}
+else if (_error is not null)
+{
+    <div class="erp-error">@_error</div>
+}
+else if (_data is not null)
+{
+    <div class="itin-head">
+        <div>مهمانِ گرامی <strong>@_data.GuestName</strong> — برنامهٔ @_data.Days روزه</div>
+        <div class="sub">جمعِ مبلغ: @_data.TotalSale.ToString("#,0") — وضعیت: @StatusFa(_data.Status)</div>
+    </div>
+
+    @if (_confirmed)
+    {
+        <div class="erp-ok">برنامه با موفقیت تأیید شد. سپاس‌گزاریم!</div>
+    }
+
+    @foreach (var day in _data.Stops.GroupBy(s => s.Day).OrderBy(g => g.Key))
+    {
+        <div class="itin-day">
+            <div class="itin-day-title">روزِ @day.Key</div>
+            @foreach (var s in day.OrderBy(x => x.SortOrder))
+            {
+                <label class="itin-stop @(IsRemoved(s.StopId) ? "removed" : "")">
+                    <input type="checkbox" checked="@(!IsRemoved(s.StopId))" disabled="@_confirmed"
+                           @onchange="@(e => ToggleStop(s.StopId, (bool)e.Value!))" />
+                    <span class="t">@FmtTime(s.StartMinute)–@FmtTime(s.EndMinute)</span>
+                    <span class="n">@s.ProductName</span>
+                    <span class="l">@s.SessionLabel</span>
+                    <span class="p">@s.SalePrice.ToString("#,0")</span>
+                </label>
+            }
+        </div>
+    }
+
+    @if (!_confirmed)
+    {
+        <div class="itin-actions">
+            <textarea class="erp-input" placeholder="یادداشت (اختیاری)" @bind="_notes"></textarea>
+            <button class="erp-btn-primary" @onclick="Confirm" disabled="@_busy">
+                @(_busy ? "در حال ثبت…" : "تأییدِ نهاییِ برنامه")
+            </button>
+        </div>
+    }
+}
+
+@code {
+    [Parameter] public string Token { get; set; } = "";
+
+    private GuestItineraryDto? _data;
+    private readonly HashSet<int> _removed = new();
+    private string? _notes;
+    private bool _loading = true, _busy, _confirmed;
+    private string? _error;
+
+    private string ApiBase => new Uri(Nav.BaseUri).GetLeftPart(UriPartial.Authority);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _data = await Http.GetFromJsonAsync<GuestItineraryDto>($"{ApiBase}/api/itinerary/{Token}");
+            _confirmed = _data?.Status == "Confirmed";
+        }
+        catch { _error = "برنامه‌ای با این لینک یافت نشد یا سرور در دسترس نیست."; }
+        finally { _loading = false; }
+    }
+
+    private bool IsRemoved(int id) => _removed.Contains(id);
+
+    private void ToggleStop(int id, bool keep)
+    {
+        if (keep) _removed.Remove(id); else _removed.Add(id);
+    }
+
+    private async Task Confirm()
+    {
+        _busy = true; _error = null;
+        try
+        {
+            var resp = await Http.PostAsJsonAsync($"{ApiBase}/api/itinerary/{Token}/submit",
+                new { RemovedStopIds = _removed.ToList(), Confirm = true, Notes = _notes });
+            if (resp.IsSuccessStatusCode) _confirmed = true;
+            else _error = "ثبتِ تأیید ناموفق بود.";
+        }
+        catch { _error = "خطا در اتصال به سرور."; }
+        finally { _busy = false; }
+    }
+
+    private static string FmtTime(int m) => $"{m / 60:00}:{m % 60:00}";
+
+    private static string StatusFa(string s) => s switch
+    {
+        "Draft" => "پیش‌نویس",
+        "Sent" => "ارسال‌شده",
+        "GuestEdited" => "ویرایش‌شده توسطِ مهمان",
+        "Confirmed" => "تأییدشده",
+        _ => s
+    };
+
+    public record GuestStopDto(int StopId, int Day, int SortOrder, int ProductId, string ProductName,
+        int SessionId, string SessionLabel, int StartMinute, int EndMinute, decimal SalePrice);
+
+    public record GuestItineraryDto(string Token, string GuestName, int Days, string Status, string CreatedDate,
+        string? Notes, decimal TotalSale, List<GuestStopDto> Stops);
+}

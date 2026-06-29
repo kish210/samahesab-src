@@ -1,0 +1,79 @@
+<UserControl x:Class="SamaHesab.WPF.Views.TourismItinerary.ItineraryPlannerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="برنامه‌ریزِ اقامتی (پیشنهادِ هوشمند)" FontSize="18" FontWeight="Bold"
+                   Foreground="#2E7D52" Margin="0,0,0,8"/>
+
+        <!-- ورودی‌ها -->
+        <Border Grid.Row="1" Background="{DynamicResource CardBackground}" CornerRadius="10" Padding="12" Margin="0,0,0,8">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/><ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                        <TextBlock Text="نامِ مهمان"/>
+                        <TextBox Text="{Binding GuestName, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="4,0">
+                        <TextBlock Text="تعدادِ روز"/>
+                        <TextBox Text="{Binding Days, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="4,0">
+                        <TextBlock Text="سقفِ روزانه (۰=نامحدود)"/>
+                        <TextBox Text="{Binding MaxPerDay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="3" Content="تنوع" IsChecked="{Binding PreferVariety}" VerticalAlignment="Bottom" Margin="8,0"/>
+                    <Button Grid.Column="4" Content="✨ تولیدِ برنامه" Command="{Binding GenerateCommand}"
+                            VerticalAlignment="Bottom" Padding="12,5" Background="#2E7D52" Foreground="White"/>
+                </Grid>
+
+                <!-- نتیجه + لینک -->
+                <Border Visibility="{Binding HasResult, Converter={StaticResource BoolVis}}"
+                        Background="#F1F8F4" CornerRadius="8" Padding="10" Margin="0,10,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding StopCount, StringFormat='اقلام: {0}'}" Margin="0,0,16,0" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding TotalSale, StringFormat='جمعِ فروش: {0:#,##0}'}" Margin="0,0,16,0"/>
+                            <TextBlock Text="{Binding TotalProfit, StringFormat='سود: {0:#,##0}'}" Foreground="#2E7D52" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <DockPanel Margin="0,6,0,0">
+                            <Button DockPanel.Dock="Left" Content="📋 کپیِ لینک" Command="{Binding CopyLinkCommand}" Padding="8,3"/>
+                            <TextBox Text="{Binding PortalLink}" IsReadOnly="True" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        </DockPanel>
+                        <TextBlock Text="این لینک را برای مهمان بفرستید تا برنامه را ببیند، ویرایش و تأیید کند (نیازمندِ اجرای سرورِ API)."
+                                   FontSize="11" Foreground="{DynamicResource MutedText}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- اقلامِ برنامه -->
+        <Border Grid.Row="2" Background="{DynamicResource CardBackground}" CornerRadius="10" Padding="8">
+            <DataGrid ItemsSource="{Binding Stops}" AutoGenerateColumns="False" IsReadOnly="True"
+                      HeadersVisibility="Column" GridLinesVisibility="Horizontal" CanUserAddRows="False"
+                      Background="Transparent" RowBackground="Transparent" BorderThickness="0" FontSize="12.5">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="روز" Binding="{Binding Day}" Width="Auto"/>
+                    <DataGridTextColumn Header="محصول" Binding="{Binding ProductName}" Width="*"/>
+                    <DataGridTextColumn Header="سانس" Binding="{Binding SessionLabel}" Width="Auto"/>
+                    <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute}" Width="Auto"/>
+                    <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute}" Width="Auto"/>
+                    <DataGridTextColumn Header="قیمت" Binding="{Binding SalePrice, StringFormat='{}{0:#,##0}'}" Width="Auto"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

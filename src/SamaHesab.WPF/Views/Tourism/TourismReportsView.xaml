@@ -33,6 +33,11 @@
                         Command="{Binding PrintCommand}"/>
                 <Button Content="📄 PDF" Style="{StaticResource SecondaryButton}" Height="32" Margin="8,0,0,0"
                         Command="{Binding ExportPdfCommand}"/>
+                <Border Width="1" Background="{DynamicResource BorderBrush}" Margin="16,2,16,2"/>
+                <TextBlock Text="واچرِ مسافر — شمارهٔ فروش:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,8,0"/>
+                <TextBox Width="70" Height="32" Text="{Binding VoucherSaleId}" FlowDirection="LeftToRight"/>
+                <Button Content="🎫 چاپِ واچر" Style="{StaticResource SecondaryButton}" Height="32" Margin="8,0,0,0"
+                        Command="{Binding PrintTravelVoucherCommand}"/>
             </StackPanel>
         </Border>
 

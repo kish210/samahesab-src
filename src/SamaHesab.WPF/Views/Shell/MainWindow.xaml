@@ -245,6 +245,8 @@
                             Visibility="{Binding CanInventory, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="➕ کالای جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="ProductEdit"/>
+                                <Separator/>
                                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
                                 <MenuItem Header="مدیریت لیست‌قیمت" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>
                                 <MenuItem Header="تخفیف پلکانی" Command="{Binding NavigateCommand}" CommandParameter="DiscountTiers"/>
@@ -266,8 +268,9 @@
                             Visibility="{Binding CanCustomers, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
+                                <MenuItem Header="➕ شخصِ جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="CustomerEdit"/>
                                 <Separator/>
+                                <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
                                 <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
                                 <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
                             </ContextMenu>

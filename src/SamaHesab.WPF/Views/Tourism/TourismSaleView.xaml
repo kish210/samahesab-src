@@ -60,10 +60,16 @@
             </WrapPanel>
         </Border>
 
-        <!-- ردیف‌ها -->
-        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="0" Margin="0,8,0,0">
+        <!-- ردیف‌ها + ویرایشگرِ مسافرانِ ردیفِ انتخاب‌شده -->
+        <Grid Grid.Row="3" Margin="0,8,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{StaticResource FormSectionCard}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False"
-                      ItemsSource="{Binding Lines}" RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
+                      ItemsSource="{Binding Lines}" SelectedItem="{Binding SelectedLine}"
+                      RowHeight="{DynamicResource ErpDensRowHeight}" FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="محصول" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="تعداد" Binding="{Binding Quantity}" Width="80"/>
@@ -71,6 +77,30 @@
                     <DataGridTextColumn Header="تخفیف" Binding="{Binding DiscountAmount, Converter={StaticResource Num}}" Width="110" ElementStyle="{StaticResource NumCell}"/>
                     <DataGridTextColumn Header="خالص" Binding="{Binding LineNet, Converter={StaticResource Num}}" Width="130" IsReadOnly="True" ElementStyle="{StaticResource NumCell}"/>
                     <DataGridTextColumn Header="سود" Binding="{Binding LineProfit, Converter={StaticResource Num}}" Width="120" IsReadOnly="True" ElementStyle="{StaticResource NumCell}"/>
+                    <!-- مسافران: خلاصه + دکمهٔ افزودن (ویرایش در پنلِ زیرِ ردیف) -->
+                    <DataGridTemplateColumn Header="مسافران" Width="150">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding PassengerSummary}" VerticalAlignment="Center" FontSize="11.5">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PassengerSummary}" Value="⚠ مسافر لازم است">
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerColor}"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Button Content="➕" FontSize="11" Margin="6,0,0,0" Padding="6,1" Cursor="Hand"
+                                            ToolTip="افزودنِ مسافر" Command="{Binding AddPassengerCommand}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="60">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -83,7 +113,52 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-        </Border>
+            </Border>
+
+            <!-- ویرایشگرِ مسافرانِ ردیفِ انتخاب‌شده (پایینِ گرید) -->
+            <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="10" Margin="0,8,0,0"
+                    Visibility="{Binding DataContext.HasSelectedLine, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolVis}}"
+                    DataContext="{Binding SelectedLine}">
+                <StackPanel>
+                    <DockPanel>
+                        <TextBlock VerticalAlignment="Center" FontWeight="Bold" FontSize="12.5">
+                            <Run Text="مسافرانِ:"/><Run Text="{Binding ProductName, Mode=OneWay}"/>
+                        </TextBlock>
+                        <Button DockPanel.Dock="Left" HorizontalAlignment="Left" Content="➕ افزودنِ مسافر"
+                                Style="{StaticResource SecondaryButton}" Height="28" Padding="10,0"
+                                Command="{Binding AddPassengerCommand}"/>
+                    </DockPanel>
+                    <Grid Margin="0,8,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="180"/><ColumnDefinition Width="150"/><ColumnDefinition Width="44"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="نام و نام خانوادگی" FontSize="10.5" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Grid.Column="1" Text="کدملی / گذرنامه" FontSize="10.5" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Grid.Column="2" Text="تلفن" FontSize="10.5" Foreground="{DynamicResource SecondaryText}"/>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Passengers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="180"/><ColumnDefinition Width="150"/><ColumnDefinition Width="44"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Height="30" Margin="0,0,4,0" Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="1" Height="30" Margin="0,0,4,0" FlowDirection="LeftToRight" Text="{Binding IdOrPassport, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="2" Height="30" Margin="0,0,4,0" FlowDirection="LeftToRight" Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Grid.Column="3" Content="🗑" FontSize="12" Cursor="Hand" Background="Transparent" BorderThickness="0"
+                                            Foreground="{DynamicResource DangerColor}"
+                                            Command="{Binding DataContext.RemovePassengerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="محصولاتِ «اجباری‌مسافر» بدونِ حداقل یک مسافر (با نام) ثبت نمی‌شوند."
+                               FontSize="10.5" Foreground="{DynamicResource SecondaryText}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- نوارِ پایین -->
         <DockPanel Grid.Row="4" Margin="2,8,2,0">

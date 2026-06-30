@@ -140,6 +140,26 @@ public partial class TourismSaleLineRow : ObservableObject
     partial void OnQuantityChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
     partial void OnUnitSalePriceChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
     partial void OnDiscountAmountChanged(decimal value) { OnPropertyChanged(nameof(LineNet)); OnPropertyChanged(nameof(LineProfit)); }
+
+    // ── لیستِ مسافر (TUR — محصولاتی با RequiresPassengerList: تور/گشت) ──
+    /// <summary>این محصول لیستِ مسافر را الزامی می‌کند (از TourismProduct.RequiresPassengerList).</summary>
+    public bool RequiresPassengers { get; init; }
+    public ObservableCollection<PassengerRow> Passengers { get; } = new();
+    /// <summary>خلاصهٔ مسافران برای ستونِ گرید + هشدارِ الزام.</summary>
+    public string PassengerSummary => Passengers.Count > 0
+        ? $"مسافران: {Passengers.Count}"
+        : (RequiresPassengers ? "⚠ مسافر لازم است" : "—");
+
+    [RelayCommand] private void AddPassenger() { Passengers.Add(new PassengerRow()); OnPropertyChanged(nameof(PassengerSummary)); }
+    [RelayCommand] private void RemovePassenger(PassengerRow? p) { if (p != null) { Passengers.Remove(p); OnPropertyChanged(nameof(PassengerSummary)); } }
+}
+
+/// <summary>یک مسافرِ خطِ فروشِ گردشگری (نام، کدملی/گذرنامه، تلفن).</summary>
+public partial class PassengerRow : ObservableObject
+{
+    [ObservableProperty] private string _fullName = "";
+    [ObservableProperty] private string? _idOrPassport;
+    [ObservableProperty] private string? _phone;
 }
 
 public partial class TourismSaleViewModel : BaseViewModel
@@ -157,6 +177,9 @@ public partial class TourismSaleViewModel : BaseViewModel
     [ObservableProperty] private decimal _addQuantity = 1;
     [ObservableProperty] private decimal _grandTotal;
     [ObservableProperty] private decimal _totalProfit;
+    [ObservableProperty] private TourismSaleLineRow? _selectedLine;
+    public bool HasSelectedLine => SelectedLine != null;
+    partial void OnSelectedLineChanged(TourismSaleLineRow? value) => OnPropertyChanged(nameof(HasSelectedLine));
 
     public ObservableCollection<PersonDto> Persons { get; } = new();
     public ObservableCollection<TourismProductDto> Products { get; } = new();
@@ -197,8 +220,11 @@ public partial class TourismSaleViewModel : BaseViewModel
             ProductId = SelectedProduct.Id, ProductName = SelectedProduct.Name,
             UnitCost = SelectedProduct.PurchasePrice,
             Quantity = AddQuantity > 0 ? AddQuantity : 1,
-            UnitSalePrice = SelectedProduct.DefaultSalePrice
+            UnitSalePrice = SelectedProduct.DefaultSalePrice,
+            RequiresPassengers = SelectedProduct.RequiresPassengerList
         };
+        // محصولِ اجباری‌مسافر → یک ردیفِ مسافرِ خالی آماده می‌شود تا کاربر بلافاصله پر کند.
+        if (row.RequiresPassengers) row.Passengers.Add(new PassengerRow());
         row.PropertyChanged += (_, _) => Recalc();
         Lines.Add(row);
         AddQuantity = 1;
@@ -219,10 +245,22 @@ public partial class TourismSaleViewModel : BaseViewModel
         if (SelectedSalespersonId <= 0) { await _dialogService.ShowWarningAsync("فروشنده را انتخاب کنید."); return; }
         if (Lines.Count == 0) { await _dialogService.ShowWarningAsync("حداقل یک ردیفِ فروش لازم است."); return; }
         if (SelectedFiscalYearId <= 0) { await _dialogService.ShowWarningAsync("سالِ مالی را انتخاب کنید."); return; }
+        // اعتبارسنجیِ کلاینتی برای الزامِ لیستِ مسافر (هم‌راستا با اعتبارِ بک‌اند).
+        var missingPax = Lines.FirstOrDefault(l => l.RequiresPassengers
+            && !l.Passengers.Any(p => !string.IsNullOrWhiteSpace(p.FullName)));
+        if (missingPax != null)
+        { await _dialogService.ShowWarningAsync($"برای «{missingPax.ProductName}» حداقل یک مسافر (با نام) الزامی است."); return; }
         await ExecuteAsync(async () =>
         {
-            var lines = Lines.Select(l => new TourismSaleLineDto(
-                l.ProductId, l.Quantity, l.UnitSalePrice, l.DiscountAmount)).ToList();
+            var lines = Lines.Select(l =>
+            {
+                var pax = l.Passengers
+                    .Where(p => !string.IsNullOrWhiteSpace(p.FullName))
+                    .Select(p => new TourismPassengerDto(p.FullName.Trim(), p.IdOrPassport, p.Phone))
+                    .ToList();
+                return new TourismSaleLineDto(l.ProductId, l.Quantity, l.UnitSalePrice, l.DiscountAmount,
+                    pax.Count > 0 ? pax : null);
+            }).ToList();
             var res = await _mediator.Send(new CreateTourismSaleCommand(
                 _user.BranchId ?? 1, SelectedFiscalYearId, Date, SelectedSalespersonId,
                 SelectedCustomerId > 0 ? SelectedCustomerId : (int?)null, PaymentMethod, lines));

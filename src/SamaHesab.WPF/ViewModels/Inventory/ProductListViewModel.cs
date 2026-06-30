@@ -14,8 +14,11 @@ namespace SamaHesab.WPF.ViewModels.Inventory;
 /// مدیریت کالا — 🏛️ الگوی API-only: کلاینتِ شبکه‌ای از API (ApiClient.GetProductList)،
 /// دسکتاپِ آفلاین از لایهٔ Application (GetProductsQuery). بدونِ ریپازیتوریِ مستقیم در ViewModel.
 /// </summary>
-public partial class ProductListViewModel : BaseViewModel
+public partial class ProductListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
+    /// <summary>F2-GLOBAL: «جدید» → ساختِ کالای جدید.</summary>
+    public void RequestNew() => NewProduct();
+
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
 

@@ -15,8 +15,11 @@ namespace SamaHesab.WPF.ViewModels.CRM;
 /// 🏛️ الگوی مرجعِ معماریِ API-only: کلاینتِ شبکه‌ای از API می‌خواند (ApiClient.GetPersons)،
 /// دسکتاپِ آفلاین از لایهٔ Application (GetPersonsQuery) — هیچ ریپازیتوریِ مستقیمی در ViewModel نیست.
 /// </summary>
-public partial class PersonsListViewModel : BaseViewModel
+public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
+    /// <summary>F2-GLOBAL: «جدید» → ساختِ مشتری/شخصِ جدید.</summary>
+    public void RequestNew() => NewCustomer();
+
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
 

@@ -12,8 +12,11 @@ using System.Linq;
 namespace SamaHesab.WPF.ViewModels.Purchase;
 
 /// <summary>لیستِ فاکتورهای خرید — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class PurchaseInvoiceListViewModel : BaseViewModel
+public partial class PurchaseInvoiceListViewModel : BaseViewModel, ISupportsNew
 {
+    /// <summary>F2-GLOBAL: «جدید» → فاکتورِ خریدِ جدید.</summary>
+    public void RequestNew() => NewInvoice();
+
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
     private readonly ApiClient _api;

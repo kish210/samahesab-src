@@ -68,6 +68,16 @@ public partial class MainWindow : MetroWindow
             new ShortcutHelpWindow { Owner = this }.ShowDialog();
             e.Handled = true;
         }
+        // CORE-UX-NAV (F2-GLOBAL) — F2: «جدید» در صفحهٔ فعال (اگر آن صفحه ISupportsNew باشد).
+        else if (e.Key == System.Windows.Input.Key.F2
+                 && System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.None)
+        {
+            if (Vm?.SelectedTab?.Content is Services.ISupportsNew creatable)
+            {
+                creatable.RequestNew();
+                e.Handled = true;
+            }
+        }
     }
 
     /// <summary>CC-2 — Command Palette: دستورهای ناوبری + نتایجِ زندهٔ جست‌وجو؛ اجرا از مسیرِ مشترکِ OpenSearchResult.</summary>

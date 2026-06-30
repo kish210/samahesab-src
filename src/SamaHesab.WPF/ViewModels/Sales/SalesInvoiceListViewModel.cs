@@ -15,8 +15,11 @@ namespace SamaHesab.WPF.ViewModels.Sales;
 /// لیستِ فاکتورهای فروش — 🏛️ الگوی API-only: کلاینتِ شبکه‌ای از API (ApiClient.GetSalesInvoices)،
 /// دسکتاپِ آفلاین از لایهٔ Application (GetSalesInvoicesQuery). بدونِ ریپازیتوریِ مستقیم.
 /// </summary>
-public partial class SalesInvoiceListViewModel : BaseViewModel
+public partial class SalesInvoiceListViewModel : BaseViewModel, ISupportsNew
 {
+    /// <summary>F2-GLOBAL: «جدید» → فاکتورِ فروشِ جدید.</summary>
+    public void RequestNew() => NewInvoice();
+
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
     private readonly ApiClient _api;

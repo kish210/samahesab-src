@@ -11,8 +11,11 @@ using System.Linq;
 namespace SamaHesab.WPF.ViewModels.CRM;
 
 /// <summary>مشتریان — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class CustomerListViewModel : BaseViewModel
+public partial class CustomerListViewModel : BaseViewModel, ISupportsNew
 {
+    /// <summary>F2-GLOBAL: «جدید» → ساختِ مشتری جدید.</summary>
+    public void RequestNew() => NewCustomer();
+
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
 

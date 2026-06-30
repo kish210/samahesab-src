@@ -102,8 +102,10 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
                 CatalogVersion = c?.version,
             });
         }
+        // AUDIT-2 — نسخهٔ هستهٔ در حالِ اجرا را نشان بده (نه coreVersionِ کهنهٔ کاتالوگ).
+        var coreNow = SamaHesab.WPF.Services.AppVersion.Display;
         Status = catByKey is { Count: > 0 }
-            ? $"{Modules.Count} ماژول · بازار سازگار با هستهٔ {coreVer}"
+            ? $"{Modules.Count} ماژول · هستهٔ {coreNow}" + (string.IsNullOrWhiteSpace(coreVer) || coreVer == coreNow ? "" : $" (کاتالوگ: {coreVer})")
             : $"{Modules.Count} ماژول (مدیریتِ محلی فعال است)";
     }
 

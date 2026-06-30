@@ -163,6 +163,7 @@ public partial class MainViewModel : BaseViewModel
             ["WarehouseDash"]   = ("داشبورد انبار",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.WarehouseDashboardViewModel>()),
             ["WarehouseOverview"]=("نمای انبار",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.WarehouseOverviewViewModel>()),
             ["PriceList"]       = ("مدیریت لیست‌قیمت",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.PriceListViewModel>()),
+            ["BarcodePrint"]    = ("چاپ بارکد",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.BarcodePrintViewModel>()),
             ["DiscountTiers"]   = ("تخفیف پلکانی",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.DiscountTiersViewModel>()),
             ["SalesReport"]     = ("گزارش فروش",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.SalesReportViewModel>()),
             ["PurchaseReport"]  = ("گزارش خرید",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Purchase.PurchaseReportViewModel>()),

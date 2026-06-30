@@ -105,6 +105,7 @@
     <!-- Inventory -->
     <DataTemplate DataType="{x:Type inv:ProductEditViewModel}"><vi:ProductEditView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:ProductListViewModel}"><vi:ProductListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type inv:BarcodePrintViewModel}"><vi:BarcodePrintView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:BatchSerialViewModel}"><vi:BatchSerialView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:InventoryReportViewModel}"><vi:InventoryReportView/></DataTemplate>
     <DataTemplate DataType="{x:Type inv:WarehouseDashboardViewModel}"><vi:WarehouseDashboardView/></DataTemplate>

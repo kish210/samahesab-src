@@ -33,9 +33,9 @@
                     <ComboBox Width="240" Height="28" ItemsSource="{Binding Suppliers}" DisplayMemberPath="Name" SelectedValuePath="Id"
                               SelectedValue="{Binding SelectedSupplierId}" IsEditable="True"/>
                     <TextBlock Text="از" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="12,0,4,0"/>
-                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="92" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="120" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
                     <TextBlock Text="تا" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,4,0"/>
-                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="92" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                    <TextBox Style="{StaticResource ErpInput}" Height="28" Width="120" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
                     <Button Style="{StaticResource ErpBtnPrimary}" Height="28" Padding="16,0" Margin="10,0,0,0" Content="نمایش" Command="{Binding RunCommand}"/>
                 </StackPanel>
             </DockPanel>

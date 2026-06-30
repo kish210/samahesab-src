@@ -44,11 +44,11 @@
                 <TextBlock Text="سود = فروش − خرید − هزینه − مالیات" FontSize="11.5" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBlock Text="از تاریخ" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                    <TextBox Style="{StaticResource ErpInput}" Height="30" Width="100" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center">
+                    <TextBox Style="{StaticResource ErpInput}" Height="30" Width="120" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding RunCommand}"/></TextBox.InputBindings>
                     </TextBox>
                     <TextBlock Text="تا تاریخ" Foreground="{StaticResource ErpTextMuted}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,4,0"/>
-                    <TextBox Style="{StaticResource ErpInput}" Height="30" Width="100" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center">
+                    <TextBox Style="{StaticResource ErpInput}" Height="30" Width="120" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding RunCommand}"/></TextBox.InputBindings>
                     </TextBox>
                     <Button Style="{StaticResource ErpBtnPrimary}" Height="30" Padding="16,0" Margin="10,0,0,0" Command="{Binding RunCommand}" Content="محاسبه"/>

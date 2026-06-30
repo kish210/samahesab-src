@@ -33,9 +33,9 @@
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="170" Height="30"
                           ItemsSource="{Binding ReportTypes}" SelectedItem="{Binding SelectedReportType}"/>
                 <TextBlock Text="از تاریخ" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                <TextBox Text="{Binding FromDate}" Width="100"/>
+                <TextBox Text="{Binding FromDate}" Width="120"/>
                 <TextBlock Text="تا تاریخ" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
-                <TextBox Text="{Binding ToDate}" Width="100"/>
+                <TextBox Text="{Binding ToDate}" Width="120"/>
                 <TextBlock Text="حساب" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"
                            Visibility="{Binding IsLedger, Converter={StaticResource BoolVis}}"/>
                 <ctl:AccountSearchBox Width="240" Height="30"

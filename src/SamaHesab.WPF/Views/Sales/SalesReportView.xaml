@@ -32,11 +32,11 @@
             <TextBlock Text="گزارش:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="0,0,8,0"/>
             <ComboBox Width="180" Height="30" ItemsSource="{Binding ReportTypes}" SelectedItem="{Binding ReportType}"/>
             <TextBlock Text="از تاریخ:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="14,0,6,0"/>
-            <TextBox Width="100" Height="30" Text="{Binding FromDate}" VerticalContentAlignment="Center" Padding="6,0"
+            <TextBox Width="120" Height="30" Text="{Binding FromDate}" VerticalContentAlignment="Center" Padding="6,0"
                      FlowDirection="LeftToRight" TextAlignment="Center"
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
             <TextBlock Text="تا:" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryText}" Margin="8,0,6,0"/>
-            <TextBox Width="100" Height="30" Text="{Binding ToDate}" VerticalContentAlignment="Center" Padding="6,0"
+            <TextBox Width="120" Height="30" Text="{Binding ToDate}" VerticalContentAlignment="Center" Padding="6,0"
                      FlowDirection="LeftToRight" TextAlignment="Center"
                      Background="{DynamicResource SurfaceBackground}" Foreground="{DynamicResource PrimaryText}" BorderBrush="{DynamicResource BorderColor}"/>
             <Button Content="نمایش" Command="{Binding RunCommand}" Margin="10,0,0,0" Padding="16,6" Cursor="Hand"

@@ -1465,6 +1465,8 @@ public partial class App : System.Windows.Application
         {
             try
             {
+                // AUDIT-5 — صفحهٔ ماژولِ خاموش دیالوگِ مودال می‌دهد و هارنسِ بی‌سر را قفل می‌کند → skip.
+                if (!vm.IsPageAvailable(key)) { Log.Information("[SHOT] skip (module off) {File}", file); continue; }
                 vm.NavigateCommand.Execute(key);
                 await Task.Delay(2200);
                 w.UpdateLayout();

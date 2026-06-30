@@ -533,6 +533,11 @@ public partial class MainViewModel : BaseViewModel
             new("یادداشت‌های نسخه", "ReleaseNotes"), new("پشتیبانیِ ریموت", "RemoteSupport"), new("عیب‌یابیِ سیستم", "Diagnostics"));
     }
 
+    /// <summary>AUDIT-5 — برای ابزارِ تست/اسکرین‌شات: آیا این صفحه قابلِ ناوبری است؟ (صفحهٔ ماژولِ
+    /// خاموش با دیالوگِ مودال رد می‌شود و هارنسِ بی‌سر را قفل می‌کند؛ هارنس باید این‌ها را skip کند.)</summary>
+    public bool IsPageAvailable(string page)
+        => !_pageModule.TryGetValue(page, out var mod) || _modules.IsEnabled(mod);
+
     private async Task NavigateToAsync(string page, object? parameter = null)
     {
         // میان‌برِ سراسری: راهنمای میان‌بر (F1) — پنجرهٔ مودال، نه Tab.

@@ -101,9 +101,9 @@
                         </TextBox>
                     </Grid>
                 </Border>
-                <TextBox DockPanel.Dock="Right" Style="{StaticResource ErpInput}" Height="28" Width="100" Margin="0,0,5,0" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                <TextBox DockPanel.Dock="Right" Style="{StaticResource ErpInput}" Height="28" Width="120" Margin="0,0,5,0" Text="{Binding FromDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
                 <TextBlock DockPanel.Dock="Right" Text="تا" VerticalAlignment="Center" Foreground="{StaticResource ErpTextMuted}" FontSize="12" Margin="0,0,5,0"/>
-                <TextBox DockPanel.Dock="Right" Style="{StaticResource ErpInput}" Height="28" Width="100" Margin="0,0,8,0" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
+                <TextBox DockPanel.Dock="Right" Style="{StaticResource ErpInput}" Height="28" Width="120" Margin="0,0,8,0" Text="{Binding ToDate}" FlowDirection="LeftToRight" TextAlignment="Center"/>
                 <ComboBox DockPanel.Dock="Right" Width="130" Height="28" Margin="0,0,10,0" ItemsSource="{Binding TypeOptions}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedTypeId}"/>
                 <RadioButton DockPanel.Dock="Right" Style="{StaticResource FChip}" Content="همه" IsChecked="True" GroupName="st" Command="{Binding FilterStatusCommand}" CommandParameter="همه"/>
                 <RadioButton DockPanel.Dock="Right" Style="{StaticResource FChip}" Content="قطعی" GroupName="st" Command="{Binding FilterStatusCommand}" CommandParameter="قطعی"/>

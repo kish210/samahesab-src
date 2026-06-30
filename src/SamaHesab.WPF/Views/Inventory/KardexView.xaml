@@ -28,9 +28,9 @@
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="150" Height="30" ItemsSource="{Binding Warehouses}"
                           DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedWarehouseId}"/>
                 <TextBlock Text="از" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
-                <TextBox Text="{Binding FromDate}" Width="95"/>
+                <TextBox Text="{Binding FromDate}" Width="120"/>
                 <TextBlock Text="تا" Style="{StaticResource ErpInlineLabel}" Margin="10,0,6,0"/>
-                <TextBox Text="{Binding ToDate}" Width="95"/>
+                <TextBox Text="{Binding ToDate}" Width="120"/>
                 <Button Style="{StaticResource PrimaryButton}" Height="30" Padding="16,0" Margin="12,0,0,0" Command="{Binding RunCommand}">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="16" Height="16" VerticalAlignment="Center" Stroke="White"/>

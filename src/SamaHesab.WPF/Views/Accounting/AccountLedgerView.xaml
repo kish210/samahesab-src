@@ -32,9 +32,9 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <TextBlock Text="از:" VerticalAlignment="Center" Margin="16,0,6,0" Foreground="{DynamicResource SecondaryText}"/>
-                <TextBox Width="100" Height="32" Text="{Binding FromDate}" FlowDirection="LeftToRight"/>
+                <TextBox Width="120" Height="32" Text="{Binding FromDate}" FlowDirection="LeftToRight"/>
                 <TextBlock Text="تا:" VerticalAlignment="Center" Margin="12,0,6,0" Foreground="{DynamicResource SecondaryText}"/>
-                <TextBox Width="100" Height="32" Text="{Binding ToDate}" FlowDirection="LeftToRight"/>
+                <TextBox Width="120" Height="32" Text="{Binding ToDate}" FlowDirection="LeftToRight"/>
                 <Button Content="🔄 تهیه (F5)" Style="{StaticResource PrimaryButton}" Height="32" Margin="16,0,0,0"
                         Command="{Binding RunCommand}"/>
                 <Button Content="📂 بازکردنِ سند" Style="{StaticResource SecondaryButton}" Height="32" Margin="8,0,0,0"

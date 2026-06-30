@@ -124,7 +124,6 @@ public class DialogService : IDialogService
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen,
             FlowDirection = System.Windows.FlowDirection.RightToLeft,
             ResizeMode = System.Windows.ResizeMode.NoResize,
-            Owner = System.Windows.Application.Current?.MainWindow
         };
         var root = new System.Windows.Controls.StackPanel { Margin = new System.Windows.Thickness(16) };
         root.Children.Add(new System.Windows.Controls.TextBlock
@@ -143,7 +142,7 @@ public class DialogService : IDialogService
         string? result = null;
         ok.Click += (_, _) => { result = box.Text; win.DialogResult = true; };
         box.Loaded += (_, _) => { box.SelectAll(); box.Focus(); };
-        var dr = win.ShowDialog();
+        var dr = win.ShowDialogOwned();   // Owner امن (پرهیز از self-owner وقتی MainWindow null است)
         return Task.FromResult(dr == true ? result : null);
     }
 }

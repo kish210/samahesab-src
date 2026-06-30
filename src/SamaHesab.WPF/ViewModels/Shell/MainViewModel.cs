@@ -452,8 +452,7 @@ public partial class MainViewModel : BaseViewModel
     {
         try
         {
-            new SamaHesab.WPF.Views.Shell.ShortcutHelpWindow
-            { Owner = System.Windows.Application.Current?.MainWindow }.ShowDialog();
+            new SamaHesab.WPF.Views.Shell.ShortcutHelpWindow().ShowDialogOwned();
         }
         catch { /* راهنما نباید پوسته را بشکند */ }
     }
@@ -659,11 +658,7 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private void OpenPrintSettings()
     {
-        var win = new SamaHesab.WPF.Views.Settings.PrintSettingsWindow
-        {
-            Owner = System.Windows.Application.Current.MainWindow
-        };
-        win.ShowDialog();
+        new SamaHesab.WPF.Views.Settings.PrintSettingsWindow().ShowDialogOwned();
     }
 
     [RelayCommand]

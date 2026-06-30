@@ -82,7 +82,17 @@ public partial class ReceivePaymentViewModel : BaseViewModel
         var name = _allParties.FirstOrDefault(p => p.Id == SelectedPartyId)?.Name ?? "طرف‌حساب";
         var verb = IsReceive ? "دریافت" : "پرداخت";
         var prep = IsReceive ? "از" : "به";
-        if (!await _dialogService.ConfirmAsync($"ثبتِ {verb} {Amount:#,##0} ریال {prep} «{name}»؟")) return;
+
+        // AUDIT-3 — هشدارِ غیرمسدودکننده: پرداختِ نقدی که موجودیِ صندوق را منفی می‌کند (صندوق فیزیکی
+        // نباید زیرِ صفر برود). فقط هشدار است؛ کاربر می‌تواند ادامه دهد (مثلاً اصلاحِ ماندهٔ اولیه).
+        var warn = string.Empty;
+        if (!IsReceive && PaymentMethod == "نقدی")
+        {
+            var cash = await _mediator.Send(new SamaHesab.Application.Treasury.Queries.GetAccountBalanceQuery("1-01-001"));
+            if (cash < Amount)
+                warn = $"\n\n⚠ موجودیِ صندوق {cash:#,##0} ریال است — این پرداخت آن را منفی می‌کند.";
+        }
+        if (!await _dialogService.ConfirmAsync($"ثبتِ {verb} {Amount:#,##0} ریال {prep} «{name}»؟{warn}")) return;
 
         await ExecuteAsync(async () =>
         {

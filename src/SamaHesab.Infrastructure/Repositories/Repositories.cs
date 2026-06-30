@@ -96,13 +96,13 @@ public class AccountRepository : GenericRepository<Account>, IAccountRepository
             .SelectMany(a => a.VoucherItems)
             .AnyAsync(ct);
 
+    /// <summary>ماندهٔ حساب = Σ(بدهکار − بستانکار) رویِ ردیف‌های اسنادِ **قطعی** (Posted). مثبت = بدهکار.
+    /// (پیش‌نویس‌ها شمرده نمی‌شوند تا ماندهٔ واقعیِ خزانه/حساب درست باشد.)</summary>
     public async Task<decimal> GetBalanceAsync(int accountId, CancellationToken ct = default)
-    {
-        var account = await DbSet.FirstOrDefaultAsync(a => a.Id == accountId, ct);
-        if (account == null) return 0;
-        // Simplified calculation
-        return 0; // In real impl: query voucher items
-    }
+        => await DbSet.Where(a => a.Id == accountId)
+            .SelectMany(a => a.VoucherItems)
+            .Where(i => i.Voucher!.Status == VoucherStatus.Posted)
+            .SumAsync(i => (decimal?)(i.Debit - i.Credit), ct) ?? 0m;
 }
 
 public class ChequeRepository : GenericRepository<Cheque>, IChequeRepository

@@ -81,6 +81,20 @@ else
                             <div class="cl-sum">@Money(c.Qty * c.Price)</div>
                             <button class="cl-del" @onclick="() => _cart.Remove(c)">✕</button>
                         </div>
+                        @* مسافرانِ این خط (برای تور/گشت — اگر محصول اجباری‌مسافر باشد سرور بدونِ مسافر ثبت نمی‌کند) *@
+                        <div style="margin:0 6px 8px; padding:6px 8px; background:#f7fafc; border-radius:6px;">
+                            <button style="background:none;border:1px dashed #94a3b8;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:12px;"
+                                    @onclick="() => AddPax(c)">➕ افزودنِ مسافر (@c.Pax.Count)</button>
+                            @foreach (var px in c.Pax)
+                            {
+                                <div style="display:flex;gap:4px;margin-top:4px;">
+                                    <input style="flex:1;min-width:0;" placeholder="نام و نام خانوادگی" @bind="px.FullName" />
+                                    <input style="width:120px;" dir="ltr" placeholder="کدملی/گذرنامه" @bind="px.IdOrPassport" />
+                                    <input style="width:100px;" dir="ltr" placeholder="تلفن" @bind="px.Phone" />
+                                    <button style="background:none;border:none;color:#dc2626;cursor:pointer;" @onclick="() => c.Pax.Remove(px)">✕</button>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
                 <div class="cart-total"><span>جمع</span><strong>@Money(Total)</strong></div>
@@ -142,11 +156,18 @@ else
         if (decimal.TryParse(v, out var q) && q > 0) c.Qty = q;
     }
 
+    void AddPax(CartItem c) => c.Pax.Add(new PaxRow());
+
     async Task Submit()
     {
         if (_cart.Count == 0) return;
         _submitting = true; _saleMsg = null;
-        var lines = _cart.Select(c => new SellerApi.SaleLine(c.ProductId, c.Qty, c.Price)).ToList();
+        var lines = _cart.Select(c =>
+        {
+            var pax = c.Pax.Where(p => !string.IsNullOrWhiteSpace(p.FullName))
+                .Select(p => new SellerApi.PassengerDto(p.FullName.Trim(), p.IdOrPassport, p.Phone)).ToList();
+            return new SellerApi.SaleLine(c.ProductId, c.Qty, c.Price, 0, pax.Count > 0 ? pax : null);
+        }).ToList();
         var (ok, err, saleId) = await Api.CreateSaleAsync(_payment ?? "نقدی", lines, null, null);
         _saleOk = ok;
         _saleMsg = ok ? $"فروش ثبت شد (شناسه {saleId})." : err;
@@ -154,5 +175,6 @@ else
         if (ok) { _cart.Clear(); await LoadProducts(); }
     }
 
-    class CartItem { public int ProductId; public string Name = ""; public decimal Price; public decimal Qty; }
+    class CartItem { public int ProductId; public string Name = ""; public decimal Price; public decimal Qty; public List<PaxRow> Pax = new(); }
+    class PaxRow { public string FullName = ""; public string? IdOrPassport; public string? Phone; }
 }

@@ -102,7 +102,10 @@ public class SellerApi
         int? SalespersonPartyId, string? FullName, bool IsSeller);
     public record AvailabilityRow(int ProductId, string Name, decimal SalePrice,
         int? Capacity, decimal Sold, decimal? Remaining, bool IsSoldOut);
-    public record SaleLine(int ProductId, decimal Quantity, decimal UnitSalePrice, decimal DiscountAmount = 0);
+    /// <summary>مسافرِ یک خطِ فروش — هم‌نام با TourismPassengerDtoِ API.</summary>
+    public record PassengerDto(string FullName, string? NationalIdOrPassport = null, string? Phone = null);
+    public record SaleLine(int ProductId, decimal Quantity, decimal UnitSalePrice, decimal DiscountAmount = 0,
+        IReadOnlyList<PassengerDto>? Passengers = null);
     private record SaleResult(int SaleId);
     private record ErrorBody(string Message);
 }

@@ -471,70 +471,33 @@ public partial class MainViewModel : BaseViewModel
         void Add(bool show, string title, string icon, params NavLink[] links)
         { if (show && links.Length > 0) NavGroups.Add(new NavGroup { Title = title, IconKey = icon, Links = links }); }
 
-        Add(CanAccounting, "حسابداری", "IcAccounting",
-            new("ثبت سند", "VoucherEdit"), new("اسناد حسابداری", "Vouchers"), new("نمودار حساب‌ها", "ChartOfAccounts"),
-            new("ابعاد حسابداری", "AccDimensions"), new("بهره‌وری سند", "VoucherTools"), new("عملیات پایان دوره", "EndOfPeriod"),
-            new("کارتابلِ تأیید", "VoucherApprovals"), new("داشبورد حسابدار", "AccountantDash"), new("داشبورد مدیریتی", "ManagerDash"));
+        // CORE-UX-NAV (NAV-1): نوارِ کناری فقط ماژول‌های فعال را نشان می‌دهد. منوهای هستهٔ ERP
+        // (حسابداری/خزانه/فروش/خرید/انبار/اشخاص/گزارشات/سیستم) فقط در نوارِ بالای پنجره‌اند تا
+        // منو تکراری نشود (نوارِ بالا = منوهای اصلی · نوارِ کناری = ماژول‌ها).
+        Add(TourismEnabled, "گردشگری", "IcSales",
+            new("محصولاتِ گردشگری", "TourismProducts"),
+            new("ثبتِ فروش", "TourismSale"),
+            new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
+            new("پورسانتِ فروشندگان", "TourismCommissions"),
+            new("سندِ خودکارِ گردشگری", "TourismVoucherGen"),
+            new("گزارش‌های گردشگری", "TourismReports"),
+            new("نمای موجودی", "TourismAvailability"),
+            new("تنظیماتِ گردشگری", "TourismSettings"),
+            new("سانس‌بندیِ سفر", "ItineraryProducts"),
+            new("برنامه‌ریزِ اقامتی", "ItineraryPlanner"));
 
-        Add(CanTreasury, "خزانه‌داری", "IcTreasury",
-            new("مدیریت چک", "Cheques"), new("تابلوی چک", "ChequeBoard"), new("دریافتنی/پرداختنی", "Receivables"),
-            new("تسویهٔ بین‌شعبه", "InterBranch"), new("حساب‌های بانکی", "BankAccounts"), new("مغایرت‌گیری بانکی", "BankRecon"));
+        Add(RestaurantEnabled, "رستوران", "IcSales",
+            new NavLink("ایستگاه‌های چاپ / فیش‌پرینتر", "RestaurantPrintStations"));
 
-        Add(CanSales, "فروش و درآمد", "IcSales",
-            new("داشبورد فروش", "SalesDash"), new("فروش جدید", "SalesInvoice"), new("فاکتورهای فروش", "SalesInvoiceList"),
-            new("فاکتورهای تکرارشونده", "RecurringInvoices"), new("درآمد و سود", "Income"), new("لیست درآمدها", "IncomeList"),
-            new("گزارش فروش", "SalesReport"));
+        Add(ContractingEnabled, "پیمانکاری", "IcSales",
+            new("صورت‌وضعیت", "ContractingStatement"),
+            new("داشبوردِ پیمان", "ContractingDashboard"),
+            new("گزارش‌های پیمانکاری", "ContractingReports"));
 
-        Add(CanPurchase, "خرید", "IcPurchasing",
-            new("فاکتور خرید", "PurchaseInvoice"), new("لیست خریدها", "PurchaseInvoiceList"), new("سفارش‌های خرید", "PurchaseOrders"),
-            new("گزارش خرید", "PurchaseReport"), new("صورت‌حساب تأمین‌کننده", "SupplierStatement"));
-
-        Add(CanInventory, "انبار", "IcInventory",
-            new("کالاها", "Products"), new("مدیریت لیست‌قیمت", "PriceList"), new("تخفیف پلکانی", "DiscountTiers"),
-            new("بچ و سریال (انقضا)", "BatchSerial"), new("گزارش موجودی/ارزش انبار", "InventoryReport"), new("گزارش نقطهٔ سفارش", "ReorderReport"),
-            new("نمای انبار", "WarehouseOverview"), new("انبارها", "Warehouses"), new("تعدیل موجودی", "StockAdjust"),
-            new("انبارگردانی", "StockCount"), new("انتقال بین انبار", "StockTransfer"), new("کاردکس کالا", "Kardex"));
-
-        Add(CanCustomers, "اشخاص", "IcPeople",
-            new("همهٔ اشخاص", "Persons"), new("مشتریان", "Customers"), new("تأمین‌کنندگان", "Suppliers"));
-
-        Add(CanReports, "گزارشات", "IcReports",
-            new("گزارش‌ها", "Reports"), new("گزارش‌های مالی", "FinancialReports"), new("گزارش تطبیقی شعب", "BranchReport"),
-            new("ماندهٔ سنی‌شده", "AgedBalance"), new("خلاصهٔ مالیات ارزش‌افزوده", "VatSummary"), new("دفترِ روزنامه", "Daybook"),
-            new("کالای راکد", "DeadStock"), new("سود و زیانِ کالا", "ProductProfit"), new("تحلیلِ ABC", "AbcAnalysis"), new("گردشِ موجودی", "Turnover"));
-
-        // سیستم — همیشه (با گیتِ داخلیِ هر آیتم)
-        var sys = new List<NavLink> { new("میز کار / داشبورد", "Dashboard") };
-        if (CanSecurity) { sys.Add(new("امنیت و دسترسی", "Security")); sys.Add(new("لاگِ حسابرسی", "AuditLog")); sys.Add(new("مدیریت شعب", "Branches")); }
-        if (HrEnabled)  { sys.Add(new("کارکنان", "Employees")); sys.Add(new("حقوق و دستمزد", "Salary")); }
-        sys.Add(new("مدیریت ماژول‌ها", "Modules")); sys.Add(new("قالبِ اسناد", "DocumentTemplates"));
-        sys.Add(new("ورودِ داده از اکسل", "DataImport")); sys.Add(new("تنظیمات", "Settings")); sys.Add(new("پشتیبان‌گیری", "Backup"));
-        sys.Add(new("⌨ راهنمای میان‌بر (F1)", "ShortcutHelp"));
-        NavGroups.Add(new NavGroup { Title = "سیستم", IconKey = "IcSettings", Links = sys });
-
-        if (TourismEnabled)
-            Add(true, "گردشگری", "IcSales",
-                new("محصولاتِ گردشگری", "TourismProducts"),
-                new("ثبتِ فروش", "TourismSale"),
-                new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
-                new("پورسانتِ فروشندگان", "TourismCommissions"),
-                new("تنظیماتِ گردشگری", "TourismSettings"),
-                new("گزارش‌های گردشگری", "TourismReports"),
-                new("سندِ خودکارِ گردشگری", "TourismVoucherGen"),
-                new("محصولاتِ اقامتی", "ItineraryProducts"),
-                new("برنامه‌ریزِ اقامتی", "ItineraryPlanner"));
-
-        if (ContractingEnabled)
-            Add(true, "پیمانکاری", "IcSales",
-                new("صورت‌وضعیت", "ContractingStatement"),
-                new("داشبوردِ پیمان", "ContractingDashboard"),
-                new("گزارش‌های پیمانکاری", "ContractingReports"));
-
-        if (SupportEnabled)
-            Add(true, "مرکزِ پشتیبانی", "IcReports",
-                new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),
-                new("تیکتِ پشتیبانی", "SupportTicket"), new("درخواست‌های من", "MyRequests"), new("دانشنامه", "KnowledgeBase"),
-                new("یادداشت‌های نسخه", "ReleaseNotes"), new("پشتیبانیِ ریموت", "RemoteSupport"), new("عیب‌یابیِ سیستم", "Diagnostics"));
+        Add(SupportEnabled, "مرکزِ پشتیبانی", "IcReports",
+            new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),
+            new("تیکتِ پشتیبانی", "SupportTicket"), new("درخواست‌های من", "MyRequests"), new("دانشنامه", "KnowledgeBase"),
+            new("یادداشت‌های نسخه", "ReleaseNotes"), new("پشتیبانیِ ریموت", "RemoteSupport"), new("عیب‌یابیِ سیستم", "Diagnostics"));
     }
 
     private async Task NavigateToAsync(string page, object? parameter = null)

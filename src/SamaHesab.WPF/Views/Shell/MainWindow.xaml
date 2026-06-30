@@ -314,56 +314,9 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <!-- M4: منوی گردشگری فقط وقتی ماژول فعال است ظاهر می‌شود -->
-                    <Button Style="{StaticResource TopMenuBtn}" Content="گردشگری" Click="TopMenu_Click"
-                            Visibility="{Binding TourismEnabled, Converter={StaticResource BoolVis}}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="محصولاتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismProducts"/>
-                                <MenuItem Header="ثبتِ فروش" Command="{Binding NavigateCommand}" CommandParameter="TourismSale"/>
-                                <Separator/>
-                                <MenuItem Header="ودیعهٔ تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="TourismDeposits"/>
-                                <MenuItem Header="پورسانتِ فروشندگان" Command="{Binding NavigateCommand}" CommandParameter="TourismCommissions"/>
-                                <MenuItem Header="سندِ خودکارِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismVoucherGen"/>
-                                <Separator/>
-                                <MenuItem Header="گزارش‌های گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismReports"/>
-                                <MenuItem Header="نمای موجودی" Command="{Binding NavigateCommand}" CommandParameter="TourismAvailability"/>
-                                <MenuItem Header="تنظیماتِ گردشگری" Command="{Binding NavigateCommand}" CommandParameter="TourismSettings"/>
-                                <Separator/>
-                                <!-- برنامه‌ریزیِ اقامتی (زیرمجموعهٔ گردشگری) -->
-                                <MenuItem Header="سانس‌بندیِ سفر" Command="{Binding NavigateCommand}" CommandParameter="ItineraryProducts"/>
-                                <MenuItem Header="برنامه‌ریزِ اقامتی" Command="{Binding NavigateCommand}" CommandParameter="ItineraryPlanner"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <!-- 🍽 منوی رستوران فقط وقتی ماژولِ رستوران فعال است -->
-                    <Button Style="{StaticResource TopMenuBtn}" Content="رستوران" Click="TopMenu_Click"
-                            Visibility="{Binding RestaurantEnabled, Converter={StaticResource BoolVis}}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="ایستگاه‌های چاپ / فیش‌پرینتر" Command="{Binding NavigateCommand}" CommandParameter="RestaurantPrintStations"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <!-- 🆘 HC-1: منوی مرکزِ پشتیبانی فقط وقتی ماژولِ پشتیبانی فعال است -->
-                    <Button Style="{StaticResource TopMenuBtn}" Content="مرکزِ پشتیبانی" Click="TopMenu_Click"
-                            Visibility="{Binding SupportEnabled, Converter={StaticResource BoolVis}}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="داشبورد" Command="{Binding NavigateCommand}" CommandParameter="HelpCenter"/>
-                                <MenuItem Header="گزارشِ باگ" Command="{Binding NavigateCommand}" CommandParameter="BugReport"/>
-                                <MenuItem Header="درخواستِ قابلیت" Command="{Binding NavigateCommand}" CommandParameter="FeatureRequest"/>
-                                <MenuItem Header="تیکتِ پشتیبانی" Command="{Binding NavigateCommand}" CommandParameter="SupportTicket"/>
-                                <MenuItem Header="درخواست‌های من" Command="{Binding NavigateCommand}" CommandParameter="MyRequests"/>
-                                <Separator/>
-                                <MenuItem Header="دانشنامه" Command="{Binding NavigateCommand}" CommandParameter="KnowledgeBase"/>
-                                <MenuItem Header="یادداشت‌های نسخه" Command="{Binding NavigateCommand}" CommandParameter="ReleaseNotes"/>
-                                <Separator/>
-                                <MenuItem Header="پشتیبانیِ ریموت" Command="{Binding NavigateCommand}" CommandParameter="RemoteSupport"/>
-                                <MenuItem Header="عیب‌یابیِ سیستم" Command="{Binding NavigateCommand}" CommandParameter="Diagnostics"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
+                    <!-- CORE-UX-NAV (NAV-1): دکمه‌های ماژول (گردشگری/رستوران/مرکزِ پشتیبانی/پیمانکاری)
+                         از نوارِ بالا حذف شدند؛ ماژول‌ها اکنون فقط در نوارِ کناری (SideNav) ظاهر می‌شوند
+                         تا منو تکراری نباشد. نوارِ بالا = منوهای اصلیِ ERP. -->
                 </StackPanel>
 
                 <!-- جستجو -->

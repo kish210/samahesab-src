@@ -24,6 +24,7 @@ public partial class PersonsListViewModel : BaseViewModel
     [ObservableProperty] private int _roleFilter;   // 0=همه، 1=مشتری، 2=تأمین‌کننده
     [ObservableProperty] private int _totalCount;
     [ObservableProperty] private decimal _totalBalance;
+    [ObservableProperty] private PersonListItem? _selectedPerson;
 
     private readonly List<PersonListItem> _all = new();
     public ObservableCollection<PersonListItem> Persons { get; } = new();
@@ -75,6 +76,16 @@ public partial class PersonsListViewModel : BaseViewModel
     [RelayCommand] private async Task SearchAsync() { ApplyFilter(); await Task.CompletedTask; }
     [RelayCommand] private void NewCustomer() => _navigationService.NavigateTo("CustomerEdit");
     [RelayCommand] private void NewSupplier() => _navigationService.NavigateTo("Suppliers");
+
+    /// <summary>CORE-UX-NAV (PERSON-CARD): کلیک/دوبارکلیک روی نامِ شخص → کارت حساب (کارت ۳۶۰°).
+    /// همهٔ اشخاص رکوردِ Customer هستند، پس کارت برای مشتری/تأمین‌کننده/کارمند یکسان باز می‌شود.</summary>
+    [RelayCommand]
+    private void OpenCard(PersonListItem? person)
+    {
+        var p = person ?? SelectedPerson;
+        if (p is null || p.Id <= 0) return;
+        _navigationService.NavigateTo("CustomerCard", p.Id);
+    }
 
     [RelayCommand]
     private async Task ExportAsync()

@@ -43,10 +43,29 @@
         <!-- گرید -->
         <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                      ItemsSource="{Binding Persons}" RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" BorderThickness="0" FontFamily="{StaticResource VazirFont}">
+                      ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson}"
+                      RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" BorderThickness="0" FontFamily="{StaticResource VazirFont}">
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenCardCommand}" CommandParameter="{Binding SelectedPerson}"/>
+                </DataGrid.InputBindings>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100"/>
-                    <DataGridTextColumn Header="نام" Binding="{Binding Name}" Width="*"/>
+                    <!-- نامِ کلیک‌پذیر → کارت حساب (PERSON-CARD) -->
+                    <DataGridTemplateColumn Header="نام" Width="*" SortMemberPath="Name">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="6,0" Cursor="Hand"
+                                           Foreground="{StaticResource ErpBlue700}" TextDecorations="Underline"
+                                           ToolTip="بازکردنِ کارتِ حساب">
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick"
+                                                      Command="{Binding DataContext.OpenCardCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                      CommandParameter="{Binding}"/>
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="نوع" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

@@ -141,6 +141,7 @@ public partial class MainViewModel : BaseViewModel
             ["ChequeDueCalendar"]= ("تقویمِ سررسیدِ چک",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ChequeDueCalendarViewModel>()),
 
             ["Receivables"]     = ("دریافتنی/پرداختنی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>()),
+            ["ReceivePayment"]  = ("دریافت و پرداخت",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.ReceivePaymentViewModel>()),
             ["InterBranch"]     = ("تسویهٔ بین‌شعبه",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>()),
             ["ChequeBoard"]     = ("تابلوی چک",           sp => sp.GetRequiredService<ChequeBoardViewModel>()),
             ["EndOfPeriod"]     = ("عملیات پایان دوره",   sp => sp.GetRequiredService<EndOfPeriodViewModel>()),

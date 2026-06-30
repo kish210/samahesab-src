@@ -239,6 +239,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ChartOfAccountsViewModel>();
                 services.AddTransient<ChequeListViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ReceivablesViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ReceivePaymentViewModel>();   // دریافت/پرداختِ مستقل
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.ChequeDueCalendarViewModel>();   // تقویمِ سررسیدِ چک
                 services.AddTransient<SamaHesab.WPF.ViewModels.Restaurant.PrintStationsSettingsViewModel>();   // ایستگاه‌های چاپِ رستوران
                 services.AddTransient<SamaHesab.WPF.ViewModels.Treasury.InterBranchTransferViewModel>();

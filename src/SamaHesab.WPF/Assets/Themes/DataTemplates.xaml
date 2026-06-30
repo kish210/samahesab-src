@@ -73,6 +73,7 @@
 
     <!-- Treasury (#20) دریافتنی/پرداختنی -->
     <DataTemplate DataType="{x:Type tr:ReceivablesViewModel}"><vtr:ReceivablesView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tr:ReceivePaymentViewModel}"><vtr:ReceivePaymentView/></DataTemplate>
     <DataTemplate DataType="{x:Type tr:ChequeDueCalendarViewModel}"><vtr:ChequeDueCalendarView/></DataTemplate>
     <DataTemplate DataType="{x:Type rst:PrintStationsSettingsViewModel}"><vrst:PrintStationsSettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tr:InterBranchTransferViewModel}"><vtr:InterBranchTransferView/></DataTemplate>

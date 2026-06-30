@@ -70,6 +70,7 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             }
 
             var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
+            np.SetBranch(_currentUser.BranchId);   // P3 — طرف‌حسابِ نو با شعبهٔ سازنده تگ می‌شود (null اگر شعبه نامشخص = مشترک)
             // همهٔ فیلدهای فرم باید ذخیره شوند (کدپستی/کدِ اقتصادی/یادداشت/رابط/ویزیتور قبلاً می‌افتادند).
             np.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
                 req.PostalCode, req.ContactPerson, req.Visitor, req.GroupId, req.BirthDate);

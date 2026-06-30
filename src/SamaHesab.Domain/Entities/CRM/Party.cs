@@ -36,6 +36,7 @@ public class Party : AuditableEntity
     public string? Visitor { get; private set; }
     public int? GroupId { get; private set; }        // گروهِ مشتری (عادی/طلایی/عمده) — UX-CRM-FORM
     public string? BirthDate { get; private set; }   // تاریخِ تولد (شمسی، رشته‌ای مثلِ سایرِ تاریخ‌ها)
+    public int? BranchId { get; private set; }        // P3 — شعبهٔ مالکِ طرف‌حساب (null = مشترکِ همهٔ شعب)
 
     // نقش‌ها (یک طرف‌حساب می‌تواند چند نقش داشته باشد: مشتری/تأمین‌کننده/کارمند)
     public bool IsCustomer { get; private set; }
@@ -91,6 +92,8 @@ public class Party : AuditableEntity
         PostalCode = postalCode; ContactPerson = contactPerson; Visitor = visitor;
         GroupId = groupId; BirthDate = birthDate; SetAudit(null);
     }
+    /// <summary>P3 — تعیینِ شعبهٔ مالکِ طرف‌حساب (null = مشترکِ همهٔ شعب؛ دیدنی برای همه).</summary>
+    public void SetBranch(int? branchId) { BranchId = branchId; SetAudit(null); }
     public void UpdateBalance(decimal amount) { Balance = amount; SetAudit(null); }
     public void Deactivate() { IsActive = false; SetAudit(null); }
     public void Activate() { IsActive = true; SetAudit(null); }

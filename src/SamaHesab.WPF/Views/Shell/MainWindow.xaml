@@ -307,8 +307,7 @@
                                           Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
                                 <MenuItem Header="مدیریت شعب" Command="{Binding NavigateCommand}" CommandParameter="Branches"
                                           Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
-                                <MenuItem Header="کارکنان" Command="{Binding NavigateCommand}" CommandParameter="Employees" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
-                                <MenuItem Header="حقوق و دستمزد" Command="{Binding NavigateCommand}" CommandParameter="Salary" Visibility="{Binding HrEnabled, Converter={StaticResource BoolVis}}"/>
+<!-- HR (کارکنان/حقوق/حضوروغیاب) به گروهِ ماژولِ «منابع انسانی» در نوارِ کناری منتقل شد (NAV-1: ماژول‌ها در navbar، نه منوی سیستم). -->
                                 <MenuItem Header="تنظیمات" Command="{Binding NavigateCommand}" CommandParameter="Settings"/>
                                 <MenuItem Header="مدیریت ماژول‌ها" Command="{Binding NavigateCommand}" CommandParameter="Modules"/>
                                 <MenuItem Header="قالبِ اسناد" Command="{Binding NavigateCommand}" CommandParameter="DocumentTemplates"/>

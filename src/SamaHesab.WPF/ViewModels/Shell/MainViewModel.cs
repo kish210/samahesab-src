@@ -520,6 +520,12 @@ public partial class MainViewModel : BaseViewModel
             new("داشبوردِ پیمان", "ContractingDashboard"),
             new("گزارش‌های پیمانکاری", "ContractingReports"));
 
+        // منابع انسانی (HR): ماژولِ لِینِ pc — مثلِ بقیهٔ ماژول‌ها در نوارِ کناری (نه در منوی «سیستم»).
+        Add(HrEnabled, "منابع انسانی", "IcReports",
+            new("کارکنان", "Employees"),
+            new("حقوق و دستمزد", "Salary"),
+            new("حضور و غیاب", "Attendance"));
+
         Add(SupportEnabled, "مرکزِ پشتیبانی", "IcReports",
             new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),
             new("تیکتِ پشتیبانی", "SupportTicket"), new("درخواست‌های من", "MyRequests"), new("دانشنامه", "KnowledgeBase"),

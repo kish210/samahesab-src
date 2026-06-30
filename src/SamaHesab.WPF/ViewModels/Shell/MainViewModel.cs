@@ -542,6 +542,9 @@ public partial class MainViewModel : BaseViewModel
         if (page.StartsWith("Launch:", System.StringComparison.Ordinal))
         { LaunchStandaloneClient(page.Substring("Launch:".Length)); return; }
 
+        // L1: «خدمات جدید» = همان فرمِ ProductEdit در حالتِ خدمت (پارامتر "service").
+        if (page == "ServiceEdit") { await NavigateToAsync("ProductEdit", "service"); return; }
+
         // کلیدِ ثبت‌نشده (مثلِ بخش‌های هنوز پیاده‌نشدهٔ گردشگری) → پیامِ محترمانه به‌جای کلیکِ مرده.
         if (!_pages.TryGetValue(page, out var entry))
         {

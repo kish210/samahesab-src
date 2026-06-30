@@ -247,6 +247,7 @@
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="➕ کالای جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="ProductEdit"/>
+                                <MenuItem Header="➕ خدماتِ جدید" Command="{Binding NavigateCommand}" CommandParameter="ServiceEdit"/>
                                 <Separator/>
                                 <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
                                 <MenuItem Header="مدیریت لیست‌قیمت" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>

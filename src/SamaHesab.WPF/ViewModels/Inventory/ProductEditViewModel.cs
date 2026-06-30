@@ -9,10 +9,23 @@ using SamaHesab.WPF.ViewModels.Shell;
 
 namespace SamaHesab.WPF.ViewModels.Inventory;
 
-public partial class ProductEditViewModel : BaseViewModel
+public partial class ProductEditViewModel : BaseViewModel, INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
+
+    /// <summary>نوعِ قلم: false=کالا، true=خدمت. «خدمات جدید» این را true می‌فرستد.</summary>
+    [ObservableProperty] private bool _isService;
+    public string FormTitle => IsService ? "خدماتِ جدید" : (IsEditing ? "ویرایشِ کالا" : "کالای جدید");
+    partial void OnIsServiceChanged(bool value) => OnPropertyChanged(nameof(FormTitle));
+
+    /// <summary>ناوبری با پارامترِ "service" → فرم در حالتِ خدمت باز می‌شود.</summary>
+    public Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is string s && s.Equals("service", System.StringComparison.OrdinalIgnoreCase))
+            IsService = true;
+        return Task.CompletedTask;
+    }
 
     [ObservableProperty] private string _code = string.Empty;
     [ObservableProperty] private string _barcode = string.Empty;
@@ -53,7 +66,7 @@ public partial class ProductEditViewModel : BaseViewModel
             var command = new CreateProductCommand(
                 Code: Code, Barcode: string.IsNullOrWhiteSpace(Barcode) ? null : Barcode,
                 Name: Name, NameEn: NameEn, GroupId: GroupId, BrandId: null, UnitId: UnitId,
-                ProductType: ProductType.Product,
+                ProductType: IsService ? ProductType.Service : ProductType.Product,
                 PurchasePrice: PurchasePrice, SalePrice: SalePrice,
                 WholesalePrice: WholesalePrice, ConsumerPrice: ConsumerPrice,
                 MinStock: MinStock, MaxStock: MaxStock,
@@ -65,7 +78,7 @@ public partial class ProductEditViewModel : BaseViewModel
             if (result.Succeeded)
             {
                 EditingProductId = result.Value;
-                await _dialogService.ShowSuccessAsync("کالا با موفقیت ذخیره شد.");
+                await _dialogService.ShowSuccessAsync(IsService ? "خدمت با موفقیت ذخیره شد." : "کالا با موفقیت ذخیره شد.");
                 _navigationService.NavigateTo("Products");
             }
             else await _dialogService.ShowErrorAsync(result.ErrorMessage);

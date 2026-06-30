@@ -13,10 +13,20 @@
         <!-- Toolbar -->
         <Border Grid.Row="0" Background="{DynamicResource RibbonBackground}"
                 BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="12,8">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="💾 ذخیره" Style="{StaticResource PrimaryButton}"   Height="36" Margin="0,0,6,0" Command="{Binding SaveCommand}"/>
-                <Button Content="❌ انصراف" Style="{StaticResource SecondaryButton}" Height="36" Command="{Binding CancelCommand}"/>
-            </StackPanel>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Button Content="💾 ذخیره" Style="{StaticResource PrimaryButton}"   Height="36" Margin="0,0,6,0" Command="{Binding SaveCommand}"/>
+                    <Button Content="❌ انصراف" Style="{StaticResource SecondaryButton}" Height="36" Command="{Binding CancelCommand}"/>
+                </StackPanel>
+                <!-- عنوانِ پویا + سوییچِ نوعِ قلم (کالا/خدمت) — L1 -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <TextBlock Text="{Binding FormTitle}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                               Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,16,0"/>
+                    <TextBlock Text="نوع:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" Margin="0,0,6,0"/>
+                    <RadioButton Content="کالا" IsChecked="{Binding IsService, Converter={StaticResource InverseBool}}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <RadioButton Content="خدمت" IsChecked="{Binding IsService}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
         </Border>
 
         <!-- Form -->

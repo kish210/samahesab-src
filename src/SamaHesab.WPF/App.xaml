@@ -34,6 +34,7 @@
             <!-- ارقام فارسی tabular + جداکنندهٔ فارسی — سراسری (یکدستی همهٔ صفحات) -->
             <conv:NumberFormatConverter x:Key="Num"/>
             <conv:MinutesToTimeConverter x:Key="MinToTime"/>
+            <conv:InverseBoolConverter x:Key="InverseBool"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

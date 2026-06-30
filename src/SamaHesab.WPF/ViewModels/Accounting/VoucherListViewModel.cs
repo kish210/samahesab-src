@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
-public partial class VoucherListViewModel : BaseViewModel
+public partial class VoucherListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
@@ -181,6 +181,8 @@ public partial class VoucherListViewModel : BaseViewModel
 
     [RelayCommand]
     private void NewVoucher() => _navigationService.NavigateTo("VoucherEdit");
+
+    public void RequestNew() => NewVoucher();   // F2-GLOBAL
 
     [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports");
     [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports");

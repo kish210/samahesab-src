@@ -25,7 +25,7 @@ public partial class AccountTreeNode : ObservableObject
 }
 
 // ─── Full ChartOfAccounts ViewModel ──────────────────────────────────────────
-public partial class ChartOfAccountsViewModel : BaseViewModel
+public partial class ChartOfAccountsViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
     private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
@@ -189,6 +189,8 @@ public partial class ChartOfAccountsViewModel : BaseViewModel
         "Credit" or "بستانکار" => "بستانکار",
         _ => "بدهکار"
     };
+
+    public void RequestNew() => AddAccount();   // F2-GLOBAL
 
     /// <summary>ورود به حالتِ ایجاد: حسابِ جدید به‌عنوان زیرمجموعهٔ حسابِ انتخاب‌شده (در صورت وجود).</summary>
     [RelayCommand]

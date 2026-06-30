@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
 /// <summary>دفترِ حساب‌ها — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class AccountListViewModel : BaseViewModel
+public partial class AccountListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
@@ -51,6 +51,8 @@ public partial class AccountListViewModel : BaseViewModel
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private void NewAccount() => _navigationService.NavigateTo("AccountEdit");
+
+    public void RequestNew() => NewAccount();   // F2-GLOBAL
     [RelayCommand] private async Task DeleteAsync() => await _dialogService.ShowInfoAsync("برای حذف حساب، ابتدا تراکنش‌های آن را بررسی کنید.");
 }
 

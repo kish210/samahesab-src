@@ -13,7 +13,7 @@ using System.Globalization;
 namespace SamaHesab.WPF.ViewModels.Accounting;
 
 /// <summary>مدیریت چک — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class ChequeListViewModel : BaseViewModel
+public partial class ChequeListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
     private readonly ApiClient _api;
     private readonly ICurrentUserService _currentUser;
@@ -212,6 +212,8 @@ public partial class ChequeListViewModel : BaseViewModel
     }
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+    public void RequestNew() => _ = NewChequeAsync();   // F2-GLOBAL
+
     /// <summary>BUG-4 — «چک جدید F2»: دیالوگِ ثبتِ چک → RegisterChequeCommand → تازه‌سازیِ فهرست.</summary>
     [RelayCommand]
     private async Task NewChequeAsync()

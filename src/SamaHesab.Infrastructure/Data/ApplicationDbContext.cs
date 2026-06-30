@@ -253,6 +253,7 @@ public class ApplicationDbContext : DbContext
         // به SamaHesab.Modules.HR منتقل شدند → نگاشتِ EFشان در HrModule.ConfigureModel است.
         // CR-X8 — تنظیماتِ شرکتیِ کلید-مقدار در DB.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.CompanySetting>().ToTable("CompanySettings", "Cfg");
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.Shareholder>().ToTable("Shareholders", "Cfg");
 
         // ─── Tourism → استخراج شد به SamaHesab.Modules.Tourism (MOD-TUR). مپش از TourismModule. ───
 

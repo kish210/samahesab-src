@@ -274,6 +274,7 @@
                                 <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
                                 <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
                                 <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
+                                <MenuItem Header="سهامداران" Command="{Binding NavigateCommand}" CommandParameter="Shareholders"/>
                                 <Separator/>
                                 <MenuItem Header="دریافت و پرداختِ وجه" Command="{Binding NavigateCommand}" CommandParameter="ReceivePayment"/>
                             </ContextMenu>

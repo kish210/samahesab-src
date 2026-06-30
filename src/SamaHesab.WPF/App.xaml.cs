@@ -254,6 +254,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Security.AuditLogViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Settings.BranchManagementViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Settings.ShareholdersViewModel>();   // سهامداران
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<BatchSerialViewModel>();

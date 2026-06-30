@@ -152,6 +152,7 @@ public partial class MainViewModel : BaseViewModel
             ["Security"]        = ("امنیت و دسترسی",      sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.SecurityManagementViewModel>()),
             ["AuditLog"]        = ("لاگِ حسابرسی",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Security.AuditLogViewModel>()),
             ["Branches"]        = ("مدیریت شعب",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.BranchManagementViewModel>()),
+            ["Shareholders"]    = ("سهامداران",          sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Settings.ShareholdersViewModel>()),
             ["VoucherTools"]    = ("بهره‌وری سند",        sp => sp.GetRequiredService<VoucherProductivityViewModel>()),
             ["BankAccounts"]    = ("حساب‌های بانکی",      sp => sp.GetRequiredService<BankAccountViewModel>()),
             ["BankRecon"]       = ("مغایرت‌گیری بانکی",   sp => sp.GetRequiredService<BankReconciliationViewModel>()),

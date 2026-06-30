@@ -1,0 +1,87 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Settings.ShareholdersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </UserControl.InputBindings>
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="340"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ── فهرستِ سهامداران ── -->
+        <Border Grid.Column="0" Margin="0,0,10,0" Padding="0" CornerRadius="12"
+                Background="White" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Margin="12,12,12,6">
+                    <TextBlock Text="سهامداران" FontSize="17" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+                    <Button Content="➕ جدید (F2)" Command="{Binding NewCommand}" HorizontalAlignment="Left"
+                            Padding="8,3" Cursor="Hand" Background="#EAEFFA" Foreground="#324A7A" BorderThickness="0"/>
+                </Grid>
+                <Border DockPanel.Dock="Bottom" Background="#F6F8FC" Padding="12,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="جمعِ درصد: " Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Text="{Binding TotalShare, StringFormat={}{0:0.##}٪}" FontWeight="Bold" Foreground="#324A7A"/>
+                        <TextBlock Text="   ·   جمعِ سرمایه: " Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock Text="{Binding TotalCapital, StringFormat={}{0:#,0} ریال}" FontWeight="Bold" Foreground="#B18A5A" FlowDirection="LeftToRight"/>
+                    </StackPanel>
+                </Border>
+                <DataGrid ItemsSource="{Binding Shareholders}" SelectedItem="{Binding SelectedShareholder}"
+                          AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal" BorderThickness="0" CanUserAddRows="False"
+                          Margin="6,0,6,0" RowHeight="32">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="نام" Binding="{Binding FullName}" Width="*"/>
+                        <DataGridTextColumn Header="کدِ ملی" Binding="{Binding NationalCode}" Width="110"/>
+                        <DataGridTextColumn Header="درصدِ سهم" Binding="{Binding SharePercent, StringFormat={}{0:0.##}٪}" Width="90"/>
+                        <DataGridTextColumn Header="آورده (ریال)" Binding="{Binding CapitalAmount, StringFormat={}{0:#,0}}" Width="140"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <!-- ── فرمِ ویرایش ── -->
+        <Border Grid.Column="1" Padding="16" CornerRadius="12"
+                Background="White" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="مشخصاتِ سهامدار" FontSize="15" FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryText}" Margin="0,0,0,12"/>
+
+                <TextBlock Text="نام و نام خانوادگی" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,8" Padding="6,4"/>
+
+                <TextBlock Text="کدِ ملی (اختیاری)" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBox Text="{Binding NationalCode}" Margin="0,2,0,8" Padding="6,4" FlowDirection="LeftToRight"/>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                        <TextBlock Text="درصدِ سهم" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBox Text="{Binding SharePercent}" Padding="6,4" FlowDirection="LeftToRight"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="آورده (ریال)" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBox Text="{Binding CapitalAmount}" Padding="6,4" FlowDirection="LeftToRight"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="تلفن (اختیاری)" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBox Text="{Binding Phone}" Margin="0,2,0,8" Padding="6,4" FlowDirection="LeftToRight"/>
+
+                <TextBlock Text="یادداشت" FontSize="12" Foreground="{DynamicResource SecondaryText}"/>
+                <TextBox Text="{Binding Notes}" Margin="0,2,0,14" Padding="6,4" Height="54"
+                         TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+
+                <Button Content="ذخیره" Command="{Binding SaveCommand}" Height="40" Cursor="Hand"
+                        Background="#4B5F97" Foreground="White" BorderThickness="0" FontWeight="Bold" FontSize="14"/>
+                <Button Content="حذف" Command="{Binding DeleteCommand}" Height="34" Margin="0,8,0,0" Cursor="Hand"
+                        Background="#FBE9E7" Foreground="#C0392B" BorderThickness="0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

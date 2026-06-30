@@ -1,4 +1,4 @@
-# بسته‌بندیِ ماژول‌های استخراج‌شده برای بازارِ ماژول (github kish210/SamaHesab).
+﻿# بسته‌بندیِ ماژول‌های استخراج‌شده برای بازارِ ماژول (github kish210/SamaHesab).
 #   هر ماژول → dist/modules/<Name>.mspkg (zip شاملِ DLLِ ماژول + module.json + version.json)
 #   + dist/modules/modules-catalog.json (فهرستِ بازار که برنامه از github می‌خواند).
 $ErrorActionPreference = "Stop"

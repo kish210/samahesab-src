@@ -458,6 +458,21 @@ public partial class MainViewModel : BaseViewModel
         catch { /* راهنما نباید پوسته را بشکند */ }
     }
 
+    /// <summary>
+    /// CORE-UX-NAV: راه‌اندازیِ کلاینتِ مستقل (صندوق فروش/رستوران/گارسون/آشپزخانه) — همان exeِ جاری را
+    /// با arg (مثلِ "--restaurant") در یک پروسهٔ نو اجرا می‌کند تا حالتِ تمام‌صفحهٔ آن کلاینت باز شود.
+    /// </summary>
+    private void LaunchStandaloneClient(string arg)
+    {
+        try
+        {
+            var exe = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+            if (string.IsNullOrEmpty(exe)) { _ = _dialogService.ShowErrorAsync("مسیرِ اجرا یافت نشد."); return; }
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, arg) { UseShellExecute = true });
+        }
+        catch (System.Exception ex) { _ = _dialogService.ShowErrorAsync("اجرای کلاینت ناموفق بود: " + ex.Message); }
+    }
+
     [RelayCommand]
     private void ToggleGroup(NavGroup? g)
     {
@@ -488,8 +503,18 @@ public partial class MainViewModel : BaseViewModel
             new("سانس‌بندیِ سفر", "ItineraryProducts"),
             new("برنامه‌ریزِ اقامتی", "ItineraryPlanner"));
 
+        // رستوران: بخش‌های عملیاتی کلاینتِ مستقل‌اند → «لینکِ اجرا» (Launch:) خودِ exe را با arg باز می‌کند.
         Add(RestaurantEnabled, "رستوران", "IcSales",
-            new NavLink("ایستگاه‌های چاپ / فیش‌پرینتر", "RestaurantPrintStations"));
+            new("صندوقِ رستوران", "Launch:--restaurant"),
+            new("میزها / گارسون", "Launch:--waiter"),
+            new("آشپزخانه (KDS)", "Launch:--kitchen"),
+            new("ایستگاه‌های چاپ / فیش‌پرینتر", "RestaurantPrintStations"));
+
+        // صندوق فروش (POS): صندوقِ لمسی کلاینتِ مستقل (Launch:) + داشبورد/شیفت به‌صورتِ تب.
+        Add(PosEnabled, "صندوق فروش", "IcSales",
+            new("صندوقِ فروش (لمسی)", "Launch:--pos"),
+            new("داشبورد صندوق", "PosDashboard"),
+            new("شیفت / بستنِ صندوق", "CashShift"));
 
         Add(ContractingEnabled, "پیمانکاری", "IcSales",
             new("صورت‌وضعیت", "ContractingStatement"),
@@ -506,6 +531,11 @@ public partial class MainViewModel : BaseViewModel
     {
         // میان‌برِ سراسری: راهنمای میان‌بر (F1) — پنجرهٔ مودال، نه Tab.
         if (page == "ShortcutHelp") { ShowShortcutHelp(); return; }
+
+        // CORE-UX-NAV: کلاینت‌های مستقل (صندوق/رستوران/گارسون/آشپزخانه) به‌جای تب، خودِ exe را با
+        // arg راه‌اندازی می‌کنند (لینکِ اجرا در منوی ماژول). کلید: "Launch:--restaurant".
+        if (page.StartsWith("Launch:", System.StringComparison.Ordinal))
+        { LaunchStandaloneClient(page.Substring("Launch:".Length)); return; }
 
         // کلیدِ ثبت‌نشده (مثلِ بخش‌های هنوز پیاده‌نشدهٔ گردشگری) → پیامِ محترمانه به‌جای کلیکِ مرده.
         if (!_pages.TryGetValue(page, out var entry))

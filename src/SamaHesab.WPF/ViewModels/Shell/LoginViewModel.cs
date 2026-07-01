@@ -96,6 +96,7 @@ public partial class LoginViewModel : ObservableObject
 
             int userId = 1; int branchId = 1; string fullName = Username;
             int? sellerPartyId = null;
+            bool mustChangePass = false;
             List<string> roles = new(); List<string> permissions = new();
 
             try
@@ -108,6 +109,7 @@ public partial class LoginViewModel : ObservableObject
                     fullName = result.Value.FullName; roles = result.Value.Roles.ToList();
                     permissions = result.Value.Permissions.ToList();
                     sellerPartyId = result.Value.SalespersonPartyId;   // SP-1
+                    mustChangePass = result.Value.MustChangePass;      // SR-6
                 }
                 else { HasError = true; ErrorMessage = result.ErrorMessage; return; }
             }
@@ -119,6 +121,19 @@ public partial class LoginViewModel : ObservableObject
                 HasError = true;
                 ErrorMessage = "عدم دسترسی به پایگاه داده؛ ورود ممکن نیست. اتصال به سرور را بررسی کنید.";
                 return;
+            }
+
+            // SR-6: اگر این کاربر هنوز رمزِ پیش‌فرض دارد (مثلِ ادمینِ تازه‌ساخته‌شده)، پیش از ورود
+            // به سیستم، تغییرِ رمز اجباری است. کاربر نمی‌تواند این پنجره را دور بزند.
+            if (mustChangePass)
+            {
+                var win = new Views.Shell.ForcePasswordChangeWindow(_mediator, userId);
+                var changed = win.ShowDialog() == true && win.PasswordChanged;
+                if (!changed)
+                {
+                    HasError = true; ErrorMessage = "برای ادامه باید رمزِ عبور را تغییر دهید.";
+                    return;
+                }
             }
 
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,

@@ -65,6 +65,13 @@ public class User : BaseEntity
         IsLocked = false; LockoutEnd = null; FailedAttempts = 0; UpdatedAt = DateTime.Now;
     }
 
+    /// <summary>SR-6 — نشان‌گذاریِ کاربر برای اجبارِ تغییرِ رمز در اولینِ ورودِ بعدی
+    /// (مثلاً ادمینِ تازه‌ساخته‌شده با رمزِ پیش‌فرض).</summary>
+    public void RequirePasswordChangeOnNextLogin()
+    {
+        MustChangePass = true; UpdatedAt = DateTime.Now;
+    }
+
     /// <summary>SP-1 — تنظیمِ نگاشتِ فروشنده (یا حذفِ آن با null).</summary>
     public void SetSalesperson(int? partyId)
     {

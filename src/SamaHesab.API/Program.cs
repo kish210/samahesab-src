@@ -56,14 +56,32 @@ var jwtKey = jwt["Key"];
 if (string.IsNullOrWhiteSpace(jwtKey))
     throw new InvalidOperationException(
         "تنظیمِ Jwt:Key در appsettings.json موجود نیست — برای امضای توکنِ JWT الزامی است.");
-// امنیتِ فروش: کلیدِ پیش‌فرضِ درونِ ریپو یا کلیدِ کوتاه، توکن‌ها را جعل‌پذیر می‌کند. در Productionِ واقعی
-// (نه Development) کلیدِ پیش‌فرض/کوتاه پذیرفته نمی‌شود؛ مدیر باید یک کلیدِ تصادفیِ ≥۳۲ نویسه بگذارد.
+// امنیتِ فروش (SR-3/SR-4): کلیدِ پیش‌فرضِ درونِ ریپو یا کلیدِ کوتاه، توکن‌ها را جعل‌پذیر می‌کند.
+// در Productionِ واقعی (نه Development) اگر appsettings.json هنوز کلیدِ نمونه/کوتاه دارد، به‌جایِ
+// شکستِ استارت‌آپ، یک کلیدِ تصادفیِ ۶۴بایتی **یک‌بار** تولید و در پوشهٔ محلیِ ماشین (نه در ریپو/appsettings)
+// نگه‌داری می‌شود؛ اجراهای بعدی همان کلید را دوباره می‌خوانند (توکن‌های صادرشده معتبر می‌مانند).
 if (!builder.Environment.IsDevelopment()
     && (jwtKey.StartsWith("CHANGE_THIS", StringComparison.OrdinalIgnoreCase)
         || System.Text.Encoding.UTF8.GetByteCount(jwtKey) < 32))
-    throw new InvalidOperationException(
-        "کلیدِ Jwt:Key پیش‌فرض یا خیلی کوتاه است. پیش از استفادهٔ واقعی، یک کلیدِ تصادفیِ دستِ‌کم ۳۲ نویسه " +
-        "در appsettings.json (یا متغیرِ محیطیِ Jwt__Key) قرار دهید.");
+{
+    var keyDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SamaHesab");
+    var keyFile = Path.Combine(keyDir, "jwt.key");
+    if (File.Exists(keyFile))
+    {
+        jwtKey = File.ReadAllText(keyFile).Trim();
+    }
+    else
+    {
+        Directory.CreateDirectory(keyDir);
+        var randomKey = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
+        File.WriteAllText(keyFile, randomKey);
+        jwtKey = randomKey;
+    }
+    if (System.Text.Encoding.UTF8.GetByteCount(jwtKey) < 32)
+        throw new InvalidOperationException(
+            $"کلیدِ ذخیره‌شده در «{keyFile}» نامعتبر است؛ آن را حذف کنید تا دوباره تولید شود.");
+}
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

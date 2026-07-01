@@ -30,15 +30,20 @@ public static class IdentitySeeder
                 existing.SetPassword(h, s);
                 dirty = true;
             }
-            // بازکردنِ ادمینِ قفل‌شده در استارت‌آپ نگه داشته شد تا فروشگاهِ تک‌ادمین برای همیشه
-            // قفل نماند (رمز دست‌نخورده می‌ماند؛ مهاجم همچنان به رمز نیاز دارد).
-            if (existing.IsLocked) { existing.Unlock(); dirty = true; }
+            // SR-5: بازکردنِ ادمینِ قفل‌شده در استارت‌آپ فقط وقتی که cooldownِ ۱۵دقیقه‌ایِ ضدِ brute-force
+            // واقعاً منقضی شده باشد (همان شرطی که AuthenticateCommand هنگامِ ورود چک می‌کند). پیش‌تر این‌جا
+            // بدونِ قید باز می‌شد که یعنی یک ری‌استارتِ سرور، قفلِ حمله‌ی brute-force را کاملاً بی‌اثر می‌کرد.
+            if (existing.IsLocked && (existing.LockoutEnd == null || existing.LockoutEnd <= DateTime.Now))
+            { existing.Unlock(); dirty = true; }
             if (dirty) { users.Update(existing); await uow.SaveChangesAsync(); }
             return;
         }
 
         var (hash, salt) = PasswordHasher.Create("admin123");
         var admin = User.Create(companyId, 1, "admin", hash, salt, "مدیر سیستم");
+        // SR-6: ادمینِ تازه‌ساخته‌شده هنوز رمزِ پیش‌فرضِ شناخته‌شده (admin123) را دارد؛
+        // اولین ورود باید تغییرِ رمز را اجبار کند.
+        admin.RequirePasswordChangeOnNextLogin();
         await users.AddAsync(admin);
         await uow.SaveChangesAsync();
     }

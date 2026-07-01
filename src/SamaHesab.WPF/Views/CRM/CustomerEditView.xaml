@@ -44,6 +44,27 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ماهیتِ شخص — چندوجهی: یک شخص می‌تواند هم‌زمان چند نقش داشته باشد (با تیک‌زدن) -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="این شخص:" FontWeight="Bold" FontSize="12.5"
+                                   Foreground="{DynamicResource PrimaryText}"
+                                   FontFamily="{StaticResource VazirFont}" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox Content="خریدار (مشتری)" IsChecked="{Binding IsCustomerRole}"
+                                      Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,20,0"/>
+                            <CheckBox Content="تأمین‌کننده" IsChecked="{Binding IsSupplierRole}"
+                                      Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,20,0"/>
+                            <CheckBox Content="کارمند" IsChecked="{Binding IsEmployeeRole}"
+                                      Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}" Margin="0,0,20,0"/>
+                            <CheckBox Content="فروشنده" IsChecked="{Binding IsSalespersonRole}"
+                                      Foreground="{DynamicResource PrimaryText}" FontFamily="{StaticResource VazirFont}"/>
+                        </StackPanel>
+                        <TextBlock Text="می‌توانید چند مورد را هم‌زمان تیک بزنید — مثلاً شخصی که هم تأمین‌کننده و هم فروشنده است."
+                                   FontSize="10.5" Foreground="{DynamicResource SecondaryText}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Identity -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,8">
                     <StackPanel>

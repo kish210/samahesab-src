@@ -44,12 +44,12 @@ public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Service
             if (!string.IsNullOrWhiteSpace(_api.BaseUrl))
             {
                 foreach (var p in await _api.GetPersonsAsync())
-                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee));
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee, p.IsSalesperson));
             }
             else
             {
                 foreach (var p in await _mediator.Send(new GetPersonsQuery()))
-                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee));
+                    _all.Add(new PersonListItem(p.Id, p.Code, p.Name, p.Mobile, p.Balance, p.Role, p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee, p.IsSalesperson));
             }
             ApplyFilter();
         }, "در حال بارگذاری اشخاص...");
@@ -58,7 +58,7 @@ public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Service
     partial void OnRoleFilterChanged(int value) => ApplyFilter();
 
     [RelayCommand] private void SetRole(string? mode)
-    { RoleFilter = mode switch { "customer" => 1, "supplier" => 2, "employee" => 3, _ => 0 }; }
+    { RoleFilter = mode switch { "customer" => 1, "supplier" => 2, "employee" => 3, "salesperson" => 4, _ => 0 }; }
 
     private void ApplyFilter()
     {
@@ -67,6 +67,7 @@ public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Service
         if (RoleFilter == 1) q = q.Where(p => p.IsCustomer);
         else if (RoleFilter == 2) q = q.Where(p => p.IsSupplier);
         else if (RoleFilter == 3) q = q.Where(p => p.IsEmployee);
+        else if (RoleFilter == 4) q = q.Where(p => p.IsSalesperson);
         if (term.Length > 0)
             q = q.Where(p => p.Name.Contains(term) || p.Code.Contains(term) || p.Mobile.Contains(term));
 
@@ -112,4 +113,4 @@ public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Service
 }
 
 public record PersonListItem(int Id, string Code, string Name, string Mobile, decimal Balance,
-    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false);
+    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false, bool IsSalesperson = false);

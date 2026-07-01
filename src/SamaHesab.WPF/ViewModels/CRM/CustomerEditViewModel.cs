@@ -44,6 +44,12 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
     [ObservableProperty] private bool _isPersonal = true;
     [ObservableProperty] private bool _isCompany;
 
+    // چندوجهی‌بودنِ ماهیتِ شخص — یک شخص می‌تواند هم‌زمان چند نقش داشته باشد (با تیک‌زدن).
+    [ObservableProperty] private bool _isCustomerRole = true;
+    [ObservableProperty] private bool _isSupplierRole;
+    [ObservableProperty] private bool _isEmployeeRole;
+    [ObservableProperty] private bool _isSalespersonRole;
+
     public int EditingId { get; set; }
     public bool IsEditing => EditingId > 0;
     public List<string> CustomerTypes { get; } = new() { "حقیقی", "حقوقی" };
@@ -79,6 +85,8 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
         CreditLimit = dto.CreditLimit; CreditDays = dto.CreditDays; PriceLevel = dto.PriceLevel; Discount = dto.Discount;
         Notes = dto.Notes; ContactPerson = dto.ContactPerson; Visitor = dto.Visitor;
         GroupId = dto.GroupId; BirthDate = dto.BirthDate;
+        IsCustomerRole = dto.IsCustomer; IsSupplierRole = dto.IsSupplier;
+        IsEmployeeRole = dto.IsEmployee; IsSalespersonRole = dto.IsSalesperson;
     }
 
     partial void OnCustomerTypeChanged(string value) { IsPersonal = value == "حقیقی"; IsCompany = value == "حقوقی"; }
@@ -91,6 +99,8 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
         { await _dialogService.ShowErrorAsync("نام و نام خانوادگی الزامی است."); return; }
         if (IsCompany && string.IsNullOrWhiteSpace(CompanyName))
         { await _dialogService.ShowErrorAsync("نام شرکت الزامی است."); return; }
+        if (!IsCustomerRole && !IsSupplierRole && !IsEmployeeRole && !IsSalespersonRole)
+        { await _dialogService.ShowErrorAsync("دست‌کم یک ماهیت (خریدار/تأمین‌کننده/کارمند/فروشنده) را تیک بزنید."); return; }
 
         // RC-7 — اعتبارسنجیِ هویتِ مالیاتی (برای فاکتورِ رسمی). خالی مجاز است.
         if (IsPersonal && !SamaHesab.Application.Common.Validation.IranianIdentity.IsValidNationalCode(NationalCode))
@@ -111,7 +121,8 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
                     var ucmd = new UpdateCustomerCommand(EditingId, CustomerType, FirstName, LastName, CompanyName,
                         Phone, Mobile, Email, Province, City, Address, PostalCode,
                         CreditLimit, CreditDays, PriceLevel, Discount,
-                        NationalCode, EconomicCode, Notes, ContactPerson, Visitor, GroupId, BirthDate);
+                        NationalCode, EconomicCode, Notes, ContactPerson, Visitor, GroupId, BirthDate,
+                        IsCustomerRole, IsSupplierRole, IsEmployeeRole, IsSalespersonRole);
                     var r = await _mediator.Send(ucmd); ok = r.Succeeded; err = r.ErrorMessage;
                 }
                 else
@@ -120,7 +131,8 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
                     var cmd = new CreateCustomerCommand(Code, CustomerType, FirstName, LastName, CompanyName,
                         Phone, Mobile, Email, Province, City, Address, PostalCode,
                         CreditLimit, CreditDays, PriceLevel, Discount,
-                        NationalCode, EconomicCode, GroupId, Notes, ContactPerson, Visitor, BirthDate);
+                        NationalCode, EconomicCode, GroupId, Notes, ContactPerson, Visitor, BirthDate,
+                        IsCustomerRole, IsSupplierRole, IsEmployeeRole, IsSalespersonRole);
                     if (!string.IsNullOrWhiteSpace(_api.BaseUrl)) (ok, err) = await _api.CreateCustomerAsync(cmd);
                     else { var r = await _mediator.Send(cmd); ok = r.Succeeded; err = r.ErrorMessage; }
                 }

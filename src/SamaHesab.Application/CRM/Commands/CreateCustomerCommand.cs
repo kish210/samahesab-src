@@ -13,7 +13,10 @@ public record CreateCustomerCommand(
     string? Phone, string? Mobile, string? Email, string? Province, string? City, string? Address, string? PostalCode,
     decimal CreditLimit, int CreditDays, string PriceLevel, decimal Discount,
     string? NationalCode, string? EconomicCode, int? GroupId, string? Notes,
-    string? ContactPerson, string? Visitor, string? BirthDate) : IRequest<Result<int>>;
+    string? ContactPerson, string? Visitor, string? BirthDate,
+    // چندوجهی‌بودنِ ماهیتِ شخص — با تیک‌زدن در فرم؛ IsCustomerRole پیش‌فرض true (سازگاریِ عقب‌رو با فراخوان‌های قدیمی).
+    bool IsCustomerRole = true, bool IsSupplierRole = false, bool IsEmployeeRole = false, bool IsSalespersonRole = false)
+    : IRequest<Result<int>>;
 
 /// <summary>
 /// اعتبارسنجیِ مشتری (رفعِ باگ: قبلاً هیچ validationی نبود → نام‌های نامعتبر مثل «jhkj» ثبت می‌شد).
@@ -26,6 +29,8 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
         RuleFor(x => x.Code).NotEmpty().WithMessage("کدِ مشتری الزامی است.");
         RuleFor(x => x).Must(HasValidName)
             .WithMessage("نامِ معتبرِ مشتری را وارد کنید (برای حقوقی «نامِ شرکت» و برای حقیقی «نام»، دستِ‌کم ۲ نویسه).");
+        RuleFor(x => x).Must(x => x.IsCustomerRole || x.IsSupplierRole || x.IsEmployeeRole || x.IsSalespersonRole)
+            .WithMessage("دست‌کم یک ماهیت (خریدار/تأمین‌کننده/کارمند/فروشنده) باید تیک بخورد.");
     }
 
     private static bool HasValidName(CreateCustomerCommand c)
@@ -58,7 +63,10 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
 
             if (party != null)
             {
-                party.MarkCustomer();
+                // چندوجهی‌بودن: نقش‌های درخواستی به نقش‌های موجودِ شخص افزوده می‌شوند (OR) — رکوردِ تکراری با کدِ ملیِ
+                // یکسان، تلفیقِ نقش‌هاست نه جایگزینی (مثلاً کسی که قبلاً کارمند بوده و حالا هم فروشنده شده، کارمندی‌اش نمی‌افتد).
+                party.SetRoles(party.IsCustomer || req.IsCustomerRole, party.IsSupplier || req.IsSupplierRole,
+                    party.IsEmployee || req.IsEmployeeRole, party.IsSalesperson || req.IsSalespersonRole);
                 party.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
                     req.PostalCode, req.ContactPerson, req.Visitor, req.GroupId, req.BirthDate);
                 party.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
@@ -69,7 +77,9 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
                 return Result<int>.Success(party.Id);
             }
 
-            var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName, isCustomer: true);
+            var np = Party.Create(companyId, req.Code, req.CustomerType, req.FirstName, req.LastName, req.CompanyName,
+                isCustomer: req.IsCustomerRole, isSupplier: req.IsSupplierRole,
+                isEmployee: req.IsEmployeeRole, isSalesperson: req.IsSalespersonRole);
             np.SetBranch(_currentUser.BranchId);   // P3 — طرف‌حسابِ نو با شعبهٔ سازنده تگ می‌شود (null اگر شعبه نامشخص = مشترک)
             // همهٔ فیلدهای فرم باید ذخیره شوند (کدپستی/کدِ اقتصادی/یادداشت/رابط/ویزیتور قبلاً می‌افتادند).
             np.EditCore(req.CustomerType, req.FirstName, req.LastName, req.CompanyName,

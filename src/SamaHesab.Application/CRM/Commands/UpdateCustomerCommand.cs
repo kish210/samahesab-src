@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
@@ -14,7 +15,22 @@ public record UpdateCustomerCommand(
     string? Phone, string? Mobile, string? Email, string? Province, string? City, string? Address, string? PostalCode,
     decimal CreditLimit, int CreditDays, string PriceLevel, decimal Discount,
     string? NationalCode, string? EconomicCode, string? Notes,
-    string? ContactPerson, string? Visitor, int? GroupId = null, string? BirthDate = null) : IRequest<Result<int>>;
+    string? ContactPerson, string? Visitor, int? GroupId = null, string? BirthDate = null,
+    // چندوجهی‌بودنِ ماهیتِ شخص — با تیک‌زدن در فرم؛ null یعنی «دست‌نخورده بماند» (سازگاریِ عقب‌رو با فراخوان‌های قدیمی).
+    bool? IsCustomerRole = null, bool? IsSupplierRole = null, bool? IsEmployeeRole = null, bool? IsSalespersonRole = null)
+    : IRequest<Result<int>>;
+
+public class UpdateCustomerCommandValidator : AbstractValidator<UpdateCustomerCommand>
+{
+    public UpdateCustomerCommandValidator()
+    {
+        // فرمِ ویرایش همیشه هر چهار چک‌باکس را می‌فرستد (هیچ‌کدام null نیست) — آنگاه دست‌کم یکی باید تیک بخورد.
+        RuleFor(x => x).Must(x =>
+                x.IsCustomerRole is null && x.IsSupplierRole is null && x.IsEmployeeRole is null && x.IsSalespersonRole is null
+                || x.IsCustomerRole == true || x.IsSupplierRole == true || x.IsEmployeeRole == true || x.IsSalespersonRole == true)
+            .WithMessage("دست‌کم یک ماهیت (خریدار/تأمین‌کننده/کارمند/فروشنده) باید تیک بخورد.");
+    }
+}
 
 public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<int>>
 {
@@ -35,6 +51,11 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
             p.UpdateProfile(req.NationalCode, req.Mobile, req.Phone, req.Email, req.Province, req.City, req.Address);
             p.SetTaxIds(req.NationalCode, req.EconomicCode, req.Notes);
             p.SetCreditTerms(req.CreditLimit, req.CreditDays, req.PriceLevel, req.Discount);
+            // فرمِ ویرایش همیشه هر چهار چک‌باکس را می‌فرستد؛ اگر ارسال نشده (فراخوانِ قدیمی)، نقش‌های فعلی حفظ می‌شوند.
+            if (req.IsCustomerRole is not null || req.IsSupplierRole is not null
+                || req.IsEmployeeRole is not null || req.IsSalespersonRole is not null)
+                p.SetRoles(req.IsCustomerRole ?? p.IsCustomer, req.IsSupplierRole ?? p.IsSupplier,
+                    req.IsEmployeeRole ?? p.IsEmployee, req.IsSalespersonRole ?? p.IsSalesperson);
 
             _parties.Update(p);
             await _uow.SaveChangesAsync(ct);

@@ -38,10 +38,11 @@ public class Party : AuditableEntity
     public string? BirthDate { get; private set; }   // تاریخِ تولد (شمسی، رشته‌ای مثلِ سایرِ تاریخ‌ها)
     public int? BranchId { get; private set; }        // P3 — شعبهٔ مالکِ طرف‌حساب (null = مشترکِ همهٔ شعب)
 
-    // نقش‌ها (یک طرف‌حساب می‌تواند چند نقش داشته باشد: مشتری/تأمین‌کننده/کارمند)
+    // نقش‌ها (یک طرف‌حساب می‌تواند چند نقش هم‌زمان داشته باشد: مشتری/تأمین‌کننده/کارمند/فروشنده — با تیک‌زدن در فرم)
     public bool IsCustomer { get; private set; }
     public bool IsSupplier { get; private set; }
     public bool IsEmployee { get; private set; }
+    public bool IsSalesperson { get; private set; }
 
     // ردیابیِ مبدأ در دورهٔ مهاجرت (برای idempotency و repoint کردنِ FKها)
     public int? LegacyCustomerId { get; private set; }
@@ -52,14 +53,14 @@ public class Party : AuditableEntity
 
     public static Party Create(int companyId, string code, string partyType,
         string? firstName = null, string? lastName = null, string? companyName = null,
-        bool isCustomer = false, bool isSupplier = false)
+        bool isCustomer = false, bool isSupplier = false, bool isEmployee = false, bool isSalesperson = false)
     {
         if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("کد طرف‌حساب الزامی است.");
         return new Party
         {
             CompanyId = companyId, Code = code, PartyType = partyType,
             FirstName = firstName, LastName = lastName, CompanyName = companyName,
-            IsCustomer = isCustomer, IsSupplier = isSupplier
+            IsCustomer = isCustomer, IsSupplier = isSupplier, IsEmployee = isEmployee, IsSalesperson = isSalesperson
         };
     }
 
@@ -67,11 +68,13 @@ public class Party : AuditableEntity
         ? CompanyName ?? ""
         : $"{FirstName} {LastName}".Trim();
 
-    public void SetRoles(bool isCustomer, bool isSupplier, bool isEmployee = false)
-    { IsCustomer = isCustomer; IsSupplier = isSupplier; IsEmployee = isEmployee; SetAudit(null); }
+    /// <summary>تعیینِ دقیقِ مجموعهٔ نقش‌ها (چندوجهی: یک شخص هم‌زمان می‌تواند چند نقش داشته باشد).</summary>
+    public void SetRoles(bool isCustomer, bool isSupplier, bool isEmployee = false, bool isSalesperson = false)
+    { IsCustomer = isCustomer; IsSupplier = isSupplier; IsEmployee = isEmployee; IsSalesperson = isSalesperson; SetAudit(null); }
     public void MarkCustomer() { IsCustomer = true; SetAudit(null); }
     public void MarkSupplier() { IsSupplier = true; SetAudit(null); }
     public void MarkEmployee() { IsEmployee = true; SetAudit(null); }
+    public void MarkSalesperson() { IsSalesperson = true; SetAudit(null); }
     public void UpdateProfile(string? nationalCode, string? mobile, string? phone, string? email,
         string? province, string? city, string? address)
     {

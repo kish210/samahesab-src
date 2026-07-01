@@ -19,7 +19,8 @@ public record CustomerEditDto(
     string? Province, string? City, string? Address, string? PostalCode,
     decimal CreditLimit, int CreditDays, string PriceLevel, decimal Discount,
     string? Notes, string? ContactPerson, string? Visitor, bool IsActive,
-    int? GroupId, string? BirthDate);
+    int? GroupId, string? BirthDate,
+    bool IsCustomer = false, bool IsSupplier = false, bool IsEmployee = false, bool IsSalesperson = false);
 
 public class GetCustomerForEditQueryHandler : IRequestHandler<GetCustomerForEditQuery, CustomerEditDto?>
 {
@@ -38,6 +39,7 @@ public class GetCustomerForEditQueryHandler : IRequestHandler<GetCustomerForEdit
             p.Province, p.City, p.Address, p.PostalCode,
             p.CreditLimit, p.CreditDays, p.PriceLevel, p.Discount,
             p.Notes, p.ContactPerson, p.Visitor, p.IsActive,
-            p.GroupId, p.BirthDate);
+            p.GroupId, p.BirthDate,
+            p.IsCustomer, p.IsSupplier, p.IsEmployee, p.IsSalesperson);
     }
 }

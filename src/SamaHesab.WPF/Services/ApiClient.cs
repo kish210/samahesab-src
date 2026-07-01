@@ -6,7 +6,7 @@ namespace SamaHesab.WPF.Services;
 
 public record ApiProduct(int Id, string Code, string Name, string? Barcode, decimal SalePrice, decimal TaxRate, int? GroupId = null);
 public record ApiPerson(int Id, string Code, string Name, string Mobile, decimal Balance,
-    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false);
+    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false, bool IsSalesperson = false);
 public record ApiProductRow(int Id, string Code, string Barcode, string Name,
     decimal SalePrice, decimal PurchasePrice, decimal WholesalePrice,
     decimal MinStock, bool IsActive, bool IsLowStock,

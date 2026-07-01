@@ -11,7 +11,7 @@ namespace SamaHesab.Application.CRM.Queries;
 /// منبعِ واحدِ منطق: API (PersonsController) + دسکتاپ.
 /// </summary>
 public record PersonDto(int Id, string Code, string Name, string Mobile, decimal Balance,
-    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false);
+    string Role, bool IsCustomer, bool IsSupplier, bool IsActive, bool IsEmployee = false, bool IsSalesperson = false);
 
 public record GetPersonsQuery(string? Search = null, int? RoleFilter = null) : IRequest<List<PersonDto>>;
 
@@ -23,12 +23,13 @@ public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<Pers
     public GetPersonsQueryHandler(IRepository<Party> parties, ICurrentUserService currentUser)
     { _parties = parties; _currentUser = currentUser; }
 
-    private static string RoleText(bool c, bool s, bool e)
+    private static string RoleText(bool c, bool s, bool e, bool sp)
     {
-        var roles = new List<string>(3);
+        var roles = new List<string>(4);
         if (c) roles.Add("مشتری");
         if (s) roles.Add("تأمین‌کننده");
         if (e) roles.Add("کارمند");
+        if (sp) roles.Add("فروشنده");
         return roles.Count > 0 ? string.Join("/", roles) : "—";
     }
 
@@ -41,6 +42,7 @@ public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<Pers
         if (req.RoleFilter == 1) q = q.Where(p => p.IsCustomer);
         else if (req.RoleFilter == 2) q = q.Where(p => p.IsSupplier);
         else if (req.RoleFilter == 3) q = q.Where(p => p.IsEmployee);
+        else if (req.RoleFilter == 4) q = q.Where(p => p.IsSalesperson);
 
         var term = req.Search?.Trim();
         var list = new List<PersonDto>();
@@ -52,7 +54,8 @@ public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, List<Pers
                 continue;
 
             list.Add(new PersonDto(p.Id, p.Code ?? "", name, p.Mobile ?? "", bal,
-                RoleText(p.IsCustomer, p.IsSupplier, p.IsEmployee), p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee));
+                RoleText(p.IsCustomer, p.IsSupplier, p.IsEmployee, p.IsSalesperson),
+                p.IsCustomer, p.IsSupplier, p.IsActive, p.IsEmployee, p.IsSalesperson));
         }
         return list.OrderBy(p => p.Name).ToList();
     }

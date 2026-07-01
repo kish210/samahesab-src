@@ -1442,6 +1442,7 @@ public partial class App : System.Windows.Application
             ("Cheques","05_چکها"), ("BankAccounts","06_حسابهای_بانکی"),
             ("Products","07_کالاها"), ("ProductEdit","08_ویرایش_کالا"),
             ("Warehouses","09_انبارها"), ("WarehouseOverview","09b_نمای_انبار"), ("StockAdjust","10_تعدیل_موجودی"),
+            ("BarcodePrint","10b_چاپ_بارکد"), ("QuickStock","10c_انتقال_تعدیل_سریع"),
             ("SalesInvoice","11_فاکتور_فروش"), ("SalesInvoiceList","12_لیست_فروش"),
             ("PurchaseInvoice","13_فاکتور_خرید"), ("POS","14_صندوق_فروش"),
             ("Customers","15_مشتریان"), ("CustomerEdit","16_ویرایش_مشتری"),

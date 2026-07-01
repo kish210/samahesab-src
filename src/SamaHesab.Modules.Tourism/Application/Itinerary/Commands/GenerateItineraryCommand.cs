@@ -77,8 +77,10 @@ public class GenerateItineraryCommandHandler : IRequestHandler<GenerateItinerary
             var plan = ItineraryPlanner.Plan(candidates, new PlanOptions(req.Days, req.PreferVariety, req.MaxPerDay));
             if (plan.Stops.Count == 0) return Result<GeneratedItineraryDto>.Failure("برنامه‌ای تولید نشد (نامزدِ مناسب نبود).");
 
+            // MOD-TIT-BILL — شعبه/فروشندهٔ سازنده را نگه می‌داریم تا تأییدِ مهمان (ناشناس) بتواند سند بزند.
             var itinerary = GuestItinerary.Create(companyId, req.GuestName, req.Days,
-                _calendar.GetCurrentPersianDate(), req.GuestPartyId);
+                _calendar.GetCurrentPersianDate(), req.GuestPartyId,
+                branchId: _user.BranchId ?? 1, salespersonPartyId: _user.SalespersonPartyId);
             foreach (var st in plan.Stops)
                 itinerary.AddStop(ItineraryStop.Create(
                     st.ProductId, st.SessionId, st.Day, st.SortOrder, st.StartMinute, st.EndMinute, st.SalePrice, st.Cost));

@@ -25,6 +25,12 @@ public class GuestItinerary : AuditableEntity
     public ItineraryStatus Status { get; private set; } = ItineraryStatus.Draft;
     public string? Notes { get; private set; }
 
+    // MOD-TIT-BILL — زمینهٔ صدورِ سند هنگامِ تأییدِ مهمان (شعبه/فروشندهٔ سازنده در زمانِ تولید).
+    public int BranchId { get; private set; } = 1;
+    public int? SalespersonPartyId { get; private set; }
+    public int? SaleId { get; private set; }                // سندِ فروشِ ساخته‌شده هنگامِ تأیید (یک‌بار)
+    public bool IsBilled => SaleId.HasValue;
+
     private readonly List<ItineraryStop> _stops = new();
     public IReadOnlyCollection<ItineraryStop> Stops => _stops.AsReadOnly();
 
@@ -34,7 +40,7 @@ public class GuestItinerary : AuditableEntity
     private GuestItinerary() { }
 
     public static GuestItinerary Create(int companyId, string guestName, int days, string createdDate,
-        int? guestPartyId = null, string? notes = null)
+        int? guestPartyId = null, string? notes = null, int branchId = 1, int? salespersonPartyId = null)
     {
         if (string.IsNullOrWhiteSpace(guestName)) throw new ArgumentException("نامِ مهمان الزامی است.");
         if (days <= 0) throw new ArgumentException("تعدادِ روزها باید مثبت باشد.");
@@ -42,9 +48,13 @@ public class GuestItinerary : AuditableEntity
         {
             CompanyId = companyId, GuestName = guestName.Trim(), Days = days,
             CreatedDate = createdDate, GuestPartyId = guestPartyId, Notes = notes,
-            Token = Guid.NewGuid().ToString("N"), Status = ItineraryStatus.Draft
+            Token = Guid.NewGuid().ToString("N"), Status = ItineraryStatus.Draft,
+            BranchId = branchId <= 0 ? 1 : branchId, SalespersonPartyId = salespersonPartyId
         };
     }
+
+    /// <summary>MOD-TIT-BILL — پیوندِ سندِ فروشِ ساخته‌شده هنگامِ تأییدِ مهمان (جلوگیری از صدورِ دوباره).</summary>
+    public void SetSale(int saleId) { SaleId = saleId; }
 
     public void AddStop(ItineraryStop stop) => _stops.Add(stop);
 

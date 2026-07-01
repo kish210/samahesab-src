@@ -1812,3 +1812,10 @@ cd src/SamaHesab.API && dotnet run -c Release   # سرور API روی 5080
 
 ## 🛠️ L-SERIES (laptop C2) — backlogِ تقسیم‌شده، به ترتیب
 - [x] ✅C2 **L1** — «خدماتِ جدید» + لیست‌قیمت @2026-06-30: `ProductEditViewModel` نوعِ کالا/خدمت گرفت (`IsService`+`INavigationAware`؛ ProductType بر اساسِ آن)، سوییچِ «کالا/خدمت» + عنوانِ پویا در toolbar، کلیدِ ناوبریِ `ServiceEdit`→ProductEdit(service)، و ورودیِ «➕ خدماتِ جدید» در منوی انبار. صفحهٔ «مدیریت لیست‌قیمت» (PriceList) از قبل موجود بود. زنده تأیید: خدمتِ «خدمت نصب و راه‌اندازی» با `ProductType=Service` در DB ذخیره شد. build سبز · ۶۷۴ تست. converterِ `InverseBool` سراسری ثبت شد.
+
+## ✈️ MOD-TIT-BILL — صدورِ سند هنگامِ تأییدِ مهمانِ برنامهٔ اقامتی (pc @2026-07-01، بازخوردِ کاربر)
+> کاربر گزارش داد: در پنلِ مهمانِ `/itinerary/{token}` وقتی مهمان خرید را ثبت (تأیید) می‌کند **نه سند صادر می‌شود، نه پولی از مهمان درخواست می‌شود، و در گزارش‌های گردشگری فروشی دیده نمی‌شود.**
+- [x] ✅ ریشه: `SubmitGuestItineraryCommandHandler` فقط وضعیت را Confirmed می‌کرد — نه `TourismSale`، نه سند. رفع: تأییدِ مهمان حالا **سندِ متوازنِ نسیه** می‌زند (Dr دریافتنی=«درخواستِ پول از مهمان» / Cr درآمد ‖ Dr COGS / Cr ودیعهٔ تأمین‌کننده) + رکوردِ `TourismSale` (→ در بخشِ «فهرستِ فروش»ِ گزارش‌های گردشگری دیده می‌شود). منطق هم‌راستا با `CreateTourismSaleCommand` شاخهٔ نسیه.
+- [x] ✅ زمینهٔ لازم روی `GuestItinerary`: `BranchId`/`SalespersonPartyId` (هنگامِ تولید از کاربر) + `SaleId` (لینکِ سند، idempotent — تأییدِ دوباره سند دوبل نمی‌زند). مهاجرتِ `56_ItineraryBilling.sql` (اعمال‌شده). سالِ مالی از `IsActive` resolve می‌شود؛ endpoint ناشناس است پس همه از zمینهٔ ذخیره‌شده می‌آید نه `_user`.
+- [x] ✅ ۲ تستِ نو (`ItineraryBillingTests`): سندِ متوازن + دریافتنی + `TourismSale` + idempotency. ۶۸۳ تست سبز.
+- [ ] ⏭️ (laptop) پیگیری‌های اختیاری: ثبتِ **پورسانتِ فروشنده** برای فروشِ itinerary (فعلاً فقط سند/دریافتنی)؛ به‌روزرسانیِ `Party.Balance`ِ مهمان (مثلِ سایرِ فروش‌های نسیه که فعلاً فقط GL می‌زنند).

@@ -1,6 +1,8 @@
 using FluentValidation;
 using MediatR;
+using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
+using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.Modules.Tourism.Domain;
 
@@ -78,19 +80,31 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
 {
     private readonly IRepository<GuestItinerary> _itineraries;
     private readonly IRepository<ItineraryStop> _stops;
+    private readonly IRepository<TourismSetting> _settings;
+    private readonly IRepository<TourismProduct> _products;
+    private readonly IRepository<TourismSale> _sales;
+    private readonly IVoucherRepository _vouchers;
+    private readonly IRepository<FiscalYear> _fiscalYears;
+    private readonly IPersianCalendarService _calendar;
     private readonly IUnitOfWork _uow;
 
     public SubmitGuestItineraryCommandHandler(IRepository<GuestItinerary> itineraries,
-        IRepository<ItineraryStop> stops, IUnitOfWork uow)
-    { _itineraries = itineraries; _stops = stops; _uow = uow; }
+        IRepository<ItineraryStop> stops, IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
+        IRepository<TourismSale> sales, IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
+        IPersianCalendarService calendar, IUnitOfWork uow)
+    {
+        _itineraries = itineraries; _stops = stops; _settings = settings; _products = products;
+        _sales = sales; _vouchers = vouchers; _fiscalYears = fiscalYears; _calendar = calendar; _uow = uow;
+    }
 
     public async Task<Result> Handle(SubmitGuestItineraryCommand req, CancellationToken ct)
     {
+        await _uow.BeginTransactionAsync(ct);
         try
         {
             var it = await _itineraries.FindSingleAsync(g => g.Token == req.Token, ct);
-            if (it is null) return Result.Failure("برنامه‌ای با این لینک یافت نشد.");
-            if (it.Status == ItineraryStatus.Confirmed) return Result.Failure("این برنامه قبلاً تأیید نهایی شده است.");
+            if (it is null) return await Rollback("برنامه‌ای با این لینک یافت نشد.");
+            if (it.Status == ItineraryStatus.Confirmed) return await Rollback("این برنامه قبلاً تأیید نهایی شده است.");
 
             if (req.RemovedStopIds is { Count: > 0 })
             {
@@ -98,13 +112,85 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
                 if (toRemove.Count > 0) _stops.RemoveRange(toRemove);
             }
 
-            if (req.Confirm) it.ConfirmByGuest(req.Notes);
+            if (req.Confirm)
+            {
+                // MOD-TIT-BILL — تأییدِ مهمان = خرید: سندِ فروشِ متوازن + دریافتنی از مهمان (نسیه) صادر می‌شود
+                // و رکوردِ TourismSale ثبت می‌شود تا در گزارش‌های گردشگری دیده شود. (منطقِ حسابداری هم‌راستا با
+                // CreateTourismSaleCommand، شاخهٔ «نسیه»: Dr دریافتنی / Cr درآمد ‖ Dr COGS / Cr ودیعهٔ تأمین‌کننده.)
+                var billMsg = await BillOnConfirmAsync(it, ct);
+                if (billMsg is not null) return await Rollback(billMsg);
+                it.ConfirmByGuest(req.Notes);
+            }
             else it.MarkGuestEdited();
             _itineraries.Update(it);
 
             await _uow.SaveChangesAsync(ct);
+            await _uow.CommitTransactionAsync(ct);
             return Result.Success();
         }
-        catch (System.Exception ex) { return Result.Failure(ex.GetBaseException().Message); }
+        catch (System.Exception ex) { return await Rollback(ex.GetBaseException().Message); }
+    }
+
+    /// <summary>ساختِ سندِ فروش + دریافتنی هنگامِ تأیید. خروجی: پیامِ خطا یا null در موفقیت.</summary>
+    private async Task<string?> BillOnConfirmAsync(GuestItinerary it, CancellationToken ct)
+    {
+        if (it.IsBilled) return null;   // قبلاً سند خورده (idempotent)
+
+        var stops = (await _stops.FindAsync(s => s.ItineraryId == it.Id, ct)).ToList();
+        if (stops.Count == 0) return null;   // برنامهٔ خالی → بدونِ سند تأیید می‌شود
+
+        var companyId = it.CompanyId;
+        var set = await _settings.FindSingleAsync(s => s.CompanyId == companyId, ct);
+        if (set is null) return "تنظیماتِ گردشگری تنظیم نشده (نگاشتِ حساب‌ها).";
+        if (set.ReceivableAccountId is null || set.RevenueAccountId is null
+            || set.CogsAccountId is null || set.SupplierDepositAccountId is null)
+            return "حساب‌های دریافتنی/درآمد/COGS/ودیعه در تنظیماتِ گردشگری کامل نیست.";
+
+        var fy = await _fiscalYears.FindSingleAsync(f => f.CompanyId == companyId && f.IsActive && !f.IsClosed, ct)
+                 ?? await _fiscalYears.FindSingleAsync(f => f.CompanyId == companyId && !f.IsClosed, ct);
+        if (fy is null) return "سالِ مالیِ فعالی برای صدورِ سند یافت نشد.";
+        var date = _calendar.GetCurrentPersianDate();
+
+        // سرسند + خطوط (نسیه: مهمان بدهکار می‌شود → دریافتنی = «درخواستِ پول از مهمان»).
+        var sale = TourismSale.Create(companyId, it.BranchId, date, it.SalespersonPartyId ?? 0,
+            it.GuestPartyId, "نسیه", $"خریدِ اقامتیِ مهمان «{it.GuestName}»");
+        var products = (await _products.FindAsync(p => p.CompanyId == companyId, ct)).ToDictionary(p => p.Id);
+        foreach (var st in stops.OrderBy(s => s.DayNumber).ThenBy(s => s.SortOrder))
+        {
+            if (!products.TryGetValue(st.ProductId, out var prod)) return $"محصولِ #{st.ProductId} یافت نشد.";
+            sale.AddLine(TourismSaleLine.Create(prod.Id, prod.SupplierPartyId, 1, st.SalePrice, 0, prod.PurchasePrice, null));
+        }
+        if (sale.TotalSale <= 0) return "مبلغِ برنامه صفر است؛ سندی صادر نشد.";
+
+        // سندِ متوازن (نسیه).
+        var number = await _vouchers.GetNextNumberAsync(companyId, ct);
+        var v = Voucher.Create(companyId, it.BranchId, fy.Id, number, date, 9 /*عمومی*/,
+            $"خریدِ اقامتیِ مهمان «{it.GuestName}» (برنامه {it.Id})", $"TIT-{number}");
+        int row = 1;
+        v.AddItem(VoucherItem.Create(0, row++, set.ReceivableAccountId.Value, sale.TotalSale, 0, "دریافتنی از مهمان"));
+        v.AddItem(VoucherItem.Create(0, row++, set.RevenueAccountId.Value, 0, sale.TotalSale, "درآمدِ فروشِ خدماتِ اقامتی"));
+        v.AddItem(VoucherItem.Create(0, row++, set.CogsAccountId.Value, sale.TotalCost, 0, "بهای تمام‌شدهٔ خدمات"));
+        foreach (var g in sale.Lines.GroupBy(l => l.SupplierPartyId))
+        {
+            var cost = g.Sum(l => l.Quantity * l.UnitCost);
+            if (cost > 0)
+                v.AddItem(VoucherItem.Create(0, row++, set.SupplierDepositAccountId.Value, 0, cost,
+                    $"برداشت از ودیعهٔ تأمین‌کننده {g.Key}"));
+        }
+        v.Post(it.CreatedByUserId ?? 1);
+        await _vouchers.AddAsync(v, ct);
+        await _uow.SaveChangesAsync(ct);
+
+        sale.SetVoucher(v.Id);
+        await _sales.AddAsync(sale, ct);
+        await _uow.SaveChangesAsync(ct);
+        it.SetSale(sale.Id);
+        return null;
+    }
+
+    private async Task<Result> Rollback(string msg)
+    {
+        try { await _uow.RollbackTransactionAsync(default); } catch { /* ignore */ }
+        return Result.Failure(msg);
     }
 }

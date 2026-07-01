@@ -5,6 +5,10 @@ using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.Modules.Tourism.Domain;
+using SamaHesab.Modules.Tourism.Application;
+using SamaHesab.Modules.Tourism.Application.Commands;
+using DomainBasis = SamaHesab.Modules.Tourism.Domain.CommissionBasis;
+using EngineBasis = SamaHesab.Modules.Tourism.Application.CommissionBasis;
 
 namespace SamaHesab.Modules.Tourism.Application.Itinerary;
 
@@ -83,6 +87,8 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
     private readonly IRepository<TourismSetting> _settings;
     private readonly IRepository<TourismProduct> _products;
     private readonly IRepository<TourismSale> _sales;
+    private readonly IRepository<CommissionRule> _rules;
+    private readonly IRepository<SalesCommissionEntry> _commissions;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<FiscalYear> _fiscalYears;
     private readonly IPersianCalendarService _calendar;
@@ -90,11 +96,13 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
 
     public SubmitGuestItineraryCommandHandler(IRepository<GuestItinerary> itineraries,
         IRepository<ItineraryStop> stops, IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
-        IRepository<TourismSale> sales, IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
+        IRepository<TourismSale> sales, IRepository<CommissionRule> rules, IRepository<SalesCommissionEntry> commissions,
+        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
         IPersianCalendarService calendar, IUnitOfWork uow)
     {
         _itineraries = itineraries; _stops = stops; _settings = settings; _products = products;
-        _sales = sales; _vouchers = vouchers; _fiscalYears = fiscalYears; _calendar = calendar; _uow = uow;
+        _sales = sales; _rules = rules; _commissions = commissions;
+        _vouchers = vouchers; _fiscalYears = fiscalYears; _calendar = calendar; _uow = uow;
     }
 
     public async Task<Result> Handle(SubmitGuestItineraryCommand req, CancellationToken ct)
@@ -157,10 +165,13 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
         var sale = TourismSale.Create(companyId, it.BranchId, date, it.SalespersonPartyId ?? 0,
             it.GuestPartyId, "نسیه", $"خریدِ اقامتیِ مهمان «{it.GuestName}»");
         var products = (await _products.FindAsync(p => p.CompanyId == companyId, ct)).ToDictionary(p => p.Id);
+        var lineMeta = new List<(TourismSaleLine Line, int GroupId)>();
         foreach (var st in stops.OrderBy(s => s.DayNumber).ThenBy(s => s.SortOrder))
         {
             if (!products.TryGetValue(st.ProductId, out var prod)) return $"محصولِ #{st.ProductId} یافت نشد.";
-            sale.AddLine(TourismSaleLine.Create(prod.Id, prod.SupplierPartyId, 1, st.SalePrice, 0, prod.PurchasePrice, null));
+            var line = TourismSaleLine.Create(prod.Id, prod.SupplierPartyId, 1, st.SalePrice, 0, prod.PurchasePrice, null);
+            sale.AddLine(line);
+            lineMeta.Add((line, prod.ProductGroupId ?? 0));
         }
         if (sale.TotalSale <= 0) return "مبلغِ برنامه صفر است؛ سندی صادر نشد.";
 
@@ -185,7 +196,40 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
 
         sale.SetVoucher(v.Id);
         await _sales.AddAsync(sale, ct);
-        await _uow.SaveChangesAsync(ct);
+        await _uow.SaveChangesAsync(ct);   // تا Idِ خطوطِ فروش برای رکوردِ پورسانت موجود شود
+
+        // پیگیریِ اختیاریِ MOD-TIT-BILL — پورسانتِ فروشنده per-line (هم‌راستا با CreateTourismSaleCommand)،
+        // فقط اگر برنامه فروشنده داشته باشد (خرید از پنلِ مهمان می‌تواند بدونِ فروشنده هم باشد).
+        if (it.SalespersonPartyId is > 0)
+        {
+            var sellerPartyId = it.SalespersonPartyId.Value;
+            var rules = (await _rules.FindAsync(r => r.CompanyId == companyId
+                && r.SalespersonPartyId == sellerPartyId && r.Active, ct))
+                .Where(r => CreateTourismSaleCommandHandler.DateInRange(date, r.EffectiveFrom, r.EffectiveTo))
+                .Select(r => new CommissionRuleSpec((EngineBasis)(int)r.Basis, r.Rate, r.ProductId, r.ProductGroupId))
+                .ToList();
+            var ym = CreateTourismSaleCommandHandler.PersianYearMonth(date);
+
+            foreach (var (line, groupId) in lineMeta)
+            {
+                var ctx = new CommissionContext(line.ProductId, groupId, line.Quantity,
+                    line.Quantity * line.UnitSalePrice, line.DiscountAmount, line.Quantity * line.UnitCost,
+                    set.SaleBaseAfterDiscountDefault);
+                var rule = CommissionEngine.Resolve(rules, line.ProductId, groupId);
+                var amount = CommissionEngine.Compute(rule, ctx);
+                if (amount <= 0) continue;
+                var baseAmount = rule!.Basis switch
+                {
+                    EngineBasis.PerUnit => line.Quantity,
+                    EngineBasis.PercentOfProfit => line.Quantity * line.UnitSalePrice - line.DiscountAmount - line.Quantity * line.UnitCost,
+                    _ => (set.SaleBaseAfterDiscountDefault ? line.Quantity * line.UnitSalePrice - line.DiscountAmount : line.Quantity * line.UnitSalePrice)
+                };
+                await _commissions.AddAsync(SalesCommissionEntry.Create(companyId, line.Id, sellerPartyId,
+                    (DomainBasis)(int)rule.Basis, baseAmount, rule.Rate, amount, ym), ct);
+            }
+            await _uow.SaveChangesAsync(ct);
+        }
+
         it.SetSale(sale.Id);
         return null;
     }

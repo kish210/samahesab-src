@@ -75,6 +75,34 @@ public class ItineraryBillingTests
         public string FormatCurrency(decimal a, bool t = false) => a.ToString("N0"); public string NumberToWords(decimal n) => "";
     }
 
+    /// <summary>
+    /// مثلِ FakeRepo&lt;TourismSale&gt; ولی هنگامِ AddAsync، Idِ خطوطِ فروش (sale.Lines) را هم مقداردهی
+    /// می‌کند — دقیقاً کاری که EF Core در تولید با cascade-insert انجام می‌دهد (اینجا فقط برای تست لازم است،
+    /// چون FakeRepoِ عمومی فقط رویِ خودِ aggregate رفلکشن می‌زند نه فرزندانش).
+    /// </summary>
+    private sealed class FakeSalesRepoWithLineIds : IRepository<TourismSale>
+    {
+        private readonly FakeRepo<TourismSale> _inner = new();
+        private int _lineSeq;
+        public List<TourismSale> Items => _inner.Items;
+        public async Task AddAsync(TourismSale e, CancellationToken ct = default)
+        {
+            await _inner.AddAsync(e, ct);
+            foreach (var line in e.Lines)
+                typeof(Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(line, ++_lineSeq);
+        }
+        public Task AddRangeAsync(IEnumerable<TourismSale> es, CancellationToken ct = default) => _inner.AddRangeAsync(es, ct);
+        public Task<TourismSale?> GetByIdAsync(int id, CancellationToken ct = default) => _inner.GetByIdAsync(id, ct);
+        public Task<List<TourismSale>> GetAllAsync(CancellationToken ct = default) => _inner.GetAllAsync(ct);
+        public Task<List<TourismSale>> FindAsync(Expression<Func<TourismSale, bool>> p, CancellationToken ct = default) => _inner.FindAsync(p, ct);
+        public Task<TourismSale?> FindSingleAsync(Expression<Func<TourismSale, bool>> p, CancellationToken ct = default) => _inner.FindSingleAsync(p, ct);
+        public Task<bool> AnyAsync(Expression<Func<TourismSale, bool>> p, CancellationToken ct = default) => _inner.AnyAsync(p, ct);
+        public Task<int> CountAsync(Expression<Func<TourismSale, bool>> p, CancellationToken ct = default) => _inner.CountAsync(p, ct);
+        public void Update(TourismSale e) => _inner.Update(e);
+        public void Remove(TourismSale e) => _inner.Remove(e);
+        public void RemoveRange(IEnumerable<TourismSale> es) => _inner.RemoveRange(es);
+    }
+
     private const int Cash = 101, Receivable = 102, Revenue = 601, Discount = 602, Cogs = 701, Deposit = 150;
 
     private static (SubmitGuestItineraryCommandHandler H, FakeVoucherRepo V, FakeRepo<TourismSale> S,
@@ -108,8 +136,10 @@ public class ItineraryBillingTests
 
         var vouchers = new FakeVoucherRepo();
         var sales = new FakeRepo<TourismSale>();
+        var rules = new FakeRepo<CommissionRule>();
+        var commissions = new FakeRepo<SalesCommissionEntry>();
         var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
-            vouchers, fys, new FakeCalendar(), new FakeUow());
+            rules, commissions, vouchers, fys, new FakeCalendar(), new FakeUow());
         return (h, vouchers, sales, itins, it);
     }
 
@@ -149,5 +179,48 @@ public class ItineraryBillingTests
         Assert.False(res2.Succeeded);                 // قبلاً تأیید شده
         Assert.Single(sales.Items);                    // فقط یک سند فروش
         Assert.Same(firstVoucher, vouchers.Saved);     // سندِ دوم ساخته نشد
+    }
+
+    /// <summary>پیگیریِ اختیاریِ MOD-TIT-BILL: اگر برنامه فروشنده دارد و قاعدهٔ پورسانت تعریف شده،
+    /// تأییدِ مهمان باید per-line رکوردِ پورسانت بسازد (هم‌راستا با CreateTourismSaleCommand).</summary>
+    [Fact]
+    public async Task Guest_Confirm_Creates_Salesperson_Commission_When_Rule_Exists()
+    {
+        var settings = new FakeRepo<TourismSetting>();
+        var set = TourismSetting.Create(1);
+        set.Update(Cash, Receivable, Revenue, Cogs, Deposit, Discount, null, null, null, null, true, 0, true, true);
+        settings.AddAsync(set).Wait();
+
+        var products = new FakeRepo<TourismProduct>();
+        products.AddAsync(TourismProduct.Create(1, "گشت A", supplierPartyId: 11, purchasePrice: 100, defaultSalePrice: 150)).Wait(); // Id=1
+
+        var fys = new FakeRepo<FiscalYear>();
+        fys.AddAsync(FiscalYear.Create(1, "۱۴۰۴", "1404/01/01", "1404/12/29")).Wait();
+
+        var itins = new FakeRepo<GuestItinerary>();
+        var it = GuestItinerary.Create(1, "علی مهمان", 1, "1404/06/10", guestPartyId: 77, branchId: 1, salespersonPartyId: 5);
+        itins.AddAsync(it).Wait();
+
+        var stopsRepo = new FakeRepo<ItineraryStop>();
+        var st = ItineraryStop.Create(1, sessionId: 1, dayNumber: 1, sortOrder: 1, startMinute: 540, endMinute: 600, salePrice: 150, cost: 100);
+        typeof(ItineraryStop).GetProperty("ItineraryId")!.SetValue(st, it.Id);
+        stopsRepo.AddAsync(st).Wait();
+
+        var rules = new FakeRepo<CommissionRule>();
+        rules.AddAsync(CommissionRule.Create(1, salespersonPartyId: 5, CommissionBasis.PercentOfSale,
+            rate: 10, effectiveFrom: "1404/01/01")).Wait();
+        var commissions = new FakeRepo<SalesCommissionEntry>();
+
+        var vouchers = new FakeVoucherRepo();
+        var sales = new FakeSalesRepoWithLineIds();
+        var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
+            rules, commissions, vouchers, fys, new FakeCalendar(), new FakeUow());
+
+        var res = await h.Handle(new SubmitGuestItineraryCommand(it.Token, new List<int>(), Confirm: true), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var entry = Assert.Single(commissions.Items);
+        Assert.Equal(5, entry.SalespersonPartyId);
+        Assert.Equal(15m, entry.CommissionAmount);   // ۱۰٪ از ۱۵۰
     }
 }

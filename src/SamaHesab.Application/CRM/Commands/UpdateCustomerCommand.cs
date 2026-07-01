@@ -20,15 +20,28 @@ public record UpdateCustomerCommand(
     bool? IsCustomerRole = null, bool? IsSupplierRole = null, bool? IsEmployeeRole = null, bool? IsSalespersonRole = null)
     : IRequest<Result<int>>;
 
+/// <summary>
+/// AUDIT-4 — همان اعتبارسنجیِ نامِ CreateCustomerCommand، حالا در مسیرِ ویرایش هم (قبلاً فقط ساخت داشت
+/// → نامِ نامعتبر مثلِ «؟» یا تک‌کاراکتری می‌توانست با ویرایش ثبت بماند).
+/// </summary>
 public class UpdateCustomerCommandValidator : AbstractValidator<UpdateCustomerCommand>
 {
     public UpdateCustomerCommandValidator()
     {
+        RuleFor(x => x).Must(HasValidName)
+            .WithMessage("نامِ معتبرِ مشتری را وارد کنید (برای حقوقی «نامِ شرکت» و برای حقیقی «نام»، دستِ‌کم ۲ نویسه).");
         // فرمِ ویرایش همیشه هر چهار چک‌باکس را می‌فرستد (هیچ‌کدام null نیست) — آنگاه دست‌کم یکی باید تیک بخورد.
         RuleFor(x => x).Must(x =>
                 x.IsCustomerRole is null && x.IsSupplierRole is null && x.IsEmployeeRole is null && x.IsSalespersonRole is null
                 || x.IsCustomerRole == true || x.IsSupplierRole == true || x.IsEmployeeRole == true || x.IsSalespersonRole == true)
             .WithMessage("دست‌کم یک ماهیت (خریدار/تأمین‌کننده/کارمند/فروشنده) باید تیک بخورد.");
+    }
+
+    private static bool HasValidName(UpdateCustomerCommand c)
+    {
+        var isLegal = string.Equals(c.CustomerType?.Trim(), "حقوقی", System.StringComparison.Ordinal);
+        var name = (isLegal ? c.CompanyName : $"{c.FirstName} {c.LastName}")?.Trim() ?? string.Empty;
+        return name.Length >= 2 && !System.Text.RegularExpressions.Regex.IsMatch(name, @"^\?+$");
     }
 }
 

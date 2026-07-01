@@ -258,6 +258,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<BankAccountViewModel>();
                 services.AddTransient<ProductListViewModel>();
                 services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.BarcodePrintViewModel>();
+                services.AddTransient<SamaHesab.WPF.ViewModels.Inventory.QuickStockViewModel>();
                 services.AddTransient<BatchSerialViewModel>();
                 services.AddTransient<InventoryReportViewModel>();
                 services.AddTransient<ViewModels.Inventory.ReorderReportViewModel>();

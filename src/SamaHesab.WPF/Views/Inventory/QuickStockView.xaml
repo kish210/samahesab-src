@@ -1,0 +1,84 @@
+<UserControl x:Class="SamaHesab.WPF.Views.Inventory.QuickStockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <conv:NumberFormatConverter x:Key="Num"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+    </UserControl.Resources>
+    <Grid Margin="16" HorizontalAlignment="Center" VerticalAlignment="Top" Width="560">
+        <Border Background="{DynamicResource CardBackground}" CornerRadius="12" Padding="20">
+            <StackPanel>
+                <TextBlock Text="{Binding ModeTitle}" FontSize="18" FontWeight="Bold" Foreground="#2E7D52" Margin="0,0,0,4"/>
+                <TextBlock Text="ثبتِ سریعِ تک‌ضربه — بدونِ سندِ چندردیفی." FontSize="11.5"
+                           Foreground="{DynamicResource SecondaryText}" Margin="0,0,0,14"/>
+
+                <!-- حالت -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                    <RadioButton Content="انتقالِ انبار" IsChecked="{Binding IsTransfer, Mode=OneWay}"
+                                 Command="{Binding SetModeCommand}" CommandParameter="transfer"
+                                 GroupName="mode" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                    <RadioButton Content="تعدیلِ موجودی" IsChecked="{Binding IsAdjust, Mode=OneWay}"
+                                 Command="{Binding SetModeCommand}" CommandParameter="adjust"
+                                 GroupName="mode" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- کالا -->
+                <TextBlock Text="کالا" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}"
+                          DisplayMemberPath="Display" IsEditable="True" Height="34" Margin="0,2,0,4"/>
+                <TextBlock Margin="0,0,0,10" FontSize="11.5" Foreground="{DynamicResource SecondaryText}">
+                    <Run Text="موجودیِ جاری در انبار:"/><Run Text="{Binding CurrentStock, Converter={StaticResource Num}, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"/>
+                </TextBlock>
+
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding FromLabel}" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox ItemsSource="{Binding Warehouses}" SelectedValuePath="Id" SelectedValue="{Binding FromWarehouseId}"
+                                  DisplayMemberPath="Name" Height="34" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Visibility="{Binding IsTransfer, Converter={StaticResource BoolVis}}">
+                        <TextBlock Text="به انبارِ (مقصد)" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <ComboBox ItemsSource="{Binding Warehouses}" SelectedValuePath="Id" SelectedValue="{Binding ToWarehouseId}"
+                                  DisplayMemberPath="Name" Height="34" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding QtyLabel}" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" Height="34" Margin="0,2,0,0" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="تاریخ" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBox Text="{Binding Date}" Height="34" Margin="0,2,0,0" FlowDirection="LeftToRight" TextAlignment="Right"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="شرح (اختیاری)" FontSize="11" Foreground="{DynamicResource SecondaryText}" Margin="0,10,0,0"/>
+                <TextBox Text="{Binding Description}" Height="34" Margin="0,2,0,0"/>
+
+                <Button Content="✔ ثبتِ سریع" Height="42" Margin="0,16,0,0" Background="#2E7D52" Foreground="White"
+                        FontWeight="Bold" Command="{Binding SubmitCommand}"/>
+
+                <Border Margin="0,12,0,0" CornerRadius="6" Padding="10,7"
+                        Visibility="{Binding HasResult, Converter={StaticResource BoolVis}}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#F1F8F4"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ResultOk}" Value="False"><Setter Property="Background" Value="#FDECEC"/></DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" Foreground="{DynamicResource PrimaryText}"/>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

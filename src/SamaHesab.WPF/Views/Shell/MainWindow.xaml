@@ -264,6 +264,7 @@
                                 <MenuItem Header="داشبورد انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseDash"/>
                                 <MenuItem Header="کارت کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductCard"/>
                                 <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
+                                <MenuItem Header="⚡ انتقال/تعدیلِ سریع" Command="{Binding NavigateCommand}" CommandParameter="QuickStock"/>
                                 <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
                                 <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
                                 <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>

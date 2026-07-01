@@ -104,7 +104,9 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
         {
             var it = await _itineraries.FindSingleAsync(g => g.Token == req.Token, ct);
             if (it is null) return await Rollback("برنامه‌ای با این لینک یافت نشد.");
-            if (it.Status == ItineraryStatus.Confirmed) return await Rollback("این برنامه قبلاً تأیید نهایی شده است.");
+            // ملاکِ «قفل» = سند خورده (IsBilled)، نه صرفاً Confirmed — تا برنامه‌های Confirmedِ بدونِ سند
+            // (دادهٔ ساخته‌شده پیش از MOD-TIT-BILL) هم بتوانند با تأییدِ دوباره سند بخورند.
+            if (it.IsBilled) return await Rollback("این برنامه قبلاً خرید (سند) شده است.");
 
             if (req.RemovedStopIds is { Count: > 0 })
             {

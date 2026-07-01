@@ -28,7 +28,9 @@ public class TourismSale : AuditableEntity, IBranchScoped
         int? customerPartyId = null, string paymentMethod = "نقدی", string? note = null)
     {
         if (string.IsNullOrWhiteSpace(date)) throw new ArgumentException("تاریخ الزامی است.");
-        if (salespersonPartyId <= 0) throw new ArgumentException("فروشنده الزامی است.");
+        // ۰ = فروشِ خودخدمت/آنلاین (خریدِ مستقیمِ مهمان از پنلِ اقامتی، بدونِ فروشندهٔ مشخص).
+        // مسیرِ فروشِ فروشنده‌محور (CreateTourismSaleCommand) خودش بالادست فروشنده را الزامی می‌کند.
+        if (salespersonPartyId < 0) throw new ArgumentException("فروشندهٔ نامعتبر.");
         return new TourismSale
         {
             CompanyId = companyId, BranchId = branchId, Date = date,

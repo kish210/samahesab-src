@@ -6,7 +6,7 @@
 ; =============================================================================
 
 #define AppName       "سما حساب — صندوق"
-#define AppVersion    "2.7.3"
+#define AppVersion    "2.7.4"
 #define AppPublisher  "سماع رایانه کیش"
 #define AppExe        "SamaHesab.exe"
 

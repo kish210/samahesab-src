@@ -56,6 +56,14 @@ var jwtKey = jwt["Key"];
 if (string.IsNullOrWhiteSpace(jwtKey))
     throw new InvalidOperationException(
         "تنظیمِ Jwt:Key در appsettings.json موجود نیست — برای امضای توکنِ JWT الزامی است.");
+// امنیتِ فروش: کلیدِ پیش‌فرضِ درونِ ریپو یا کلیدِ کوتاه، توکن‌ها را جعل‌پذیر می‌کند. در Productionِ واقعی
+// (نه Development) کلیدِ پیش‌فرض/کوتاه پذیرفته نمی‌شود؛ مدیر باید یک کلیدِ تصادفیِ ≥۳۲ نویسه بگذارد.
+if (!builder.Environment.IsDevelopment()
+    && (jwtKey.StartsWith("CHANGE_THIS", StringComparison.OrdinalIgnoreCase)
+        || System.Text.Encoding.UTF8.GetByteCount(jwtKey) < 32))
+    throw new InvalidOperationException(
+        "کلیدِ Jwt:Key پیش‌فرض یا خیلی کوتاه است. پیش از استفادهٔ واقعی، یک کلیدِ تصادفیِ دستِ‌کم ۳۲ نویسه " +
+        "در appsettings.json (یا متغیرِ محیطیِ Jwt__Key) قرار دهید.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

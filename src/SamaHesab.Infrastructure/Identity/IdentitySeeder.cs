@@ -17,17 +17,23 @@ public static class IdentitySeeder
         var existing = await users.FindSingleAsync(u => u.CompanyId == companyId && u.Username == "admin");
         if (existing != null)
         {
-            // Self-heal the documented default admin during the pre-production phase:
-            // if its stored credential is missing/corrupt (or the account got locked),
-            // reset it to the default so the system is never unusable.
-            if (!PasswordHasher.Verify("admin123", existing.PasswordHash, existing.PasswordSalt) || existing.IsLocked)
+            // فقط رکوردِ **خراب** را ترمیم کن — نه رمزِ عمداً‌تغییریافته را.
+            // ⚠️ ریسکِ فروش (رفع‌شده): نسخهٔ قبلی هر رمزِ ادمینِ عوض‌شده را در استارت‌آپ به
+            // «admin123» بازمی‌گرداند (چون Verify("admin123") شکست می‌خورد → reset). حالا فقط
+            // وقتی hash/salt واقعاً خالی/ناقص است (رکوردِ فاسد، نه رمزِ سالمِ متفاوت) ریست می‌شود.
+            var credentialBroken = string.IsNullOrEmpty(existing.PasswordHash)
+                                   || string.IsNullOrEmpty(existing.PasswordSalt);
+            var dirty = false;
+            if (credentialBroken)   // فقط رکوردِ فاسد → رمزِ پیش‌فرض (نه رمزِ سالمِ عوض‌شده)
             {
                 var (h, s) = PasswordHasher.Create("admin123");
                 existing.SetPassword(h, s);
-                existing.Unlock();
-                users.Update(existing);
-                await uow.SaveChangesAsync();
+                dirty = true;
             }
+            // بازکردنِ ادمینِ قفل‌شده در استارت‌آپ نگه داشته شد تا فروشگاهِ تک‌ادمین برای همیشه
+            // قفل نماند (رمز دست‌نخورده می‌ماند؛ مهاجم همچنان به رمز نیاز دارد).
+            if (existing.IsLocked) { existing.Unlock(); dirty = true; }
+            if (dirty) { users.Update(existing); await uow.SaveChangesAsync(); }
             return;
         }
 

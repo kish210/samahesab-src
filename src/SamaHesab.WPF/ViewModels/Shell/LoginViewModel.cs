@@ -113,10 +113,12 @@ public partial class LoginViewModel : ObservableObject
             }
             catch
             {
-                // Offline resilience: if the DB is unreachable, allow the built-in admin.
-                if (!((Username == "admin" && Password == "admin123") || (Username == "admin" && Password == "1234")))
-                { HasError = true; ErrorMessage = "عدم دسترسی به پایگاه داده و اعتبارسنجی ناموفق."; return; }
-                fullName = "مدیر سیستم"; roles = new List<string> { "ADMIN" }; permissions = new List<string> { "*" };
+                // عدمِ دسترسی به پایگاه‌داده = ورود ناموفق. (پیش‌تر اینجا یک درِ پشتیِ ثابت
+                // `admin/admin123`|`admin/1234` بود که با قطعِ DB هر رمزِ عوض‌شده را دور می‌زد —
+                // ریسکِ امنیتیِ فروش. حالا بدونِ DB هیچ ورودی پذیرفته نمی‌شود.)
+                HasError = true;
+                ErrorMessage = "عدم دسترسی به پایگاه داده؛ ورود ممکن نیست. اتصال به سرور را بررسی کنید.";
+                return;
             }
 
             ((CurrentUserService)_currentUser).SetCurrentUser(userId, SelectedCompanyId, branchId, Username,

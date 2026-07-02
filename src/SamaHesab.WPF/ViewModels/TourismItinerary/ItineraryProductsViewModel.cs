@@ -76,6 +76,10 @@ public partial class ItineraryProductsViewModel : BaseViewModel
     private async Task DeleteSessionAsync(ItineraryProductSessionDto? session)
     {
         if (session is null || SelectedProduct is not { } p) return;
+        // U-TUR-1: قبلاً بدونِ تأیید حذف می‌شد — حذفِ اشتباهیِ یک سانس، همهٔ ظرفیت/رزروهایِ
+        // وابسته به آن بازه را از دست می‌داد؛ بدونِ بازگشت.
+        if (!await _dialogService.ConfirmAsync($"سانسِ «{session.Label}» حذف شود؟ این کار قابلِ بازگشت نیست."))
+            return;
         await ExecuteAsync(async () =>
         {
             var res = await _mediator.Send(new DeleteProductSessionCommand(session.Id));

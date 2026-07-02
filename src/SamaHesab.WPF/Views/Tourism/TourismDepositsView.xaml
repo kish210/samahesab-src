@@ -42,8 +42,10 @@
                     <TextBlock Text="تاریخ" FontSize="11" Foreground="{DynamicResource SecondaryText}"/>
                     <TextBox Width="110" Height="32" Text="{Binding Date}" FlowDirection="LeftToRight"/>
                 </StackPanel>
+                <!-- U-TUR-2: دکمه پیش‌تر در حینِ ثبتِ سند غیرفعال نمی‌شد — دوکلیکِ سریع می‌توانست
+                     دو سندِ شارژِ یکسان صادر کند (دوبرابرشدنِ ودیعه). -->
                 <Button Content="💰 ثبتِ شارژ" Style="{StaticResource PrimaryButton}" Height="32" VerticalAlignment="Bottom"
-                        Command="{Binding TopUpCommand}"/>
+                        Command="{Binding TopUpCommand}" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"/>
             </WrapPanel>
         </Border>
 

@@ -523,6 +523,15 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
                 BarcodeInput = string.Empty;
                 return;
             }
+            // U-PUR-1/سیستمی: قبلاً وقتی چند کالا با این عبارت مچ می‌شد، پیامِ گمراه‌کنندهٔ
+            // «یافت نشد» نشان داده می‌شد و کاربر هیچ راهی برایِ انتخاب نداشت. حالا نتایج زیرِ
+            // فیلد نمایش داده می‌شوند (همان الگوی فاکتورِ خرید).
+            if (found.Count > 1)
+            {
+                SearchResults.Clear();
+                foreach (var p in found.Take(20)) SearchResults.Add(p);
+                return;
+            }
             await _dialogService.ShowWarningAsync($"کالا با کد «{code}» یافت نشد.");
             BarcodeInput = string.Empty;
             return;

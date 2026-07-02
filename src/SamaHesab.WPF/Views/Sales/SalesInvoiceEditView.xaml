@@ -10,6 +10,7 @@
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
+        <conv:GreaterThanZeroConverter x:Key="GtzBool"/>
         <conv:NullToVisibilityConverter x:Key="NullVis"/>
         <Style x:Key="Cap" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10.5"/><Setter Property="FontWeight" Value="SemiBold"/>
@@ -294,6 +295,31 @@
                                      Text="{Binding BarcodeInput, UpdateSourceTrigger=PropertyChanged}">
                                 <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding ProcessBarcodeCommand}"/></TextBox.InputBindings>
                             </TextBox>
+                            <!-- U-PUR-1 (هم‌راستا با فاکتورِ خرید): وقتی چند کالا با این عبارت مچ می‌شد،
+                                 پیامِ گمراه‌کنندهٔ «یافت نشد» می‌آمد و راهی برایِ انتخاب نبود. -->
+                            <Popup PlacementTarget="{Binding ElementName=BarcodeBox}" Placement="Bottom" StaysOpen="False"
+                                   IsOpen="{Binding SearchResults.Count, Converter={StaticResource GtzBool}, Mode=OneWay}"
+                                   AllowsTransparency="True" Width="320">
+                                <Border Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Margin="0,3,0,0">
+                                    <Border.Effect><DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.22" Color="#334155"/></Border.Effect>
+                                    <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding SearchResults}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Cursor="Hand" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                                                            Command="{Binding PlacementTarget.DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                            CommandParameter="{Binding}">
+                                                        <DockPanel Margin="10,7">
+                                                            <TextBlock DockPanel.Dock="Left" Text="{Binding Code}" FontSize="10.5" Foreground="{StaticResource ErpTextMuted}" FlowDirection="LeftToRight"/>
+                                                            <TextBlock Text="{Binding Name}" FontSize="12.5"/>
+                                                        </DockPanel>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
                             <!-- UX-SALES-1 — هینتِ تاریخچهٔ قیمت (آخرین فروشِ کالا، کلی + به این مشتری) -->
                             <TextBlock Text="{Binding EntryPriceHint}" FontSize="10.5" Foreground="{StaticResource ErpBlue700}"
                                        TextTrimming="CharacterEllipsis" Margin="2,2,0,0"

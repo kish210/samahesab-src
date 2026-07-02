@@ -156,6 +156,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                 }
             }
 
+            // U-POS-7: PaidAmount/RemainAmount خودِ فاکتور تا این‌جا هرگز از request.PaidAmount ست
+            // نمی‌شد — یعنی هر فاکتورِ فروش (صرف‌نظر از نقدی/کارت‌خوان) روی PaidAmount=۰ می‌ماند و
+            // گزارش‌های «مانده/سررسید» و IsFullyPaid همیشه غلط بودند، حتی وقتی سندِ حسابداری‌اش
+            // درست دریافتِ نقد/بانک را ثبت می‌کرد. مبلغِ دریافتی (سقف‌زده به GrandTotal) اینجا
+            // روی خودِ فاکتور هم اعمال می‌شود.
+            if (request.PaidAmount > 0)
+                invoice.AddPayment(System.Math.Min(request.PaidAmount, invoice.GrandTotal));
+
             await _invoiceRepository.AddAsync(invoice, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 

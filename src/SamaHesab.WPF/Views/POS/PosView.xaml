@@ -148,7 +148,7 @@
 
             <!-- دکمه‌های پرداخت -->
             <Grid Grid.Row="1" Margin="0,10,0,0">
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <!-- T13: تاگلِ حالتِ مرجوعی/برگشت -->
                 <!-- U-POS-3: IsChecked حالا OneWay + Command (نه TwoWay مستقیم) تا با سبدِ غیرخالی
                      پیش از تعویض به حالتِ مرجوعی (بازپرداختِ کامل) از کاربر تأیید گرفته شود. -->
@@ -169,7 +169,27 @@
                         </Style>
                     </ToggleButton.Style>
                 </ToggleButton>
-                <Button Grid.Row="1" Height="62" Foreground="White" BorderThickness="0" Cursor="Hand"
+                <!-- U-POS-6: فیلدِ دریافتیِ نقدی — پیش‌تر اصلاً در UI وجود نداشت، یعنی «پرداخت نقدی»
+                     همیشه با خطای «مبلغ دریافتی کافی نیست» رد می‌شد و کارت‌خوان بدونِ این فیلد فروش
+                     را با paid=۰ (نسیهٔ ناخواسته) ثبت می‌کرد. -->
+                <Grid Grid.Row="1" Margin="0,0,0,7" Visibility="{Binding NeedsCashInput, Converter={StaticResource BoolVis}}">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <DockPanel Grid.Column="0">
+                        <TextBlock Text="دریافتیِ نقدی" FontSize="11" Foreground="{StaticResource ErpTextMuted}" DockPanel.Dock="Top"/>
+                        <Border Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Margin="0,3,0,0">
+                            <TextBox Text="{Binding CashReceived, UpdateSourceTrigger=PropertyChanged}" Height="34" Padding="8,6"
+                                     Background="Transparent" BorderThickness="0" FlowDirection="LeftToRight" TextAlignment="Left"/>
+                        </Border>
+                    </DockPanel>
+                    <DockPanel Grid.Column="2">
+                        <TextBlock Text="باقیمانده/تغییر" FontSize="11" Foreground="{StaticResource ErpTextMuted}" DockPanel.Dock="Top"/>
+                        <Border Background="#F6F7F9" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="8" Margin="0,3,0,0">
+                            <TextBlock Text="{Binding Change, Converter={StaticResource Num}}" Height="34" Padding="8,6" FontWeight="SemiBold"
+                                       FlowDirection="LeftToRight" TextAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                    </DockPanel>
+                </Grid>
+                <Button Grid.Row="2" Height="62" Foreground="White" BorderThickness="0" Cursor="Hand"
                         FontSize="16" FontWeight="Bold" Content="{Binding CheckoutLabel}" Command="{Binding CheckoutCommand}">
                     <Button.Style>
                         <Style TargetType="Button">
@@ -182,7 +202,7 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Grid Grid.Row="2" Margin="0,7,0,0">
+                <Grid Grid.Row="3" Margin="0,7,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <!-- U-POS-1: پیش‌تر این سه دکمه Commandای نداشتند (کلیکِ بی‌اثر و گیج‌کننده)؛
                          حالا واقعاً PaymentMode را عوض می‌کنند و حالتِ فعال با رنگ مشخص است. -->
@@ -291,7 +311,9 @@
                         Content="🖨 چاپ F8" Command="{Binding PrintReceiptCommand}"/>
                 <!-- U-POS-2: برچسبِ «ابطال Esc» نادرست بود — کلیدِ Esc در واقع فقط از حالتِ برگشت خارج می‌کند
                      (ExitReturnModeCommand)، نه شروعِ فروشِ تازه؛ این کلیدِ F1 است. برچسب اصلاح شد. -->
-                <Button Grid.Column="8" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="فروش جدید F1" Command="{Binding NewSaleCommand}"/>
+                <!-- U-POS-2b: «فروش جدید F1» در ستونِ باریکِ ۱/۵ عرض، مثلِ برچسبِ قبلی، کلیپ می‌شد؛
+                     بدونِ پسوندِ کلید کوتاه‌تر و در عرضِ ستون جا می‌شود. -->
+                <Button Grid.Column="8" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="فروش جدید" ToolTip="فروش جدید (F1)" Command="{Binding NewSaleCommand}"/>
             </Grid>
         </Grid>
 

@@ -39,10 +39,17 @@ public partial class PosViewModel : BaseViewModel
     [ObservableProperty] private string _paymentMode = "نقدی";
     [ObservableProperty] private string _currentTime = string.Empty;
     [ObservableProperty] private string _receiptNumber = string.Empty;
+    /// <summary>U-POS-6 — فیلدِ «دریافتیِ نقدی» فقط برایِ نقدی/ترکیبی لازم است (کارت‌خوان مبلغِ دقیق را
+    /// خودکار می‌کِشد، نسیه اصلاً نقد نمی‌گیرد).</summary>
+    public bool NeedsCashInput => PaymentMode is "نقدی" or "ترکیبی";
+    partial void OnPaymentModeChanged(string value)
+    { OnPropertyChanged(nameof(CheckoutLabel)); OnPropertyChanged(nameof(NeedsCashInput)); }
 
     // T13 — حالتِ مرجوعی (برگشت از فروش): سبد به‌جای فروش، برگشت ثبت می‌کند (افزایشِ موجودی + بازپرداخت).
     [ObservableProperty] private bool _isReturnMode;
-    public string CheckoutLabel => IsReturnMode ? "ثبت برگشت / بازپرداخت" : "پرداخت نقدی — Enter";
+    /// <summary>U-POS-5 — قبلاً این برچسب همیشه «پرداخت نقدی» می‌گفت حتی وقتی کارت‌خوان/نسیه/ترکیبی
+    /// انتخاب شده بود (چون آن دکمه‌ها تازه فعال شدند، این ناهماهنگی تازه قابلِ‌مشاهده شد).</summary>
+    public string CheckoutLabel => IsReturnMode ? "ثبت برگشت / بازپرداخت" : $"پرداخت {PaymentMode} — Enter";
     public string ReturnToggleLabel => IsReturnMode ? "حالت فروش" : "مرجوعی / برگشت";
     partial void OnIsReturnModeChanged(bool value)
     { OnPropertyChanged(nameof(CheckoutLabel)); OnPropertyChanged(nameof(ReturnToggleLabel)); }
@@ -477,7 +484,16 @@ public partial class PosViewModel : BaseViewModel
                 return;
             }
 
-            var paid = PaymentMode == "نقدی" ? GrandTotal : CashReceived;
+            // U-POS-6: قبلاً برای هر چیزِ غیرِ«نقدی» paid=CashReceived بود — چون هیچ فیلدِ ورودیِ
+            // دریافتیِ نقدی در UI وجود نداشت، CashReceived همیشه ۰ می‌ماند و «کارت‌خوان» یک فروشِ
+            // کاملاً‌پرداخت‌شده را به‌عنوانِ نسیهٔ صفرریالی ثبت می‌کرد (نشتِ درآمد). کارت‌خوان مبلغِ
+            // دقیق را می‌کِشد (paid=GrandTotal)؛ نسیه عمداً صفر است؛ ترکیبی از دریافتیِ واردشده می‌آید.
+            var paid = PaymentMode switch
+            {
+                "نقدی" or "کارتخوان" => GrandTotal,
+                "نسیه" => 0m,
+                _ => CashReceived   // ترکیبی: بخشِ نقدیِ واردشده؛ باقی نسیه می‌ماند
+            };
 
             if (UseApi)
             {

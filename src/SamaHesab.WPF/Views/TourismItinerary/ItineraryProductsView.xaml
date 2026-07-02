@@ -48,10 +48,14 @@
                             <DataGridTextColumn Header="شروع" Binding="{Binding StartMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
                             <DataGridTextColumn Header="پایان" Binding="{Binding EndMinute, Converter={StaticResource MinToTime}}" Width="Auto"/>
                             <DataGridTextColumn Header="ظرفیت" Binding="{Binding Capacity}" Width="Auto"/>
-                            <DataGridTemplateColumn Header="" Width="Auto">
+                            <!-- U-TUR-3: با Width="Auto" این ستون در عمل عرضِ صفر می‌گرفت (بدونِ اسکرول‌بارِ افقی)
+                                 و دکمهٔ حذف کاملاً غیرقابل‌دسترس بود — یعنی کاربر هیچ راهی برای حذفِ سانس نداشت.
+                                 عرضِ ثابت + Widthِ صریح روی دکمه این را تضمین می‌کند. -->
+                            <DataGridTemplateColumn Header="" Width="64" MinWidth="64">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="🗑" Padding="6,1" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                        <Button Content="حذف" Width="52" Height="26" Padding="4,0" Background="#FEE2E2" Foreground="#B91C1C"
+                                                BorderThickness="0" Cursor="Hand" FontSize="11"
                                                 Command="{Binding DataContext.DeleteSessionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </DataTemplate>

@@ -149,25 +149,6 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource Card}">
-                        <StackPanel>
-                            <TextBlock Text="خلاصه موجودی" FontWeight="Bold" FontSize="14"
-                                       Foreground="{DynamicResource PrimaryText}"
-                                       FontFamily="{StaticResource VazirFont}" Margin="0,0,0,12"/>
-                            <Border Background="{DynamicResource SurfaceBackground}" CornerRadius="8" Padding="12">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,6">
-                                        <TextBlock Text="موجودی کل:" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                                        <TextBlock Text="۱۲۰ عدد" HorizontalAlignment="Left" Foreground="#2E7D52" FontWeight="Bold" FontFamily="{StaticResource VazirFont}"/>
-                                    </Grid>
-                                    <Grid>
-                                        <TextBlock Text="میانگین بهای تمام شده:" Foreground="{DynamicResource SecondaryText}" FontFamily="{StaticResource VazirFont}" FontSize="12"/>
-                                        <TextBlock Text="۱,۲۵۰,۰۰۰ ریال" HorizontalAlignment="Left" Foreground="{DynamicResource WarningColor}" FontFamily="{StaticResource VazirFont}"/>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

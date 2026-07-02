@@ -69,10 +69,13 @@ public class BackupService : IBackupService
         if (!File.Exists(backupFilePath))
             throw new FileNotFoundException("فایل پشتیبان یافت نشد.", backupFilePath);
 
+        // امنیت: مسیرِ فایل مستقیماً در رشته‌ی SQL درج می‌شد بدونِ escape (برخلافِ BackupAsync که
+        // تک‌کوتیشن را escape می‌کند) — یک مسیرِ فایلِ حاویِ کوتیشن، سینتکسِ RESTORE را می‌شکست.
+        var escapedPath = backupFilePath.Replace("'", "''");
         var sql = $@"
             USE master;
             ALTER DATABASE [SamaHesab] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-            RESTORE DATABASE [SamaHesab] FROM DISK = N'{backupFilePath}' WITH REPLACE, STATS = 10;
+            RESTORE DATABASE [SamaHesab] FROM DISK = N'{escapedPath}' WITH REPLACE, STATS = 10;
             ALTER DATABASE [SamaHesab] SET MULTI_USER;";
 
         try

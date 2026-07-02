@@ -85,16 +85,62 @@ public sealed class LicenseService
         catch (Exception ex) { return (false, "خطا در خواندنِ فایلِ لایسنس: " + ex.Message); }
     }
 
+    private const string RegistryKeyPath = @"Software\SamaHesab";
+    private const string RegistryValueName = "TrialInstallUtc";
+
+    /// <summary>
+    /// امنیتِ لایسنس: تاریخِ شروعِ تریال هم در settings.json (AppData) و هم در رجیستریِ HKCU
+    /// نگه‌داری می‌شود. حذفِ فایلِ تنظیمات به‌تنهایی دیگر تریال را ریست نمی‌کند — قدیمی‌ترینِ
+    /// تاریخِ معتبرِ موجود بینِ این دو منبع مبنا قرار می‌گیرد و در هر دو هم‌گام (sync) نگه داشته می‌شود.
+    /// </summary>
     private static DateTime GetOrSetTrialInstall()
     {
         var g = AppSettingsStore.GetGeneral();
-        if (DateTime.TryParse(g.TrialInstallUtc, null,
-                System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
-                out var dt))
-            return dt;
+        var fromFile = TryParseUtc(g.TrialInstallUtc);
+        var fromRegistry = TryParseUtc(ReadRegistryValue());
+
+        DateTime? earliest = fromFile.HasValue && fromRegistry.HasValue
+            ? (fromFile.Value < fromRegistry.Value ? fromFile.Value : fromRegistry.Value)
+            : fromFile ?? fromRegistry;
+
+        if (earliest.HasValue)
+        {
+            var iso = earliest.Value.ToString("o");
+            if (g.TrialInstallUtc != iso) { g.TrialInstallUtc = iso; AppSettingsStore.SaveGeneral(g); }
+            WriteRegistryValue(iso);
+            return earliest.Value;
+        }
+
         var now = DateTime.UtcNow;
-        g.TrialInstallUtc = now.ToString("o");
+        var nowIso = now.ToString("o");
+        g.TrialInstallUtc = nowIso;
         AppSettingsStore.SaveGeneral(g);
+        WriteRegistryValue(nowIso);
         return now;
+    }
+
+    private static DateTime? TryParseUtc(string? s) =>
+        DateTime.TryParse(s, null,
+            System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal,
+            out var dt) ? dt : null;
+
+    private static string? ReadRegistryValue()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RegistryKeyPath);
+            return key?.GetValue(RegistryValueName) as string;
+        }
+        catch { return null; }
+    }
+
+    private static void WriteRegistryValue(string iso)
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(RegistryKeyPath);
+            key.SetValue(RegistryValueName, iso);
+        }
+        catch { /* بدونِ دسترسیِ رجیستری، فایلِ تنظیمات به‌تنهایی مبنا می‌ماند */ }
     }
 }

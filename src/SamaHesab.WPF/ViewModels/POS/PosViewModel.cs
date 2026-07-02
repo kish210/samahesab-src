@@ -46,12 +46,22 @@ public partial class PosViewModel : BaseViewModel
     public string ReturnToggleLabel => IsReturnMode ? "حالت فروش" : "مرجوعی / برگشت";
     partial void OnIsReturnModeChanged(bool value)
     { OnPropertyChanged(nameof(CheckoutLabel)); OnPropertyChanged(nameof(ReturnToggleLabel)); }
-    [RelayCommand] private void ToggleReturnMode() => IsReturnMode = !IsReturnMode;
+    /// <summary>U-POS-3 — تعویضِ حالتِ مرجوعی سبد را پاک نمی‌کند؛ یعنی اگر سبد از فروشِ عادی پر باشد
+    /// و کاربر اشتباهی این دکمه را بزند، همان اقلام حالا به‌عنوانِ «برگشت» (بازپرداختِ کامل) ثبت
+    /// می‌شوند — بدونِ آگاهیِ کاربر. برای جلوگیری از بازپرداختِ ناخواسته، با سبدِ غیرخالی تأیید می‌گیرد.</summary>
+    [RelayCommand]
+    private async Task ToggleReturnModeAsync()
+    {
+        if (!IsReturnMode && CartItems.Any() &&
+            !await _dialogService.ConfirmAsync("سبدِ فعلی به‌عنوانِ «برگشت/مرجوعی» ثبت خواهد شد (بازپرداختِ کامل). ادامه می‌دهید؟"))
+            return;
+        IsReturnMode = !IsReturnMode;
+    }
     /// <summary>ESC در حالتِ مرجوعی → بازگشت به فروشِ عادی (باگ: قبلاً ESC حالت را برنمی‌گرداند).</summary>
     [RelayCommand] private void ExitReturnMode() { if (IsReturnMode) IsReturnMode = false; }
 
     public ObservableCollection<PosCartItem> CartItems { get; } = new();
-    public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "ترکیبی" };
+    public List<string> PaymentModes { get; } = new() { "نقدی", "کارتخوان", "نسیه", "ترکیبی" };
 
     // POS-CUSTOMER — انتخابِ مشتری در صندوق (پیش‌فرض «متفرقه»). برای فروشِ نسیه/باشگاه.
     public ObservableCollection<PosCustomer> Customers { get; } = new();
@@ -80,6 +90,10 @@ public partial class PosViewModel : BaseViewModel
     partial void OnTypeFilterChanged(int value) => ApplyFilter();
     [RelayCommand] private void SetTypeFilter(string? mode)
     { TypeFilter = mode switch { "goods" => 1, "service" => 2, _ => 0 }; }
+
+    /// <summary>U-POS-1 — دکمه‌های «کارت‌خوان/نسیه/ترکیبی» پیش‌تر بدونِ Command بودند (کلیکِ بی‌اثر،
+    /// گیج‌کننده برای صندوق‌دار). حالا واقعاً PaymentMode را عوض می‌کنند.</summary>
+    [RelayCommand] private void SetPaymentMode(string mode) => PaymentMode = PaymentMode == mode ? "نقدی" : mode;
 
     // U9 — کالاهای محبوب/پرتکرار (سنجاق‌شده‌ها اول، سپس اخیرها) برای دسترسی سریع در صندوق.
     // دستهٔ مجازیِ id=-2 «⭐ محبوب» این فهرست را نمایش می‌دهد.
@@ -511,13 +525,22 @@ public partial class PosViewModel : BaseViewModel
             SubTotal, Discount, Tax, 0, GrandTotal, CashReceived, Change, null);
     }
 
-    [RelayCommand]
     private void NewSale()
     {
         CartItems.Clear(); CashReceived = 0; Discount = 0;
         RecalculateTotals();
         ReceiptNumber = "POS-" + DateTime.Now.ToString("yyyyMMddHHmm");
         BarcodeInput = string.Empty;
+    }
+
+    /// <summary>U-POS-2 — دکمهٔ «ابطال»/کلیدِ F1 پیش‌تر بدونِ هیچ تأییدی سبدِ خرید را پاک می‌کرد
+    /// (کلیکِ اشتباه = ازدست‌رفتنِ فروشِ درحالِ ثبت). حالا فقط وقتی سبد خالی نیست تأیید می‌گیرد.</summary>
+    [RelayCommand]
+    private async Task NewSaleAsync()
+    {
+        if (CartItems.Any() && !await _dialogService.ConfirmAsync("سبدِ خریدِ فعلی پاک شود؟ این کار قابلِ بازگشت نیست."))
+            return;
+        NewSale();
     }
 
     [RelayCommand]

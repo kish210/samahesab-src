@@ -142,8 +142,11 @@
             <Grid Grid.Row="1" Margin="0,10,0,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <!-- T13: تاگلِ حالتِ مرجوعی/برگشت -->
+                <!-- U-POS-3: IsChecked حالا OneWay + Command (نه TwoWay مستقیم) تا با سبدِ غیرخالی
+                     پیش از تعویض به حالتِ مرجوعی (بازپرداختِ کامل) از کاربر تأیید گرفته شود. -->
                 <ToggleButton Grid.Row="0" Height="34" Margin="0,0,0,7" Cursor="Hand" FontWeight="SemiBold" FontSize="12.5"
-                              IsChecked="{Binding IsReturnMode}" Content="{Binding ReturnToggleLabel}">
+                              IsChecked="{Binding IsReturnMode, Mode=OneWay}" Content="{Binding ReturnToggleLabel}"
+                              Command="{Binding ToggleReturnModeCommand}">
                     <ToggleButton.Style>
                         <Style TargetType="ToggleButton">
                             <Setter Property="Background" Value="White"/>
@@ -173,9 +176,50 @@
                 </Button>
                 <Grid Grid.Row="2" Margin="0,7,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/><ColumnDefinition Width="7"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Height="52" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="کارت‌خوان" FontWeight="SemiBold"/>
-                    <Button Grid.Column="2" Height="52" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="نسیه" FontWeight="SemiBold"/>
-                    <Button Grid.Column="4" Height="52" Background="White" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="ترکیبی" FontWeight="SemiBold"/>
+                    <!-- U-POS-1: پیش‌تر این سه دکمه Commandای نداشتند (کلیکِ بی‌اثر و گیج‌کننده)؛
+                         حالا واقعاً PaymentMode را عوض می‌کنند و حالتِ فعال با رنگ مشخص است. -->
+                    <Button Grid.Column="0" Height="52" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="کارت‌خوان" FontWeight="SemiBold"
+                            Command="{Binding SetPaymentModeCommand}" CommandParameter="کارتخوان">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="#111827"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PaymentMode}" Value="کارتخوان">
+                                        <Setter Property="Background" Value="{StaticResource ErpBlue600}"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Grid.Column="2" Height="52" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="نسیه" FontWeight="SemiBold"
+                            Command="{Binding SetPaymentModeCommand}" CommandParameter="نسیه">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="#111827"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PaymentMode}" Value="نسیه">
+                                        <Setter Property="Background" Value="{StaticResource ErpBlue600}"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Grid.Column="4" Height="52" BorderBrush="{StaticResource ErpBorder}" Cursor="Hand" Content="ترکیبی" FontWeight="SemiBold"
+                            Command="{Binding SetPaymentModeCommand}" CommandParameter="ترکیبی">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="#111827"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PaymentMode}" Value="ترکیبی">
+                                        <Setter Property="Background" Value="{StaticResource ErpBlue600}"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </Grid>
             </Grid>
 
@@ -237,7 +281,9 @@
                 <!-- چاپِ فاکتور/رسید (دستورِ موجود روی F8 — حالا دکمهٔ دیداری هم دارد) -->
                 <Button Grid.Column="6" Height="40" Background="White" BorderBrush="{StaticResource ErpBorder}" Foreground="{StaticResource ErpBlue700}" FontSize="11.5"
                         Content="🖨 چاپ F8" Command="{Binding PrintReceiptCommand}"/>
-                <Button Grid.Column="8" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="ابطال Esc" Command="{Binding NewSaleCommand}"/>
+                <!-- U-POS-2: برچسبِ «ابطال Esc» نادرست بود — کلیدِ Esc در واقع فقط از حالتِ برگشت خارج می‌کند
+                     (ExitReturnModeCommand)، نه شروعِ فروشِ تازه؛ این کلیدِ F1 است. برچسب اصلاح شد. -->
+                <Button Grid.Column="8" Height="40" Background="White" BorderBrush="#E6BCBC" Foreground="#B91C1C" FontSize="11.5" Content="فروش جدید F1" Command="{Binding NewSaleCommand}"/>
             </Grid>
         </Grid>
 

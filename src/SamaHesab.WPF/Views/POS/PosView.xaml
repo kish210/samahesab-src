@@ -126,7 +126,15 @@
                     <!-- جمع‌ها -->
                     <StackPanel Grid.Row="2">
                         <DockPanel Margin="14,5"><TextBlock Text="جمع اقلام" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
-                        <DockPanel Margin="14,3"><TextBlock Text="تخفیف" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBox DockPanel.Dock="Left" Text="{Binding Discount, UpdateSourceTrigger=PropertyChanged}" Width="110" Height="26" FlowDirection="LeftToRight" TextAlignment="Left"/></DockPanel>
+                        <!-- U-POS-4: قبلاً «تخفیف» یک TextBoxِ ساده بینِ ردیف‌هایِ فقط‌خواندنی بود (بدونِ حاشیه/واحد)
+                             و کاربر متوجه نمی‌شد که فیلدِ قابلِ‌ویرایش است — کلیکِ اشتباه، کلِ مبلغ را عوض می‌کرد. -->
+                        <DockPanel Margin="14,3">
+                            <TextBlock Text="تخفیف (ریال)" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/>
+                            <Border DockPanel.Dock="Left" Background="#FFFBEB" BorderBrush="#FDE68A" BorderThickness="1" CornerRadius="5">
+                                <TextBox Text="{Binding Discount, UpdateSourceTrigger=PropertyChanged}" Width="110" Height="26"
+                                         Background="Transparent" BorderThickness="0" FlowDirection="LeftToRight" TextAlignment="Left"/>
+                            </Border>
+                        </DockPanel>
                         <DockPanel Margin="14,5"><TextBlock Text="مالیات ۹٪" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
                         <Border Background="{StaticResource ErpBlue700}" Padding="14,12">
                             <DockPanel>

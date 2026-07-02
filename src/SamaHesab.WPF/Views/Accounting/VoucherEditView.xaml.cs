@@ -52,6 +52,15 @@ public partial class VoucherEditView : UserControl
         var q = (_accEditBox?.Text ?? "").Trim();
         if (q.Length == 0) { view.Filter = null; return; }
 
+        // U-ACC-1: پس از انتخابِ یک حساب (کلیک/Enter)، WPF متنِ ادیت‌باکس را به Display خودِ
+        // آیتم («کد — نام») هم‌گام می‌کند که این‌جا دوباره TextChanged را فایر می‌کند. اگر این متنِ
+        // ترکیبی («1-01-001 — صندوق») را دوباره فیلتر کنیم، هیچ آیتمی مچ نمی‌شود (چون نه Code به‌تنهایی
+        // نه Name به‌تنهایی شاملِ کلِ رشتهٔ ترکیبی نیست) → آیتمِ انتخاب‌شده از View فیلتر می‌شود → WPF
+        // انتخاب را پاک می‌کند → «حساب را انتخاب کنید» با وجودِ نمایشِ صحیحِ متن. پس اگر متنِ فعلی همان
+        // Display حسابِ انتخاب‌شده باشد، این هم‌گام‌سازیِ خودکار است، نه تایپِ کاربر — فیلتر را دست نزن.
+        if (AccCombo.SelectedItem is VoucherAccountItem sel && sel.Display == (_accEditBox?.Text ?? "").Trim())
+            return;
+
         view.Filter = o => o is VoucherAccountItem a
             && ((a.Code ?? "").Contains(q, StringComparison.OrdinalIgnoreCase)
              || (a.Name ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));

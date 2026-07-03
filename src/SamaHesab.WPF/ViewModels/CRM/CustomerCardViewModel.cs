@@ -1,10 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using SamaHesab.Application.Accounting.Queries;
 using SamaHesab.Application.BI.Queries;
 using SamaHesab.Application.CRM.Queries;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Application.Sales.Queries;
 using SamaHesab.Domain.Entities.CRM;
+using SamaHesab.Domain.Enums;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -65,6 +68,14 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private decimal _ledgerClosing;
     [ObservableProperty] private bool _hasData;
 
+    // ── مینی‌تب‌ها: گردش حساب / فاکتورها / چک‌ها / تماس‌وپیگیری / اسناد ضمیمه ──
+    [ObservableProperty] private int _selectedTab;
+    public ObservableCollection<SalesInvoiceRowDto> Invoices { get; } = new();
+    public ObservableCollection<CustomerChequeRow> Cheques { get; } = new();
+
+    [RelayCommand]
+    private void SelectTab(string? tab) => SelectedTab = int.TryParse(tab, out var t) ? t : 0;
+
     public CustomerCardViewModel(IMediator mediator, ApiClient api,
         ICurrentUserService currentUser, IPersianCalendarService calendar,
         IDialogService dialogService, INavigationService navigationService)
@@ -107,6 +118,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             else c = await _mediator.Send(new GetCustomerCardQuery(customerId));
             if (c == null) { await _dialogService.ShowErrorAsync("مشتری یافت نشد."); return; }
 
+            SelectedTab = 0;
             CustomerId = c.Id;
             Name = c.Name;
             Initials = BuildInitials(c.Name);
@@ -169,6 +181,17 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
                 LedgerTotalCredit = st.Value.TotalCredit;
                 LedgerClosing = st.Value.ClosingBalance;
             }
+
+            // فاکتورهای فروشِ همین مشتری
+            Invoices.Clear();
+            foreach (var inv in await _mediator.Send(new GetSalesInvoicesQuery(CustomerId: customerId)))
+                Invoices.Add(inv);
+
+            // چک‌های ثبت‌شده به‌نامِ همین مشتری
+            Cheques.Clear();
+            foreach (var chq in await _mediator.Send(new GetChequesQuery(PartyId: customerId)))
+                Cheques.Add(CustomerChequeRow.From(chq));
+
             await ReloadAttachmentsAsync(customerId);
             HasData = true;
         }, "در حال بارگذاری کارت مشتری...");
@@ -306,3 +329,21 @@ public record TopProductRow(string Name, decimal Total, int LineCount);
 
 /// <summary>ماهِ روندِ خرید + عرضِ نوار (px) برای نمودارِ میله‌ای ساده.</summary>
 public record TrendBar(string Period, decimal Total, int Count, double BarWidth);
+
+/// <summary>ردیفِ چکِ مشتری با برچسبِ فارسیِ نوع/وضعیت (برای تبِ «چک‌ها» در کارتِ مشتری).</summary>
+public record CustomerChequeRow(int Id, string TypeLabel, string ChequeNumber, string BankName,
+    decimal Amount, string DueDate, string StatusLabel)
+{
+    public static CustomerChequeRow From(ChequeRowDto c) => new(c.Id,
+        c.ChequeType == ChequeType.Received ? "دریافتی" : "پرداختی",
+        c.ChequeNumber, c.BankName, c.Amount, c.DueDate,
+        c.Status switch
+        {
+            ChequeStatus.InProcess => "در جریان",
+            ChequeStatus.Cleared => "وصول شده",
+            ChequeStatus.Returned => "برگشتی",
+            ChequeStatus.Transferred => "واگذار به بانک",
+            ChequeStatus.Cancelled => "ابطال شده",
+            _ => "نامشخص"
+        });
+}

@@ -10,7 +10,7 @@ namespace SamaHesab.Application.Accounting.Queries;
 public record ChequeRowDto(int Id, ChequeType ChequeType, string ChequeNumber, string BankName,
     decimal Amount, string DueDate, ChequeStatus Status, string IssuedBy, string Description);
 
-public record GetChequesQuery : IRequest<List<ChequeRowDto>>;
+public record GetChequesQuery(int? PartyId = null) : IRequest<List<ChequeRowDto>>;
 
 public class GetChequesQueryHandler : IRequestHandler<GetChequesQuery, List<ChequeRowDto>>
 {
@@ -22,7 +22,8 @@ public class GetChequesQueryHandler : IRequestHandler<GetChequesQuery, List<Cheq
     public async Task<List<ChequeRowDto>> Handle(GetChequesQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _cheques.FindAsync(c => c.CompanyId == companyId, ct);
+        var list = await _cheques.FindAsync(c => c.CompanyId == companyId
+            && (req.PartyId == null || c.PartyId == req.PartyId), ct);
         return list.Select(c => new ChequeRowDto(c.Id, c.ChequeType, c.ChequeNumber, c.BankName,
             c.Amount, c.DueDate, c.Status, c.IssuedBy ?? "", c.Description ?? "")).ToList();
     }

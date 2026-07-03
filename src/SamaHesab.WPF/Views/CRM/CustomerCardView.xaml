@@ -9,6 +9,64 @@
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:BoolToVisibilityConverter x:Key="BoolVis"/>
+        <conv:IntEqualsVisibilityConverter x:Key="IntEqVis"/>
+
+        <!-- مینی‌تب -->
+        <Style x:Key="MiniTabBase" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8,8,0,0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="bd" Property="Background" Value="#F7F8FA"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MiniTab0" TargetType="Button" BasedOn="{StaticResource MiniTabBase}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="0">
+                    <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MiniTab1" TargetType="Button" BasedOn="{StaticResource MiniTabBase}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="1">
+                    <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MiniTab2" TargetType="Button" BasedOn="{StaticResource MiniTabBase}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="2">
+                    <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MiniTab3" TargetType="Button" BasedOn="{StaticResource MiniTabBase}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="3">
+                    <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="MiniTab4" TargetType="Button" BasedOn="{StaticResource MiniTabBase}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTab}" Value="4">
+                    <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource ErpBlue700}"/><Setter Property="FontWeight" Value="SemiBold"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <!-- دکمه‌ی تولبار -->
         <Style x:Key="TBtn" TargetType="Button">
@@ -238,16 +296,109 @@
                 <Border Grid.Row="1" Background="#EDEEF1" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1,1,1,0"
                         CornerRadius="8,8,0,0" Margin="0,10,0,0">
                     <StackPanel Orientation="Horizontal">
-                        <Border Background="White" CornerRadius="8,8,0,0" Padding="16,8"><TextBlock Text="گردش حساب" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ErpBlue700}"/></Border>
-                        <TextBlock Text="فاکتورها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="16,0"/>
-                        <TextBlock Text="چک‌ها" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <TextBlock Text="تماس‌ها و پیگیری" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                        <TextBlock Text="اسناد ضمیمه" FontSize="12" Foreground="{StaticResource ErpTextMuted}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <Button Style="{StaticResource MiniTab0}" Content="گردش حساب" Command="{Binding SelectTabCommand}" CommandParameter="0"/>
+                        <Button Style="{StaticResource MiniTab1}" Content="فاکتورها" Command="{Binding SelectTabCommand}" CommandParameter="1"/>
+                        <Button Style="{StaticResource MiniTab2}" Content="چک‌ها" Command="{Binding SelectTabCommand}" CommandParameter="2"/>
+                        <Button Style="{StaticResource MiniTab3}" Content="تماس‌ها و پیگیری" Command="{Binding SelectTabCommand}" CommandParameter="3"/>
+                        <Button Style="{StaticResource MiniTab4}" Content="اسناد ضمیمه" Command="{Binding SelectTabCommand}" CommandParameter="4"/>
                     </StackPanel>
                 </Border>
 
-                <!-- گرید گردش حساب -->
-                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8">
+                <!-- تبِ ۱: فاکتورهای مشتری -->
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8"
+                        Visibility="{Binding SelectedTab, Converter={StaticResource IntEqVis}, ConverterParameter=1}">
+                    <DataGrid ItemsSource="{Binding Invoices}" AutoGenerateColumns="False" HeadersVisibility="Column"
+                              GridLinesVisibility="All" CanUserAddRows="False" IsReadOnly="True"
+                              RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12" Background="White" BorderThickness="0"
+                              HorizontalGridLinesBrush="{StaticResource ErpGray100}" VerticalGridLinesBrush="{StaticResource ErpGray100}"
+                              AlternatingRowBackground="#FAFBFC" RowBackground="White">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F6F7F9"/>
+                                <Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
+                                <Setter Property="FontSize" Value="11.5"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="8,6"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="شماره" Binding="{Binding Number}" Width="110">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>
+                            <DataGridTextColumn Header="مبلغ کل" Binding="{Binding Total, Converter={StaticResource Num}}" Width="120">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="پرداخت‌شده" Binding="{Binding Paid, Converter={StaticResource Num}}" Width="120">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/><Setter Property="Foreground" Value="#1E7A4D"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="مانده" Binding="{Binding Remain, Converter={StaticResource Num}}" Width="120">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="90">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- تبِ ۲: چک‌های مشتری -->
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8"
+                        Visibility="{Binding SelectedTab, Converter={StaticResource IntEqVis}, ConverterParameter=2}">
+                    <DataGrid ItemsSource="{Binding Cheques}" AutoGenerateColumns="False" HeadersVisibility="Column"
+                              GridLinesVisibility="All" CanUserAddRows="False" IsReadOnly="True"
+                              RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12" Background="White" BorderThickness="0"
+                              HorizontalGridLinesBrush="{StaticResource ErpGray100}" VerticalGridLinesBrush="{StaticResource ErpGray100}"
+                              AlternatingRowBackground="#FAFBFC" RowBackground="White">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F6F7F9"/>
+                                <Setter Property="Foreground" Value="{StaticResource ErpTextMuted}"/>
+                                <Setter Property="FontSize" Value="11.5"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="8,6"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource ErpBorder}"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="نوع" Binding="{Binding TypeLabel}" Width="80"/>
+                            <DataGridTextColumn Header="شماره چک" Binding="{Binding ChequeNumber}" Width="110">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="بانک" Binding="{Binding BankName}" Width="*"/>
+                            <DataGridTextColumn Header="مبلغ" Binding="{Binding Amount, Converter={StaticResource Num}}" Width="120">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="Margin" Value="6,0"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="سررسید" Binding="{Binding DueDate}" Width="110"/>
+                            <DataGridTextColumn Header="وضعیت" Binding="{Binding StatusLabel}" Width="100">
+                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- تبِ ۳: تماس‌ها و پیگیری (هنوز پیاده‌سازی نشده) -->
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8"
+                        Visibility="{Binding SelectedTab, Converter={StaticResource IntEqVis}, ConverterParameter=3}">
+                    <TextBlock Text="این بخش هنوز پیاده‌سازی نشده — به‌زودی" FontSize="13" Foreground="{StaticResource ErpTextMuted}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- تبِ ۴: اسناد ضمیمه (پنلِ واقعی پایینِ همین صفحه است) -->
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8"
+                        Visibility="{Binding SelectedTab, Converter={StaticResource IntEqVis}, ConverterParameter=4}">
+                    <TextBlock Text="اسناد ضمیمه در پایینِ همین صفحه نمایش داده می‌شود ⬇" FontSize="13" Foreground="{StaticResource ErpTextMuted}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- تبِ ۰: گردش حساب -->
+                <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource ErpBorder}" BorderThickness="1" CornerRadius="0,0,8,8"
+                        Visibility="{Binding SelectedTab, Converter={StaticResource IntEqVis}, ConverterParameter=0}">
                     <DockPanel>
                         <!-- جمع پایین -->
                         <Border DockPanel.Dock="Bottom" Background="#F6F7F9" BorderBrush="{StaticResource ErpBorder}" BorderThickness="0,1,0,0" Padding="0">

@@ -15,7 +15,7 @@ public record SalesInvoiceRowDto(int Id, string Number, string Date, string Cust
     decimal Total, decimal Paid, decimal Remain, string Status);
 
 public record GetSalesInvoicesQuery(string? FromDate = null, string? ToDate = null,
-    string? Status = null, string? Search = null) : IRequest<List<SalesInvoiceRowDto>>;
+    string? Status = null, string? Search = null, int? CustomerId = null) : IRequest<List<SalesInvoiceRowDto>>;
 
 public class GetSalesInvoicesQueryHandler : IRequestHandler<GetSalesInvoicesQuery, List<SalesInvoiceRowDto>>
 {
@@ -43,7 +43,8 @@ public class GetSalesInvoicesQueryHandler : IRequestHandler<GetSalesInvoicesQuer
     public async Task<List<SalesInvoiceRowDto>> Handle(GetSalesInvoicesQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _invoices.FindAsync(i => i.CompanyId == companyId, ct);
+        var list = await _invoices.FindAsync(i => i.CompanyId == companyId
+            && (req.CustomerId == null || i.CustomerId == req.CustomerId), ct);
         var customers = (await _customers.FindAsync(c => c.CompanyId == companyId && c.IsCustomer, ct))
             .ToDictionary(c => c.Id, c => c.FullName);
 

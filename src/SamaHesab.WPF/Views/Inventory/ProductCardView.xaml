@@ -26,9 +26,12 @@
         </Grid.RowDefinitions>
 
         <!-- ═══ انتخاب کالا + کد/وضعیت ═══ -->
+        <!-- U-INV-2: عنوانِ «کارت کالا» با Dock=Right در واقع به سمتِ چپِ صفحه می‌رفت (همان مشکلِ
+             آینه‌شدنِ Dock در RTL که پایین‌تر هم رفع شد) — یعنی عنوانِ بخش، برخلافِ انتظار، آخرین
+             چیزی بود که در خواندنِ راست‌به‌چپ دیده می‌شد. حالا Dock=Left (⇒ راستِ فیزیکی) دارد. -->
         <Border Grid.Row="0" Style="{StaticResource ErpGbox}" Margin="0,0,0,6">
             <DockPanel Margin="8,6">
-                <TextBlock DockPanel.Dock="Right" Text="کارت کالا" Style="{StaticResource ErpGboxTitle}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock DockPanel.Dock="Left" Text="کارت کالا" Style="{StaticResource ErpGboxTitle}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <Border DockPanel.Dock="Left" Background="{DynamicResource SuccessColor}" CornerRadius="999" Padding="10,2" VerticalAlignment="Center">
                     <TextBlock Text="فعال" Foreground="White" FontSize="11"/>
                 </Border>
@@ -36,8 +39,8 @@
                            Margin="10,0" Foreground="{DynamicResource MutedText}" FontSize="12"/>
                 <ComboBox ItemsSource="{Binding Products}" DisplayMemberPath="Display"
                           SelectedItem="{Binding SelectedProduct}" IsEditable="True"
-                         
-                          Height="32" Width="360" HorizontalAlignment="Right" Margin="0"/>
+
+                          Height="32" Width="360" HorizontalAlignment="Left" Margin="0"/>
             </DockPanel>
         </Border>
 
@@ -92,20 +95,27 @@
             <Border Style="{StaticResource ErpGbox}" Margin="3,0">
                 <StackPanel Margin="12,8">
                     <TextBlock Text="قیمت‌گذاری" Style="{StaticResource ErpGboxTitle}"/>
-                    <Grid><TextBlock Text="قیمت خرید" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding PurchasePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="فروش خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding SalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="فروش عمده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding WholesalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="٪ سود خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding RetailMarginPct, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left" Foreground="{DynamicResource SuccessColor}"/></Grid>
-                    <Grid><TextBlock Text="مالیات" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding TaxRate, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <!-- U-INV-1: این ردیف‌ها قبلاً در یک Grid بدونِ RowDefinitions/ColumnDefinitions
+                         بودند — یعنی برچسب و مقدار هر دو در همان سلولِ (0,0) می‌نشستند و روی هم
+                         می‌افتادند (متنِ نامفهوم/هم‌پوشان). نکتهٔ RTL: چون کلِ UserControl
+                         FlowDirection=RightToLeft دارد، WPF جهتِ Dock/HorizontalAlignment را هم
+                         آینه می‌کند — یعنی برایِ این‌که برچسب واقعاً در سمتِ راستِ صفحه بیفتد،
+                         باید Dock="Left" نوشت (نه Right) و برایِ مقدار HorizontalAlignment="Right"
+                         (تأییدشده با تستِ زندهٔ بصری، نه فقط با خواندنِ کد). -->
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="قیمت خرید" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding PurchasePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="فروش خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding SalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="فروش عمده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding WholesalePrice, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="٪ سود خرده" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding RetailMarginPct, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessColor}"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="مالیات" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding TaxRate, StringFormat='{}{0}٪'}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource ErpGbox}" Margin="3,0,0,0">
                 <StackPanel Margin="12,8">
                     <TextBlock Text="انبار و کنترل" Style="{StaticResource ErpGboxTitle}"/>
-                    <Grid><TextBlock Text="نقطه سفارش" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding ReorderPoint, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="حداقل موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MinStock, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="حداکثر موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MaxStock, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
-                    <Grid><TextBlock Text="کنترل سریال/بچ" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding Tracking}" Style="{StaticResource PcValue}" HorizontalAlignment="Left"/></Grid>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="نقطه سفارش" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding ReorderPoint, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="حداقل موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MinStock, Converter={StaticResource Num}}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="حداکثر موجودی" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding MaxStock, Converter={StaticResource Num}, FallbackValue='—'}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
+                    <DockPanel><TextBlock DockPanel.Dock="Left" Text="کنترل سریال/بچ" Style="{StaticResource PcLabel}"/><TextBlock Text="{Binding Tracking}" Style="{StaticResource PcValue}" HorizontalAlignment="Right"/></DockPanel>
                 </StackPanel>
             </Border>
         </UniformGrid>

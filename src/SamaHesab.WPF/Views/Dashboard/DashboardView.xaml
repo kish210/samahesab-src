@@ -161,7 +161,7 @@
                                 <StackPanel><TextBlock Text="انتقال انبار" FontWeight="SemiBold" FontSize="12.5"/><TextBlock Text="Ctrl+4" FontSize="10.5" Foreground="{DynamicResource MutedText}"/></StackPanel>
                             </Button>
                             <Button Style="{StaticResource LBtn}" CommandParameter="ChequeBoard" Tag="🧾">
-                                <StackPanel><TextBlock Text="مدیریت چک" FontWeight="SemiBold" FontSize="12.5"/><TextBlock Text="Ctrl+5" FontSize="10.5" Foreground="{DynamicResource MutedText}"/></StackPanel>
+                                <StackPanel><TextBlock Text="تابلوی چک" FontWeight="SemiBold" FontSize="12.5"/><TextBlock Text="Ctrl+5" FontSize="10.5" Foreground="{DynamicResource MutedText}"/></StackPanel>
                             </Button>
                             <Button Style="{StaticResource LBtn}" CommandParameter="Customers" Tag="👤">
                                 <StackPanel><TextBlock Text="کارت مشتری" FontWeight="SemiBold" FontSize="12.5"/><TextBlock Text="Ctrl+6" FontSize="10.5" Foreground="{DynamicResource MutedText}"/></StackPanel>

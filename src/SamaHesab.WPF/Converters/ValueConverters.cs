@@ -221,6 +221,26 @@ public class IntEqualsVisibilityConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>بایت‌آرایِ تصویر (از DB) → ImageSource برایِ نمایشِ مستقیم در Image/ImageBrush.</summary>
+public class ByteArrayToImageConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not byte[] { Length: > 0 } bytes) return null;
+        var bmp = new System.Windows.Media.Imaging.BitmapImage();
+        using var ms = new System.IO.MemoryStream(bytes);
+        bmp.BeginInit();
+        bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+        bmp.StreamSource = ms;
+        bmp.EndInit();
+        bmp.Freeze();
+        return bmp;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 /// <summary>دقیقه از نیمه‌شب → «HH:mm» (نمایشِ خوانای زمانِ سانس به‌جای عددِ دقیقه).</summary>
 public class MinutesToTimeConverter : IValueConverter
 {

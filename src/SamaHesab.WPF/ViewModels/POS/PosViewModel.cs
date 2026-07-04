@@ -598,7 +598,10 @@ public partial class PosCartItem : ObservableObject
 }
 
 public record PosCategoryTile(int Id, string Name);
-public record PosCustomer(int Id, string Name);
+public record PosCustomer(int Id, string Name)
+{
+    public string Display => Name;
+}
 public record PosProductTile(int Id, string Code, string Name, decimal Price, decimal TaxRate, int? GroupId,
     SamaHesab.Domain.Enums.ProductType Type = SamaHesab.Domain.Enums.ProductType.Product);
 public record HeldSaleRow(int Id, string Label, decimal Total, DateTime CreatedAt);

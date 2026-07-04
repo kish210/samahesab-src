@@ -99,7 +99,7 @@ public partial class ProductListViewModel : BaseViewModel, SamaHesab.WPF.Service
     private void EditProduct()
     {
         if (SelectedProduct == null) return;
-        _navigationService.NavigateTo("ProductEdit");
+        _navigationService.NavigateTo("ProductEdit", SelectedProduct.Id);
     }
 
     /// <summary>CC-5 — کارتِ ۳۶۰°ِ کالای انتخاب‌شده (راست‌کلیک/دابل‌کلیک).</summary>

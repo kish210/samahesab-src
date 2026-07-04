@@ -162,9 +162,11 @@ end;
 
 // ─── پیش‌نیاز = SQL Server. اگر نباشد، نصاب خودش SQL Express را دانلود و نصب می‌کند ───
 //   .NET و VC++ داخلِ buildِ خودکفا هستند (پیش‌نیازِ جداگانه ندارند).
-//   ⚠️ آدرسِ دانلود یک ثابت است؛ روی ماشینِ تمیز باید راستی‌آزمایی/به‌روزرسانی شود.
+//   دانلودِ مستقیم از سرورِ مایکروسافت برایِ بسیاری از کاربران (به‌خصوص در ایران) قطع/ناموفق می‌شد
+//   و کلِ نصب را کنسل می‌کرد. به‌جایش همان بستهٔ کاملِ SQLEXPR_x64_ENU.exe (~۲۷۹MB) روی ریلیزِ
+//   دائمیِ «redist» در ریپازیتوریِ خودمان (kish210/SamaHesab) میزبانی شده — پایدارتر/سریع‌تر.
 const
-  SqlExprUrl = 'https://download.microsoft.com/download/3/8/d/38de7036-2433-4207-8eae-06e247e17b25/SQL2022-SSEI-Expr.exe';
+  SqlExprUrl = 'https://github.com/kish210/SamaHesab/releases/download/redist/SQLEXPR_x64_ENU.exe';
 
 var
   ServerPage: TInputQueryWizardPage;
@@ -240,9 +242,9 @@ begin
     '/SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" ' +
     '/SQLSVCSTARTUPTYPE=Automatic /TCPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS');
 #else
-  // آنلاین: دانلودِ بوت‌استرپرِ رسمی (نمونهٔ پیش‌فرضِ SQLEXPRESS را نصب می‌کند)
+  // آنلاین: دانلودِ بستهٔ کاملِ Basic (از ریلیزِ خودمان — نه مستقیم از مایکروسافت) + همان پارامترهایِ نصبِ آفلاین
   DownloadPage.Clear;
-  DownloadPage.Add(SqlExprUrl, 'SQL-Express-Setup.exe', '');
+  DownloadPage.Add(SqlExprUrl, 'SQLEXPR_x64_ENU.exe', '');
   DownloadPage.Show;
   try
     try
@@ -255,8 +257,10 @@ begin
   finally
     DownloadPage.Hide;
   end;
-  Result := RunSqlSetup(ExpandConstant('{tmp}\SQL-Express-Setup.exe'),
-    '/ACTION=Install /QUIET /HIDEPROGRESSBAR /IACCEPTSQLSERVERLICENSETERMS');
+  Result := RunSqlSetup(ExpandConstant('{tmp}\SQLEXPR_x64_ENU.exe'),
+    '/QS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS ' +
+    '/SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" ' +
+    '/SQLSVCSTARTUPTYPE=Automatic /TCPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS');
 #endif
 
   // راستی‌آزماییِ نهایی: واقعاً نمونهٔ SQLEXPRESS ساخته شد؟

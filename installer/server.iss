@@ -106,8 +106,11 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
   Flags: uninsdeletevalue; Tasks: autostartapi
 
 [Code]
+// دانلودِ مستقیم از سرورِ مایکروسافت برایِ بسیاری از کاربران قطع/ناموفق می‌شد و کلِ نصب را کنسل
+// می‌کرد. به‌جایش همان بستهٔ کاملِ SQLEXPR_x64_ENU.exe روی ریلیزِ دائمیِ «redist» در ریپازیتوریِ
+// خودمان (kish210/SamaHesab) میزبانی شده.
 const
-  SqlExprUrl = 'https://download.microsoft.com/download/3/8/d/38de7036-2433-4207-8eae-06e247e17b25/SQL2022-SSEI-Expr.exe';
+  SqlExprUrl = 'https://github.com/kish210/SamaHesab/releases/download/redist/SQLEXPR_x64_ENU.exe';
 
 var
   SqlPage: TInputQueryWizardPage;
@@ -176,7 +179,7 @@ begin
     '/SQLSVCSTARTUPTYPE=Automatic /TCPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS');
 #else
   DownloadPage.Clear;
-  DownloadPage.Add(SqlExprUrl, 'SQL-Express-Setup.exe', '');
+  DownloadPage.Add(SqlExprUrl, 'SQLEXPR_x64_ENU.exe', '');
   DownloadPage.Show;
   try
     try
@@ -189,8 +192,10 @@ begin
   finally
     DownloadPage.Hide;
   end;
-  Result := RunSqlSetup(ExpandConstant('{tmp}\SQL-Express-Setup.exe'),
-    '/ACTION=Install /QUIET /HIDEPROGRESSBAR /IACCEPTSQLSERVERLICENSETERMS');
+  Result := RunSqlSetup(ExpandConstant('{tmp}\SQLEXPR_x64_ENU.exe'),
+    '/QS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS ' +
+    '/SQLSVCACCOUNT="NT AUTHORITY\SYSTEM" /SQLSYSADMINACCOUNTS="BUILTIN\Administrators" ' +
+    '/SQLSVCSTARTUPTYPE=Automatic /TCPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS');
 #endif
 
   if Result then Result := IsSqlExpressInstalled;

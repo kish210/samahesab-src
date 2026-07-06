@@ -81,15 +81,16 @@ namespace SamaHesab.WPF.ViewModels.Inventory
                 var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
                 foreach (var r in changed)
                 {
+                    var reason = string.IsNullOrWhiteSpace(r.Notes) ? "تعدیل موجودی" : r.Notes;
                     // 🏛️ تعدیل از طریقِ کامند/endpoint — نه ریپازیتوریِ مستقیم.
                     if (online)
                     {
-                        var (ok, err) = await _api.AdjustStockAsync(SelectedWarehouseId, r.ProductId, r.NewQty, date, "تعدیل موجودی");
+                        var (ok, err) = await _api.AdjustStockAsync(SelectedWarehouseId, r.ProductId, r.NewQty, date, reason);
                         if (!ok) { await _dialogService.ShowErrorAsync("خطا: " + err); return; }
                     }
                     else
                     {
-                        var res = await _mediator.Send(new AdjustStockCommand(SelectedWarehouseId, r.ProductId, r.NewQty, date, "تعدیل موجودی"));
+                        var res = await _mediator.Send(new AdjustStockCommand(SelectedWarehouseId, r.ProductId, r.NewQty, date, reason));
                         if (!res.Succeeded) { await _dialogService.ShowErrorAsync("خطا: " + res.ErrorMessage); return; }
                     }
                 }

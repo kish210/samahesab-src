@@ -129,13 +129,16 @@
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Stroke="White"/><TextBlock Text="چک جدید" Margin="5,0,0,0"/><Border Background="#5E6FA8" CornerRadius="3" Padding="4,0" Margin="6,0,0,0"><TextBlock Text="F2" FontSize="10.5" Foreground="White"/></Border></StackPanel>
                     </Button>
                     <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>
-                    <Button Style="{StaticResource TBtn}" Command="{Binding ClearChequeCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6">
+                    <Button Style="{StaticResource TBtn}" Command="{Binding ClearChequeCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6"
+                            ToolTip="ثبتِ وصولِ چکِ انتخاب‌شده — یک سندِ حسابداریِ خودکار می‌سازد">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Stroke="#15803D"/><TextBlock Text="وصول" Margin="5,0,0,0" Foreground="#15803D"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource TBtn}" Command="{Binding TransferChequeCommand}">
+                    <Button Style="{StaticResource TBtn}" Command="{Binding TransferChequeCommand}"
+                            ToolTip="واگذاریِ چکِ انتخاب‌شده به بانک برایِ وصول (فقط تغییرِ وضعیت، بدونِ سند)">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcTransfer}" Style="{StaticResource ErpToolSvg}"/><TextBlock Text="واگذاری به بانک" Margin="5,0,0,0"/></StackPanel>
                     </Button>
-                    <Button Style="{StaticResource TBtn}" Command="{Binding ReturnChequeCommand}" Foreground="#B91C1C" BorderBrush="#E6BCBC">
+                    <Button Style="{StaticResource TBtn}" Command="{Binding ReturnChequeCommand}" Foreground="#B91C1C" BorderBrush="#E6BCBC"
+                            ToolTip="ثبتِ برگشت‌خوردنِ چکِ انتخاب‌شده (بی‌محلی/سایرِ دلایل) — نیازمندِ ذکرِ علت">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcUndo}" Style="{StaticResource ErpToolSvg}" Stroke="#B91C1C"/><TextBlock Text="برگشت چک" Margin="5,0,0,0"/></StackPanel>
                     </Button>
                     <!-- P1/DT-6: چاپِ چکِ انتخاب‌شده با قالبِ پویا -->

@@ -268,7 +268,11 @@ public partial class ChartOfAccountsViewModel : BaseViewModel, SamaHesab.WPF.Ser
         _navigationService.NavigateTo("FinancialReports", SelectedAccount.Id);
     }
 
+    /// <summary>هیچ حسابی انتخاب/ویرایش نمی‌شود — راهنمای شروع برایِ کاربرِ تازه‌کار در پنلِ سمتِ راست نشان داده شود.</summary>
+    public bool NoSelection => !IsEditing && !ShowDetail;
+
     partial void OnSearchTextChanged(string value) => _ = LoadAsync();
-    partial void OnIsEditingChanged(bool value) => ShowDetail = HasSelectedAccount && !value;
-    partial void OnHasSelectedAccountChanged(bool value) => ShowDetail = value && !IsEditing;
+    partial void OnIsEditingChanged(bool value) { ShowDetail = HasSelectedAccount && !value; OnPropertyChanged(nameof(NoSelection)); }
+    partial void OnHasSelectedAccountChanged(bool value) { ShowDetail = value && !IsEditing; OnPropertyChanged(nameof(NoSelection)); }
+    partial void OnShowDetailChanged(bool value) => OnPropertyChanged(nameof(NoSelection));
 }

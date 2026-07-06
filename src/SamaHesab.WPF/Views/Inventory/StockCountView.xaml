@@ -87,7 +87,8 @@
                 <TextBlock Text="{Binding ResultText}" Foreground="{StaticResource ErpSuccess700}" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Style="{StaticResource ErpBtnSecondary}" Content="ثبت شمارش‌ها" Padding="18,0" Command="{Binding SaveCountsCommand}"/>
-                    <Button Style="{StaticResource ErpBtnSuccess}" Content="قطعی‌سازی و تعدیل موجودی" Padding="18,0" Margin="8,0,0,0" FontWeight="Bold" Command="{Binding PostCommand}"/>
+                    <Button Style="{StaticResource ErpBtnSuccess}" Content="قطعی‌سازی و تعدیل موجودی" Padding="18,0" Margin="8,0,0,0" FontWeight="Bold" Command="{Binding PostCommand}"
+                            ToolTip="مغایرت‌های شمارش به سندِ تعدیلِ موجودی تبدیل می‌شوند — این عملیات برگشت‌ناپذیر است"/>
                 </StackPanel>
             </DockPanel>
         </Border>

@@ -32,7 +32,8 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" VerticalAlignment="Center" Stroke="{DynamicResource SecondaryText}"/>
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="6,0" VerticalAlignment="Center">
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" Margin="6,0" VerticalAlignment="Center"
+                             materialDesign:HintAssist.Hint="جست‌وجو با نام، کد یا موبایل…">
                         <TextBox.InputBindings><KeyBinding Key="Return" Command="{Binding SearchCommand}"/></TextBox.InputBindings>
                     </TextBox>
                 </StackPanel>

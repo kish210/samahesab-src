@@ -38,7 +38,8 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Stroke="{DynamicResource SecondaryText}"/>
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="240" Margin="6,0" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="240" Margin="6,0" VerticalAlignment="Center"
+                             materialDesign:HintAssist.Hint="جست‌وجو با کد یا نامِ حساب…"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -152,6 +153,15 @@
                     <Button Content="📋 مشاهده دفتر کل" Style="{StaticResource PrimaryButton}"
                             Height="38" Margin="0,16,0,0"
                             Command="{Binding ViewLedgerCommand}"/>
+                </StackPanel>
+
+                <!-- راهنمای شروع: هنوز حسابی انتخاب نشده -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding NoSelection, Converter={StaticResource BoolVis}}">
+                    <TextBlock Text="🌳 یک حساب را از درختِ سمتِ راست انتخاب کنید" FontSize="13"
+                               Foreground="{DynamicResource SecondaryText}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="یا برای ساختنِ حسابِ جدید از دکمهٔ «حساب جدید» (F2) استفاده کنید" FontSize="11.5"
+                               Foreground="{DynamicResource SecondaryText}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                 </StackPanel>
               </Grid>
             </Border>

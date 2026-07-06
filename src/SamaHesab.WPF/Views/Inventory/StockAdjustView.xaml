@@ -50,8 +50,12 @@
                     <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="100"/>
                     <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*"/>
                     <DataGridTextColumn Header="موجودی فعلی" Binding="{Binding CurrentQty, StringFormat={}{0:#,##0}}" Width="130"/>
-                    <DataGridTextColumn Header="موجودی جدید" Binding="{Binding NewQty}" Width="130"/>
-                    <DataGridTextColumn Header="توضیحات" Binding="{Binding Notes}" Width="2*"/>
+                    <DataGridTextColumn Header="موجودی جدید" Binding="{Binding NewQty, UpdateSourceTrigger=PropertyChanged}" Width="130" IsReadOnly="False">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock"><Setter Property="Background" Value="#FFFDF0"/><Setter Property="Padding" Value="4,0"/></Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="توضیحات" Binding="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" Width="2*" IsReadOnly="False"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

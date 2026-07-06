@@ -24,6 +24,7 @@
     <UserControl.Resources>
         <conv:NumberFormatConverter x:Key="Num"/>
         <conv:GreaterThanZeroVisibilityConverter x:Key="GtzVis"/>
+        <conv:IntEqualsVisibilityConverter x:Key="IntEqVis"/>
 
         <!-- توکن‌های برند — هم‌تراز با پالتِ دیزاین‌سیستم (DESIGN LAW: منبعِ واحد) -->
         <SolidColorBrush x:Key="Blue600" Color="#4B5F97"/>      <!-- =ErpBlue600 -->
@@ -111,7 +112,7 @@
                 <Button Style="{StaticResource TBtn}" Command="{Binding NewCommand}" Background="{StaticResource Blue600}" Foreground="White" BorderBrush="{StaticResource Blue600}">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcFilePlus}" Style="{StaticResource ErpToolSvg}" Stroke="White" Margin="0,0,5,0"/><TextBlock Text="جدید"/><Border Style="{StaticResource Fk}" Background="#5E6FA8"><TextBlock Text="F2" FontSize="10.5" Foreground="White"/></Border></StackPanel>
                 </Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding SaveCommand}">
+                <Button Style="{StaticResource TBtn}" Command="{Binding SaveCommand}" ToolTip="ذخیره به‌صورتِ پیش‌نویس (بعداً قابلِ ویرایش) — برایِ ثبتِ نهایی و غیرقابل‌ویرایش‌شدن از «قطعی‌سازی» استفاده کنید">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSave}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="ذخیره"/><Border Style="{StaticResource Fk}"><TextBlock Text="F7" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
                 </Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PostCommand}" Background="#E8F5EC" BorderBrush="#A7D7B6"
@@ -119,8 +120,8 @@
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCheck}" Style="{StaticResource ErpToolSvg}" Stroke="#15803D" Margin="0,0,5,0"/><TextBlock Text="قطعی‌سازی" Foreground="#15803D"/><Border Style="{StaticResource Fk}" Background="#C9E9D2"><TextBlock Text="F9" FontSize="10.5" Foreground="#15803D"/></Border></StackPanel>
                 </Button>
                 <Border Width="1" Background="{StaticResource Line}" Margin="4,2"/>
-                <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCopy}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="کپی سند"/></StackPanel></Button>
-                <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSwap}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="سند معکوس"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding CopyCommand}" ToolTip="ساختِ یک سندِ جدیدِ پیش‌نویس با همان ردیف‌ها — برای ثبتِ سریعِ سندهایِ تکراری"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcCopy}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="کپی سند"/></StackPanel></Button>
+                <Button Style="{StaticResource TBtn}" Command="{Binding ReverseCommand}" ToolTip="ساختِ یک سندِ جدید با بدهکار/بستانکارِ برعکسِ همین سند — برای اصلاحِ یک سندِ اشتباه بدونِ حذفِ آن"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcSwap}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="سند معکوس"/></StackPanel></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding TemplatesCommand}" ToolTip="الگوها و اسنادِ تکرارشونده"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcTemplate}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="الگو / تکراری"/></StackPanel></Button>
                 <Button Style="{StaticResource TBtn}" Command="{Binding PrintCommand}">
                     <StackPanel Orientation="Horizontal"><Path Data="{StaticResource IcPrinter}" Style="{StaticResource ErpToolSvg}" Margin="0,0,5,0"/><TextBlock Text="چاپ"/><Border Style="{StaticResource Fk}"><TextBlock Text="F8" FontSize="10.5" Foreground="{StaticResource TextMuted}"/></Border></StackPanel>
@@ -177,11 +178,13 @@
                         <StackPanel Grid.Column="2"><TextBlock Style="{StaticResource Lbl}" Text="تاریخ *"/><TextBox Style="{StaticResource InputC}" Text="{Binding VoucherDate}"/></StackPanel>
                         <StackPanel Grid.Column="4"><TextBlock Style="{StaticResource Lbl}" Text="نوع سند"/>
                             <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding VoucherTypes}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedVoucherTypeId}"/></StackPanel>
-                        <StackPanel Grid.Column="6"><TextBlock Style="{StaticResource Lbl}" Text="مرکز هزینه"/>
-                            <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedCostCenterId}"/></StackPanel>
+                        <StackPanel Grid.Column="6"><TextBlock Style="{StaticResource Lbl}" Text="مرکز هزینه (اختیاری)"/>
+                            <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding CostCenters}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedCostCenterId}"
+                                      ToolTip="اختیاری — فقط اگر می‌خواهید هزینه‌ها را به‌تفکیکِ بخش/شعبه گزارش بگیرید"/></StackPanel>
                         <StackPanel Grid.Column="8"><TextBlock Style="{StaticResource Lbl}" Text="شرح سند"/><TextBox Style="{StaticResource InputC}" Text="{Binding Description}"/></StackPanel>
-                        <StackPanel Grid.Column="10"><TextBlock Style="{StaticResource Lbl}" Text="پروژه"/>
-                            <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedProjectId}"/></StackPanel>
+                        <StackPanel Grid.Column="10"><TextBlock Style="{StaticResource Lbl}" Text="پروژه (اختیاری)"/>
+                            <ComboBox Style="{StaticResource SelectC}" ItemsSource="{Binding Projects}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedProjectId}"
+                                      ToolTip="اختیاری — فقط اگر می‌خواهید این سند را به یک پروژهٔ خاص نسبت دهید"/></StackPanel>
                         <StackPanel Grid.Column="12"><TextBlock Style="{StaticResource Lbl}" Text="ارجاع"/><TextBox Style="{StaticResource InputC}" Text="{Binding Reference}"/></StackPanel>
                     </Grid>
                 </StackPanel>
@@ -272,7 +275,9 @@
                                   ItemsSource="{Binding LeafAccounts}"
                                   SelectedValuePath="Id" SelectedValue="{Binding NewAccountId}"
                                   IsEditable="True" IsTextSearchEnabled="False" TextSearch.TextPath="Display"
-                                  StaysOpenOnEdit="True" Loaded="AccCombo_Loaded" PreviewKeyDown="AccCombo_PreviewKeyDown">
+                                  StaysOpenOnEdit="True" Loaded="AccCombo_Loaded" PreviewKeyDown="AccCombo_PreviewKeyDown"
+                                  materialDesign:HintAssist.Hint="کد یا نامِ حساب را تایپ کنید…"
+                                  ToolTip="جست‌وجوی حساب با تایپِ بخشی از کد یا نام؛ با فلش/Enter انتخاب کنید">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <!-- U13: کد (راست) · نام (وسط) · ماندهٔ جاری (چپ، LTR) — مطابقِ DESIGN LAW ۲-ب -->
@@ -316,7 +321,8 @@
             </Border>
 
             <!-- گرید ردیف‌ها -->
-            <Border Grid.Row="2" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Background="White">
+            <Grid Grid.Row="2">
+            <Border BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Background="White">
                 <DataGrid x:Name="ItemsGrid" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
                           HeadersVisibility="Column" CanUserAddRows="False" Background="White"
                           SelectionMode="Single" SelectionUnit="FullRow" PreviewKeyDown="ItemsGrid_PreviewKeyDown"
@@ -357,6 +363,13 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
+            <!-- حالتِ خالی: راهنمای شروع برایِ سندِ تازه (کلیک‌ناپذیر، فقط راهنما) -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
+                        Visibility="{Binding Items.Count, Converter={StaticResource IntEqVis}, ConverterParameter=0}">
+                <TextBlock Text="📄 هنوز ردیفی اضافه نشده" FontSize="13" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"/>
+                <TextBlock Text="حساب را از «نامِ حساب» انتخاب کنید، مبلغ را وارد کنید و «افزودن ⏎» بزنید" FontSize="11.5" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0" HorizontalAlignment="Center"/>
+            </StackPanel>
+            </Grid>
 
             <!-- نوار تراز -->
             <Border Grid.Row="3" CornerRadius="8" Padding="12,8" Margin="0,10,0,0" BorderThickness="1">

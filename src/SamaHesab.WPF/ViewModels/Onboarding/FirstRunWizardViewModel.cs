@@ -177,7 +177,9 @@ public partial class FirstRunWizardViewModel : BaseViewModel
         if (wantsPassword && NewPassword != ConfirmPassword)
         { await _dialogService.ShowWarningAsync("رمزِ عبور و تکرارِ آن یکسان نیستند."); return; }
         if (!wantsPassword &&
-            !await _dialogService.ConfirmAsync("رمزِ پیش‌فرضِ admin تغییر نکرده — ادامه می‌دهید؟ (توصیه: تغییر دهید)"))
+            !await _dialogService.ConfirmAsync(
+                "رمزِ پیش‌فرضِ admin تغییر نکرده — ادامه می‌دهید؟ (توصیه: تغییر دهید)" + Environment.NewLine +
+                "در این صورت برایِ ورود از «admin» / «admin123» استفاده کنید."))
             return;
 
         await ExecuteAsync(async () =>

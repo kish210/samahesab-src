@@ -42,14 +42,14 @@
         </Border>
 
         <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Rows}"
-                                
-                                
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False" ItemsSource="{Binding Rows}"
+
+
                                  FontFamily="{StaticResource VazirFont}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="100"/>
-                    <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*"/>
-                    <DataGridTextColumn Header="موجودی فعلی" Binding="{Binding CurrentQty, StringFormat={}{0:#,##0}}" Width="130"/>
+                    <DataGridTextColumn Header="کد" Binding="{Binding ProductCode}" Width="100" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="نام کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="موجودی فعلی" Binding="{Binding CurrentQty, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True"/>
                     <DataGridTextColumn Header="موجودی جدید" Binding="{Binding NewQty, UpdateSourceTrigger=PropertyChanged}" Width="130" IsReadOnly="False">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock"><Setter Property="Background" Value="#FFFDF0"/><Setter Property="Padding" Value="4,0"/></Style>

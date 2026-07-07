@@ -492,7 +492,7 @@ public partial class MainViewModel : BaseViewModel
         // CORE-UX-NAV (NAV-1): نوارِ کناری فقط ماژول‌های فعال را نشان می‌دهد. منوهای هستهٔ ERP
         // (حسابداری/خزانه/فروش/خرید/انبار/اشخاص/گزارشات/سیستم) فقط در نوارِ بالای پنجره‌اند تا
         // منو تکراری نشود (نوارِ بالا = منوهای اصلی · نوارِ کناری = ماژول‌ها).
-        Add(TourismEnabled, "گردشگری", "IcSales",
+        Add(TourismEnabled, "گردشگری", "IcTourism",
             new("محصولاتِ گردشگری", "TourismProducts"),
             new("ثبتِ فروش", "TourismSale"),
             new("ودیعهٔ تأمین‌کنندگان", "TourismDeposits"),
@@ -505,30 +505,30 @@ public partial class MainViewModel : BaseViewModel
             new("برنامه‌ریزِ اقامتی", "ItineraryPlanner"));
 
         // رستوران: بخش‌های عملیاتی کلاینتِ مستقل‌اند → «لینکِ اجرا» (Launch:) خودِ exe را با arg باز می‌کند.
-        Add(RestaurantEnabled, "رستوران", "IcSales",
+        Add(RestaurantEnabled, "رستوران", "IcRestaurant",
             new("صندوقِ رستوران", "Launch:--restaurant"),
             new("میزها / گارسون", "Launch:--waiter"),
             new("آشپزخانه (KDS)", "Launch:--kitchen"),
             new("ایستگاه‌های چاپ / فیش‌پرینتر", "RestaurantPrintStations"));
 
         // صندوق فروش (POS): صندوقِ لمسی کلاینتِ مستقل (Launch:) + داشبورد/شیفت به‌صورتِ تب.
-        Add(PosEnabled, "صندوق فروش", "IcSales",
+        Add(PosEnabled, "صندوق فروش", "IcPos",
             new("صندوقِ فروش (لمسی)", "Launch:--pos"),
             new("داشبورد صندوق", "PosDashboard"),
             new("شیفت / بستنِ صندوق", "CashShift"));
 
-        Add(ContractingEnabled, "پیمانکاری", "IcSales",
+        Add(ContractingEnabled, "پیمانکاری", "IcContracting",
             new("صورت‌وضعیت", "ContractingStatement"),
             new("داشبوردِ پیمان", "ContractingDashboard"),
             new("گزارش‌های پیمانکاری", "ContractingReports"));
 
         // منابع انسانی (HR): ماژولِ لِینِ pc — مثلِ بقیهٔ ماژول‌ها در نوارِ کناری (نه در منوی «سیستم»).
-        Add(HrEnabled, "منابع انسانی", "IcReports",
+        Add(HrEnabled, "منابع انسانی", "IcUserPlus",
             new("کارکنان", "Employees"),
             new("حقوق و دستمزد", "Salary"),
             new("حضور و غیاب", "Attendance"));
 
-        Add(SupportEnabled, "مرکزِ پشتیبانی", "IcReports",
+        Add(SupportEnabled, "مرکزِ پشتیبانی", "IcHelp",
             new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),
             new("تیکتِ پشتیبانی", "SupportTicket"), new("درخواست‌های من", "MyRequests"), new("دانشنامه", "KnowledgeBase"),
             new("یادداشت‌های نسخه", "ReleaseNotes"), new("پشتیبانیِ ریموت", "RemoteSupport"), new("عیب‌یابیِ سیستم", "Diagnostics"));

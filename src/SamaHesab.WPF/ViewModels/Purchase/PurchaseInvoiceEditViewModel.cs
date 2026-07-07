@@ -298,7 +298,6 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
             : (await _mediator.Send(new GetProductsQuery())).Select(p => new ProductSearchResult(p.Id, p.Code, p.Name, p.Barcode, p.PurchasePrice, p.TaxRate)).ToList();
         OnPropertyChanged(nameof(AllProducts));
 
-        if (InvoiceItems.Count == 0) SeedEmptyRows();
         await LoadPrintTemplatesAsync();
     }
 
@@ -374,15 +373,6 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
         InvoiceItems.Add(row); RenumberRows();
     }
 
-    private void SeedEmptyRows(int count = 5)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            var row = new PurchaseInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
-            row.PropertyChanged += (_, _) => RecalculateTotals();
-            InvoiceItems.Add(row);
-        }
-    }
 
     private void RenumberRows() { for (int i = 0; i < InvoiceItems.Count; i++) InvoiceItems[i].RowNumber = i + 1; }
 
@@ -436,7 +426,7 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
         InvoiceDate = _calendar.GetCurrentPersianDate();
         SelectedSupplierId = 0; Description = null; DueDate = null;
         IsViewingExisting = false;   // خروج از حالتِ مشاهده
-        InvoiceItems.Clear(); SeedEmptyRows(); PaidAmount = 0; RecalculateTotals();
+        InvoiceItems.Clear(); PaidAmount = 0; RecalculateTotals();
     }
 
     [RelayCommand]

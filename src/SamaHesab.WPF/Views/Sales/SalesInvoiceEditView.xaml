@@ -358,7 +358,8 @@
                         <Button Grid.Column="0" Style="{StaticResource PayBtn}" Content="نقد" Command="{Binding SetPayCommand}" CommandParameter="نقدی"/>
                         <Button Grid.Column="2" Style="{StaticResource PayBtn}" Content="کارت" Command="{Binding SetPayCommand}" CommandParameter="کارتخوان"/>
                         <Button Grid.Column="4" Style="{StaticResource PayBtn}" Content="چک" Command="{Binding SetPayCommand}" CommandParameter="چک"/>
-                        <Button Grid.Column="6" Style="{StaticResource PayBtn}" Content="نسیه" Command="{Binding SetPayCommand}" CommandParameter="نسیه"/>
+                        <Button Grid.Column="6" Style="{StaticResource PayBtn}" Content="نسیه" Command="{Binding SetPayCommand}" CommandParameter="نسیه"
+                                ToolTip="بدونِ دریافتِ فوری — کلِ مبلغ به‌عنوانِ بدهیِ مشتری ثبت می‌شود"/>
                     </Grid>
                     <Button Style="{StaticResource PayBtn}" Height="28" Margin="0,4,0,0" Content="🧾 ترکیبی (نقد + کارت + نسیه)"
                             Command="{Binding SetPayCommand}" CommandParameter="ترکیبی"/>

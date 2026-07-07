@@ -342,8 +342,6 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         }
         catch { /* نبودِ پروژه نباید فرم را خراب کند */ }
 
-        if (InvoiceItems.Count == 0) SeedEmptyRows();
-
         await LoadRecentCustomersAsync();
 
         // DT-3: قالب‌های چاپِ فاکتور فروش
@@ -586,15 +584,6 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         RenumberRows();
     }
 
-    private void SeedEmptyRows(int count = 5)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            var row = new SalesInvoiceItemRow { RowNumber = InvoiceItems.Count + 1, Quantity = 1, Unit = "عدد" };
-            row.PropertyChanged += (_, _) => RecalculateTotals();
-            InvoiceItems.Add(row);
-        }
-    }
 
     private void RenumberRows()
     { for (int i = 0; i < InvoiceItems.Count; i++) InvoiceItems[i].RowNumber = i + 1; }
@@ -712,7 +701,6 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         SelectedCustomerId = 0; SelectedCustomerName = string.Empty;
         Reference = string.Empty; Title = string.Empty; SelectedProjectId = null;
         Description = null; DueDate = null; InvoiceItems.Clear();
-        SeedEmptyRows();
         PaidAmount = 0; CashAmount = 0; CardAmount = 0; CardPaymentInfo = null;
         IsViewingExisting = false;   // خروج از حالتِ مشاهده
         RecalculateTotals();

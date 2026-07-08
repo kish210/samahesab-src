@@ -37,5 +37,37 @@ IF COL_LENGTH('Pur.PurchaseOrders', 'Status') IS NOT NULL AND COL_LENGTH('Pur.Pu
     UPDATE Pur.PurchaseOrders SET StatusCode = Status WHERE StatusCode = N'پیش‌نویس' AND Status IS NOT NULL AND Status <> N'';
 GO
 
-PRINT N'ستون‌هایِ گمشدهٔ Pur.PurchaseOrders رفع شد.';
+-- باگِ دومِ کشف‌شده با تستِ زندهٔ نوشتن («ساختِ سفارش از نقطهٔ سفارش»): FiscalYearId/SupplierIدِ
+-- اسکیمایِ قدیمی NOT NULL و بدونِ DEFAULT ماندند (چون همین‌طور در 15_PurchaseOrders.sql
+-- برنامه‌ریزی شده بود ولی به همان دلیلِ ردیابیِ نامی هرگز اجرا نشد) — درجِ سفارشِ نو با
+-- «An error occurred while saving the entity changes» شکست می‌خورد چون Command این دو
+-- ستونِ قدیمی را نمی‌فرستد. nullable کردنشان بی‌خطر است (فقط اجازهٔ NULL، بدونِ تغییرِ داده).
+IF COL_LENGTH('Pur.PurchaseOrders', 'FiscalYearId') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('Pur.PurchaseOrders'), 'FiscalYearId', 'AllowsNull') = 0
+    ALTER TABLE Pur.PurchaseOrders ALTER COLUMN FiscalYearId INT NULL;
+IF COL_LENGTH('Pur.PurchaseOrders', 'SupplierId') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('Pur.PurchaseOrders'), 'SupplierId', 'AllowsNull') = 0
+    ALTER TABLE Pur.PurchaseOrders ALTER COLUMN SupplierId INT NULL;
+GO
+
+-- باگِ سومِ کشف‌شده (همان تستِ زندهٔ نوشتن، بعدِ رفعِ دومی): جدولِ فرزندِ
+-- Pur.PurchaseOrderItems هم روی اسکیمایِ قدیمی مانده — بدونِ RowNumber/LineTotal
+-- (که Entity/EF فعلی نیاز دارد) و با NetAmount قدیمیِ NOT NULL بدونِ DEFAULT.
+IF COL_LENGTH('Pur.PurchaseOrderItems', 'RowNumber') IS NULL
+    ALTER TABLE Pur.PurchaseOrderItems ADD RowNumber INT NOT NULL CONSTRAINT DF_POI_RowNumber DEFAULT 0;
+IF COL_LENGTH('Pur.PurchaseOrderItems', 'LineTotal') IS NULL
+    ALTER TABLE Pur.PurchaseOrderItems ADD LineTotal DECIMAL(18,2) NOT NULL CONSTRAINT DF_POI_LineTotal DEFAULT 0;
+IF COL_LENGTH('Pur.PurchaseOrderItems', 'NetAmount') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('Pur.PurchaseOrderItems'), 'NetAmount', 'AllowsNull') = 0
+    ALTER TABLE Pur.PurchaseOrderItems ALTER COLUMN NetAmount DECIMAL(18,2) NULL;
+GO
+
+-- دادهٔ قدیمیِ NetAmount را به LineTotalِ نو کپی کن تا سطرهایِ موجود صفر نمانند.
+-- (batchِ جدا لازم است — ارجاع به ستونِ تازه‌اضافه‌شده در همان batchِ ALTER TABLE ADD
+-- با خطایِ «Invalid column name» شکست می‌خورد چون بایندینگِ نام‌ها پیش از اجرا انجام می‌شود.)
+IF COL_LENGTH('Pur.PurchaseOrderItems', 'NetAmount') IS NOT NULL
+    UPDATE Pur.PurchaseOrderItems SET LineTotal = NetAmount WHERE LineTotal = 0 AND NetAmount <> 0;
+GO
+
+PRINT N'ستون‌هایِ گمشدهٔ Pur.PurchaseOrders/PurchaseOrderItems رفع شد.';
 GO

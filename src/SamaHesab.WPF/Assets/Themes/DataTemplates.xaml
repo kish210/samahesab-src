@@ -128,6 +128,7 @@
     <DataTemplate DataType="{x:Type pur:PurchaseReportViewModel}"><vpur:PurchaseReportView/></DataTemplate>
 
     <!-- Purchase -->
+    <DataTemplate DataType="{x:Type pur:PurchaseInvoiceListViewModel}"><vpur:PurchaseInvoiceListView/></DataTemplate>
     <DataTemplate DataType="{x:Type pur:PurchaseOrderListViewModel}"><vpur:PurchaseOrderListView/></DataTemplate>
     <DataTemplate DataType="{x:Type pur:SupplierStatementViewModel}"><vpur:SupplierStatementView/></DataTemplate>
     <DataTemplate DataType="{x:Type pur:PurchaseInvoiceEditViewModel}"><vpur:PurchaseInvoiceEditView/></DataTemplate>
@@ -147,6 +148,7 @@
     <!-- HRM -->
     <DataTemplate DataType="{x:Type hrm:SalaryViewModel}"><vhrm:SalaryView/></DataTemplate>
     <DataTemplate DataType="{x:Type hrm:EmployeeListViewModel}"><vhrm:EmployeeListView/></DataTemplate>
+    <DataTemplate DataType="{x:Type hrm:EmployeeEditViewModel}"><vhrm:EmployeeEditView/></DataTemplate>
 
     <!-- Reports -->
     <DataTemplate DataType="{x:Type rep:ReportsViewModel}"><vrep:ReportsView/></DataTemplate>

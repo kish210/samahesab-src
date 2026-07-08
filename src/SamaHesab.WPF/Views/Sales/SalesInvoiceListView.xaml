@@ -12,6 +12,7 @@
     <Grid Margin="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -40,7 +41,38 @@
             </DockPanel>
         </Border>
 
-        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="0">
+        <!-- UX-CORE-AUDIT — نوارِ فیلتر: قبلاً VM (FromDate/ToDate/SearchText/SelectedStatus) بدونِ هیچ UIِ متناظر بود؛ کاربر هیچ راهی برای جست‌وجو/فیلترِ فاکتورها نداشت. -->
+        <Border Grid.Row="1" Style="{StaticResource FormSectionCard}" Padding="8">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="4,0" Width="120">
+                    <TextBlock Text="از تاریخ" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding FromDate, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="4,0" Width="120">
+                    <TextBlock Text="تا تاریخ" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding ToDate, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="4,0" Width="140">
+                    <TextBlock Text="وضعیت" Style="{StaticResource FieldCaption}"/>
+                    <ComboBox Style="{StaticResource BaseComboBox}" ItemsSource="{Binding StatusList}" SelectedItem="{Binding SelectedStatus}"/>
+                </StackPanel>
+                <StackPanel Margin="4,0" Width="220">
+                    <TextBlock Text="جست‌وجو" Style="{StaticResource FieldCaption}"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="شمارهٔ فاکتور یا نامِ مشتری…"
+                             ToolTip="با فشردنِ Enter یا دکمهٔ «اعمالِ فیلتر» جست‌وجو انجام می‌شود">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding SearchCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </StackPanel>
+                <Button Style="{StaticResource ToolbarButton}" Command="{Binding SearchCommand}" Margin="8,14,0,0" VerticalAlignment="Top">
+                    <StackPanel><Path Data="{StaticResource IcSearch}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="اعمالِ فیلتر (F5)" FontSize="10" TextAlignment="Center" Margin="0,2,0,0"/></StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="0">
             <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding Invoices}"
                                  SelectedItem="{Binding SelectedInvoice}"
                                  FontFamily="{StaticResource VazirFont}">
@@ -67,7 +99,7 @@
             </DataGrid>
         </Border>
 
-        <Border Grid.Row="2" Style="{StaticResource FormSectionCard}" Padding="12,8">
+        <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="12,8">
             <TextBlock FontSize="12" HorizontalAlignment="Right">
                 <Run Text="تعداد فاکتور:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
                 <Run Text="   |   جمع مبلغ:"/><Run Text="{Binding TotalAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold"/>

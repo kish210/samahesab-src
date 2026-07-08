@@ -5,7 +5,7 @@
 ; =============================================================================
 
 #define MyAppName      "سما حساب"
-#define MyAppVersion   "2.8.9"
+#define MyAppVersion   "2.8.10"
 #define MyAppPublisher "سما نرم‌افزار"
 #define MyAppURL       "https://www.samanarm.ir"
 #define MyAppExeName   "SamaHesab.exe"

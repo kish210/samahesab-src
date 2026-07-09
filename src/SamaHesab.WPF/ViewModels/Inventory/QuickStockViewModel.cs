@@ -89,6 +89,11 @@ public partial class QuickStockViewModel : BaseViewModel
         if (SelectedProduct is null) { await _dialogService.ShowErrorAsync("کالا را انتخاب کنید."); return; }
         if (FromWarehouseId <= 0) { await _dialogService.ShowErrorAsync("انبار را انتخاب کنید."); return; }
         if (!IsAdjust && Quantity <= 0) { await _dialogService.ShowErrorAsync("مقدار باید بزرگتر از صفر باشد."); return; }
+        // UX-CORE-AUDIT — اگر فقط یک انبار وجود دارد، LoadAsync هرگز ToWarehouseId را ست نمی‌کند (می‌ماند ۰) و
+        // چون FromWarehouseId (مثلاً ۱) با ۰ برابر نیست، اعتبارسنجیِ قبلی رد می‌شد و انتقال به یک StockItemِ
+        // جدید با WarehouseId=۰ (انبارِ ناموجود) ثبت می‌شد — موجودی از انبارِ واقعی کم می‌شد ولی به‌جایِ
+        // درستی اضافه نمی‌شد. حالا صریحاً چک می‌شود.
+        if (!IsAdjust && ToWarehouseId <= 0) { await _dialogService.ShowErrorAsync("انبارِ مقصد را انتخاب کنید."); return; }
         if (!IsAdjust && FromWarehouseId == ToWarehouseId) { await _dialogService.ShowErrorAsync("انبارِ مبدأ و مقصد یکسان است."); return; }
 
         await ExecuteAsync(async () =>

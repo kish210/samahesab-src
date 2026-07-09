@@ -106,14 +106,14 @@ public partial class ReportsViewModel : BaseViewModel
     private async Task RunReportAsync()
     {
         if (SelectedReport == null) { await _dialogService.ShowErrorAsync("یک گزارش انتخاب کنید."); return; }
-        await ExecuteAsync(async () =>
-        {
-            Results.Clear();
-            await Task.Delay(400);
-            for (int i = 1; i <= 15; i++)
-                Results.Add(new ReportResultRow(i.ToString(), $"ردیف {i}", i * 1_000_000m, i * 500_000m, i * 500_000m));
-            IsReportReady = true;
-        }, $"در حال اجرای {SelectedReport.Name}...");
+        // UX-CORE-AUDIT — این صفحه («مرکز گزارشات») قبلاً برایِ هر ۲۲ گزارش (در همهٔ دسته‌ها) داده‌یِ
+        // ساختگیِ یکسان (۱۵ ردیفِ فرمولی) نشان می‌داد — کاربر نمی‌توانست تفاوتِ گزارشِ واقعی از جعلی را
+        // بفهمد (خطرناک برایِ گزارش‌هایِ مالی مثلِ تراز آزمایشی/سود‌و‌زیان). تا پیاده‌سازیِ کوئریِ واقعیِ
+        // این گزارش‌ها (خارج از لِینِ این جلسه — گزارش/BI لِینِ pc است، طبقِ CLAUDE.md)، به‌جایِ دادهٔ
+        // جعلی صادقانه اعلام می‌کنیم که هنوز آماده نیست.
+        Results.Clear();
+        IsReportReady = false;
+        await _dialogService.ShowWarningAsync($"گزارشِ «{SelectedReport.Name}» هنوز پیاده‌سازی نشده است.");
     }
 
     [RelayCommand]

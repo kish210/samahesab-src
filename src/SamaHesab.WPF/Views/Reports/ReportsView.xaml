@@ -64,12 +64,16 @@
             <Border Grid.Row="0" Background="{DynamicResource RibbonBackground}"
                     BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,0,1" Padding="16,10">
                 <Grid>
-                    <StackPanel>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
                         <TextBlock Text="{Binding SelectedReport.Name, FallbackValue='یک گزارش را انتخاب کنید'}"
                                    FontSize="16" FontWeight="Bold" Foreground="{DynamicResource PrimaryText}"
-                                   FontFamily="{StaticResource VazirFont}"/>
+                                   FontFamily="{StaticResource VazirFont}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Content="▶ اجرا"      Style="{StaticResource PrimaryButton}"   Height="36" Margin="0,0,6,0" Command="{Binding RunReportCommand}"/>
                         <Button Content="📄 PDF"       Style="{StaticResource SecondaryButton}" Height="36" Margin="0,0,6,0" Command="{Binding ExportPdfCommand}"/>
                         <Button Content="📊 Excel"     Style="{StaticResource SuccessButton}"   Height="36" Margin="0,0,6,0" Command="{Binding ExportExcelCommand}"/>

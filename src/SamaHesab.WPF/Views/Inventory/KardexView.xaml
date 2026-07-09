@@ -20,10 +20,10 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Path Data="{StaticResource IcClipboard}" Style="{StaticResource ErpToolSvg}" Width="20" Height="20" VerticalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/>
                 <TextBlock Text="کاردکس" Style="{StaticResource ErpInlineLabel}" Margin="8,0,6,0"/>
-                <ComboBox Width="280" Height="30" ItemsSource="{Binding Products}" DisplayMemberPath="Display"
+                <ComboBox Style="{StaticResource BaseComboBox}" Width="280" Height="30" ItemsSource="{Binding Products}" DisplayMemberPath="Display"
                           SelectedItem="{Binding SelectedProduct}"
                           IsEditable="True"
-                         />
+                          materialDesign:HintAssist.Hint="کد یا نامِ کالا را انتخاب کنید…"/>
                 <TextBlock Text="انبار" Style="{StaticResource ErpInlineLabel}" Margin="12,0,6,0"/>
                 <ComboBox Style="{StaticResource BaseComboBox}" Width="150" Height="30" ItemsSource="{Binding Warehouses}"
                           DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding SelectedWarehouseId}"/>

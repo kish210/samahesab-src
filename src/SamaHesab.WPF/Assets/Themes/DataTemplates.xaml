@@ -56,6 +56,7 @@
     <DataTemplate DataType="{x:Type con:ContractingStatementViewModel}"><vcon:ContractingStatementView/></DataTemplate>
     <DataTemplate DataType="{x:Type con:ContractingDashboardViewModel}"><vcon:ContractingDashboardView/></DataTemplate>
     <DataTemplate DataType="{x:Type con:ContractingReportsViewModel}"><vcon:ContractingReportsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type con:ServiceContractListViewModel}"><vcon:ServiceContractListView/></DataTemplate>
 
     <!-- کار #۲۵ — مرکزِ اعلان‌ها -->
     <DataTemplate DataType="{x:Type auto:AlertsViewModel}"><vauto:AlertsView/></DataTemplate>

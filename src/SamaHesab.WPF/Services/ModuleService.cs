@@ -53,9 +53,9 @@ public class ModuleService
         // کلاینت‌های فروشِ گردشگری (SELLER-PANEL) — هرکدام نسخهٔ مستقل برای ردگیریِ آپدیت.
         new ModuleDef(Web, "پنلِ وبِ فروش", false, "Web", Version: "1.0.0"),
         new ModuleDef(Mobile, "اپِ موبایلِ فروش", false, "Cellphone", Version: "0.1.0"),
-        // پیمانکاری فعلاً غیرفعال (به‌خواستِ کاربر) — از فهرستِ ارائه/منو خارج تا روشن نشود.
-        // برای بازگردانی، این خط را از کامنت دربیاورید (backendِ CON-C1 سرِ جایش است):
-        // new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
+        // پیمانکاری @2026-07-10 دوباره فعال شد (به‌خواستِ کاربر) — با افزودنِ «قراردادهایِ خدماتی»
+        // (اشتراکِ اینترنت/پشتیبانی و مانندِ آن) کنارِ backendِ قبلیِ CON-C1 (صورت‌وضعیت/پیمان).
+        new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
     };
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");

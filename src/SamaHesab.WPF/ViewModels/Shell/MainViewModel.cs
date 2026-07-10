@@ -69,6 +69,7 @@ public partial class MainViewModel : BaseViewModel
         ["RestaurantPrintStations"] = ModuleService.Restaurant,   // 🍽 ایستگاه‌های چاپ
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
         ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
+        ["ServiceContracts"] = ModuleService.Contracting,     // قراردادهایِ خدماتیِ تکرارشونده
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -226,6 +227,7 @@ public partial class MainViewModel : BaseViewModel
             ["ContractingStatement"] = ("صورت‌وضعیتِ پیمان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingStatementViewModel>()),
             ["ContractingDashboard"] = ("داشبوردِ پیمان",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingDashboardViewModel>()),
             ["ContractingReports"]   = ("گزارش‌های پیمانکاری", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ContractingReportsViewModel>()),
+            ["ServiceContracts"]     = ("قراردادهایِ خدماتی", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Contracting.ServiceContractListViewModel>()),
             ["TourismSale"]        = ("ثبتِ فروشِ گردشگری",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismSaleViewModel>()),
             ["TourismDeposits"]    = ("ودیعهٔ تأمین‌کنندگان", sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismDepositsViewModel>()),
             ["TourismCommissions"] = ("پورسانتِ فروشندگان",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismCommissionsViewModel>()),
@@ -519,7 +521,8 @@ public partial class MainViewModel : BaseViewModel
         Add(ContractingEnabled, "پیمانکاری", "IcContracting",
             new("صورت‌وضعیت", "ContractingStatement"),
             new("داشبوردِ پیمان", "ContractingDashboard"),
-            new("گزارش‌های پیمانکاری", "ContractingReports"));
+            new("گزارش‌های پیمانکاری", "ContractingReports"),
+            new("قراردادهایِ خدماتی", "ServiceContracts"));
 
         // منابع انسانی (HR): ماژولِ لِینِ pc — مثلِ بقیهٔ ماژول‌ها در نوارِ کناری (نه در منوی «سیستم»).
         Add(HrEnabled, "منابع انسانی", "IcUserPlus",

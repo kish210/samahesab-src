@@ -17,7 +17,7 @@ namespace SamaHesab.WPF.ViewModels.Treasury;
 /// CORE-UX-NAV (pc) — صفحهٔ مستقلِ «دریافت و پرداختِ وجه»: فرمِ دومنظوره (دریافت از مشتری /
 /// پرداخت به تأمین‌کننده) با تخصیصِ خودکارِ FIFO + سندِ خودکار، و فهرستِ اخیرِ دریافت/پرداخت.
 /// </summary>
-public partial class ReceivePaymentViewModel : BaseViewModel
+public partial class ReceivePaymentViewModel : BaseViewModel, INavigationAware
 {
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _user;
@@ -74,6 +74,17 @@ public partial class ReceivePaymentViewModel : BaseViewModel
     [RelayCommand] private void SetPay() => IsReceive = false;
     [RelayCommand] private Task RefreshAsync() => LoadAsync();
 
+    /// <summary>UX — پیش‌انتخابِ طرف‌حساب/حالتِ دریافت‌یاپرداخت وقتی از دکمهٔ کارتِ شخص باز می‌شود.</summary>
+    public Task OnNavigatedToAsync(object? parameter)
+    {
+        if (parameter is PreselectPartyParam p)
+        {
+            IsReceive = p.IsReceive;
+            SelectedPartyId = p.PartyId;
+        }
+        return Task.CompletedTask;
+    }
+
     [RelayCommand]
     private async Task SubmitAsync()
     {
@@ -109,3 +120,6 @@ public partial class ReceivePaymentViewModel : BaseViewModel
         }, $"در حال ثبتِ {verb}...");
     }
 }
+
+/// <summary>پارامترِ ناوبری برایِ بازکردنِ این صفحه با طرف‌حسابِ از‌پیش‌انتخاب‌شده (مثلاً از کارتِ شخص).</summary>
+public record PreselectPartyParam(int PartyId, bool IsReceive = true);

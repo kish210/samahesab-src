@@ -125,10 +125,22 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         OnPropertyChanged(nameof(PostButtonText));
     }
 
-    /// <summary>UX-SALES-VIEW — بازکردنِ فاکتورِ موجود از فهرست (Param=Id) در حالتِ مشاهده.</summary>
+    /// <summary>
+    /// UX-SALES-VIEW — بازکردنِ فاکتورِ موجود از فهرست (Param=Id) در حالتِ مشاهده.
+    /// باگِ رفع‌شده @2026-07-10: قبلاً هر پارامترِ int (از جمله CustomerId که کارتِ مشتری برایِ
+    /// پیش‌انتخابِ مشتری در «فاکتورِ جدید» می‌فرستد) این‌جا به‌اشتباه به‌عنوانِ شناسهٔ فاکتور خوانده
+    /// می‌شد — یا فاکتورِ کاملاً نامرتبطِ دیگری (با مشتریِ متفاوت) بار می‌شد، یا اگر آن id به هیچ
+    /// فاکتوری نمی‌خورد، خطایِ «فاکتور یافت نشد» می‌داد و فرم خالی می‌ماند. حالا با نوعِ
+    /// <see cref="PreselectCustomerParam"/> از حالتِ «بازکردنِ فاکتورِ موجود» تفکیک می‌شود.
+    /// </summary>
     public async Task OnNavigatedToAsync(object? parameter)
     {
         if (parameter is int id && id > 0) await LoadExistingAsync(id);
+        else if (parameter is PreselectCustomerParam pc && pc.CustomerId > 0)
+        {
+            NewInvoice();   // اگر تبِ فاکتورِ فروش از قبل باز بود، ابتدا کاملاً به حالتِ خالی/جدید برگرد
+            SelectedCustomerId = pc.CustomerId;
+        }
     }
 
     private async Task LoadExistingAsync(int id)
@@ -829,6 +841,9 @@ public partial class SalesInvoiceItemRow : ObservableObject
         NetAmount = after + TaxAmount;
     }
 }
+
+/// <summary>پارامترِ ناوبری برایِ پیش‌انتخابِ مشتری در فاکتورِ جدید (مثلاً از دکمهٔ «فاکتورِ جدید»یِ کارتِ مشتری) — با شناسهٔ خامِ فاکتور (int) اشتباه گرفته نشود.</summary>
+public record PreselectCustomerParam(int CustomerId);
 
 public record RecentRef(int Id, string Label);
 public record CustomerItem(int Id, string Name, string? Mobile);

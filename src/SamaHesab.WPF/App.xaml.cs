@@ -271,7 +271,6 @@ public partial class App : System.Windows.Application
                 services.AddTransient<StockAdjustViewModel>();
                 services.AddTransient<SalesInvoiceListViewModel>();
                 services.AddTransient<ViewModels.Sales.SalesDashboardViewModel>();   // داشبوردِ اختصاصیِ فروشنده
-                services.AddTransient<ViewModels.Sales.RecurringInvoiceListViewModel>();   // F9-3 — فاکتورِ تکرارشونده
                 services.AddTransient<ViewModels.Sales.SalesReportViewModel>();   // کارِ ۸ — گزارش فروش
                 services.AddTransient<ViewModels.Purchase.PurchaseReportViewModel>();   // کارِ ۸ — گزارش خرید
                 services.AddTransient<ViewModels.Purchase.SupplierStatementViewModel>();   // C2-C — صورت‌حساب تأمین‌کننده

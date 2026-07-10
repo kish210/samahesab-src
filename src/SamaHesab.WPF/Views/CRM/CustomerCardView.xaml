@@ -111,7 +111,10 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button Style="{StaticResource TBtnPrimary}" Content="✎  ویرایش" Command="{Binding EditCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="🧾  فاکتور جدید" Command="{Binding NewInvoiceCommand}"/>
-                    <Button Style="{StaticResource TBtn}" Content="💵  دریافت وجه" Command="{Binding ReceiptCommand}"/>
+                    <Button Style="{StaticResource TBtn}" Content="💵  دریافت وجه" Command="{Binding ReceiptCommand}"
+                            ToolTip="ثبتِ سندِ دریافتِ وجه از این شخص"/>
+                    <Button Style="{StaticResource TBtn}" Content="💸  پرداخت وجه" Command="{Binding PaymentCommand}"
+                            ToolTip="ثبتِ سندِ پرداختِ وجه به این شخص"/>
                     <Rectangle Width="1" Fill="{StaticResource ErpBorder}" Margin="4,5"/>
                     <Button Style="{StaticResource TBtn}" Content="🖨  صورت‌حساب (F8)" Command="{Binding PrintStatementCommand}"/>
                     <Button Style="{StaticResource TBtn}" Content="✉  پیامک مانده" Command="{Binding SmsBalanceCommand}"/>

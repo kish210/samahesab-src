@@ -1,7 +1,6 @@
 using System.Globalization;
 using MediatR;
 using SamaHesab.Application.Accounting.Commands;
-using SamaHesab.Application.Sales.Commands;
 
 namespace SamaHesab.API.Services;
 
@@ -48,10 +47,6 @@ public class RecurringDocumentSchedulerService : BackgroundService
         var v = await mediator.Send(new GenerateDueRecurringVouchersCommand(today), ct);
         if (v.Succeeded && v.Value is not null)
             _logger.LogInformation("[Recurring] اسناد تکرارشونده تولیدشده: {Count}", v.Value.Generated);
-
-        var i = await mediator.Send(new GenerateDueRecurringInvoicesCommand(today), ct);
-        if (i.Succeeded && i.Value is not null)
-            _logger.LogInformation("[Recurring] فاکتورهای تکرارشونده تولیدشده: {Count}", i.Value.Generated);
     }
 
     private static string TodayPersian()

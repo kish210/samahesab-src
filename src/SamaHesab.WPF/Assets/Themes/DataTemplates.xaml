@@ -121,7 +121,6 @@
 
     <!-- Sales -->
     <DataTemplate DataType="{x:Type sal:SalesDashboardViewModel}"><vsal:SalesDashboardView/></DataTemplate>
-    <DataTemplate DataType="{x:Type sal:RecurringInvoiceListViewModel}"><vsal:RecurringInvoiceListView/></DataTemplate>
     <DataTemplate DataType="{x:Type sal:SalesInvoiceEditViewModel}"><vsal:SalesInvoiceEditView/></DataTemplate>
     <DataTemplate DataType="{x:Type sal:SalesInvoiceListViewModel}"><vsal:SalesInvoiceListView/></DataTemplate>
     <DataTemplate DataType="{x:Type sal:SalesReportViewModel}"><vsal:SalesReportView/></DataTemplate>

@@ -294,9 +294,18 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
 
     [RelayCommand] private void Edit() => _navigationService.NavigateTo("CustomerEdit", CustomerId);
     // کلیدِ صفحهٔ فاکتورِ فروش «SalesInvoice» است (نه SalesInvoiceEdit) — باگِ قبلی: دکمه کاری نمی‌کرد.
-    [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice", CustomerId);
-    // دریافتِ وجه → صفحهٔ دریافتنی/پرداختنی (به‌جای پیامِ خالی).
-    [RelayCommand] private void Receipt() => _navigationService.NavigateTo("Receivables", CustomerId);
+    // باگِ بعدیِ کشف‌شده (@2026-07-10): پاس‌دادنِ CustomerId به‌صورتِ int خام باعث می‌شد
+    // SalesInvoiceEditViewModel آن را با شناسهٔ فاکتور اشتباه بگیرد (فاکتورِ فردِ دیگری بار می‌شد
+    // یا فرم خالی می‌ماند). حالا با PreselectCustomerParam درست تفکیک می‌شود.
+    [RelayCommand] private void NewInvoice()
+        => _navigationService.NavigateTo("SalesInvoice", new SamaHesab.WPF.ViewModels.Sales.PreselectCustomerParam(CustomerId));
+    // دریافت/پرداختِ وجه — باگِ رفع‌شده (@2026-07-10): قبلاً به صفحهٔ لیستِ «Receivables» می‌رفت که
+    // پارامترِ مشتری را اصلاً نمی‌خواند (INavigationAware نداشت) و سندِ حسابداری هم ثبت نمی‌کرد.
+    // حالا به صفحهٔ واقعیِ «دریافت و پرداختِ وجه» می‌رود که سندِ حسابداری می‌سازد.
+    [RelayCommand] private void Receipt()
+        => _navigationService.NavigateTo("ReceivePayment", new SamaHesab.WPF.ViewModels.Treasury.PreselectPartyParam(CustomerId, IsReceive: true));
+    [RelayCommand] private void Payment()
+        => _navigationService.NavigateTo("ReceivePayment", new SamaHesab.WPF.ViewModels.Treasury.PreselectPartyParam(CustomerId, IsReceive: false));
     [RelayCommand]
     private async Task PrintStatement()
     {

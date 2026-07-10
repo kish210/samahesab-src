@@ -78,8 +78,6 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["SaveVoucherTemplateCommand"]  = new("Accounting", "Setup", "Manage", "ثبتِ قالبِ سند", Enforce: false, Table: "Acc"),
         ["SaveRecurringVoucherCommand"] = new("Accounting", "Setup", "Manage", "ثبتِ سندِ تکرارشونده", Enforce: false, Table: "Acc"),
         ["GenerateDueRecurringVouchersCommand"] = new("Accounting", "Voucher", "Create", "تولیدِ اسنادِ تکرارشونده", Enforce: false, Table: "Acc"),
-        ["SaveRecurringInvoiceCommand"] = new("Sales", "Invoice", "Create", "ثبتِ فاکتورِ تکرارشونده", Enforce: false, Table: "Sal"),
-        ["GenerateDueRecurringInvoicesCommand"] = new("Sales", "Invoice", "Create", "تولیدِ فاکتورهای تکرارشونده", Enforce: false, Table: "Sal"),
         // امنیت (تغییرِ سطحِ دسترسی — حساس) —
         ["SaveRoleCommand"]             = new("Security", "Manage", "", "ثبت/ویرایشِ نقش", Enforce: false, Table: "Sec"),
         ["SetRolePermissionsCommand"]   = new("Security", "Manage", "", "تنظیمِ مجوزهای نقش", Enforce: false, Table: "Sec"),

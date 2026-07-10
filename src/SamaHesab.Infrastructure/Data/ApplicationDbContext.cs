@@ -96,8 +96,6 @@ public class ApplicationDbContext : DbContext
     // Sales
     public DbSet<SalesInvoice> SalesInvoices { get; set; }
     public DbSet<SalesInvoiceItem> SalesInvoiceItems { get; set; }
-    public DbSet<RecurringInvoice> RecurringInvoices { get; set; }
-    public DbSet<RecurringInvoiceLine> RecurringInvoiceLines { get; set; }
 
     // Purchase
     public DbSet<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice> PurchaseInvoices { get; set; }
@@ -195,19 +193,6 @@ public class ApplicationDbContext : DbContext
         // The FK column is InvoiceId (not the convention 'SalesInvoiceId').
         modelBuilder.Entity<SalesInvoice>()
             .HasMany(i => i.Items).WithOne().HasForeignKey(it => it.InvoiceId);
-        // Recurring invoices (P3): schema Sal.
-        modelBuilder.Entity<RecurringInvoice>(b =>
-        {
-            b.ToTable("RecurringInvoices", "Sal");
-            b.HasMany(r => r.Lines).WithOne().HasForeignKey(l => l.RecurringInvoiceId);
-        });
-        modelBuilder.Entity<RecurringInvoiceLine>(b =>
-        {
-            b.ToTable("RecurringInvoiceLines", "Sal");
-            b.Property(l => l.Quantity).HasPrecision(18, 3);
-            b.Property(l => l.UnitPrice).HasPrecision(18, 2);
-            b.Property(l => l.TaxPct).HasPrecision(18, 2);
-        });
 
         // Purchase invoices live in the Pur schema.
         modelBuilder.Entity<SamaHesab.Domain.Entities.Purchase.PurchaseInvoice>().ToTable("PurchaseInvoices", "Pur");

@@ -25,6 +25,9 @@ public partial class RestaurantPosViewModel : BaseViewModel
     public bool UseApi { get; set; }
     private int _apiCustomerId = 1, _apiWarehouseId = 1;
     public void ConfigureApi(int customerId, int warehouseId) { UseApi = true; _apiCustomerId = customerId; _apiWarehouseId = warehouseId; }
+    // POS-WH-1 — همان رفعِ PosViewModel: قبلاً WarehouseId هاردکد رویِ ۱ بود؛ حالا انبارِ واقعیِ
+    // شرکت (اولین موجود) لود می‌شود. فقط مسیرِ محلی؛ restoran.exeِ مستقل از قبل درست است.
+    private int _defaultWarehouseId = 1;
 
     [ObservableProperty] private string _orderType = "سالن";          // سالن / بیرون / پیک
     [ObservableProperty] private int _tableNumber;
@@ -101,6 +104,13 @@ public partial class RestaurantPosViewModel : BaseViewModel
                     Categories.Add(new CategoryTile(g.Id, g.Name));
             }
             catch { /* groups optional */ }
+
+            try
+            {
+                var warehouses = await _mediator.Send(new SamaHesab.Application.Inventory.Queries.GetWarehousesQuery());
+                if (warehouses.Count > 0) _defaultWarehouseId = warehouses[0].Id;
+            }
+            catch { /* fallback به ۱ اگر لود نشد */ }
         }
 
         ApplyCategory();
@@ -252,7 +262,7 @@ public partial class RestaurantPosViewModel : BaseViewModel
             {
                 var cmd = new CreateSalesInvoiceCommand(
                     BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
-                    InvoiceDate: _calendar.GetCurrentPersianDate(), CustomerId: 1, WarehouseId: 1,
+                    InvoiceDate: _calendar.GetCurrentPersianDate(), CustomerId: 1, WarehouseId: _defaultWarehouseId,
                     InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale, PriceLevel: "خرده",
                     SalesRepId: null, DueDate: null, Description: desc,
                     Shipping: 0, OtherCosts: ServiceAmount + Tip,

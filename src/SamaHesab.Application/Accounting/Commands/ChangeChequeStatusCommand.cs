@@ -89,7 +89,7 @@ public class ChangeChequeStatusCommandHandler : IRequestHandler<ChangeChequeStat
     /// </summary>
     private async Task<int> CreateClearingVoucherAsync(int companyId, Cheque cheque, string date, CancellationToken ct)
     {
-        var bank = await _accounts.GetByCodeAsync(companyId, "1-02-001", ct);
+        var bank = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Bank, ct);
         var chequeReceivable = await _accounts.GetByCodeAsync(companyId, "1-04-001", ct);
         var payable = await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
         if (bank == null || chequeReceivable == null || payable == null) return 0;

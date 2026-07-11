@@ -245,8 +245,16 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
 
     private async Task<string> GenerateInvoiceNumberAsync(int companyId, int fiscalYearId, CancellationToken ct)
     {
-        var count = await _invoiceRepository.CountAsync(
+        // بیشترین شمارهٔ موجود + ۱ (نه COUNT) — تا حذفِ یک فاکتور شمارهٔ تکراری تولید نکند
+        // (هم‌راستا با همین رفع در CreateSalesInvoiceCommand.GenerateInvoiceNumberAsync).
+        var existing = await _invoiceRepository.FindAsync(
             i => i.CompanyId == companyId && i.FiscalYearId == fiscalYearId, ct);
-        return $"PF{(count + 1):D6}";
+        int max = 0;
+        foreach (var inv in existing)
+        {
+            var digits = new string((inv.InvoiceNumber ?? "").Where(char.IsDigit).ToArray());
+            if (int.TryParse(digits, out var x) && x > max) max = x;
+        }
+        return $"PF{(max + 1):D6}";
     }
 }

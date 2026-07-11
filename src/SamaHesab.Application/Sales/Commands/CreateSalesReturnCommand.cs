@@ -77,6 +77,7 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
             await _uow.SaveChangesAsync(ct);
 
             // ── بازگرداندن کالا به انبار (فقط کالاهای انباری) ──
+            decimal totalCost = 0;   // INV-1 گام۴ — بهایِ بازگشتیِ موجودی (برایِ معکوسِ COGS در سندِ زیر)
             foreach (var d in req.Items)
             {
                 var product = await _products.GetByIdAsync(d.ProductId, ct);
@@ -86,6 +87,7 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
                 stock ??= StockItem.Create(d.ProductId, req.WarehouseId);
                 var cost = stock.Quantity > 0 ? stock.AverageCost : d.UnitPrice;
                 stock.AddStock(d.Quantity, cost);
+                totalCost += cost * d.Quantity;
                 if (isNew) await _stock.AddAsync(stock, ct); else _stock.Update(stock);
 
                 await _ledger.AddAsync(StockTransaction.Create(companyId, req.BranchId, "برگشت از فروش", number,
@@ -111,6 +113,19 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
                     v.AddItem(VoucherItem.Create(0, row++, vat.Id, inv.TotalTax, 0, "برگشت مالیات"));
                 v.AddItem(VoucherItem.Create(0, row++, creditAccount.Id, 0, inv.GrandTotal,
                     req.RefundCash ? "بازپرداخت نقدی" : "کاهش بدهی مشتری"));
+
+                // INV-1 گام۴ — معکوسِ COGS: کالا به انبار بازگشت ⇒ بد «موجودی کالا» / بس «بهای تمام‌شده».
+                // پیش از این رفع، این مسیرِ برگشت (بر خلافِ مسیرِ توکارِ CreateSalesInvoiceCommand) هرگز
+                // این دو ردیف را نمی‌زد — موجودیِ فیزیکی برمی‌گشت ولی ارزشِ آن در دفترِ کل اصلاح نمی‌شد.
+                if (totalCost > 0)
+                {
+                    var cogsAcc = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Cogs, ct);
+                    var invAcc = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+                    if (cogsAcc != null && invAcc != null)
+                        foreach (var line in Inventory.PerpetualCogs.Build(totalCost, cogsAcc.Id, invAcc.Id, reverse: true))
+                            v.AddItem(VoucherItem.Create(0, row++, line.AccountId, line.Debit, line.Credit, line.Description));
+                }
+
                 await _vouchers.AddAsync(v, ct);
                 await _uow.SaveChangesAsync(ct);
                 inv.SetVoucher(v.Id);

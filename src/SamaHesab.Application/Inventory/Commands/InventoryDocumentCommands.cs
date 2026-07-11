@@ -17,6 +17,12 @@ internal static class InventoryAccounting
     public const string Inventory = "1-05-001";   // موجودی کالا
     public const string Payable   = "3-01-001";   // حساب‌های پرداختنی
     public const string Cogs      = "7-01-001";   // بهای تمام شده / مصرف
+    public const string Cash      = "1-01-001";   // صندوق
+    // بانکِ پیش‌فرض — «۱-۰۲-۰۰۱» که چند جا هاردکد شده بود اصلاً در نمودارِ حساب‌ها تعریف نمی‌شد
+    // (گروهِ ۱-۰۲ = سرمایه‌گذاریِ کوتاه‌مدت، نه بانک) ⇒ هر پرداخت/دریافتِ «بانکی» بی‌صدا با صندوق
+    // یکی می‌شد. تا افزودنِ انتخابِ صریحِ حساب‌بانکی (چندبانکی)، این حسابِ واقعاً موجود (بانک ملت،
+    // زیرِ گروهِ ۱-۰۱ وجوهِ نقد) به‌عنوانِ بانکِ پیش‌فرض استفاده می‌شود.
+    public const string Bank      = "1-01-003";   // بانک ملت (پیش‌فرض)
 
     public static async Task TryPostAsync(IAccountRepository accounts, IVoucherRepository vouchers,
         int companyId, int branchId, string date, string debitCode, string creditCode,

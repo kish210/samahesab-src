@@ -334,7 +334,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             {
                 "نقدی" => "1-01-001",
                 "چک"   => "1-04-001",
-                "بانک" => "1-02-001",
+                "بانک" => Inventory.Commands.InventoryAccounting.Bank,
                 _       => "1-01-001"
             };
             var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)
@@ -411,7 +411,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             {
                 "نقدی"  => "1-01-001",  // صندوق
                 "چک"    => "1-04-001",  // اسناد دریافتنی
-                "بانک"  => "1-02-001",  // بانک (در صورت وجود)
+                "بانک"  => Inventory.Commands.InventoryAccounting.Bank,
                 _        => "1-01-001"
             };
             var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)

@@ -48,7 +48,6 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         // ── CR-C1 (X1): تکمیلِ پوششِ حسابرسی — همگی audit-only (بدونِ تغییرِ رفتار). تطبیق با نامِ فرمان. ──
         // فروش/خرید (پولی) —
         ["CreateSalesInvoiceCommand"]   = new("Sales", "Invoice", "Create", "ثبتِ فاکتورِ فروش", Enforce: false, Table: "Sal"),
-        ["PostSalesInvoiceCommand"]     = new("Sales", "Invoice", "Post", "قطعیِ فاکتورِ فروش", Enforce: false, Table: "Sal"),
         ["CreateSalesReturnCommand"]    = new("Sales", "Invoice", "Create", "برگشت از فروش", Enforce: false, Table: "Sal"),
         ["CreatePurchaseInvoiceCommand"]= new("Purchase", "Invoice", "Create", "ثبتِ فاکتورِ خرید", Enforce: false, Table: "Pur"),
         ["CreatePurchaseReturnCommand"] = new("Purchase", "Invoice", "Create", "برگشت از خرید", Enforce: false, Table: "Pur"),

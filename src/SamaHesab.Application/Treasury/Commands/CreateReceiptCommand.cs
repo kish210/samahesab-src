@@ -54,7 +54,7 @@ public class CreateReceiptCommandHandler : IRequestHandler<CreateReceiptCommand,
             var companyId = _currentUser.CompanyId!.Value;
             var payCode = req.PaymentMethod switch
             {
-                "بانک" => "1-02-001",
+                "بانک" => Inventory.Commands.InventoryAccounting.Bank,
                 "چک"   => "1-04-001",
                 _       => "1-01-001" // نقدی → صندوق
             };

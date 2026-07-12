@@ -21,7 +21,7 @@ public record SalesInvoiceDetailDto(
     int Id, string Number, string Date, int CustomerId, int WarehouseId, string PriceLevel,
     decimal Shipping, decimal OtherCosts, decimal GrandTotal, decimal PaidAmount, decimal RemainAmount,
     string? DueDate, string? Description, string? Reference, string? Title,
-    string InvoiceType, IReadOnlyList<SalesInvoiceDetailItem> Items);
+    string InvoiceType, IReadOnlyList<SalesInvoiceDetailItem> Items, decimal InvoiceDiscount = 0);
 
 public class GetSalesInvoiceByIdQueryHandler : IRequestHandler<GetSalesInvoiceByIdQuery, SalesInvoiceDetailDto?>
 {
@@ -60,6 +60,7 @@ public class GetSalesInvoiceByIdQueryHandler : IRequestHandler<GetSalesInvoiceBy
         return new SalesInvoiceDetailDto(
             inv.Id, inv.InvoiceNumber, inv.InvoiceDate, inv.CustomerId, inv.WarehouseId, inv.PriceLevel,
             inv.Shipping, inv.OtherCosts, inv.GrandTotal, inv.PaidAmount, inv.RemainAmount,
-            inv.DueDate, inv.Description, inv.Reference, inv.Title, TypeFa(inv.InvoiceType), items);
+            inv.DueDate, inv.Description, inv.Reference, inv.Title, TypeFa(inv.InvoiceType), items,
+            inv.InvoiceDiscount);
     }
 }

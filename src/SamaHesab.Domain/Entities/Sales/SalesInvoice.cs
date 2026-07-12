@@ -19,6 +19,7 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
     public decimal ExchangeRate { get; private set; } = 1;
     public decimal SubTotal { get; private set; }
     public decimal TotalDiscount { get; private set; }
+    public decimal InvoiceDiscount { get; private set; }   // تخفیفِ کلِ فاکتور (مبلغی، جدا از تخفیفِ ردیفی)
     public decimal TotalTax { get; private set; }
     public decimal Shipping { get; private set; }
     public decimal OtherCosts { get; private set; }
@@ -102,12 +103,25 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
         RecalculateTotals();
     }
 
+    /// <summary>
+    /// تخفیفِ کلِ فاکتور (مبلغی) — پیش‌تر این پارامتر فقط برایِ محاسبهٔ سندِ حسابداری استفاده
+    /// می‌شد و هرگز روی خودِ فاکتور اعمال نمی‌شد؛ یعنی GrandTotal/RemainAmountِ فاکتور با مبلغِ
+    /// واقعاً دریافتی (که تخفیف را لحاظ می‌کرد) نمی‌خواند و یک ماندهٔ شبح‌وار به‌اندازهٔ تخفیف
+    /// می‌ماند. حالا مستقیماً روی خودِ فاکتور اعمال می‌شود.
+    /// </summary>
+    public void SetInvoiceDiscount(decimal amount)
+    {
+        InvoiceDiscount = amount < 0 ? 0 : amount;
+        RecalculateTotals();
+    }
+
     private void RecalculateTotals()
     {
         SubTotal = Items.Sum(i => i.Quantity * i.UnitPrice);
         TotalDiscount = Items.Sum(i => i.DiscountAmount);
         TotalTax = Items.Sum(i => i.TaxAmount);
-        GrandTotal = SubTotal - TotalDiscount + TotalTax + Shipping + OtherCosts;
+        GrandTotal = SubTotal - TotalDiscount - InvoiceDiscount + TotalTax + Shipping + OtherCosts;
+        if (GrandTotal < 0) GrandTotal = 0;
         RemainAmount = GrandTotal - PaidAmount;
     }
 

@@ -139,11 +139,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             }
 
             invoice.SetShipping(request.Shipping, request.OtherCosts);
+            // U-INV-DISC: تخفیفِ کلِ فاکتور حالا مستقیماً روی خودِ فاکتور اعمال می‌شود (نه فقط سندِ
+            // حسابداری) — invoice.GrandTotal از این‌جا به بعد خالص از تخفیفِ سرفاکتور است.
+            invoice.SetInvoiceDiscount(request.InvoiceDiscount);
 
             // ── کنترل سقف اعتبار مشتری برای بخش نسیه (کار #۳۷) ──
             if (request.InvoiceType == Domain.Enums.InvoiceType.Sale && !request.AllowOverCredit)
             {
-                var creditPortion = invoice.GrandTotal - request.InvoiceDiscount - request.PaidAmount;
+                var creditPortion = invoice.GrandTotal - request.PaidAmount;
                 if (creditPortion > 0)
                 {
                     var customer = await _customers.GetByIdAsync(request.CustomerId, ct);
@@ -311,9 +314,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
             number, request.InvoiceDate, 3 /*Sale*/, $"سند خودکار برگشت از فروش {invoice.InvoiceNumber}", invoice.InvoiceNumber);
 
-        var discount = request.InvoiceDiscount > 0 ? request.InvoiceDiscount : 0;
-        var grand = invoice.GrandTotal - discount;
-        if (grand < 0) grand = 0;
+        // U-INV-DISC: invoice.GrandTotal از قبل خالص از تخفیفِ سرفاکتور است (SetInvoiceDiscount).
+        var grand = invoice.GrandTotal;
         var salesAmount = grand - invoice.TotalTax;
         if (salesAmount < 0) salesAmount = 0;
 
@@ -393,10 +395,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
             number, request.InvoiceDate, 3 /*Sale*/, $"سند خودکار فاکتور فروش {invoice.InvoiceNumber}", invoice.InvoiceNumber);
 
-        // amounts (apply whole-invoice amount discount)
-        var discount = request.InvoiceDiscount > 0 ? request.InvoiceDiscount : 0;
-        var grand = invoice.GrandTotal - discount;
-        if (grand < 0) grand = 0;
+        // U-INV-DISC: invoice.GrandTotal از قبل خالص از تخفیفِ سرفاکتور است (SetInvoiceDiscount).
+        var grand = invoice.GrandTotal;
         var salesAmount = grand - invoice.TotalTax;
         if (salesAmount < 0) salesAmount = 0;
 

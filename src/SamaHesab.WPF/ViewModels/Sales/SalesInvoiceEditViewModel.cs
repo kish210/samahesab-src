@@ -154,6 +154,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
             SelectedCustomerId = d.CustomerId; SelectedWarehouseId = d.WarehouseId;
             PriceLevel = d.PriceLevel; InvoiceType = d.InvoiceType;
             Shipping = d.Shipping; OtherCosts = d.OtherCosts;
+            InvoiceDiscount = d.InvoiceDiscount;
             DueDate = d.DueDate; Description = d.Description;
             Reference = d.Reference ?? string.Empty; Title = d.Title ?? string.Empty;
 

@@ -1861,7 +1861,7 @@ public partial class App : System.Windows.Application
                 var c = custList.First();
                 Line($"  (using warehouse '{w.Name}', product '{p.Name}', stock {withStock?.Quantity ?? 0})");
                 var cmd = new SamaHesab.Application.Sales.Commands.CreateSalesInvoiceCommand(
-                    1, 1, "1403/06/15", c.Id, w.Id, SamaHesab.Domain.Enums.InvoiceType.Sale,
+                    1, 1, "1405/04/15", c.Id, w.Id, SamaHesab.Domain.Enums.InvoiceType.Sale,
                     "خرده", null, null, "تست خودکار", 0, 0,
                     new System.Collections.Generic.List<SamaHesab.Application.Sales.Commands.SalesInvoiceItemDto>
                     { new(p.Id, 2, p.SalePrice, 0, 9, null, null, null) });
@@ -1872,7 +1872,7 @@ public partial class App : System.Windows.Application
                 var voucherRepo = sp.GetRequiredService<SamaHesab.Domain.Interfaces.Repositories.IVoucherRepository>();
                 var beforeCount = (await voucherRepo.GetAllAsync()).Count();
                 var cmd2 = new SamaHesab.Application.Sales.Commands.CreateSalesInvoiceCommand(
-                    1, 1, "1403/06/15", c.Id, w.Id, SamaHesab.Domain.Enums.InvoiceType.Sale,
+                    1, 1, "1405/04/15", c.Id, w.Id, SamaHesab.Domain.Enums.InvoiceType.Sale,
                     "خرده", 1, null, "تست تخفیف+پرداخت+پورسانت", 0, 0,
                     new System.Collections.Generic.List<SamaHesab.Application.Sales.Commands.SalesInvoiceItemDto>
                     { new(p.Id, 1, 1000000, 0, 0, null, null, null) },
@@ -1890,7 +1890,7 @@ public partial class App : System.Windows.Application
             {
                 var a1 = leaf.ElementAt(0).Id; var a2 = leaf.ElementAt(1).Id;
                 var cmd = new SamaHesab.Application.Accounting.Commands.CreateVoucherCommand(
-                    1, 1, "1403/06/15", 9, "تست سند", null, null, 1,
+                    1, 1, "1405/04/15", 9, "تست سند", null, null, 1,
                     new System.Collections.Generic.List<SamaHesab.Application.Accounting.Commands.VoucherItemDto>
                     {
                         new(1, a1, 1000000, 0, "بدهکار تست", null, null),
@@ -1909,7 +1909,7 @@ public partial class App : System.Windows.Application
                 var p = prodList.First();
                 var before = (await stockRepo.GetByProductAndWarehouseAsync(p.Id, w.Id))?.Quantity ?? 0;
                 var cmd = new SamaHesab.Application.Purchase.Commands.CreatePurchaseInvoiceCommand(
-                    1, 1, "1403/06/15", 1, w.Id, "خرید", null, null, "تست خرید خودکار", 0, 0,
+                    1, 1, "1405/04/15", 1, w.Id, "خرید", null, null, "تست خرید خودکار", 0, 0,
                     new System.Collections.Generic.List<SamaHesab.Application.Purchase.Commands.PurchaseInvoiceItemDto>
                     { new(p.Id, 5, 800000, 0, 9, null, null, null, null, null) });
                 var r = await mediator.Send(cmd);
@@ -2008,7 +2008,7 @@ public partial class App : System.Windows.Application
                 var c = custList.First();
                 var before = (await custRepo.GetByIdAsync(c.Id))?.Balance ?? 0;
                 var r = await mediator.Send(new SamaHesab.Application.Treasury.Commands.CreateReceiptCommand(
-                    1, 1, "1403/06/15", c.Id, 1_000_000, "نقدی", "تست دریافت"));
+                    1, 1, "1405/04/15", c.Id, 1_000_000, "نقدی", "تست دریافت"));
                 var after = (await custRepo.GetByIdAsync(c.Id))?.Balance ?? 0;
                 Line(r.Succeeded
                     ? $"RECEIPT: PASS (سند={r.Value}, مانده مشتری {before:#,##0}→{after:#,##0})"
@@ -2043,7 +2043,7 @@ public partial class App : System.Windows.Application
             try
             {
                 var ps = (Services.PrintService)sp.GetRequiredService<Services.IPrintService>();
-                var data = new Services.PrintDocumentData("فاکتور فروش", "F000001", "1403/06/15", "مشتری", "علی احمدی",
+                var data = new Services.PrintDocumentData("فاکتور فروش", "F000001", "1405/04/15", "مشتری", "علی احمدی",
                     new[] { new Services.PrintLine(1, "K1001", "روغن موتور", 2, 500000, 0, 1090000) },
                     1000000, 0, 90000, 0, 1090000, 1090000, 0, "تست چاپ");
                 var docA4 = ps.Build(data, new Services.PrintSettings(), receipt: false);

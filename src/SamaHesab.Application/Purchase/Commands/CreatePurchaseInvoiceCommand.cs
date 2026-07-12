@@ -66,6 +66,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IRepository<Domain.Entities.Purchase.PurchaseInvoice> _invoiceRepository;
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
     private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
+    private readonly IRepository<Domain.Entities.CRM.Party> _suppliers;
     private readonly IMediator _mediator;
 
     public CreatePurchaseInvoiceCommandHandler(
@@ -78,6 +79,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IRepository<Domain.Entities.Purchase.PurchaseInvoice> invoiceRepository,
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
+        IRepository<Domain.Entities.CRM.Party> suppliers,
         IMediator mediator)
     {
         _unitOfWork = unitOfWork;
@@ -89,6 +91,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _invoiceRepository = invoiceRepository;
         _ledger = ledger;
         _fiscalYears = fiscalYears;
+        _suppliers = suppliers;
         _mediator = mediator;
     }
 
@@ -179,6 +182,13 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
             if (voucherId.HasValue) invoice.Post(voucherId.Value);
             else invoice.Confirm();   // کار #۵ — بدونِ چارتِ حساب هم از «پیش‌نویس» خارج شود (قطعی)
             _invoiceRepository.Update(invoice);
+
+            // U-PARTY-BAL: هم‌راستا با رفعِ مشابه در CreateSalesInvoiceCommand — پیش‌تر فقط
+            // CreatePaymentCommand ماندهٔ تأمین‌کننده را دست می‌زد؛ خودِ صدورِ فاکتورِ خرید هرگز
+            // بدهیِ نسیهٔ جدید را به Balance اضافه نمی‌کرد.
+            var supplier = await _suppliers.GetByIdAsync(request.SupplierId, ct);
+            if (supplier != null)
+                supplier.UpdateBalance(supplier.Balance + invoice.RemainAmount);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);

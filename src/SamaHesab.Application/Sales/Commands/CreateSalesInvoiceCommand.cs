@@ -260,6 +260,23 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                 _invoiceRepository.Update(invoice);
             }
 
+            // U-PARTY-BAL: پیش‌تر فقط دریافت/پرداختِ خزانه (CreateReceiptCommand/CreatePaymentCommand)
+            // Party.Balance را دست می‌زدند — خودِ صدورِ فاکتور هرگز بدهیِ نسیهٔ جدید را به ماندهٔ
+            // مرجعِ مشتری اضافه نمی‌کرد. نتیجه: هرچقدر هم فروشِ نسیه انباشته می‌شد، Balance ثابت
+            // می‌ماند — سقفِ اعتبار (CreditLimitPolicy رویِ همین Balance) و ماندهٔ نمایش‌داده‌شده در
+            // کارتِ مشتری/صورت‌حساب هر دو عملاً بی‌معنا می‌شدند. حالا خودِ صدور هم Balance را به‌روز می‌کند.
+            if (request.InvoiceType == Domain.Enums.InvoiceType.Sale
+                || request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
+            {
+                var custForBalance = await _customers.GetByIdAsync(request.CustomerId, ct);
+                if (custForBalance != null)
+                {
+                    var delta = request.InvoiceType == Domain.Enums.InvoiceType.Sale
+                        ? invoice.RemainAmount : -invoice.RemainAmount;
+                    custForBalance.UpdateBalance(custForBalance.Balance + delta);
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);
 

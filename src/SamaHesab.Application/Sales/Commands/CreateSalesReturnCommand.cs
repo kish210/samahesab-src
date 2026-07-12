@@ -46,13 +46,15 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<StockTransaction> _ledger;
+    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Party> _customers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public CreateSalesReturnCommandHandler(IRepository<SalesInvoice> invoices, IStockItemRepository stock,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
-        IRepository<StockTransaction> ledger, IUnitOfWork uow, ICurrentUserService user)
-    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _uow = uow; _user = user; }
+        IRepository<StockTransaction> ledger, IRepository<SamaHesab.Domain.Entities.CRM.Party> customers,
+        IUnitOfWork uow, ICurrentUserService user)
+    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _customers = customers; _uow = uow; _user = user; }
 
     public async Task<Result<int>> Handle(CreateSalesReturnCommand req, CancellationToken ct)
     {
@@ -130,6 +132,16 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
                 await _uow.SaveChangesAsync(ct);
                 inv.SetVoucher(v.Id);
                 _invoices.Update(inv);
+            }
+
+            // U-PARTY-BAL: بازپرداختِ نقدی چیزی از بدهیِ نسیه کم نمی‌کند (پول مستقیم برگشته)؛ اگر
+            // نقدی بازپرداخت نشده، همان مبلغ بایدِ مشتری را کاهش دهد (هم‌راستا با رفعِ مشابه در
+            // CreateSalesInvoiceCommand — پیش‌تر این مسیر هم هرگز Party.Balance را دست نمی‌زد).
+            if (inv.GrandTotal > 0 && !req.RefundCash)
+            {
+                var custForBalance = await _customers.GetByIdAsync(req.CustomerId, ct);
+                if (custForBalance != null)
+                    custForBalance.UpdateBalance(custForBalance.Balance - inv.GrandTotal);
             }
 
             await _uow.SaveChangesAsync(ct);

@@ -46,13 +46,15 @@ public class CreatePurchaseReturnCommandHandler : IRequestHandler<CreatePurchase
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<StockTransaction> _ledger;
+    private readonly IRepository<SamaHesab.Domain.Entities.CRM.Party> _suppliers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public CreatePurchaseReturnCommandHandler(IRepository<PurchaseInvoice> invoices, IStockItemRepository stock,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
-        IRepository<StockTransaction> ledger, IUnitOfWork uow, ICurrentUserService user)
-    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _uow = uow; _user = user; }
+        IRepository<StockTransaction> ledger, IRepository<SamaHesab.Domain.Entities.CRM.Party> suppliers,
+        IUnitOfWork uow, ICurrentUserService user)
+    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _suppliers = suppliers; _uow = uow; _user = user; }
 
     public async Task<Result<int>> Handle(CreatePurchaseReturnCommand req, CancellationToken ct)
     {
@@ -117,6 +119,16 @@ public class CreatePurchaseReturnCommandHandler : IRequestHandler<CreatePurchase
                 if (v.CanPost()) v.Post(_user.UserId ?? 1);
                 inv.Post(v.Id);
                 _invoices.Update(inv);
+            }
+
+            // U-PARTY-BAL: هم‌راستا با رفعِ مشابه در CreateSalesReturnCommand — دریافتِ نقدی چیزی از
+            // بدهیِ ما به تأمین‌کننده کم نمی‌کند (پول مستقیم برگشته)؛ اگر نقدی نبوده، همان مبلغ باید
+            // پرداختنیِ ما را کاهش دهد.
+            if (inv.GrandTotal > 0 && !req.RefundCash)
+            {
+                var supplier = await _suppliers.GetByIdAsync(req.SupplierId, ct);
+                if (supplier != null)
+                    supplier.UpdateBalance(supplier.Balance - inv.GrandTotal);
             }
 
             await _uow.SaveChangesAsync(ct);

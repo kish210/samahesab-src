@@ -135,7 +135,7 @@
                                          Background="Transparent" BorderThickness="0" FlowDirection="LeftToRight" TextAlignment="Left"/>
                             </Border>
                         </DockPanel>
-                        <DockPanel Margin="14,5"><TextBlock Text="مالیات ۹٪" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
+                        <DockPanel Margin="14,5"><TextBlock Text="مالیات" FontSize="12" Foreground="{StaticResource ErpTextMuted}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Tax, Converter={StaticResource Num}}" FontWeight="SemiBold" FlowDirection="LeftToRight"/></DockPanel>
                         <Border Background="{StaticResource ErpBlue700}" Padding="14,12">
                             <DockPanel>
                                 <TextBlock Text="مبلغ قابل پرداخت" Foreground="White" FontSize="13" VerticalAlignment="Center"/>

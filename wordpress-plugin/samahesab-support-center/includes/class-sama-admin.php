@@ -18,8 +18,44 @@ class SamaHesab_Admin {
         // 🆘 HC-6b — ستون‌های فهرستِ پشتیبانیِ ریموت (کد/شناسهٔ RustDesk/مشتری).
         add_filter( 'manage_samahesab_remote_posts_columns', array( $this, 'remote_columns' ) );
         add_action( 'manage_samahesab_remote_posts_custom_column', array( $this, 'remote_column' ), 10, 2 );
+        // 🆘 HC-BUGFIX — فهرستِ گزارش‌های باگ پیش‌تر فقط عنوان/تاریخ نشان می‌داد، نه متنِ خودِ
+        // گزارش (post_content) — یعنی برایِ خواندنِ شرحِ مشکل باید هر ردیف را جداگانه باز می‌کردی.
+        add_filter( 'manage_samahesab_bug_posts_columns', array( $this, 'bug_columns' ) );
+        add_action( 'manage_samahesab_bug_posts_custom_column', array( $this, 'bug_column' ), 10, 2 );
         // خروجیِ اکسل (CSV) گزارش‌های باگِ دریافتی.
         add_action( 'admin_post_samahesab_export_bugs', array( $this, 'export_bugs' ) );
+    }
+
+    /** برشِ متنِ ساده (بدونِ تگ) تا طولِ مشخص برایِ پیش‌نمایشِ ستون‌ها. */
+    private function excerpt_of( $content, $len = 80 ) {
+        $plain = trim( wp_strip_all_tags( (string) $content ) );
+        if ( '' === $plain ) {
+            return '<span style="color:#999">—</span>';
+        }
+        return esc_html( mb_substr( $plain, 0, $len ) . ( mb_strlen( $plain ) > $len ? '…' : '' ) );
+    }
+
+    public function bug_columns( $cols ) {
+        return array(
+            'cb'          => isset( $cols['cb'] ) ? $cols['cb'] : '',
+            'title'       => 'عنوان',
+            'sh_desc'     => 'شرحِ مشکل',
+            'sh_severity' => 'شدت',
+            'sh_cust'     => 'مشتری',
+            'date'        => 'تاریخ',
+        );
+    }
+
+    public function bug_column( $col, $post_id ) {
+        if ( 'sh_desc' === $col ) {
+            echo $this->excerpt_of( get_post_field( 'post_content', $post_id ), 90 );
+        } elseif ( 'sh_severity' === $col ) {
+            $labels = SamaHesab_CPT::severity_labels();
+            $v      = (int) get_post_meta( $post_id, 'sh_severity', true );
+            echo esc_html( isset( $labels[ $v ] ) ? $labels[ $v ] : $v );
+        } elseif ( 'sh_cust' === $col ) {
+            echo esc_html( get_post_meta( $post_id, 'sh_customer_id', true ) ?: '—' );
+        }
     }
 
     public function remote_columns( $cols ) {
@@ -232,13 +268,16 @@ class SamaHesab_Admin {
             'orderby'     => 'date',
             'order'       => 'DESC',
         ) );
-        echo '<table class="widefat striped"><thead><tr><th>نوع</th><th>عنوان</th><th>مشتری</th><th>تاریخ</th></tr></thead><tbody>';
+        // 🆘 HC-BUGFIX — ستونِ «شرح» اضافه شد: پیش‌تر این جدول فقط نوع/عنوان را نشان می‌داد،
+        // یعنی برایِ خواندنِ متنِ واقعیِ کاربر (post_content) باید هر ردیف جداگانه باز می‌شد.
+        echo '<table class="widefat striped"><thead><tr><th>نوع</th><th>عنوان</th><th>شرح</th><th>مشتری</th><th>تاریخ</th></tr></thead><tbody>';
         foreach ( $posts as $p ) {
             printf(
-                '<tr><td>%s</td><td><a href="%s">%s</a></td><td>%s</td><td>%s</td></tr>',
+                '<tr><td>%s</td><td><a href="%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>',
                 esc_html( get_post_type_object( $p->post_type )->labels->singular_name ),
                 esc_url( get_edit_post_link( $p->ID ) ),
                 esc_html( get_the_title( $p ) ),
+                $this->excerpt_of( $p->post_content, 60 ),
                 esc_html( get_post_meta( $p->ID, 'sh_customer_id', true ) ),
                 esc_html( get_the_date( '', $p ) )
             );

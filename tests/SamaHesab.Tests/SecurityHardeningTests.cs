@@ -100,6 +100,47 @@ public class SecurityHardeningTests
         Assert.False(result.Succeeded);
     }
 
+    // ── U-SEC-8: SetUserRolesCommand نباید تنها ادمینِ سیستم را از نقشِ ADMIN بیندازد ──────────────
+    [Fact]
+    public async Task SetUserRolesCommand_Denies_Removing_Admin_From_Only_Admin()
+    {
+        var roles = new FakeRepo<Role>();
+        var adminRole = Role.Create(1, "ADMIN", "مدیرِ سیستم", isSystem: true);
+        await roles.AddAsync(adminRole);   // Id=1
+        var otherRole = Role.Create(1, "CASHIER", "صندوق‌دار");
+        await roles.AddAsync(otherRole);   // Id=2
+
+        var userRoles = new FakeRepo<UserRole>();
+        await userRoles.AddAsync(UserRole.Create(userId: 1, roleId: adminRole.Id));   // تنها ادمین
+
+        var handler = new SetUserRolesCommandHandler(userRoles, roles, new FakeUow());
+
+        var result = await handler.Handle(new SetUserRolesCommand(1, new[] { otherRole.Id }), default);
+
+        Assert.False(result.Succeeded);
+        Assert.Contains("تنها کاربرِ دارایِ نقشِ ادمین", result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task SetUserRolesCommand_Allows_Removing_Admin_When_Another_Admin_Exists()
+    {
+        var roles = new FakeRepo<Role>();
+        var adminRole = Role.Create(1, "ADMIN", "مدیرِ سیستم", isSystem: true);
+        await roles.AddAsync(adminRole);   // Id=1
+        var otherRole = Role.Create(1, "CASHIER", "صندوق‌دار");
+        await roles.AddAsync(otherRole);   // Id=2
+
+        var userRoles = new FakeRepo<UserRole>();
+        await userRoles.AddAsync(UserRole.Create(userId: 1, roleId: adminRole.Id));
+        await userRoles.AddAsync(UserRole.Create(userId: 2, roleId: adminRole.Id));   // ادمینِ دیگر هم هست
+
+        var handler = new SetUserRolesCommandHandler(userRoles, roles, new FakeUow());
+
+        var result = await handler.Handle(new SetUserRolesCommand(1, new[] { otherRole.Id }), default);
+
+        Assert.True(result.Succeeded);
+    }
+
     // ── U-SEC-2: ValidationBehavior دیگر throw نمی‌کند؛ Result.Failure برمی‌گرداند ──────────────────
     private record SampleCommand(int Value) : IRequest<Result<int>>;
     private class SampleCommandValidator : AbstractValidator<SampleCommand>

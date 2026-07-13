@@ -157,12 +157,29 @@ public record SetUserRolesCommand(int UserId, int[] RoleIds) : IRequest<Result>;
 public class SetUserRolesCommandHandler : IRequestHandler<SetUserRolesCommand, Result>
 {
     private readonly IRepository<UserRole> _userRoles;
+    private readonly IRepository<Role> _roles;
     private readonly IUnitOfWork _uow;
-    public SetUserRolesCommandHandler(IRepository<UserRole> userRoles, IUnitOfWork uow)
-    { _userRoles = userRoles; _uow = uow; }
+    public SetUserRolesCommandHandler(IRepository<UserRole> userRoles, IRepository<Role> roles, IUnitOfWork uow)
+    { _userRoles = userRoles; _roles = roles; _uow = uow; }
 
     public async Task<Result> Handle(SetUserRolesCommand req, CancellationToken ct)
     {
+        // U-SEC-8 — پیش‌تر هیچ گاردی نبود: یک ادمین می‌توانست نقشِ ADMIN را از تنها کاربرِ ادمینِ
+        // سیستم (حتی از خودش) حذف کند و کلِ مدیریتِ امنیت/نقش را برایِ همیشه قفل کند (فقط با دستکاریِ
+        // مستقیمِ DB قابلِ‌ترمیم). محدودهٔ عمدی: فقط نقشِ literal با Code=="ADMIN" را می‌گیرد؛ نقشِ
+        // سفارشی با مجوزِ wildcard («*») پوشش داده نمی‌شود (کارِ بازِ مستندشده در todo.rm).
+        var adminRole = await _roles.FindSingleAsync(r => r.Code == "ADMIN", ct);
+        if (adminRole != null && !req.RoleIds.Contains(adminRole.Id))
+        {
+            var wasAdmin = await _userRoles.AnyAsync(ur => ur.UserId == req.UserId && ur.RoleId == adminRole.Id, ct);
+            if (wasAdmin)
+            {
+                var otherAdminExists = await _userRoles.AnyAsync(ur => ur.RoleId == adminRole.Id && ur.UserId != req.UserId, ct);
+                if (!otherAdminExists)
+                    return Result.Failure("این تنها کاربرِ دارایِ نقشِ ادمین است؛ نمی‌توانید این نقش را از او بگیرید (سیستم برایِ همیشه قفل می‌شود).");
+            }
+        }
+
         var existing = await _userRoles.FindAsync(ur => ur.UserId == req.UserId, ct);
         _userRoles.RemoveRange(existing);
         foreach (var roleId in req.RoleIds.Distinct())

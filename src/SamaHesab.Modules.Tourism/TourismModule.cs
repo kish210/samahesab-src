@@ -16,7 +16,8 @@ public sealed class TourismModule : IModule
     public string Key => "Tourism";
     public string DisplayName => "گردشگری";
     // 1.2.0 — برنامه‌ریزیِ اقامتی (محصول/سانس + الگوریتمِ پیشنهاد + پنلِ مهمان) به گردشگری افزوده شد.
-    public string Version => "1.2.0";
+    // 1.2.1 — رفعِ U-PARTY-BAL: فروشِ نسیه (CreateTourismSaleCommand/GuestPortal.BillOnConfirmAsync) حالا Party.Balance را به‌روز می‌کند.
+    public string Version => "1.2.1";
 
     public void RegisterServices(IServiceCollection services)
     {

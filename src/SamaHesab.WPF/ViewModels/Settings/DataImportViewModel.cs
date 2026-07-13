@@ -153,7 +153,15 @@ public partial class DataImportViewModel : BaseViewModel
             foreach (var e in res.Errors) sb.AppendLine("• " + e);
             ResultText = sb.ToString();
             ResultIsError = res.Failed > 0 || res.Errors.Count > 0;
-            await _dialogService.ShowSuccessAsync($"ورودِ داده پایان یافت — {res.Imported} مورد وارد شد.");
+            // U-SEC-5: پیش‌تر همیشه پیامِ سبزِ موفقیت نشان داده می‌شد، حتی وقتی همهٔ سطرها ناموفق بودند
+            // (Imported=۰) — کاربر با دیدنِ «پایان یافت» فکر می‌کرد کار انجام شده، درحالی‌که هیچ‌چیز
+            // وارد نشده بود؛ فقط پنلِ کوچکِ داخلِ صفحه (ResultIsError) نشانه‌ای داشت.
+            if (res.Imported == 0 && ResultIsError)
+                await _dialogService.ShowErrorAsync($"ورودِ داده ناموفق بود — هیچ سطری وارد نشد ({res.Failed} خطا). جزئیات را در زیر ببینید.");
+            else if (ResultIsError)
+                await _dialogService.ShowWarningAsync($"ورودِ داده با خطا پایان یافت — {res.Imported} مورد وارد شد، {res.Failed} مورد ناموفق. جزئیات را در زیر ببینید.");
+            else
+                await _dialogService.ShowSuccessAsync($"ورودِ داده پایان یافت — {res.Imported} مورد وارد شد.");
         }, "در حال ورودِ داده...");
     }
 }

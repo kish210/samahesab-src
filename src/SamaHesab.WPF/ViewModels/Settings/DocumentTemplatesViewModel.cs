@@ -123,9 +123,15 @@ public partial class DocumentTemplatesViewModel : BaseViewModel
             // منطقِ idempotentِ نصب در Application است (مشترک با auto-seedِ اولین اجرا).
             var res = await _mediator.Send(new InstallBuiltInTemplatesCommand(dir));
             await ReloadAsync();
-            await _dialogService.ShowSuccessAsync(
-                $"نصبِ قالب‌های پیش‌فرض پایان یافت — نصب‌شده: {res.Imported}، از قبل موجود: {res.Skipped}" +
-                (res.Failed > 0 ? $"، ناموفق: {res.Failed}" : ""));
+            var summary = $"نصبِ قالب‌های پیش‌فرض پایان یافت — نصب‌شده: {res.Imported}، از قبل موجود: {res.Skipped}" +
+                (res.Failed > 0 ? $"، ناموفق: {res.Failed}" : "");
+            // U-SEC-5b: پیش‌تر همیشه سبز نشان داده می‌شد حتی وقتی هیچ قالبی نصب نشده بود (Imported=۰ و Failed>۰).
+            if (res.Imported == 0 && res.Failed > 0)
+                await _dialogService.ShowErrorAsync(summary);
+            else if (res.Failed > 0)
+                await _dialogService.ShowWarningAsync(summary);
+            else
+                await _dialogService.ShowSuccessAsync(summary);
         }, "در حال نصبِ قالب‌های پیش‌فرض...");
     }
 

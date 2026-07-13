@@ -280,7 +280,8 @@
                                 <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
                                 <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
                                 <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
-                                <MenuItem Header="سهامداران" Command="{Binding NavigateCommand}" CommandParameter="Shareholders"/>
+                                <MenuItem Header="سهامداران" Command="{Binding NavigateCommand}" CommandParameter="Shareholders"
+                                          Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
                                 <Separator/>
                                 <MenuItem Header="دریافت و پرداختِ وجه" Command="{Binding NavigateCommand}" CommandParameter="ReceivePayment"/>
                             </ContextMenu>
@@ -319,7 +320,8 @@
                                 <MenuItem Header="قالبِ اسناد" Command="{Binding NavigateCommand}" CommandParameter="DocumentTemplates"/>
                                 <MenuItem Header="ورودِ داده از اکسل" Command="{Binding NavigateCommand}" CommandParameter="DataImport"/>
                                 <MenuItem Header="تنظیمات چاپ" Command="{Binding OpenPrintSettingsCommand}"/>
-                                <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"/>
+                                <MenuItem Header="پشتیبان‌گیری" Command="{Binding NavigateCommand}" CommandParameter="Backup"
+                                          Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
                                 <Separator/>
                                 <MenuItem Header="⌨ راهنمای میان‌بر (F1)" Command="{Binding NavigateCommand}" CommandParameter="ShortcutHelp"/>
                                 <MenuItem Header="خروج" Command="{Binding LogoutCommand}"/>

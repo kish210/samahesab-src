@@ -11,6 +11,7 @@ public partial class BackupViewModel : BaseViewModel
 {
     private readonly IBackupService _backupService;
     private readonly IPersianCalendarService _calendar;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string _backupPath = @"C:\SamaHesabBackup";
     [ObservableProperty] private bool _autoBackup = true;
@@ -22,9 +23,9 @@ public partial class BackupViewModel : BaseViewModel
     public ObservableCollection<BackupInfo> BackupHistory { get; } = new();
 
     public BackupViewModel(IBackupService backupService, IPersianCalendarService calendar,
-        IDialogService dialogService, INavigationService navigationService)
+        ICurrentUserService currentUser, IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _backupService = backupService; _calendar = calendar; }
+    { _backupService = backupService; _calendar = calendar; _currentUser = currentUser; }
 
     public override async Task LoadAsync()
     {
@@ -105,6 +106,10 @@ public partial class BackupViewModel : BaseViewModel
     [RelayCommand]
     private async Task RestoreAsync()
     {
+        // U-SEC-1: پیش‌تر هیچ مجوزی چک نمی‌شد — هر کاربرِ واردشده (حتی صندوق‌دار) می‌توانست کلِ
+        // پایگاه‌دادهٔ شرکت را با یک فایلِ .bak دلخواه بازنویسیِ غیرقابل‌بازگشت کند.
+        if (!_currentUser.HasPermission("Security", "Manage", ""))
+        { await _dialogService.ShowErrorAsync("شما مجوزِ بازیابیِ پایگاه‌داده را ندارید. با مدیرِ سیستم هماهنگ کنید."); return; }
         if (string.IsNullOrWhiteSpace(RestoreFilePath)) { await _dialogService.ShowErrorAsync("فایل پشتیبان انتخاب کنید."); return; }
         var ok = await _dialogService.ConfirmAsync(
             "⚠ هشدار: بازیابی پایگاه داده اطلاعات فعلی را بازنویسی می‌کند.\nآیا ادامه می‌دهید؟", "بازیابی پایگاه داده");
@@ -283,8 +288,15 @@ public partial class SettingsViewModel : BaseViewModel
     [RelayCommand]
     private async Task TestSmsAsync()
     {
+        // U-SEC-6: این دکمه پیش‌تر هیچ تماسِ واقعی برقرار نمی‌کرد — فقط یک پیامِ ثابت نشان می‌داد که
+        // به‌اشتباه القا می‌کرد کلید-API/شماره واقعاً تست شده. یک تستِ واقعیِ امن اینجا کارِ سختی است:
+        // ISmsProvider کلید/فرستنده را در سازنده (زمانِ راه‌اندازیِ DI) می‌گیرد، نه هر بار از تنظیماتِ
+        // فرم (یعنی تستِ مقادیرِ ذخیره‌نشده اصلاً امکان‌پذیر نیست بدونِ ساختِ providerِ موقت)، و ارسالِ
+        // واقعی هزینهٔ واقعی از اعتبارِ درگاه کم می‌کند. تا پیاده‌سازیِ کامل، پیام صادقانه است.
         if (!SmsEnabled) { await _dialogService.ShowWarningAsync("SMS فعال نیست."); return; }
-        await _dialogService.ShowInfoAsync("ارسالِ پیامکِ آزمایشی از طریقِ درگاهِ سرور انجام می‌شود (تنظیماتِ درگاه روی سرور).");
+        await _dialogService.ShowWarningAsync(
+            "این دکمه هنوز پیامکِ واقعی ارسال نمی‌کند (در حالِ توسعه). برایِ اطمینان از صحتِ کلید-API، " +
+            "تنظیمات را ذخیره کنید و از یک رویدادِ واقعی (مثلِ یادآورِ چکِ سررسید) استفاده کنید.");
     }
 
     // ── نسخه و به‌روزرسانی ──

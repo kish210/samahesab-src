@@ -77,12 +77,20 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
         ["SaveVoucherTemplateCommand"]  = new("Accounting", "Setup", "Manage", "ثبتِ قالبِ سند", Enforce: false, Table: "Acc"),
         ["SaveRecurringVoucherCommand"] = new("Accounting", "Setup", "Manage", "ثبتِ سندِ تکرارشونده", Enforce: false, Table: "Acc"),
         ["GenerateDueRecurringVouchersCommand"] = new("Accounting", "Voucher", "Create", "تولیدِ اسنادِ تکرارشونده", Enforce: false, Table: "Acc"),
-        // امنیت (تغییرِ سطحِ دسترسی — حساس) —
-        ["SaveRoleCommand"]             = new("Security", "Manage", "", "ثبت/ویرایشِ نقش", Enforce: false, Table: "Sec"),
-        ["SetRolePermissionsCommand"]   = new("Security", "Manage", "", "تنظیمِ مجوزهای نقش", Enforce: false, Table: "Sec"),
-        ["SetUserRolesCommand"]         = new("Security", "Manage", "", "تخصیصِ نقشِ کاربر", Enforce: false, Table: "Sec"),
-        ["SaveBranchCommand"]           = new("Security", "Manage", "", "ثبتِ شعبه", Enforce: false, Table: "Cfg"),
-        ["ToggleBranchCommand"]         = new("Security", "Manage", "", "فعال/غیرفعالِ شعبه", Enforce: false, Table: "Cfg"),
+        // امنیت (تغییرِ سطحِ دسترسی — حساس؛ U-SEC-1: enforce=true چون بدونِ آن یک کاربرِ بدونِ‌مجوز
+        // می‌توانست با همین فرمان‌ها به خودش/دیگری نقشِ ادمین بدهد — یعنی enforce=false روی این‌ها
+        // خودِ مکانیزمِ RBAC را دور می‌زد، نه فقط یک فرمانِ عادی را) —
+        ["SaveRoleCommand"]             = new("Security", "Manage", "", "ثبت/ویرایشِ نقش", Enforce: true, Table: "Sec"),
+        ["SetRolePermissionsCommand"]   = new("Security", "Manage", "", "تنظیمِ مجوزهای نقش", Enforce: true, Table: "Sec"),
+        ["SetUserRolesCommand"]         = new("Security", "Manage", "", "تخصیصِ نقشِ کاربر", Enforce: true, Table: "Sec"),
+        // U-SEC-1: همین enforce=true مسیرِ APIِ BranchesController (بدونِ policyِ اختصاصی) را هم می‌بندد،
+        // چون AuditBehavior برایِ هر دو مسیرِ WPF/API یکسان اجرا می‌شود.
+        ["SaveBranchCommand"]           = new("Security", "Manage", "", "ثبتِ شعبه", Enforce: true, Table: "Cfg"),
+        ["ToggleBranchCommand"]         = new("Security", "Manage", "", "فعال/غیرفعالِ شعبه", Enforce: true, Table: "Cfg"),
+        // سهامداران (آورده/درصدِ سهم — مستقیماً رویِ حقوقِ صاحبان‌سهام اثر می‌گذارد؛ پیش‌تر نه enforce
+        // داشت نه حتی audit-only بود) —
+        ["SaveShareholderCommand"]      = new("Accounting", "Setup", "Manage", "ثبت/ویرایشِ سهامدار", Enforce: true, Table: "Set"),
+        ["DeleteShareholderCommand"]    = new("Accounting", "Setup", "Manage", "حذفِ سهامدار", Enforce: true, Table: "Set"),
         // HR (حقوق/کارکنان/تردد) —
         ["SaveEmployeeCommand"]         = new("HR", "Employee", "Manage", "ثبت/ویرایشِ کارمند", Enforce: false, Table: "Hrm"),
         ["DeleteEmployeeCommand"]       = new("HR", "Employee", "Manage", "حذفِ کارمند", Enforce: false, Table: "Hrm"),

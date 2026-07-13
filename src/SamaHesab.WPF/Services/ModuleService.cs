@@ -131,7 +131,14 @@ public class ModuleService
     public void ReplaceEnabled(IEnumerable<string> keys)
     {
         var valid = OptionalModules.Select(m => m.Key).ToHashSet();
-        _enabled = new HashSet<string>(keys.Where(valid.Contains));
+        // U-SEC-4: پیش‌تر این‌جا کنترلِ تداخل چک نمی‌شد (برخلافِ SetEnabled/TrySetEnabled) — وارد‌کردنِ
+        // یک modules.json دست‌کاری‌شده (یا کپی از ماشینِ دیگر با Conflictsِ متفاوت) می‌توانست دو ماژولِ
+        // متقابلاً ناسازگار را هم‌زمان فعال کند. فعلاً هیچ Conflicts ای تعریف نشده (بی‌اثر)، ولی مکانیزم
+        // باید از همین حالا درست باشد.
+        var accepted = new HashSet<string>();
+        foreach (var k in keys.Where(valid.Contains).Distinct())
+            if (!ConflictsOf(k).Any(accepted.Contains)) accepted.Add(k);
+        _enabled = accepted;
         Save();
         Changed?.Invoke();
     }

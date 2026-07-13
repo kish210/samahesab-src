@@ -73,6 +73,8 @@ public partial class BranchManagementViewModel : BaseViewModel
     private async Task ToggleAsync(BranchDto? b)
     {
         if (b is null) return;
+        // یک‌کلیک بودنِ غیرفعال‌سازی (برخلافِ حذف‌هایِ دیگرِ همین صفحات) با تأیید برایِ جهتِ غیرفعال‌سازی جبران می‌شود.
+        if (b.IsActive && !await _dialogService.ConfirmAsync($"شعبهٔ «{b.Name}» غیرفعال شود؟")) return;
         await ExecuteAsync(async () =>
         {
             var r = await _mediator.Send(new ToggleBranchCommand(b.Id, !b.IsActive));

@@ -162,6 +162,15 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
     private async Task InstallAsync(MarketModuleRow? row)
     {
         if (row is null || row.IsDownloading) return;
+        // U-SEC-3: row.Package از کاتالوگِ آنلاین (JSONِ ریلیزِ گیت‌هاب) می‌آید — اگر آن ریلیز روزی
+        // compromise شود، یک package مثلِ "..\..\..\App.exe" می‌توانست بیرون از پوشهٔ ماژول‌ها بنویسد.
+        // این‌جا فقط اجازهٔ نامِ فایلِ ساده (بدونِ جداکنندهٔ مسیر/".." ) داده می‌شود.
+        var safeName = System.IO.Path.GetFileName(row.Package);
+        if (string.IsNullOrWhiteSpace(safeName) || safeName != row.Package || row.Package.Contains(".."))
+        {
+            await _dialogService.ShowErrorAsync("نامِ بستهٔ ماژول نامعتبر است؛ نصب لغو شد.");
+            return;
+        }
         var dest = System.IO.Path.Combine(ModulesDir, row.Package);
         try
         {
@@ -185,12 +194,19 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
             row.Progress = 100;
 
             row.Installed = true;
-            _modules.TrySetEnabled(row.Key, true, out _);   // فعال‌سازی در ModuleService
-            row.Enabled = true;
-            ModuleShortcuts.Sync(row.Key, true);   // میانبرِ دسکتاپِ ماژولِ نصب‌شده
-            row.StatusText = "✓ نصب شد";
-            await _dialogService.ShowSuccessAsync(
-                $"ماژولِ «{row.DisplayName}» (نسخهٔ {row.Version}) دانلود و فعال شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");
+            // U-SEC-3b: پیش‌تر نتیجهٔ TrySetEnabled نادیده گرفته می‌شد — اگر ماژول با ماژولِ فعالِ
+            // دیگری تداخل داشت، دانلود موفق بود ولی فعال‌سازی بی‌صدا شکست می‌خورد و پیامِ «دانلود و
+            // فعال شد» همچنان نشان داده می‌شد (برخلافِ ToggleEnableAsync که این را درست چک می‌کند).
+            var enabled = _modules.TrySetEnabled(row.Key, true, out var conflictErr);
+            row.Enabled = enabled && _modules.IsEnabled(row.Key);
+            if (row.Enabled) ModuleShortcuts.Sync(row.Key, true);   // میانبرِ دسکتاپِ ماژولِ نصب‌شده
+            row.StatusText = row.Enabled ? "✓ نصب شد" : "دانلود شد (غیرفعال)";
+            if (row.Enabled)
+                await _dialogService.ShowSuccessAsync(
+                    $"ماژولِ «{row.DisplayName}» (نسخهٔ {row.Version}) دانلود و فعال شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");
+            else
+                await _dialogService.ShowWarningAsync(
+                    $"ماژولِ «{row.DisplayName}» دانلود شد ولی فعال نشد" + (conflictErr is null ? "." : $": {conflictErr}"));
         }
         catch (System.Exception ex)
         {

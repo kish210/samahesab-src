@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Modules.Tourism.Application.Itinerary;
 using SamaHesab.Domain.Entities.Accounting;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
@@ -106,7 +107,7 @@ public class ItineraryBillingTests
     private const int Cash = 101, Receivable = 102, Revenue = 601, Discount = 602, Cogs = 701, Deposit = 150;
 
     private static (SubmitGuestItineraryCommandHandler H, FakeVoucherRepo V, FakeRepo<TourismSale> S,
-        FakeRepo<GuestItinerary> I, GuestItinerary It) Build()
+        FakeRepo<GuestItinerary> I, GuestItinerary It, FakeRepo<Party> P) Build()
     {
         var settings = new FakeRepo<TourismSetting>();
         var set = TourismSetting.Create(1);
@@ -138,15 +139,19 @@ public class ItineraryBillingTests
         var sales = new FakeRepo<TourismSale>();
         var rules = new FakeRepo<CommissionRule>();
         var commissions = new FakeRepo<SalesCommissionEntry>();
+        var parties = new FakeRepo<Party>();
+        var guestParty = Party.Create(1, "G-77", "حقیقی", firstName: "علی", lastName: "مهمان", isCustomer: true);
+        guestParty.UpdateBalance(1000);   // مانده‌ی اولیه، برای تأییدِ اینکه Balance جمع می‌شود نه بازنویسی
+        parties.AddAsync(guestParty).Wait();
         var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
-            rules, commissions, vouchers, fys, new FakeCalendar(), new FakeUow());
-        return (h, vouchers, sales, itins, it);
+            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow());
+        return (h, vouchers, sales, itins, it, parties);
     }
 
     [Fact]
     public async Task Guest_Confirm_Issues_Balanced_Receivable_Voucher_And_Sale()
     {
-        var (h, vouchers, sales, _, it) = Build();
+        var (h, vouchers, sales, _, it, parties) = Build();
 
         var res = await h.Handle(new SubmitGuestItineraryCommand(it.Token, new List<int>(), Confirm: true), default);
 
@@ -165,12 +170,15 @@ public class ItineraryBillingTests
         Assert.Equal(sale.Id, it.SaleId);   // itinerary به سندِ فروش لینک شد
         Assert.True(it.IsBilled);
         Assert.Equal(ItineraryStatus.Confirmed, it.Status);
+
+        // U-PARTY-BAL — بدهیِ نسیهٔ مهمان باید به Party.Balance اضافه شود (۱۰۰۰ اولیه + ۴۵۰ فروش)
+        Assert.Equal(1450m, parties.Items.Single().Balance);
     }
 
     [Fact]
     public async Task Second_Confirm_Does_Not_Double_Bill()
     {
-        var (h, vouchers, sales, _, it) = Build();
+        var (h, vouchers, sales, _, it, parties) = Build();
         await h.Handle(new SubmitGuestItineraryCommand(it.Token, new List<int>(), Confirm: true), default);
         var firstVoucher = vouchers.Saved;
 
@@ -179,6 +187,7 @@ public class ItineraryBillingTests
         Assert.False(res2.Succeeded);                 // قبلاً تأیید شده
         Assert.Single(sales.Items);                    // فقط یک سند فروش
         Assert.Same(firstVoucher, vouchers.Saved);     // سندِ دوم ساخته نشد
+        Assert.Equal(1450m, parties.Items.Single().Balance);   // Balance هم دوبار اضافه نشد
     }
 
     /// <summary>پیگیریِ اختیاریِ MOD-TIT-BILL: اگر برنامه فروشنده دارد و قاعدهٔ پورسانت تعریف شده،
@@ -213,8 +222,9 @@ public class ItineraryBillingTests
 
         var vouchers = new FakeVoucherRepo();
         var sales = new FakeSalesRepoWithLineIds();
+        var parties = new FakeRepo<Party>();
         var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
-            rules, commissions, vouchers, fys, new FakeCalendar(), new FakeUow());
+            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow());
 
         var res = await h.Handle(new SubmitGuestItineraryCommand(it.Token, new List<int>(), Confirm: true), default);
 

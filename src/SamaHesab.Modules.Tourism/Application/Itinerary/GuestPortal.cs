@@ -3,6 +3,7 @@ using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
 using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.Modules.Tourism.Application;
@@ -91,18 +92,19 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
     private readonly IRepository<SalesCommissionEntry> _commissions;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<FiscalYear> _fiscalYears;
+    private readonly IRepository<Party> _parties;
     private readonly IPersianCalendarService _calendar;
     private readonly IUnitOfWork _uow;
 
     public SubmitGuestItineraryCommandHandler(IRepository<GuestItinerary> itineraries,
         IRepository<ItineraryStop> stops, IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
         IRepository<TourismSale> sales, IRepository<CommissionRule> rules, IRepository<SalesCommissionEntry> commissions,
-        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears,
+        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears, IRepository<Party> parties,
         IPersianCalendarService calendar, IUnitOfWork uow)
     {
         _itineraries = itineraries; _stops = stops; _settings = settings; _products = products;
         _sales = sales; _rules = rules; _commissions = commissions;
-        _vouchers = vouchers; _fiscalYears = fiscalYears; _calendar = calendar; _uow = uow;
+        _vouchers = vouchers; _fiscalYears = fiscalYears; _parties = parties; _calendar = calendar; _uow = uow;
     }
 
     public async Task<Result> Handle(SubmitGuestItineraryCommand req, CancellationToken ct)
@@ -228,6 +230,14 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
                     (DomainBasis)(int)rule.Basis, baseAmount, rule.Rate, amount, ym), ct);
             }
             await _uow.SaveChangesAsync(ct);
+        }
+
+        // U-PARTY-BAL (هم‌راستا با فروش/خرید/CreateTourismSaleCommand) — تأییدِ مهمان همیشه نسیه است
+        // (Dr دریافتنی از مهمان)، پس بدهیِ جدید باید به Party.Balanceِ مهمان اضافه شود.
+        if (it.GuestPartyId is > 0)
+        {
+            var guest = await _parties.GetByIdAsync(it.GuestPartyId.Value, ct);
+            if (guest != null) guest.UpdateBalance(guest.Balance + sale.TotalSale);
         }
 
         it.SetSale(sale.Id);

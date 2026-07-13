@@ -3,6 +3,7 @@ using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
 using SamaHesab.Domain.Entities.Accounting;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 using DomainBasis = SamaHesab.Modules.Tourism.Domain.CommissionBasis;
@@ -33,15 +34,17 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
     private readonly IRepository<SalesCommissionEntry> _commissions;
     private readonly IVoucherRepository _vouchers;
     private readonly IRepository<FiscalYear> _fiscalYears;
+    private readonly IRepository<Party> _parties;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
 
     public CreateTourismSaleCommandHandler(IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
         IRepository<CommissionRule> rules, IRepository<TourismSale> sales, IRepository<SalesCommissionEntry> commissions,
-        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears, IUnitOfWork uow, ICurrentUserService user)
+        IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears, IRepository<Party> parties,
+        IUnitOfWork uow, ICurrentUserService user)
     {
         _settings = settings; _products = products; _rules = rules; _sales = sales; _commissions = commissions;
-        _vouchers = vouchers; _fiscalYears = fiscalYears; _uow = uow; _user = user;
+        _vouchers = vouchers; _fiscalYears = fiscalYears; _parties = parties; _uow = uow; _user = user;
     }
 
     public async Task<Result<int>> Handle(CreateTourismSaleCommand req, CancellationToken ct)
@@ -149,6 +152,14 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
                 };
                 await _commissions.AddAsync(SalesCommissionEntry.Create(companyId, line.Id, sellerPartyId,
                     (DomainBasis)(int)rule.Basis, baseAmount, rule.Rate, amount, ym), ct);
+            }
+
+            // U-PARTY-BAL (هم‌راستا با فروش/خریدِ هسته) — فروشِ نسیه بدهیِ جدید را به Party.Balanceِ
+            // مشتری اضافه می‌کند؛ فروشِ نقدی/کارتی چیزی به مشتری بدهکار نمی‌کند، پس Balance دست‌نخورده می‌ماند.
+            if (isCredit && req.CustomerPartyId is > 0)
+            {
+                var customer = await _parties.GetByIdAsync(req.CustomerPartyId.Value, ct);
+                if (customer != null) customer.UpdateBalance(customer.Balance + netToCustomer);
             }
 
             await _uow.SaveChangesAsync(ct);

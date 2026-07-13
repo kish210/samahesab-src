@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Modules.Tourism.Application.Commands;
 using SamaHesab.Domain.Entities.Accounting;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Modules.Tourism.Domain;
 using SamaHesab.Domain.Interfaces.Repositories;
 using Xunit;
@@ -91,7 +92,8 @@ public class TourismSaleTests
         var vouchers = new FakeVoucherRepo();
         var sales = new FakeRepo<TourismSale>();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
-            sales, new FakeRepo<SalesCommissionEntry>(), vouchers, new FakeRepo<FiscalYear>(), new FakeUow(), new FakeUser());
+            sales, new FakeRepo<SalesCommissionEntry>(), vouchers, new FakeRepo<FiscalYear>(), new FakeRepo<Party>(),
+            new FakeUow(), new FakeUser());
 
         var cmd = new CreateTourismSaleCommand(1, 1, "1404/06/15", SalespersonPartyId: 5, CustomerPartyId: null,
             PaymentMethod: "نقدی", Lines: new[]
@@ -129,7 +131,7 @@ public class TourismSaleTests
         products.AddAsync(TourismProduct.Create(1, "X", 11, 100, 150)).Wait();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             new FakeRepo<TourismSale>(), new FakeRepo<SalesCommissionEntry>(), new FakeVoucherRepo(),
-            new FakeRepo<FiscalYear>(), new FakeUow(), new FakeUser());
+            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser());
 
         var res = await handler.Handle(new CreateTourismSaleCommand(1, 1, "1404/06/15", 5, null, "نقدی",
             new[] { new TourismSaleLineDto(1, 1, 150) }), default);
@@ -148,12 +150,46 @@ public class TourismSaleTests
         products.AddAsync(TourismProduct.Create(1, "گشت دور جزیره", 11, 100, 150, requiresPassengerList: true)).Wait();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             new FakeRepo<TourismSale>(), new FakeRepo<SalesCommissionEntry>(), new FakeVoucherRepo(),
-            new FakeRepo<FiscalYear>(), new FakeUow(), new FakeUser());
+            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser());
 
         var res = await handler.Handle(new CreateTourismSaleCommand(1, 1, "1404/06/15", 5, null, "نقدی",
             new[] { new TourismSaleLineDto(1, 1, 150) }), default);   // بدونِ مسافر
 
         Assert.False(res.Succeeded);
         Assert.Contains("مسافر", res.ErrorMessage);
+    }
+
+    /// <summary>U-PARTY-BAL (پیگیریِ گردشگری) — فروشِ نسیه باید بدهیِ جدید را به Party.Balanceِ مشتری اضافه کند
+    /// (هم‌راستا با فروش/خریدِ هسته)؛ فروشِ نقدی هیچ‌کدام از تست‌های بالا Balance را دست نمی‌زند.</summary>
+    [Fact]
+    public async Task Credit_Sale_Increases_Customer_Party_Balance()
+    {
+        var settings = new FakeRepo<TourismSetting>();
+        var set = TourismSetting.Create(1);
+        set.Update(Cash, Receivable, Revenue, Cogs, Deposit, Discount, null, null, null, null, true, 0, true, true);
+        settings.AddAsync(set).Wait();
+
+        var products = new FakeRepo<TourismProduct>();
+        products.AddAsync(TourismProduct.Create(1, "بلیط A", supplierPartyId: 11, purchasePrice: 100, defaultSalePrice: 150)).Wait(); // Id=1
+
+        var parties = new FakeRepo<Party>();
+        var customer = Party.Create(1, "C-9", "حقیقی", firstName: "رضا", lastName: "مشتری", isCustomer: true);
+        customer.UpdateBalance(500);   // مانده‌ی اولیه، برای تأییدِ اینکه Balance جمع می‌شود نه بازنویسی
+        parties.AddAsync(customer).Wait();
+
+        var vouchers = new FakeVoucherRepo();
+        var sales = new FakeRepo<TourismSale>();
+        var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
+            sales, new FakeRepo<SalesCommissionEntry>(), vouchers, new FakeRepo<FiscalYear>(), parties,
+            new FakeUow(), new FakeUser());
+
+        var cmd = new CreateTourismSaleCommand(1, 1, "1404/06/15", SalespersonPartyId: 5, CustomerPartyId: 9,
+            PaymentMethod: "نسیه", Lines: new[] { new TourismSaleLineDto(1, Quantity: 1, UnitSalePrice: 150, DiscountAmount: 10) });
+
+        var res = await handler.Handle(cmd, default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        // نسیه: بدهیِ جدید = فروش−تخفیف = 150−10 = 140 باید به Balance اضافه شود (500+140=640)
+        Assert.Equal(640m, parties.Items.Single().Balance);
     }
 }

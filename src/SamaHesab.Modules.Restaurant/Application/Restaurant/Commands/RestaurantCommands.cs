@@ -377,11 +377,19 @@ public class SettleOrderCommandHandler : IRequestHandler<SettleOrderCommand, Res
         var activeItems = order.Items.Where(i => i.Status != OrderItemStatus.Cancelled).ToList();
         if (activeItems.Count > 0)
         {
+            // POS-CUST-1/POS-WH-1 — قبلاً CustomerId=۱/WarehouseId=۱ هاردکد بود (نه یک «متفرقه»ی
+            // واقعی/انبارِ واقعیِ شرکت) — تسویهٔ هر میزِ بی‌مشتری به هر طرف‌حسابی که تصادفاً Id=۱
+            // داشت متصل می‌شد. حالا طرف‌حسابِ «متفرقه» و اولین انبارِ واقعیِ شرکت resolve می‌شوند.
+            var walkInCustomerId = order.CustomerId
+                ?? await _mediator.Send(new SamaHesab.Application.CRM.Commands.GetOrCreateWalkInCustomerCommand(), ct);
+            var warehouses = await _mediator.Send(new SamaHesab.Application.Inventory.Queries.GetWarehousesQuery(), ct);
+            var warehouseId = warehouses.Count > 0 ? warehouses[0].Id : 1;
+
             var party = order.TableId is not null ? $" میز {order.TableId}" : $" ({order.OrderType})";
             var saleCmd = new CreateSalesInvoiceCommand(
                 BranchId: _user.BranchId ?? 1, FiscalYearId: 1,
                 InvoiceDate: _calendar.GetCurrentPersianDate(),
-                CustomerId: order.CustomerId ?? 1, WarehouseId: 1,
+                CustomerId: walkInCustomerId, WarehouseId: warehouseId,
                 InvoiceType: InvoiceType.Sale, PriceLevel: "خرده",
                 SalesRepId: null, DueDate: null,
                 Description: $"رستوران — سفارش {order.OrderNumber}{party}",

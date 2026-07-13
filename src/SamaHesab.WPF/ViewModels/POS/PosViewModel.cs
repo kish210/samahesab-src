@@ -25,6 +25,10 @@ public partial class PosViewModel : BaseViewModel
     // POS بی‌صدا از انبارِ اشتباه کم می‌کرد. فقط مسیرِ محلی (غیرِ UseApi) را می‌گیرد؛ pos.exe مستقل
     // از قبل WarehouseId را از launcher با ConfigureApi درست دریافت می‌کند.
     private int _defaultWarehouseId = 1;
+    // POS-CUST-1 — همان کلاسِ باگِ POS-WH-1 برایِ مشتری: قبلاً بدونِ انتخابِ مشتری، CustomerId=۱
+    // هاردکد می‌شد (نه یک «متفرقه»ی واقعی) — یعنی فروشِ بی‌نام به هر طرف‌حسابی که تصادفاً Id=۱ داشت
+    // متصل می‌شد (بدهی/سقفِ اعتبار). حالا یک طرف‌حسابِ اختصاصیِ «متفرقه» لود/ساخته می‌شود.
+    private int _walkInCustomerId = 1;
 
     /// <summary>When true (standalone pos.exe), all data goes through the Web API, not the DB.</summary>
     public bool UseApi { get; set; }
@@ -169,6 +173,9 @@ public partial class PosViewModel : BaseViewModel
                 if (warehouses.Count > 0) _defaultWarehouseId = warehouses[0].Id;
             }
             catch { /* fallback به ۱ اگر لود نشد */ }
+
+            try { _walkInCustomerId = await _mediator.Send(new SamaHesab.Application.CRM.Commands.GetOrCreateWalkInCustomerCommand()); }
+            catch { /* fallback به ۱ اگر لود/ساخته نشد */ }
         }
 
         await LoadFavoritesAsync();
@@ -481,7 +488,7 @@ public partial class PosViewModel : BaseViewModel
                 var cmd = new CreateSalesInvoiceCommand(
                     BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
                     InvoiceDate: _calendar.GetCurrentPersianDate(),
-                    CustomerId: SelectedCustomerId ?? 1,
+                    CustomerId: SelectedCustomerId ?? _walkInCustomerId,
                     WarehouseId: _defaultWarehouseId,
                     InvoiceType: SamaHesab.Domain.Enums.InvoiceType.SaleReturn,
                     PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "برگشت از فروش صندوق (POS)",
@@ -525,7 +532,7 @@ public partial class PosViewModel : BaseViewModel
                 var cmd = new CreateSalesInvoiceCommand(
                     BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
                     InvoiceDate: _calendar.GetCurrentPersianDate(),
-                    CustomerId: SelectedCustomerId ?? 1,
+                    CustomerId: SelectedCustomerId ?? _walkInCustomerId,
                     WarehouseId: _defaultWarehouseId,
                     InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale,
                     PriceLevel: "خرده", SalesRepId: null, DueDate: null, Description: "فروش صندوق (POS)",

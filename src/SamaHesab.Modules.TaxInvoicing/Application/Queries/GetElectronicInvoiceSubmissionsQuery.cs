@@ -34,8 +34,18 @@ public class GetElectronicInvoiceSubmissionsQueryHandler
             .OrderByDescending(s => s.CreatedAt)
             .Take(req.MaxRows <= 0 ? 500 : req.MaxRows)
             .Select(s => new ElectronicInvoiceSubmissionDto(
-                s.Id, s.SalesInvoiceId, s.Status.ToString(), s.UniqueTaxId, s.ReferenceNumber,
+                s.Id, s.SalesInvoiceId, ToPersian(s.Status), s.UniqueTaxId, s.ReferenceNumber,
                 s.ErrorMessage, s.RetryCount, s.SentAt, s.CreatedAt))
             .ToList();
     }
+
+    private static string ToPersian(SubmissionStatus status) => status switch
+    {
+        SubmissionStatus.Pending => "در انتظار",
+        SubmissionStatus.Sent => "ارسال‌شده",
+        SubmissionStatus.Accepted => "پذیرفته‌شده",
+        SubmissionStatus.Rejected => "ردشده",
+        SubmissionStatus.Error => "خطا",
+        _ => status.ToString()
+    };
 }

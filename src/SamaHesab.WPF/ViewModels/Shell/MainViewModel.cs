@@ -37,6 +37,7 @@ public partial class MainViewModel : BaseViewModel
     public bool HotelEnabled => _modules.IsEnabled(ModuleService.Hotel);
     public bool SupportEnabled => _modules.IsEnabled(ModuleService.Support);   // 🆘 HC-1
     public bool ContractingEnabled => _modules.IsEnabled(ModuleService.Contracting);   // 🏗 CON-C2-5
+    public bool TaxInvoicingEnabled => _modules.IsEnabled(ModuleService.TaxInvoicing);   // سامانهٔ مودیان
 
     // ── دسترسی منو بر اساس مجوز (RBAC). ADMIN/«*» همه را true می‌کند. ──
     public bool CanAccounting => _currentUser.HasPermission("Accounting", "Voucher", "View");
@@ -70,6 +71,7 @@ public partial class MainViewModel : BaseViewModel
         ["ContractingStatement"] = ModuleService.Contracting, ["ContractingDashboard"] = ModuleService.Contracting,   // 🏗 CON-C2-2
         ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
         ["ServiceContracts"] = ModuleService.Contracting,     // قراردادهایِ خدماتیِ تکرارشونده
+        ["TaxInvoicingSettings"] = ModuleService.TaxInvoicing, ["TaxInvoicingSubmissions"] = ModuleService.TaxInvoicing,
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -239,6 +241,8 @@ public partial class MainViewModel : BaseViewModel
             ["TourismProducts"]    = ("محصولاتِ گردشگری",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Tourism.TourismProductsViewModel>()),
             ["ItineraryProducts"]  = ("سانس‌بندیِ سفر",       sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryProductsViewModel>()),
             ["ItineraryPlanner"]   = ("برنامه‌ریزِ اقامتی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryPlannerViewModel>()),
+            ["TaxInvoicingSettings"]    = ("تنظیماتِ مودیان",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TaxInvoicing.TaxInvoicingSettingsViewModel>()),
+            ["TaxInvoicingSubmissions"] = ("صورتحساب‌هایِ الکترونیکی",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TaxInvoicing.TaxInvoicingSubmissionsViewModel>()),
         };
 
         // Clock timer
@@ -529,6 +533,10 @@ public partial class MainViewModel : BaseViewModel
             new("کارکنان", "Employees"),
             new("حقوق و دستمزد", "Salary"),
             new("حضور و غیاب", "Attendance"));
+
+        Add(TaxInvoicingEnabled, "سامانهٔ مودیان", "IcTaxInvoice",
+            new("صورتحساب‌هایِ الکترونیکی", "TaxInvoicingSubmissions"),
+            new("تنظیماتِ مودیان", "TaxInvoicingSettings"));
 
         Add(SupportEnabled, "مرکزِ پشتیبانی", "IcHelp",
             new("داشبورد", "HelpCenter"), new("گزارشِ باگ", "BugReport"), new("درخواستِ قابلیت", "FeatureRequest"),

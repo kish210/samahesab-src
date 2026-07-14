@@ -36,7 +36,13 @@
                     xmlns:con="clr-namespace:SamaHesab.WPF.ViewModels.Contracting"
                     xmlns:vcon="clr-namespace:SamaHesab.WPF.Views.Contracting"
                     xmlns:tit="clr-namespace:SamaHesab.WPF.ViewModels.TourismItinerary"
-                    xmlns:vtit="clr-namespace:SamaHesab.WPF.Views.TourismItinerary">
+                    xmlns:vtit="clr-namespace:SamaHesab.WPF.Views.TourismItinerary"
+                    xmlns:tax="clr-namespace:SamaHesab.WPF.ViewModels.TaxInvoicing"
+                    xmlns:vtax="clr-namespace:SamaHesab.WPF.Views.TaxInvoicing">
+
+    <!-- سامانهٔ مودیان -->
+    <DataTemplate DataType="{x:Type tax:TaxInvoicingSettingsViewModel}"><vtax:TaxInvoicingSettingsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tax:TaxInvoicingSubmissionsViewModel}"><vtax:TaxInvoicingSubmissionsView/></DataTemplate>
 
     <!-- ✈️ TUR-C2-4 — گردشگری -->
     <DataTemplate DataType="{x:Type tur:TourismSaleViewModel}"><vtur:TourismSaleView/></DataTemplate>

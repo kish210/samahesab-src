@@ -93,4 +93,9 @@
     <!-- ── آیکونِ اختصاصیِ ماژول‌هایِ نوارِ کناری (رفعِ تکرارِ آیکون بینِ ماژول‌ها) ── -->
     <PathGeometry x:Key="IcTourism"     Figures="M4,8 H20 V19 a1,1 0 0 1 -1,1 H5 a1,1 0 0 1 -1,-1 z M9,8 V5 a1,1 0 0 1 1,-1 H14 a1,1 0 0 1 1,1 V8 M4,13 H20"/>
     <PathGeometry x:Key="IcContracting" Figures="M2,14 a10,7 0 0 1 20,0 z M2,14 H22 M12,7 V4"/>
+    <GeometryGroup x:Key="IcTaxInvoice">
+        <PathGeometry Figures="M5,4 H16 L19,7 V20 a1,1 0 0 1 -1,1 H5 a1,1 0 0 1 -1,-1 V5 a1,1 0 0 1 1,-1 z M8,16 L14,10"/>
+        <EllipseGeometry Center="8.7,10.7" RadiusX="0.9" RadiusY="0.9"/>
+        <EllipseGeometry Center="13.3,15.3" RadiusX="0.9" RadiusY="0.9"/>
+    </GeometryGroup>
 </ResourceDictionary>

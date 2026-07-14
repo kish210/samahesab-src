@@ -149,10 +149,10 @@ public class StatusToColorConverter : IValueConverter
     {
         return value?.ToString() switch
         {
-            "قطعی" or "فعال" or "موجود" => "#27AE60",
+            "قطعی" or "فعال" or "موجود" or "پذیرفته‌شده" => "#27AE60",
             "پیش‌نویس" or "در انتظار" => "#3498DB",
-            "لغو شده" or "غیرفعال" => "#E74C3C",
-            "در جریان" => "#F39C12",
+            "لغو شده" or "غیرفعال" or "ردشده" or "خطا" => "#E74C3C",
+            "در جریان" or "ارسال‌شده" => "#F39C12",
             _ => "#8E9AAB"
         };
     }

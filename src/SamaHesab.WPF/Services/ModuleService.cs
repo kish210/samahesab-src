@@ -22,6 +22,7 @@ public class ModuleService
         Purchase = "Purchase", Inventory = "Inventory", Customers = "Customers", Reports = "Reports";
     public const string Pos = "POS", Restaurant = "Restaurant", Tourism = "Tourism",
         Hr = "HR", Crm = "CRM", Hotel = "Hotel", Support = "Support", Contracting = "Contracting";
+    public const string TaxInvoicing = "TaxInvoicing";
     // کلاینت‌های فروش به‌عنوان ماژولِ مستقل با نسخه‌گذاریِ خودشان (برای ردگیریِ به‌روزرسانی).
     public const string Web = "Web", Mobile = "Mobile";
 
@@ -56,6 +57,9 @@ public class ModuleService
         // پیمانکاری @2026-07-10 دوباره فعال شد (به‌خواستِ کاربر) — با افزودنِ «قراردادهایِ خدماتی»
         // (اشتراکِ اینترنت/پشتیبانی و مانندِ آن) کنارِ backendِ قبلیِ CON-C1 (صورت‌وضعیت/پیمان).
         new ModuleDef(Contracting, "پیمانکاری", false, "HammerWrench"),
+        // سامانهٔ مودیان — ارسالِ الکترونیکیِ فاکتورِ فروش به سازمانِ امورِ مالیاتی. بدونِ اعتبارنامهٔ
+        // Sandbox/واقعی، «فعال»کردن فقط صف را روشن می‌کند؛ ارسالِ واقعی تا پیکربندیِ گواهی کار نمی‌کند.
+        new ModuleDef(TaxInvoicing, "سامانهٔ مودیان", false, "ReceiptTextOutline"),
     };
 
     private static string FilePath => Path.Combine(AppSettingsStore.AppDataDir, "modules.json");

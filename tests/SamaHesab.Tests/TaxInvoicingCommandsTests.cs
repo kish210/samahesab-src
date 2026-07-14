@@ -332,4 +332,35 @@ public class TaxInvoicingCommandsTests
         Assert.Equal("TM-2", row.TaxMemoryId);
         Assert.False(row.UseSandbox);
     }
+
+    // ── GetModianSettingsQuery ──
+
+    [Fact]
+    public async Task GetSettings_Returns_Defaults_When_Not_Configured()
+    {
+        var settings = new FakeRepo<ModianSettings>();
+        var handler = new GetModianSettingsQueryHandler(settings, new FakeUser());
+
+        var dto = await handler.Handle(new GetModianSettingsQuery(), default);
+
+        Assert.Null(dto.TaxMemoryId);
+        Assert.True(dto.UseSandbox);
+        Assert.False(dto.Enabled);
+    }
+
+    [Fact]
+    public async Task GetSettings_Returns_Saved_Row_For_Current_Company()
+    {
+        var settings = new FakeRepo<ModianSettings>();
+        var s = ModianSettings.Create(1);
+        s.Update("TM-9", false, "c:\\x.pfx", "secret", true);
+        await settings.AddAsync(s);
+        var handler = new GetModianSettingsQueryHandler(settings, new FakeUser());
+
+        var dto = await handler.Handle(new GetModianSettingsQuery(), default);
+
+        Assert.Equal("TM-9", dto.TaxMemoryId);
+        Assert.False(dto.UseSandbox);
+        Assert.True(dto.Enabled);
+    }
 }

@@ -228,6 +228,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.TourismItinerary.ItineraryPlannerViewModel>();    // ✈️ MOD-TIT
                 services.AddTransient<ViewModels.TaxInvoicing.TaxInvoicingSettingsViewModel>();     // سامانهٔ مودیان
                 services.AddTransient<ViewModels.TaxInvoicing.TaxInvoicingSubmissionsViewModel>();  // سامانهٔ مودیان
+                services.AddTransient<ViewModels.TaxInvoicing.TaxItemCodesViewModel>();             // سامانهٔ مودیان
                 services.AddTransient<ViewModels.Contracting.ContractingStatementViewModel>();   // 🏗 CON-C2-2
                 services.AddTransient<ViewModels.Contracting.ContractingDashboardViewModel>();   // 🏗 CON-C2-2
                 services.AddTransient<ViewModels.Contracting.ContractingReportsViewModel>();      // 🏗 CON-C2-6

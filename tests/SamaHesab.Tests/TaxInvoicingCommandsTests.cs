@@ -157,7 +157,7 @@ public class TaxInvoicingCommandsTests
         var crypto = new ModianCryptoService();
 
         var handler = new SendElectronicInvoiceCommandHandler(
-            submissions, settings, invoices, new FakeUow(), crypto, certProvider, api);
+            submissions, settings, invoices, new FakeRepo<TaxItemCode>(), new FakeUow(), crypto, certProvider, api);
 
         return (handler, submissions, settings, certProvider, api);
     }
@@ -215,6 +215,24 @@ public class TaxInvoicingCommandsTests
         Assert.Equal(SubmissionStatus.Error, sub.Status);
         Assert.Equal(1, sub.RetryCount);
         Assert.Contains("کدِ کالای نامعتبر", sub.ErrorMessage);
+    }
+
+    [Fact]
+    public void BuildInvoicePayloadJson_Includes_Mapped_ItemId_And_Unit_Per_Line_Not_Fabricated()
+    {
+        var invoice = SalesInvoice.Create(1, 1, 1, "F600", "1405/04/15", 10, 1);
+        invoice.AddItem(SalesInvoiceItem.Create(invoice.Id, 1, productId: 7, quantity: 2, unitPrice: 50_000));
+        invoice.AddItem(SalesInvoiceItem.Create(invoice.Id, 2, productId: 9, quantity: 1, unitPrice: 20_000));   // بدونِ نگاشت
+        var settings = ModianSettings.Create(1);
+        settings.Update("TM-1", true, "c:\\cert.pfx", "pw", true);
+        var codes = new Dictionary<int, TaxItemCode> { [7] = TaxItemCode.Create(1, 7, "123456", "عدد") };
+
+        var method = typeof(SendElectronicInvoiceCommandHandler).GetMethod("BuildInvoicePayloadJson",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        var json = (string)method.Invoke(null, new object?[] { invoice, settings, codes })!;
+
+        Assert.Contains("123456", json);              // ردیفِ نگاشت‌شده
+        Assert.Contains("\"itemId\":null", json);      // ردیفِ نگاشت‌نشده — صادقانه null، نه جعلی
     }
 
     /// <summary>هارنسِ ساده اجازه نمی‌دهد به فیلدِ خصوصیِ invoices برسیم؛ از رفلکشن استفاده می‌کنیم
@@ -339,6 +357,73 @@ public class TaxInvoicingCommandsTests
 
         Assert.False(res.Succeeded);
         Assert.Equal(SubmissionStatus.Accepted, accepted.Status);   // دست‌نخورده
+    }
+
+    // ── SaveTaxItemCodeCommand / GetTaxItemCodesQuery (نگاشتِ کالا→کدِ رسمی، برایِ صفحهٔ UI) ──
+
+    [Fact]
+    public async Task SaveTaxItemCode_Creates_Then_Updates_Single_Row_Per_Product()
+    {
+        var codes = new FakeRepo<TaxItemCode>();
+        var handler = new SaveTaxItemCodeCommandHandler(codes, new FakeUow(), new FakeUser());
+
+        await handler.Handle(new SaveTaxItemCodeCommand(7, "123456", "عدد"), default);
+        await handler.Handle(new SaveTaxItemCodeCommand(7, "654321", "کیلوگرم"), default);
+
+        var row = Assert.Single(codes.Items);
+        Assert.Equal("654321", row.ItemId);
+        Assert.Equal("کیلوگرم", row.MeasurementUnitCode);
+    }
+
+    [Fact]
+    public async Task SaveTaxItemCode_Rejects_Empty_ItemId()
+    {
+        var codes = new FakeRepo<TaxItemCode>();
+        var handler = new SaveTaxItemCodeCommandHandler(codes, new FakeUow(), new FakeUser());
+
+        var res = await handler.Handle(new SaveTaxItemCodeCommand(7, "", "عدد"), default);
+
+        Assert.False(res.Succeeded);
+        Assert.Empty(codes.Items);
+    }
+
+    private sealed class ProductsStubMediator : IMediator
+    {
+        public List<SamaHesab.Application.Inventory.Queries.ProductRowDto> Products = new();
+        public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken ct = default)
+        {
+            if (request is SamaHesab.Application.Inventory.Queries.GetProductsQuery)
+                return (Task<TResponse>)(object)Task.FromResult(Products);
+            throw new System.NotImplementedException();
+        }
+        public Task<object?> Send(object request, CancellationToken ct = default) => Task.FromResult<object?>(null);
+        public Task Send<TRequest>(TRequest request, CancellationToken ct = default) where TRequest : IRequest => Task.CompletedTask;
+        public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> r, CancellationToken ct = default) => null!;
+        public IAsyncEnumerable<object?> CreateStream(object r, CancellationToken ct = default) => null!;
+        public Task Publish(object n, CancellationToken ct = default) => Task.CompletedTask;
+        public Task Publish<TNotification>(TNotification n, CancellationToken ct = default) where TNotification : INotification => Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task GetTaxItemCodes_Merges_Products_With_Existing_Mappings()
+    {
+        var codes = new FakeRepo<TaxItemCode>();
+        await codes.AddAsync(TaxItemCode.Create(1, 7, "123456", "عدد"));
+        var mediator = new ProductsStubMediator
+        {
+            Products = new()
+            {
+                new(7, "K007", "بارکد1", "کالایِ نگاشت‌شده", 100, 80, 90, 0, true, false),
+                new(9, "K009", "بارکد2", "کالایِ نگاشت‌نشده", 100, 80, 90, 0, true, false),
+            }
+        };
+        var handler = new GetTaxItemCodesQueryHandler(codes, new FakeUser(), mediator);
+
+        var rows = await handler.Handle(new GetTaxItemCodesQuery(), default);
+
+        Assert.Equal(2, rows.Count);
+        Assert.Equal("123456", rows.Single(r => r.ProductId == 7).ItemId);
+        Assert.Null(rows.Single(r => r.ProductId == 9).ItemId);
     }
 
     // ── GetElectronicInvoiceSubmissionsQuery ──

@@ -26,6 +26,7 @@ public class SendElectronicInvoiceCommandHandler : IRequestHandler<SendElectroni
     private readonly IRepository<ElectronicInvoiceSubmission> _submissions;
     private readonly IRepository<ModianSettings> _settings;
     private readonly IRepository<SalesInvoice> _invoices;
+    private readonly IRepository<TaxItemCode> _itemCodes;
     private readonly IUnitOfWork _uow;
     private readonly IModianCryptoService _crypto;
     private readonly IModianCertificateProvider _certProvider;
@@ -33,10 +34,10 @@ public class SendElectronicInvoiceCommandHandler : IRequestHandler<SendElectroni
 
     public SendElectronicInvoiceCommandHandler(
         IRepository<ElectronicInvoiceSubmission> submissions, IRepository<ModianSettings> settings,
-        IRepository<SalesInvoice> invoices, IUnitOfWork uow,
+        IRepository<SalesInvoice> invoices, IRepository<TaxItemCode> itemCodes, IUnitOfWork uow,
         IModianCryptoService crypto, IModianCertificateProvider certProvider, IModianApiClient api)
     {
-        _submissions = submissions; _settings = settings; _invoices = invoices; _uow = uow;
+        _submissions = submissions; _settings = settings; _invoices = invoices; _itemCodes = itemCodes; _uow = uow;
         _crypto = crypto; _certProvider = certProvider; _api = api;
     }
 
@@ -69,7 +70,11 @@ public class SendElectronicInvoiceCommandHandler : IRequestHandler<SendElectroni
         }
         catch (Exception ex) { return await Fail(sub, $"کلیدِ عمومیِ سرور نامعتبر بود: {ex.Message}", ct); }
 
-        var payloadJson = BuildInvoicePayloadJson(invoice, settings);
+        var productIds = invoice.Items.Select(i => i.ProductId).ToHashSet();
+        var itemCodes = (await _itemCodes.FindAsync(c => c.CompanyId == sub.CompanyId && productIds.Contains(c.ProductId), ct))
+            .ToDictionary(c => c.ProductId);
+
+        var payloadJson = BuildInvoicePayloadJson(invoice, settings, itemCodes);
         var jws = _crypto.CreateJws(payloadJson, signingKey);
         var jwe = _crypto.CreateJwe(jws, serverKey);
 
@@ -91,8 +96,12 @@ public class SendElectronicInvoiceCommandHandler : IRequestHandler<SendElectroni
         return Result.Failure(message);
     }
 
-    /// <summary>⚠️ placeholder — طبقِ مستنداتِ رسمی بازنویسی خواهد شد (نگاهِ کلاسِ بالا).</summary>
-    private static string BuildInvoicePayloadJson(SalesInvoice invoice, ModianSettings settings)
+    /// <summary>⚠️ placeholder — طبقِ مستنداتِ رسمی بازنویسی خواهد شد (نگاهِ کلاسِ بالا). ردیف‌هایِ
+    /// بدونِ نگاشتِ <see cref="TaxItemCode"/> (طبقِ <see cref="Application.Commands.SaveTaxItemCodeCommand"/>)
+    /// با itemId/measurementUnitCode=null ارسال می‌شوند — سازمان طبقِ استانداردِ خودش ردشان می‌کند؛
+    /// این‌جا فقط داده صادقانه منعکس می‌شود، جعل نمی‌شود.</summary>
+    private static string BuildInvoicePayloadJson(SalesInvoice invoice, ModianSettings settings,
+        Dictionary<int, TaxItemCode> itemCodes)
     {
         var dto = new
         {
@@ -101,6 +110,20 @@ public class SendElectronicInvoiceCommandHandler : IRequestHandler<SendElectroni
             invoiceDate = invoice.InvoiceDate,
             totalAmount = invoice.GrandTotal,
             totalTax = invoice.TotalTax,
+            items = invoice.Items.Select(i =>
+            {
+                itemCodes.TryGetValue(i.ProductId, out var code);
+                return new
+                {
+                    productId = i.ProductId,
+                    quantity = i.Quantity,
+                    unitPrice = i.UnitPrice,
+                    taxAmount = i.TaxAmount,
+                    netAmount = i.NetAmount,
+                    itemId = code?.ItemId,
+                    measurementUnitCode = code?.MeasurementUnitCode,
+                };
+            }),
         };
         return JsonSerializer.Serialize(dto);
     }

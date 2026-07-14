@@ -72,6 +72,7 @@ public partial class MainViewModel : BaseViewModel
         ["ContractingReports"] = ModuleService.Contracting,   // 🏗 CON-C2-6
         ["ServiceContracts"] = ModuleService.Contracting,     // قراردادهایِ خدماتیِ تکرارشونده
         ["TaxInvoicingSettings"] = ModuleService.TaxInvoicing, ["TaxInvoicingSubmissions"] = ModuleService.TaxInvoicing,
+        ["TaxItemCodes"] = ModuleService.TaxInvoicing,
     };
 
     [ObservableProperty] private BaseViewModel? _currentPage;
@@ -243,6 +244,7 @@ public partial class MainViewModel : BaseViewModel
             ["ItineraryPlanner"]   = ("برنامه‌ریزِ اقامتی",   sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TourismItinerary.ItineraryPlannerViewModel>()),
             ["TaxInvoicingSettings"]    = ("تنظیماتِ مودیان",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TaxInvoicing.TaxInvoicingSettingsViewModel>()),
             ["TaxInvoicingSubmissions"] = ("صورتحساب‌هایِ الکترونیکی",  sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TaxInvoicing.TaxInvoicingSubmissionsViewModel>()),
+            ["TaxItemCodes"]            = ("کدهایِ کالاییِ مودیان",     sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.TaxInvoicing.TaxItemCodesViewModel>()),
         };
 
         // Clock timer
@@ -536,6 +538,7 @@ public partial class MainViewModel : BaseViewModel
 
         Add(TaxInvoicingEnabled, "سامانهٔ مودیان", "IcTaxInvoice",
             new("صورتحساب‌هایِ الکترونیکی", "TaxInvoicingSubmissions"),
+            new("کدهایِ کالاییِ مودیان", "TaxItemCodes"),
             new("تنظیماتِ مودیان", "TaxInvoicingSettings"));
 
         Add(SupportEnabled, "مرکزِ پشتیبانی", "IcHelp",

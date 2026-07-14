@@ -1,0 +1,61 @@
+<UserControl x:Class="SamaHesab.WPF.Views.TaxInvoicing.TaxItemCodesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackground}"
+             FontFamily="{StaticResource VazirFont}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <Style x:Key="ActBtn" TargetType="Button">
+            <Setter Property="Margin" Value="2,0"/><Setter Property="Padding" Value="9,2"/>
+            <Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="BorderThickness" Value="0"/><Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="2,0,0,8">
+            <TextBlock Text="کدهایِ کالاییِ مودیان" FontSize="18" FontWeight="Bold"/>
+            <TextBlock Text="نگاشتِ هر کالا به شناسهٔ کالا/خدمتِ رسمی و کدِ واحدِ اندازه‌گیریِ سازمانِ امورِ مالیاتی — بدونِ این نگاشت، آن ردیفِ فاکتور در ارسال ناقص می‌ماند."
+                       Foreground="{DynamicResource SecondaryText}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBox Width="220" Height="30" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return" Command="{Binding SearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button Content="🔍 جست‌وجو" Command="{Binding SearchCommand}" Margin="6,0,0,0" Padding="12,6"
+                    Cursor="Hand" Style="{StaticResource ErpBtnSecondary}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Rows}"
+                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                  SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column"
+                  GridLinesVisibility="Horizontal" RowHeight="{DynamicResource ErpDensRowHeight}" FontSize="12.5"
+                  AlternatingRowBackground="{DynamicResource SurfaceBackground}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="کدِ کالا" Binding="{Binding ProductCode}" Width="100" IsReadOnly="True"/>
+                <DataGridTextColumn Header="نامِ کالا" Binding="{Binding ProductName}" Width="*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="شناسهٔ کالایِ رسمی (IAN)" Binding="{Binding ItemId, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
+                <DataGridTextColumn Header="کدِ واحدِ اندازه‌گیری" Binding="{Binding MeasurementUnitCode, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                <DataGridTemplateColumn Header="عملیات" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="💾 ذخیره" Style="{StaticResource ActBtn}" Background="#2E7D52"
+                                    Command="{Binding DataContext.SaveRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

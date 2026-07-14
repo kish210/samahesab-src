@@ -43,6 +43,7 @@
     <!-- سامانهٔ مودیان -->
     <DataTemplate DataType="{x:Type tax:TaxInvoicingSettingsViewModel}"><vtax:TaxInvoicingSettingsView/></DataTemplate>
     <DataTemplate DataType="{x:Type tax:TaxInvoicingSubmissionsViewModel}"><vtax:TaxInvoicingSubmissionsView/></DataTemplate>
+    <DataTemplate DataType="{x:Type tax:TaxItemCodesViewModel}"><vtax:TaxItemCodesView/></DataTemplate>
 
     <!-- ✈️ TUR-C2-4 — گردشگری -->
     <DataTemplate DataType="{x:Type tur:TourismSaleViewModel}"><vtur:TourismSaleView/></DataTemplate>

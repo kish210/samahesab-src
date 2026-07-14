@@ -122,8 +122,20 @@ public class ApiClient
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
             return (true, null);
         }
-        catch (Exception ex) { return (false, ex.GetBaseException().Message); }
+        catch (Exception ex) { return (false, FriendlyConnectionError(ex)); }
     }
+
+    /// <summary>
+    /// پیش‌تر اینجا فقط پیامِ خامِ استثنا (مثلِ "Connection refused" یا timeout) به کاربر نشان
+    /// داده می‌شد — گیج‌کننده برایِ کسی که نمی‌داند سرورِ API چیست. حالا اتصالِ ناموفق/زمانِ‌تمام‌شده
+    /// را از سایرِ خطاها تفکیک می‌کند و راهنماییِ عملی می‌دهد.
+    /// </summary>
+    private static string FriendlyConnectionError(Exception ex) => ex switch
+    {
+        HttpRequestException => "به سرورِ API متصل نشد. مطمئن شوید سرویسِ API روی سیستمِ سرور اجراست (آیکونِ آن باید در سینیِ ویندوزِ سرور دیده شود) و آدرسِ سرور در تنظیمات درست وارد شده.",
+        TaskCanceledException or OperationCanceledException => "زمانِ اتصال به سرور به پایان رسید. اتصالِ شبکه یا در‌دسترس‌بودنِ سرور را بررسی کنید.",
+        _ => ex.GetBaseException().Message,
+    };
 
     public async Task<List<ApiProduct>> SearchProductsAsync(string? q = null)
     {

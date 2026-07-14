@@ -49,6 +49,13 @@ Write-Host "[7/8] publish API server (SamaHesab.API.exe) ..." -ForegroundColor C
 dotnet publish "$root\src\SamaHesab.API\SamaHesab.API.csproj" @common -o $api
 if ($LASTEXITCODE) { throw "API publish failed" }
 
+# آیکونِ سینی‌سیستم برایِ سرورِ API — کنارِ خودِ SamaHesab.API.exe منتشر می‌شود (باید self-contained
+# باشد؛ اگر framework-dependent باشد و کنارِ hostfxr.dllِ نسخهٔ self-contained قرار بگیرد،
+# resolveِ فریمورک به‌هم می‌ریزد — طبقِ تستِ زندهٔ این تغییر).
+Write-Host "[7b/8] publish API Tray (SamaHesabApiTray.exe) ..." -ForegroundColor Cyan
+dotnet publish "$root\src\SamaHesab.ApiTray\SamaHesab.ApiTray.csproj" @common -o $api
+if ($LASTEXITCODE) { throw "API Tray publish failed" }
+
 # SP-3b — پنلِ فروشِ گردشگری (Blazor WASM PWA): با base path = /seller منتشر و در
 # wwwroot/seller سرور قرار می‌گیرد تا API آن را روی http://<server>:5080/seller/ سرو کند
 # (نصب‌پذیر روی موبایل). UseStaticFilesِ موجودِ API فایل‌ها را سرو می‌کند.
@@ -84,5 +91,6 @@ Write-Host "`nDONE." -ForegroundColor Green
 "kitchen   : " + (Test-Path "$app\kitchen.exe")
 "warehouse : " + (Test-Path "$app\warehouse.exe")
 "api exe   : " + (Test-Path "$api\SamaHesab.API.exe")
+"api tray  : " + (Test-Path "$api\SamaHesabApiTray.exe")
 "app size: {0:N0} MB" -f ((Get-ChildItem $app -Recurse | Measure-Object Length -Sum).Sum/1MB)
 "api size: {0:N0} MB" -f ((Get-ChildItem $api -Recurse | Measure-Object Length -Sum).Sum/1MB)

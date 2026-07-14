@@ -10,6 +10,7 @@
 #define AppPublisher  "سماع رایانه کیش"
 #define AppExe        "SamaHesab.exe"
 #define ApiExe        "SamaHesab.API.exe"
+#define ApiTrayExe    "SamaHesabApiTray.exe"
 
 ; نصابِ آفلاینِ SQL Server Express (اختیاری): SQLEXPR_x64_ENU.exe را در installer\redist\
 ; بگذارید تا bundle و آفلاین نصب شود؛ نبودش → دانلود از اینترنت.
@@ -71,7 +72,7 @@ Name: "{group}\صندوق رستوران";            Filename: "{app}\{#AppExe}
 Name: "{group}\صندوق گارسون";            Filename: "{app}\{#AppExe}"; Parameters: "--waiter"; WorkingDir: "{app}"
 Name: "{group}\نمایشگر آشپزخانه";        Filename: "{app}\{#AppExe}"; Parameters: "--kitchen"; WorkingDir: "{app}"
 Name: "{group}\انبارداری";               Filename: "{app}\{#AppExe}"; Parameters: "--warehouse"; WorkingDir: "{app}"
-Name: "{group}\راه‌اندازی سرور (API)";    Filename: "{app}\server\{#ApiExe}"; WorkingDir: "{app}\server"
+Name: "{group}\راه‌اندازی سرور (API)";    Filename: "{app}\server\{#ApiTrayExe}"; WorkingDir: "{app}\server"
 Name: "{group}\حذف سما حساب";            Filename: "{uninstallexe}"
 Name: "{commondesktop}\حسابداری سما حساب"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Tasks: desktopicon
 
@@ -91,8 +92,9 @@ Filename: "netsh.exe"; \
   Parameters: "advfirewall firewall add rule name=""SamaHesab Guest 5090"" dir=in action=allow protocol=TCP localport=5090"; \
   Flags: runhidden; Tasks: firewall
 
-; اجرای سرور پس از نصب
-Filename: "{app}\server\{#ApiExe}"; Description: "راه‌اندازی سرور (API)"; \
+; اجرای سرور پس از نصب — از طریقِ آیکونِ سینی (نه مستقیم)، تا کاربر وضعیتِ سرور را ببیند و بتواند
+; تمیز متوقفش کند (پیش‌تر API مستقیم بی‌هیچ UIای بالا می‌آمد و تنها راهِ توقف Task Manager بود).
+Filename: "{app}\server\{#ApiTrayExe}"; Description: "راه‌اندازی سرور (API)"; \
   WorkingDir: "{app}\server"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
@@ -100,9 +102,9 @@ Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Sama
 Filename: "netsh.exe"; Parameters: "advfirewall firewall delete rule name=""SamaHesab Guest 5090"""; Flags: runhidden; RunOnceId: "DelFwRule5090"
 
 [Registry]
-; اجرای خودکار سرور هنگام ورود کاربر
+; اجرای خودکار سرور هنگام ورود کاربر — از طریقِ آیکونِ سینی (وضعیت/توقفِ تمیز در دسترسِ کاربر)
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; \
-  ValueName: "SamaHesabServer"; ValueData: """{app}\server\{#ApiExe}"""; \
+  ValueName: "SamaHesabServer"; ValueData: """{app}\server\{#ApiTrayExe}"""; \
   Flags: uninsdeletevalue; Tasks: autostartapi
 
 [Code]

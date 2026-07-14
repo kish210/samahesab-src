@@ -101,7 +101,7 @@ Name: "{group}\گارسون";                          Filename: "{app}\waiter.e
 Name: "{group}\آشپزخانه";                        Filename: "{app}\kitchen.exe"; WorkingDir: "{app}"
 Name: "{group}\انبار";                           Filename: "{app}\warehouse.exe"; WorkingDir: "{app}"
 Name: "{group}\حضور و غیاب";                     Filename: "{app}\hozur.exe"; WorkingDir: "{app}"
-Name: "{group}\سرورِ سما حساب (API)";            Filename: "{app}\server\SamaHesab.API.exe"; WorkingDir: "{app}\server"
+Name: "{group}\سرورِ سما حساب (API)";            Filename: "{app}\server\SamaHesabApiTray.exe"; WorkingDir: "{app}\server"
 Name: "{group}\ابزارِ مهاجرت داده";              Filename: "{app}\mohajerat.exe"; WorkingDir: "{app}"
 Name: "{group}\خودآموزِ گام‌به‌گام";             Filename: "{app}\docs\Tutorial.pdf"
 Name: "{group}\راهنمای کاربر";                   Filename: "{app}\docs\UserGuide.pdf"

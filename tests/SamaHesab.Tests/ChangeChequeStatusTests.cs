@@ -13,8 +13,10 @@ using Xunit;
 
 namespace SamaHesab.Tests;
 
-/// <summary>BUG-4 — ثبتِ دستیِ چک + سندِ انتقالِ دریافتنی→اسنادِ دریافتنی (چکِ دریافتی).</summary>
-public class RegisterChequeTests
+/// <summary>U-ACCT-1.2 — وصولِ چکِ پرداختنی باید از حسابی برداشت کند که بدهی‌اش واقعاً همان‌جاست:
+/// چکِ نو (که RegisterChequeCommand بدهی‌اش را به ۳-۰۲-۰۰۱ بازطبقه‌بندی کرده، PayVoucherId ست شده)
+/// از ۳-۰۲-۰۰۱، چکِ قدیمیِ پیش از این رفع (بدونِ PayVoucherId) برایِ سازگاریِ عقب‌رو از ۳-۰۱-۰۰۱.</summary>
+public class ChangeChequeStatusTests
 {
     private sealed class FakeAccountRepo : IAccountRepository
     {
@@ -66,12 +68,9 @@ public class RegisterChequeTests
     private sealed class FakeChequeRepo : IChequeRepository
     {
         public readonly List<Cheque> Items = new();
-        private int _seq;
-        public Task AddAsync(Cheque e, CancellationToken ct = default)
-        { typeof(Domain.Common.BaseEntity).GetProperty("Id")!.SetValue(e, ++_seq); Items.Add(e); return Task.CompletedTask; }
-        public Task<Cheque?> GetByIdAsync(int id, CancellationToken ct = default) => Task.FromResult(Items.FirstOrDefault(x => x.Id == id));
-        public Task<List<Cheque>> GetByStatusAsync(int companyId, ChequeStatus status, CancellationToken ct = default)
-            => Task.FromResult(Items.Where(c => c.CompanyId == companyId && c.Status == status).ToList());
+        public Task AddAsync(Cheque e, CancellationToken ct = default) { Items.Add(e); return Task.CompletedTask; }
+        public Task<Cheque?> GetByIdAsync(int id, CancellationToken ct = default) => Task.FromResult(Items.FirstOrDefault());
+        public Task<List<Cheque>> GetByStatusAsync(int companyId, ChequeStatus status, CancellationToken ct = default) => Task.FromResult(new List<Cheque>());
         public Task<List<Cheque>> GetDueTodayAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Cheque>());
         public Task<List<Cheque>> GetOverdueAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Cheque>());
         public void Update(Cheque e) { }
@@ -102,111 +101,50 @@ public class RegisterChequeTests
         public IEnumerable<string> GetRoles() => new[] { "ADMIN" };
     }
 
-    private static (RegisterChequeCommandHandler h, FakeChequeRepo cheques, FakeVoucherRepo vouchers, FakeAccountRepo accounts) NewSut(
-        bool seedAccounts = true, bool seedPayableAccounts = false)
+    private static (ChangeChequeStatusCommandHandler H, FakeChequeRepo Cheques, FakeVoucherRepo Vouchers, FakeAccountRepo Accounts) NewSut()
     {
-        var acc = new FakeAccountRepo();
-        if (seedAccounts)
-        {
-            acc.AddAsync(Account.Create(1, "1-04-001", "اسناد دریافتنی", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
-            acc.AddAsync(Account.Create(1, "1-03-001", "حساب‌های دریافتنی", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
-        }
-        if (seedPayableAccounts)
-        {
-            acc.AddAsync(Account.Create(1, "3-01-001", "حساب‌های پرداختنی", AccountLevel.Subsidiary, AccountNature.Credit, "بدهی")).Wait();
-            acc.AddAsync(Account.Create(1, "3-02-001", "اسناد پرداختنی - چک", AccountLevel.Subsidiary, AccountNature.Credit, "بدهی")).Wait();
-        }
+        var accounts = new FakeAccountRepo();
+        accounts.AddAsync(Account.Create(1, "1-01-003", "بانک ملت", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
+        accounts.AddAsync(Account.Create(1, "1-04-001", "اسناد دریافتنی", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
+        accounts.AddAsync(Account.Create(1, "3-01-001", "حساب‌های پرداختنی", AccountLevel.Subsidiary, AccountNature.Credit, "بدهی")).Wait();
+        accounts.AddAsync(Account.Create(1, "3-02-001", "اسناد پرداختنی - چک", AccountLevel.Subsidiary, AccountNature.Credit, "بدهی")).Wait();
         var cheques = new FakeChequeRepo();
         var vouchers = new FakeVoucherRepo();
-        var h = new RegisterChequeCommandHandler(new FakeUow(), new FakeUser(), cheques, acc, vouchers);
-        return (h, cheques, vouchers, acc);
+        var h = new ChangeChequeStatusCommandHandler(new FakeUow(), new FakeUser(), cheques, accounts, vouchers);
+        return (h, cheques, vouchers, accounts);
     }
 
-    private static RegisterChequeCommand Received(decimal amount = 5_000_000) =>
-        new(ChequeType.Received, "123456", "ملت", amount, "1405/05/10", PartyId: 3, PartyType: "Customer", Date: "1405/03/20");
-
     [Fact]
-    public async Task Received_Cheque_Creates_Cheque_And_Balanced_Transfer_Voucher()
+    public async Task Clearing_New_Style_Paid_Cheque_Debits_NotesPayable()
     {
-        var (h, cheques, vouchers, _) = NewSut();
+        var (h, cheques, vouchers, accounts) = NewSut();
+        var cheque = Cheque.Create(1, 1, ChequeType.Paid, "999", "صادرات", 3_000_000, "1405/06/01");
+        cheque.SetPayVoucher(555);   // شبیه‌سازیِ چکی که از مسیرِ نوِ RegisterChequeCommand رد شده
+        await cheques.AddAsync(cheque);
 
-        var res = await h.Handle(Received(5_000_000), default);
+        var res = await h.Handle(new ChangeChequeStatusCommand(cheque.Id, ChequeAction.Clear, "1405/06/01"), default);
 
-        Assert.True(res.Succeeded);
-        var c = Assert.Single(cheques.Items);
-        Assert.Equal(ChequeStatus.InProcess, c.Status);
-        Assert.Equal(3, c.PartyId);
-
-        var v = Assert.Single(vouchers.Items);
-        Assert.Equal(VoucherStatus.Posted, v.Status);
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var v = vouchers.Items.Single();
         Assert.True(v.IsBalanced());
-        Assert.Equal(5_000_000, v.TotalDebit);
-        // Dr اسناد دریافتنی (۱-۰۴-۰۰۱) / Cr حساب‌های دریافتنی (۱-۰۳-۰۰۱)
-        Assert.Equal(5_000_000, v.Items.Single(i => i.Debit > 0).Debit);
-        Assert.Equal(5_000_000, v.Items.Single(i => i.Credit > 0).Credit);
-        Assert.Equal(v.Id, c.ReceiveVoucherId);
-    }
-
-    [Fact]
-    public async Task Paid_Cheque_Without_Payable_Accounts_Creates_Cheque_Without_Voucher()
-    {
-        // U-ACCT-1.2: بدونِ ۳-۰۱-۰۰۱/۳-۰۲-۰۰۱، به رفتارِ قدیمی (بدونِ سند) fallback می‌کند —
-        // نه اینکه چکِ پرداختنی «هرگز» سند نزند (این دیگر همیشگی نیست، فقط fallback است).
-        var (h, cheques, vouchers, _) = NewSut(seedPayableAccounts: false);
-
-        var res = await h.Handle(new RegisterChequeCommand(
-            ChequeType.Paid, "777", "صادرات", 2_000_000, "1405/06/01",
-            PartyId: 9, PartyType: "Supplier", Date: "1405/03/20"), default);
-
-        Assert.True(res.Succeeded);
-        Assert.Single(cheques.Items);
-        Assert.Empty(vouchers.Items);
-        Assert.Null(cheques.Items[0].ReceiveVoucherId);
-        Assert.Null(cheques.Items[0].PayVoucherId);
-    }
-
-    [Fact]
-    public async Task Paid_Cheque_With_Payable_Accounts_Posts_Reclassification_Voucher()
-    {
-        // U-ACCT-1.2: صدورِ چکِ پرداختنی حالا بدهی را از پرداختنیِ عمومی (۳-۰۱-۰۰۱) به اسنادِ
-        // پرداختنی-چک (۳-۰۲-۰۰۱) بازطبقه‌بندی می‌کند تا وصولِ بعدی (ChangeChequeStatusCommand)
-        // از حسابِ درستی برداشت کند.
-        var (h, cheques, vouchers, accounts) = NewSut(seedPayableAccounts: true);
-
-        var res = await h.Handle(new RegisterChequeCommand(
-            ChequeType.Paid, "777", "صادرات", 2_000_000, "1405/06/01",
-            PartyId: 9, PartyType: "Supplier", Date: "1405/03/20"), default);
-
-        Assert.True(res.Succeeded);
-        var cheque = Assert.Single(cheques.Items);
-        var v = Assert.Single(vouchers.Items);
-        Assert.True(v.IsBalanced());
-        Assert.Equal(v.Id, cheque.PayVoucherId);
-        var generalPayable = accounts.Items.Single(a => a.Code == "3-01-001");
         var notesPayable = accounts.Items.Single(a => a.Code == "3-02-001");
-        Assert.Equal(2_000_000m, v.Items.Single(i => i.AccountId == generalPayable.Id).Debit);
-        Assert.Equal(2_000_000m, v.Items.Single(i => i.AccountId == notesPayable.Id).Credit);
+        Assert.Equal(3_000_000m, v.Items.Single(i => i.AccountId == notesPayable.Id).Debit);
     }
 
     [Fact]
-    public async Task Received_Without_Accounts_Fails_And_Posts_Nothing()
+    public async Task Clearing_Legacy_Paid_Cheque_Without_PayVoucherId_Debits_GeneralPayable()
     {
-        var (h, cheques, vouchers, _) = NewSut(seedAccounts: false);
+        var (h, cheques, vouchers, accounts) = NewSut();
+        var cheque = Cheque.Create(1, 1, ChequeType.Paid, "998", "صادرات", 1_500_000, "1405/06/01");
+        // PayVoucherId عمداً ست نمی‌شود — چکِ ثبت‌شده پیش از رفعِ U-ACCT-1.2.
+        await cheques.AddAsync(cheque);
 
-        var res = await h.Handle(Received(), default);
+        var res = await h.Handle(new ChangeChequeStatusCommand(cheque.Id, ChequeAction.Clear, "1405/06/01"), default);
 
-        Assert.False(res.Succeeded);
-        Assert.Empty(cheques.Items);
-        Assert.Empty(vouchers.Items);
-    }
-
-    [Fact]
-    public void Validator_Rejects_NonPositive_Amount_And_Empty_Number()
-    {
-        var v = new RegisterChequeCommandValidator();
-        Assert.False(v.Validate(Received(0)).IsValid);
-        Assert.False(v.Validate(new RegisterChequeCommand(
-            ChequeType.Received, "", "ملت", 1000, "1405/05/10", 3, "Customer", "1405/03/20")).IsValid);
-        Assert.True(v.Validate(Received(1000)).IsValid);
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var v = vouchers.Items.Single();
+        Assert.True(v.IsBalanced());
+        var generalPayable = accounts.Items.Single(a => a.Code == "3-01-001");
+        Assert.Equal(1_500_000m, v.Items.Single(i => i.AccountId == generalPayable.Id).Debit);
     }
 }

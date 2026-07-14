@@ -62,6 +62,15 @@ public class Cheque : AuditableEntity
         UpdatedAt = DateTime.Now;
     }
 
+    /// <summary>U-ACCT-1.2 — پیوندِ سندِ صدورِ چکِ پرداختنی (بازطبقه‌بندیِ بدهی از پرداختنیِ
+    /// عمومی به اسنادِ پرداختنی-چک، ۳-۰۲-۰۰۱). PayVoucherId از قبل در موجودیت تعریف شده بود
+    /// ولی هیچ‌جا ست نمی‌شد.</summary>
+    public void SetPayVoucher(int voucherId)
+    {
+        PayVoucherId = voucherId;
+        UpdatedAt = DateTime.Now;
+    }
+
     public void Clear(int voucherId)
     {
         if (Status != ChequeStatus.InProcess)

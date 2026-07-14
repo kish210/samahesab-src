@@ -225,12 +225,25 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         var voucher = Domain.Entities.Accounting.Voucher.Create(companyId, request.BranchId,
             request.FiscalYearId, number, request.InvoiceDate, 4 /*Purchase*/,
             "سند خودکار فاکتور خرید");
-        voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, 1, inventory.Id, grand, 0, "خرید کالا"));
+        int row = 1;
+        // U-ACCT-1.1: پیش‌تر کلِ grand (کالا+مالیات+حمل+سایرهزینه‌ها) یک‌جا Dr موجودی می‌رفت،
+        // درحالی‌که AddStock همیشه فقط UnitPriceِ خامِ بدونِ‌مالیات را برایِ ارزش‌گذاریِ موجودی
+        // به‌کار می‌برد — یعنی ماندهٔ GLِ موجودی همیشه از ارزشِ واقعیِ Kardex جلوتر بود. حالا
+        // مالیات جدا و به‌عنوانِ دارایی/طلبِ قابلِ‌کسر ثبت می‌شود (نه folded داخلِ موجودی).
+        var inventoryAmount = goods + request.Shipping + request.OtherCosts;
+        voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, inventory.Id, inventoryAmount, 0, "خرید کالا"));
+        if (tax > 0)
+        {
+            var vatDeductible = await _accountRepository.GetByCodeAsync(companyId, "1-06-001", ct);
+            if (vatDeductible != null)
+                voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, vatDeductible.Id, tax, 0, "مالیاتِ خریدِ قابلِ‌کسر"));
+            else
+                voucher.AddItem(Domain.Entities.Accounting.VoucherItem.Create(0, row++, inventory.Id, tax, 0, "مالیاتِ خرید (حسابِ اختصاصی یافت نشد)"));
+        }
 
         // split credit between cash paid now and the remaining payable to supplier
         var paid = request.PaidAmount > 0 ? System.Math.Min(request.PaidAmount, grand) : 0;
         var remain = grand - paid;
-        int row = 2;
         if (paid > 0)
         {
             var cash = await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);

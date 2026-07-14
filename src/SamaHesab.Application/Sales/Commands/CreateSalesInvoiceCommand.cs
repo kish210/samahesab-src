@@ -323,9 +323,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         if (invoice.InvoiceType != Domain.Enums.InvoiceType.SaleReturn || invoice.GrandTotal <= 0) return;
 
         var receivable = await _accountRepository.GetByCodeAsync(companyId, "1-03-001", ct);
-        var sales = await _accountRepository.GetByCodeAsync(companyId, "6-01-001", ct);
+        // U-ACCT-1.2: پیش‌تر برگشت از فروش مستقیماً بدهکارِ حسابِ درآمد (۶-۰۱-۰۰۱) می‌شد، نه یک
+        // خطِ contra-revenueِ جدا — یعنی گزارشِ درآمدِ ناخالص هرگز مبلغِ برگشتی را جداگانه نشان
+        // نمی‌داد. حالا از ۶-۰۲-۰۰۱ (برگشت از فروش، leafِ نو زیرِ گروهِ contra-revenueِ ازپیش‌seedشده)
+        // استفاده می‌شود؛ اگر آن حساب نبود (نصبِ پیش از این مهاجرت)، به رفتارِ قدیمی fallback می‌کند.
+        var salesReturn = await _accountRepository.GetByCodeAsync(companyId, "6-02-001", ct)
+                          ?? await _accountRepository.GetByCodeAsync(companyId, "6-01-001", ct);
         var vat = await _accountRepository.GetByCodeAsync(companyId, "3-04-001", ct);
-        if (receivable == null || sales == null) return; // chart not set up → skip silently
+        if (receivable == null || salesReturn == null) return; // chart not set up → skip silently
 
         var number = await _voucherRepository.GetNextNumberAsync(companyId, ct);
         var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
@@ -342,7 +347,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
 
         int row = 1;
         // بدهکار: برگشت از فروش (کاهشِ درآمد) + مالیات
-        voucher.AddItem(VoucherItem.Create(0, row++, sales.Id, salesAmount, 0, "برگشت از فروش"));
+        voucher.AddItem(VoucherItem.Create(0, row++, salesReturn.Id, salesAmount, 0, "برگشت از فروش"));
         if (invoice.TotalTax > 0 && vat != null)
             voucher.AddItem(VoucherItem.Create(0, row++, vat.Id, invoice.TotalTax, 0, "برگشتِ مالیات بر ارزش افزوده"));
 

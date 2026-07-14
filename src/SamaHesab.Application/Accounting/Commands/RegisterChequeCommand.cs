@@ -80,6 +80,31 @@ public class RegisterChequeCommandHandler : IRequestHandler<RegisterChequeComman
 
                 cheque.SetReceiveVoucher(v.Id);
             }
+            else
+            {
+                // U-ACCT-1.2 — پیش‌تر چکِ پرداختنی هیچ سندی نمی‌زد (بدهیِ آن همچنان زیرِ «پرداختنیِ
+                // عمومیِ» ۳-۰۱-۰۰۱ از زمانِ فاکتورِ خرید می‌ماند)؛ یعنی وصولِ چک (ChangeChequeStatus)
+                // هم از همان ۳-۰۱-۰۰۱ برمی‌داشت — داخلاً سازگار ولی «اسنادِ پرداختنی» (۳-۰۲-۰۰۱، از
+                // قبل seed شده) هرگز استفاده نمی‌شد. حالا همین‌جا بدهی از پرداختنیِ عمومی به اسنادِ
+                // پرداختنی-چک بازطبقه‌بندی می‌شود (سندِ استاندارد: صدورِ چک = تبدیلِ بدهیِ باز به یک
+                // سندِ قابلِ‌مذاکره)؛ ChangeChequeStatusCommand هم از همین ۳-۰۲-۰۰۱ برمی‌دارد.
+                var generalPayable = await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
+                var notesPayable = await _accounts.GetByCodeAsync(companyId, "3-02-001", ct);
+                if (generalPayable != null && notesPayable != null)
+                {
+                    var number = await _vouchers.GetNextNumberAsync(companyId, ct);
+                    var v = Voucher.Create(companyId, branchId, 1, number, req.Date,
+                        7 /*چک*/, $"صدورِ چکِ پرداختنی شمارهٔ {req.ChequeNumber}");
+                    v.AddItem(VoucherItem.Create(0, 1, generalPayable.Id, req.Amount, 0, "کاهشِ حساب‌هایِ پرداختنیِ عمومی"));
+                    v.AddItem(VoucherItem.Create(0, 2, notesPayable.Id, 0, req.Amount, "اسنادِ پرداختنی - چک"));
+                    v.Post(_user.UserId ?? 0);
+                    await _vouchers.AddAsync(v, ct);
+                    await _uow.SaveChangesAsync(ct);
+
+                    cheque.SetPayVoucher(v.Id);
+                }
+                // اگر حساب‌ها تعریف نشده بودند، بی‌سروصدا رد می‌شود (رفتارِ قدیمی: بدونِ سند).
+            }
 
             await _cheques.AddAsync(cheque, ct);
             await _uow.SaveChangesAsync(ct);

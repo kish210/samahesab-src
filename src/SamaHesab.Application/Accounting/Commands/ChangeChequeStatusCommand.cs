@@ -91,7 +91,12 @@ public class ChangeChequeStatusCommandHandler : IRequestHandler<ChangeChequeStat
     {
         var bank = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Bank, ct);
         var chequeReceivable = await _accounts.GetByCodeAsync(companyId, "1-04-001", ct);
-        var payable = await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
+        // U-ACCT-1.2 — چکِ پرداختنیِ نو (که RegisterChequeCommand حالا بدهی‌اش را به ۳-۰۲-۰۰۱
+        // بازطبقه‌بندی می‌کند، PayVoucherId ست شده) باید از همان‌جا وصول شود؛ چکِ قدیمی (پیش از این
+        // رفع، بدونِ PayVoucherId) بدهی‌اش هنوز زیرِ ۳-۰۱-۰۰۱ است — برایِ سازگاریِ عقب‌رو از همان‌جا.
+        var payableCode = cheque.PayVoucherId.HasValue ? "3-02-001" : "3-01-001";
+        var payable = await _accounts.GetByCodeAsync(companyId, payableCode, ct)
+                     ?? await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
         if (bank == null || chequeReceivable == null || payable == null) return 0;
 
         var number = await _vouchers.GetNextNumberAsync(companyId, ct);

@@ -14,7 +14,10 @@ namespace SamaHesab.Application.Treasury.Commands;
 /// <summary>دریافت وجه از مشتری (treasury receipt) — posts a voucher and reduces the customer balance.</summary>
 public record CreateReceiptCommand(
     int BranchId, int FiscalYearId, string Date, int CustomerId, decimal Amount,
-    string PaymentMethod = "نقدی", string? Description = null) : IRequest<Result<int>>;
+    string PaymentMethod = "نقدی", string? Description = null,
+    // U-ACCT-1.3: اگر تعیین شود، اول همین فاکتور (تا سقفِ ماندهٔ خودش) تخصیص می‌گیرد؛
+    // باقی طبقِ FIFOِ فعلی روی بقیهٔ فاکتورهایِ بازِ مشتری.
+    int? InvoiceId = null) : IRequest<Result<int>>;
 
 public class CreateReceiptCommandValidator : AbstractValidator<CreateReceiptCommand>
 {
@@ -64,30 +67,56 @@ public class CreateReceiptCommandHandler : IRequestHandler<CreateReceiptCommand,
             if (debitAcc == null || receivable == null)
                 return Result<int>.Failure("حساب‌های خزانه/دریافتنی تعریف نشده‌اند.");
 
-            var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-            var v = Voucher.Create(companyId, req.BranchId, req.FiscalYearId, number, req.Date,
-                11 /*دریافت*/, req.Description ?? $"دریافت وجه از مشتری");
-            v.AddItem(VoucherItem.Create(0, 1, debitAcc.Id, req.Amount, 0, $"دریافت ({req.PaymentMethod})"));
-            v.AddItem(VoucherItem.Create(0, 2, receivable.Id, 0, req.Amount, "بابت بدهی مشتری"));
-            await _vouchers.AddAsync(v, ct);
-
-            var customer = await _customers.GetByIdAsync(req.CustomerId, ct);
-            if (customer != null) customer.UpdateBalance(customer.Balance - req.Amount);
-
-            // تخصیص خودکار FIFO به فاکتورهای بازِ مشتری (قدیمی‌ترین اول)
+            // ── تخصیص (قبل از ساختِ سند، تا سهمِ پیش‌دریافت از مبلغِ کل معلوم شود) ──
+            // U-ACCT-1.3: اگر فاکتورِ مشخصی هدف گرفته شده، اول همان (تا سقفِ ماندهٔ خودش).
             var open = await _invoices.FindAsync(
                 i => i.CustomerId == req.CustomerId && i.Status == InvoiceStatus.Posted
                      && i.RemainAmount > 0.01m, ct);
+            var remaining = req.Amount;
+            if (req.InvoiceId is int targetId)
+            {
+                var target = open.FirstOrDefault(i => i.Id == targetId);
+                if (target != null)
+                {
+                    var apply = Math.Min(remaining, target.RemainAmount);
+                    if (apply > 0) { target.AddPayment(apply); remaining -= apply; }
+                }
+            }
             var ordered = open
+                .Where(i => req.InvoiceId is null || i.Id != req.InvoiceId)
                 .OrderBy(i => i.InvoiceDate)          // تاریخ شمسی yyyy/MM/dd → مرتب‌سازی لغوی = زمانی
                 .ThenBy(i => i.InvoiceNumber)
                 .Select(i => (i.Id, i.RemainAmount));
-            var (lines, _) = PaymentAllocation.AllocateFifo(req.Amount, ordered);
+            var (lines, unapplied) = PaymentAllocation.AllocateFifo(remaining, ordered);
             foreach (var line in lines)
             {
                 var inv = open.First(i => i.Id == line.InvoiceId);
                 inv.AddPayment(line.Applied);
             }
+
+            var number = await _vouchers.GetNextNumberAsync(companyId, ct);
+            var v = Voucher.Create(companyId, req.BranchId, req.FiscalYearId, number, req.Date,
+                11 /*دریافت*/, req.Description ?? $"دریافت وجه از مشتری");
+            int row = 1;
+            v.AddItem(VoucherItem.Create(0, row++, debitAcc.Id, req.Amount, 0, $"دریافت ({req.PaymentMethod})"));
+            var appliedToInvoices = req.Amount - unapplied;
+            if (appliedToInvoices > 0)
+                v.AddItem(VoucherItem.Create(0, row++, receivable.Id, 0, appliedToInvoices, "بابت بدهی مشتری"));
+            // U-ACCT-1.3: مازادِ بیشتر از مجموعِ ماندهٔ فاکتورهایِ باز، پیش‌تر بی‌سروصدا دور ریخته
+            // می‌شد (Cr کاملاً به ۱-۰۳-۰۰۱ می‌رفت، بدونِ ردی از اینکه چه مقدارش واقعاً به فاکتوری
+            // نخورده). این مازاد یک بدهیِ «پیش‌دریافت» است، نه کاهشِ دارایی — طبقه‌بندیِ درستِ
+            // صورت‌هایِ مالی نیاز به حسابِ جدا دارد (۳-۰۳-۰۰۱، اگر تعریف شده باشد؛ وگرنه fallback
+            // به رفتارِ قدیمی برایِ سازگاری).
+            if (unapplied > 0.01m)
+            {
+                var advance = await _accounts.GetByCodeAsync(companyId, "3-03-001", ct);
+                v.AddItem(VoucherItem.Create(0, row++, (advance ?? receivable).Id, 0, unapplied,
+                    advance != null ? "پیش‌دریافت از مشتری" : "بابت بدهی مشتری (بدونِ حسابِ پیش‌دریافت)"));
+            }
+            await _vouchers.AddAsync(v, ct);
+
+            var customer = await _customers.GetByIdAsync(req.CustomerId, ct);
+            if (customer != null) customer.UpdateBalance(customer.Balance - req.Amount);
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

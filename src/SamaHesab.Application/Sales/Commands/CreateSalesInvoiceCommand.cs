@@ -505,11 +505,16 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private async Task<string> GenerateInvoiceNumberAsync(int companyId, int fiscalYearId,
         InvoiceType type, CancellationToken ct)
     {
+        // U-CONSIGN-1: Consignmentِ قبلاً پیشوندِ "F" (مشترک با Sale) می‌گرفت — چون جست‌وجویِ
+        // بیشینه‌عدد جدا-به‌ازایِ-نوع است ولی رشتهٔ نهایی (پیشوند+عدد) با Sale یکسان می‌شد، دو
+        // فاکتورِ کاملاً متفاوت (یک فروشِ واقعی + یک حوالهٔ کنسینمنت) شمارهٔ رسمیِ یکسان می‌گرفتند —
+        // با تستِ زندهٔ رویِ DBِ واقعی بازتولید و تأیید شد (هر دو "F000001").
         var prefix = type switch
         {
             InvoiceType.Sale => "F",
             InvoiceType.SaleReturn => "BR",
             InvoiceType.Quotation => "PF",
+            InvoiceType.Consignment => "HV",
             _ => "F"
         };
         // بیشترین شمارهٔ موجود + ۱ (نه COUNT) — تا حذفِ یک فاکتور شمارهٔ تکراری تولید نکند

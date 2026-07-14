@@ -30,7 +30,10 @@ public record CreateSalesInvoiceCommand(
     bool AllowOverCredit = false,       // عبور مجاز از سقف اعتبار (با تأیید کاربر مجاز)
     string? Reference = null,           // ارجاع (شمارهٔ مرجع/سفارش)
     string? Title = null,               // عنوانِ فاکتور
-    int? ProjectId = null               // پروژهٔ مرتبط
+    int? ProjectId = null,              // پروژهٔ مرتبط
+    // U-ACCT-1.4: اگر تعیین شود و روش پرداخت «بانک» باشد، به‌جایِ بانکِ پیش‌فرضِ تک‌بانکی از
+    // حسابِ GLِ همین BankAccount استفاده می‌شود.
+    int? BankAccountId = null
 ) : IRequest<Result<int>>;
 
 public record SalesInvoiceItemDto(
@@ -77,6 +80,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IRepository<Domain.Entities.Inventory.StockTransaction> _ledger;
     private readonly IRepository<Domain.Entities.CRM.Party> _customers;
     private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
+    private readonly IRepository<Domain.Entities.Accounting.BankAccount> _bankAccounts;
     private readonly IMediator _mediator;
 
     public CreateSalesInvoiceCommandHandler(
@@ -91,6 +95,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
         IRepository<Domain.Entities.CRM.Party> customers,
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
+        IRepository<Domain.Entities.Accounting.BankAccount> bankAccounts,
         IMediator mediator)
     {
         _invoiceRepository = invoiceRepository;
@@ -104,6 +109,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _ledger = ledger;
         _customers = customers;
         _fiscalYears = fiscalYears;
+        _bankAccounts = bankAccounts;
         _mediator = mediator;
     }
 
@@ -354,15 +360,15 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         // بستانکار: بازپرداختِ نقد/بانک + کاهشِ مطالبه از مشتری
         if (refunded > 0)
         {
-            var payCode = request.PaymentMethod switch
+            Account? payAcc = request.PaymentMethod switch
             {
-                "نقدی" => "1-01-001",
-                "چک"   => "1-04-001",
-                "بانک" => Inventory.Commands.InventoryAccounting.Bank,
-                _       => "1-01-001"
+                "نقدی" => await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct),
+                "چک"   => await _accountRepository.GetByCodeAsync(companyId, "1-04-001", ct),
+                "بانک" => await Inventory.Commands.InventoryAccounting.ResolveBankAccountAsync(
+                    _accountRepository, _bankAccounts, companyId, request.BankAccountId, ct),
+                _       => await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct)
             };
-            var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)
-                         ?? await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
+            payAcc ??= await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
             if (payAcc != null)
                 voucher.AddItem(VoucherItem.Create(0, row++, payAcc.Id, 0, refunded, $"بازپرداخت وجه ({request.PaymentMethod})"));
             else remain = grand;
@@ -429,15 +435,15 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         int row = 1;
         if (paid > 0)
         {
-            var payCode = request.PaymentMethod switch
+            Account? payAcc = request.PaymentMethod switch
             {
-                "نقدی"  => "1-01-001",  // صندوق
-                "چک"    => "1-04-001",  // اسناد دریافتنی
-                "بانک"  => Inventory.Commands.InventoryAccounting.Bank,
-                _        => "1-01-001"
+                "نقدی"  => await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct),  // صندوق
+                "چک"    => await _accountRepository.GetByCodeAsync(companyId, "1-04-001", ct),  // اسناد دریافتنی
+                "بانک"  => await Inventory.Commands.InventoryAccounting.ResolveBankAccountAsync(
+                    _accountRepository, _bankAccounts, companyId, request.BankAccountId, ct),
+                _        => await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct)
             };
-            var payAcc = await _accountRepository.GetByCodeAsync(companyId, payCode, ct)
-                         ?? await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
+            payAcc ??= await _accountRepository.GetByCodeAsync(companyId, "1-01-001", ct);
             if (payAcc != null)
                 voucher.AddItem(VoucherItem.Create(0, row++, payAcc.Id, paid, 0, $"دریافت وجه ({request.PaymentMethod})"));
             else remain = grand; // fallback: everything receivable

@@ -126,7 +126,7 @@ public class PaymentAllocationCommandTests
         invoices.AddAsync(newer).Wait();
 
         var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            new FakeVoucherRepo(), new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>());
+            new FakeVoucherRepo(), new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
 
         // هدف‌گیریِ صریحِ فاکتورِ دوم، با اینکه FIFO اول‌ همان اولی را می‌گرفت.
         var res = await handler.Handle(new CreateReceiptCommand(
@@ -151,7 +151,7 @@ public class PaymentAllocationCommandTests
 
         var vouchers = new FakeVoucherRepo();
         var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>());
+            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
 
         var res = await handler.Handle(new CreateReceiptCommand(
             1, 1, "1405/04/15", CustomerId: 1, Amount: 1_000_000), default);   // ۴۰۰,۰۰۰ بیش از ماندهٔ فاکتور
@@ -183,7 +183,7 @@ public class PaymentAllocationCommandTests
 
         var vouchers = new FakeVoucherRepo();
         var handler = new CreatePaymentCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>());
+            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
 
         var res = await handler.Handle(new CreatePaymentCommand(
             1, 1, "1405/04/15", SupplierId: 1, Amount: 500_000), default);   // ۲۰۰,۰۰۰ بیش از ماندهٔ فاکتور
@@ -194,5 +194,39 @@ public class PaymentAllocationCommandTests
         Assert.True(v.IsBalanced());
         var advance = accounts.Items.Single(a => a.Code == "1-06-002");
         Assert.Equal(200_000m, v.Items.Where(i => i.AccountId == advance.Id).Sum(i => i.Debit));
+    }
+
+    [Fact]
+    public async Task Receipt_With_BankAccountId_Debits_Its_Linked_GL_Account_Not_Default_Bank()
+    {
+        // U-ACCT-1.4: بدونِ BankAccountId، «بانک» همیشه به بانکِ پیش‌فرضِ تک‌بانکی (1-01-003) می‌رفت.
+        var accounts = new FakeAccountRepo();
+        var mellat = await AddAcc(accounts, "1-01-003", "بانک ملت (پیش‌فرض)");
+        var saderat = await AddAcc(accounts, "1-01-006", "بانک صادرات (دومین حساب)");
+        await AddAcc(accounts, "1-03-001", "دریافتنی");
+
+        var bankAccounts = new FakeRepo<BankAccount>();
+        var secondBank = BankAccount.Create(1, saderat.Id, "صادرات", "1234567890");
+        await bankAccounts.AddAsync(secondBank);
+
+        var vouchers = new FakeVoucherRepo();
+        var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
+            vouchers, new FakeRepo<Party>(), new FakeRepo<SalesInvoice>(), new FakeRepo<FiscalYear>(), bankAccounts);
+
+        var res = await handler.Handle(new CreateReceiptCommand(
+            1, 1, "1405/04/15", CustomerId: 1, Amount: 500_000, PaymentMethod: "بانک", BankAccountId: secondBank.Id), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var v = vouchers.Saved!;
+        Assert.True(v.IsBalanced());
+        Assert.Equal(500_000m, v.Items.Where(i => i.AccountId == saderat.Id).Sum(i => i.Debit));
+        Assert.Equal(0m, v.Items.Where(i => i.AccountId == mellat.Id).Sum(i => i.Debit));
+    }
+
+    private static async Task<Account> AddAcc(FakeAccountRepo repo, string code, string name)
+    {
+        var acc = Account.Create(1, code, name, AccountLevel.Subsidiary, AccountNature.Debit, "دارایی");
+        await repo.AddAsync(acc);
+        return acc;
     }
 }

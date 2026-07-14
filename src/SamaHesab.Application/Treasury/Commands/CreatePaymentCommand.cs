@@ -16,7 +16,10 @@ public record CreatePaymentCommand(
     string PaymentMethod = "نقدی", string? Description = null,
     // U-ACCT-1.3: اگر تعیین شود، اول همین فاکتور (تا سقفِ ماندهٔ خودش) تخصیص می‌گیرد؛
     // باقی طبقِ FIFOِ فعلی روی بقیهٔ فاکتورهایِ بازِ تأمین‌کننده.
-    int? InvoiceId = null) : IRequest<Result<int>>;
+    int? InvoiceId = null,
+    // U-ACCT-1.4: اگر تعیین شود و روش پرداخت «بانک» باشد، به‌جایِ بانکِ پیش‌فرضِ تک‌بانکی از
+    // حسابِ GLِ همین BankAccount استفاده می‌شود.
+    int? BankAccountId = null) : IRequest<Result<int>>;
 
 public class CreatePaymentCommandValidator : AbstractValidator<CreatePaymentCommand>
 {
@@ -37,11 +40,13 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly IRepository<Party> _suppliers;
     private readonly IRepository<PurchaseInvoice> _invoices;
     private readonly IRepository<FiscalYear> _fiscalYears;
+    private readonly IRepository<BankAccount> _bankAccounts;
 
     public CreatePaymentCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
         IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Party> suppliers,
-        IRepository<PurchaseInvoice> invoices, IRepository<FiscalYear> fiscalYears)
-    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; }
+        IRepository<PurchaseInvoice> invoices, IRepository<FiscalYear> fiscalYears,
+        IRepository<BankAccount> bankAccounts)
+    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; _bankAccounts = bankAccounts; }
 
     public async Task<Result<int>> Handle(CreatePaymentCommand req, CancellationToken ct)
     {
@@ -54,14 +59,15 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         try
         {
             var companyId = _currentUser.CompanyId!.Value;
-            var payCode = req.PaymentMethod switch
+            // U-ACCT-1.4: «بانک» حالا از BankAccountِ انتخاب‌شده (اگر داده شود) resolve می‌شود.
+            Account? creditAcc = req.PaymentMethod switch
             {
-                "بانک" => Inventory.Commands.InventoryAccounting.Bank,
-                "چک"   => "1-04-001",
-                _       => "1-01-001"
+                "بانک" => await Inventory.Commands.InventoryAccounting.ResolveBankAccountAsync(
+                    _accounts, _bankAccounts, companyId, req.BankAccountId, ct),
+                "چک"   => await _accounts.GetByCodeAsync(companyId, "1-04-001", ct),
+                _       => await _accounts.GetByCodeAsync(companyId, "1-01-001", ct)
             };
-            var creditAcc = await _accounts.GetByCodeAsync(companyId, payCode, ct)
-                            ?? await _accounts.GetByCodeAsync(companyId, "1-01-001", ct);
+            creditAcc ??= await _accounts.GetByCodeAsync(companyId, "1-01-001", ct);
             var payable = await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
             if (creditAcc == null || payable == null)
                 return Result<int>.Failure("حساب‌های خزانه/پرداختنی تعریف نشده‌اند.");

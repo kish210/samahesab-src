@@ -24,6 +24,26 @@ internal static class InventoryAccounting
     // زیرِ گروهِ ۱-۰۱ وجوهِ نقد) به‌عنوانِ بانکِ پیش‌فرض استفاده می‌شود.
     public const string Bank      = "1-01-003";   // بانک ملت (پیش‌فرض)
 
+    /// <summary>
+    /// U-ACCT-1.4 — چندبانکی: اگر <paramref name="bankAccountId"/> داده شده (و به همین شرکت تعلق
+    /// دارد)، حسابِ GLِ متصل به همان BankAccount برگردانده می‌شود؛ وگرنه fallback به <see cref="Bank"/>
+    /// (بانکِ پیش‌فرضِ تک‌بانکی، برایِ سازگاریِ عقب‌رو با فراخوان‌هایی که هنوز حساب را انتخاب نمی‌کنند).
+    /// </summary>
+    public static async Task<Account?> ResolveBankAccountAsync(IAccountRepository accounts,
+        IRepository<BankAccount> bankAccounts, int companyId, int? bankAccountId, CancellationToken ct)
+    {
+        if (bankAccountId is int id)
+        {
+            var ba = await bankAccounts.GetByIdAsync(id, ct);
+            if (ba != null && ba.CompanyId == companyId && ba.IsActive)
+            {
+                var acc = await accounts.GetByIdAsync(ba.AccountId, ct);
+                if (acc != null) return acc;
+            }
+        }
+        return await accounts.GetByCodeAsync(companyId, Bank, ct);
+    }
+
     public static async Task TryPostAsync(IAccountRepository accounts, IVoucherRepository vouchers,
         int companyId, int branchId, string date, string debitCode, string creditCode,
         decimal amount, string description, int userId, CancellationToken ct)

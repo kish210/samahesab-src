@@ -95,6 +95,18 @@
                     <DataGridTextColumn Header="پرداختی" Binding="{Binding Paid, StringFormat={}{0:#,##0}}" Width="130"/>
                     <DataGridTextColumn Header="مانده" Binding="{Binding Remain, StringFormat={}{0:#,##0}}" Width="130"/>
                     <DataGridTemplateColumn Header="وضعیت" Width="100" CellTemplate="{StaticResource ErpStatusChipTemplate}"/>
+                    <DataGridTemplateColumn Header="عملیات" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <!-- ماژولِ اختیاریِ سامانهٔ مودیان — فقط وقتی فعال است دیده می‌شود -->
+                                <Button Content="ارسال به مودیان"
+                                        Visibility="{Binding DataContext.TaxInvoicingEnabled, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolVis}}"
+                                        Command="{Binding DataContext.SendToTaxAuthorityCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource ErpBtnSecondary}" Padding="8,4" FontSize="11"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

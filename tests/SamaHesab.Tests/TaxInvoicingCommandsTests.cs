@@ -280,6 +280,67 @@ public class TaxInvoicingCommandsTests
         Assert.Equal(SubmissionStatus.Accepted, sub3.Status);   // دست‌نخورده ماند
     }
 
+    // ── SendInvoiceToTaxAuthorityCommand (دکمهٔ «ارسال به مودیان» در لیستِ فاکتورهایِ فروش) ──
+
+    [Fact]
+    public async Task SendToTaxAuthority_Creates_Submission_On_Demand_When_None_Exists_And_Sends()
+    {
+        var (sendHandler, submissions, settings, _, api) = BuildSendHarness();
+        var s = ModianSettings.Create(1);
+        s.Update("TM-1", true, "c:\\cert.pfx", "pw", true);
+        await settings.AddAsync(s);
+        var invoice = SalesInvoice.Create(1, 1, 1, "F500", "1405/04/15", 10, 1);
+        await GetInvoicesRepo(sendHandler).AddAsync(invoice);
+        var mediator = new ForwardingMediator { SendHandler = sendHandler };
+        var handler = new SendInvoiceToTaxAuthorityCommandHandler(submissions, new FakeUow(), new FakeUser(), mediator);
+
+        var res = await handler.Handle(new SendInvoiceToTaxAuthorityCommand(invoice.Id), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var sub = Assert.Single(submissions.Items);
+        Assert.Equal(invoice.Id, sub.SalesInvoiceId);
+        Assert.Equal(SubmissionStatus.Sent, sub.Status);
+    }
+
+    [Fact]
+    public async Task SendToTaxAuthority_Reuses_Existing_Submission_Instead_Of_Duplicating()
+    {
+        var (sendHandler, submissions, settings, _, api) = BuildSendHarness();
+        var s = ModianSettings.Create(1);
+        s.Update("TM-1", true, "c:\\cert.pfx", "pw", true);
+        await settings.AddAsync(s);
+        var invoice = SalesInvoice.Create(1, 1, 1, "F501", "1405/04/15", 10, 1);
+        await GetInvoicesRepo(sendHandler).AddAsync(invoice);
+        var existing = ElectronicInvoiceSubmission.Create(1, invoice.Id);
+        existing.MarkError("تلاشِ قبلی ناموفق بود");
+        await submissions.AddAsync(existing);
+        var mediator = new ForwardingMediator { SendHandler = sendHandler };
+        var handler = new SendInvoiceToTaxAuthorityCommandHandler(submissions, new FakeUow(), new FakeUser(), mediator);
+
+        var res = await handler.Handle(new SendInvoiceToTaxAuthorityCommand(invoice.Id), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        Assert.Single(submissions.Items);   // رکوردِ نو ساخته نشد، همان قبلی به‌روز شد
+        Assert.Equal(SubmissionStatus.Sent, existing.Status);
+    }
+
+    [Fact]
+    public async Task SendToTaxAuthority_Blocks_Resend_When_Already_Accepted()
+    {
+        var submissions = new FakeRepo<ElectronicInvoiceSubmission>();
+        var accepted = ElectronicInvoiceSubmission.Create(1, 42);
+        accepted.MarkSent("REF-1");
+        accepted.MarkAccepted("1234567890123456789012");
+        await submissions.AddAsync(accepted);
+        var mediator = new ForwardingMediator();   // نباید اصلاً صدا زده شود
+        var handler = new SendInvoiceToTaxAuthorityCommandHandler(submissions, new FakeUow(), new FakeUser(), mediator);
+
+        var res = await handler.Handle(new SendInvoiceToTaxAuthorityCommand(42), default);
+
+        Assert.False(res.Succeeded);
+        Assert.Equal(SubmissionStatus.Accepted, accepted.Status);   // دست‌نخورده
+    }
+
     // ── GetElectronicInvoiceSubmissionsQuery ──
 
     [Fact]

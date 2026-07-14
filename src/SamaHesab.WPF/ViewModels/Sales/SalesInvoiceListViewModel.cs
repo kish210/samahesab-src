@@ -23,6 +23,10 @@ public partial class SalesInvoiceListViewModel : BaseViewModel, ISupportsNew
     private readonly IPersianCalendarService _calendar;
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
+    private readonly ModuleService _modules;
+
+    /// <summary>آیا دکمهٔ «ارسال به مودیان» نشان داده شود؟ (ماژولِ اختیاریِ TaxInvoicing).</summary>
+    public bool TaxInvoicingEnabled => _modules.IsEnabled(ModuleService.TaxInvoicing);
 
     [ObservableProperty] private string _fromDate = string.Empty;
     [ObservableProperty] private string _toDate = string.Empty;
@@ -44,13 +48,14 @@ public partial class SalesInvoiceListViewModel : BaseViewModel, ISupportsNew
     }
 
     public SalesInvoiceListViewModel(IPersianCalendarService calendar,
-        IMediator mediator, ApiClient api,
+        IMediator mediator, ApiClient api, ModuleService modules,
         IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
     {
         _calendar = calendar;
         _mediator = mediator;
         _api = api;
+        _modules = modules;
     }
 
     public override async Task LoadAsync()
@@ -88,6 +93,20 @@ public partial class SalesInvoiceListViewModel : BaseViewModel, ISupportsNew
     }
 
     [RelayCommand] private void NewInvoice() => _navigationService.NavigateTo("SalesInvoice");
+
+    /// <summary>دکمهٔ ردیفیِ «ارسال به مودیان» — صف/ارسالِ همان فاکتور به سامانهٔ مودیان (ماژولِ اختیاری).</summary>
+    [RelayCommand]
+    private async Task SendToTaxAuthorityAsync(SalesInvoiceListItem? row)
+    {
+        if (row is null) return;
+        await ExecuteAsync(async () =>
+        {
+            var res = await _mediator.Send(
+                new SamaHesab.Modules.TaxInvoicing.Application.Commands.SendInvoiceToTaxAuthorityCommand(row.Id));
+            if (!res.Succeeded) { await _dialogService.ShowErrorAsync(res.ErrorMessage); return; }
+            await _dialogService.ShowSuccessAsync($"فاکتورِ {row.Number} به سامانهٔ مودیان ارسال شد.");
+        }, "در حال ارسال به سامانهٔ مودیان...");
+    }
 
     [RelayCommand]
     private async Task PrintAsync()

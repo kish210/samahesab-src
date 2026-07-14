@@ -46,3 +46,21 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_TaxItm_Company_Product' AND object_id=OBJECT_ID('Tax.ItemCodes'))
     CREATE UNIQUE INDEX IX_TaxItm_Company_Product ON Tax.ItemCodes (CompanyId, ProductId);
 GO
+
+-- ── تنظیماتِ اتصال (یک ردیف به‌ازای هر شرکت) ──
+IF OBJECT_ID('Tax.Settings', 'U') IS NULL
+CREATE TABLE Tax.Settings (
+    Id                   int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    CompanyId            int           NOT NULL,
+    TaxMemoryId          nvarchar(50)  NULL,
+    UseSandbox           bit           NOT NULL CONSTRAINT DF_TaxSet_Sandbox DEFAULT 1,
+    CertificatePath      nvarchar(500) NULL,
+    CertificatePassword  nvarchar(200) NULL,
+    Enabled              bit           NOT NULL CONSTRAINT DF_TaxSet_Enabled DEFAULT 0,
+    CreatedAt            datetime      NOT NULL CONSTRAINT DF_TaxSet_Created DEFAULT GETDATE(),
+    UpdatedAt            datetime      NULL
+);
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_TaxSet_Company' AND object_id=OBJECT_ID('Tax.Settings'))
+    CREATE UNIQUE INDEX IX_TaxSet_Company ON Tax.Settings (CompanyId);
+GO

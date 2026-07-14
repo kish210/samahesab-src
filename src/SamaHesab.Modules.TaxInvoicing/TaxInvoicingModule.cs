@@ -22,7 +22,8 @@ public sealed class TaxInvoicingModule : IModule
     {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(TaxInvoicingModule).Assembly));
         services.AddSingleton<Crypto.IModianCryptoService, Crypto.ModianCryptoService>();
-        // ApiClient در فازِ بعدی (Command/Query + HttpClient) ثبت می‌شود.
+        services.AddSingleton<Crypto.IModianCertificateProvider, Crypto.ModianCertificateProvider>();
+        services.AddHttpClient<Application.IModianApiClient, Application.ModianApiClient>();
     }
 
     /// <summary>مپِ EFِ موجودیت‌هایِ مودیان (G4). schema Tax.</summary>
@@ -37,6 +38,11 @@ public sealed class TaxInvoicingModule : IModule
         {
             e.ToTable("ItemCodes", "Tax");
             e.HasIndex(c => new { c.CompanyId, c.ProductId }).IsUnique();
+        });
+        modelBuilder.Entity<ModianSettings>(e =>
+        {
+            e.ToTable("Settings", "Tax");
+            e.HasIndex(s => s.CompanyId).IsUnique();
         });
     }
 

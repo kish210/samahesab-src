@@ -386,8 +386,11 @@ public class SettleOrderCommandHandler : IRequestHandler<SettleOrderCommand, Res
             var warehouseId = warehouses.Count > 0 ? warehouses[0].Id : 1;
 
             var party = order.TableId is not null ? $" میز {order.TableId}" : $" ({order.OrderType})";
+            // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+            var fiscalYearId = await _mediator.Send(
+                new SamaHesab.Application.Accounting.Dimensions.GetActiveFiscalYearQuery(), ct);
             var saleCmd = new CreateSalesInvoiceCommand(
-                BranchId: _user.BranchId ?? 1, FiscalYearId: 1,
+                BranchId: _user.BranchId ?? 1, FiscalYearId: fiscalYearId,
                 InvoiceDate: _calendar.GetCurrentPersianDate(),
                 CustomerId: walkInCustomerId, WarehouseId: warehouseId,
                 InvoiceType: InvoiceType.Sale, PriceLevel: "خرده",

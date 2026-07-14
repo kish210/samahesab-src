@@ -45,6 +45,7 @@ internal static class InventoryAccounting
     }
 
     public static async Task TryPostAsync(IAccountRepository accounts, IVoucherRepository vouchers,
+        IRepository<FiscalYear> fiscalYears,
         int companyId, int branchId, string date, string debitCode, string creditCode,
         decimal amount, string description, int userId, CancellationToken ct)
     {
@@ -53,8 +54,10 @@ internal static class InventoryAccounting
         var cr = await accounts.GetByCodeAsync(companyId, creditCode, ct);
         if (dr is null || cr is null) return;     // نمودار حساب‌ها ناقص → بی‌صدا رد شو
 
+        // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+        var fiscalYearId = await Accounting.FiscalYearResolver.ResolveActiveIdAsync(fiscalYears, companyId, ct);
         var number = await vouchers.GetNextNumberAsync(companyId, ct);
-        var v = Voucher.Create(companyId, branchId, 1, number, date, 8 /*سند انبار*/, description);
+        var v = Voucher.Create(companyId, branchId, fiscalYearId, number, date, 8 /*سند انبار*/, description);
         v.AddItem(VoucherItem.Create(0, 1, dr.Id, amount, 0, description));
         v.AddItem(VoucherItem.Create(0, 2, cr.Id, 0, amount, description));
         v.Post(userId);
@@ -92,10 +95,12 @@ public class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCommand, R
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public ReceiveStockCommandHandler(IStockItemRepository stock, IRepository<StockTransaction> ledger,
-        IAccountRepository accounts, IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user)
-    { _stock = stock; _ledger = ledger; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; }
+        IAccountRepository accounts, IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user,
+        IRepository<FiscalYear> fiscalYears)
+    { _stock = stock; _ledger = ledger; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; _fiscalYears = fiscalYears; }
 
     public async Task<Result> Handle(ReceiveStockCommand req, CancellationToken ct)
     {
@@ -123,7 +128,7 @@ public class ReceiveStockCommandHandler : IRequestHandler<ReceiveStockCommand, R
             }
 
             // سند خودکار: موجودی کالا (بد) / حساب‌های پرداختنی (بس)
-            await InventoryAccounting.TryPostAsync(_accounts, _vouchers, companyId, branchId, req.Date,
+            await InventoryAccounting.TryPostAsync(_accounts, _vouchers, _fiscalYears, companyId, branchId, req.Date,
                 InventoryAccounting.Inventory, InventoryAccounting.Payable, totalValue,
                 $"رسید انبار {doc}", _user.UserId ?? 0, ct);
 
@@ -166,11 +171,12 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
     private readonly IMediator _mediator;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public IssueStockCommandHandler(IStockItemRepository stock, IRepository<StockTransaction> ledger,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
-        IUnitOfWork uow, ICurrentUserService user, IMediator mediator)
-    { _stock = stock; _ledger = ledger; _products = products; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; _mediator = mediator; }
+        IUnitOfWork uow, ICurrentUserService user, IMediator mediator, IRepository<FiscalYear> fiscalYears)
+    { _stock = stock; _ledger = ledger; _products = products; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; _mediator = mediator; _fiscalYears = fiscalYears; }
 
     public async Task<Result> Handle(IssueStockCommand req, CancellationToken ct)
     {
@@ -218,7 +224,7 @@ public class IssueStockCommandHandler : IRequestHandler<IssueStockCommand, Resul
             }
 
             // سند خودکار: بهای تمام‌شده/مصرف (بد) / موجودی کالا (بس)
-            await InventoryAccounting.TryPostAsync(_accounts, _vouchers, companyId, branchId, req.Date,
+            await InventoryAccounting.TryPostAsync(_accounts, _vouchers, _fiscalYears, companyId, branchId, req.Date,
                 InventoryAccounting.Cogs, InventoryAccounting.Inventory, totalValue,
                 $"حواله انبار {doc}", _user.UserId ?? 0, ct);
 
@@ -277,10 +283,12 @@ public class AdjustStockCommandHandler : IRequestHandler<AdjustStockCommand, Res
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public AdjustStockCommandHandler(IStockItemRepository stock, IRepository<StockTransaction> ledger,
-        IAccountRepository accounts, IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user)
-    { _stock = stock; _ledger = ledger; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; }
+        IAccountRepository accounts, IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user,
+        IRepository<FiscalYear> fiscalYears)
+    { _stock = stock; _ledger = ledger; _accounts = accounts; _vouchers = vouchers; _uow = uow; _user = user; _fiscalYears = fiscalYears; }
 
     public async Task<Result> Handle(AdjustStockCommand req, CancellationToken ct)
     {
@@ -307,10 +315,10 @@ public class AdjustStockCommandHandler : IRequestHandler<AdjustStockCommand, Res
             // سند خودکار: مازاد → موجودی(بد)/بهای‌تمام‌شده(بس)؛ کسری → بهای‌تمام‌شده(بد)/موجودی(بس)
             var amount = Math.Abs(delta) * unitCost;
             if (delta > 0)
-                await InventoryAccounting.TryPostAsync(_accounts, _vouchers, companyId, branchId, req.Date,
+                await InventoryAccounting.TryPostAsync(_accounts, _vouchers, _fiscalYears, companyId, branchId, req.Date,
                     InventoryAccounting.Inventory, InventoryAccounting.Cogs, amount, $"اضافی انبارگردانی {doc}", _user.UserId ?? 0, ct);
             else if (delta < 0)
-                await InventoryAccounting.TryPostAsync(_accounts, _vouchers, companyId, branchId, req.Date,
+                await InventoryAccounting.TryPostAsync(_accounts, _vouchers, _fiscalYears, companyId, branchId, req.Date,
                     InventoryAccounting.Cogs, InventoryAccounting.Inventory, amount, $"کسری انبارگردانی {doc}", _user.UserId ?? 0, ct);
 
             await _uow.SaveChangesAsync(ct);

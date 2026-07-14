@@ -29,6 +29,9 @@ public partial class PosViewModel : BaseViewModel
     // هاردکد می‌شد (نه یک «متفرقه»ی واقعی) — یعنی فروشِ بی‌نام به هر طرف‌حسابی که تصادفاً Id=۱ داشت
     // متصل می‌شد (بدهی/سقفِ اعتبار). حالا یک طرف‌حسابِ اختصاصیِ «متفرقه» لود/ساخته می‌شود.
     private int _walkInCustomerId = 1;
+    // U-ACCT-1.7 — قبلاً FiscalYearId در صدور/برگشتِ فروشِ POS هاردکد رویِ ۱ بود؛ برایِ هر شرکتی
+    // که سالِ مالیِ فعالش Id≠۱ باشد، فاکتور به سالِ مالیِ اشتباه/بسته متصل می‌شد.
+    private int _activeFiscalYearId = 1;
 
     /// <summary>When true (standalone pos.exe), all data goes through the Web API, not the DB.</summary>
     public bool UseApi { get; set; }
@@ -176,6 +179,9 @@ public partial class PosViewModel : BaseViewModel
 
             try { _walkInCustomerId = await _mediator.Send(new SamaHesab.Application.CRM.Commands.GetOrCreateWalkInCustomerCommand()); }
             catch { /* fallback به ۱ اگر لود/ساخته نشد */ }
+
+            try { _activeFiscalYearId = await _mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetActiveFiscalYearQuery()); }
+            catch { /* fallback به ۱ اگر لود نشد */ }
         }
 
         await LoadFavoritesAsync();
@@ -486,7 +492,7 @@ public partial class PosViewModel : BaseViewModel
             {
                 // برگشت از فروش: موجودی برمی‌گردد + سندِ معکوس + بازپرداختِ کاملِ مبلغ.
                 var cmd = new CreateSalesInvoiceCommand(
-                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: _activeFiscalYearId,
                     InvoiceDate: _calendar.GetCurrentPersianDate(),
                     CustomerId: SelectedCustomerId ?? _walkInCustomerId,
                     WarehouseId: _defaultWarehouseId,
@@ -530,7 +536,7 @@ public partial class PosViewModel : BaseViewModel
             {
                 // صدور فوری فاکتور فروش (کاهش موجودی + سند خودکار) — حالت محلی
                 var cmd = new CreateSalesInvoiceCommand(
-                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: _activeFiscalYearId,
                     InvoiceDate: _calendar.GetCurrentPersianDate(),
                     CustomerId: SelectedCustomerId ?? _walkInCustomerId,
                     WarehouseId: _defaultWarehouseId,

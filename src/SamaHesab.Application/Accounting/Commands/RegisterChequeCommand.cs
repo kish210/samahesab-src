@@ -41,15 +41,19 @@ public class RegisterChequeCommandHandler : IRequestHandler<RegisterChequeComman
     private readonly IChequeRepository _cheques;
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public RegisterChequeCommandHandler(IUnitOfWork uow, ICurrentUserService user,
-        IChequeRepository cheques, IAccountRepository accounts, IVoucherRepository vouchers)
-    { _uow = uow; _user = user; _cheques = cheques; _accounts = accounts; _vouchers = vouchers; }
+        IChequeRepository cheques, IAccountRepository accounts, IVoucherRepository vouchers,
+        IRepository<FiscalYear> fiscalYears)
+    { _uow = uow; _user = user; _cheques = cheques; _accounts = accounts; _vouchers = vouchers; _fiscalYears = fiscalYears; }
 
     public async Task<Result<int>> Handle(RegisterChequeCommand req, CancellationToken ct)
     {
         var companyId = _user.CompanyId ?? 1;
         var branchId = _user.BranchId ?? 1;
+        // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+        var fiscalYearId = await Accounting.FiscalYearResolver.ResolveActiveIdAsync(_fiscalYears, companyId, ct);
 
         await _uow.BeginTransactionAsync(ct);
         try
@@ -70,7 +74,7 @@ public class RegisterChequeCommandHandler : IRequestHandler<RegisterChequeComman
                 }
 
                 var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-                var v = Voucher.Create(companyId, branchId, 1, number, req.Date,
+                var v = Voucher.Create(companyId, branchId, fiscalYearId, number, req.Date,
                     7 /*چک*/, $"ثبتِ چکِ دریافتی شمارهٔ {req.ChequeNumber}");
                 v.AddItem(VoucherItem.Create(0, 1, notesReceivable.Id, req.Amount, 0, "اسنادِ دریافتنیِ در جریان"));
                 v.AddItem(VoucherItem.Create(0, 2, tradeReceivable.Id, 0, req.Amount, "کاهشِ حسابِ دریافتنیِ مشتری"));
@@ -93,7 +97,7 @@ public class RegisterChequeCommandHandler : IRequestHandler<RegisterChequeComman
                 if (generalPayable != null && notesPayable != null)
                 {
                     var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-                    var v = Voucher.Create(companyId, branchId, 1, number, req.Date,
+                    var v = Voucher.Create(companyId, branchId, fiscalYearId, number, req.Date,
                         7 /*چک*/, $"صدورِ چکِ پرداختنی شمارهٔ {req.ChequeNumber}");
                     v.AddItem(VoucherItem.Create(0, 1, generalPayable.Id, req.Amount, 0, "کاهشِ حساب‌هایِ پرداختنیِ عمومی"));
                     v.AddItem(VoucherItem.Create(0, 2, notesPayable.Id, 0, req.Amount, "اسنادِ پرداختنی - چک"));

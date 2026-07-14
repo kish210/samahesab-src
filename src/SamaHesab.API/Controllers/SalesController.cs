@@ -65,9 +65,12 @@ public class SalesController : ControllerBase
         if (req.Items == null || req.Items.Count == 0)
             return BadRequest(new { message = "سبد خالی است." });
 
+        // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+        var fiscalYearId = await _mediator.Send(
+            new SamaHesab.Application.Accounting.Dimensions.GetActiveFiscalYearQuery(), ct);
         var cmd = new CreateSalesInvoiceCommand(
             BranchId: _currentUser.BranchId ?? 1,
-            FiscalYearId: 1,
+            FiscalYearId: fiscalYearId,
             InvoiceDate: _calendar.GetCurrentPersianDate(),
             CustomerId: req.CustomerId,
             WarehouseId: req.WarehouseId,

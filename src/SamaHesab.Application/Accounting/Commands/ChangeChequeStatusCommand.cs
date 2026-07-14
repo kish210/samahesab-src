@@ -39,10 +39,12 @@ public class ChangeChequeStatusCommandHandler : IRequestHandler<ChangeChequeStat
     private readonly IChequeRepository _cheques;
     private readonly IAccountRepository _accounts;
     private readonly IVoucherRepository _vouchers;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public ChangeChequeStatusCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
-        IChequeRepository cheques, IAccountRepository accounts, IVoucherRepository vouchers)
-    { _uow = uow; _currentUser = currentUser; _cheques = cheques; _accounts = accounts; _vouchers = vouchers; }
+        IChequeRepository cheques, IAccountRepository accounts, IVoucherRepository vouchers,
+        IRepository<FiscalYear> fiscalYears)
+    { _uow = uow; _currentUser = currentUser; _cheques = cheques; _accounts = accounts; _vouchers = vouchers; _fiscalYears = fiscalYears; }
 
     public async Task<Result<int>> Handle(ChangeChequeStatusCommand req, CancellationToken ct)
     {
@@ -99,8 +101,10 @@ public class ChangeChequeStatusCommandHandler : IRequestHandler<ChangeChequeStat
                      ?? await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
         if (bank == null || chequeReceivable == null || payable == null) return 0;
 
+        // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+        var fiscalYearId = await Accounting.FiscalYearResolver.ResolveActiveIdAsync(_fiscalYears, companyId, ct);
         var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-        var v = Voucher.Create(companyId, cheque.BranchId, 1, number, date,
+        var v = Voucher.Create(companyId, cheque.BranchId, fiscalYearId, number, date,
             7 /*چک*/, $"وصول چک شماره {cheque.ChequeNumber}");
 
         if (cheque.ChequeType == ChequeType.Received)

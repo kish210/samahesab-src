@@ -85,6 +85,23 @@ public class RegisterChequeTests
         public void RemoveRange(IEnumerable<Cheque> e) { foreach (var x in e) Items.Remove(x); }
     }
 
+    // U-ACCT-1.7: هارنس خالی — FindAsync خالی برمی‌گرداند → FiscalYearResolver به همان fallbackِ
+    // تاریخیِ ۱ می‌رسد (رفتارِ قدیمی حفظ می‌شود، این تست‌ها به رفعِ فیسکال‌یِر کاری ندارند).
+    private sealed class FakeFiscalYearRepo : IRepository<FiscalYear>
+    {
+        public Task AddAsync(FiscalYear e, CancellationToken ct = default) => Task.CompletedTask;
+        public Task AddRangeAsync(IEnumerable<FiscalYear> es, CancellationToken ct = default) => Task.CompletedTask;
+        public Task<FiscalYear?> GetByIdAsync(int id, CancellationToken ct = default) => Task.FromResult<FiscalYear?>(null);
+        public Task<List<FiscalYear>> GetAllAsync(CancellationToken ct = default) => Task.FromResult(new List<FiscalYear>());
+        public Task<List<FiscalYear>> FindAsync(Expression<Func<FiscalYear, bool>> p, CancellationToken ct = default) => Task.FromResult(new List<FiscalYear>());
+        public Task<FiscalYear?> FindSingleAsync(Expression<Func<FiscalYear, bool>> p, CancellationToken ct = default) => Task.FromResult<FiscalYear?>(null);
+        public Task<bool> AnyAsync(Expression<Func<FiscalYear, bool>> p, CancellationToken ct = default) => Task.FromResult(false);
+        public Task<int> CountAsync(Expression<Func<FiscalYear, bool>> p, CancellationToken ct = default) => Task.FromResult(0);
+        public void Update(FiscalYear e) { }
+        public void Remove(FiscalYear e) { }
+        public void RemoveRange(IEnumerable<FiscalYear> es) { }
+    }
+
     private sealed class FakeUow : IUnitOfWork
     {
         public IRepository<T> GetRepository<T>() where T : class => throw new NotImplementedException();
@@ -118,7 +135,8 @@ public class RegisterChequeTests
         }
         var cheques = new FakeChequeRepo();
         var vouchers = new FakeVoucherRepo();
-        var h = new RegisterChequeCommandHandler(new FakeUow(), new FakeUser(), cheques, acc, vouchers);
+        var fiscalYears = new FakeFiscalYearRepo();
+        var h = new RegisterChequeCommandHandler(new FakeUow(), new FakeUser(), cheques, acc, vouchers, fiscalYears);
         return (h, cheques, vouchers, acc);
     }
 

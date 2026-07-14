@@ -31,6 +31,8 @@ public partial class RestaurantPosViewModel : BaseViewModel
     // POS-CUST-1 — همان رفعِ PosViewModel: رستورانِ سالن اصلاً انتخاب‌گرِ مشتری ندارد (همیشه «متفرقه»)؛
     // قبلاً CustomerId=۱ هاردکد بود (نه یک «متفرقه»ی واقعی) — حالا طرف‌حسابِ اختصاصی لود/ساخته می‌شود.
     private int _walkInCustomerId = 1;
+    // U-ACCT-1.7 — همان رفعِ PosViewModel: قبلاً FiscalYearId هاردکد رویِ ۱ بود.
+    private int _activeFiscalYearId = 1;
 
     [ObservableProperty] private string _orderType = "سالن";          // سالن / بیرون / پیک
     [ObservableProperty] private int _tableNumber;
@@ -117,6 +119,9 @@ public partial class RestaurantPosViewModel : BaseViewModel
 
             try { _walkInCustomerId = await _mediator.Send(new SamaHesab.Application.CRM.Commands.GetOrCreateWalkInCustomerCommand()); }
             catch { /* fallback به ۱ اگر لود/ساخته نشد */ }
+
+            try { _activeFiscalYearId = await _mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetActiveFiscalYearQuery()); }
+            catch { /* fallback به ۱ اگر لود نشد */ }
         }
 
         ApplyCategory();
@@ -267,7 +272,7 @@ public partial class RestaurantPosViewModel : BaseViewModel
             else
             {
                 var cmd = new CreateSalesInvoiceCommand(
-                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                    BranchId: _currentUser.BranchId ?? 1, FiscalYearId: _activeFiscalYearId,
                     InvoiceDate: _calendar.GetCurrentPersianDate(), CustomerId: _walkInCustomerId, WarehouseId: _defaultWarehouseId,
                     InvoiceType: SamaHesab.Domain.Enums.InvoiceType.Sale, PriceLevel: "خرده",
                     SalesRepId: null, DueDate: null, Description: desc,

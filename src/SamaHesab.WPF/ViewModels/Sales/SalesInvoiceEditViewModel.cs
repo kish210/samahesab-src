@@ -20,6 +20,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
     private readonly ICurrentUserService _currentUser;
     private readonly ApiClient _api;
     private readonly IPersianCalendarService _calendar;
+    // U-ACCT-1.7 — قبلاً FiscalYearId در صدور/برگشتِ فاکتورِ فروش هاردکد رویِ ۱ بود؛ برایِ هر
+    // شرکتی که سالِ مالیِ فعالش Id≠۱ باشد، فاکتور به سالِ مالیِ اشتباه/بسته متصل می‌شد.
+    private int _activeFiscalYearId = 1;
 
     [ObservableProperty] private string _invoiceNumber = "--- خودکار ---";
     [ObservableProperty] private bool _autoNumber = true;            // شمارهٔ خودکار (مثلِ تصویر)
@@ -355,6 +358,9 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         }
         catch { /* نبودِ پروژه نباید فرم را خراب کند */ }
 
+        try { _activeFiscalYearId = await _mediator.Send(new SamaHesab.Application.Accounting.Dimensions.GetActiveFiscalYearQuery()); }
+        catch { /* fallback به ۱ اگر لود نشد */ }
+
         await LoadRecentCustomersAsync();
 
         // DT-3: قالب‌های چاپِ فاکتور فروش
@@ -658,7 +664,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         await ExecuteAsync(async () =>
         {
                         var cmd = new CreateSalesInvoiceCommand(
-                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: _activeFiscalYearId,
                 InvoiceDate: InvoiceDate, CustomerId: SelectedCustomerId,
                 WarehouseId: SelectedWarehouseId,
                 InvoiceType: isQuote ? Domain.Enums.InvoiceType.Quotation : Domain.Enums.InvoiceType.Sale,
@@ -693,7 +699,7 @@ public partial class SalesInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF.Se
         await ExecuteAsync(async () =>
         {
             var cmd = new CreateSalesReturnCommand(
-                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: 1,
+                BranchId: _currentUser.BranchId ?? 1, FiscalYearId: _activeFiscalYearId,
                 Date: InvoiceDate, CustomerId: SelectedCustomerId, WarehouseId: SelectedWarehouseId,
                 Items: realItems.Select(i => new SalesReturnItemDto(
                     i.ProductId, i.Quantity, i.UnitPrice, i.TaxPct)).ToList(),

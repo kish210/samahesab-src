@@ -58,10 +58,11 @@ public class CreateVoucherFromTemplateCommandHandler : IRequestHandler<CreateVou
     private readonly IVoucherRepository _vouchers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IRepository<FiscalYear> _fiscalYears;
 
     public CreateVoucherFromTemplateCommandHandler(IVoucherTemplateRepository templates,
-        IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user)
-    { _templates = templates; _vouchers = vouchers; _uow = uow; _user = user; }
+        IVoucherRepository vouchers, IUnitOfWork uow, ICurrentUserService user, IRepository<FiscalYear> fiscalYears)
+    { _templates = templates; _vouchers = vouchers; _uow = uow; _user = user; _fiscalYears = fiscalYears; }
 
     public async Task<Result<int>> Handle(CreateVoucherFromTemplateCommand req, CancellationToken ct)
     {
@@ -72,8 +73,10 @@ public class CreateVoucherFromTemplateCommandHandler : IRequestHandler<CreateVou
         try
         {
             var companyId = _user.CompanyId ?? tpl.CompanyId;
+            // U-ACCT-1.7: پیش‌تر FiscalYearId=۱ هاردکد بود.
+            var fiscalYearId = await FiscalYearResolver.ResolveActiveIdAsync(_fiscalYears, companyId, ct);
             var number = await _vouchers.GetNextNumberAsync(companyId, ct);
-            var voucher = Voucher.Create(companyId, tpl.BranchId, 1, number, req.Date,
+            var voucher = Voucher.Create(companyId, tpl.BranchId, fiscalYearId, number, req.Date,
                 tpl.VoucherTypeId, req.Description ?? tpl.Name);
 
             int row = 1;

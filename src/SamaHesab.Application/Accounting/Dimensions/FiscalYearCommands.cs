@@ -25,6 +25,22 @@ public class GetFiscalYearsQueryHandler : IRequestHandler<GetFiscalYearsQuery, L
     }
 }
 
+// ── سالِ مالیِ فعالِ شرکتِ جاری (U-ACCT-1.7) ────────────────────────────────────
+// جایگزینِ هاردکدِ FiscalYearId=۱ در ViewModel/Controllerهایی که به مدیاتور دسترسی دارند؛
+// منطقِ خالص در FiscalYearResolver (تست‌پذیر، بدونِ نیازِ IMediator).
+public record GetActiveFiscalYearQuery() : IRequest<int>;
+
+public class GetActiveFiscalYearQueryHandler : IRequestHandler<GetActiveFiscalYearQuery, int>
+{
+    private readonly IRepository<FiscalYear> _repo;
+    private readonly ICurrentUserService _user;
+    public GetActiveFiscalYearQueryHandler(IRepository<FiscalYear> repo, ICurrentUserService user)
+    { _repo = repo; _user = user; }
+
+    public Task<int> Handle(GetActiveFiscalYearQuery req, CancellationToken ct) =>
+        SamaHesab.Application.Accounting.FiscalYearResolver.ResolveActiveIdAsync(_repo, _user.CompanyId ?? 1, ct);
+}
+
 // ── ذخیره (ایجاد/ویرایش) سال مالی ──────────────────────────────────────────────
 public record SaveFiscalYearCommand(int Id, string Title, string StartDate, string EndDate)
     : IRequest<Result<int>>;

@@ -46,6 +46,15 @@ public class PurchaseInvoiceItem : BaseEntity
         return item;
     }
 
+    /// <summary>U-ACCT-1.5 — سهمِ این ردیف از حمل/سایرهزینه‌هایِ سرفاکتور (توزیع‌شده به‌نسبتِ
+    /// NetAmount توسطِ فراخواننده). LandedCost را بازمحاسبه می‌کند.</summary>
+    public void SetAdditionalCost(decimal amount)
+    {
+        if (amount < 0) throw new ArgumentException("هزینهٔ اضافی نمی‌تواند منفی باشد.");
+        AdditionalCost = amount;
+        Calculate();
+    }
+
     private void Calculate()
     {
         var subtotal = Quantity * UnitPrice;
@@ -53,6 +62,9 @@ public class PurchaseInvoiceItem : BaseEntity
         var afterDiscount = subtotal - DiscountAmount;
         TaxAmount = afterDiscount * TaxPct / 100;
         NetAmount = afterDiscount + TaxAmount;
-        LandedCost = NetAmount + AdditionalCost;
+        // U-ACCT-1.1/1.5: LandedCost عمداً TaxAmount را ندارد — از رفعِ U-ACCT-1.1، مالیاتِ خرید
+        // دیگر داخلِ ارزشِ موجودی folded نمی‌شود (حسابِ جداگانهٔ ۱-۰۶-۰۰۱، مالیاتِ قابلِ‌کسر). پس
+        // LandedCost یعنی بهایِ واقعاً قابلِ‌سرمایه‌گذاری در موجودی: خالص‌ازتخفیف + سهمِ حمل/سایرهزینه‌ها.
+        LandedCost = afterDiscount + AdditionalCost;
     }
 }

@@ -169,7 +169,7 @@ public class AccountingCompletionTests
         public Task Publish<TNotification>(TNotification n, CancellationToken ct = default) where TNotification : INotification => Task.CompletedTask;
     }
 
-    private static (CreatePurchaseInvoiceCommandHandler Handler, FakeAccountRepo Accounts, FakeVoucherRepo Vouchers)
+    private static (CreatePurchaseInvoiceCommandHandler Handler, FakeAccountRepo Accounts, FakeVoucherRepo Vouchers, FakeStockRepo Stock)
         Build(bool withVatAccount)
     {
         var accounts = new FakeAccountRepo();
@@ -180,23 +180,25 @@ public class AccountingCompletionTests
 
         var products = new FakeProductRepo();
         products.AddAsync(Product.Create(1, "P1", "کالایِ آزمایشی", 1, 150, 100)).Wait();
+        products.AddAsync(Product.Create(1, "P2", "کالایِ آزمایشیِ دوم", 1, 60, 40)).Wait();
 
         var fiscalYears = new FakeRepo<FiscalYear>();
         fiscalYears.AddAsync(FiscalYear.Create(1, "۱۴۰۵", "1405/01/01", "1405/12/29")).Wait();
 
         var vouchers = new FakeVoucherRepo();
+        var stock = new FakeStockRepo();
         var handler = new CreatePurchaseInvoiceCommandHandler(
-            new FakeUow(), new FakeUser(), new FakeStockRepo(), products, accounts,
+            new FakeUow(), new FakeUser(), stock, products, accounts,
             vouchers, new FakeRepo<PurchaseInvoice>(), new FakeRepo<Domain.Entities.Inventory.StockTransaction>(),
             fiscalYears, new FakeRepo<Party>(), new FakeMediator());
 
-        return (handler, accounts, vouchers);
+        return (handler, accounts, vouchers, stock);
     }
 
     [Fact]
     public async Task Purchase_Splits_Tax_Into_Dedicated_Deductible_Account()
     {
-        var (handler, accounts, vouchers) = Build(withVatAccount: true);
+        var (handler, accounts, vouchers, _) = Build(withVatAccount: true);
         var cmd = new CreatePurchaseInvoiceCommand(
             BranchId: 1, FiscalYearId: 1, InvoiceDate: "1405/04/15", SupplierId: 1, WarehouseId: 1,
             InvoiceType: "خرید", OrderId: null, DueDate: null, Description: null,
@@ -221,7 +223,7 @@ public class AccountingCompletionTests
     [Fact]
     public async Task Purchase_Falls_Back_To_Folding_Tax_Into_Inventory_When_No_Dedicated_Account()
     {
-        var (handler, accounts, vouchers) = Build(withVatAccount: false);
+        var (handler, accounts, vouchers, _) = Build(withVatAccount: false);
         var cmd = new CreatePurchaseInvoiceCommand(
             BranchId: 1, FiscalYearId: 1, InvoiceDate: "1405/04/15", SupplierId: 1, WarehouseId: 1,
             InvoiceType: "خرید", OrderId: null, DueDate: null, Description: null,
@@ -237,5 +239,37 @@ public class AccountingCompletionTests
         var inventory = accounts.Items.Single(a => a.Code == "1-05-001");
         // بدونِ حسابِ اختصاصی: کلِ مبلغ (شاملِ مالیات) مثلِ رفتارِ قدیمی رویِ موجودی می‌رود.
         Assert.Equal(1_090_000m, v.Items.Where(i => i.AccountId == inventory.Id).Sum(i => i.Debit));
+    }
+
+    /// <summary>U-ACCT-1.5 — Shipping/OtherCosts پیش‌تر فقط در سندِ حسابداری capitalize می‌شد ولی
+    /// به‌ازایِ هر ردیف توزیع نمی‌شد؛ AverageCostِ Kardex فقط UnitPriceِ خام را می‌دید. حالا به‌نسبتِ
+    /// NetAmountِ هر ردیف توزیع و در LandedCost لحاظ می‌شود.</summary>
+    [Fact]
+    public async Task Purchase_Distributes_Shipping_Into_Landed_Cost_For_Stock_Valuation()
+    {
+        var (handler, _, _, stock) = Build(withVatAccount: false);
+        var cmd = new CreatePurchaseInvoiceCommand(
+            BranchId: 1, FiscalYearId: 1, InvoiceDate: "1405/04/15", SupplierId: 1, WarehouseId: 1,
+            InvoiceType: "خرید", OrderId: null, DueDate: null, Description: null,
+            Shipping: 120_000, OtherCosts: 0,
+            Items: new List<PurchaseInvoiceItemDto>
+            {
+                // NetAmount = 1,000,000 (بدونِ تخفیف/مالیات)
+                new(1, Quantity: 10, UnitPrice: 100_000, DiscountPct: 0, TaxPct: 0, Description: null, BatchId: null, BatchNumber: null, ProductionDate: null, ExpiryDate: null),
+                // NetAmount = 200,000
+                new(2, Quantity: 5, UnitPrice: 40_000, DiscountPct: 0, TaxPct: 0, Description: null, BatchId: null, BatchNumber: null, ProductionDate: null, ExpiryDate: null),
+            },
+            PaidAmount: 0);
+
+        var res = await handler.Handle(cmd, default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        // مجموعِ NetAmount = 1,200,000؛ حملِ 120,000 به‌نسبتِ سهم: ردیفِ ۱ → 100,000، ردیفِ ۲ → 20,000.
+        var stock1 = stock.Items.Single(s => s.ProductId == 1);
+        var stock2 = stock.Items.Single(s => s.ProductId == 2);
+        // LandedCostِ ردیفِ ۱ = 1,000,000 + 100,000 = 1,100,000 روی مقدارِ ۱۰ → میانگین ۱۱۰,۰۰۰ (نه ۱۰۰,۰۰۰ خام).
+        Assert.Equal(110_000m, stock1.AverageCost);
+        // LandedCostِ ردیفِ ۲ = 200,000 + 20,000 = 220,000 روی مقدارِ ۵ → میانگین ۴۴,۰۰۰ (نه ۴۰,۰۰۰ خام).
+        Assert.Equal(44_000m, stock2.AverageCost);
     }
 }

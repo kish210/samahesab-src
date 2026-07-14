@@ -114,20 +114,59 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                 request.InvoiceDate, request.SupplierId, request.WarehouseId,
                 request.InvoiceType, request.OrderId, request.DueDate, request.Description);
 
+            var domainItems = new List<Domain.Entities.Purchase.PurchaseInvoiceItem>();
             for (int i = 0; i < request.Items.Count; i++)
             {
                 var d = request.Items[i];
-                invoice.AddItem(Domain.Entities.Purchase.PurchaseInvoiceItem.Create(
+                var it = Domain.Entities.Purchase.PurchaseInvoiceItem.Create(
                     0, i + 1, d.ProductId, d.Quantity, d.UnitPrice, d.DiscountPct, d.TaxPct,
-                    d.Description, d.BatchId, null));
+                    d.Description, d.BatchId, null);
+                invoice.AddItem(it);
+                domainItems.Add(it);
             }
             invoice.SetShipping(request.Shipping, request.OtherCosts);
+
+            // U-ACCT-1.5 — پیش‌تر Shipping/OtherCosts فقط در سندِ حسابداری capitalize می‌شد، ولی
+            // به‌ازایِ هر ردیف توزیع نمی‌شد (AdditionalCost همیشه ۰ می‌ماند) — یعنی بهایِ میانگینِ
+            // موجودی/Kardex این هزینه‌ها را نادیده می‌گرفت. حالا به‌نسبتِ NetAmountِ هر ردیف توزیع
+            // می‌شود (ردیفِ آخر باقیماندهٔ گردکردن را می‌گیرد تا مجموع دقیقاً برابر بماند).
+            var extraCosts = request.Shipping + request.OtherCosts;
+            if (extraCosts > 0 && domainItems.Count > 0)
+            {
+                var totalNet = domainItems.Sum(it => it.NetAmount);
+                if (totalNet > 0)
+                {
+                    decimal distributed = 0;
+                    for (int i = 0; i < domainItems.Count; i++)
+                    {
+                        var share = i == domainItems.Count - 1
+                            ? extraCosts - distributed
+                            : System.Math.Round(extraCosts * domainItems[i].NetAmount / totalNet, 2);
+                        domainItems[i].SetAdditionalCost(share);
+                        distributed += share;
+                    }
+                }
+                else
+                {
+                    // مجموعِ NetAmount صفر (مثلاً همهٔ ردیف‌ها قیمتِ صفر دارند) — کلِ هزینه رویِ
+                    // اولین ردیف می‌نشیند تا بی‌سروصدا گم نشود.
+                    domainItems[0].SetAdditionalCost(extraCosts);
+                }
+            }
+
             await _invoiceRepository.AddAsync(invoice, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
             // Update stock for each item
-            foreach (var item in request.Items)
+            for (int i = 0; i < request.Items.Count; i++)
             {
+                var item = request.Items[i];
+                var domainItem = domainItems[i];
+                // U-ACCT-1.5: ارزش‌گذاریِ موجودی/Kardex حالا LandedCost (خالص‌ازتخفیف + سهمِ
+                // حمل/سایرهزینه‌ها، بدونِ مالیات — هم‌راستا با U-ACCT-1.1) را به‌جایِ UnitPriceِ خام
+                // به‌کار می‌برد.
+                var unitLandedCost = item.Quantity > 0 ? domainItem.LandedCost / item.Quantity : item.UnitPrice;
+
                 var stockItem = await _stockRepository
                     .GetByProductAndWarehouseAsync(item.ProductId, request.WarehouseId, ct);
 
@@ -138,7 +177,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                         item.ProductId, request.WarehouseId);
                 }
 
-                stockItem!.AddStock(item.Quantity, item.UnitPrice);
+                stockItem!.AddStock(item.Quantity, unitLandedCost);
 
                 if (isNew)
                     await _stockRepository.AddAsync(stockItem, ct);
@@ -152,7 +191,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                 {
                     var batchRes = await _mediator.Send(new Inventory.Commands.ReceiveBatchCommand(
                         item.ProductId, item.BatchNumber!, item.Quantity,
-                        item.ProductionDate, item.ExpiryDate, item.UnitPrice), ct);
+                        item.ProductionDate, item.ExpiryDate, unitLandedCost), ct);
                     if (!batchRes.Succeeded)
                         throw new InvalidOperationException(batchRes.ErrorMessage);
                 }
@@ -160,11 +199,12 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
                 // kardex ledger entry (inflow)
                 await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
                     companyId, request.BranchId, "ورود خرید", invoiceNumber, request.InvoiceDate,
-                    item.ProductId, request.WarehouseId, item.Quantity, item.UnitPrice,
+                    item.ProductId, request.WarehouseId, item.Quantity, unitLandedCost,
                     stockItem.Quantity, stockItem.Quantity * stockItem.AverageCost,
                     "PurchaseInvoice", invoice.Id, null), ct);
 
-                // Update product purchase price
+                // Update product purchase price — قیمتِ خریدِ خام (بدونِ حمل) به‌عنوانِ مرجعِ آخرین
+                // قیمتِ تأمین‌کننده می‌ماند، نه بهایِ تمام‌شده.
                 var product = await _productRepository.GetByIdAsync(item.ProductId, ct);
                 if (product != null)
                 {

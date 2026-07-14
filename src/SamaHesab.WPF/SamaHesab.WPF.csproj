@@ -24,6 +24,7 @@
     <ProjectReference Include="..\SamaHesab.Modules.POS\SamaHesab.Modules.POS.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Tourism\SamaHesab.Modules.Tourism.csproj" />
     <ProjectReference Include="..\SamaHesab.Modules.Attendance\SamaHesab.Modules.Attendance.csproj" />
+    <ProjectReference Include="..\SamaHesab.Modules.TaxInvoicing\SamaHesab.Modules.TaxInvoicing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />

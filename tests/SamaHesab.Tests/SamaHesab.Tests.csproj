@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\SamaHesab.Modules.POS\SamaHesab.Modules.POS.csproj" />
     <ProjectReference Include="..\..\src\SamaHesab.Modules.Tourism\SamaHesab.Modules.Tourism.csproj" />
     <ProjectReference Include="..\..\src\SamaHesab.Modules.Attendance\SamaHesab.Modules.Attendance.csproj" />
+    <ProjectReference Include="..\..\src\SamaHesab.Modules.TaxInvoicing\SamaHesab.Modules.TaxInvoicing.csproj" />
   </ItemGroup>
 
 </Project>

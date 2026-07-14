@@ -158,6 +158,7 @@ public partial class App : System.Windows.Application
                     new SamaHesab.Modules.POS.PosModule(),                 // MOD-POS (laptop)
                     new SamaHesab.Modules.Tourism.TourismModule(),         // MOD-TUR (laptop)
                     new SamaHesab.Modules.Attendance.AttendanceModule(),   // فاز ۳ (pc) — حضوروغیاب
+                    new SamaHesab.Modules.TaxInvoicing.TaxInvoicingModule(), // سامانهٔ مودیان (laptop)
                 };
                 // فاز۴ — ماژول‌های دانلودشده از بازار (`%AppData%/SamaHesab/modules/*.mspkg`) در runtime
                 //   بدونِ rebuildِ هسته بار می‌شوند؛ dedupe با bundleها بر اساسِ Key.

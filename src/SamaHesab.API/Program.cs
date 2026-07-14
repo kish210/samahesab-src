@@ -30,6 +30,7 @@ foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
     new SamaHesab.Modules.POS.PosModule(),                 // MOD-POS (laptop)
     new SamaHesab.Modules.Tourism.TourismModule(),         // MOD-TUR (laptop)
     new SamaHesab.Modules.Attendance.AttendanceModule(),   // فاز ۳ (pc) — حضوروغیاب
+    new SamaHesab.Modules.TaxInvoicing.TaxInvoicingModule(), // سامانهٔ مودیان (laptop)
 })
 {
     builder.Services.AddSingleton<SamaHesab.Modules.Abstractions.IModule>(module);

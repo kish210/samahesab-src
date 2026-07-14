@@ -477,8 +477,13 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         if (request.SalesRepId.HasValue && request.CommissionPercent > 0 && salesAmount > 0)
         {
             var commission = salesAmount * request.CommissionPercent / 100m;
-            var expense = await _accountRepository.GetByCodeAsync(companyId, "8-01-001", ct);
-            var payable = await _accountRepository.GetByCodeAsync(companyId, "3-01-001", ct);
+            // U-ACCT-1.6: حساب‌هایِ اختصاصیِ پورسانت (۸-۱۰-۰۰۱ هزینه / ۳-۰۸-۰۰۱ پرداختنی) — پیش‌تر از
+            // هزینهٔ عمومی (۸-۰۱-۰۰۱) و پرداختنیِ عمومی (۳-۰۱-۰۰۱) استفاده می‌شد که پورسانت را در
+            // گزارش‌هایِ هزینه/بدهیِ عمومی گم می‌کرد. fallback به کدهایِ قدیمی اگر حسابِ اختصاصی نبود.
+            var expense = await _accountRepository.GetByCodeAsync(companyId, "8-10-001", ct)
+                ?? await _accountRepository.GetByCodeAsync(companyId, "8-01-001", ct);
+            var payable = await _accountRepository.GetByCodeAsync(companyId, "3-08-001", ct)
+                ?? await _accountRepository.GetByCodeAsync(companyId, "3-01-001", ct);
             if (commission > 0 && expense != null && payable != null)
             {
                 var cnum = await _voucherRepository.GetNextNumberAsync(companyId, ct);

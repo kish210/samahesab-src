@@ -21,7 +21,8 @@ public sealed class TaxInvoicingModule : IModule
     public void RegisterServices(IServiceCollection services)
     {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(TaxInvoicingModule).Assembly));
-        // لایهٔ رمزنگاری/ApiClient در فازِ بعدی (U-ACCT-2: رمزنگاریِ JWS/JWE) ثبت می‌شود.
+        services.AddSingleton<Crypto.IModianCryptoService, Crypto.ModianCryptoService>();
+        // ApiClient در فازِ بعدی (Command/Query + HttpClient) ثبت می‌شود.
     }
 
     /// <summary>مپِ EFِ موجودیت‌هایِ مودیان (G4). schema Tax.</summary>

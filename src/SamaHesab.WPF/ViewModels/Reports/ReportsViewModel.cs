@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
@@ -13,6 +14,8 @@ public partial class ReportsViewModel : BaseViewModel
     private readonly IReportService _reportService;
     private readonly IPersianCalendarService _calendar;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMediator _mediator;
+    private readonly ModuleService _modules;
 
     [ObservableProperty] private ReportCategory? _selectedCategory;
     [ObservableProperty] private ReportItem? _selectedReport;
@@ -25,9 +28,10 @@ public partial class ReportsViewModel : BaseViewModel
     public ObservableCollection<ReportResultRow> Results { get; } = new();
 
     public ReportsViewModel(IReportService reportService, IPersianCalendarService calendar,
-        ICurrentUserService currentUser, IDialogService dialogService, INavigationService navigationService)
+        ICurrentUserService currentUser, IMediator mediator, ModuleService modules,
+        IDialogService dialogService, INavigationService navigationService)
         : base(dialogService, navigationService)
-    { _reportService = reportService; _calendar = calendar; _currentUser = currentUser; }
+    { _reportService = reportService; _calendar = calendar; _currentUser = currentUser; _mediator = mediator; _modules = modules; }
 
     // پیش‌تنظیم‌های بازهٔ تاریخ (پارامترِ پیش‌فرضِ سریع) — رشته‌محورِ شمسی، سازگار با فیلترِ گزارش‌ها.
     [RelayCommand] private void RangeToday()     { var t = _calendar.GetCurrentPersianDate(); FromDate = t; ToDate = t; }
@@ -106,14 +110,61 @@ public partial class ReportsViewModel : BaseViewModel
     private async Task RunReportAsync()
     {
         if (SelectedReport == null) { await _dialogService.ShowErrorAsync("یک گزارش انتخاب کنید."); return; }
-        // UX-CORE-AUDIT — این صفحه («مرکز گزارشات») قبلاً برایِ هر ۲۲ گزارش (در همهٔ دسته‌ها) داده‌یِ
-        // ساختگیِ یکسان (۱۵ ردیفِ فرمولی) نشان می‌داد — کاربر نمی‌توانست تفاوتِ گزارشِ واقعی از جعلی را
-        // بفهمد (خطرناک برایِ گزارش‌هایِ مالی مثلِ تراز آزمایشی/سود‌و‌زیان). تا پیاده‌سازیِ کوئریِ واقعیِ
-        // این گزارش‌ها (خارج از لِینِ این جلسه — گزارش/BI لِینِ pc است، طبقِ CLAUDE.md)، به‌جایِ دادهٔ
-        // جعلی صادقانه اعلام می‌کنیم که هنوز آماده نیست.
+
+        // U-REPORTS-CENTER — پیش‌تر این صفحه برایِ هر ۲۲ گزارش داده‌یِ ساختگیِ یکسان نشان می‌داد.
+        // حالا هر گزارش را به کوئریِ واقعیِ متناظرش وصل می‌کند (RunReportQuery برایِ گزارش‌هایِ هسته؛
+        // SalaryReport/AttendanceSummary چون متعلق به ماژول‌هایِ اختیاریِ HR/حضوروغیاب‌اند، مستقیم
+        // این‌جا صدا زده می‌شوند تا هسته به این ماژول‌ها وابسته نشود).
         Results.Clear();
         IsReportReady = false;
-        await _dialogService.ShowWarningAsync($"گزارشِ «{SelectedReport.Name}» هنوز پیاده‌سازی نشده است.");
+
+        await ExecuteAsync(async () =>
+        {
+            var code = SelectedReport.Code;
+
+            if (code is "SalaryReport" or "AttendanceSummary")
+            {
+                if (!_modules.IsEnabled(ModuleService.Hr))
+                {
+                    await _dialogService.ShowWarningAsync("این گزارش به ماژولِ «منابعِ انسانی» تعلق دارد که غیرفعال است.");
+                    return;
+                }
+                var parts = (string.IsNullOrWhiteSpace(ToDate) ? _calendar.GetCurrentPersianDate() : ToDate).Split('/');
+                var year = parts[0]; var month = int.Parse(parts[1]);
+
+                if (code == "SalaryReport")
+                {
+                    var slips = await _mediator.Send(new SamaHesab.Application.HRM.GetSalarySlipsQuery(year, month));
+                    foreach (var s in slips)
+                        Results.Add(new ReportResultRow(s.EmployeeId.ToString(), $"{s.EmployeeName} ({s.Department})",
+                            s.BaseSalary + s.Overtime + s.Allowances, s.Insurance + s.Tax, s.Net));
+                }
+                else
+                {
+                    var employees = await _mediator.Send(new SamaHesab.Application.HRM.GetEmployeesQuery());
+                    foreach (var e in employees)
+                    {
+                        var a = await _mediator.Send(new SamaHesab.Application.HRM.GetMonthlyAttendanceQuery(e.Id, year, (byte)month));
+                        Results.Add(new ReportResultRow(e.Code, e.FullName,
+                            a.Summary.PresentDays, a.Summary.AbsentDays + a.Summary.LeaveDays, a.Summary.WorkedHours));
+                    }
+                }
+                IsReportReady = Results.Count > 0;
+                if (!IsReportReady) await _dialogService.ShowInfoAsync($"گزارشِ «{SelectedReport.Name}» داده‌ای برایِ این بازه ندارد.");
+                return;
+            }
+
+            var result = await _mediator.Send(new SamaHesab.Application.Reports.Queries.RunReportQuery(code, FromDate, ToDate));
+            if (result.Rows is null)
+            {
+                await _dialogService.ShowInfoAsync(result.RedirectMessage ?? $"گزارشِ «{SelectedReport.Name}» هنوز پیاده‌سازی نشده است.");
+                return;
+            }
+            foreach (var r in result.Rows)
+                Results.Add(new ReportResultRow(r.Code, r.Name, r.Debit, r.Credit, r.Balance));
+            IsReportReady = Results.Count > 0;
+            if (!IsReportReady) await _dialogService.ShowInfoAsync($"گزارشِ «{SelectedReport.Name}» داده‌ای برایِ این بازه ندارد.");
+        }, "در حال اجرایِ گزارش...");
     }
 
     [RelayCommand]

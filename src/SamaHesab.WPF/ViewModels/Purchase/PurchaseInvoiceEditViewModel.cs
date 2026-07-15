@@ -64,9 +64,12 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
     public string PostButtonText => IsViewingExisting ? "👁 فاکتورِ ثبت‌شده — فقط مشاهده/چاپ"
                                                        : "✓ ثبت نهایی خرید — F9";
 
+    /// <summary>UX-CRM-SUPPLIER-2: باز شدن با تأمین‌کنندهٔ ازپیش‌انتخاب‌شده (از دکمهٔ «فاکتورِ جدید»یِ
+    /// کارتِ ۳۶۰°ِ یک تأمین‌کننده) — هم‌راستا با PreselectCustomerParamِ فاکتورِ فروش.</summary>
     public async Task OnNavigatedToAsync(object? parameter)
     {
         if (parameter is int id && id > 0) await LoadExistingAsync(id);
+        else if (parameter is PreselectSupplierParam ps && ps.SupplierId > 0) SelectedSupplierId = ps.SupplierId;
     }
 
     private async Task LoadExistingAsync(int id)
@@ -573,3 +576,4 @@ public partial class PurchaseInvoiceItemRow : ObservableObject
 public record SupplierItem(int Id, string Name, string? Mobile, decimal Balance = 0);
 public record WarehouseItem(int Id, string Name);
 public record ProductSearchResult(int Id, string Code, string Name, string? Barcode, decimal Price, decimal TaxRate);
+public record PreselectSupplierParam(int SupplierId);

@@ -38,6 +38,9 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     [ObservableProperty] private string? _visitor;          // کارِ ۱۰: ویزیتور
     [ObservableProperty] private string? _address;
     [ObservableProperty] private string _statusLabel = "فعال";
+    // UX-CRM-SUPPLIER-2: پیش‌تر کارتِ مشترک نمی‌دانست این شخص تأمین‌کننده هم هست یا نه.
+    [ObservableProperty] private bool _isCustomer = true;
+    [ObservableProperty] private bool _isSupplier;
 
     // ── اعتبار / مانده ──
     [ObservableProperty] private decimal _balance;
@@ -71,6 +74,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     // ── مینی‌تب‌ها: گردش حساب / فاکتورها / چک‌ها / تماس‌وپیگیری / اسناد ضمیمه ──
     [ObservableProperty] private int _selectedTab;
     public ObservableCollection<SalesInvoiceRowDto> Invoices { get; } = new();
+    public ObservableCollection<SamaHesab.Application.Purchase.Queries.PurchaseInvoiceRowDto> PurchaseInvoices { get; } = new();
     public ObservableCollection<CustomerChequeRow> Cheques { get; } = new();
 
     [RelayCommand]
@@ -113,7 +117,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
                 c = a == null ? null : new CustomerCardDto(a.Id, a.Name, a.Code, a.CustomerType, a.PriceLevel,
                     a.Mobile, a.Phone, a.NationalCode, a.EconomicCode, a.ContactPerson, a.Visitor,
                     a.Province, a.City, a.Address, a.LoyaltyPoints, a.CreditDays, a.IsActive,
-                    a.Balance, a.CreditLimit, a.ChequeInProgress);
+                    a.Balance, a.CreditLimit, a.ChequeInProgress, a.IsCustomer, a.IsSupplier);
             }
             else c = await _mediator.Send(new GetCustomerCardQuery(customerId));
             if (c == null) { await _dialogService.ShowErrorAsync("مشتری یافت نشد."); return; }
@@ -132,6 +136,7 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             SettlementDays = c.CreditDays;        // R16: مهلت تسویه (روز)
             StatusLabel = c.IsActive ? "فعال" : "غیرفعال";
             ChequeInProgress = c.ChequeInProgress;
+            IsCustomer = c.IsCustomer; IsSupplier = c.IsSupplier;
 
             // اعتبار
             var credit = await _mediator.Send(new GetCustomerCreditQuery(customerId));
@@ -186,6 +191,12 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
             Invoices.Clear();
             foreach (var inv in await _mediator.Send(new GetSalesInvoicesQuery(CustomerId: customerId)))
                 Invoices.Add(inv);
+
+            // UX-CRM-SUPPLIER-2: فاکتورهایِ خریدِ همین شخص، فقط وقتی که واقعاً تأمین‌کننده هم هست.
+            PurchaseInvoices.Clear();
+            if (IsSupplier)
+                foreach (var pinv in await _mediator.Send(new SamaHesab.Application.Purchase.Queries.GetPurchaseInvoicesQuery(SupplierId: customerId)))
+                    PurchaseInvoices.Add(pinv);
 
             // چک‌های ثبت‌شده به‌نامِ همین مشتری
             Cheques.Clear();
@@ -297,8 +308,16 @@ public partial class CustomerCardViewModel : BaseViewModel, SamaHesab.WPF.Servic
     // باگِ بعدیِ کشف‌شده (@2026-07-10): پاس‌دادنِ CustomerId به‌صورتِ int خام باعث می‌شد
     // SalesInvoiceEditViewModel آن را با شناسهٔ فاکتور اشتباه بگیرد (فاکتورِ فردِ دیگری بار می‌شد
     // یا فرم خالی می‌ماند). حالا با PreselectCustomerParam درست تفکیک می‌شود.
-    [RelayCommand] private void NewInvoice()
-        => _navigationService.NavigateTo("SalesInvoice", new SamaHesab.WPF.ViewModels.Sales.PreselectCustomerParam(CustomerId));
+    // UX-CRM-SUPPLIER-2: پیش‌تر این دکمه برایِ شخصی که فقط تأمین‌کننده بود هم فاکتورِ فروش باز
+    // می‌کرد (طرفِ اشتباه). حالا اگر شخص فقط تأمین‌کننده است (نه خریدار)، فاکتورِ خرید باز می‌شود.
+    [RelayCommand]
+    private void NewInvoice()
+    {
+        if (IsSupplier && !IsCustomer)
+            _navigationService.NavigateTo("PurchaseInvoice", new SamaHesab.WPF.ViewModels.Purchase.PreselectSupplierParam(CustomerId));
+        else
+            _navigationService.NavigateTo("SalesInvoice", new SamaHesab.WPF.ViewModels.Sales.PreselectCustomerParam(CustomerId));
+    }
     // دریافت/پرداختِ وجه — باگِ رفع‌شده (@2026-07-10): قبلاً به صفحهٔ لیستِ «Receivables» می‌رفت که
     // پارامترِ مشتری را اصلاً نمی‌خواند (INavigationAware نداشت) و سندِ حسابداری هم ثبت نمی‌کرد.
     // حالا به صفحهٔ واقعیِ «دریافت و پرداختِ وجه» می‌رود که سندِ حسابداری می‌سازد.

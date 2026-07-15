@@ -14,7 +14,10 @@ public record CustomerCardDto(
     string? Mobile, string? Phone, string? NationalCode, string? EconomicCode,
     string? ContactPerson, string? Visitor, string? Province, string? City, string? Address,
     int LoyaltyPoints, int CreditDays, bool IsActive, decimal Balance, decimal CreditLimit,
-    decimal ChequeInProgress);
+    decimal ChequeInProgress,
+    // UX-CRM-SUPPLIER-2: قبلاً کارتِ مشترک هیچ‌راهی نداشت بفهمد این شخص تأمین‌کننده هم هست —
+    // «فاکتورِ جدید» همیشه فروش می‌ساخت و تبِ «فاکتورهایِ خرید» اصلاً وجود نداشت.
+    bool IsCustomer, bool IsSupplier);
 
 public record GetCustomerCardQuery(int CustomerId) : IRequest<CustomerCardDto?>;
 
@@ -37,6 +40,7 @@ public class GetCustomerCardQueryHandler : IRequestHandler<GetCustomerCardQuery,
         return new CustomerCardDto(c.Id, c.FullName, c.Code, c.PartyType, c.PriceLevel,
             c.Mobile, c.Phone, c.NationalCode, c.EconomicCode, c.ContactPerson, c.Visitor,
             c.Province, c.City, c.Address, c.LoyaltyPoints, c.CreditDays, c.IsActive,
-            c.Balance, c.CreditLimit, inProc.Sum(x => x.Amount));
+            c.Balance, c.CreditLimit, inProc.Sum(x => x.Amount),
+            c.IsCustomer, c.IsSupplier);
     }
 }

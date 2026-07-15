@@ -20,7 +20,8 @@ public record ApiCustomerRow(int Id, string Code, string Name, string Mobile, de
 public record ApiCustomerCard(int Id, string Name, string Code, string CustomerType, string PriceLevel,
     string? Mobile, string? Phone, string? NationalCode, string? EconomicCode,
     string? ContactPerson, string? Visitor, string? Province, string? City, string? Address,
-    int LoyaltyPoints, int CreditDays, bool IsActive, decimal Balance, decimal CreditLimit, decimal ChequeInProgress);
+    int LoyaltyPoints, int CreditDays, bool IsActive, decimal Balance, decimal CreditLimit, decimal ChequeInProgress,
+    bool IsCustomer = true, bool IsSupplier = false);
 public record ApiPurchaseInvoiceRow(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 public record ApiWarehouseRow(int Id, string Code, string Name, string Manager, string Address, bool IsDefault, bool IsActive);

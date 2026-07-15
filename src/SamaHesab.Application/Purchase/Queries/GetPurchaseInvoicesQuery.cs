@@ -10,8 +10,10 @@ namespace SamaHesab.Application.Purchase.Queries;
 public record PurchaseInvoiceRowDto(int Id, string Number, string Date, string SupplierName,
     decimal Total, decimal Paid, decimal Remain, string Status);
 
+/// <summary>SupplierId — UX-CRM-SUPPLIER-2: تبِ «فاکتورهایِ خرید» در کارتِ ۳۶۰°ِ تأمین‌کننده،
+/// هم‌راستا با CustomerIdِ GetSalesInvoicesQuery.</summary>
 public record GetPurchaseInvoicesQuery(string? FromDate = null, string? ToDate = null,
-    string? Search = null) : IRequest<List<PurchaseInvoiceRowDto>>;
+    string? Search = null, int? SupplierId = null) : IRequest<List<PurchaseInvoiceRowDto>>;
 
 public class GetPurchaseInvoicesQueryHandler : IRequestHandler<GetPurchaseInvoicesQuery, List<PurchaseInvoiceRowDto>>
 {
@@ -30,7 +32,9 @@ public class GetPurchaseInvoicesQueryHandler : IRequestHandler<GetPurchaseInvoic
     public async Task<List<PurchaseInvoiceRowDto>> Handle(GetPurchaseInvoicesQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _invoices.FindAsync(i => i.CompanyId == companyId, ct);
+        var list = req.SupplierId is int sid
+            ? await _invoices.FindAsync(i => i.CompanyId == companyId && i.SupplierId == sid, ct)
+            : await _invoices.FindAsync(i => i.CompanyId == companyId, ct);
         var suppliers = (await _suppliers.FindAsync(s => s.CompanyId == companyId && s.IsSupplier, ct))
             .ToDictionary(s => s.Id, s => s.FullName);
 

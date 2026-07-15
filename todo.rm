@@ -24,7 +24,8 @@
 
 9. **`Party.Balance` بهتر است مقدارِ محاسبه‌شده باشد، نه دستی‌نگه‌داشته‌شده.** پیشنهاد: ستونِ جداگانه برایِ «ماندهٔ اولیه/تعدیلِ دستی» تا با فاکتورهایِ سیستم قاطی نشود — این کلاس از باگ (مثلِ U-PARTY-BAL که این چرخه رفع شد) را ریشه‌کن می‌کند. کارِ بلندمدت، نه فوری.
 
-10. **لایسنسِ per-module هنوز واقعاً اعمال نمی‌شود.** `ModuleService.SetEnabled`/`TrySetEnabled` فقط core-lock/تداخل چک می‌کنند، نه entitlement واقعی — برخلافِ ادعایِ مستنداتِ پروژه. همچنین `CompanySettingsView`/`UserManagementView` هنوز استابِ صادقانهٔ «در حالِ توسعه» با ViewModelِ mock‌اند.
+10. ✅ **لایسنسِ per-module — انجام شد (U-LIC-MODULE، @2026-07-15).** پیش‌تر `ModuleService.SetEnabled`/`TrySetEnabled` فقط core-lock/تداخل چک می‌کردند، نه entitlement واقعی؛ `LicenseInfo`/`RsaLicense` فقط سطحِ کلِ برنامه بود (بدونِ فهرستِ ماژول). رفع شد **بدونِ نیازِ تغییرِ schemaِ لایسنسِ امضاشده** (از `Tier` که از قبل در `LicenseInfo` بود استفاده شد، پس لایسنس‌هایِ قبلاً صادرشده معتبر می‌مانند): `ModuleEntitlements` نو (`src/SamaHesab.Application/Licensing/`) نگاشتِ Tier→ماژول‌هایِ مجاز — Starter=فقط هسته، Professional=+POS/رستوران/CRM، Enterprise=همه، Trial=همه (محدودیتِ تریال از زمان/سند می‌آید نه ماژول). `ModuleService` حالا `LicenseService` را تزریق می‌گیرد و `IsModuleLicensed`/`SetEnabled`/`TrySetEnabled`/`ReplaceEnabled`/`Load` همه این نگاشت را اعمال می‌کنند؛ پیامِ خطایِ ارتقایِ بسته در UIِ موجود (`ModulesViewModel`/`ModuleMarketplaceViewModel`) بدونِ تغییرِ اضافی نمایش داده می‌شود (همان مسیرِ خطایِ TrySetEnabled). ۴ تستِ رگرسیونِ نو.
+    ⏭️ **باقی‌مانده (خارج از حدودِ این آیتم):** `CompanySettingsView`/`UserManagementView` هنوز فقط یک TextBlockِ «در حالِ توسعه...»اند (حتی mock ViewModel هم ندارند) — این‌ها موردی جدا و بزرگ‌ترند، نه بخشی از این رفع.
 
 11. **یکدستیِ کلیدهایِ F بینِ ماژول‌ها + یکدستیِ نمایشِ اعدادِ فارسی/لاتین.** بزرگ‌ترین موردِ بازِ باقی‌مانده از ممیزیِ UXِ قبلی — نیازِ یک پاسِ سیستماتیک روی همهٔ فرم‌ها.
 

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using SamaHesab.Application.Licensing;
 
 namespace SamaHesab.WPF.Services;
 
@@ -67,26 +68,43 @@ public class ModuleService
     /// <summary>مسیرِ فایلِ تنظیماتِ ماژول (برای کپیِ دستی بین ماشین‌ها).</summary>
     public static string ConfigFilePath => FilePath;
 
+    private readonly LicenseService _license;
     private HashSet<string> _enabled;
     public event Action? Changed;
 
-    public ModuleService() => _enabled = Load();
+    public ModuleService(LicenseService license)
+    {
+        _license = license;
+        _enabled = Load();
+    }
 
     /// <summary>آیا ماژول فعال است؟ (هسته همیشه true).</summary>
     public bool IsEnabled(string key)
         => CoreModules.Any(m => m.Key == key) || _enabled.Contains(key);
+
+    /// <summary>
+    /// U-LIC-MODULE — آیا ماژولِ اختیاریِ <paramref name="key"/> در بستهٔ لایسنسِ فعلی مجاز است؟
+    /// هسته و کلاینت‌هایِ فروش (Web/Mobile — هنوز جزوِ قیمت‌گذاریِ per-module نیستند) همیشه مجازند.
+    /// </summary>
+    public bool IsModuleLicensed(string key)
+    {
+        if (CoreModules.Any(m => m.Key == key) || key == Web || key == Mobile) return true;
+        var tier = _license.GetStatus().License?.Tier ?? LicenseTier.Trial;
+        return ModuleEntitlements.IsAllowed(tier, key);
+    }
 
     public void SetEnabled(string key, bool enabled)
     {
         if (CoreModules.Any(m => m.Key == key)) return;   // هسته غیرقابل تغییر
         // کنترلِ تداخل: ماژولی که با یک ماژولِ فعالِ دیگر تداخل دارد، فعال نمی‌شود.
         if (enabled && EnabledConflictName(key) is not null) return;
+        if (enabled && !IsModuleLicensed(key)) return;   // U-LIC-MODULE: خارج از بستهٔ لایسنسِ فعلی
         if (enabled) _enabled.Add(key); else _enabled.Remove(key);
         Save();
         Changed?.Invoke();
     }
 
-    /// <summary>تلاش برای فعال/غیرفعال‌سازی با گزارشِ خطای تداخل (برای UI).</summary>
+    /// <summary>تلاش برای فعال/غیرفعال‌سازی با گزارشِ خطای تداخل/لایسنس (برای UI).</summary>
     public bool TrySetEnabled(string key, bool enabled, out string? error)
     {
         error = null;
@@ -95,6 +113,12 @@ public class ModuleService
         {
             var name = AllModules.FirstOrDefault(m => m.Key == key)?.Name ?? key;
             error = $"«{name}» با «{conflict}» تداخل دارد و هم‌زمان فعال نمی‌شود.";
+            return false;
+        }
+        if (enabled && !IsModuleLicensed(key))
+        {
+            var name = AllModules.FirstOrDefault(m => m.Key == key)?.Name ?? key;
+            error = $"«{name}» در بستهٔ لایسنسِ فعلیِ شما نیست. برایِ فعال‌سازی، بستهٔ لایسنس را ارتقا دهید.";
             return false;
         }
         SetEnabled(key, enabled);
@@ -141,7 +165,9 @@ public class ModuleService
         // باید از همین حالا درست باشد.
         var accepted = new HashSet<string>();
         foreach (var k in keys.Where(valid.Contains).Distinct())
-            if (!ConflictsOf(k).Any(accepted.Contains)) accepted.Add(k);
+            // U-LIC-MODULE: وارد‌کردنِ modules.json از ماشینِ دیگر (بستهٔ لایسنسِ بالاتر) نباید
+            // ماژولی خارج از بستهٔ لایسنسِ این ماشین را فعال کند.
+            if (!ConflictsOf(k).Any(accepted.Contains) && IsModuleLicensed(k)) accepted.Add(k);
         _enabled = accepted;
         Save();
         Changed?.Invoke();
@@ -157,9 +183,10 @@ public class ModuleService
                 if (arr != null)
                 {
                     // هرسِ کلیدهای دیگر-ارائه‌نشده (مثلِ ماژولِ فعلاً غیرفعال‌شده): modules.jsonِ کهنه
-                    // نباید ماژولِ خارج‌شده از فهرست را روشن نگه دارد.
+                    // نباید ماژولِ خارج‌شده از فهرست را روشن نگه دارد. U-LIC-MODULE: همچنین اگر لایسنس
+                    // پس از فعال‌سازیِ قبلی downgrade شده باشد، ماژولِ خارج از بسته دیگر روشن نمی‌ماند.
                     var valid = OptionalModules.Select(m => m.Key).ToHashSet();
-                    return new HashSet<string>(arr.Where(valid.Contains));
+                    return new HashSet<string>(arr.Where(valid.Contains).Where(IsModuleLicensed));
                 }
             }
         }
@@ -167,7 +194,7 @@ public class ModuleService
         // پیش‌فرضِ یکپارچه (در گیت، منبعِ واحدِ همهٔ ماشین‌ها): چون هر ماشین DB محلیِ خودش را دارد،
         // تنها کانالِ مشترک git است؛ پس مجموعهٔ پیش‌فرض این‌جا تعریف می‌شود تا منوها بین PC/لپ‌تاپ یکسان بماند.
         // گردشگری/هتل خاموش. برای تفاوتِ عمدیِ هر ماشین از «خروجی/ورودیِ تنظیمات» استفاده شود.
-        return new HashSet<string> { Pos, Restaurant, Hr, Crm, Support };
+        return new HashSet<string>(new[] { Pos, Restaurant, Hr, Crm, Support }.Where(IsModuleLicensed));
     }
 
     private void Save()

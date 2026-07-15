@@ -87,7 +87,10 @@
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsTrial, Converter={StaticResource BoolVis}}">
             <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding TrialRows}" RowHeight="26"
-                                >
+                      SelectedItem="{Binding SelectedTrialRow, Mode=TwoWay}" ToolTip="دوبارکلیک: بازکردنِ دفترِ معینِ این حساب">
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding DrillToLedgerCommand}"/>
+                </DataGrid.InputBindings>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد حساب" Binding="{Binding Code}" Width="150"/>
                     <DataGridTextColumn Header="نام حساب" Binding="{Binding Name}" Width="*"/>

@@ -5,7 +5,8 @@ using SamaHesab.Domain.Interfaces.Repositories;
 namespace SamaHesab.Application.Reports.Queries;
 
 // ── DTOs ─────────────────────────────────────────────────────────────────────
-public record TrialBalanceRow(string Code, string Name, decimal Debit, decimal Credit, decimal Balance);
+/// <summary>AccountId — U-ACCT-DRILLDOWN: امکانِ رفتن از تراز آزمایشی به دفترِ معینِ همان حساب.</summary>
+public record TrialBalanceRow(string Code, string Name, decimal Debit, decimal Credit, decimal Balance, int AccountId = 0);
 public record LedgerRow(string Date, string VoucherNumber, string Code, string Name,
     string? Description, decimal Debit, decimal Credit, decimal Balance);
 public record PlLine(string Code, string Name, decimal Amount);
@@ -43,7 +44,7 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
                 var (code, name) = accounts.TryGetValue(g.Key, out var acc) ? acc : ($"#{g.Key}", "");
                 var debit = g.Sum(x => x.Debit);
                 var credit = g.Sum(x => x.Credit);
-                return new TrialBalanceRow(code, name, debit, credit, debit - credit);
+                return new TrialBalanceRow(code, name, debit, credit, debit - credit, g.Key);
             })
             .OrderBy(r => r.Code)
             .ToList();

@@ -56,6 +56,8 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
     [ObservableProperty] private decimal _totalLiabEquity;
     [ObservableProperty] private bool _balanceOk;
 
+    [ObservableProperty] private TrialBalanceRow? _selectedTrialRow;
+
     public List<string> ReportTypes { get; } = new() { "تراز آزمایشی", "دفتر کل / معین", "سود و زیان", "ترازنامه", "صورت جریان وجوه" };
     public ObservableCollection<TrialBalanceRow> TrialRows { get; } = new();
     public ObservableCollection<LedgerRow> LedgerRows { get; } = new();
@@ -124,6 +126,16 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
             SelectedReportType = reportType == "Ledger" ? "دفتر کل / معین" : "تراز آزمایشی";
             await RunAsync();
         }
+    }
+
+    /// <summary>U-ACCT-DRILLDOWN — دوبارکلیک روی ردیفِ تراز آزمایشی → دفترِ معینِ همان حساب.</summary>
+    [RelayCommand]
+    private async Task DrillToLedgerAsync()
+    {
+        if (SelectedTrialRow is not { AccountId: > 0 } row) return;
+        SelectedReportType = "دفتر کل / معین";
+        SelectedAccountId = row.AccountId;
+        await RunAsync();
     }
 
     partial void OnSelectedReportTypeChanged(string value)

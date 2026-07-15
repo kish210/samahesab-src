@@ -184,8 +184,9 @@ public partial class VoucherListViewModel : BaseViewModel, SamaHesab.WPF.Service
 
     public void RequestNew() => NewVoucher();   // F2-GLOBAL
 
-    [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports");
-    [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports");
+    // U-UX-ACCT-2: قبلاً بدونِ پارامتر بودند و هر دو دکمه عملاً تراز آزمایشی را باز می‌کردند.
+    [RelayCommand] private void Ledger() => _navigationService.NavigateTo("FinancialReports", "Ledger");
+    [RelayCommand] private void TrialBalance() => _navigationService.NavigateTo("FinancialReports", "TrialBalance");
 
     /// <summary>T22 — ارسالِ سندِ انتخاب‌شده برای تأیید (وارد کردنِ آن به گردش‌کار).</summary>
     [RelayCommand]

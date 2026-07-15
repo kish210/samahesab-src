@@ -20,6 +20,12 @@ public abstract partial class BaseViewModel : ObservableObject
     {
         IsLoading = true; LoadingMessage = loadingMsg;
         try { await action(); }
+        catch (Exception ex)
+        {
+            // U-UX-ACCT-1: پیش‌تر خطا اینجا مدیریت نمی‌شد و تا DispatcherUnhandledException بالا
+            // می‌رفت — یعنی هر خطایِ معمولیِ کوئری/شبکه به‌عنوانِ باگِ فاجعه‌بار نشان داده می‌شد.
+            await _dialogService.ShowErrorAsync(ex.Message);
+        }
         finally { IsLoading = false; }
     }
 }

@@ -104,13 +104,24 @@ public partial class FinancialReportsViewModel : BaseViewModel, SamaHesab.WPF.Se
         await RunAsync();
     }
 
-    /// <summary>ورود با پارامترِ شناسهٔ حساب → بازکردنِ «دفتر کل» همان حساب (از نمودار حساب‌ها).</summary>
+    /// <summary>
+    /// ورود با پارامترِ شناسهٔ حساب → بازکردنِ «دفتر کل» همان حساب (از نمودار حساب‌ها).
+    /// ورود با پارامترِ رشته‌ای «Ledger»/«TrialBalance» → بازکردنِ همان نوعِ گزارش (از دکمه‌هایِ
+    /// «دفتر کل»/«تراز آزمایشی» در VoucherListView — U-UX-ACCT-2: پیش‌تر هر دو دکمه بدونِ پارامتر
+    /// همین صفحه را باز می‌کردند و چون پیش‌فرضِ SelectedReportType «تراز آزمایشی» بود، کلیکِ «دفتر کل»
+    /// هم عملاً همیشه تراز آزمایشی را نشان می‌داد.
+    /// </summary>
     public async Task OnNavigatedToAsync(object? parameter)
     {
         if (parameter is int accountId && accountId > 0)
         {
             SelectedReportType = "دفتر کل / معین";   // → IsLedger=true
             SelectedAccountId = accountId;
+            await RunAsync();
+        }
+        else if (parameter is string reportType && reportType is "Ledger" or "TrialBalance")
+        {
+            SelectedReportType = reportType == "Ledger" ? "دفتر کل / معین" : "تراز آزمایشی";
             await RunAsync();
         }
     }

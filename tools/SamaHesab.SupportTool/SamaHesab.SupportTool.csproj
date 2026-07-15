@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- ابزارِ گرافیکیِ آفلاینِ صدورِ «کدِ ریستِ پشتیبانی» (U-SUPPORT-RESET). فقط دستِ پشتیبانی/وندور
-       اجرا می‌شود — کلیدِ خصوصیِ RSA هرگز در این مخزن یا در برنامهٔ کلاینت نیست؛ به‌عنوانِ یک فایلِ
-       PEM محلی (خارج از git) از طریقِ همین برنامه انتخاب می‌شود. -->
+  <!-- ابزارِ گرافیکیِ (WinForms) آفلاینِ صدورِ «کدِ ریستِ پشتیبانی» (U-SUPPORT-RESET). فقط دستِ
+       پشتیبانی/وندور اجرا می‌شود — کلیدِ خصوصیِ RSA هرگز در این مخزن یا در برنامهٔ کلاینت نیست؛
+       از یک فایلِ PEM محلی (خارج از git) از طریقِ همین برنامه انتخاب می‌شود. -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
@@ -10,7 +10,7 @@
     <RootNamespace>SamaHesab.SupportTool</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>

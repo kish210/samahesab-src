@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:ctl="clr-namespace:SamaHesab.WPF.Controls"
+             xmlns:conv="clr-namespace:SamaHesab.WPF.Converters"
              Background="{DynamicResource AppBackground}"
              FontFamily="{StaticResource VazirFont}"
              FlowDirection="RightToLeft">
@@ -17,6 +18,7 @@
             <Setter Property="TextAlignment" Value="Left"/>
             <Setter Property="Margin" Value="8,0"/>
         </Style>
+        <conv:IntEqualsVisibilityConverter x:Key="IntEqVis"/>
     </UserControl.Resources>
     <Grid Margin="2">
         <Grid.RowDefinitions>
@@ -86,6 +88,7 @@
         <!-- ═══ Trial Balance ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsTrial, Converter={StaticResource BoolVis}}">
+            <Grid>
             <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding TrialRows}" RowHeight="26"
                       SelectedItem="{Binding SelectedTrialRow, Mode=TwoWay}" ToolTip="دوبارکلیک: بازکردنِ دفترِ معینِ این حساب">
                 <DataGrid.InputBindings>
@@ -99,11 +102,16 @@
                     <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="160" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
+            <TextBlock Text="در این بازهٔ تاریخ سندی ثبت نشده."
+                       Visibility="{Binding TrialRows.Count, Converter={StaticResource IntEqVis}, ConverterParameter=0}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryText}" FontSize="13"/>
+            </Grid>
         </Border>
 
         <!-- ═══ General / Detailed Ledger ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpCardPanel}" Padding="0"
                 Visibility="{Binding IsLedger, Converter={StaticResource BoolVis}}">
+            <Grid>
             <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding LedgerRows}" RowHeight="26"
                                 >
                 <DataGrid.Columns>
@@ -117,6 +125,11 @@
                     <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="150" ElementStyle="{StaticResource NumCell}"/>
                 </DataGrid.Columns>
             </DataGrid>
+            <TextBlock Text="یک حساب انتخاب کنید — یا اگر انتخاب کرده‌اید، در این بازه سندی برایِ آن ثبت نشده."
+                       Visibility="{Binding LedgerRows.Count, Converter={StaticResource IntEqVis}, ConverterParameter=0}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                       TextWrapping="Wrap" MaxWidth="380" Foreground="{DynamicResource SecondaryText}" FontSize="13"/>
+            </Grid>
         </Border>
 
         <!-- ═══ Profit & Loss ═══ -->

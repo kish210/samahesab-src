@@ -180,7 +180,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             decimal totalCost = 0;
 
             // ── Reduce warehouse stock (only for inventory-tracked products = کالا) ──
-            if (request.InvoiceType == Domain.Enums.InvoiceType.Sale)
+            if (request.InvoiceType == Domain.Enums.InvoiceType.Sale
+                || request.InvoiceType == Domain.Enums.InvoiceType.Consignment)
             {
                 foreach (var dto in request.Items)
                 {
@@ -216,9 +217,12 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                             throw new InvalidOperationException(serialRes.ErrorMessage);
                     }
 
-                    // kardex ledger entry (outflow)
+                    // kardex ledger entry (outflow) — کنسینمنت برچسبِ جدا می‌گیرد تا با فروشِ واقعی
+                    // قاطی نشود (کالا هنوز مالِ شرکت است، فقط جایِ فیزیکی‌اش عوض شده).
+                    var kardexLabel = request.InvoiceType == Domain.Enums.InvoiceType.Consignment
+                        ? "خروج کنسینمنت" : "خروج فروش";
                     await _ledger.AddAsync(Domain.Entities.Inventory.StockTransaction.Create(
-                        companyId, request.BranchId, "خروج فروش", invoiceNumber, request.InvoiceDate,
+                        companyId, request.BranchId, kardexLabel, invoiceNumber, request.InvoiceDate,
                         dto.ProductId, request.WarehouseId, -dto.Quantity, unitCost,
                         stock.Quantity, stock.Quantity * stock.AverageCost,
                         "SalesInvoice", invoice.Id, null), ct);
@@ -252,11 +256,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             }
 
             // ── Automatic accounting voucher ──
-            // پیش‌فاکتور (Quotation)/حواله سندِ مالی نمی‌سازند؛ فقط فروش و برگشت از فروش.
+            // پیش‌فاکتور (Quotation) سندِ مالی نمی‌سازد. کنسینمنت سندِ reclassification می‌سازد
+            // (نه سندِ درآمد/COGS — U-CONSIGN-2).
             if (request.InvoiceType == Domain.Enums.InvoiceType.SaleReturn)
                 await TryCreateSalesReturnVoucherAsync(invoice, companyId, request, totalCost, ct);
             else if (request.InvoiceType == Domain.Enums.InvoiceType.Sale)
                 await TryCreateSalesVoucherAsync(invoice, companyId, request, totalCost, ct);
+            else if (request.InvoiceType == Domain.Enums.InvoiceType.Consignment)
+                await TryCreateConsignmentVoucherAsync(invoice, companyId, request, totalCost, ct);
 
             // کار #۵ — اگر سندِ خودکار به‌خاطرِ نبودِ چارتِ حساب ساخته نشد، فاکتور نباید در «پیش‌نویس» بماند؛
             // حداقل «قطعی» (Confirmed) شود تا در گزارش‌ها/تحلیل‌ها (سود/فروش) لحاظ گردد.
@@ -378,6 +385,43 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
 
         // INV-1 گام۴ — معکوسِ COGS: کالا به انبار بازگشت ⇒ بد «موجودی کالا» / بس «بهای تمام‌شده».
         await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: true, row, ct);
+
+        await _voucherRepository.AddAsync(voucher, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        if (voucher.CanPost())
+            voucher.Post(_currentUser.UserId ?? 1);
+        _voucherRepository.Update(voucher);
+
+        invoice.Post(_currentUser.UserId ?? 1, voucher.Id);
+        _invoiceRepository.Update(invoice);
+    }
+
+    /// <summary>
+    /// U-CONSIGN-2 — کنسینمنت مالکیت را منتقل نمی‌کند (کالا نزدِ کنسینی امانت است): بدونِ درآمد،
+    /// بدونِ COGS، بدونِ بدهیِ مشتری. فقط reclassificationِ درونِ داراییِ موجودی به بهایِ تمام‌شده
+    /// (نه قیمتِ فروش): بد «کالای امانی نزدِ دیگران» (۱-۰۵-۰۰۳) / بس «موجودی کالا» (۱-۰۵-۰۰۱).
+    /// بدونِ اثر بر سود/زیان. تسویهٔ نهایی (وقتی کنسینی واقعاً فروخت) قابلیتِ جداگانه‌ای است که هنوز
+    /// پیاده نشده — مستند در todo.rm.
+    /// </summary>
+    private async Task TryCreateConsignmentVoucherAsync(SalesInvoice invoice, int companyId,
+        CreateSalesInvoiceCommand request, decimal totalCost, CancellationToken ct)
+    {
+        if (invoice.InvoiceType != Domain.Enums.InvoiceType.Consignment || totalCost <= 0) return;
+
+        var consignmentOut = await _accountRepository.GetByCodeAsync(
+            companyId, Inventory.Commands.InventoryAccounting.ConsignmentOut, ct);
+        var inventory = await _accountRepository.GetByCodeAsync(
+            companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+        if (consignmentOut == null || inventory == null) return; // چارت تنظیم نشده → بی‌صدا رد شو
+
+        var number = await _voucherRepository.GetNextNumberAsync(companyId, ct);
+        var voucher = Voucher.Create(companyId, request.BranchId, request.FiscalYearId,
+            number, request.InvoiceDate, 3 /*Sale*/, $"سندِ خودکارِ ارسالِ کنسینمنت {invoice.InvoiceNumber}",
+            invoice.InvoiceNumber);
+
+        voucher.AddItem(VoucherItem.Create(0, 1, consignmentOut.Id, totalCost, 0, "کالای ارسالی به‌صورتِ امانی"));
+        voucher.AddItem(VoucherItem.Create(0, 2, inventory.Id, 0, totalCost, "کاهشِ موجودیِ انبار (کنسینمنت)"));
 
         await _voucherRepository.AddAsync(voucher, ct);
         await _unitOfWork.SaveChangesAsync(ct);

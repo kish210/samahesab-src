@@ -178,12 +178,17 @@ public class ConsignmentNumberingTests
         public Task Publish<TNotification>(TNotification n, CancellationToken ct = default) where TNotification : INotification => Task.CompletedTask;
     }
 
-    private static (CreateSalesInvoiceCommandHandler Handler, FakeRepo<SalesInvoice> Invoices) Build()
+    private static (CreateSalesInvoiceCommandHandler Handler, FakeRepo<SalesInvoice> Invoices,
+        FakeAccountRepo Accounts, FakeVoucherRepo Vouchers, FakeStockRepo Stock, FakeRepo<Party> Customers)
+        Build(bool withConsignmentAccount = true)
     {
         var accounts = new FakeAccountRepo();
         accounts.AddAsync(Account.Create(1, "1-03-001", "دریافتنی", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
         accounts.AddAsync(Account.Create(1, "6-01-001", "درآمد فروش", AccountLevel.Subsidiary, AccountNature.Credit, "درآمد")).Wait();
         accounts.AddAsync(Account.Create(1, "1-01-001", "صندوق", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
+        accounts.AddAsync(Account.Create(1, "1-05-001", "موجودی کالا", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
+        if (withConsignmentAccount)
+            accounts.AddAsync(Account.Create(1, "1-05-003", "کالای امانی نزدِ دیگران", AccountLevel.Subsidiary, AccountNature.Debit, "دارایی")).Wait();
 
         var products = new FakeProductRepo();
         products.AddAsync(Product.Create(1, "P1", "کالایِ آزمایشی", 1, 100_000, 60_000)).Wait();
@@ -196,14 +201,18 @@ public class ConsignmentNumberingTests
         var fiscalYears = new FakeRepo<FiscalYear>();
         fiscalYears.AddAsync(FiscalYear.Create(1, "۱۴۰۵", "1405/01/01", "1405/12/29")).Wait();
 
+        var customers = new FakeRepo<Party>();
+        customers.AddAsync(Party.Create(1, "M1001", "حقیقی", "مشتری", "آزمایشی", isCustomer: true)).Wait();
+
         var invoices = new FakeRepo<SalesInvoice>();
+        var vouchers = new FakeVoucherRepo();
         var handler = new CreateSalesInvoiceCommandHandler(
             invoices, new FakeUow(), new FakeUser(), new FakeCalendar(),
-            stock, products, accounts, new FakeVoucherRepo(),
-            new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), new FakeRepo<Party>(),
+            stock, products, accounts, vouchers,
+            new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), customers,
             fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator());
 
-        return (handler, invoices);
+        return (handler, invoices, accounts, vouchers, stock, customers);
     }
 
     private static CreateSalesInvoiceCommand MakeCommand(InvoiceType type) => new(
@@ -216,7 +225,7 @@ public class ConsignmentNumberingTests
     [Fact]
     public async Task Consignment_Invoice_Number_Does_Not_Collide_With_Sale_Invoice_Number()
     {
-        var (handler, invoices) = Build();
+        var (handler, invoices, _, _, _, _) = Build();
 
         var saleRes = await handler.Handle(MakeCommand(InvoiceType.Sale), default);
         var consignRes = await handler.Handle(MakeCommand(InvoiceType.Consignment), default);
@@ -230,5 +239,84 @@ public class ConsignmentNumberingTests
         Assert.NotEqual(saleNumber, consignNumber);
         Assert.StartsWith("HV", consignNumber);
         Assert.StartsWith("F", saleNumber);
+    }
+
+    // ── U-CONSIGN-2 — سندِ reclassification (بدونِ درآمد/COGS/بدهیِ مشتری)، با تستِ زندهٔ
+    // رویِ DBِ واقعی هم تأیید شد (به‌عنوانِ حسابدارِ ایرانی: کالای امانی مالکیتش منتقل نشده). ──
+
+    [Fact]
+    public async Task Consignment_Reduces_Warehouse_Stock_By_Sold_Quantity()
+    {
+        var (handler, _, _, _, stock, _) = Build();
+
+        var res = await handler.Handle(MakeCommand(InvoiceType.Consignment) with { Items =
+            new List<SalesInvoiceItemDto> { new(1, Quantity: 5, UnitPrice: 100_000, DiscountPct: 0, TaxPct: 9, Description: null, BatchId: null, SerialId: null) } }, default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        Assert.Equal(95, stock.Items.Single(s => s.ProductId == 1 && s.WarehouseId == 1).Quantity);
+    }
+
+    [Fact]
+    public async Task Consignment_Posts_Balanced_Voucher_At_Cost_Not_Sale_Price()
+    {
+        var (handler, _, accounts, vouchers, _, _) = Build();
+
+        // ۵ واحد × قیمتِ فروشِ ۱۰۰٬۰۰۰ (+٪۹ مالیات) — ولی بهایِ تمام‌شده ۶۰٬۰۰۰ است.
+        var res = await handler.Handle(MakeCommand(InvoiceType.Consignment) with { Items =
+            new List<SalesInvoiceItemDto> { new(1, Quantity: 5, UnitPrice: 100_000, DiscountPct: 0, TaxPct: 9, Description: null, BatchId: null, SerialId: null) } }, default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var v = vouchers.Saved!;
+        Assert.True(v.IsBalanced());
+
+        var consignmentOut = accounts.Items.Single(a => a.Code == "1-05-003");
+        var inventory = accounts.Items.Single(a => a.Code == "1-05-001");
+        // بهایِ تمام‌شده = ۵ × ۶۰٬۰۰۰ = ۳۰۰٬۰۰۰ — نه مبلغِ فروشِ ۵۴۵٬۰۰۰ (با مالیات).
+        Assert.Equal(300_000m, v.Items.Single(i => i.AccountId == consignmentOut.Id).Debit);
+        Assert.Equal(300_000m, v.Items.Single(i => i.AccountId == inventory.Id).Credit);
+        Assert.DoesNotContain(v.Items, i => i.Debit == 545_000m || i.Credit == 545_000m);
+    }
+
+    [Fact]
+    public async Task Consignment_Does_Not_Touch_Revenue_Or_Receivable_Accounts()
+    {
+        var (handler, _, accounts, vouchers, _, _) = Build();
+
+        var res = await handler.Handle(MakeCommand(InvoiceType.Consignment), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        var v = vouchers.Saved!;
+        var revenue = accounts.Items.Single(a => a.Code == "6-01-001");
+        var receivable = accounts.Items.Single(a => a.Code == "1-03-001");
+        Assert.DoesNotContain(v.Items, i => i.AccountId == revenue.Id);
+        Assert.DoesNotContain(v.Items, i => i.AccountId == receivable.Id);
+    }
+
+    [Fact]
+    public async Task Consignment_Does_Not_Change_Customer_Balance()
+    {
+        var (handler, _, _, _, _, customers) = Build();
+        var customer = customers.Items.Single();
+        var balanceBefore = customer.Balance;
+
+        var res = await handler.Handle(MakeCommand(InvoiceType.Consignment), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        Assert.Equal(balanceBefore, customer.Balance);
+    }
+
+    [Fact]
+    public async Task Consignment_Falls_Back_To_Draft_When_Consignment_Account_Missing_From_Chart()
+    {
+        var (handler, invoices, _, vouchers, stock, _) = Build(withConsignmentAccount: false);
+
+        var res = await handler.Handle(MakeCommand(InvoiceType.Consignment), default);
+
+        Assert.True(res.Succeeded, res.ErrorMessage);
+        Assert.Null(vouchers.Saved);   // چارت ناقص → بی‌صدا رد شد، سندی ساخته نشد
+        // با اینِ‌حال کالا فیزیکاً جابه‌جا شده — رفتارِ انبار مستقلِ از کامل‌بودنِ چارتِ حساب‌هاست.
+        Assert.Equal(99, stock.Items.Single(s => s.ProductId == 1 && s.WarehouseId == 1).Quantity);
+        var invoice = invoices.Items.Single(i => i.Id == res.Value);
+        Assert.Equal(InvoiceStatus.Confirmed, invoice.Status);
     }
 }

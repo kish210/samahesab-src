@@ -43,7 +43,7 @@ public class AuthenticateCommandHandler : IRequestHandler<AuthenticateCommand, R
             user.RecordFailedAttempt();
             _users.Update(user);
             await _audit.AddAsync(AuditLog.Create("LoginFailed", user.Id, user.Username,
-                "Sec.Users", user.Id.ToString(), null, req.IpAddress), ct);
+                "Sec.Users", user.Id.ToString(), null, req.IpAddress, companyId: req.CompanyId), ct);
             await _uow.SaveChangesAsync(ct);
             return Result<AuthResult>.Failure("نام کاربری یا رمز عبور نادرست است.");
         }
@@ -51,7 +51,7 @@ public class AuthenticateCommandHandler : IRequestHandler<AuthenticateCommand, R
         user.RecordSuccessfulLogin();
         _users.Update(user);
         await _audit.AddAsync(AuditLog.Create("Login", user.Id, user.Username,
-            "Sec.Users", user.Id.ToString(), null, req.IpAddress), ct);
+            "Sec.Users", user.Id.ToString(), null, req.IpAddress, companyId: req.CompanyId), ct);
         await _uow.SaveChangesAsync(ct);
 
         // نقش‌ها و مجوزهای واقعیِ کاربر (RBAC).

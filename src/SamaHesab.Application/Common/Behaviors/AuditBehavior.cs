@@ -146,7 +146,8 @@ public class AuditBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
                 if (!rule.Sensitive)
                     try { payload = AuditPayload.Serialize((object)request); } catch { /* ignore */ }
                 await _audit.AddAsync(AuditLog.Create(
-                    rule.AuditAction, _user.UserId, _user.Username, tableName: rule.Table, recordId: null, newValues: payload), ct);
+                    rule.AuditAction, _user.UserId, _user.Username, tableName: rule.Table, recordId: null,
+                    newValues: payload, companyId: _user.CompanyId), ct);
                 await _uow.SaveChangesAsync(ct);
             }
             catch { /* حسابرسی best-effort است */ }

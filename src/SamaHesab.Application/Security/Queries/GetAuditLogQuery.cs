@@ -19,17 +19,22 @@ public class GetAuditLogQueryHandler : IRequestHandler<GetAuditLogQuery, List<Au
 {
     private readonly IRepository<AuditLog> _audit;
     private readonly IPersianCalendarService _calendar;
+    private readonly ICurrentUserService _user;
 
-    public GetAuditLogQueryHandler(IRepository<AuditLog> audit, IPersianCalendarService calendar)
-    { _audit = audit; _calendar = calendar; }
+    public GetAuditLogQueryHandler(IRepository<AuditLog> audit, IPersianCalendarService calendar, ICurrentUserService user)
+    { _audit = audit; _calendar = calendar; _user = user; }
 
     public async Task<List<AuditLogDto>> Handle(GetAuditLogQuery req, CancellationToken ct)
     {
         var days = req.DaysBack <= 0 ? 30 : req.DaysBack;
         var since = DateTime.Now.AddDays(-days);
         var rows = await _audit.FindAsync(a => a.CreatedAt >= since, ct);
+        // U-SEC-AUDIT-COMPANY: ردیفِ بدونِ CompanyId (پیش از مهاجرت) هنوز نشان داده می‌شود
+        // (سازگاریِ عقب‌رو)؛ ردیفِ شرکتِ دیگر دیده نمی‌شود.
+        var companyId = _user.CompanyId;
 
         return rows
+            .Where(a => a.CompanyId == null || a.CompanyId == companyId)
             .Where(a => string.IsNullOrWhiteSpace(req.Action) || a.Action == req.Action)
             .OrderByDescending(a => a.CreatedAt)
             .Take(req.MaxRows <= 0 ? 500 : req.MaxRows)

@@ -45,9 +45,17 @@ public class AuditLogQueryTests
         public string NumberToWords(decimal number) => "";
     }
 
-    private static AuditLog Log(string action, DateTime when)
+    private sealed class FakeUser : ICurrentUserService
     {
-        var a = AuditLog.Create(action, 1, "admin", "Inv", null, "{}");
+        public int? UserId => 1; public int? CompanyId => 1; public int? BranchId => 1;
+        public string? Username => "admin"; public string? FullName => "مدیر"; public bool IsAuthenticated => true;
+        public bool HasPermission(string m, string f, string a) => true;
+        public IEnumerable<string> GetRoles() => new[] { "ADMIN" };
+    }
+
+    private static AuditLog Log(string action, DateTime when, int? companyId = 1)
+    {
+        var a = AuditLog.Create(action, 1, "admin", "Inv", null, "{}", companyId: companyId);
         typeof(AuditLog).GetProperty("CreatedAt")!.SetValue(a, when);
         return a;
     }
@@ -55,7 +63,7 @@ public class AuditLogQueryTests
     private static GetAuditLogQueryHandler NewSut(out FakeAuditRepo repo)
     {
         repo = new FakeAuditRepo();
-        return new GetAuditLogQueryHandler(repo, new FakeCalendar());
+        return new GetAuditLogQueryHandler(repo, new FakeCalendar(), new FakeUser());
     }
 
     [Fact]
@@ -94,5 +102,23 @@ public class AuditLogQueryTests
         var rows = await h.Handle(new GetAuditLogQuery(MaxRows: 5), default);
 
         Assert.Equal(5, rows.Count);
+    }
+
+    /// <summary>U-SEC-AUDIT-COMPANY — لاگِ شرکتِ دیگر (روی DBِ مشترکِ فرضیِ چندشرکتی) دیده نمی‌شود؛
+    /// ردیفِ قدیمیِ بدونِ CompanyId (پیش از مهاجرت، companyId=null) همچنان دیده می‌شود.</summary>
+    [Fact]
+    public async Task Excludes_Other_Companys_Logs_But_Keeps_Legacy_Null_CompanyId_Rows()
+    {
+        var h = NewSut(out var repo);   // FakeUser.CompanyId == 1
+        await repo.AddAsync(Log("لاگِ شرکتِ من", DateTime.Now.AddHours(-1), companyId: 1));
+        await repo.AddAsync(Log("لاگِ شرکتِ دیگر", DateTime.Now.AddHours(-2), companyId: 2));
+        await repo.AddAsync(Log("لاگِ قدیمیِ بدونِ شرکت", DateTime.Now.AddHours(-3), companyId: null));
+
+        var rows = await h.Handle(new GetAuditLogQuery(), default);
+
+        Assert.Equal(2, rows.Count);
+        Assert.Contains(rows, r => r.Action == "لاگِ شرکتِ من");
+        Assert.Contains(rows, r => r.Action == "لاگِ قدیمیِ بدونِ شرکت");
+        Assert.DoesNotContain(rows, r => r.Action == "لاگِ شرکتِ دیگر");
     }
 }

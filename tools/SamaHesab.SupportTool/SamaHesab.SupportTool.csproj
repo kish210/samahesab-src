@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ابزارِ آفلاینِ صدورِ «کدِ ریستِ پشتیبانی» (U-SUPPORT-RESET). فقط دستِ پشتیبانی/وندور اجرا
+       می‌شود — کلیدِ خصوصیِ RSA هرگز در این مخزن یا در برنامهٔ کلاینت نیست؛ به‌عنوانِ یک فایلِ
+       PEM محلی (خارج از git) به این ابزار داده می‌شود. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>samahesab-support-tool</AssemblyName>
+    <RootNamespace>SamaHesab.SupportTool</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SamaHesab.Application\SamaHesab.Application.csproj" />
+  </ItemGroup>
+
+</Project>

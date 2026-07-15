@@ -79,7 +79,9 @@ public partial class PersonsListViewModel : BaseViewModel, SamaHesab.WPF.Service
 
     [RelayCommand] private async Task SearchAsync() { ApplyFilter(); await Task.CompletedTask; }
     [RelayCommand] private void NewCustomer() => _navigationService.NavigateTo("CustomerEdit");
-    [RelayCommand] private void NewSupplier() => _navigationService.NavigateTo("Suppliers");
+    // UX-CRM-SUPPLIER-1: پیش‌تر این‌جا فقط لیستِ تأمین‌کنندگان (که خودش راهِ ساخت نداشت) دوباره
+    // باز می‌شد — یعنی این دکمه عملاً کار نمی‌کرد. حالا مستقیم فرمِ ساختِ تأمین‌کننده باز می‌شود.
+    [RelayCommand] private void NewSupplier() => _navigationService.NavigateTo("CustomerEdit", "supplier");
 
     /// <summary>CORE-UX-NAV (PERSON-CARD): کلیک/دوبارکلیک روی نامِ شخص → کارت حساب (کارت ۳۶۰°).
     /// همهٔ اشخاص رکوردِ Customer هستند، پس کارت برای مشتری/تأمین‌کننده/کارمند یکسان باز می‌شود.</summary>

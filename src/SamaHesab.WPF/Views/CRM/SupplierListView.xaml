@@ -8,6 +8,7 @@
     <!-- CC-4 — میان‌برِ استانداردِ لیست: F5 بازخوانی -->
     <UserControl.InputBindings>
         <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+        <KeyBinding Key="F2" Command="{Binding NewSupplierCommand}"/>
     </UserControl.InputBindings>
 
     <Grid Margin="3">
@@ -21,6 +22,9 @@
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource ErpToolButton}" Command="{Binding NewSupplierCommand}">
+                        <StackPanel><Path Data="{StaticResource IcUserPlus}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource PrimaryAccent}"/><TextBlock Text="تأمین‌کنندهٔ جدید" TextAlignment="Center"/></StackPanel>
+                    </Button>
                     <Button Style="{StaticResource ErpToolButton}" Command="{Binding ExportCommand}">
                         <StackPanel><Path Data="{StaticResource IcExcel}" Style="{StaticResource ErpToolSvg}" Width="18" Height="18" HorizontalAlignment="Center" Stroke="{DynamicResource SuccessColor}"/><TextBlock Text="اکسل" TextAlignment="Center"/></StackPanel>
                     </Button>
@@ -49,6 +53,9 @@
                     <ContextMenu>
                         <MenuItem Header="📄 صورت‌حسابِ تأمین‌کننده"
                                   Command="{Binding PlacementTarget.DataContext.OpenStatementCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <MenuItem Header="✏ ویرایشِ تأمین‌کننده"
+                                  Command="{Binding PlacementTarget.DataContext.EditSupplierCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                   CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>

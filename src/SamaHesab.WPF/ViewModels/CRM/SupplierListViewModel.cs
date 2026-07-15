@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 namespace SamaHesab.WPF.ViewModels.CRM;
 
 /// <summary>تأمین‌کنندگان — 🏛️ الگوی API-only: کلاینت→API، دسکتاپ→Application. بدونِ ریپازیتوریِ مستقیم.</summary>
-public partial class SupplierListViewModel : BaseViewModel
+public partial class SupplierListViewModel : BaseViewModel, SamaHesab.WPF.Services.ISupportsNew
 {
     private readonly IMediator _mediator;
     private readonly ApiClient _api;
@@ -51,6 +51,19 @@ public partial class SupplierListViewModel : BaseViewModel
 
     [RelayCommand] private async Task SearchAsync() => await LoadAsync();
     [RelayCommand] private async Task RefreshAsync() => await LoadAsync();
+
+    /// <summary>UX-CRM-SUPPLIER-1 — پیش‌تر این صفحه هیچ راهِ ساخت/ویرایشِ تأمین‌کننده نداشت (فقط
+    /// صورت‌حساب) و دکمهٔ «+ تأمین‌کننده» در صفحهٔ اشخاص هم فقط همین لیست را دوباره باز می‌کرد —
+    /// یعنی کاربر برایِ ساختِ تأمین‌کنندهٔ نو راهی نداشت جز رفتن به فرمِ عمومیِ «اشخاص».</summary>
+    [RelayCommand] private void NewSupplier() => _navigationService.NavigateTo("CustomerEdit", "supplier");
+    public void RequestNew() => NewSupplier();
+
+    [RelayCommand]
+    private void EditSupplier(SupplierListItem? s)
+    {
+        var item = s ?? SelectedSupplier;
+        if (item != null) _navigationService.NavigateTo("CustomerEdit", item.Id);
+    }
 
     /// <summary>UX-SUPPLIER-PARITY — صورت‌حسابِ تأمین‌کنندهٔ انتخاب‌شده (راست‌کلیک/دابل‌کلیک).</summary>
     [RelayCommand]

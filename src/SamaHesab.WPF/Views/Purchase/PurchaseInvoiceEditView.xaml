@@ -111,8 +111,13 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Style="{StaticResource Cap}"><Run Text="تأمین‌کننده"/><Run Text=" *" Foreground="{StaticResource ErpDanger500}"/></TextBlock>
-                        <ComboBox x:Name="SupplierCombo" ItemsSource="{Binding Suppliers}" DisplayMemberPath="Name" SelectedValuePath="Id"
-                                  SelectedValue="{Binding SelectedSupplierId}" IsEditable="True" Height="30"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <ComboBox x:Name="SupplierCombo" ItemsSource="{Binding Suppliers}" DisplayMemberPath="Name" SelectedValuePath="Id"
+                                      SelectedValue="{Binding SelectedSupplierId}" IsEditable="True" Height="30"/>
+                            <!-- UX-CRM-SUPPLIER-1 — پیش‌تر برخلافِ فرمِ فروش، هیچ راهِ افزودنِ سریعِ تأمین‌کننده نبود. -->
+                            <Button Grid.Column="1" Width="30" Height="30" Margin="4,0,0,0" Style="{StaticResource ErpBtnPrimary}" Padding="0" ToolTip="تأمین‌کنندهٔ جدید" Click="AddSupplier_Click" Content="＋"/>
+                        </Grid>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="نوع" Style="{StaticResource Cap}"/>

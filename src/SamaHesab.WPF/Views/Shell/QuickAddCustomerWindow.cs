@@ -8,9 +8,13 @@ using SamaHesab.Domain.Interfaces.Repositories;
 
 namespace SamaHesab.WPF.Views.Shell;
 
-/// <summary>Small popup to quickly add a customer from the sales-invoice screen.</summary>
+/// <summary>
+/// Small popup to quickly add a customer (or, per UX-CRM-SUPPLIER-1, a supplier — the purchase-invoice
+/// form had no equivalent of this while the sales-invoice form did) from the invoice screen.
+/// </summary>
 public class QuickAddCustomerWindow : Window
 {
+    private readonly bool _isSupplier;
     private readonly ComboBox _type;
     private readonly TextBox _name;
     private readonly TextBox _mobile;
@@ -18,9 +22,10 @@ public class QuickAddCustomerWindow : Window
 
     public int? NewCustomerId { get; private set; }
 
-    public QuickAddCustomerWindow()
+    public QuickAddCustomerWindow(bool isSupplier = false)
     {
-        Title = "افزودن سریع مشتری";
+        _isSupplier = isSupplier;
+        Title = isSupplier ? "افزودن سریع تأمین‌کننده" : "افزودن سریع مشتری";
         Width = 420; SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         FlowDirection = FlowDirection.RightToLeft;
@@ -29,9 +34,9 @@ public class QuickAddCustomerWindow : Window
         FontFamily = new FontFamily("Vazirmatn, Tahoma");
 
         var root = new StackPanel { Margin = new Thickness(20) };
-        root.Children.Add(new TextBlock { Text = "افزودن مشتری جدید", FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 14) });
+        root.Children.Add(new TextBlock { Text = isSupplier ? "افزودن تأمین‌کنندهٔ جدید" : "افزودن مشتری جدید", FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 14) });
 
-        root.Children.Add(Label("نوع مشتری"));
+        root.Children.Add(Label(isSupplier ? "نوعِ تأمین‌کننده" : "نوع مشتری"));
         _type = new ComboBox { Margin = new Thickness(0, 0, 0, 10), Height = 32 };
         _type.Items.Add("حقیقی"); _type.Items.Add("حقوقی"); _type.SelectedIndex = 0;
         root.Children.Add(_type);
@@ -79,11 +84,11 @@ public class QuickAddCustomerWindow : Window
             var repo = App.GetService<IRepository<Party>>();
             var uow = App.GetService<IUnitOfWork>();
             var companyId = currentUser.CompanyId ?? 1;
-            var code = "C" + System.DateTime.Now.ToString("yyMMddHHmmss");
+            var code = (_isSupplier ? "S" : "C") + System.DateTime.Now.ToString("yyMMddHHmmss");
 
             Party entity = type == "حقوقی"
-                ? Party.Create(companyId, code, type, null, null, name, isCustomer: true)
-                : Party.Create(companyId, code, type, name, "", null, isCustomer: true);
+                ? Party.Create(companyId, code, type, null, null, name, isCustomer: !_isSupplier, isSupplier: _isSupplier)
+                : Party.Create(companyId, code, type, name, "", null, isCustomer: !_isSupplier, isSupplier: _isSupplier);
             entity.UpdateProfile(null, _mobile.Text.Trim(), null, null, null, null, null);
 
             repo.AddAsync(entity).GetAwaiter().GetResult();

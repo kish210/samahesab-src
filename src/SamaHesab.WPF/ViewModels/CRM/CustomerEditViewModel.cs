@@ -62,10 +62,20 @@ public partial class CustomerEditViewModel : BaseViewModel, INavigationAware
         : base(dialogService, navigationService)
     { _currentUser = currentUser; _calendar = calendar; _mediator = mediator; _api = api; }
 
-    /// <summary>UX-CRM-EDIT — بازکردنِ فرم برای ویرایشِ مشتریِ مشخص (Param=Id از فهرست).</summary>
+    /// <summary>
+    /// UX-CRM-EDIT — بازکردنِ فرم برای ویرایشِ مشتریِ مشخص (Param=Id از فهرست).
+    /// UX-CRM-SUPPLIER-1 — یا ساختِ تأمین‌کنندهٔ نو (Param="supplier" از صفحهٔ تأمین‌کنندگان/اشخاص):
+    /// پیش‌فرضِ نقش‌ها را از «خریدار» به «تأمین‌کننده» برمی‌گرداند تا کاربر مجبور نباشد تیکِ
+    /// خریدار را دستی بردارد و تیکِ تأمین‌کننده را بزند.
+    /// </summary>
     public async Task OnNavigatedToAsync(object? parameter)
     {
         if (parameter is int id && id > 0) { EditingId = id; await LoadAsync(); }
+        else if (parameter is string hint && hint == "supplier")
+        {
+            await LoadAsync();
+            IsCustomerRole = false; IsSupplierRole = true;
+        }
     }
 
     public override async Task LoadAsync()

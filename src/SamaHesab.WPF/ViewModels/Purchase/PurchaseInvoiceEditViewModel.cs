@@ -301,6 +301,18 @@ public partial class PurchaseInvoiceEditViewModel : BaseViewModel, SamaHesab.WPF
         await LoadPrintTemplatesAsync();
     }
 
+    /// <summary>UX-CRM-SUPPLIER-1 — پس از افزودنِ سریعِ تأمین‌کننده از داخلِ همین فرم (مشابهِ
+    /// ReloadCustomersAsyncِ فاکتورِ فروش)، لیست را دوباره می‌خواند و تأمین‌کنندهٔ تازه را انتخاب می‌کند.</summary>
+    public async Task ReloadSuppliersAsync(int? selectId)
+    {
+        var online = !string.IsNullOrWhiteSpace(_api.BaseUrl);
+        Suppliers = online
+            ? (await _api.GetSuppliersAsync()).Select(s => new SupplierItem(s.Id, s.Name, s.Mobile, s.Balance)).ToList()
+            : (await _mediator.Send(new GetSuppliersQuery())).Select(s => new SupplierItem(s.Id, s.Name, s.Mobile, s.Balance)).ToList();
+        OnPropertyChanged(nameof(Suppliers));
+        if (selectId.HasValue) SelectedSupplierId = selectId.Value;
+    }
+
     /// <summary>L3 — نوعِ قالب بر اساسِ نوعِ فاکتور (خرید/برگشت از خرید).</summary>
     private string TemplateDocType => InvoiceType == "برگشت از خرید" ? "PurchaseReturn" : "PurchaseInvoice";
 

@@ -180,10 +180,10 @@
                     <DataGridTextColumn Header="مالیات ٪" Binding="{Binding TaxPct}" Width="64">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, StringFormat={}{0:#,##0}}" Width="66" IsReadOnly="True">
+                    <DataGridTextColumn Header="موجودی" Binding="{Binding StockOnHand, Converter={StaticResource Num}}" Width="66" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True">
+                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding NetAmount, Converter={StaticResource Num}}" Width="130" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <DataGridTemplateColumn Width="38">

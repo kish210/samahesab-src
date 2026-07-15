@@ -234,7 +234,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding NetAmount, StringFormat={}{0:#,##0}}" Width="130" IsReadOnly="True">
+                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding NetAmount, Converter={StaticResource Num}}" Width="130" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <DataGridTemplateColumn Width="38">

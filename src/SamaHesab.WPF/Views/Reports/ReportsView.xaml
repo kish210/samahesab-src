@@ -127,9 +127,9 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="120"/>
                     <DataGridTextColumn Header="شرح" Binding="{Binding Name}" Width="*"/>
-                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat={}{0:N0}}" Width="160"/>
-                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat={}{0:N0}}" Width="160"/>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:N0}}" Width="160"/>
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="160"/>
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="160"/>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="160"/>
                 </DataGrid.Columns>
             </DataGrid>
 

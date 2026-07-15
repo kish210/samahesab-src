@@ -55,13 +55,13 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="نام کارمند" Binding="{Binding EmployeeName}" Width="*"/>
                 <DataGridTextColumn Header="دپارتمان" Binding="{Binding Department}" Width="100"/>
-                <DataGridTextColumn Header="حقوق پایه" Binding="{Binding BaseSalary, StringFormat={}{0:N0}}" Width="120"/>
-                <DataGridTextColumn Header="اضافه‌کاری" Binding="{Binding OvertimePay, StringFormat={}{0:N0}}" Width="110"/>
-                <DataGridTextColumn Header="مزایا" Binding="{Binding Allowances, StringFormat={}{0:N0}}" Width="100"/>
-                <DataGridTextColumn Header="حق. ناخالص" Binding="{Binding GrossSalary, StringFormat={}{0:N0}}" Width="130"/>
-                <DataGridTextColumn Header="بیمه" Binding="{Binding InsuranceDeduct, StringFormat={}{0:N0}}" Width="100"/>
-                <DataGridTextColumn Header="مالیات" Binding="{Binding TaxDeduct, StringFormat={}{0:N0}}" Width="100"/>
-                <DataGridTextColumn Header="حق. خالص" Binding="{Binding NetSalary, StringFormat={}{0:N0}}" Width="130"/>
+                <DataGridTextColumn Header="حقوق پایه" Binding="{Binding BaseSalary, Converter={StaticResource Num}}" Width="120"/>
+                <DataGridTextColumn Header="اضافه‌کاری" Binding="{Binding OvertimePay, Converter={StaticResource Num}}" Width="110"/>
+                <DataGridTextColumn Header="مزایا" Binding="{Binding Allowances, Converter={StaticResource Num}}" Width="100"/>
+                <DataGridTextColumn Header="حق. ناخالص" Binding="{Binding GrossSalary, Converter={StaticResource Num}}" Width="130"/>
+                <DataGridTextColumn Header="بیمه" Binding="{Binding InsuranceDeduct, Converter={StaticResource Num}}" Width="100"/>
+                <DataGridTextColumn Header="مالیات" Binding="{Binding TaxDeduct, Converter={StaticResource Num}}" Width="100"/>
+                <DataGridTextColumn Header="حق. خالص" Binding="{Binding NetSalary, Converter={StaticResource Num}}" Width="130"/>
                 <DataGridTemplateColumn Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

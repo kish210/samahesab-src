@@ -64,7 +64,7 @@
                     <DataGridTextColumn Header="نام / شرکت" Binding="{Binding Name}" Width="2*"/>
                     <DataGridTextColumn Header="موبایل" Binding="{Binding Mobile}" Width="130"/>
                     <DataGridTextColumn Header="شهر" Binding="{Binding City}" Width="120"/>
-                    <DataGridTextColumn Header="مانده حساب" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="150"/>
+                    <DataGridTextColumn Header="مانده حساب" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="150"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
@@ -72,7 +72,7 @@
         <Border Grid.Row="2" Style="{StaticResource ErpToolbar}" BorderThickness="0,1,0,0">
             <TextBlock FontSize="12" HorizontalAlignment="Right" Margin="4,2" VerticalAlignment="Center">
                 <Run Text="تعداد:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
-                <Run Text="   |   جمع مانده:"/><Run Text="{Binding TotalBalance, StringFormat={}{0:#,##0}}" FontWeight="Bold"/>
+                <Run Text="   |   جمع مانده:"/><Run Text="{Binding TotalBalance, Converter={StaticResource Num}}" FontWeight="Bold"/>
             </TextBlock>
         </Border>
     </Grid>

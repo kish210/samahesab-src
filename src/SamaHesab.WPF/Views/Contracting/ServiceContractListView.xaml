@@ -102,7 +102,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="عنوانِ قرارداد" Binding="{Binding Title}" Width="*"/>
                         <DataGridTextColumn Header="مشتری" Binding="{Binding CustomerName}" Width="160"/>
-                        <DataGridTextColumn Header="مبلغِ هر دوره" Binding="{Binding MonthlyAmount, StringFormat={}{0:#,##0}}" Width="120"/>
+                        <DataGridTextColumn Header="مبلغِ هر دوره" Binding="{Binding MonthlyAmount, Converter={StaticResource Num}}" Width="120"/>
                         <DataGridTextColumn Header="تناوب" Binding="{Binding Frequency}" Width="90"/>
                         <DataGridTextColumn Header="سررسیدِ بعدی" Binding="{Binding NextInvoiceDate}" Width="110"/>
                         <DataGridTextColumn Header="آخرین تولید" Binding="{Binding LastGenerated}" Width="110"/>

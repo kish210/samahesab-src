@@ -89,7 +89,7 @@
                     <DataGridTextColumn Header="موبایل" Binding="{Binding Mobile}" Width="130">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="140">
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="140">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <DataGridTemplateColumn Header="وضعیت" Width="80">

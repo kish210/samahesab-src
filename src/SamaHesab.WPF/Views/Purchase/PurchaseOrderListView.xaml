@@ -45,7 +45,7 @@
                     <DataGridTextColumn Header="منبع" Binding="{Binding Source}" Width="120"/>
                     <DataGridTextColumn Header="وضعیت" Binding="{Binding StatusCode}" Width="110"/>
                     <DataGridTextColumn Header="تعداد اقلام" Binding="{Binding ItemCount}" Width="100"/>
-                    <DataGridTextColumn Header="جمع (ریال)" Binding="{Binding Total, StringFormat={}{0:#,##0}}" Width="*">
+                    <DataGridTextColumn Header="جمع (ریال)" Binding="{Binding Total, Converter={StaticResource Num}}" Width="*">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                 </DataGrid.Columns>

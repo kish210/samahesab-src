@@ -61,10 +61,10 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100" IsReadOnly="True"/>
                     <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="2*" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, StringFormat={}{0:#,##0}, UpdateSourceTrigger=LostFocus}" Width="130"/>
-                    <DataGridTextColumn Header="خرده‌فروشی" Binding="{Binding SalePrice, StringFormat={}{0:#,##0}, UpdateSourceTrigger=LostFocus}" Width="130"/>
-                    <DataGridTextColumn Header="عمده" Binding="{Binding WholesalePrice, StringFormat={}{0:#,##0}, UpdateSourceTrigger=LostFocus}" Width="130"/>
-                    <DataGridTextColumn Header="مصرف‌کننده" Binding="{Binding ConsumerPrice, StringFormat={}{0:#,##0}, UpdateSourceTrigger=LostFocus}" Width="130"/>
+                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, Converter={StaticResource Num}, UpdateSourceTrigger=LostFocus}" Width="130"/>
+                    <DataGridTextColumn Header="خرده‌فروشی" Binding="{Binding SalePrice, Converter={StaticResource Num}, UpdateSourceTrigger=LostFocus}" Width="130"/>
+                    <DataGridTextColumn Header="عمده" Binding="{Binding WholesalePrice, Converter={StaticResource Num}, UpdateSourceTrigger=LostFocus}" Width="130"/>
+                    <DataGridTextColumn Header="مصرف‌کننده" Binding="{Binding ConsumerPrice, Converter={StaticResource Num}, UpdateSourceTrigger=LostFocus}" Width="130"/>
                     <DataGridTemplateColumn Header="" Width="36">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

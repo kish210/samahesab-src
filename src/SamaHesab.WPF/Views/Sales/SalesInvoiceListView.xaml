@@ -91,9 +91,9 @@
                     <DataGridTextColumn Header="شماره" Binding="{Binding Number}" Width="110"/>
                     <DataGridTextColumn Header="تاریخ" Binding="{Binding Date}" Width="110"/>
                     <DataGridTextColumn Header="مشتری" Binding="{Binding CustomerName}" Width="*"/>
-                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding Total, StringFormat={}{0:#,##0}}" Width="140"/>
-                    <DataGridTextColumn Header="پرداختی" Binding="{Binding Paid, StringFormat={}{0:#,##0}}" Width="130"/>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Remain, StringFormat={}{0:#,##0}}" Width="130"/>
+                    <DataGridTextColumn Header="مبلغ کل" Binding="{Binding Total, Converter={StaticResource Num}}" Width="140"/>
+                    <DataGridTextColumn Header="پرداختی" Binding="{Binding Paid, Converter={StaticResource Num}}" Width="130"/>
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Remain, Converter={StaticResource Num}}" Width="130"/>
                     <DataGridTemplateColumn Header="وضعیت" Width="100" CellTemplate="{StaticResource ErpStatusChipTemplate}"/>
                     <DataGridTemplateColumn Header="عملیات" Width="Auto">
                         <DataGridTemplateColumn.CellTemplate>
@@ -114,7 +114,7 @@
         <Border Grid.Row="3" Style="{StaticResource FormSectionCard}" Padding="12,8">
             <TextBlock FontSize="12" HorizontalAlignment="Right">
                 <Run Text="تعداد فاکتور:"/><Run Text="{Binding TotalCount}" FontWeight="Bold"/>
-                <Run Text="   |   جمع مبلغ:"/><Run Text="{Binding TotalAmount, StringFormat={}{0:#,##0}}" FontWeight="Bold"/>
+                <Run Text="   |   جمع مبلغ:"/><Run Text="{Binding TotalAmount, Converter={StaticResource Num}}" FontWeight="Bold"/>
             </TextBlock>
         </Border>
     </Grid>

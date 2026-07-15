@@ -50,7 +50,7 @@
                     <DataGridTextColumn Header="ورود" Binding="{Binding In, StringFormat={}{0:#,##0.##}}" Width="120"/>
                     <DataGridTextColumn Header="خروج" Binding="{Binding Out, StringFormat={}{0:#,##0.##}}" Width="120"/>
                     <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0.##}}" Width="130"/>
-                    <DataGridTextColumn Header="بهای واحد" Binding="{Binding UnitCost, StringFormat={}{0:#,##0}}" Width="130"/>
+                    <DataGridTextColumn Header="بهای واحد" Binding="{Binding UnitCost, Converter={StaticResource Num}}" Width="130"/>
                     <DataGridTextColumn Header="توضیحات" Binding="{Binding Notes}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>

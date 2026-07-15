@@ -86,7 +86,7 @@
                                             CommandParameter="{Binding}">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Price, StringFormat={}{0:#,##0}}" TextAlignment="Center" FontSize="11" Foreground="{DynamicResource PrimaryAccent}" Margin="0,4,0,0"/>
+                                            <TextBlock Text="{Binding Price, Converter={StaticResource Num}}" TextAlignment="Center" FontSize="11" Foreground="{DynamicResource PrimaryAccent}" Margin="0,4,0,0"/>
                                         </StackPanel>
                                     </Button>
                                 </DataTemplate>
@@ -122,8 +122,8 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="فی" Binding="{Binding UnitPrice, StringFormat={}{0:#,##0}}" Width="110"/>
-                            <DataGridTextColumn Header="جمع" Binding="{Binding LineTotal, StringFormat={}{0:#,##0}}" Width="120"/>
+                            <DataGridTextColumn Header="فی" Binding="{Binding UnitPrice, Converter={StaticResource Num}}" Width="110"/>
+                            <DataGridTextColumn Header="جمع" Binding="{Binding LineTotal, Converter={StaticResource Num}}" Width="120"/>
                             <DataGridTemplateColumn Width="44">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -145,16 +145,16 @@
 
                         <!-- totals -->
                         <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="جمع فاکتور" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, StringFormat={}{0:#,##0}}"/></DockPanel>
+                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="جمع فاکتور" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding SubTotal, Converter={StaticResource Num}}"/></DockPanel>
                             <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="تخفیف" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Height="26" Text="{Binding Discount}"/></DockPanel>
-                            <DockPanel Margin="0,2"><CheckBox DockPanel.Dock="Right" Content="سرویس ٪" IsChecked="{Binding ServiceEnabled}"/><TextBlock DockPanel.Dock="Left" Text="{Binding ServiceAmount, StringFormat={}{0:#,##0}}"/></DockPanel>
-                            <DockPanel Margin="0,2"><CheckBox DockPanel.Dock="Right" Content="مالیات" IsChecked="{Binding TaxEnabled}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TaxAmount, StringFormat={}{0:#,##0}}"/></DockPanel>
+                            <DockPanel Margin="0,2"><CheckBox DockPanel.Dock="Right" Content="سرویس ٪" IsChecked="{Binding ServiceEnabled}"/><TextBlock DockPanel.Dock="Left" Text="{Binding ServiceAmount, Converter={StaticResource Num}}"/></DockPanel>
+                            <DockPanel Margin="0,2"><CheckBox DockPanel.Dock="Right" Content="مالیات" IsChecked="{Binding TaxEnabled}"/><TextBlock DockPanel.Dock="Left" Text="{Binding TaxAmount, Converter={StaticResource Num}}"/></DockPanel>
                             <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="انعام" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Height="26" Text="{Binding Tip}"/></DockPanel>
                             <Separator Margin="0,4"/>
-                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="قابل پرداخت" FontWeight="Bold" FontSize="15"/><TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, StringFormat={}{0:#,##0}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/></DockPanel>
+                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="قابل پرداخت" FontWeight="Bold" FontSize="15"/><TextBlock DockPanel.Dock="Left" Text="{Binding GrandTotal, Converter={StaticResource Num}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource PrimaryAccent}"/></DockPanel>
                             <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="نقد" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Height="26" Text="{Binding CashPaid}"/></DockPanel>
                             <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="POS" Foreground="{DynamicResource SecondaryText}"/><TextBox DockPanel.Dock="Left" Width="120" Height="26" Text="{Binding PosPaid}"/></DockPanel>
-                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="مانده" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Remain, StringFormat={}{0:#,##0}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/></DockPanel>
+                            <DockPanel Margin="0,2"><TextBlock DockPanel.Dock="Right" Text="مانده" Foreground="{DynamicResource SecondaryText}"/><TextBlock DockPanel.Dock="Left" Text="{Binding Remain, Converter={StaticResource Num}}" FontWeight="Bold" Foreground="{DynamicResource DangerColor}"/></DockPanel>
                         </StackPanel>
 
                         <!-- actions -->

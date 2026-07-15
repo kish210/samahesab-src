@@ -35,7 +35,7 @@
                     <DataGridTextColumn Header="موبایل" Binding="{Binding Mobile}" Width="120"/>
                     <DataGridTextColumn Header="نوع قرارداد" Binding="{Binding ContractType}" Width="100"/>
                     <DataGridTextColumn Header="تاریخ استخدام" Binding="{Binding HireDate}" Width="110"/>
-                    <DataGridTextColumn Header="حقوق پایه" Binding="{Binding BaseSalary, StringFormat={}{0:#,##0}}" Width="140"/>
+                    <DataGridTextColumn Header="حقوق پایه" Binding="{Binding BaseSalary, Converter={StaticResource Num}}" Width="140"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

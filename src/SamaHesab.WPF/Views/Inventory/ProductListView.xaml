@@ -80,10 +80,10 @@
                     <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="90"/>
                     <DataGridTextColumn Header="بارکد" Binding="{Binding Barcode}" Width="130"/>
                     <DataGridTextColumn Header="نام کالا" Binding="{Binding Name}" Width="2*"/>
-                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, StringFormat={}{0:#,##0}}" Width="120"/>
-                    <DataGridTextColumn Header="قیمت فروش" Binding="{Binding SalePrice, StringFormat={}{0:#,##0}}" Width="120"/>
-                    <DataGridTextColumn Header="قیمت عمده" Binding="{Binding WholesalePrice, StringFormat={}{0:#,##0}}" Width="120"/>
-                    <DataGridTextColumn Header="حداقل موجودی" Binding="{Binding MinStock, StringFormat={}{0:#,##0}}" Width="110"/>
+                    <DataGridTextColumn Header="قیمت خرید" Binding="{Binding PurchasePrice, Converter={StaticResource Num}}" Width="120"/>
+                    <DataGridTextColumn Header="قیمت فروش" Binding="{Binding SalePrice, Converter={StaticResource Num}}" Width="120"/>
+                    <DataGridTextColumn Header="قیمت عمده" Binding="{Binding WholesalePrice, Converter={StaticResource Num}}" Width="120"/>
+                    <DataGridTextColumn Header="حداقل موجودی" Binding="{Binding MinStock, Converter={StaticResource Num}}" Width="110"/>
                     <DataGridTemplateColumn Header="وضعیت" Width="90">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

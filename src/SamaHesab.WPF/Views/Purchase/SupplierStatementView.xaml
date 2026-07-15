@@ -50,13 +50,13 @@
                     <DataGridTextColumn Header="نوع سند" Binding="{Binding DocType}" Width="110"/>
                     <DataGridTextColumn Header="شماره" Binding="{Binding DocNumber}" Width="110"/>
                     <DataGridTextColumn Header="شرح" Binding="{Binding Description}" Width="*"/>
-                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, StringFormat={}{0:#,##0}}" Width="120">
+                    <DataGridTextColumn Header="بدهکار" Binding="{Binding Debit, Converter={StaticResource Num}}" Width="120">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, StringFormat={}{0:#,##0}}" Width="120">
+                    <DataGridTextColumn Header="بستانکار" Binding="{Binding Credit, Converter={StaticResource Num}}" Width="120">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, StringFormat={}{0:#,##0}}" Width="130">
+                    <DataGridTextColumn Header="مانده" Binding="{Binding Balance, Converter={StaticResource Num}}" Width="130">
                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FlowDirection" Value="LeftToRight"/><Setter Property="TextAlignment" Value="Left"/><Setter Property="FontWeight" Value="SemiBold"/></Style></DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                 </DataGrid.Columns>

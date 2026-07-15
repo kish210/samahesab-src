@@ -33,7 +33,7 @@
                     <DataGridTextColumn Header="شبا" Binding="{Binding Sheba}" Width="*"/>
                     <DataGridTextColumn Header="شماره کارت" Binding="{Binding CardNumber}" Width="160"/>
                     <DataGridTextColumn Header="شعبه" Binding="{Binding BranchName}" Width="140"/>
-                    <DataGridTextColumn Header="مانده اولیه" Binding="{Binding OpeningBalance, StringFormat={}{0:#,##0}}" Width="140"/>
+                    <DataGridTextColumn Header="مانده اولیه" Binding="{Binding OpeningBalance, Converter={StaticResource Num}}" Width="140"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

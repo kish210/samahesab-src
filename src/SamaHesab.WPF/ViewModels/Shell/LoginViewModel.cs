@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Security.Commands;
+using SamaHesab.Application.Settings.Queries;
 using SamaHesab.WPF.Services;
 using SamaHesab.WPF.ViewModels.Shell;
 using System.Collections.ObjectModel;
@@ -57,12 +58,32 @@ public partial class LoginViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(Username)) Username = s.Username;
     }
 
+    /// <summary>فقط برایِ حالتِ API (POS/رستوران) — بدونِ دسترسیِ مستقیمِ DB، لیستِ واقعیِ
+    /// شرکت‌ها در دسترس نیست. جایگذاری‌شونده تا کمبو خالی نماند.</summary>
     private void LoadCompanies()
     {
         Companies.Clear();
-        // In production load from DB
-        Companies.Add(new CompanyItem(1, "شرکت اول", "DEFAULT"));
+        Companies.Add(new CompanyItem(1, "شرکت", "DEFAULT"));
         SelectedCompanyId = 1;
+    }
+
+    /// <summary>
+    /// U-MULTI-COMPANY-1 — لیستِ واقعیِ شرکت‌ها از Cfg.Companies (فقط حالتِ DB-محور، نه API).
+    /// پیش‌تر این‌جا همیشه یک شرکتِ هاردکدشده («شرکت اول») نشان داده می‌شد، حتی بعد از
+    /// ساختِ شرکتِ واقعی در ویزاردِ راه‌اندازیِ اولیه.
+    /// </summary>
+    public async Task LoadCompaniesAsync()
+    {
+        try
+        {
+            var rows = await _mediator.Send(new GetCompaniesQuery());
+            if (rows.Count == 0) return;   // DB خالی/در دسترس نیست — fallbackِ سازنده را نگه دار
+            var previous = SelectedCompanyId;
+            Companies.Clear();
+            foreach (var r in rows) Companies.Add(new CompanyItem(r.Id, r.Name, r.Code));
+            SelectedCompanyId = rows.Any(r => r.Id == previous) ? previous : rows[0].Id;
+        }
+        catch { /* DB در دسترس نیست — fallbackِ سازنده باقی می‌ماند */ }
     }
 
     [RelayCommand]

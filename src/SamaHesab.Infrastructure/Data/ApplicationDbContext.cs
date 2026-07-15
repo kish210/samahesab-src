@@ -316,6 +316,28 @@ public class ApplicationDbContext : DbContext
             b.Property(x => x.Name).HasMaxLength(150);
             b.Property(x => x.PaperSize).HasMaxLength(20);
         });
+        // U-MULTI-COMPANY-1 — پیش‌تر Company اصلاً در مدلِ EF نبود (فقط از طریقِ SQLِ خام در
+        // 07_DefaultChartOfAccounts.sql دست‌کاری می‌شد)؛ IRepository<Company> با خطایِ «type is
+        // not included in the model» شکست می‌خورد — با تستِ زنده کشف شد.
+        modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.Company>(b =>
+        {
+            b.ToTable("Companies", "Cfg");
+            b.Property(x => x.Code).IsRequired().HasMaxLength(20);
+            b.Property(x => x.Name).IsRequired().HasMaxLength(200);
+            b.Property(x => x.NameEn).HasMaxLength(200);
+            b.Property(x => x.NationalId).HasMaxLength(11);
+            b.Property(x => x.EconomicCode).HasMaxLength(12);
+            b.Property(x => x.RegisterNumber).HasMaxLength(20);
+            b.Property(x => x.Address).HasMaxLength(500);
+            b.Property(x => x.Phone).HasMaxLength(20);
+            b.Property(x => x.Fax).HasMaxLength(20);
+            b.Property(x => x.Email).HasMaxLength(100);
+            b.Property(x => x.Website).HasMaxLength(200);
+            b.Property(x => x.FiscalYearStart).IsRequired().HasMaxLength(10);
+            b.Property(x => x.FiscalYearEnd).IsRequired().HasMaxLength(10);
+            b.Property(x => x.Currency).IsRequired().HasMaxLength(10);
+            b.HasIndex(x => x.Code).IsUnique();
+        });
         modelBuilder.Entity<SamaHesab.Domain.Entities.Settings.Branch>(b =>
         {
             b.ToTable("Branches", "Cfg");

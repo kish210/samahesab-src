@@ -4,6 +4,7 @@ using MediatR;
 using SamaHesab.Application.Accounting.Dimensions;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Security.Commands;
+using SamaHesab.Application.Settings.Commands;
 using SamaHesab.Application.Inventory.Commands;
 using SamaHesab.Application.CRM.Commands;
 using SamaHesab.Domain.Enums;
@@ -54,14 +55,37 @@ public partial class FirstRunWizardViewModel : BaseViewModel
     [ObservableProperty] private int _step;   // ۰..۴
     public bool IsFirstStep => Step == 0;
     public bool IsLastStep => Step >= StepCount - 1;
-    public string StepTitle => Step switch
+
+    /// <summary>
+    /// U-MULTI-COMPANY-1 — حالتِ «ساختِ شرکتِ جدید» (از دکمهٔ «افزودنِ شرکتِ جدید» در صفحهٔ
+    /// ورود، نه راه‌اندازیِ اولیهٔ برنامه). گام‌هایِ ماژول‌ها (۱) و دادهٔ پایه (۳) بی‌معنا هستند
+    /// (متعلق به سشنِ شرکتِ فعلی‌اند، نه شرکتِ تازه) — پس Next/Back آن‌ها را رد می‌کنند.
+    /// </summary>
+    [ObservableProperty] private bool _isNewCompanyMode;
+    partial void OnIsNewCompanyModeChanged(bool value)
     {
-        0 => "گام ۱ از ۵ — اطلاعاتِ شرکت و صنف",
-        1 => "گام ۲ از ۵ — ماژول‌های موردِ استفاده",
-        2 => "گام ۳ از ۵ — سالِ مالی",
-        3 => "گام ۴ از ۵ — دادهٔ پایه و دموی متناسب",
-        _ => "گام ۵ از ۵ — رمزِ مدیر و اتمام",
-    };
+        OnPropertyChanged(nameof(StepTitle));
+        Step = 0;
+    }
+
+    /// <summary>پس از ساختِ موفقِ شرکتِ نو (فقط در IsNewCompanyMode) — برایِ انتخابِ خودکار در صفحهٔ ورود.</summary>
+    public int? CreatedCompanyId { get; private set; }
+
+    public string StepTitle => IsNewCompanyMode
+        ? Step switch
+        {
+            0 => "گام ۱ از ۳ — اطلاعاتِ شرکتِ جدید",
+            2 => "گام ۲ از ۳ — سالِ مالی",
+            _ => "گام ۳ از ۳ — رمزِ مدیرِ شرکتِ جدید",
+        }
+        : Step switch
+        {
+            0 => "گام ۱ از ۵ — اطلاعاتِ شرکت و صنف",
+            1 => "گام ۲ از ۵ — ماژول‌های موردِ استفاده",
+            2 => "گام ۳ از ۵ — سالِ مالی",
+            3 => "گام ۴ از ۵ — دادهٔ پایه و دموی متناسب",
+            _ => "گام ۵ از ۵ — رمزِ مدیر و اتمام",
+        };
     partial void OnStepChanged(int value)
     {
         OnPropertyChanged(nameof(IsFirstStep));
@@ -69,14 +93,20 @@ public partial class FirstRunWizardViewModel : BaseViewModel
         OnPropertyChanged(nameof(StepTitle));
     }
 
-    [RelayCommand] private void Back() { if (Step > 0) Step--; }
+    [RelayCommand]
+    private void Back()
+    {
+        if (Step <= 0) return;
+        Step = IsNewCompanyMode && Step == 4 ? 2 : IsNewCompanyMode && Step == 2 ? 0 : Step - 1;
+    }
 
     [RelayCommand]
     private async Task NextAsync()
     {
         if (Step == 0 && (CompanyName?.Trim().Length ?? 0) < 2)
         { await _dialogService.ShowWarningAsync("نامِ معتبرِ شرکت را وارد کنید (دستِ‌کم ۲ نویسه)."); return; }
-        if (Step < StepCount - 1) Step++;
+        if (Step >= StepCount - 1) return;
+        Step = IsNewCompanyMode && Step == 0 ? 2 : IsNewCompanyMode && Step == 2 ? 4 : Step + 1;
     }
 
     // ── صنف/شغلِ شرکت + پیش‌پُرِ کالاهای نمونهٔ متناسب ──
@@ -172,6 +202,8 @@ public partial class FirstRunWizardViewModel : BaseViewModel
         { await _dialogService.ShowWarningAsync("نامِ معتبرِ شرکت را وارد کنید (دستِ‌کم ۲ نویسه)."); return; }
         CompanyName = CompanyName!.Trim();
 
+        if (IsNewCompanyMode) { await FinishNewCompanyAsync(); return; }
+
         // رمز: اختیاری ولی اگر وارد شد باید تأیید بخورد.
         var wantsPassword = !string.IsNullOrWhiteSpace(NewPassword);
         if (wantsPassword && NewPassword != ConfirmPassword)
@@ -191,6 +223,13 @@ public partial class FirstRunWizardViewModel : BaseViewModel
             g.CompanyAddress = CompanyAddress; g.CompanyLogoPath = LogoPath;
             g.BusinessType = BusinessType;
             g.FiscalYearStart = FiscalStart; g.FiscalYearEnd = FiscalEnd;
+
+            // ۱.۵) U-MULTI-COMPANY-1 — شرکت → ردیفِ واقعیِ Cfg.Companies، نه فقط تنظیماتِ محلی.
+            // پیش‌تر این‌جا اصلاً به‌روز نمی‌شد؛ صفحهٔ ورود همیشه نامِ seedِ اولیه («شرکت نمونه») را
+            // نشان می‌داد، نه چیزی که کاربر همین‌جا وارد کرده بود.
+            if (_user.CompanyId is int existingCompanyId)
+                await _mediator.Send(new UpdateCompanyCommand(
+                    existingCompanyId, CompanyName, CompanyNationalId, CompanyEconomicCode, CompanyPhone, CompanyAddress));
 
             // ۲) سالِ مالی → DB (command موجود)
             var fy = await _mediator.Send(new SaveFiscalYearCommand(0, FiscalTitle, FiscalStart, FiscalEnd));
@@ -273,6 +312,41 @@ public partial class FirstRunWizardViewModel : BaseViewModel
                 $"راه‌اندازیِ اولیه کامل شد. ({whN} انبار، {prN} کالا/خدمت، {cuN} مشتری ثبت شد) خوش آمدید!" + conflictNote);
             Finished?.Invoke();
         }, "در حال ذخیرهٔ راه‌اندازی...");
+    }
+
+    /// <summary>
+    /// U-MULTI-COMPANY-1 — ساختِ شرکتِ دوم/سوم/… در همان DBِ مشترک (از دکمهٔ «افزودنِ شرکتِ
+    /// جدید» در صفحهٔ ورود). برخلافِ FinishAsyncِ عادی: رمز اجباری است (نه اختیاری — این اولین
+    /// رمزِ ادمینِ این شرکت است، «پیش‌فرضِ شناخته‌شده»ای برایِ برگشت وجود ندارد)، ماژول‌ها/دادهٔ
+    /// پایه/دمو نادیده گرفته می‌شوند (متعلق به سشنِ شرکتِ *فعلی*اند، نه شرکتِ تازه).
+    /// </summary>
+    private async Task FinishNewCompanyAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewPassword))
+        { await _dialogService.ShowWarningAsync("برایِ شرکتِ جدید تعیینِ رمزِ مدیر (admin) الزامی است."); return; }
+        if (NewPassword != ConfirmPassword)
+        { await _dialogService.ShowWarningAsync("رمزِ عبور و تکرارِ آن یکسان نیستند."); return; }
+
+        await ExecuteAsync(async () =>
+        {
+            var r = await _mediator.Send(new CreateCompanyCommand(
+                CompanyName!, CompanyNationalId, CompanyEconomicCode, CompanyPhone, CompanyAddress,
+                FiscalTitle, FiscalStart, FiscalEnd, NewPassword));
+            if (!r.Succeeded || r.Value is null)
+            { await _dialogService.ShowErrorAsync(r.ErrorMessage ?? "خطا در ساختِ شرکتِ جدید."); return; }
+
+            CreatedCompanyId = r.Value.CompanyId;
+
+            // کدِ بازیابیِ ادمینِ شرکتِ نو (هم‌راستا با U-SEC-RECOVERY — تنها راهِ بازیابیِ رمز، آفلاین).
+            var recoveryCode = Services.RecoveryCodeGenerator.Generate();
+            var rc = await _mediator.Send(new SetRecoveryCodeCommand(r.Value.AdminUserId, recoveryCode));
+            if (rc.Succeeded)
+                new Views.Onboarding.RecoveryCodeWindow(recoveryCode) { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog();
+
+            await _dialogService.ShowSuccessAsync(
+                $"شرکتِ «{r.Value.Name}» (کدِ {r.Value.Code}) ساخته شد.\nبرایِ ورود، آن را از کمبویِ «شرکت» در صفحهٔ ورود انتخاب کنید و با «admin» و رمزی که الان تعیین کردید وارد شوید.");
+            Finished?.Invoke();
+        }, "در حالِ ساختِ شرکتِ جدید...");
     }
 }
 

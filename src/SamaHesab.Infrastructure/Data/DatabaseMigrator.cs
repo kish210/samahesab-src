@@ -88,6 +88,53 @@ public static class DatabaseMigrator
             await ApplyScriptAsync(conn, asm, res, applied, log, ct);
     }
 
+    /// <summary>
+    /// U-MULTI-COMPANY-1 — اسکریپت‌هایِ per-company-safe (CROSS JOIN Cfg.Companies یا
+    /// self-referencing از رویِ حساب‌هایِ والدِ موجود) که بلافاصله بعدِ ساختِ یک شرکتِ نو در
+    /// runtime دوباره اجرا می‌شوند تا آن شرکت نمودارِ حساب/شعبه/انبار را بگیرد — بدونِ نیازِ
+    /// ری‌استارت و **بدونِ توجه به `__AppliedScripts`** (این‌ها باید هر بار که شرکتِ نو ساخته
+    /// شد دوباره اجرا شوند، نه فقط یک‌بار در کلِ عمرِ DB مثلِ بقیهٔ مهاجرت‌ها).
+    /// </summary>
+    private static readonly string[] CompanyProvisioningScripts =
+    {
+        "68_CompanyBaseChartTemplate.sql",
+        "25_InterBranchAccount.sql",
+        "26_CashVarianceAccounts.sql",
+        "29_PayrollAccounts.sql",
+        "61_AccountingCompletionAccounts.sql",
+        "62_AdvanceReceiptAccount.sql",
+        "64_ConsignmentAccount.sql",
+    };
+
+    /// <summary>برایِ شرکتی که تازه ساخته شده: نمودارِ حساب/شعبه/انبارِ پیش‌فرض را seed می‌کند
+    /// (فقط شرکت‌هایِ بدونِ این داده تحتِ‌تأثیر قرار می‌گیرند — idempotent per-company).</summary>
+    public static async Task RunCompanyProvisioningScriptsAsync(string connectionString, Action<string>? log = null, CancellationToken ct = default)
+    {
+        var asm = typeof(DatabaseMigrator).Assembly;
+        await using var conn = new SqlConnection(connectionString);
+        await conn.OpenAsync(ct);
+
+        var all = asm.GetManifestResourceNames().Where(r => r.EndsWith(".sql", StringComparison.OrdinalIgnoreCase)).ToList();
+        foreach (var scriptName in CompanyProvisioningScripts)
+        {
+            var res = all.FirstOrDefault(r => ShortName(r).Equals(scriptName, StringComparison.OrdinalIgnoreCase));
+            if (res is null) { log?.Invoke($"اسکریپتِ provisioning یافت نشد: {scriptName}"); continue; }
+            try
+            {
+                foreach (var batch in SplitBatches(ReadResource(asm, res)))
+                {
+                    await using var cmd = new SqlCommand(batch, conn) { CommandTimeout = 180 };
+                    await cmd.ExecuteNonQueryAsync(ct);
+                }
+                log?.Invoke($"provisioning اعمال شد: {scriptName}");
+            }
+            catch (Exception ex)
+            {
+                log?.Invoke($"provisioning ناموفق (ادامه): {scriptName} — {ex.GetBaseException().Message}");
+            }
+        }
+    }
+
     /// <summary>یک اسکریپت را batch-به-batch اجرا و در صورتِ موفقیت ثبت می‌کند (شکست → فقط لاگ، ادامه).</summary>
     private static async Task ApplyScriptAsync(SqlConnection conn, Assembly asm, string res,
         HashSet<string> applied, Action<string>? log, CancellationToken ct)

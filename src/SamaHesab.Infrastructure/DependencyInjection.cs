@@ -63,6 +63,8 @@ public static class DependencyInjection
         services.AddScoped<IPdfService, PdfService>();   // فاز ۱۱ — P2/DT-7: PDFِ بومیِ فارسی (QuestPDF)
         services.AddScoped<IBarcodeService, BarcodeService>();   // فاز ۱۱ — P2/DT-7: تصویرِ QR برای اسناد (QRCoder)
         services.AddScoped<IBackupService, BackupService>();
+        services.AddSingleton<ICompanyProvisioningService>(
+            _ => new Services.CompanyProvisioningService(connectionString));   // U-MULTI-COMPANY-1
 
         // SMS
         var smsProvider = configuration["Sms:Provider"] ?? "null";

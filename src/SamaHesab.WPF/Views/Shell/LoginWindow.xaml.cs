@@ -21,10 +21,16 @@ public partial class LoginWindow : Window
         {
             TxtUsername?.Focus();
             if (_vm.IsApiMode) BtnSettings.Content = "⚙  تنظیمات اتصال به سرور";
-            // U-SEC-RECOVERY — بازیابیِ رمز فقط برایِ ورودِ DB-محورِ حسابداری معنا دارد؛ کلاینت‌هایِ
-            // API-محور (POS/رستوران) به DB دسترسیِ مستقیم ندارند تا ResetPasswordWithRecoveryCode
-            // بتواند مستقیماً اجرا شود.
-            else BtnForgotPassword.Visibility = Visibility.Visible;
+            else
+            {
+                // U-SEC-RECOVERY — بازیابیِ رمز فقط برایِ ورودِ DB-محورِ حسابداری معنا دارد؛ کلاینت‌هایِ
+                // API-محور (POS/رستوران) به DB دسترسیِ مستقیم ندارند تا ResetPasswordWithRecoveryCode
+                // بتواند مستقیماً اجرا شود.
+                BtnForgotPassword.Visibility = Visibility.Visible;
+                // U-MULTI-COMPANY-1 — همان‌طور، ساختِ شرکتِ نو نیازِ دسترسیِ مستقیمِ DB دارد.
+                BtnNewCompany.Visibility = Visibility.Visible;
+                _ = _vm.LoadCompaniesAsync();
+            }
         };
     }
 
@@ -40,6 +46,20 @@ public partial class LoginWindow : Window
         if (dlg.ShowDialog() == true && dlg.PasswordReset)
             System.Windows.MessageBox.Show(this, "رمزِ عبورِ جدید تنظیم شد. اکنون می‌توانید با آن وارد شوید.",
                 "بازیابیِ رمز", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    /// <summary>U-MULTI-COMPANY-1 — بازکردنِ ویزاردِ راه‌اندازی در حالتِ «شرکتِ جدید» (چند شرکت
+    /// در یک DBِ مشترک)، بدونِ تأثیر روی شرکتِ فعلی/سشنِ لاگین.</summary>
+    private async void NewCompany_Click(object sender, RoutedEventArgs e)
+    {
+        var vm = App.GetService<SamaHesab.WPF.ViewModels.Onboarding.FirstRunWizardViewModel>();
+        vm.IsNewCompanyMode = true;
+        new SamaHesab.WPF.Views.Onboarding.FirstRunWizardWindow(vm) { Owner = this }.ShowDialog();
+        if (vm.CreatedCompanyId is int newId)
+        {
+            await _vm.LoadCompaniesAsync();
+            _vm.SelectedCompanyId = newId;
+        }
     }
 
     private void ConnectionSettings_Click(object sender, RoutedEventArgs e)

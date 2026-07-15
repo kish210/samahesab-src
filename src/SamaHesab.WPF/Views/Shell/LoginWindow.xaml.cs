@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using MediatR;
 using SamaHesab.WPF.ViewModels.Shell;
 
 namespace SamaHesab.WPF.Views.Shell;
@@ -6,11 +7,13 @@ namespace SamaHesab.WPF.Views.Shell;
 public partial class LoginWindow : Window
 {
     private readonly LoginViewModel _vm;
+    private readonly IMediator _mediator;
 
-    public LoginWindow(LoginViewModel viewModel)
+    public LoginWindow(LoginViewModel viewModel, IMediator mediator)
     {
         InitializeComponent();
         _vm = viewModel;
+        _mediator = mediator;
         DataContext = viewModel;
         VersionText.Text = $"نسخه {Services.AppVersion.Display}  |  © ۱۴۰۴ سماع رایانه کیش";
         Resources["BoolVis"] = new System.Windows.Controls.BooleanToVisibilityConverter();
@@ -18,6 +21,10 @@ public partial class LoginWindow : Window
         {
             TxtUsername?.Focus();
             if (_vm.IsApiMode) BtnSettings.Content = "⚙  تنظیمات اتصال به سرور";
+            // U-SEC-RECOVERY — بازیابیِ رمز فقط برایِ ورودِ DB-محورِ حسابداری معنا دارد؛ کلاینت‌هایِ
+            // API-محور (POS/رستوران) به DB دسترسیِ مستقیم ندارند تا ResetPasswordWithRecoveryCode
+            // بتواند مستقیماً اجرا شود.
+            else BtnForgotPassword.Visibility = Visibility.Visible;
         };
     }
 
@@ -26,6 +33,14 @@ public partial class LoginWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e) =>
         System.Windows.Application.Current.Shutdown();
+
+    private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new ForgotPasswordWindow(_mediator, _vm.SelectedCompanyId, _vm.Username) { Owner = this };
+        if (dlg.ShowDialog() == true && dlg.PasswordReset)
+            System.Windows.MessageBox.Show(this, "رمزِ عبورِ جدید تنظیم شد. اکنون می‌توانید با آن وارد شوید.",
+                "بازیابیِ رمز", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
 
     private void ConnectionSettings_Click(object sender, RoutedEventArgs e)
     {

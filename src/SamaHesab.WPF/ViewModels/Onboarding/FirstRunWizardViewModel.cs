@@ -197,12 +197,19 @@ public partial class FirstRunWizardViewModel : BaseViewModel
             if (!fy.Succeeded)
             { await _dialogService.ShowErrorAsync(fy.ErrorMessage ?? "خطا در ثبتِ سالِ مالی."); return; }
 
-            // ۳) رمزِ ادمین (در صورتِ ورود)
+            // ۳) رمزِ ادمین (در صورتِ ورود) + کدِ بازیابی (U-SEC-RECOVERY، درخواستِ کاربر)
             if (wantsPassword && _user.UserId is int uid)
             {
                 var pr = await _mediator.Send(new ChangeUserPasswordCommand(uid, NewPassword));
                 if (!pr.Succeeded)
                 { await _dialogService.ShowErrorAsync(pr.ErrorMessage ?? "خطا در تغییرِ رمز."); return; }
+
+                // اگر رمز عوض شد ولی بعداً فراموش شود، تنها راهِ بازیابی (بدونِ ایمیل/پیامک) همین
+                // کد است — پس باید همین‌جا ساخته و به کاربر نشان داده شود، نه اختیاری/بعداً.
+                var recoveryCode = Services.RecoveryCodeGenerator.Generate();
+                var rc = await _mediator.Send(new SetRecoveryCodeCommand(uid, recoveryCode));
+                if (rc.Succeeded)
+                    new Views.Onboarding.RecoveryCodeWindow(recoveryCode) { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog();
             }
 
             // ۴) دادهٔ پایه: انبارها / کالاها و خدمات / مشتری‌ها (فقط ردیف‌های پرشده)

@@ -19,6 +19,12 @@ public class User : BaseEntity
     public int FailedAttempts { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
     public bool MustChangePass { get; private set; }
+    /// <summary>U-SEC-RECOVERY — هشِ کدِ بازیابیِ رمز (همان الگویِ PasswordHash/Salt، هرگز خام).
+    /// یک‌بار در ویزاردِ راه‌اندازیِ اولیه ساخته و به کاربر نشان داده می‌شود؛ اگر رمز فراموش شود،
+    /// از صفحهٔ ورود با همین کد می‌شود رمزِ جدید تعیین کرد (بدونِ نیازِ ایمیل/پیامک).</summary>
+    public string? RecoveryCodeHash { get; private set; }
+    public string? RecoveryCodeSalt { get; private set; }
+    public bool HasRecoveryCode => !string.IsNullOrEmpty(RecoveryCodeHash);
     /// <summary>SP-1 — نگاشتِ کاربر به «فروشنده» (Crm.Parties). اگر مقدار داشته باشد، فروشِ گردشگری
     /// فروشنده را خودکار از همین کاربر تشخیص می‌دهد (پنلِ فروشنده‌محور).</summary>
     public int? SalespersonPartyId { get; private set; }
@@ -77,5 +83,11 @@ public class User : BaseEntity
     {
         SalespersonPartyId = partyId is > 0 ? partyId : null;
         UpdatedAt = DateTime.Now;
+    }
+
+    /// <summary>U-SEC-RECOVERY — ذخیرهٔ هشِ کدِ بازیابیِ نو (خودِ کد هرگز اینجا نیست).</summary>
+    public void SetRecoveryCode(string hash, string salt)
+    {
+        RecoveryCodeHash = hash; RecoveryCodeSalt = salt; UpdatedAt = DateTime.Now;
     }
 }

@@ -1411,7 +1411,8 @@ public partial class App : System.Windows.Application
 
         var vm = _host.Services.GetRequiredService<ViewModels.Shell.LoginViewModel>();
         vm.EnableApiMode(moduleName);
-        var win = new Views.Shell.LoginWindow(vm);
+        var mediator = _host.Services.GetRequiredService<MediatR.IMediator>();
+        var win = new Views.Shell.LoginWindow(vm, mediator);
         vm.Authenticated += () =>
         {
             onAuthenticated();   // open the kiosk window first …

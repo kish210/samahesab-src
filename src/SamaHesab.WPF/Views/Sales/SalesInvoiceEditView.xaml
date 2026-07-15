@@ -171,7 +171,7 @@
 
         <!-- ═══ گریدِ اقلام (تمام‌عرض، قابلِ ویرایش) ═══ -->
         <Border Grid.Row="1" Style="{StaticResource ErpGbox}" Padding="0">
-            <DataGrid Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
+            <DataGrid x:Name="ItemsGrid" Style="{StaticResource ErpDataGrid}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="False"
                       ItemsSource="{Binding InvoiceItems}" SelectedItem="{Binding SelectedItem}"
                       RowHeight="{DynamicResource ErpDensRowHeight}" GridLinesVisibility="All" FontFamily="{StaticResource VazirFont}" BorderThickness="0">
                 <!-- CC-5 — منوی راست‌کلیکِ ردیف (تکرار/حذف). PlacementTarget=DataGrid → DataContext=VM، SelectedItem=ردیف. -->

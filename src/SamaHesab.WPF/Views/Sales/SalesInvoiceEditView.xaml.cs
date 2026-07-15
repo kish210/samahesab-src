@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using SamaHesab.WPF.Behaviors;
 using SamaHesab.WPF.ViewModels.Sales;
 using SamaHesab.WPF.Views.Shell;
 
@@ -12,6 +13,10 @@ public partial class SalesInvoiceEditView : UserControl
         InitializeComponent();
         // ورود کیبوردمحور: فوکوس روی نوار بارکد هنگام باز شدن فرم
         Loaded += (_, _) => BarcodeBox.Focus();
+        // U-UX-3: Enter در آخرین ستونِ آخرین ردیف → ردیفِ نو + فوکوسِ کالا (ورودِ کلاسیکِ سطربه‌سطر)
+        DataGridQuickEntryHelper.EnableEnterToAddRow(ItemsGrid,
+            () => (DataContext as SalesInvoiceEditViewModel)?.AddEmptyRowCommand,
+            productColumnIndex: 1, lastEditableColumnIndex: 7);
         // OPT-5: میان‌برهای فوکوس — F4 نوار بارکد/کالا · F6 انتخاب مشتری
         PreviewKeyDown += (_, e) =>
         {

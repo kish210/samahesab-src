@@ -231,6 +231,7 @@
                                 <MenuItem Header="فاکتور سریع (صندوق)" Command="{Binding NavigateCommand}" CommandParameter="POS" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
                                 <Separator/>
                                 <MenuItem Header="فاکتورهای فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
+                                <MenuItem Header="کنسینمنت‌هایِ باز (تسویه)" Command="{Binding NavigateCommand}" CommandParameter="OpenConsignments"/>
                                 <Separator/>
                                 <MenuItem Header="درآمد و سود" Command="{Binding NavigateCommand}" CommandParameter="Income"/>
                                 <MenuItem Header="لیست درآمدها" Command="{Binding NavigateCommand}" CommandParameter="IncomeList"/>

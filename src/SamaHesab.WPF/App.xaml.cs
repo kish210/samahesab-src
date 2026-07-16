@@ -275,6 +275,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<WarehouseViewModel>();
                 services.AddTransient<StockAdjustViewModel>();
                 services.AddTransient<SalesInvoiceListViewModel>();
+                services.AddTransient<ViewModels.Sales.OpenConsignmentsViewModel>();   // U-CONSIGN-SETTLE
                 services.AddTransient<ViewModels.Sales.SalesDashboardViewModel>();   // داشبوردِ اختصاصیِ فروشنده
                 services.AddTransient<ViewModels.Sales.SalesReportViewModel>();   // کارِ ۸ — گزارش فروش
                 services.AddTransient<ViewModels.Purchase.PurchaseReportViewModel>();   // کارِ ۸ — گزارش خرید

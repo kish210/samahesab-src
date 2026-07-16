@@ -183,6 +183,7 @@ public partial class MainViewModel : BaseViewModel
             ["ProductCard"]     = ("کارت کالا",           sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Inventory.ProductCardViewModel>()),
             ["SalesInvoice"]    = ("فاکتور فروش",         sp => sp.GetRequiredService<SalesInvoiceEditViewModel>()),
             ["SalesInvoiceList"]= ("لیست فروش",           sp => sp.GetRequiredService<SalesInvoiceListViewModel>()),
+            ["OpenConsignments"]= ("کنسینمنت‌هایِ باز",    sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.OpenConsignmentsViewModel>()),
             ["SalesDash"]       = ("داشبورد فروش",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Sales.SalesDashboardViewModel>()),
             ["Income"]          = ("درآمد و سود",         sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),
             ["IncomeList"]      = ("لیست درآمدها",        sp => sp.GetRequiredService<SamaHesab.WPF.ViewModels.Reports.IncomeReportViewModel>()),

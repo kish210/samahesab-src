@@ -1,0 +1,98 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiGet, ApiError } from '../api/client';
+
+interface CustomerRow {
+  id: number;
+  code: string;
+  name: string;
+  mobile: string;
+  balance: number;
+  priceLevel: string;
+  isActive: boolean;
+}
+
+const numberFormat = new Intl.NumberFormat('fa-IR');
+
+export function CustomersPage() {
+  const [rows, setRows] = useState<CustomerRow[]>([]);
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setLoading(true);
+      const qs = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : '';
+      apiGet<CustomerRow[]>(`/api/customers${qs}`)
+        .then(setRows)
+        .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ فهرستِ مشتریان.'))
+        .finally(() => setLoading(false));
+    }, 250);
+    return () => clearTimeout(handle);
+  }, [search]);
+
+  return (
+    <div>
+      <h1 style={{ marginBottom: 'var(--space-4)' }}>مشتریان</h1>
+
+      <div className="field" style={{ maxWidth: 320, marginBottom: 'var(--space-4)' }}>
+        <input
+          className="input"
+          placeholder="جست‌وجو بر اساسِ نام/کد/موبایل…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {error && <div style={{ color: 'var(--danger-700)' }}>{error}</div>}
+      {loading && !error && <div style={{ color: 'var(--text-muted)' }}>در حالِ بارگیری…</div>}
+
+      {!loading && !error && (
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>کد</th>
+                <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>نام</th>
+                <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>موبایل</th>
+                <th className="num" style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>مانده (ریال)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id} style={{ borderBottom: '1px solid var(--gray-100)' }}>
+                  <td style={{ padding: '10px 12px' }}>{r.code}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <Link to={`/customers/${r.id}`}>{r.name}</Link>
+                  </td>
+                  <td className="num" style={{ padding: '10px 12px', direction: 'ltr', textAlign: 'end' }}>
+                    {r.mobile}
+                  </td>
+                  <td
+                    className="num"
+                    style={{
+                      padding: '10px 12px',
+                      textAlign: 'end',
+                      fontWeight: 600,
+                      color: r.balance > 0 ? 'var(--danger-700)' : 'var(--text-strong)',
+                    }}
+                  >
+                    {numberFormat.format(r.balance)}
+                  </td>
+                </tr>
+              ))}
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={4} style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    مشتری‌ای یافت نشد.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -67,6 +67,8 @@ PublishProfiles/
 *.json
 !appsettings.json
 !appsettings.Development.json
+!web/*.json
+!web/**/tsconfig*.json
 
 # Misc
 *.DS_Store
@@ -120,3 +122,8 @@ telerik-license.txt
 # مخزنِ سورسِ خصوصی (clone محلی — نباید درون این مخزن باشد)
 samahesab-src/
 /SamaHesab_UX_Screenshots_v2.5.11.zip
+
+# کلاینتِ وب (فازِ ۶) — Vite + React
+web/node_modules/
+web/dist/
+web/.env.local

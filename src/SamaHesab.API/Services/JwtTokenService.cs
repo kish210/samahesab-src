@@ -10,18 +10,25 @@ public record AuthenticatedUser(int UserId, int CompanyId, int BranchId, string 
     string[] Roles, string[] Permissions, int? SalespersonPartyId = null);
 public record TokenPair(string AccessToken, string RefreshToken, DateTime ExpiresAt);
 
+/// <summary>
+/// کلیدِ مؤثرِ امضایِ JWT — از Program.cs (پس از اعمالِ override برایِ Productionِ بدونِ کلیدِ واقعی؛
+/// SR-3/SR-4) محاسبه و به‌عنوانِ singleton ثبت می‌شود. اگر JwtTokenService به‌جایِ این، مستقیم از
+/// IConfiguration کلیدِ خام (پیش از override) را بخواند، توکنِ صادرشده با کلیدِ متفاوتی از
+/// کلیدِ اعتبارسنجیِ AddJwtBearer امضا می‌شود و هر لاگین در آن حالت با ۴۰۱ رد می‌شود (باگِ واقعی
+/// که در تستِ زندهٔ کلاینتِ وب کشف شد).
+/// </summary>
+public record JwtSettings(string Key, string? Issuer, string? Audience, int AccessTokenMinutes);
+
 public class JwtTokenService
 {
-    private readonly IConfiguration _config;
-    public JwtTokenService(IConfiguration config) => _config = config;
+    private readonly JwtSettings _settings;
+    public JwtTokenService(JwtSettings settings) => _settings = settings;
 
     public TokenPair Issue(AuthenticatedUser user)
     {
-        var jwt = _config.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var minutes = int.TryParse(jwt["AccessTokenMinutes"], out var m) ? m : 60;
-        var expires = DateTime.UtcNow.AddMinutes(minutes);
+        var expires = DateTime.UtcNow.AddMinutes(_settings.AccessTokenMinutes);
 
         var claims = new List<Claim>
         {
@@ -39,7 +46,7 @@ public class JwtTokenService
         claims.AddRange(user.Permissions.Select(p => new Claim("perm", p)));
 
         var token = new JwtSecurityToken(
-            issuer: jwt["Issuer"], audience: jwt["Audience"],
+            issuer: _settings.Issuer, audience: _settings.Audience,
             claims: claims, expires: expires, signingCredentials: creds);
 
         var access = new JwtSecurityTokenHandler().WriteToken(token);

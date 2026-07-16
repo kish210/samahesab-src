@@ -83,6 +83,11 @@ if (!builder.Environment.IsDevelopment()
         throw new InvalidOperationException(
             $"کلیدِ ذخیره‌شده در «{keyFile}» نامعتبر است؛ آن را حذف کنید تا دوباره تولید شود.");
 }
+// SR-3/SR-4 fix: JwtTokenService باید همین کلیدِ مؤثر (پس از override) را برایِ امضا استفاده کند،
+// نه کلیدِ خامِ appsettings را دوباره بخواند — وگرنه در Productionِ بدونِ کلیدِ واقعی، توکنِ صادرشده
+// با کلیدی متفاوت از کلیدِ اعتبارسنجیِ زیر امضا می‌شود و هر لاگین با ۴۰۱ رد می‌شود.
+var accessMinutes = int.TryParse(jwt["AccessTokenMinutes"], out var jwtMinutes) ? jwtMinutes : 60;
+builder.Services.AddSingleton(new JwtSettings(jwtKey, jwt["Issuer"], jwt["Audience"], accessMinutes));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

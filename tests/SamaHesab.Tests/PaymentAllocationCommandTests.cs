@@ -126,7 +126,7 @@ public class PaymentAllocationCommandTests
         invoices.AddAsync(newer).Wait();
 
         var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            new FakeVoucherRepo(), new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
+            new FakeVoucherRepo(), new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>(), new FakeRepo<PartyLedgerEntry>());
 
         // هدف‌گیریِ صریحِ فاکتورِ دوم، با اینکه FIFO اول‌ همان اولی را می‌گرفت.
         var res = await handler.Handle(new CreateReceiptCommand(
@@ -151,7 +151,7 @@ public class PaymentAllocationCommandTests
 
         var vouchers = new FakeVoucherRepo();
         var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
+            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>(), new FakeRepo<PartyLedgerEntry>());
 
         var res = await handler.Handle(new CreateReceiptCommand(
             1, 1, "1405/04/15", CustomerId: 1, Amount: 1_000_000), default);   // ۴۰۰,۰۰۰ بیش از ماندهٔ فاکتور
@@ -183,7 +183,7 @@ public class PaymentAllocationCommandTests
 
         var vouchers = new FakeVoucherRepo();
         var handler = new CreatePaymentCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>());
+            vouchers, new FakeRepo<Party>(), invoices, new FakeRepo<FiscalYear>(), new FakeRepo<BankAccount>(), new FakeRepo<PartyLedgerEntry>());
 
         var res = await handler.Handle(new CreatePaymentCommand(
             1, 1, "1405/04/15", SupplierId: 1, Amount: 500_000), default);   // ۲۰۰,۰۰۰ بیش از ماندهٔ فاکتور
@@ -211,7 +211,7 @@ public class PaymentAllocationCommandTests
 
         var vouchers = new FakeVoucherRepo();
         var handler = new CreateReceiptCommandHandler(new FakeUow(), new FakeUser(), accounts,
-            vouchers, new FakeRepo<Party>(), new FakeRepo<SalesInvoice>(), new FakeRepo<FiscalYear>(), bankAccounts);
+            vouchers, new FakeRepo<Party>(), new FakeRepo<SalesInvoice>(), new FakeRepo<FiscalYear>(), bankAccounts, new FakeRepo<PartyLedgerEntry>());
 
         var res = await handler.Handle(new CreateReceiptCommand(
             1, 1, "1405/04/15", CustomerId: 1, Amount: 500_000, PaymentMethod: "بانک", BankAccountId: secondBank.Id), default);

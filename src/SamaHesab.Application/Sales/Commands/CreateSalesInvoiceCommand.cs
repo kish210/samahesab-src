@@ -83,6 +83,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IRepository<Domain.Entities.Accounting.BankAccount> _bankAccounts;
     private readonly IMediator _mediator;
     private readonly IWarehouseRepository _warehouses;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreateSalesInvoiceCommandHandler(
         IRepository<SalesInvoice> invoiceRepository,
@@ -98,7 +99,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IRepository<Domain.Entities.Accounting.BankAccount> bankAccounts,
         IMediator mediator,
-        IWarehouseRepository warehouses)
+        IWarehouseRepository warehouses,
+        IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
@@ -114,6 +116,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _bankAccounts = bankAccounts;
         _mediator = mediator;
         _warehouses = warehouses;
+        _partyLedger = partyLedger;
     }
 
     public async Task<Result<int>> Handle(CreateSalesInvoiceCommand request, CancellationToken ct)
@@ -289,7 +292,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
                 {
                     var delta = request.InvoiceType == Domain.Enums.InvoiceType.Sale
                         ? invoice.RemainAmount : -invoice.RemainAmount;
-                    custForBalance.UpdateBalance(custForBalance.Balance + delta);
+                    var docType = request.InvoiceType == Domain.Enums.InvoiceType.Sale ? "فاکتور فروش" : "برگشت از فروش";
+                    await CRM.PartyLedger.RecordAsync(_partyLedger, custForBalance, delta, request.InvoiceDate,
+                        docType, invoice.InvoiceNumber, $"{docType} {invoice.InvoiceNumber}", ct);
                 }
             }
 

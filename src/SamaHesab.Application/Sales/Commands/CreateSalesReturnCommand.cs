@@ -50,12 +50,14 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
     private readonly IWarehouseRepository _warehouses;
+    private readonly IRepository<SamaHesab.Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreateSalesReturnCommandHandler(IRepository<SalesInvoice> invoices, IStockItemRepository stock,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
         IRepository<StockTransaction> ledger, IRepository<SamaHesab.Domain.Entities.CRM.Party> customers,
-        IUnitOfWork uow, ICurrentUserService user, IWarehouseRepository warehouses)
-    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _customers = customers; _uow = uow; _user = user; _warehouses = warehouses; }
+        IUnitOfWork uow, ICurrentUserService user, IWarehouseRepository warehouses,
+        IRepository<SamaHesab.Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
+    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _customers = customers; _uow = uow; _user = user; _warehouses = warehouses; _partyLedger = partyLedger; }
 
     public async Task<Result<int>> Handle(CreateSalesReturnCommand req, CancellationToken ct)
     {
@@ -144,7 +146,8 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
             {
                 var custForBalance = await _customers.GetByIdAsync(req.CustomerId, ct);
                 if (custForBalance != null)
-                    custForBalance.UpdateBalance(custForBalance.Balance - inv.GrandTotal);
+                    await CRM.PartyLedger.RecordAsync(_partyLedger, custForBalance, -inv.GrandTotal, req.Date,
+                        "برگشت از فروش", number, $"برگشت از فروش {number}", ct);
             }
 
             await _uow.SaveChangesAsync(ct);

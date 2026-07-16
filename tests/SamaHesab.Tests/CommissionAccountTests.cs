@@ -231,7 +231,7 @@ public class CommissionAccountTests
             new FakeRepo<SalesInvoice>(), new FakeUow(), new FakeUser(), new FakeCalendar(),
             stock, products, accounts, vouchers,
             new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), new FakeRepo<Party>(),
-            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo());
+            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo(), new FakeRepo<PartyLedgerEntry>());
 
         return (handler, accounts, vouchers);
     }

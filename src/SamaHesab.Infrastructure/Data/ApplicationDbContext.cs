@@ -92,6 +92,7 @@ public class ApplicationDbContext : DbContext
     // CRM
     public DbSet<SamaHesab.Domain.Entities.CRM.CustomerAttachment> CustomerAttachments { get; set; }
     public DbSet<Party> Parties { get; set; }   // طرف‌حساب یکپارچه (Customer+Supplier)
+    public DbSet<SamaHesab.Domain.Entities.CRM.PartyLedgerEntry> PartyLedgerEntries { get; set; }   // U-PARTY-LEDGER
 
     // Sales
     public DbSet<SalesInvoice> SalesInvoices { get; set; }
@@ -181,6 +182,15 @@ public class ApplicationDbContext : DbContext
         });
         modelBuilder.Entity<SamaHesab.Domain.Entities.CRM.CustomerAttachment>().ToTable("CustomerAttachments", "Crm");
         modelBuilder.Entity<Party>().ToTable("Parties", "Crm");   // طرف‌حساب یکپارچه
+        modelBuilder.Entity<SamaHesab.Domain.Entities.CRM.PartyLedgerEntry>(b =>
+        {
+            b.ToTable("PartyLedgerEntries", "Crm");
+            b.Property(x => x.DocType).IsRequired().HasMaxLength(50);
+            b.Property(x => x.DocNumber).HasMaxLength(50);
+            b.Property(x => x.Description).HasMaxLength(500);
+            b.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+            b.HasIndex(x => new { x.CompanyId, x.PartyId });
+        });
         modelBuilder.Entity<SalesInvoice>().ToTable("SalesInvoices", "Sal");
         modelBuilder.Entity<SalesInvoiceItem>().ToTable("SalesInvoiceItems", "Sal");
         // SalesInvoice: Status maps to the 'StatusCode' Persian column; InvoiceType is Persian NVARCHAR.

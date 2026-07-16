@@ -225,10 +225,10 @@ public class ConsignmentSettlementTests
             invoices, new FakeUow(), new FakeUser(), new FakeCalendar(),
             stock, products, accounts, vouchers,
             new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), customers,
-            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo());
+            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo(), new FakeRepo<PartyLedgerEntry>());
 
         var settleHandler = new SettleConsignmentCommandHandler(
-            invoices, vouchers, accounts, customers, new FakeRepo<BankAccount>(), new FakeUow(), new FakeUser());
+            invoices, vouchers, accounts, customers, new FakeRepo<BankAccount>(), new FakeUow(), new FakeUser(), new FakeRepo<PartyLedgerEntry>());
 
         return (createHandler, settleHandler, invoices, accounts, vouchers, customers);
     }

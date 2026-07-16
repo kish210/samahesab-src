@@ -144,7 +144,7 @@ public class ItineraryBillingTests
         guestParty.UpdateBalance(1000);   // مانده‌ی اولیه، برای تأییدِ اینکه Balance جمع می‌شود نه بازنویسی
         parties.AddAsync(guestParty).Wait();
         var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
-            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow());
+            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow(), new FakeRepo<PartyLedgerEntry>());
         return (h, vouchers, sales, itins, it, parties);
     }
 
@@ -224,7 +224,7 @@ public class ItineraryBillingTests
         var sales = new FakeSalesRepoWithLineIds();
         var parties = new FakeRepo<Party>();
         var h = new SubmitGuestItineraryCommandHandler(itins, stopsRepo, settings, products, sales,
-            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow());
+            rules, commissions, vouchers, fys, parties, new FakeCalendar(), new FakeUow(), new FakeRepo<PartyLedgerEntry>());
 
         var res = await h.Handle(new SubmitGuestItineraryCommand(it.Token, new List<int>(), Confirm: true), default);
 

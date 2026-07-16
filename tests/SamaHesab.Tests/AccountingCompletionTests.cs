@@ -207,7 +207,7 @@ public class AccountingCompletionTests
         var handler = new CreatePurchaseInvoiceCommandHandler(
             new FakeUow(), new FakeUser(), stock, products, accounts,
             vouchers, new FakeRepo<PurchaseInvoice>(), new FakeRepo<Domain.Entities.Inventory.StockTransaction>(),
-            fiscalYears, new FakeRepo<Party>(), new FakeMediator(), new FakeWarehouseRepo());
+            fiscalYears, new FakeRepo<Party>(), new FakeMediator(), new FakeWarehouseRepo(), new FakeRepo<PartyLedgerEntry>());
 
         return (handler, accounts, vouchers, stock);
     }

@@ -93,7 +93,7 @@ public class TourismSaleTests
         var sales = new FakeRepo<TourismSale>();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             sales, new FakeRepo<SalesCommissionEntry>(), vouchers, new FakeRepo<FiscalYear>(), new FakeRepo<Party>(),
-            new FakeUow(), new FakeUser());
+            new FakeUow(), new FakeUser(), new FakeRepo<PartyLedgerEntry>());
 
         var cmd = new CreateTourismSaleCommand(1, 1, "1404/06/15", SalespersonPartyId: 5, CustomerPartyId: null,
             PaymentMethod: "نقدی", Lines: new[]
@@ -131,7 +131,7 @@ public class TourismSaleTests
         products.AddAsync(TourismProduct.Create(1, "X", 11, 100, 150)).Wait();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             new FakeRepo<TourismSale>(), new FakeRepo<SalesCommissionEntry>(), new FakeVoucherRepo(),
-            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser());
+            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser(), new FakeRepo<PartyLedgerEntry>());
 
         var res = await handler.Handle(new CreateTourismSaleCommand(1, 1, "1404/06/15", 5, null, "نقدی",
             new[] { new TourismSaleLineDto(1, 1, 150) }), default);
@@ -150,7 +150,7 @@ public class TourismSaleTests
         products.AddAsync(TourismProduct.Create(1, "گشت دور جزیره", 11, 100, 150, requiresPassengerList: true)).Wait();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             new FakeRepo<TourismSale>(), new FakeRepo<SalesCommissionEntry>(), new FakeVoucherRepo(),
-            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser());
+            new FakeRepo<FiscalYear>(), new FakeRepo<Party>(), new FakeUow(), new FakeUser(), new FakeRepo<PartyLedgerEntry>());
 
         var res = await handler.Handle(new CreateTourismSaleCommand(1, 1, "1404/06/15", 5, null, "نقدی",
             new[] { new TourismSaleLineDto(1, 1, 150) }), default);   // بدونِ مسافر
@@ -181,7 +181,7 @@ public class TourismSaleTests
         var sales = new FakeRepo<TourismSale>();
         var handler = new CreateTourismSaleCommandHandler(settings, products, new FakeRepo<CommissionRule>(),
             sales, new FakeRepo<SalesCommissionEntry>(), vouchers, new FakeRepo<FiscalYear>(), parties,
-            new FakeUow(), new FakeUser());
+            new FakeUow(), new FakeUser(), new FakeRepo<PartyLedgerEntry>());
 
         var cmd = new CreateTourismSaleCommand(1, 1, "1404/06/15", SalespersonPartyId: 5, CustomerPartyId: 9,
             PaymentMethod: "نسیه", Lines: new[] { new TourismSaleLineDto(1, Quantity: 1, UnitSalePrice: 150, DiscountAmount: 10) });

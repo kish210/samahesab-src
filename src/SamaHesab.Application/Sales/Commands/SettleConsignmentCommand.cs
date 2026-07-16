@@ -43,15 +43,17 @@ public class SettleConsignmentCommandHandler : IRequestHandler<SettleConsignment
     private readonly IRepository<Domain.Entities.Accounting.BankAccount> _bankAccounts;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public SettleConsignmentCommandHandler(IRepository<SalesInvoice> invoices, IVoucherRepository vouchers,
         IAccountRepository accounts, IRepository<Domain.Entities.CRM.Party> customers,
         IRepository<Domain.Entities.Accounting.BankAccount> bankAccounts,
-        IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+        IUnitOfWork unitOfWork, ICurrentUserService currentUser,
+        IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
     {
         _invoices = invoices; _vouchers = vouchers; _accounts = accounts;
         _customers = customers; _bankAccounts = bankAccounts;
-        _unitOfWork = unitOfWork; _currentUser = currentUser;
+        _unitOfWork = unitOfWork; _currentUser = currentUser; _partyLedger = partyLedger;
     }
 
     public async Task<Result<int>> Handle(SettleConsignmentCommand req, CancellationToken ct)
@@ -137,7 +139,8 @@ public class SettleConsignmentCommandHandler : IRequestHandler<SettleConsignment
             {
                 var customer = await _customers.GetByIdAsync(invoice.CustomerId, ct);
                 if (customer != null)
-                    customer.UpdateBalance(customer.Balance + remain);
+                    await CRM.PartyLedger.RecordAsync(_partyLedger, customer, remain, req.SettlementDate,
+                        "تسویهٔ کنسینمنت", invoice.InvoiceNumber, $"تسویهٔ کنسینمنت {invoice.InvoiceNumber}", ct);
             }
 
             await _unitOfWork.SaveChangesAsync(ct);

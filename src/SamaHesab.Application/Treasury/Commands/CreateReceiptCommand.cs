@@ -42,12 +42,13 @@ public class CreateReceiptCommandHandler : IRequestHandler<CreateReceiptCommand,
     private readonly IRepository<SalesInvoice> _invoices;
     private readonly IRepository<FiscalYear> _fiscalYears;
     private readonly IRepository<BankAccount> _bankAccounts;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreateReceiptCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
         IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Party> customers,
         IRepository<SalesInvoice> invoices, IRepository<FiscalYear> fiscalYears,
-        IRepository<BankAccount> bankAccounts)
-    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _customers = customers; _invoices = invoices; _fiscalYears = fiscalYears; _bankAccounts = bankAccounts; }
+        IRepository<BankAccount> bankAccounts, IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
+    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _customers = customers; _invoices = invoices; _fiscalYears = fiscalYears; _bankAccounts = bankAccounts; _partyLedger = partyLedger; }
 
     public async Task<Result<int>> Handle(CreateReceiptCommand req, CancellationToken ct)
     {
@@ -122,7 +123,9 @@ public class CreateReceiptCommandHandler : IRequestHandler<CreateReceiptCommand,
             await _vouchers.AddAsync(v, ct);
 
             var customer = await _customers.GetByIdAsync(req.CustomerId, ct);
-            if (customer != null) customer.UpdateBalance(customer.Balance - req.Amount);
+            if (customer != null)
+                await CRM.PartyLedger.RecordAsync(_partyLedger, customer, -req.Amount, req.Date,
+                    "دریافت", null, req.Description ?? "دریافت وجه از مشتری", ct);
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

@@ -2,6 +2,7 @@ using MediatR;
 using SamaHesab.Application.Accounting;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
+using SamaHesab.Application.CRM;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Modules.Tourism.Domain;
@@ -37,14 +38,16 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
     private readonly IRepository<Party> _parties;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IRepository<PartyLedgerEntry> _partyLedger;
 
     public CreateTourismSaleCommandHandler(IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
         IRepository<CommissionRule> rules, IRepository<TourismSale> sales, IRepository<SalesCommissionEntry> commissions,
         IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears, IRepository<Party> parties,
-        IUnitOfWork uow, ICurrentUserService user)
+        IUnitOfWork uow, ICurrentUserService user, IRepository<PartyLedgerEntry> partyLedger)
     {
         _settings = settings; _products = products; _rules = rules; _sales = sales; _commissions = commissions;
         _vouchers = vouchers; _fiscalYears = fiscalYears; _parties = parties; _uow = uow; _user = user;
+        _partyLedger = partyLedger;
     }
 
     public async Task<Result<int>> Handle(CreateTourismSaleCommand req, CancellationToken ct)
@@ -159,7 +162,9 @@ public class CreateTourismSaleCommandHandler : IRequestHandler<CreateTourismSale
             if (isCredit && req.CustomerPartyId is > 0)
             {
                 var customer = await _parties.GetByIdAsync(req.CustomerPartyId.Value, ct);
-                if (customer != null) customer.UpdateBalance(customer.Balance + netToCustomer);
+                if (customer != null)
+                    await PartyLedger.RecordAsync(_partyLedger, customer, netToCustomer, req.Date,
+                        "فروش گردشگری", null, req.Note ?? "فروشِ نسیهٔ گردشگری", ct);
             }
 
             await _uow.SaveChangesAsync(ct);

@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
+using SamaHesab.Application.CRM;
 using SamaHesab.Domain.Entities.Accounting;
 using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -95,16 +96,18 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
     private readonly IRepository<Party> _parties;
     private readonly IPersianCalendarService _calendar;
     private readonly IUnitOfWork _uow;
+    private readonly IRepository<PartyLedgerEntry> _partyLedger;
 
     public SubmitGuestItineraryCommandHandler(IRepository<GuestItinerary> itineraries,
         IRepository<ItineraryStop> stops, IRepository<TourismSetting> settings, IRepository<TourismProduct> products,
         IRepository<TourismSale> sales, IRepository<CommissionRule> rules, IRepository<SalesCommissionEntry> commissions,
         IVoucherRepository vouchers, IRepository<FiscalYear> fiscalYears, IRepository<Party> parties,
-        IPersianCalendarService calendar, IUnitOfWork uow)
+        IPersianCalendarService calendar, IUnitOfWork uow, IRepository<PartyLedgerEntry> partyLedger)
     {
         _itineraries = itineraries; _stops = stops; _settings = settings; _products = products;
         _sales = sales; _rules = rules; _commissions = commissions;
         _vouchers = vouchers; _fiscalYears = fiscalYears; _parties = parties; _calendar = calendar; _uow = uow;
+        _partyLedger = partyLedger;
     }
 
     public async Task<Result> Handle(SubmitGuestItineraryCommand req, CancellationToken ct)
@@ -237,7 +240,9 @@ public class SubmitGuestItineraryCommandHandler : IRequestHandler<SubmitGuestIti
         if (it.GuestPartyId is > 0)
         {
             var guest = await _parties.GetByIdAsync(it.GuestPartyId.Value, ct);
-            if (guest != null) guest.UpdateBalance(guest.Balance + sale.TotalSale);
+            if (guest != null)
+                await PartyLedger.RecordAsync(_partyLedger, guest, sale.TotalSale, date,
+                    "خریدِ اقامتیِ مهمان", $"TIT-{number}", $"خریدِ اقامتیِ مهمان «{it.GuestName}»", ct);
         }
 
         it.SetSale(sale.Id);

@@ -49,12 +49,15 @@ public class CreatePurchaseReturnCommandHandler : IRequestHandler<CreatePurchase
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Party> _suppliers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IWarehouseRepository _warehouses;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreatePurchaseReturnCommandHandler(IRepository<PurchaseInvoice> invoices, IStockItemRepository stock,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
         IRepository<StockTransaction> ledger, IRepository<SamaHesab.Domain.Entities.CRM.Party> suppliers,
-        IUnitOfWork uow, ICurrentUserService user)
-    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _suppliers = suppliers; _uow = uow; _user = user; }
+        IUnitOfWork uow, ICurrentUserService user, IWarehouseRepository warehouses,
+        IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
+    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _suppliers = suppliers; _uow = uow; _user = user; _warehouses = warehouses; _partyLedger = partyLedger; }
 
     public async Task<Result<int>> Handle(CreatePurchaseReturnCommand req, CancellationToken ct)
     {
@@ -101,7 +104,9 @@ public class CreatePurchaseReturnCommandHandler : IRequestHandler<CreatePurchase
 
             // ── سند حسابداریِ معکوسِ خرید ──
             // خرید: بدهکار موجودی / بستانکار پرداختنی(یا نقد). مرجوعی: بستانکار موجودی / بدهکار پرداختنی(یا نقد).
-            var inventory = await _accounts.GetByCodeAsync(companyId, "1-05-001", ct);
+            // U-INV-ACCT-WH (backlog #7): حسابِ موجودیِ اختصاصیِ انبارِ مقصدِ برگشت، در صورتِ تعیین.
+            var inventory = await Inventory.Commands.InventoryAccounting.ResolveInventoryAccountAsync(
+                _accounts, _warehouses, companyId, req.WarehouseId, ct);
             var payable = await _accounts.GetByCodeAsync(companyId, "3-01-001", ct);
             var cash = await _accounts.GetByCodeAsync(companyId, "1-01-001", ct);
             var debitAccount = req.RefundCash ? cash : payable;
@@ -128,7 +133,8 @@ public class CreatePurchaseReturnCommandHandler : IRequestHandler<CreatePurchase
             {
                 var supplier = await _suppliers.GetByIdAsync(req.SupplierId, ct);
                 if (supplier != null)
-                    supplier.UpdateBalance(supplier.Balance - inv.GrandTotal);
+                    await CRM.PartyLedger.RecordAsync(_partyLedger, supplier, -inv.GrandTotal, req.Date,
+                        "برگشت خرید", number, req.Description ?? $"برگشتِ خرید {number}", ct);
             }
 
             await _uow.SaveChangesAsync(ct);

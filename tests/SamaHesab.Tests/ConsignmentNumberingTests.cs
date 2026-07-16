@@ -227,7 +227,7 @@ public class ConsignmentNumberingTests
             invoices, new FakeUow(), new FakeUser(), new FakeCalendar(),
             stock, products, accounts, vouchers,
             new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), customers,
-            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo());
+            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo(), new FakeRepo<PartyLedgerEntry>());
 
         return (handler, invoices, accounts, vouchers, stock, customers);
     }

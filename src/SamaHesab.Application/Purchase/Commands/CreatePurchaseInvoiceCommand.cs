@@ -69,6 +69,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IRepository<Domain.Entities.CRM.Party> _suppliers;
     private readonly IMediator _mediator;
     private readonly IWarehouseRepository _warehouses;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreatePurchaseInvoiceCommandHandler(
         IUnitOfWork unitOfWork,
@@ -82,7 +83,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IRepository<Domain.Entities.CRM.Party> suppliers,
         IMediator mediator,
-        IWarehouseRepository warehouses)
+        IWarehouseRepository warehouses,
+        IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -96,6 +98,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _suppliers = suppliers;
         _mediator = mediator;
         _warehouses = warehouses;
+        _partyLedger = partyLedger;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
@@ -231,7 +234,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
             // بدهیِ نسیهٔ جدید را به Balance اضافه نمی‌کرد.
             var supplier = await _suppliers.GetByIdAsync(request.SupplierId, ct);
             if (supplier != null)
-                supplier.UpdateBalance(supplier.Balance + invoice.RemainAmount);
+                await CRM.PartyLedger.RecordAsync(_partyLedger, supplier, invoice.RemainAmount, request.InvoiceDate,
+                    "فاکتور خرید", invoice.InvoiceNumber, $"فاکتور خرید {invoice.InvoiceNumber}", ct);
 
             await _unitOfWork.SaveChangesAsync(ct);
             await _unitOfWork.CommitTransactionAsync(ct);

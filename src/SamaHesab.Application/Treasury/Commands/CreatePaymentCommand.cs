@@ -41,12 +41,13 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly IRepository<PurchaseInvoice> _invoices;
     private readonly IRepository<FiscalYear> _fiscalYears;
     private readonly IRepository<BankAccount> _bankAccounts;
+    private readonly IRepository<Domain.Entities.CRM.PartyLedgerEntry> _partyLedger;
 
     public CreatePaymentCommandHandler(IUnitOfWork uow, ICurrentUserService currentUser,
         IAccountRepository accounts, IVoucherRepository vouchers, IRepository<Party> suppliers,
         IRepository<PurchaseInvoice> invoices, IRepository<FiscalYear> fiscalYears,
-        IRepository<BankAccount> bankAccounts)
-    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; _bankAccounts = bankAccounts; }
+        IRepository<BankAccount> bankAccounts, IRepository<Domain.Entities.CRM.PartyLedgerEntry> partyLedger)
+    { _uow = uow; _currentUser = currentUser; _accounts = accounts; _vouchers = vouchers; _suppliers = suppliers; _invoices = invoices; _fiscalYears = fiscalYears; _bankAccounts = bankAccounts; _partyLedger = partyLedger; }
 
     public async Task<Result<int>> Handle(CreatePaymentCommand req, CancellationToken ct)
     {
@@ -118,7 +119,9 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             await _vouchers.AddAsync(v, ct);
 
             var supplier = await _suppliers.GetByIdAsync(req.SupplierId, ct);
-            if (supplier != null) supplier.UpdateBalance(supplier.Balance - req.Amount);
+            if (supplier != null)
+                await CRM.PartyLedger.RecordAsync(_partyLedger, supplier, -req.Amount, req.Date,
+                    "پرداخت", null, req.Description ?? "پرداخت وجه به تأمین‌کننده", ct);
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

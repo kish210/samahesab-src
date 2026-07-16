@@ -6,7 +6,9 @@ namespace SamaHesab.Application.Inventory.Queries;
 
 // ── لیست انبارها ──────────────────────────────────────────────────────────────
 public record WarehouseDto(int Id, string Name);
-public record GetWarehousesQuery() : IRequest<List<WarehouseDto>>;
+/// <summary>BranchId — U-BRANCH-BASEDATA: فیلترِ اختیاریِ شعبه، رویِ نتیجه‌ای که از قبل global
+/// query filterِ Warehouse (شعبهٔ کاربرِ جاری) اعمال شده — انبارِ بدونِ شعبه = مشترکِ همه.</summary>
+public record GetWarehousesQuery(int? BranchId = null) : IRequest<List<WarehouseDto>>;
 
 public class GetWarehousesQueryHandler : IRequestHandler<GetWarehousesQuery, List<WarehouseDto>>
 {
@@ -16,7 +18,8 @@ public class GetWarehousesQueryHandler : IRequestHandler<GetWarehousesQuery, Lis
 
     public async Task<List<WarehouseDto>> Handle(GetWarehousesQuery request, CancellationToken ct)
     {
-        var list = await _warehouses.GetByCompanyAsync(_user.CompanyId ?? 1, ct);
+        var list = (await _warehouses.GetByCompanyAsync(_user.CompanyId ?? 1, ct))
+            .Where(w => !request.BranchId.HasValue || w.BranchId == request.BranchId || w.BranchId == null);
         return list.Select(w => new WarehouseDto(w.Id, w.Name)).ToList();
     }
 }

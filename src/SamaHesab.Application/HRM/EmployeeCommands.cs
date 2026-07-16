@@ -8,7 +8,8 @@ using SamaHesab.Domain.Interfaces.Repositories;
 namespace SamaHesab.Application.HRM;
 
 // ── فهرستِ کارکنان ────────────────────────────────────────────────────────────
-public record GetEmployeesQuery(bool IncludeInactive = false, string? Search = null) : IRequest<List<EmployeeDto>>;
+/// <summary>BranchId — U-BRANCH-BASEDATA: فیلترِ اختیاریِ شعبه (کارمندِ بدونِ شعبه = مشترکِ همه).</summary>
+public record GetEmployeesQuery(bool IncludeInactive = false, string? Search = null, int? BranchId = null) : IRequest<List<EmployeeDto>>;
 
 public record EmployeeDto(int Id, string Code, string FirstName, string LastName, string FullName,
     string NationalCode, string? Mobile, decimal BaseSalary, string ContractType, bool IsActive);
@@ -27,6 +28,7 @@ public class GetEmployeesQueryHandler : IRequestHandler<GetEmployeesQuery, List<
         return all
             .Where(e => string.IsNullOrWhiteSpace(req.Search)
                      || e.FullName.Contains(req.Search!) || e.Code.Contains(req.Search!) || e.NationalCode.Contains(req.Search!))
+            .Where(e => !req.BranchId.HasValue || e.BranchId == req.BranchId || e.BranchId == null)
             .OrderBy(e => e.LastName)
             .Select(e => new EmployeeDto(e.Id, e.Code, e.FirstName, e.LastName, e.FullName, e.NationalCode, e.Mobile, e.BaseSalary, e.ContractType, e.IsActive))
             .ToList();

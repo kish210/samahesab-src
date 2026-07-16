@@ -1,3 +1,4 @@
+using System.Linq;
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Common.Models;
@@ -14,7 +15,8 @@ public record ProductRowDto(int Id, string Code, string Barcode, string Name,
     decimal MinStock, bool IsActive, bool IsLowStock,
     decimal ConsumerPrice = 0, decimal TaxRate = 0);
 
-public record GetProductsQuery(string? Search = null) : IRequest<List<ProductRowDto>>;
+/// <summary>BranchId — U-BRANCH-BASEDATA: فیلترِ اختیاریِ شعبه (کالایِ بدونِ شعبه = مشترکِ همه، همیشه دیده می‌شود).</summary>
+public record GetProductsQuery(string? Search = null, int? BranchId = null) : IRequest<List<ProductRowDto>>;
 
 public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<ProductRowDto>>
 {
@@ -27,7 +29,8 @@ public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<Pr
     public async Task<List<ProductRowDto>> Handle(GetProductsQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
-        var list = await _products.SearchAsync(companyId, req.Search ?? string.Empty, ct);
+        var list = (await _products.SearchAsync(companyId, req.Search ?? string.Empty, ct))
+            .Where(p => !req.BranchId.HasValue || p.BranchId == req.BranchId || p.BranchId == null);
         var lowStock = (await _products.GetLowStockAsync(companyId, ct)).Select(p => p.Id).ToHashSet();
 
         return list.Select(p => new ProductRowDto(

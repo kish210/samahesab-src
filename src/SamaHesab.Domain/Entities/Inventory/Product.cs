@@ -31,6 +31,8 @@ public class Product : AuditableEntity
     public byte[]? Image { get; private set; }
     public string? Description { get; private set; }
     public bool IsActive { get; private set; } = true;
+    /// <summary>U-BRANCH-BASEDATA — شعبهٔ اختصاصیِ کالا (null = مشترکِ همهٔ شعب).</summary>
+    public int? BranchId { get; private set; }
 
     public ICollection<StockItem> StockItems { get; private set; } = new List<StockItem>();
     public ICollection<ProductPriceLevel> PriceLevels { get; private set; } = new List<ProductPriceLevel>();
@@ -112,4 +114,5 @@ public class Product : AuditableEntity
 
     public void Deactivate() { IsActive = false; UpdatedAt = DateTime.Now; }
     public void Activate() { IsActive = true; UpdatedAt = DateTime.Now; }
+    public void SetBranch(int? branchId) { BranchId = branchId; UpdatedAt = DateTime.Now; }
 }

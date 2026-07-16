@@ -22,6 +22,20 @@ public class TrialBalanceDrillDownTests
             => throw new System.NotImplementedException();
         public Task<List<Voucher>> GetByDateRangeWithItemsAsync(int companyId, string fromDate, string toDate, CancellationToken ct = default)
             => Task.FromResult(Vouchers.Where(v => v.CompanyId == companyId).ToList());
+        public Task<List<AccountMovementTotal>> GetAccountTotalsInRangeAsync(int companyId, string fromDate, string toDate,
+            int? costCenterId, int? projectId, int? branchId, CancellationToken ct = default)
+        {
+            var totals = Vouchers.Where(v => v.CompanyId == companyId
+                    && string.Compare(v.VoucherDate, fromDate) >= 0 && string.Compare(v.VoucherDate, toDate) <= 0
+                    && (branchId == null || v.BranchId == branchId))
+                .SelectMany(v => v.Items)
+                .Where(i => (costCenterId == null || i.CostCenterId == costCenterId)
+                         && (projectId == null || i.ProjectId == projectId))
+                .GroupBy(i => i.AccountId)
+                .Select(g => new AccountMovementTotal(g.Key, g.Sum(x => x.Debit), g.Sum(x => x.Credit)))
+                .ToList();
+            return Task.FromResult(totals);
+        }
         public Task<Voucher?> GetWithItemsAsync(int voucherId, CancellationToken ct = default) => throw new System.NotImplementedException();
         public Task<string> GetNextNumberAsync(int companyId, CancellationToken ct = default) => throw new System.NotImplementedException();
         public Task AddAsync(Voucher e, CancellationToken ct = default) => throw new System.NotImplementedException();

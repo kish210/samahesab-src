@@ -41,6 +41,78 @@ public class VoucherRepository : GenericRepository<Voucher>, IVoucherRepository
             .FirstOrDefaultAsync(v => v.Id == voucherId, ct);
     }
 
+    // ── U-DB-PAGING (@2026-07-16) — نسخه‌هایِ DB-levelِ کوئری‌هایِ گزارش (بدونِ بارگذاریِ کلِ بازه). ──
+
+    public async Task<(List<Voucher> Items, int TotalCount)> GetPagedByDateRangeAsync(
+        int companyId, int fiscalYearId, string fromDate, string toDate,
+        int? status, string? searchText, int pageNumber, int pageSize, CancellationToken ct = default)
+    {
+        var query = DbSet.Where(v => v.CompanyId == companyId && v.FiscalYearId == fiscalYearId
+            && string.Compare(v.VoucherDate, fromDate) >= 0
+            && string.Compare(v.VoucherDate, toDate) <= 0);
+
+        if (status.HasValue)
+            query = query.Where(v => (int)v.Status == status.Value);
+        if (!string.IsNullOrWhiteSpace(searchText))
+            query = query.Where(v => v.VoucherNumber.Contains(searchText)
+                || (v.Description != null && v.Description.Contains(searchText)));
+
+        var total = await query.CountAsync(ct);
+        var items = await query
+            .OrderByDescending(v => v.VoucherDate).ThenByDescending(v => v.VoucherNumber)
+            .Skip((pageNumber - 1) * pageSize).Take(pageSize)
+            .Include(v => v.Items)
+            .ToListAsync(ct);
+        return (items, total);
+    }
+
+    public async Task<decimal> SumAccountMovementBeforeAsync(
+        int companyId, int accountId, string beforeDate, CancellationToken ct = default)
+        => await Context.Set<VoucherItem>()
+            .Where(i => i.AccountId == accountId && i.Voucher!.CompanyId == companyId
+                && !i.Voucher.IsReversed && string.Compare(i.Voucher.VoucherDate, beforeDate) < 0)
+            .SumAsync(i => (decimal?)(i.Debit - i.Credit), ct) ?? 0m;
+
+    public async Task<List<VoucherItem>> GetAccountItemsInRangeAsync(
+        int companyId, int accountId, string fromDate, string toDate, CancellationToken ct = default)
+        => await Context.Set<VoucherItem>()
+            .Include(i => i.Voucher)
+            .Where(i => i.AccountId == accountId && i.Voucher!.CompanyId == companyId
+                && !i.Voucher.IsReversed
+                && string.Compare(i.Voucher.VoucherDate, fromDate) >= 0
+                && string.Compare(i.Voucher.VoucherDate, toDate) <= 0)
+            .OrderBy(i => i.Voucher!.VoucherDate).ThenBy(i => i.Voucher!.VoucherNumber)
+            .ToListAsync(ct);
+
+    public async Task<List<VoucherItem>> GetLedgerItemsInRangeAsync(
+        int companyId, string fromDate, string toDate,
+        int? accountId, int? costCenterId, int? projectId, int? branchId, CancellationToken ct = default)
+        => await Context.Set<VoucherItem>()
+            .Include(i => i.Voucher)
+            .Where(i => i.Voucher!.CompanyId == companyId
+                && string.Compare(i.Voucher.VoucherDate, fromDate) >= 0
+                && string.Compare(i.Voucher.VoucherDate, toDate) <= 0
+                && (accountId == null || i.AccountId == accountId)
+                && (costCenterId == null || i.CostCenterId == costCenterId)
+                && (projectId == null || i.ProjectId == projectId)
+                && (branchId == null || i.Voucher.BranchId == branchId))
+            .OrderBy(i => i.Voucher!.VoucherDate).ThenBy(i => i.Voucher!.VoucherNumber)
+            .ToListAsync(ct);
+
+    public async Task<List<AccountMovementTotal>> GetAccountTotalsInRangeAsync(
+        int companyId, string fromDate, string toDate,
+        int? costCenterId, int? projectId, int? branchId, CancellationToken ct = default)
+        => await Context.Set<VoucherItem>()
+            .Where(i => i.Voucher!.CompanyId == companyId
+                && string.Compare(i.Voucher.VoucherDate, fromDate) >= 0
+                && string.Compare(i.Voucher.VoucherDate, toDate) <= 0
+                && (branchId == null || i.Voucher.BranchId == branchId)
+                && (costCenterId == null || i.CostCenterId == costCenterId)
+                && (projectId == null || i.ProjectId == projectId))
+            .GroupBy(i => i.AccountId)
+            .Select(g => new AccountMovementTotal(g.Key, g.Sum(x => x.Debit), g.Sum(x => x.Credit)))
+            .ToListAsync(ct);
+
     // X5 — شماره‌گذاریِ متوالیِ بدونِ‌خلأ و اتمیک (مقاوم به هم‌روندی).
     // قبلاً stub بود و `V{ticks}` می‌داد (نه متوالی، نامناسبِ حسابداریِ رسمیِ ایرانی).
     // جدولِ توالیِ سبک `dbo.__DocSequences` نگه‌داری می‌شود؛ ردیفِ هر شرکت یک‌بار از بیشترین

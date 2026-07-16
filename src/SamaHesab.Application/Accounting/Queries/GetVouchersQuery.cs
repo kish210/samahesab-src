@@ -44,36 +44,22 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
         _users = users;
     }
 
+    /// <summary>U-DB-PAGING (@2026-07-16) — پیش‌تر کلِ بازهٔ تاریخ بارگذاری و Skip/Take در حافظه
+    /// اعمال می‌شد؛ حالا صفحه‌بندی واقعاً DB-level (OFFSET/FETCH) است.</summary>
     public async Task<PagedResult<VoucherListDto>> Handle(GetVouchersQuery request, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId!.Value;
         var fromDate = request.FromDate ?? "1400/01/01";
         var toDate = request.ToDate ?? "1410/12/29";
 
-        var vouchers = await _voucherRepository.GetByDateRangeAsync(
-            companyId, request.FiscalYearId, fromDate, toDate, ct);
-
         var statusMap = new Dictionary<int, string> { {1,"پیش‌نویس"},{2,"قطعی"},{3,"دائمی"} };
         var typeMap = new Dictionary<int, string> {
             {1,"افتتاحیه"},{2,"اختتامیه"},{3,"فروش"},{4,"خرید"},{5,"صندوق"},{6,"بانک"},
             {7,"چک"},{9,"عمومی"},{10,"پرداخت"},{11,"دریافت"},{12,"حقوق"} };
 
-        var query = vouchers.AsQueryable();
-
-        if (request.Status.HasValue)
-            query = query.Where(v => (int)v.Status == request.Status.Value);
-
-        if (!string.IsNullOrWhiteSpace(request.SearchText))
-            query = query.Where(v => v.VoucherNumber.Contains(request.SearchText)
-                || (v.Description != null && v.Description.Contains(request.SearchText)));
-
-        var total = query.Count();
-        var paged = query
-            .OrderByDescending(v => v.VoucherDate)
-            .ThenByDescending(v => v.VoucherNumber)
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .ToList();
+        var (paged, total) = await _voucherRepository.GetPagedByDateRangeAsync(
+            companyId, request.FiscalYearId, fromDate, toDate,
+            request.Status, request.SearchText, request.PageNumber, request.PageSize, ct);
 
         // نام کاربرِ ثبت‌کننده (CreatedByUserId → نام) — «—» اگر ثبت نشده باشد.
         var userIds = paged.Where(v => v.CreatedByUserId.HasValue).Select(v => v.CreatedByUserId!.Value).Distinct().ToList();

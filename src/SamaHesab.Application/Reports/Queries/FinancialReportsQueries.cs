@@ -27,24 +27,21 @@ public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery,
     public GetTrialBalanceQueryHandler(IVoucherRepository v, IAccountRepository a, ICurrentUserService u)
     { _vouchers = v; _accounts = a; _currentUser = u; }
 
+    /// <summary>U-DB-PAGING (@2026-07-16) — پیش‌تر کلِ اسناد/ردیف‌هایِ بازه در حافظه بارگذاری و
+    /// GroupBy می‌شدند؛ حالا جمعِ بدهکار/بستانکارِ هر حساب یک GroupBy+SumِDB-level است.</summary>
     public async Task<List<TrialBalanceRow>> Handle(GetTrialBalanceQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
-            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
+        var totals = await _vouchers.GetAccountTotalsInRangeAsync(
+            companyId, req.FromDate, req.ToDate, req.CostCenterId, req.ProjectId, req.BranchId, ct);
 
-        var rows = vouchers.SelectMany(v => v.Items)
-            .Where(i => (req.CostCenterId == null || i.CostCenterId == req.CostCenterId)
-                     && (req.ProjectId == null || i.ProjectId == req.ProjectId))
-            .GroupBy(i => i.AccountId)
-            .Select(g =>
+        var rows = totals
+            .Select(t =>
             {
-                var (code, name) = accounts.TryGetValue(g.Key, out var acc) ? acc : ($"#{g.Key}", "");
-                var debit = g.Sum(x => x.Debit);
-                var credit = g.Sum(x => x.Credit);
-                return new TrialBalanceRow(code, name, debit, credit, debit - credit, g.Key);
+                var (code, name) = accounts.TryGetValue(t.AccountId, out var acc) ? acc : ($"#{t.AccountId}", "");
+                return new TrialBalanceRow(code, name, t.Debit, t.Credit, t.Debit - t.Credit, t.AccountId);
             })
             .OrderBy(r => r.Code)
             .ToList();
@@ -65,30 +62,24 @@ public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuer
     public GetGeneralLedgerQueryHandler(IVoucherRepository v, IAccountRepository a, ICurrentUserService u)
     { _vouchers = v; _accounts = a; _currentUser = u; }
 
+    /// <summary>U-DB-PAGING (@2026-07-16) — فیلترها (حساب/مرکزِ هزینه/پروژه/شعبه) و مرتب‌سازی حالا
+    /// در سطحِ DB اعمال می‌شوند؛ کلِ اسنادِ بازه دیگر در حافظه بارگذاری نمی‌شود.</summary>
     public async Task<List<LedgerRow>> Handle(GetGeneralLedgerQuery req, CancellationToken ct)
     {
         var companyId = _currentUser.CompanyId ?? 1;
         var accounts = (await _accounts.GetByCompanyAsync(companyId, ct))
             .ToDictionary(a => a.Id, a => (a.Code, a.Name));
-        var vouchers = (await _vouchers.GetByDateRangeWithItemsAsync(companyId, req.FromDate, req.ToDate, ct))
-            .Where(v => req.BranchId == null || v.BranchId == req.BranchId);
-
-        var lines = vouchers
-            .SelectMany(v => v.Items.Select(i => (v.VoucherDate, v.VoucherNumber, Item: i)))
-            .Where(x => (req.AccountId == null || x.Item.AccountId == req.AccountId)
-                     && (req.CostCenterId == null || x.Item.CostCenterId == req.CostCenterId)
-                     && (req.ProjectId == null || x.Item.ProjectId == req.ProjectId))
-            .OrderBy(x => x.VoucherDate).ThenBy(x => x.VoucherNumber)
-            .ToList();
+        var items = await _vouchers.GetLedgerItemsInRangeAsync(companyId, req.FromDate, req.ToDate,
+            req.AccountId, req.CostCenterId, req.ProjectId, req.BranchId, ct);
 
         var result = new List<LedgerRow>();
         decimal running = 0;
-        foreach (var x in lines)
+        foreach (var i in items)
         {
-            running += x.Item.Debit - x.Item.Credit;
-            var (code, name) = accounts.TryGetValue(x.Item.AccountId, out var acc) ? acc : ($"#{x.Item.AccountId}", "");
-            result.Add(new LedgerRow(x.VoucherDate, x.VoucherNumber, code, name,
-                x.Item.Description, x.Item.Debit, x.Item.Credit, running));
+            running += i.Debit - i.Credit;
+            var (code, name) = accounts.TryGetValue(i.AccountId, out var acc) ? acc : ($"#{i.AccountId}", "");
+            result.Add(new LedgerRow(i.Voucher!.VoucherDate, i.Voucher.VoucherNumber, code, name,
+                i.Description, i.Debit, i.Credit, running));
         }
         return result;
     }

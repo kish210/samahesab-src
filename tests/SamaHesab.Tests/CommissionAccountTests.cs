@@ -180,6 +180,23 @@ public class CommissionAccountTests
         public Task Publish<TNotification>(TNotification n, CancellationToken ct = default) where TNotification : INotification => Task.CompletedTask;
     }
 
+    private sealed class FakeWarehouseRepo : IWarehouseRepository
+    {
+        public Task AddAsync(Warehouse e, CancellationToken ct = default) => Task.CompletedTask;
+        public Task AddRangeAsync(IEnumerable<Warehouse> es, CancellationToken ct = default) => Task.CompletedTask;
+        public Task<Warehouse?> GetByIdAsync(int id, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+        public Task<List<Warehouse>> GetAllAsync(CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<List<Warehouse>> FindAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<Warehouse?> FindSingleAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+        public Task<bool> AnyAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(false);
+        public Task<int> CountAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(0);
+        public void Update(Warehouse e) { }
+        public void Remove(Warehouse e) { }
+        public void RemoveRange(IEnumerable<Warehouse> es) { }
+        public Task<List<Warehouse>> GetByCompanyAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<Warehouse?> GetDefaultAsync(int companyId, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+    }
+
     private static (CreateSalesInvoiceCommandHandler Handler, FakeAccountRepo Accounts, FakeVoucherRepo Vouchers)
         Build(bool withDedicatedCommissionAccounts, bool withLegacyCommissionAccounts)
     {
@@ -214,7 +231,7 @@ public class CommissionAccountTests
             new FakeRepo<SalesInvoice>(), new FakeUow(), new FakeUser(), new FakeCalendar(),
             stock, products, accounts, vouchers,
             new FakeRepo<Domain.Entities.Inventory.StockTransaction>(), new FakeRepo<Party>(),
-            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator());
+            fiscalYears, new FakeRepo<BankAccount>(), new FakeMediator(), new FakeWarehouseRepo());
 
         return (handler, accounts, vouchers);
     }

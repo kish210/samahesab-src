@@ -68,6 +68,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
     private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
     private readonly IRepository<Domain.Entities.CRM.Party> _suppliers;
     private readonly IMediator _mediator;
+    private readonly IWarehouseRepository _warehouses;
 
     public CreatePurchaseInvoiceCommandHandler(
         IUnitOfWork unitOfWork,
@@ -80,7 +81,8 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         IRepository<Domain.Entities.Inventory.StockTransaction> ledger,
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IRepository<Domain.Entities.CRM.Party> suppliers,
-        IMediator mediator)
+        IMediator mediator,
+        IWarehouseRepository warehouses)
     {
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
@@ -93,6 +95,7 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         _fiscalYears = fiscalYears;
         _suppliers = suppliers;
         _mediator = mediator;
+        _warehouses = warehouses;
     }
 
     public async Task<Result<int>> Handle(CreatePurchaseInvoiceCommand request, CancellationToken ct)
@@ -257,7 +260,9 @@ public class CreatePurchaseInvoiceCommandHandler : IRequestHandler<CreatePurchas
         var grand = goods + tax + request.Shipping + request.OtherCosts;
         if (grand <= 0) return null;
 
-        var inventory = await _accountRepository.GetByCodeAsync(companyId, "1-05-001", ct);
+        // U-INV-ACCT-WH (backlog #7): حسابِ موجودیِ اختصاصیِ انبارِ مقصدِ فاکتور، در صورتِ تعیین.
+        var inventory = await Inventory.Commands.InventoryAccounting.ResolveInventoryAccountAsync(
+            _accountRepository, _warehouses, companyId, request.WarehouseId, ct);
         var payable = await _accountRepository.GetByCodeAsync(companyId, "3-01-001", ct);
         if (inventory == null || payable == null) return null; // chart not set up → skip
 

@@ -49,12 +49,13 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
     private readonly IRepository<SamaHesab.Domain.Entities.CRM.Party> _customers;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _user;
+    private readonly IWarehouseRepository _warehouses;
 
     public CreateSalesReturnCommandHandler(IRepository<SalesInvoice> invoices, IStockItemRepository stock,
         IProductRepository products, IAccountRepository accounts, IVoucherRepository vouchers,
         IRepository<StockTransaction> ledger, IRepository<SamaHesab.Domain.Entities.CRM.Party> customers,
-        IUnitOfWork uow, ICurrentUserService user)
-    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _customers = customers; _uow = uow; _user = user; }
+        IUnitOfWork uow, ICurrentUserService user, IWarehouseRepository warehouses)
+    { _invoices = invoices; _stock = stock; _products = products; _accounts = accounts; _vouchers = vouchers; _ledger = ledger; _customers = customers; _uow = uow; _user = user; _warehouses = warehouses; }
 
     public async Task<Result<int>> Handle(CreateSalesReturnCommand req, CancellationToken ct)
     {
@@ -122,7 +123,9 @@ public class CreateSalesReturnCommandHandler : IRequestHandler<CreateSalesReturn
                 if (totalCost > 0)
                 {
                     var cogsAcc = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Cogs, ct);
-                    var invAcc = await _accounts.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+                    // U-INV-ACCT-WH (backlog #7): حسابِ موجودیِ اختصاصیِ انبارِ مقصدِ برگشت، در صورتِ تعیین.
+                    var invAcc = await Inventory.Commands.InventoryAccounting.ResolveInventoryAccountAsync(
+                        _accounts, _warehouses, companyId, req.WarehouseId, ct);
                     if (cogsAcc != null && invAcc != null)
                         foreach (var line in Inventory.PerpetualCogs.Build(totalCost, cogsAcc.Id, invAcc.Id, reverse: true))
                             v.AddItem(VoucherItem.Create(0, row++, line.AccountId, line.Debit, line.Credit, line.Description));

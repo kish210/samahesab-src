@@ -5,6 +5,8 @@ namespace SamaHesab.Domain.Entities.Inventory;
 public class Warehouse : AuditableEntity
 {
     public int? BranchId { get; private set; }
+    /// <summary>U-INV-ACCT-WH — حسابِ GLِ موجودیِ اختصاصیِ این انبار؛ null = حسابِ مشترکِ پیش‌فرضِ شرکت (1-05-001).</summary>
+    public int? InventoryAccountId { get; private set; }
     public string Code { get; private set; } = default!;
     public string Name { get; private set; } = default!;
     public string? Address { get; private set; }
@@ -40,4 +42,5 @@ public class Warehouse : AuditableEntity
 
     public void SetAsDefault() { IsDefault = true; UpdatedAt = DateTime.Now; }
     public void Deactivate() { IsActive = false; UpdatedAt = DateTime.Now; }
+    public void SetInventoryAccount(int? accountId) { InventoryAccountId = accountId; UpdatedAt = DateTime.Now; }
 }

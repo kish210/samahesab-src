@@ -35,10 +35,19 @@ public class TransferStockCommandHandler : IRequestHandler<TransferStockCommand,
     private readonly IRepository<StockTransaction> _ledger;
     private readonly IUnitOfWork _uow;
     private readonly ICurrentUserService _currentUser;
+    private readonly IAccountRepository _accounts;
+    private readonly IVoucherRepository _vouchers;
+    private readonly IWarehouseRepository _warehouses;
+    private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
 
     public TransferStockCommandHandler(IStockItemRepository stock,
-        IRepository<StockTransaction> ledger, IUnitOfWork uow, ICurrentUserService currentUser)
-    { _stock = stock; _ledger = ledger; _uow = uow; _currentUser = currentUser; }
+        IRepository<StockTransaction> ledger, IUnitOfWork uow, ICurrentUserService currentUser,
+        IAccountRepository accounts, IVoucherRepository vouchers, IWarehouseRepository warehouses,
+        IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears)
+    {
+        _stock = stock; _ledger = ledger; _uow = uow; _currentUser = currentUser;
+        _accounts = accounts; _vouchers = vouchers; _warehouses = warehouses; _fiscalYears = fiscalYears;
+    }
 
     public async Task<Result> Handle(TransferStockCommand req, CancellationToken ct)
     {
@@ -75,6 +84,23 @@ public class TransferStockCommandHandler : IRequestHandler<TransferStockCommand,
                 companyId, branchId, "انتقال (ورود)", null, req.Date, req.ProductId, req.ToWarehouseId,
                 req.Quantity, unitCost, dest.Quantity, dest.Quantity * dest.AverageCost,
                 "Transfer", null, req.Description), ct);
+
+            // U-INV-ACCT-WH (backlog #7) — سندِ حسابداری فقط وقتی انبارهایِ مبدأ/مقصد حسابِ موجودیِ
+            // GLِ متفاوت دارند (مثلاً هرکدام حسابِ اختصاصیِ خودشان). اگر هر دو هنوز به حسابِ مشترکِ
+            // پیش‌فرضِ شرکت resolve شوند (رفتارِ پیش‌فرض/فعلیِ بدونِ تغییر)، سندی زده نمی‌شود —
+            // چون از دیدِ GL چیزی جابه‌جا نشده (هر دو یک حساب‌اند).
+            var amount = req.Quantity * unitCost;
+            if (amount > 0)
+            {
+                var fromAcc = await InventoryAccounting.ResolveInventoryAccountAsync(_accounts, _warehouses, companyId, req.FromWarehouseId, ct);
+                var toAcc = await InventoryAccounting.ResolveInventoryAccountAsync(_accounts, _warehouses, companyId, req.ToWarehouseId, ct);
+                if (fromAcc != null && toAcc != null && fromAcc.Id != toAcc.Id)
+                {
+                    await InventoryAccounting.TryPostAsync(_vouchers, _fiscalYears, companyId, branchId ?? 1, req.Date,
+                        toAcc, fromAcc, amount, $"انتقالِ انبار{(string.IsNullOrWhiteSpace(req.Description) ? "" : ": " + req.Description)}",
+                        _currentUser.UserId ?? 0, ct);
+                }
+            }
 
             await _uow.SaveChangesAsync(ct);
             await _uow.CommitTransactionAsync(ct);

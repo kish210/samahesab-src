@@ -139,6 +139,23 @@ public class AccountingCompletionTests
         public Task<List<Product>> GetLowStockAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Product>());
     }
 
+    private sealed class FakeWarehouseRepo : IWarehouseRepository
+    {
+        public Task AddAsync(Warehouse e, CancellationToken ct = default) => Task.CompletedTask;
+        public Task AddRangeAsync(IEnumerable<Warehouse> es, CancellationToken ct = default) => Task.CompletedTask;
+        public Task<Warehouse?> GetByIdAsync(int id, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+        public Task<List<Warehouse>> GetAllAsync(CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<List<Warehouse>> FindAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<Warehouse?> FindSingleAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+        public Task<bool> AnyAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(false);
+        public Task<int> CountAsync(Expression<System.Func<Warehouse, bool>> p, CancellationToken ct = default) => Task.FromResult(0);
+        public void Update(Warehouse e) { }
+        public void Remove(Warehouse e) { }
+        public void RemoveRange(IEnumerable<Warehouse> es) { }
+        public Task<List<Warehouse>> GetByCompanyAsync(int companyId, CancellationToken ct = default) => Task.FromResult(new List<Warehouse>());
+        public Task<Warehouse?> GetDefaultAsync(int companyId, CancellationToken ct = default) => Task.FromResult<Warehouse?>(null);
+    }
+
     private sealed class FakeUow : IUnitOfWork
     {
         public IRepository<T> GetRepository<T>() where T : class => throw new System.NotImplementedException();
@@ -190,7 +207,7 @@ public class AccountingCompletionTests
         var handler = new CreatePurchaseInvoiceCommandHandler(
             new FakeUow(), new FakeUser(), stock, products, accounts,
             vouchers, new FakeRepo<PurchaseInvoice>(), new FakeRepo<Domain.Entities.Inventory.StockTransaction>(),
-            fiscalYears, new FakeRepo<Party>(), new FakeMediator());
+            fiscalYears, new FakeRepo<Party>(), new FakeMediator(), new FakeWarehouseRepo());
 
         return (handler, accounts, vouchers, stock);
     }

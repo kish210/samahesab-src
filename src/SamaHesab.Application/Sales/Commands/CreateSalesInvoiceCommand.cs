@@ -82,6 +82,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     private readonly IRepository<Domain.Entities.Accounting.FiscalYear> _fiscalYears;
     private readonly IRepository<Domain.Entities.Accounting.BankAccount> _bankAccounts;
     private readonly IMediator _mediator;
+    private readonly IWarehouseRepository _warehouses;
 
     public CreateSalesInvoiceCommandHandler(
         IRepository<SalesInvoice> invoiceRepository,
@@ -96,7 +97,8 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         IRepository<Domain.Entities.CRM.Party> customers,
         IRepository<Domain.Entities.Accounting.FiscalYear> fiscalYears,
         IRepository<Domain.Entities.Accounting.BankAccount> bankAccounts,
-        IMediator mediator)
+        IMediator mediator,
+        IWarehouseRepository warehouses)
     {
         _invoiceRepository = invoiceRepository;
         _unitOfWork = unitOfWork;
@@ -111,6 +113,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
         _fiscalYears = fiscalYears;
         _bankAccounts = bankAccounts;
         _mediator = mediator;
+        _warehouses = warehouses;
     }
 
     public async Task<Result<int>> Handle(CreateSalesInvoiceCommand request, CancellationToken ct)
@@ -384,7 +387,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
             voucher.AddItem(VoucherItem.Create(0, row++, receivable.Id, 0, remain, $"برگشت از فروش {invoice.InvoiceNumber}"));
 
         // INV-1 گام۴ — معکوسِ COGS: کالا به انبار بازگشت ⇒ بد «موجودی کالا» / بس «بهای تمام‌شده».
-        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: true, row, ct);
+        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: true, row, request.WarehouseId, ct);
 
         await _voucherRepository.AddAsync(voucher, ct);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -411,8 +414,9 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
 
         var consignmentOut = await _accountRepository.GetByCodeAsync(
             companyId, Inventory.Commands.InventoryAccounting.ConsignmentOut, ct);
-        var inventory = await _accountRepository.GetByCodeAsync(
-            companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+        // U-INV-ACCT-WH (backlog #7): حسابِ موجودیِ اختصاصیِ انبارِ مبدأِ کنسینمنت، در صورتِ تعیین.
+        var inventory = await Inventory.Commands.InventoryAccounting.ResolveInventoryAccountAsync(
+            _accountRepository, _warehouses, companyId, request.WarehouseId, ct);
         if (consignmentOut == null || inventory == null) return; // چارت تنظیم نشده → بی‌صدا رد شو
 
         var number = await _voucherRepository.GetNextNumberAsync(companyId, ct);
@@ -441,12 +445,14 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
     /// (سند با همان درآمد/مالیات متوازن می‌ماند).
     /// </summary>
     private async Task AddCogsLinesAsync(Voucher voucher, int companyId, decimal totalCost,
-        bool reverse, int row, CancellationToken ct)
+        bool reverse, int row, int warehouseId, CancellationToken ct)
     {
         if (totalCost <= 0) return;
         // منبعِ واحدِ کدِ حساب‌ها = همان helperِ اسنادِ انبار (perpetual یکپارچه).
         var cogs = await _accountRepository.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Cogs, ct);
-        var inventory = await _accountRepository.GetByCodeAsync(companyId, Inventory.Commands.InventoryAccounting.Inventory, ct);
+        // U-INV-ACCT-WH (backlog #7): حسابِ موجودیِ اختصاصیِ انبارِ فاکتور، در صورتِ تعیین.
+        var inventory = await Inventory.Commands.InventoryAccounting.ResolveInventoryAccountAsync(
+            _accountRepository, _warehouses, companyId, warehouseId, ct);
         if (cogs == null || inventory == null) return; // چارتِ بهای‌تمام‌شده/موجودی تنظیم نشده → رد
 
         foreach (var line in Inventory.PerpetualCogs.Build(totalCost, cogs.Id, inventory.Id, reverse))
@@ -501,7 +507,7 @@ public class CreateSalesInvoiceCommandHandler : IRequestHandler<CreateSalesInvoi
 
         // INV-1 گام۴ — ثبتِ دائمیِ بهای تمام‌شدهٔ کالای فروش‌رفته (perpetual COGS):
         // بد «بهای تمام‌شده» / بس «موجودی کالا». با هر دو سمت متوازن می‌ماند و موجودیِ GL را کاهش می‌دهد.
-        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: false, row, ct);
+        await AddCogsLinesAsync(voucher, companyId, totalCost, reverse: false, row, request.WarehouseId, ct);
 
         await _voucherRepository.AddAsync(voucher, ct);
         await _unitOfWork.SaveChangesAsync(ct);   // assigns voucher.Id

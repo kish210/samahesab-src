@@ -35,6 +35,8 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
     public int PrintCount { get; private set; }
     public int? VoucherId { get; private set; }
     public int? ReturnedFromId { get; private set; }
+    /// <summary>شناسهٔ سندِ تسویه — فقط برایِ فاکتورهایِ کنسینمنت؛ null یعنی هنوز تسویه نشده.</summary>
+    public int? SettledVoucherId { get; private set; }
 
     public ICollection<SalesInvoiceItem> Items { get; private set; } = new List<SalesInvoiceItem>();
     public ICollection<SalesPayment> Payments { get; private set; } = new List<SalesPayment>();
@@ -161,6 +163,7 @@ public class SalesInvoice : AuditableEntity, IBranchScoped   // MB-2: جداسا
     public void IncrementPrintCount() { PrintCount++; UpdatedAt = DateTime.Now; }
     public void SetVoucher(int voucherId) { VoucherId = voucherId; UpdatedAt = DateTime.Now; }
     public void SetReturnedFrom(int originalInvoiceId) { ReturnedFromId = originalInvoiceId; UpdatedAt = DateTime.Now; }
+    public void SetSettled(int settlementVoucherId) { SettledVoucherId = settlementVoucherId; UpdatedAt = DateTime.Now; }
     public bool IsFullyPaid() => RemainAmount <= 0.01m;
     public bool IsPartiallyPaid() => PaidAmount > 0 && RemainAmount > 0.01m;
 }

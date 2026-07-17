@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
+import { todayJalaliString } from '../lib/jalali';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { useAuth } from '../auth/AuthContext';
+import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
 
 interface ReceivableDto {
   customerId: number;
@@ -21,15 +23,9 @@ interface PayableDto {
   balance: number;
 }
 
-function todayPersianIsoLike(): string {
-  // این کلاینتِ سبک تاریخِ شمسیِ واقعی نمی‌سازد؛ سرور خودش تاریخِ ارسالی را ذخیره می‌کند —
-  // برایِ عملیاتِ خزانه معمولاً همان تاریخِ روزِ جاری از تقویمِ سرور کافی است. اینجا فقط جهتِ
-  // نمایش/ارسال یک رشتهٔ ساده می‌فرستیم؛ صفحاتِ بعدی (فاکتور) بایدِ انتخابِ تاریخِ شمسیِ واقعی داشته باشند.
-  return new Date().toISOString().slice(0, 10);
-}
-
 export function TreasuryPage() {
   const { user } = useAuth();
+  const fiscalYearId = useActiveFiscalYear();
   const [receivables, setReceivables] = useState<ReceivableDto[]>([]);
   const [payables, setPayables] = useState<PayableDto[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +59,8 @@ export function TreasuryPage() {
     try {
       await apiPost('/api/treasury/receipts', {
         branchId: user?.branchId ?? 1,
-        fiscalYearId: 1,
-        date: todayPersianIsoLike(),
+        fiscalYearId: fiscalYearId ?? 1,
+        date: todayJalaliString(),
         customerId,
         amount,
         paymentMethod: 'نقدی',
@@ -85,8 +81,8 @@ export function TreasuryPage() {
     try {
       await apiPost('/api/treasury/payments', {
         branchId: user?.branchId ?? 1,
-        fiscalYearId: 1,
-        date: todayPersianIsoLike(),
+        fiscalYearId: fiscalYearId ?? 1,
+        date: todayJalaliString(),
         supplierId,
         amount,
         paymentMethod: 'نقدی',

@@ -5,6 +5,8 @@ import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
 import { InvoiceLineEditor, emptyLine, type InvoiceLine, type ProductOption } from '../components/InvoiceLineEditor';
 import { useAuth } from '../auth/AuthContext';
+import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
+import { todayJalaliString } from '../lib/jalali';
 
 interface CustomerOption {
   id: number;
@@ -20,6 +22,7 @@ interface WarehouseOption {
 export function CreateSalesInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const fiscalYearId = useActiveFiscalYear();
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
@@ -71,8 +74,8 @@ export function CreateSalesInvoicePage() {
     try {
       await apiPost<{ invoiceId: number }>('/api/sales/invoices', {
         branchId: user?.branchId ?? 1,
-        fiscalYearId: 1,
-        invoiceDate: new Date().toISOString().slice(0, 10),
+        fiscalYearId: fiscalYearId ?? 1,
+        invoiceDate: todayJalaliString(),
         customerId,
         warehouseId,
         invoiceType: 0, // Sale

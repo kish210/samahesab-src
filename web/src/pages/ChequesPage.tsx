@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet, ApiError } from '../api/client';
 import { money } from '../lib/format';
+import { todayJalaliString } from '../lib/jalali';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
@@ -20,18 +21,13 @@ const stateLabel: Record<ChequeBoardDto['dueState'], { text: string; cls: string
   Upcoming: { text: 'آینده', cls: 'badge-gray' },
 };
 
-function todayIso(): string {
-  const d = new Date();
-  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
-}
-
 export function ChequesPage() {
   const [rows, setRows] = useState<ChequeBoardDto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiGet<ChequeBoardDto[]>(`/api/cheques/board?today=${encodeURIComponent(todayIso())}`)
+    apiGet<ChequeBoardDto[]>(`/api/cheques/board?today=${encodeURIComponent(todayJalaliString())}`)
       .then(setRows)
       .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ تابلویِ چک.'))
       .finally(() => setLoading(false));

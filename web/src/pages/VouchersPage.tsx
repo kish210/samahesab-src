@@ -3,6 +3,7 @@ import { apiGet, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
 
 interface VoucherListDto {
   id: number;
@@ -25,6 +26,7 @@ interface PagedResult<T> {
 }
 
 export function VouchersPage() {
+  const fiscalYearId = useActiveFiscalYear();
   const [fromDate, setFromDate] = useState('1405/01/01');
   const [toDate, setToDate] = useState('1405/12/29');
   const [page, setPage] = useState(1);
@@ -37,7 +39,7 @@ export function VouchersPage() {
     setError(null);
     try {
       const data = await apiGet<PagedResult<VoucherListDto>>(
-        `/api/vouchers?fiscalYearId=1&fromDate=${encodeURIComponent(fromDate)}&toDate=${encodeURIComponent(toDate)}&page=${nextPage}&size=20`,
+        `/api/vouchers?fiscalYearId=${fiscalYearId ?? 1}&fromDate=${encodeURIComponent(fromDate)}&toDate=${encodeURIComponent(toDate)}&page=${nextPage}&size=20`,
       );
       setResult(data);
       setPage(nextPage);

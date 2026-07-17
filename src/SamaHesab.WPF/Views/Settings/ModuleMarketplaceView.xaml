@@ -110,6 +110,10 @@
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="2,8,0,0">
             <Button Content="🔄 تازه‌سازی" Style="{StaticResource SecondaryButton}" Height="32" Command="{Binding RefreshCommand}"/>
+            <!-- U-MODULE-INSTALL — نصبِ آفلاین از فایلِ .mspkg (وقتی بازارِ آنلاین در دسترس نیست) -->
+            <Button Content="📂 نصب از فایل" Style="{StaticResource PrimaryButton}" Height="32" MinWidth="120"
+                    Margin="8,0,0,0" Command="{Binding InstallFromFileCommand}"
+                    ToolTip="انتخابِ فایلِ .mspkg برایِ نصبِ آفلاینِ ماژول (بدونِ نیاز به اینترنت/گیت‌هاب)"/>
             <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
     </Grid>

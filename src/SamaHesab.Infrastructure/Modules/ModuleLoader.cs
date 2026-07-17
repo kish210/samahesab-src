@@ -63,6 +63,19 @@ public static class ModuleLoader
         return result;
     }
 
+    /// <summary>
+    /// فولدرِ ماژول‌هایِ نصب‌شدهٔ سمتِ سرور (API). پیش‌فرض: <c>%ProgramData%\SamaHesab\modules</c> —
+    /// قابلِ نوشتن توسطِ سرویسِ ویندوز (SYSTEM) و مشترک بینِ کاربران، برخلافِ %AppData% که per-userِ
+    /// دسکتاپ است. با تنظیمِ <c>Modules:Directory</c> قابلِ override است.
+    /// </summary>
+    public static string ServerModulesDirectory(string? configuredPath = null)
+    {
+        if (!string.IsNullOrWhiteSpace(configuredPath)) return configuredPath;
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "SamaHesab", "modules");
+    }
+
     private static bool IsLoadableModule(Type t)
         => typeof(IModule).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false }
            && t.GetConstructor(Type.EmptyTypes) != null;

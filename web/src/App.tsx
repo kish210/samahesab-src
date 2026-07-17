@@ -19,6 +19,7 @@ import { SalesInvoicesPage } from './pages/SalesInvoicesPage';
 import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
+import { ModulesPage } from './pages/ModulesPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -61,6 +62,8 @@ function AppRoutes() {
         <Route path="vouchers" element={<VouchersPage />} />
         <Route path="trial-balance" element={<TrialBalancePage />} />
         <Route path="general-ledger" element={<GeneralLedgerPage />} />
+
+        <Route path="modules" element={<ModulesPage />} />
       </Route>
     </Routes>
   );

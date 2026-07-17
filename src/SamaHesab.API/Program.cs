@@ -37,6 +37,30 @@ foreach (var module in new SamaHesab.Modules.Abstractions.IModule[]
     module.RegisterServices(builder.Services);
 }
 
+// ── U-MODULE-INSTALL — ماژول‌هایِ نصب‌شده از فایل (فولدرِ سرور، بدونِ گیت/rebuild) ──
+//    مسیر: %ProgramData%\SamaHesab\modules\*.mspkg (یا Modules:Directory). هر ماژولِ کشف‌شده که
+//    کلیدش قبلاً bundle نشده باشد، مثلِ ماژول‌هایِ بالا ثبت و RegisterServicesش صدا زده می‌شود.
+//    (بارگذاری در startup است ⇒ ماژولِ تازه‌آپلودشده با ری‌استارتِ سرور فعال می‌شود.)
+try
+{
+    var bundledKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var m in builder.Services
+        .Where(s => s.ServiceType == typeof(SamaHesab.Modules.Abstractions.IModule) && s.ImplementationInstance is SamaHesab.Modules.Abstractions.IModule)
+        .Select(s => (SamaHesab.Modules.Abstractions.IModule)s.ImplementationInstance!))
+        bundledKeys.Add(m.Key);
+
+    var modulesDir = SamaHesab.Infrastructure.Modules.ModuleLoader.ServerModulesDirectory(
+        builder.Configuration["Modules:Directory"]);
+    var installed = SamaHesab.Infrastructure.Modules.ModuleLoader.LoadFromDirectory(
+        modulesDir, bundledKeys, msg => Console.WriteLine(msg));
+    foreach (var module in installed)
+    {
+        builder.Services.AddSingleton(module);
+        module.RegisterServices(builder.Services);
+    }
+}
+catch (Exception ex) { Console.WriteLine($"[module] server folder load skipped: {ex.Message}"); }
+
 // همگام‌سازیِ پشتیبانی سمتِ کلاینت است؛ میزبانِ API نسخهٔ no-op می‌گیرد (رفعِ ValidateOnBuild در Development).
 builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.OfflineSupportApiClient>();
 

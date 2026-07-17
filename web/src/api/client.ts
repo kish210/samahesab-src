@@ -88,3 +88,39 @@ export function apiGet<T>(path: string) {
 export function apiPost<T>(path: string, body?: unknown) {
   return apiFetch<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined });
 }
+
+export function apiDelete<T>(path: string) {
+  return apiFetch<T>(path, { method: 'DELETE' });
+}
+
+/** آپلودِ فایل (multipart) — بدونِ Content-Type دستی تا مرورگر boundaryِ درست بگذارد.
+ * هدرِ Authorization خودکار + مدیریتِ خطا مثلِ apiFetch (بدون retryِ تمدید برایِ سادگی). */
+export async function apiUpload<T>(path: string, file: File, fieldName = 'file'): Promise<T> {
+  const token = getAccessToken();
+  const form = new FormData();
+  form.append(fieldName, file);
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: form,
+  });
+
+  if (res.status === 401) {
+    clearTokens();
+    window.dispatchEvent(new CustomEvent('sh:unauthorized'));
+    throw new ApiError(401, 'نشستِ شما منقضی شده؛ دوباره وارد شوید.');
+  }
+  if (!res.ok) {
+    let message = `خطا در آپلود (${res.status})`;
+    try {
+      const body = await res.json();
+      message = body?.message ?? message;
+    } catch {
+      /* بدنهٔ غیرِ JSON */
+    }
+    throw new ApiError(res.status, message);
+  }
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
+}

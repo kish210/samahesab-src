@@ -216,6 +216,57 @@ public partial class ModuleMarketplaceViewModel : BaseViewModel
         }
         finally { row.IsDownloading = false; }
     }
+
+    /// <summary>
+    /// U-MODULE-INSTALL — نصبِ ماژول از فایلِ محلیِ .mspkg (آفلاین، بدونِ گیت). وقتی بازارِ آنلاین
+    /// در دسترس نیست (مثلِ مسئلهٔ اکانتِ گیت‌هاب)، کاربر می‌تواند فایلِ ماژول را دستی بدهد.
+    /// فایل به پوشهٔ ماژول‌ها کپی و در بارگذاریِ بعدیِ برنامه فعال می‌شود.
+    /// </summary>
+    [RelayCommand]
+    private async Task InstallFromFileAsync()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "انتخابِ فایلِ ماژول",
+            Filter = "بستهٔ ماژول (*.mspkg)|*.mspkg",
+            CheckFileExists = true
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        var src = dlg.FileName;
+        try
+        {
+            // اعتبارسنجی: باید zipِ معتبر حاویِ SamaHesab.Modules.*.dll باشد (نه هر فایلی).
+            using (var zip = System.IO.Compression.ZipFile.OpenRead(src))
+            {
+                var hasModuleDll = zip.Entries.Any(e =>
+                    e.Name.StartsWith("SamaHesab.Modules.", System.StringComparison.OrdinalIgnoreCase) &&
+                    e.Name.EndsWith(".dll", System.StringComparison.OrdinalIgnoreCase));
+                if (!hasModuleDll)
+                {
+                    await _dialogService.ShowErrorAsync("این فایل یک بستهٔ ماژولِ معتبر نیست (SamaHesab.Modules.*.dll یافت نشد).");
+                    return;
+                }
+            }
+
+            var dest = System.IO.Path.Combine(ModulesDir, System.IO.Path.GetFileName(src));
+            System.IO.File.Copy(src, dest, overwrite: true);
+
+            var key = System.IO.Path.GetFileNameWithoutExtension(dest);
+            _modules.TrySetEnabled(key, true, out _);   // اگر کلید در فهرستِ اختیاری‌ها بود، فعال شود
+            await _dialogService.ShowSuccessAsync(
+                $"ماژول «{key}» نصب شد. برای بارگذاریِ کاملِ ماژول، برنامه را یک‌بار ببندید و باز کنید.");
+            await RefreshAsync();
+        }
+        catch (System.IO.InvalidDataException)
+        {
+            await _dialogService.ShowErrorAsync("فایل یک آرشیوِ zipِ معتبر (.mspkg) نیست.");
+        }
+        catch (System.Exception ex)
+        {
+            await _dialogService.ShowErrorAsync("نصبِ ماژول از فایل ناموفق بود: " + ex.GetBaseException().Message);
+        }
+    }
 }
 
 public partial class MarketModuleRow : ObservableObject

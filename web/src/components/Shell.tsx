@@ -34,6 +34,9 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/trial-balance', label: 'تراز آزمایشی' },
     { to: '/general-ledger', label: 'دفترِ کل/معین' },
   ] },
+  { title: 'مدیریت', items: [
+    { to: '/modules', label: 'ماژول‌ها' },
+  ] },
 ];
 
 export function Shell() {

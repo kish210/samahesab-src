@@ -1,6 +1,9 @@
 # Publishes everything self-contained (win-x64) for the installers.
 #   dist\app  -> SamaHesab.exe (accounting) + pos.exe + restoran.exe + .NET runtime
 #   dist\api  -> SamaHesab.API.exe (central Web API server) + .NET runtime
+#                + wwwroot\web    -> کلاینتِ وبِ React  (http://<server>:5080/web/)
+#                + wwwroot\seller -> پنلِ فروشِ Blazor (http://<server>:5080/seller/)
+# پیش‌نیاز: .NET SDK + Node.js/npm (برایِ کلاینتِ وب)
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot          # repo root (installer\..)
 $dist = Join-Path $root "dist"
@@ -59,7 +62,7 @@ if ($LASTEXITCODE) { throw "API Tray publish failed" }
 # SP-3b — پنلِ فروشِ گردشگری (Blazor WASM PWA): با base path = /seller منتشر و در
 # wwwroot/seller سرور قرار می‌گیرد تا API آن را روی http://<server>:5080/seller/ سرو کند
 # (نصب‌پذیر روی موبایل). UseStaticFilesِ موجودِ API فایل‌ها را سرو می‌کند.
-Write-Host "[8/8] publish Seller Web panel (PWA) -> /seller ..." -ForegroundColor Cyan
+Write-Host "[8/9] publish Seller Web panel (PWA) -> /seller ..." -ForegroundColor Cyan
 $sellerPub = Join-Path $dist "sellerweb"
 dotnet publish "$root\src\SamaHesab.SellerWeb\SamaHesab.SellerWeb.csproj" -c Release -o $sellerPub --nologo -v m
 if ($LASTEXITCODE) { throw "Seller Web publish failed" }
@@ -82,7 +85,25 @@ if (Test-Path $sellerDst) { Remove-Item $sellerDst -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $sellerDst | Out-Null
 Copy-Item (Join-Path $sellerPub "wwwroot\*") $sellerDst -Recurse -Force
 
+# کلاینتِ وبِ React (فازِ ۶): buildِ Vite (base=/web/) → wwwroot/web سرور، سرو روی
+# http://<server>:5080/web/ (هم‌مبدأ با API ⇒ بدونِ CORS/آدرسِ هاردکد). نیازمندِ Node.js.
+Write-Host "[9/9] build Web client (React) -> /web ..." -ForegroundColor Cyan
+$webSrc = Join-Path $root "web"
+if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { throw "npm پیدا نشد — برایِ ساختِ کلاینتِ وب Node.js لازم است." }
+Push-Location $webSrc
+try {
+    if (Test-Path (Join-Path $webSrc "package-lock.json")) { npm ci --no-fund --no-audit } else { npm install --no-fund --no-audit }
+    if ($LASTEXITCODE) { throw "npm install failed" }
+    npm run build
+    if ($LASTEXITCODE) { throw "Web client build failed" }
+} finally { Pop-Location }
+$webDst = Join-Path $api "wwwroot\web"
+if (Test-Path $webDst) { Remove-Item $webDst -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $webDst | Out-Null
+Copy-Item (Join-Path $webSrc "dist\*") $webDst -Recurse -Force
+
 Write-Host "`nDONE." -ForegroundColor Green
+"web client: " + (Test-Path "$webDst\index.html") + " (-> http://<server>:5080/web/)"
 "seller web: " + (Test-Path "$sellerDst\index.html") + " (-> http://<server>:5080/seller/)"
 "app exe   : " + (Test-Path "$app\SamaHesab.exe")
 "pos exe   : " + (Test-Path "$app\pos.exe")

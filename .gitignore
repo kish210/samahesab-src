@@ -127,3 +127,6 @@ samahesab-src/
 web/node_modules/
 web/dist/
 web/.env.local
+# خروجیِ buildِ کلاینتِ وب که publish-all.ps1 داخلِ wwwroot سرور می‌گذارد (تولیدشونده، نه سورس).
+# فقط wwwroot/app (PWAِ دست‌نویس) در گیت است.
+src/SamaHesab.API/wwwroot/web/

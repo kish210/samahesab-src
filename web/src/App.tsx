@@ -68,7 +68,9 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    // basename از BASE_URLِ Vite (=/web/) خوانده می‌شود تا با base پیکربندی هم‌گام بماند —
+    // سرورِ API کلاینت را زیرِ /web/ سرو می‌کند.
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>

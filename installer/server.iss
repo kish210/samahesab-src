@@ -11,6 +11,8 @@
 #define AppExe        "SamaHesab.exe"
 #define ApiExe        "SamaHesab.API.exe"
 #define ApiTrayExe    "SamaHesabApiTray.exe"
+; کلاینتِ وب را خودِ سرورِ API از wwwroot\web سرو می‌کند (روی همان پورتِ ۵۰۸۰).
+#define WebClientUrl  "http://localhost:5080/web/"
 
 ; نصابِ آفلاینِ SQL Server Express (اختیاری): SQLEXPR_x64_ENU.exe را در installer\redist\
 ; بگذارید تا bundle و آفلاین نصب شود؛ نبودش → دانلود از اینترنت.
@@ -73,8 +75,11 @@ Name: "{group}\صندوق گارسون";            Filename: "{app}\{#AppExe}";
 Name: "{group}\نمایشگر آشپزخانه";        Filename: "{app}\{#AppExe}"; Parameters: "--kitchen"; WorkingDir: "{app}"
 Name: "{group}\انبارداری";               Filename: "{app}\{#AppExe}"; Parameters: "--warehouse"; WorkingDir: "{app}"
 Name: "{group}\راه‌اندازی سرور (API)";    Filename: "{app}\server\{#ApiTrayExe}"; WorkingDir: "{app}\server"
+; کلاینتِ وب — خودِ سرورِ API آن را روی /web/ سرو می‌کند (نیازی به نصبِ جدا/وب‌سرورِ دیگر نیست).
+Name: "{group}\کلاینت وب (مرورگر)";       Filename: "{#WebClientUrl}"
 Name: "{group}\حذف سما حساب";            Filename: "{uninstallexe}"
 Name: "{commondesktop}\حسابداری سما حساب"; Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\کلاینت وب سما حساب"; Filename: "{#WebClientUrl}"; Tasks: desktopicon
 
 [Run]
 ; ساخت پایگاه داده با sqlcmd (از طریق اسکریپت موجود) — با نام سروری که کاربر وارد می‌کند

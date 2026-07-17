@@ -1,3 +1,6 @@
+// در نسخهٔ نصب‌شده، خودِ API این کلاینت را زیرِ /web/ سرو می‌کند ⇒ هم‌مبدأ است و BASE_URL باید
+// خالی بماند (آدرسِ نسبیِ /api/... ). `.env.production` همین را خالی می‌گذارد. در حالتِ dev
+// (سرورِ Vite رویِ ۵۱۷۳، مبدأِ متفاوت) `.env` آدرسِ کاملِ ۵۰۸۰ را می‌دهد و CORSِ سرور اجازه می‌دهد.
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080';
 
 const TOKEN_KEY = 'sh_access_token';

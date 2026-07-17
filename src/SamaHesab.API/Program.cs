@@ -198,6 +198,27 @@ if (System.IO.Directory.Exists(guestDir))
         });
 }
 
+// ── کلاینتِ وبِ React (فازِ ۶) روی /web/ ──────────────────────────────────────────
+//    فایل‌هایِ buildِ Vite از wwwroot/web سرو می‌شوند. app.Map پیشوندِ /web را از مسیر حذف
+//    می‌کند، پس /web/assets/x.js → assets/x.js از همین پوشه خوانده می‌شود. مسیرهایِ غیرفایلیِ
+//    مثلِ /web/customers/4 (routingِ سمتِ کلاینت) باید به index.html برگردند وگرنه رفرش/لینکِ
+//    مستقیم ۴۰۴ می‌دهد — هم‌الگو با SPA-fallbackِ پنلِ مهمان بالا.
+var webClientDir = System.IO.Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "web");
+if (System.IO.Directory.Exists(webClientDir))
+{
+    var webClientFiles = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(webClientDir);
+    app.Map("/web", branch =>
+    {
+        branch.UseDefaultFiles(new DefaultFilesOptions { FileProvider = webClientFiles });
+        branch.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions { FileProvider = webClientFiles });
+        branch.Run(async ctx =>
+        {
+            ctx.Response.ContentType = "text/html";
+            await ctx.Response.SendFileAsync(webClientFiles.GetFileInfo("index.html"));
+        });
+    });
+}
+
 app.UseDefaultFiles();
 app.UseStaticFiles(new Microsoft.AspNetCore.Builder.StaticFileOptions { ContentTypeProvider = blazorCtp });
 

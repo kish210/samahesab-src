@@ -77,8 +77,23 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}, _retr
     throw new ApiError(res.status, message);
   }
 
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  return (await parseBody<T>(res))!;
+}
+
+/**
+ * بدنهٔ پاسخ را امن می‌خواند. برخی اندپوینت‌ها `Ok()` بدونِ بدنه برمی‌گردانند — یعنی **۲۰۰ با بدنهٔ
+ * خالی**، نه ۲۰۴. اگر فقط ۲۰۴ را استثنا کنیم، `res.json()` رویِ بدنهٔ خالی throw می‌کند و عملیاتِ
+ * موفق «ناموفق» گزارش می‌شود (باگِ واقعی: حذفِ سبدِ معلقِ POS موفق بود ولی پیامِ خطا می‌داد).
+ */
+async function parseBody<T>(res: Response): Promise<T | undefined> {
+  if (res.status === 204) return undefined;
+  const text = await res.text();
+  if (!text) return undefined;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return undefined;   // بدنهٔ غیرِ JSON (مثلاً متنِ ساده) — برایِ فراخواننده بی‌اهمیت است
+  }
 }
 
 export function apiGet<T>(path: string) {
@@ -121,6 +136,5 @@ export async function apiUpload<T>(path: string, file: File, fieldName = 'file')
     }
     throw new ApiError(res.status, message);
   }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  return (await parseBody<T>(res))!;
 }

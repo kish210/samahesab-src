@@ -22,6 +22,7 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/warehouse', label: 'انبار' },
   ] },
   { title: 'فروش/خرید', items: [
+    { to: '/pos', label: 'صندوقِ فروش (POS)' },
     { to: '/sales', label: 'فاکتورهایِ فروش' },
     { to: '/purchase', label: 'فاکتورهایِ خرید' },
   ] },

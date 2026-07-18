@@ -6,7 +6,7 @@
 ; =============================================================================
 
 #define AppName       "سما حساب — سرور"
-#define AppVersion    "2.8.21"
+#define AppVersion    "2.8.22"
 #define AppPublisher  "سماع رایانه کیش"
 #define AppExe        "SamaHesab.exe"
 #define ApiExe        "SamaHesab.API.exe"

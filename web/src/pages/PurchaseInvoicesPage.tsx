@@ -40,7 +40,15 @@ export function PurchaseInvoicesPage() {
 
   return (
     <div>
-      <PageHeader title="فاکتورهایِ خرید" actions={<Link to="/purchase/new" className="btn btn-primary btn-sm">فاکتورِ نو</Link>} />
+      <PageHeader
+        title="فاکتورهایِ خرید"
+        actions={
+          <>
+            <Link to="/purchase/return" className="btn btn-secondary btn-sm">مرجوعیِ خرید</Link>
+            <Link to="/purchase/new" className="btn btn-primary btn-sm">فاکتورِ نو</Link>
+          </>
+        }
+      />
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {loading && !error && <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>}
       {!loading && !error && <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} emptyText="فاکتوری یافت نشد." />}

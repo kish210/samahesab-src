@@ -23,6 +23,7 @@ import { ModulesPage } from './pages/ModulesPage';
 import { PartyEditPage } from './pages/PartyEditPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { PosPage } from './pages/PosPage';
+import { ReturnFormPage } from './pages/ReturnFormPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -61,8 +62,10 @@ function AppRoutes() {
         <Route path="pos" element={<PosPage />} />
         <Route path="sales" element={<SalesInvoicesPage />} />
         <Route path="sales/new" element={<CreateSalesInvoicePage />} />
+        <Route path="sales/return" element={<ReturnFormPage mode="sales" />} />
         <Route path="purchase" element={<PurchaseInvoicesPage />} />
         <Route path="purchase/new" element={<CreatePurchaseInvoicePage />} />
+        <Route path="purchase/return" element={<ReturnFormPage mode="purchase" />} />
 
         <Route path="treasury" element={<TreasuryPage />} />
         <Route path="cheques" element={<ChequesPage />} />

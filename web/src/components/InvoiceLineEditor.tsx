@@ -36,9 +36,12 @@ interface Props {
   lines: InvoiceLine[];
   onChange: (lines: InvoiceLine[]) => void;
   priceField: 'salePrice' | 'purchasePrice';
+  /** فرمِ مرجوعی تخفیفِ ردیف ندارد (Commandِ سرور فقط productId/quantity/unitPrice/taxPct می‌گیرد) —
+   * ستونِ تخفیف پنهان می‌شود تا فیلدی که نادیده گرفته می‌شود به کاربر نشان داده نشود. */
+  hideDiscount?: boolean;
 }
 
-export function InvoiceLineEditor({ products, lines, onChange, priceField }: Props) {
+export function InvoiceLineEditor({ products, lines, onChange, priceField, hideDiscount = false }: Props) {
   function updateLine(index: number, patch: Partial<InvoiceLine>) {
     const next = lines.slice();
     next[index] = { ...next[index], ...patch };
@@ -61,7 +64,7 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField }: Pro
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--border)' }}>
-              {['کالا', 'تعداد', 'قیمتِ واحد', 'تخفیف٪', 'مالیات٪', 'جمع', ''].map((h) => (
+              {['کالا', 'تعداد', 'قیمتِ واحد', ...(hideDiscount ? [] : ['تخفیف٪']), 'مالیات٪', 'جمع', ''].map((h) => (
                 <th key={h} style={{ padding: '8px 10px', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textAlign: 'start' }}>
                   {h}
                 </th>
@@ -88,9 +91,11 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField }: Pro
                 <td style={{ padding: '6px 10px', width: 130 }}>
                   <input className="input input-sm" type="number" min="0" step="any" value={line.unitPrice} onChange={(e) => updateLine(i, { unitPrice: e.target.value })} />
                 </td>
-                <td style={{ padding: '6px 10px', width: 80 }}>
-                  <input className="input input-sm" type="number" min="0" max="100" step="any" value={line.discountPct} onChange={(e) => updateLine(i, { discountPct: e.target.value })} />
-                </td>
+                {!hideDiscount && (
+                  <td style={{ padding: '6px 10px', width: 80 }}>
+                    <input className="input input-sm" type="number" min="0" max="100" step="any" value={line.discountPct} onChange={(e) => updateLine(i, { discountPct: e.target.value })} />
+                  </td>
+                )}
                 <td style={{ padding: '6px 10px', width: 80 }}>
                   <input className="input input-sm" type="number" min="0" max="100" step="any" value={line.taxPct} onChange={(e) => updateLine(i, { taxPct: e.target.value })} />
                 </td>

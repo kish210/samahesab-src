@@ -40,7 +40,15 @@ export function SalesInvoicesPage() {
 
   return (
     <div>
-      <PageHeader title="فاکتورهایِ فروش" actions={<Link to="/sales/new" className="btn btn-primary btn-sm">فاکتورِ نو</Link>} />
+      <PageHeader
+        title="فاکتورهایِ فروش"
+        actions={
+          <>
+            <Link to="/sales/return" className="btn btn-secondary btn-sm">مرجوعیِ فروش</Link>
+            <Link to="/sales/new" className="btn btn-primary btn-sm">فاکتورِ نو</Link>
+          </>
+        }
+      />
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {loading && !error && <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>}
       {!loading && !error && <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} emptyText="فاکتوری یافت نشد." />}

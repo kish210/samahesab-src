@@ -41,11 +41,18 @@ export function SuppliersPage() {
       key: 'balance', header: 'مانده (ریال)', numeric: true,
       render: (r) => <span style={{ fontWeight: 600, color: r.balance > 0 ? 'var(--danger-700)' : 'var(--text-strong)' }}>{money(r.balance)}</span>,
     },
+    {
+      key: 'action', header: '',
+      render: (r) => <Link to={`/parties/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>,
+    },
   ];
 
   return (
     <div>
-      <PageHeader title="تأمین‌کنندگان" />
+      <PageHeader
+        title="تأمین‌کنندگان"
+        actions={<Link to="/parties/new?role=supplier" className="btn btn-primary btn-sm">تأمین‌کنندهٔ نو</Link>}
+      />
       <div className="field" style={{ maxWidth: 320, marginBottom: 'var(--space-4)' }}>
         <input className="input" placeholder="جست‌وجو بر اساسِ نام/کد/موبایل…" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>

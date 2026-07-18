@@ -20,6 +20,8 @@ import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
 import { ModulesPage } from './pages/ModulesPage';
+import { PartyEditPage } from './pages/PartyEditPage';
+import { ProductEditPage } from './pages/ProductEditPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -43,11 +45,15 @@ function AppRoutes() {
         <Route index element={<DashboardPage />} />
 
         <Route path="customers" element={<CustomersPage />} />
+        <Route path="parties/new" element={<PartyEditPage />} />
+        <Route path="parties/:id/edit" element={<PartyEditPage />} />
         <Route path="customers/:id" element={<CustomerCardPage />} />
         <Route path="parties/:id" element={<CustomerCardPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
 
         <Route path="products" element={<ProductsPage />} />
+        <Route path="products/new" element={<ProductEditPage />} />
+        <Route path="products/:id/edit" element={<ProductEditPage />} />
         <Route path="products/:id" element={<ProductCardPage />} />
         <Route path="warehouse" element={<WarehousePage />} />
 

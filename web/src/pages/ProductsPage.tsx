@@ -47,11 +47,18 @@ export function ProductsPage() {
         </span>
       ),
     },
+    {
+      key: 'action', header: '',
+      render: (r) => <Link to={`/products/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>,
+    },
   ];
 
   return (
     <div>
-      <PageHeader title="کالاها" />
+      <PageHeader
+        title="کالاها"
+        actions={<Link to="/products/new" className="btn btn-primary btn-sm">کالایِ نو</Link>}
+      />
       <div className="field" style={{ maxWidth: 320, marginBottom: 'var(--space-4)' }}>
         <input className="input" placeholder="جست‌وجو بر اساسِ نام/کد/بارکد…" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>

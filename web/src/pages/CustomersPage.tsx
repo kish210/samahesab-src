@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiGet, ApiError } from '../api/client';
+import { PageHeader } from '../components/PageHeader';
 
 interface CustomerRow {
   id: number;
@@ -34,7 +35,10 @@ export function CustomersPage() {
 
   return (
     <div>
-      <h1 style={{ marginBottom: 'var(--space-4)' }}>مشتریان</h1>
+      <PageHeader
+        title="مشتریان"
+        actions={<Link to="/parties/new" className="btn btn-primary btn-sm">مشتریِ نو</Link>}
+      />
 
       <div className="field" style={{ maxWidth: 320, marginBottom: 'var(--space-4)' }}>
         <input
@@ -57,6 +61,7 @@ export function CustomersPage() {
                 <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>نام</th>
                 <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>موبایل</th>
                 <th className="num" style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>مانده (ریال)</th>
+                <th style={{ padding: '10px 12px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -80,11 +85,14 @@ export function CustomersPage() {
                   >
                     {numberFormat.format(r.balance)}
                   </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <Link to={`/parties/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>
+                  </td>
                 </tr>
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={4} style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={5} style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)' }}>
                     مشتری‌ای یافت نشد.
                   </td>
                 </tr>

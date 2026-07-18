@@ -44,6 +44,27 @@ public class ProductsController : ControllerBase
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
+    /// <summary>
+    /// U-WEB-CRUD — ساختِ کالا. `CreateProductCommand` از قبل در Application بود ولی مسیرِ APIای
+    /// نداشت ⇒ کلاینتِ وب نمی‌توانست کالا اضافه کند.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromBody] SamaHesab.Application.Inventory.Commands.CreateProductCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>U-WEB-CRUD — ویرایشِ کالا (Idِ مسیر مرجع است، نه بدنه).</summary>
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id,
+        [FromBody] SamaHesab.Application.Inventory.Commands.UpdateProductCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd with { ProductId = id }, ct);
+        return r.Succeeded ? Ok(new { id }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>Export the product list to an Excel (.xlsx) file.</summary>
     [HttpGet("export")]
     public async Task<IActionResult> Export([FromQuery] string? q, CancellationToken ct)

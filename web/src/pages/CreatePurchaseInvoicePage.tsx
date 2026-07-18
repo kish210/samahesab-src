@@ -7,6 +7,7 @@ import { InvoiceLineEditor, emptyLine, type InvoiceLine, type ProductOption } fr
 import { useAuth } from '../auth/AuthContext';
 import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
 import { todayJalaliString } from '../lib/jalali';
+import { JalaliDateInput, isValidJalali } from '../components/JalaliDateInput';
 
 interface SupplierOption {
   id: number;
@@ -29,6 +30,7 @@ export function CreatePurchaseInvoicePage() {
 
   const [supplierId, setSupplierId] = useState<number | null>(null);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
+  const [invoiceDate, setInvoiceDate] = useState(todayJalaliString());
   const [paidAmount, setPaidAmount] = useState('0');
   const [lines, setLines] = useState<InvoiceLine[]>([emptyLine()]);
 
@@ -55,6 +57,10 @@ export function CreatePurchaseInvoicePage() {
       setError('انتخابِ تأمین‌کننده و انبار الزامی است.');
       return;
     }
+    if (!isValidJalali(invoiceDate)) {
+      setError('تاریخِ فاکتور معتبر نیست (قالب: ۱۴۰۵/۰۴/۲۶).');
+      return;
+    }
     const items = lines
       .filter((l) => l.productId)
       .map((l) => ({
@@ -74,7 +80,7 @@ export function CreatePurchaseInvoicePage() {
       await apiPost('/api/purchase/invoices', {
         branchId: user?.branchId ?? 1,
         fiscalYearId: fiscalYearId ?? 1,
-        invoiceDate: todayJalaliString(),
+        invoiceDate,
         supplierId,
         warehouseId,
         invoiceType: 'فاکتور خرید',
@@ -115,6 +121,7 @@ export function CreatePurchaseInvoicePage() {
               ))}
             </select>
           </div>
+          <JalaliDateInput label="تاریخِ فاکتور" value={invoiceDate} onChange={setInvoiceDate} />
           <div className="field">
             <label className="label">مبلغِ پرداختی (نقد)</label>
             <input className="input" type="number" min="0" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />

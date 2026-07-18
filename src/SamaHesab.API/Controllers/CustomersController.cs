@@ -49,11 +49,23 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> Card(int id, CancellationToken ct)
         => (await _mediator.Send(new GetCustomerCardQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
 
-    /// <summary>ساختِ مشتری — الگوی API-only.</summary>
+    /// <summary>ساختِ مشتری — الگوی API-only. با IsSupplierRole=true همین مسیر تأمین‌کننده هم می‌سازد.</summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] SamaHesab.Application.CRM.Commands.CreateCustomerCommand cmd, CancellationToken ct)
     {
         var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    /// <summary>
+    /// U-WEB-CRUD — ویرایشِ شخصِ موجود. `UpdateCustomerCommand` از قبل در Application بود ولی هیچ
+    /// مسیرِ APIای نداشت ⇒ کلاینتِ وب فقط می‌توانست بسازد، نه ویرایش کند.
+    /// Idِ مسیر مرجع است (بدنه هرچه بفرستد نادیده گرفته می‌شود) تا ویرایشِ رکوردِ اشتباه ممکن نباشد.
+    /// </summary>
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] SamaHesab.Application.CRM.Commands.UpdateCustomerCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd with { Id = id }, ct);
         return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
 }

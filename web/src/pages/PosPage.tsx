@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
-import { money } from '../lib/format';
+import { money, numberFormat } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
@@ -226,7 +226,7 @@ export function PosPage() {
         actions={
           <>
             <button className="btn btn-secondary btn-sm" onClick={() => setShowHeld((s) => !s)}>
-              سبدهایِ معلق ({held.length})
+              سبدهایِ معلق ({numberFormat.format(held.length)})
             </button>
             <button className="btn btn-secondary btn-sm" onClick={hold} disabled={busy}>
               تعلیقِ سبد

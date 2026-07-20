@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { apiGet, ApiError } from '../api/client';
-import { money } from '../lib/format';
+import { money, numberFormat } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
@@ -85,7 +85,7 @@ export function VouchersPage() {
           <DataTable columns={columns} rows={result.items} rowKey={(r) => r.id} emptyText="سندی یافت نشد." />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-3)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
             <span>
-              صفحهٔ {result.pageNumber} از {result.totalPages} — کل: {money(result.totalCount)} سند
+              صفحهٔ {numberFormat.format(result.pageNumber)} از {numberFormat.format(result.totalPages)} — کل: {money(result.totalCount)} سند
             </span>
             <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
               <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => search(page - 1)}>

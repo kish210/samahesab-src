@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, ApiError } from '../api/client';
+import { numberFormat } from '../lib/format';
 
 interface DashboardSummary {
   totalProducts: number;
@@ -8,8 +9,6 @@ interface DashboardSummary {
   receivable: number;
   payable: number;
 }
-
-const numberFormat = new Intl.NumberFormat('fa-IR');
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (

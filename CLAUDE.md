@@ -27,9 +27,12 @@
 - **منو/ماژول:** پیش‌فرض فقط در کد (`ModuleService.Load`) — در git. فایلِ
   `%AppData%\SamaHesab\modules.json` فقط override محلی است؛ برای یکسانی روی هیچ ماشینی نگهش ندارید
   (یا با «تنظیمات → مدیریت ماژول‌ها → خروجی/ورودیِ تنظیمات» یکسانش کنید).
-- **نسخه‌بندی:** فقط در `Directory.Build.props` + سه `installer/*.iss` (هر چهار برابر).
-  نصاب‌ها (Setup.exe) با **Inno Setup/ISCC** ساخته و به GitHub Release آپلود می‌شوند.
-  **ISCC روی هر دو ماشین نصب است** (PC: `C:\Users\Mohammad\AppData\Local\Programs\Inno Setup 6\ISCC.exe`) ⇒ هر کدام می‌تواند release بسازد؛ دیگر گیرِ «فقط لپ‌تاپ» نیست. مراحل: `installer\publish-all.ps1` سپس `ISCC installer\SamaHesab_Setup.iss` (+ client/server)، بعد `gh release create vX -R kish210/SamaHesab …`.
+- **نسخه‌بندی:** فقط در `Directory.Build.props` + `installer/web-setup.iss` (هر دو برابر).
+  **⚠️ از v2.9 به بعد فقط یک نصاب منتشر می‌شود: `installer/web-setup.iss` (فقط سرور+وب — بدونِ دسکتاپِ WPF).**
+  دسکتاپ (`SamaHesab_Setup.iss`/`client.iss`/`server.iss`) دیگر build/release نمی‌شوند (کاربر از مرورگر روی
+  `http://<server>:5080/web/` کار می‌کند)؛ فایل‌هایشان صرفاً برایِ آرشیو در ریپو مانده، دست‌نزنید مگر تصمیمِ آگاهانهٔ برگشت.
+  نصاب با **Inno Setup/ISCC** ساخته و به GitHub Release آپلود می‌شود.
+  **ISCC روی هر دو ماشین نصب است** (PC: `C:\Users\Mohammad\AppData\Local\Programs\Inno Setup 6\ISCC.exe`) ⇒ هر کدام می‌تواند release بسازد. مراحل: `installer\publish-web.ps1` (فقط API+وب — سریع‌تر از `publish-all.ps1` که هنوز دسکتاپ را هم می‌سازد) سپس `ISCC installer\web-setup.iss`، بعد `gh release create vX -R kish210/SamaHesab …`.
 - **زبان:** پاسخ‌ها به کاربر فارسی.
 - **footerِ commit:** `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 - push: `git -c http.version=HTTP/1.1 push origin main`

@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 interface NavItem {
   to: string;
   label: string;
+  icon: string;
   end?: boolean;
 }
 interface NavGroup {
@@ -11,32 +12,40 @@ interface NavGroup {
   items: NavItem[];
 }
 
+/**
+ * ترتیب/گروه‌بندی هم‌راستا با سایدبارِ دسکتاپ (MainShellWindow.xaml): اصلی → حسابداری →
+ * خزانه → انبارداری → فروش → خرید → اشخاص → تنظیمات. «ماژول‌ها» یک گروهِ جدا و صریح است —
+ * POS بخشِ هسته نیست (طبقِ CLAUDE.md: هسته=حسابداری/خزانه/انبار/فروش/خرید/اشخاص، POS ماژولِ
+ * اختیاری است) پس در navbar کنارِ «مدیریتِ ماژول‌ها» جدا از هسته دیده می‌شود.
+ */
 const NAV_GROUPS: NavGroup[] = [
-  { items: [{ to: '/', label: 'داشبورد', end: true }] },
-  { title: 'اشخاص', items: [
-    { to: '/customers', label: 'مشتریان' },
-    { to: '/suppliers', label: 'تأمین‌کنندگان' },
-  ] },
-  { title: 'کالا/انبار', items: [
-    { to: '/products', label: 'کالاها' },
-    { to: '/warehouse', label: 'انبار' },
-  ] },
-  { title: 'فروش/خرید', items: [
-    { to: '/pos', label: 'صندوقِ فروش (POS)' },
-    { to: '/sales', label: 'فاکتورهایِ فروش' },
-    { to: '/purchase', label: 'فاکتورهایِ خرید' },
+  { items: [{ to: '/', label: 'داشبورد', icon: '📊', end: true }] },
+  { title: 'حسابداری', items: [
+    { to: '/vouchers', label: 'اسنادِ حسابداری', icon: '📋' },
+    { to: '/trial-balance', label: 'تراز آزمایشی', icon: '🏛' },
+    { to: '/general-ledger', label: 'دفترِ کل/معین', icon: '🏛' },
   ] },
   { title: 'خزانه', items: [
-    { to: '/treasury', label: 'دریافتنی/پرداختنی' },
-    { to: '/cheques', label: 'تابلویِ چک' },
+    { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: '🏦' },
+    { to: '/cheques', label: 'تابلویِ چک', icon: '📝' },
   ] },
-  { title: 'حسابداری', items: [
-    { to: '/vouchers', label: 'اسنادِ حسابداری' },
-    { to: '/trial-balance', label: 'تراز آزمایشی' },
-    { to: '/general-ledger', label: 'دفترِ کل/معین' },
+  { title: 'انبارداری', items: [
+    { to: '/products', label: 'کالاها', icon: '📦' },
+    { to: '/warehouse', label: 'انبار', icon: '🏭' },
   ] },
-  { title: 'مدیریت', items: [
-    { to: '/modules', label: 'ماژول‌ها' },
+  { title: 'فروش', items: [
+    { to: '/sales', label: 'فاکتورهایِ فروش', icon: '🧾' },
+  ] },
+  { title: 'خرید', items: [
+    { to: '/purchase', label: 'فاکتورهایِ خرید', icon: '🛒' },
+  ] },
+  { title: 'اشخاص', items: [
+    { to: '/customers', label: 'مشتریان', icon: '👥' },
+    { to: '/suppliers', label: 'تأمین‌کنندگان', icon: '🏪' },
+  ] },
+  { title: 'ماژول‌ها', items: [
+    { to: '/pos', label: 'صندوقِ فروش (POS)', icon: '🖨' },
+    { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: '🧩' },
   ] },
 ];
 
@@ -89,17 +98,19 @@ export function Shell() {
                   key={item.to}
                   to={item.to}
                   end={item.end}
-                  style={({ isActive }) => ({
-                    display: 'block',
+                  className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
                     padding: '9px 12px',
                     borderRadius: 'var(--radius-sm)',
                     color: 'var(--text-on-brand)',
                     fontSize: 'var(--text-sm)',
-                    fontWeight: isActive ? 600 : 400,
-                    background: isActive ? 'var(--bg-sidebar-hover)' : 'transparent',
-                  })}
+                  }}
                 >
-                  {item.label}
+                  <span aria-hidden="true">{item.icon}</span>
+                  <span>{item.label}</span>
                 </NavLink>
               ))}
             </div>

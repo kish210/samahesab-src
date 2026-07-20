@@ -179,3 +179,8 @@ a:hover { text-decoration: underline; }
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
 *::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* سایدبار — هم‌راستا با MainShellWindow.xaml (SidebarMenuItem/ActiveSidebarMenuItem) */
+.sidebar-link { background: transparent; font-weight: var(--fw-normal); }
+.sidebar-link:hover { background: var(--bg-sidebar-hover); }
+.sidebar-link.active { background: var(--blue-600); font-weight: var(--fw-semibold); }

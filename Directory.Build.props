@@ -7,11 +7,12 @@
   <!--   AssemblyVersion/FileVersion خودکار از $(Version) مشتق می‌شوند تا دیگر -->
   <!--   جا نمانند (باگِ ۲.۵.۱۲: AssemblyVersion روی ۲.۵.۱۱ ماند → حلقهٔ آپدیت، -->
   <!--   چون UpdateService از GetName().Version=AssemblyVersion استفاده می‌کند). -->
-  <!--   Inno نمی‌تواند این فایل را بخواند: installer/SamaHesab_Setup.iss، -->
-  <!--   installer/client.iss، installer/server.iss — هر سه باید برابرِ <Version> باشند. -->
+  <!--   Inno نمی‌تواند این فایل را بخواند: installer/web-setup.iss باید برابرِ <Version> باشد. -->
+  <!--   ⚠️ از v2.9 به بعد: تنها نصابِ منتشرشده installer/web-setup.iss است (فقط سرور+وب) —      -->
+  <!--   SamaHesab_Setup.iss/client.iss/server.iss (دسکتاپِ WPF) دیگر build/release نمی‌شوند.     -->
   <!-- ============================================================= -->
   <PropertyGroup>
-    <Version>2.8.22</Version>
+    <Version>2.9.0</Version>
     <AssemblyVersion>$(Version).0</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>
     <Company>سماع رایانه کیش</Company>

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { SearchSelect } from './SearchSelect';
 import { money } from '../lib/format';
 
@@ -42,6 +43,8 @@ interface Props {
 }
 
 export function InvoiceLineEditor({ products, lines, onChange, priceField, hideDiscount = false }: Props) {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   function updateLine(index: number, patch: Partial<InvoiceLine>) {
     const next = lines.slice();
     next[index] = { ...next[index], ...patch };
@@ -56,12 +59,25 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
     onChange(lines.filter((_, i) => i !== index));
   }
 
+  /** هم‌الگو با DataGridQuickEntryHelperِ دسکتاپ — Enter در آخرین ستونِ آخرین ردیف
+   * ردیفِ خالیِ نو می‌سازد و فوکوس را به کمبویِ کالایِ همان ردیف می‌برد. */
+  function handleLastCellKeyDown(e: React.KeyboardEvent<HTMLInputElement>, rowIndex: number) {
+    if (e.key !== 'Enter' || rowIndex !== lines.length - 1) return;
+    e.preventDefault();
+    addLine();
+    requestAnimationFrame(() => {
+      const rows = tableRef.current?.querySelectorAll('tbody tr');
+      const lastRow = rows?.[rows.length - 1];
+      lastRow?.querySelector<HTMLInputElement>('input')?.focus();
+    });
+  }
+
   const grandTotal = lines.reduce((sum, l) => sum + lineTotal(l), 0);
 
   return (
     <div>
       <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table ref={tableRef} style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--border)' }}>
               {['کالا', 'تعداد', 'قیمتِ واحد', ...(hideDiscount ? [] : ['تخفیف٪']), 'مالیات٪', 'جمع', ''].map((h) => (
@@ -97,7 +113,12 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
                   </td>
                 )}
                 <td style={{ padding: '6px 10px', width: 80 }}>
-                  <input className="input input-sm" type="number" min="0" max="100" step="any" value={line.taxPct} onChange={(e) => updateLine(i, { taxPct: e.target.value })} />
+                  <input
+                    className="input input-sm" type="number" min="0" max="100" step="any"
+                    value={line.taxPct}
+                    onChange={(e) => updateLine(i, { taxPct: e.target.value })}
+                    onKeyDown={(e) => handleLastCellKeyDown(e, i)}
+                  />
                 </td>
                 <td className="num" style={{ padding: '6px 10px', fontWeight: 600, whiteSpace: 'nowrap' }}>{money(lineTotal(line))}</td>
                 <td style={{ padding: '6px 10px' }}>

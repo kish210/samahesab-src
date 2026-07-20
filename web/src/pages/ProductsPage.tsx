@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet, ApiError } from '../api/client';
+import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { DataTable, type Column } from '../components/DataTable';
@@ -34,6 +34,17 @@ export function ProductsPage() {
       .finally(() => setLoading(false));
   }, [debouncedSearch]);
 
+  /** U-WEB-DEACTIVATE — حذفِ واقعی نیست (اقلامِ فاکتورهایِ تاریخی به کالا ارجاع می‌دهند)، فقط
+   * غیرفعال/فعال‌سازی؛ رکورد در فهرست می‌ماند (با نشانگرِ وضعیت) نه اینکه ناپدید شود. */
+  async function toggleActive(r: ProductRow) {
+    try {
+      await apiPost(`/api/products/${r.id}/${r.isActive ? 'deactivate' : 'activate'}`);
+      setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, isActive: !x.isActive } : x)));
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'تغییرِ وضعیت ناموفق بود.');
+    }
+  }
+
   const columns: Column<ProductRow>[] = [
     { key: 'code', header: 'کد', render: (r) => r.code },
     { key: 'name', header: 'نام', render: (r) => <Link to={`/products/${r.id}`}>{r.name}</Link> },
@@ -42,14 +53,21 @@ export function ProductsPage() {
     {
       key: 'status', header: 'وضعیت',
       render: (r) => (
-        <span className={`badge ${r.isLowStock ? 'badge-red' : 'badge-green'}`}>
-          {r.isLowStock ? 'کسریِ موجودی' : 'موجود'}
+        <span className={`badge ${!r.isActive ? 'badge-gray' : r.isLowStock ? 'badge-red' : 'badge-green'}`}>
+          {!r.isActive ? 'غیرفعال' : r.isLowStock ? 'کسریِ موجودی' : 'موجود'}
         </span>
       ),
     },
     {
       key: 'action', header: '',
-      render: (r) => <Link to={`/products/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>,
+      render: (r) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <Link to={`/products/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(r)}>
+            {r.isActive ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+          </button>
+        </div>
+      ),
     },
   ];
 

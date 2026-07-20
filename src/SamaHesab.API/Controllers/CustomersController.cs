@@ -68,4 +68,22 @@ public class CustomersController : ControllerBase
         var r = await _mediator.Send(cmd with { Id = id }, ct);
         return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
     }
+
+    /// <summary>
+    /// U-WEB-DEACTIVATE — غیرفعال/فعال‌سازیِ (حذفِ نرم) مشتری. حذفِ واقعی عمداً نیست: فاکتورهایِ
+    /// تاریخی به همین Party ارجاع می‌دهند.
+    /// </summary>
+    [HttpPost("{id:int}/deactivate")]
+    public async Task<IActionResult> Deactivate(int id, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new SamaHesab.Application.CRM.Commands.SetPartyActiveCommand(id, false), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    [HttpPost("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new SamaHesab.Application.CRM.Commands.SetPartyActiveCommand(id, true), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
 }

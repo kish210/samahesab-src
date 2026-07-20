@@ -44,6 +44,14 @@ public class ProductsController : ControllerBase
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
+    /// <summary>U-WEB-DEACTIVATE — بازفعال‌سازیِ کالایِ غیرفعال‌شده.</summary>
+    [HttpPost("{id:int}/activate")]
+    public async Task<IActionResult> Activate(int id, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new SamaHesab.Application.Inventory.Commands.ActivateProductCommand(id), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>
     /// U-WEB-CRUD — ساختِ کالا. `CreateProductCommand` از قبل در Application بود ولی مسیرِ APIای
     /// نداشت ⇒ کلاینتِ وب نمی‌توانست کالا اضافه کند.

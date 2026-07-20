@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet, ApiError } from '../api/client';
+import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { DataTable, type Column } from '../components/DataTable';
@@ -32,6 +32,17 @@ export function SuppliersPage() {
       .finally(() => setLoading(false));
   }, [debouncedSearch]);
 
+  /** U-WEB-DEACTIVATE — حذفِ واقعی نیست (فاکتورهایِ خریدِ تاریخی به همین Party ارجاع می‌دهند)،
+   * فقط غیرفعال/فعال‌سازی. */
+  async function toggleActive(r: SupplierRow) {
+    try {
+      await apiPost(`/api/suppliers/${r.id}/${r.isActive ? 'deactivate' : 'activate'}`);
+      setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, isActive: !x.isActive } : x)));
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'تغییرِ وضعیت ناموفق بود.');
+    }
+  }
+
   const columns: Column<SupplierRow>[] = [
     { key: 'code', header: 'کد', render: (r) => r.code },
     { key: 'name', header: 'نام', render: (r) => <Link to={`/parties/${r.id}`}>{r.name}</Link> },
@@ -42,8 +53,19 @@ export function SuppliersPage() {
       render: (r) => <span style={{ fontWeight: 600, color: r.balance > 0 ? 'var(--danger-700)' : 'var(--text-strong)' }}>{money(r.balance)}</span>,
     },
     {
+      key: 'status', header: 'وضعیت',
+      render: (r) => (!r.isActive ? <span className="badge badge-gray">غیرفعال</span> : null),
+    },
+    {
       key: 'action', header: '',
-      render: (r) => <Link to={`/parties/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>,
+      render: (r) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <Link to={`/parties/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(r)}>
+            {r.isActive ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+          </button>
+        </div>
+      ),
     },
   ];
 

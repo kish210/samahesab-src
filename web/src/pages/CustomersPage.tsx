@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiGet, ApiError } from '../api/client';
+import { apiGet, apiPost, ApiError } from '../api/client';
 import { PageHeader } from '../components/PageHeader';
 
 interface CustomerRow {
@@ -33,6 +33,17 @@ export function CustomersPage() {
     return () => clearTimeout(handle);
   }, [search]);
 
+  /** U-WEB-DEACTIVATE — حذفِ واقعی نیست (فاکتورهایِ تاریخی به همین Party ارجاع می‌دهند)،
+   * فقط غیرفعال/فعال‌سازی؛ رکورد در فهرست می‌ماند. */
+  async function toggleActive(r: CustomerRow) {
+    try {
+      await apiPost(`/api/customers/${r.id}/${r.isActive ? 'deactivate' : 'activate'}`);
+      setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, isActive: !x.isActive } : x)));
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'تغییرِ وضعیت ناموفق بود.');
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -62,6 +73,7 @@ export function CustomersPage() {
                 <th style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>موبایل</th>
                 <th className="num" style={{ padding: '10px 12px', textAlign: 'start', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>مانده (ریال)</th>
                 <th style={{ padding: '10px 12px' }}></th>
+                <th style={{ padding: '10px 12px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -86,13 +98,19 @@ export function CustomersPage() {
                     {numberFormat.format(r.balance)}
                   </td>
                   <td style={{ padding: '10px 12px' }}>
+                    {!r.isActive && <span className="badge badge-gray">غیرفعال</span>}
+                  </td>
+                  <td style={{ padding: '10px 12px', display: 'flex', gap: 6 }}>
                     <Link to={`/parties/${r.id}/edit`} className="btn btn-ghost btn-sm">ویرایش</Link>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggleActive(r)}>
+                      {r.isActive ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+                    </button>
                   </td>
                 </tr>
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={6} style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--text-muted)' }}>
                     مشتری‌ای یافت نشد.
                   </td>
                 </tr>

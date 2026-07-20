@@ -14,6 +14,9 @@ interface NavItem {
   label: string;
   icon: IconName;
   end?: boolean;
+  /** کلیدِ ماژول (از `IModule.Key`) — اگر تعریف شود، این آیتم فقط وقتی نشان داده می‌شود که
+   * ماژول واقعاً روی سرور بارگذاری‌شده باشد (نه هر ماژولِ اختیاری را کورکورانه). */
+  moduleKey?: string;
 }
 interface NavGroup {
   title?: string;
@@ -53,15 +56,14 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/suppliers', label: 'تأمین‌کنندگان', icon: 'people' },
   ] },
   { title: 'ماژول‌ها', items: [
-    { to: '/pos', label: 'صندوقِ فروش (POS)', icon: 'pos' },
+    { to: '/pos', label: 'صندوقِ فروش (POS)', icon: 'pos', moduleKey: 'POS' },
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
   ] },
 ];
 
 const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
-const PALETTE_ITEMS: PaletteItem[] = NAV_GROUPS.flatMap((g) =>
-  g.items.map((i) => ({ label: i.label, sub: g.title ?? 'اصلی', icon: i.icon, to: i.to })),
-);
+
+const COLLAPSE_KEY = 'sh:navCollapsed';
 
 /** عنوانِ صفحهٔ جاری — هم‌الگو با `CurrentPageTitle` در MainShellWindowِ دسکتاپ (بایندِ توپ‌بار). */
 function currentPageTitle(pathname: string): string {
@@ -78,6 +80,10 @@ export function Shell() {
   const location = useLocation();
   const initial = (user?.fullName || 'S').trim().charAt(0);
   const [pendingCheques, setPendingCheques] = useState(0);
+  const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); } catch { return {}; }
+  });
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -88,6 +94,27 @@ export function Shell() {
       .then((rows) => setPendingCheques(rows.filter((r) => r.dueState !== 'Upcoming').length))
       .catch(() => {});
   }, []);
+
+  // navbar فقط ماژول‌هایِ واقعاً بارگذاری‌شده روی این سرور را نشان بدهد (نه هر ماژولِ اختیاری را
+  // کورکورانه) — طبقِ قاعدهٔ CLAUDE.md: هسته نباید لینکِ مرده به ماژولِ نصب‌نشده نشان بدهد.
+  useEffect(() => {
+    apiGet<string[]>('/api/module-capabilities').then(setLoadedModules).catch(() => setLoadedModules([]));
+  }, []);
+
+  const visibleNavGroups: NavGroup[] = NAV_GROUPS
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.moduleKey || loadedModules === null || loadedModules.includes(i.moduleKey)) }))
+    .filter((g) => g.items.length > 0);
+  const palette: PaletteItem[] = visibleNavGroups.flatMap((g) =>
+    g.items.map((i) => ({ label: i.label, sub: g.title ?? 'اصلی', icon: i.icon, to: i.to })),
+  );
+
+  function toggleGroup(title: string) {
+    setCollapsed((prev) => {
+      const next = { ...prev, [title]: !prev[title] };
+      localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
 
   const activeGroup = NAV_GROUPS.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'))?.title;
 
@@ -129,19 +156,28 @@ export function Shell() {
         {/* ── سایدبار — رَدیفِ آیکونِ جمع‌شده (۶۰px)، با هاور تا ۲۲۰px بازمی‌شود ── */}
         <aside className="erp-side">
           <nav className="nav">
-            {NAV_GROUPS.map((group, gi) => (
-              <div key={gi}>
-                {group.title && <div className="grouplabel">{group.title}</div>}
-                {group.items.map((item) => (
-                  <NavLink key={item.to} to={item.to} end={item.end} title={item.label}
-                    className={({ isActive }) => `ni${isActive ? ' active' : ''}`}>
-                    <ErpIcon name={item.icon} />
-                    <span className="lb">{item.label}</span>
-                  </NavLink>
-                ))}
-                {gi === 0 && <div className="sep" />}
-              </div>
-            ))}
+            {visibleNavGroups.map((group, gi) => {
+              const isCollapsed = group.title ? !!collapsed[group.title] : false;
+              return (
+                <div key={gi}>
+                  {group.title && (
+                    <button type="button" className="grouplabel" onClick={() => toggleGroup(group.title!)}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                      <span>{group.title}</span>
+                      <span style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 120ms' }}>▾</span>
+                    </button>
+                  )}
+                  {!isCollapsed && group.items.map((item) => (
+                    <NavLink key={item.to} to={item.to} end={item.end} title={item.label}
+                      className={({ isActive }) => `ni${isActive ? ' active' : ''}`}>
+                      <ErpIcon name={item.icon} />
+                      <span className="lb">{item.label}</span>
+                    </NavLink>
+                  ))}
+                  {gi === 0 && <div className="sep" />}
+                </div>
+              );
+            })}
           </nav>
         </aside>
 
@@ -160,7 +196,7 @@ export function Shell() {
         </div>
       </div>
 
-      <CommandPalette items={PALETTE_ITEMS} />
+      <CommandPalette items={palette} />
     </div>
   );
 }

@@ -58,7 +58,11 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}, _retr
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
-  if (res.status === 401 && !_retried) {
+  // تمدیدِ توکن فقط برایِ درخواستِ *احرازهویت‌شده*ای که منقضی شده منطقی است — اگر از اول
+  // توکنی نبود (مثلِ خودِ POST /api/auth/login)، ۴۰۱ یعنی رمز/نام‌کاربری غلط یا قفل‌بودنِ حساب،
+  // نه انقضایِ نشست؛ باید پیامِ واقعیِ سرور (`body.message`) به کاربر برسد، نه پیامِ گمراه‌کنندهٔ
+  // «نشستِ شما منقضی شده» (باگِ واقعی: تلاشِ ناموفقِ ورود همیشه همین پیامِ نامرتبط را نشان می‌داد).
+  if (res.status === 401 && !_retried && token) {
     const refreshed = await tryRefresh();
     if (refreshed) return apiFetch<T>(path, options, true);
     clearTokens();

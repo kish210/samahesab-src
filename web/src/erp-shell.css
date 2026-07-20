@@ -3,6 +3,11 @@
    سبک: سپیدار/SAP Business One/Dynamics BC — نه SaaS.
    ============================================================ */
 
+/* پنجرهٔ کاملِ‌ثابت مثلِ اپِ دسکتاپ — خودِ صفحه اسکرول نمی‌شود، فقط ناحیهٔ محتوا؛ نوارِ وضعیت
+   همیشه پایینِ ویوپورت می‌ماند (بدونِ این‌ها فراموش شده بود و فوتر با اسکرول از صفحه رد می‌شد). */
+html, body, #root { height: 100%; overflow: hidden; }
+.erp { display: flex; flex-direction: column; height: 100%; }
+
 .erp-top { height: var(--topbar-h); flex: none; background: var(--blue-700); display: flex; align-items: center; padding: 0 12px; gap: 14px; color: #fff; }
 .erp-top .brand { display: flex; align-items: center; gap: 9px; padding-inline-end: 6px; flex: none; }
 .erp-top .brand .mark { width: 30px; height: 30px; border-radius: 7px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
@@ -28,6 +33,7 @@
 .erp-top .user .ur { font-size: 10px; color: var(--blue-200); line-height: 1.2; }
 
 .erp-body { flex: 1; display: flex; min-height: 0; }
+.erp-main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 
 .erp-side { width: var(--sidebar-w-collapsed); flex: none; background: var(--blue-900); display: flex; flex-direction: column; transition: width 160ms var(--ease); overflow: hidden; z-index: 30; }
 .erp-side:hover, .erp-side.pinned { width: var(--sidebar-w); box-shadow: 8px 0 24px rgba(27,40,67,.25); }

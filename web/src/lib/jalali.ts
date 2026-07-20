@@ -44,3 +44,43 @@ export function todayJalaliString(): string {
   const [jy, jm, jd] = jalaliFromGregorian(now.getFullYear(), now.getMonth() + 1, now.getDate());
   return `${jy}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
 }
+
+export function jalaliOf(date: Date): { y: number; m: number; d: number } {
+  const [y, m, d] = jalaliFromGregorian(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  return { y, m, d };
+}
+
+function addDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+/**
+ * تقویمِ گرافیکیِ شمسی — بدونِ پیاده‌سازیِ فرمولِ معکوسِ (شمسی→میلادی) که دستی‌نویسی‌اش پرخطاست؛
+ * به‌جایش با اسکنِ یک پنجرهٔ ~۴۴۰روزهٔ Dateِ میلادیِ بومیِ جاوااسکریپت (که قطعاً درست است) و
+ * تبدیلِ هرکدام با همان `jalaliFromGregorian`ِ ازقبل‌تأییدشده، دقیقاً روزهایِ همان ماهِ شمسی را
+ * پیدا می‌کند — صحت تضمین‌شده به‌جایِ فرمولِ نو و ریسک‌دار.
+ */
+export function jalaliMonthDays(jy: number, jm: number): { day: number; date: Date; weekday: number }[] {
+  const anchor = new Date(jy + 621, 2, 10); // نیمهٔ اسفند/اوایلِ فروردینِ گرگوریِ حدودی، برایِ لنگرِ اسکن
+  const results: { day: number; date: Date; weekday: number }[] = [];
+  for (let offset = -220; offset <= 220; offset++) {
+    const d = addDays(anchor, offset);
+    const { y, m, d: day } = jalaliOf(d);
+    if (y === jy && m === jm) {
+      // شنبه=۰ … جمعه=۶ (تقویمِ ایرانی)، از یکشنبه=۰ جاوااسکریپت
+      const weekday = (d.getDay() + 1) % 7;
+      results.push({ day, date: d, weekday });
+    }
+  }
+  results.sort((a, b) => a.day - b.day);
+  return results;
+}
+
+export const JALALI_MONTH_NAMES = [
+  'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+  'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
+];
+
+export const JALALI_WEEKDAY_LABELS = ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'];

@@ -88,4 +88,29 @@ public class AuthController : ControllerBase
         Roles = _currentUser.GetRoles(),
         Permissions = User.FindAll("perm").Select(c => c.Value).ToArray()
     });
+
+    public record SetRecoveryCodeRequest(string RecoveryCode);
+
+    /// <summary>ثبتِ کدِ بازیابی برایِ کاربرِ جاری (وب پیش‌تر هیچ راهی برایِ این نداشت — فقط
+    /// ویزاردِ راه‌اندازیِ دسکتاپ که در وب اصلاً اجرا نمی‌شود). کد را خودِ کاربر تولید/یادداشت
+    /// می‌کند؛ سرور فقط هشِ آن را نگه می‌دارد.</summary>
+    [HttpPost("recovery-code")]
+    [Authorize]
+    public async Task<IActionResult> SetRecoveryCode([FromBody] SetRecoveryCodeRequest req)
+    {
+        var r = await _mediator.Send(new SetRecoveryCodeCommand(_currentUser.UserId!.Value, req.RecoveryCode));
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
+    public record ResetPasswordRecoveryRequest(string Username, string RecoveryCode, string NewPassword, int CompanyId = 1);
+
+    /// <summary>بازنشانیِ رمزِ فراموش‌شده با کدِ بازیابی — بدونِ نیازِ لاگین (صفحهٔ ورود).</summary>
+    [HttpPost("reset-password-recovery")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPasswordWithRecoveryCode([FromBody] ResetPasswordRecoveryRequest req)
+    {
+        var r = await _mediator.Send(new ResetPasswordWithRecoveryCodeCommand(
+            req.CompanyId, req.Username, req.RecoveryCode, req.NewPassword));
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
 }

@@ -188,11 +188,16 @@ BEGIN
 END
 
 -- Default Admin User (password: admin123)
+-- ⚠️ باگِ واقعیِ رفع‌شده (@2026-07-22): هش/ساتِ پیشین با SHA256(password+salt) ساده محاسبه شده
+-- بودند، درحالی‌که برنامه واقعاً با PasswordHasher.Verify (PBKDF2-SHA256، ۱۰۰هزار تکرار، کلیدِ
+-- ۳۲بایتی — src/SamaHesab.Application/Common/Security/PasswordHasher.cs) تأیید می‌کند. یعنی روی
+-- هر نصبِ تازه، لاگینِ admin/admin123 هرگز کار نمی‌کرد. مقادیرِ زیر با همان الگوریتمِ واقعی برای
+-- رمزِ admin123 از نو محاسبه شده‌اند.
 IF NOT EXISTS (SELECT 1 FROM Sec.Users WHERE CompanyId = @CompanyId AND Username = N'admin')
 BEGIN
-    DECLARE @Salt NVARCHAR(100) = N'SamaHesab2024Salt';
-    -- SHA256 of 'admin123' + salt (pre-computed for demo)
-    DECLARE @Hash NVARCHAR(256) = N'xT3YLpGNPMVlbxQEz1EzTX9VGxz9GqH+Hm3UpbJkRvU=';
+    DECLARE @Salt NVARCHAR(100) = N'TfuKbvTVS2f47DsTSl9uAA==';
+    -- PBKDF2-SHA256(password='admin123', iterations=100000, keySize=32) — سازگار با PasswordHasher.Verify
+    DECLARE @Hash NVARCHAR(256) = N'dINuLAPR1tjGi3fvfMn5v+QYO9HXGyEaxYut/aCmkd8=';
 
     INSERT INTO Sec.Users(CompanyId, BranchId, Username, PasswordHash, PasswordSalt, FullName, IsActive)
     VALUES(@CompanyId, @BranchId, N'admin', @Hash, @Salt, N'مدیر سیستم', 1);

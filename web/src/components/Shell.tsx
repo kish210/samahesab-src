@@ -33,19 +33,19 @@ interface NavGroup {
  */
 const NAV_GROUPS: NavGroup[] = [
   { items: [{ to: '/', label: 'داشبورد', icon: 'home', end: true }] },
+  // خزانه (دریافتنی/پرداختنی + تابلویِ چک) طبقِ بازخوردِ کاربر «خزانه زیرِ مجموعهٔ حسابداری
+  // باشد» (هم‌الگو با منویِ حسابفا) به زیرمنویِ حسابداری منتقل شد — دیگر دستهٔ جداگانهٔ توپ‌بار نیست.
   { title: 'حسابداری', items: [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
     { to: '/accounts', label: 'دفترِ حساب‌ها', icon: 'accounting' },
+    { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },
+    { to: '/cheques', label: 'تابلویِ چک', icon: 'cheque' },
   ] },
   { title: 'گزارش‌هایِ مالی', items: [
     { to: '/trial-balance', label: 'تراز آزمایشی', icon: 'reports' },
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
     { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },
     { to: '/income-statement', label: 'صورتِ سودوزیان', icon: 'reports' },
-  ] },
-  { title: 'خزانه', items: [
-    { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },
-    { to: '/cheques', label: 'تابلویِ چک', icon: 'cheque' },
   ] },
   { title: 'انبارداری', items: [
     { to: '/products', label: 'کالاها', icon: 'inventory' },
@@ -88,7 +88,7 @@ const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
  * کاربر این‌ها فقط در توپ‌بار (دکمه‌هایِ دسته) دیده می‌شوند، نه در سایدبار — تا هر بخش یک‌بار
  * دیده شود (سایدبار فقط بخش‌هایِ خارج از این دسته‌ها را نشان می‌دهد: داشبورد/POS/رستوران). */
 const TOPBAR_GROUP_TITLES = new Set([
-  'حسابداری', 'خزانه', 'انبارداری', 'فروش', 'خرید', 'اشخاص', 'گزارش‌هایِ مالی', 'تنظیمات',
+  'حسابداری', 'انبارداری', 'فروش', 'خرید', 'اشخاص', 'گزارش‌هایِ مالی', 'تنظیمات',
 ]);
 
 /** عنوانِ صفحهٔ جاری — هم‌الگو با `CurrentPageTitle` در MainShellWindowِ دسکتاپ (بایندِ توپ‌بار). */

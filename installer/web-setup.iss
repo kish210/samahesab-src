@@ -132,6 +132,30 @@ begin
   Result := True;
 end;
 
+// ⚠️ رفعِ باگِ واقعی (@2026-07-22): پیش‌تر «ساختِ پایگاه‌داده» همیشه پیش‌فرض=True بود؛ چون
+// database\_win_01_create.sql بدونِ هیچ شرطی DROP DATABASE می‌زند، هر اجرایِ /VERYSILENT
+// (که صفحاتِ ویزارد نشان داده نمی‌شوند و همان پیش‌فرض بی‌قیدوشرط اعمال می‌شود) دیتابیسِ
+// موجود را — با هر دادهٔ واقعی‌ای که داشت — پاک می‌کرد. این تابع حالا واقعاً چک می‌کند که
+// دیتابیسِ SamaHesab از قبل روی همان سرور وجود دارد یا نه، و پیش‌فرض را بر همان اساس تعیین
+// می‌کند (وجود دارد → پیش‌فرض False، یعنی حفظِ داده؛ وجود ندارد → پیش‌فرض True یعنی نصبِ تازه).
+function DatabaseExists(const Server: String): Boolean;
+var
+  ResultFile, Cmd: String;
+  Lines: TArrayOfString;
+  Rc: Integer;
+begin
+  Result := False;
+  ResultFile := ExpandConstant('{tmp}\samahesab_dbcheck.txt');
+  DeleteFile(ResultFile);
+  Cmd := '/C sqlcmd -S "' + Server + '" -E -h -1 -W -Q ' +
+    '"SET NOCOUNT ON; IF DB_ID(N''SamaHesab'') IS NOT NULL PRINT 1 ELSE PRINT 0" -o "' + ResultFile + '"';
+  if Exec(ExpandConstant('{cmd}'), Cmd, '', SW_HIDE, ewWaitUntilTerminated, Rc) then
+  begin
+    if LoadStringsFromFile(ResultFile, Lines) and (GetArrayLength(Lines) > 0) then
+      Result := (Trim(Lines[0]) = '1');
+  end;
+end;
+
 // گیتِ پیش‌نیاز: اگر SQLEXPRESS نبود، با تأییدِ کاربر برای نصبِ خودکار علامت می‌زند.
 function InitializeSetup: Boolean;
 begin
@@ -207,6 +231,12 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
+  // کاربر همین الان نامِ سرور را وارد کرد — پیش‌فرضِ «ساختِ پایگاه‌داده» را با همان سرورِ
+  // واقعی دوباره چک کن (نه فقط مقدارِ پیش‌فرضِ .\SQLEXPRESS) تا اگر سروری غیرِ پیش‌فرض داد
+  // و آن‌جا هم دیتابیس از قبل بود، باز پیش‌فرض ایمن بماند.
+  if CurPageID = SqlPage.ID then
+    CreateDbPage.Values[0] := not DatabaseExists(SqlPage.Values[0]);
+
   if (CurPageID = wpReady) and NeedSqlInstall then
   begin
     if InstallSqlExpress then
@@ -232,9 +262,12 @@ begin
     'ساخت پایگاه داده',
     'آیا پایگاه داده‌ی SamaHesab ساخته شود؟',
     'اگر این اولین نصب روی این سرور است، گزینه را علامت بزنید تا جداول و داده‌های اولیه ساخته شوند. ' +
-    'اگر پایگاه داده از قبل وجود دارد، علامت نزنید.', False, False);
+    'اگر پایگاه داده از قبل وجود دارد و می‌خواهید دادهٔ فعلی حفظ شود، علامت نزنید — ساختِ دوباره ' +
+    'دیتابیسِ موجود را کامل پاک می‌کند.', False, False);
   CreateDbPage.Add('ساخت پایگاه داده‌ی SamaHesab روی سرور بالا (نیازمند sqlcmd)');
-  CreateDbPage.Values[0] := True;
+  // پیش‌فرضِ ایمن: اگر دیتابیس از قبل روی سرورِ پیش‌فرض وجود دارد، پیش‌فرض را False می‌گذاریم
+  // (حفظِ داده) — این همان مقداری است که در نصبِ /VERYSILENT بدونِ نمایشِ صفحه واقعاً اعمال می‌شود.
+  CreateDbPage.Values[0] := not DatabaseExists(SqlPage.Values[0]);
 end;
 
 function GetSqlServer(Param: String): String;

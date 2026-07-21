@@ -130,6 +130,18 @@ table.dgrid { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 .st.b { background: var(--blue-50); color: var(--blue-700); }
 .st.n { background: var(--gray-150); color: var(--gray-600); }
 
+/* پورتِ `.inv-layout`/`.inv-side`/`.pay-sum`ِ design-system (sales-invoice.html/purchase-invoice.html)
+   — پنلِ کناریِ جمع‌بندیِ مبلغِ فاکتور که تا پیش از این در پیاده‌سازیِ وب جا افتاده بود. */
+.inv-layout { display: flex; gap: 10px; align-items: flex-start; }
+.inv-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.inv-side { width: 270px; flex: none; display: flex; flex-direction: column; gap: 10px; }
+.pay-sum { background: var(--white, #fff); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pay-sum .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; font-size: 12.5px; border-bottom: 1px solid var(--gray-100); }
+.pay-sum .row .v { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-strong); direction: ltr; }
+.pay-sum .total { background: var(--blue-700); color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+.pay-sum .total .l { font-size: 12px; opacity: .85; }
+.pay-sum .total .v { font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
+
 /* پورتِ `.minitabs`ِ design-system — تب‌هایِ ریزِ داخلِ کارتِ مشتری/کالا (گردشِ حساب/باشگاه و…). */
 .minitabs { display: flex; gap: 1px; background: var(--gray-150); border: 1px solid var(--border-strong); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
 .minitabs button { flex: none; padding: 8px 16px; border: none; background: transparent; font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; }

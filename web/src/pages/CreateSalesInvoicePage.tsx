@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
-import { InvoiceLineEditor, emptyLine, type InvoiceLine, type ProductOption } from '../components/InvoiceLineEditor';
+import { InvoiceLineEditor, emptyLine, computeInvoiceTotals, type InvoiceLine, type ProductOption } from '../components/InvoiceLineEditor';
+import { InvoiceSidePanel } from '../components/InvoiceSidePanel';
 import { useAuth } from '../auth/AuthContext';
 import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
 import { todayJalaliString } from '../lib/jalali';
@@ -34,6 +35,10 @@ export function CreateSalesInvoicePage() {
   const [paymentMethod, setPaymentMethod] = useState('نسیه');
   const [paidAmount, setPaidAmount] = useState('0');
   const [lines, setLines] = useState<InvoiceLine[]>([emptyLine()]);
+  const [invoiceDiscount, setInvoiceDiscount] = useState('0');
+  const [shipping, setShipping] = useState('0');
+  const [otherCosts, setOtherCosts] = useState('0');
+  const [notes, setNotes] = useState('');
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -86,8 +91,10 @@ export function CreateSalesInvoicePage() {
         warehouseId,
         invoiceType: 0, // Sale
         priceLevel: 'خرده',
-        shipping: 0,
-        otherCosts: 0,
+        description: notes || null,
+        shipping: Number(shipping) || 0,
+        otherCosts: Number(otherCosts) || 0,
+        invoiceDiscount: Number(invoiceDiscount) || 0,
         items,
         paidAmount: paymentMethod === 'نسیه' ? 0 : Number(paidAmount) || 0,
         paymentMethod,
@@ -99,6 +106,9 @@ export function CreateSalesInvoicePage() {
       setSubmitting(false);
     }
   }
+
+  const totals = computeInvoiceTotals(lines);
+  const grandTotal = totals.itemsTotal - (Number(invoiceDiscount) || 0) + (Number(shipping) || 0) + (Number(otherCosts) || 0);
 
   return (
     <div>
@@ -146,7 +156,25 @@ export function CreateSalesInvoicePage() {
           </div>
         </div>
 
-        <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="salePrice" />
+        <div className="inv-layout">
+          <div className="inv-left">
+            <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="salePrice" />
+          </div>
+          <InvoiceSidePanel
+            itemsSubtotal={totals.subTotal}
+            lineDiscount={totals.lineDiscount}
+            tax={totals.tax}
+            invoiceDiscount={Number(invoiceDiscount) || 0}
+            onInvoiceDiscountChange={setInvoiceDiscount}
+            shipping={shipping}
+            onShippingChange={setShipping}
+            otherCosts={otherCosts}
+            onOtherCostsChange={setOtherCosts}
+            grandTotal={grandTotal}
+            notes={notes}
+            onNotesChange={setNotes}
+          />
+        </div>
 
         {error && (
           <div style={{ marginTop: 'var(--space-3)' }}>

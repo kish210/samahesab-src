@@ -32,6 +32,27 @@ function lineTotal(line: InvoiceLine): number {
   return afterDisc + (afterDisc * tax) / 100;
 }
 
+/** جمع‌بندیِ اقلام برایِ پنلِ کناریِ فاکتور (پورتِ `.pay-sum`ِ sales-invoice.html/purchase-invoice.html). */
+export function computeInvoiceTotals(lines: InvoiceLine[]) {
+  let subTotal = 0;
+  let lineDiscount = 0;
+  let tax = 0;
+  for (const line of lines) {
+    const qty = Number(line.quantity) || 0;
+    const price = Number(line.unitPrice) || 0;
+    const disc = Number(line.discountPct) || 0;
+    const taxPct = Number(line.taxPct) || 0;
+    const sub = qty * price;
+    const discAmt = (sub * disc) / 100;
+    const afterDisc = sub - discAmt;
+    subTotal += sub;
+    lineDiscount += discAmt;
+    tax += (afterDisc * taxPct) / 100;
+  }
+  const itemsTotal = subTotal - lineDiscount + tax;
+  return { subTotal, lineDiscount, tax, itemsTotal };
+}
+
 interface Props {
   products: ProductOption[];
   lines: InvoiceLine[];

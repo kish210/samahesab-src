@@ -100,31 +100,35 @@ export function CreatePurchaseInvoicePage() {
   return (
     <div>
       <PageHeader title="فاکتورِ خریدِ نو" />
-      <form onSubmit={submit}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-          <div className="field">
-            <label className="label">تأمین‌کننده</label>
-            <SearchSelect
-              options={suppliers.map((s) => ({ id: s.id, label: s.name, sublabel: s.code }))}
-              value={supplierId}
-              onChange={setSupplierId}
-              placeholder="جست‌وجویِ تأمین‌کننده…"
-            />
-          </div>
-          <div className="field">
-            <label className="label">انبار</label>
-            <select className="select" value={warehouseId ?? ''} onChange={(e) => setWarehouseId(Number(e.target.value))}>
-              {warehouses.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <JalaliDateInput label="تاریخِ فاکتور" value={invoiceDate} onChange={setInvoiceDate} />
-          <div className="field">
-            <label className="label">مبلغِ پرداختی (نقد)</label>
-            <input className="input" type="number" min="0" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />
+      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ فاکتور (هم‌الگو با sales-invoice.html) */}
+        <div className="gbox">
+          <div className="gh">مشخصاتِ فاکتور</div>
+          <div className="gb" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div className="field">
+              <label className="label">تأمین‌کننده</label>
+              <SearchSelect
+                options={suppliers.map((s) => ({ id: s.id, label: s.name, sublabel: s.code }))}
+                value={supplierId}
+                onChange={setSupplierId}
+                placeholder="جست‌وجویِ تأمین‌کننده…"
+              />
+            </div>
+            <div className="field">
+              <label className="label">انبار</label>
+              <select className="select" value={warehouseId ?? ''} onChange={(e) => setWarehouseId(Number(e.target.value))}>
+                {warehouses.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <JalaliDateInput label="تاریخِ فاکتور" value={invoiceDate} onChange={setInvoiceDate} />
+            <div className="field">
+              <label className="label">مبلغِ پرداختی (نقد)</label>
+              <input className="input" type="number" min="0" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />
+            </div>
           </div>
         </div>
 

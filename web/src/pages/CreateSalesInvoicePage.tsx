@@ -103,43 +103,47 @@ export function CreateSalesInvoicePage() {
   return (
     <div>
       <PageHeader title="فاکتورِ فروشِ نو" />
-      <form onSubmit={submit}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-          <div className="field">
-            <label className="label">مشتری</label>
-            <SearchSelect
-              options={customers.map((c) => ({ id: c.id, label: c.name, sublabel: c.code }))}
-              value={customerId}
-              onChange={setCustomerId}
-              placeholder="جست‌وجویِ مشتری…"
-            />
-          </div>
-          <div className="field">
-            <label className="label">انبار</label>
-            <select className="select" value={warehouseId ?? ''} onChange={(e) => setWarehouseId(Number(e.target.value))}>
-              {warehouses.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <JalaliDateInput label="تاریخِ فاکتور" value={invoiceDate} onChange={setInvoiceDate} />
-          <div className="field">
-            <label className="label">روشِ پرداخت</label>
-            <select className="select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-              <option value="نسیه">نسیه</option>
-              <option value="نقدی">نقدی</option>
-              <option value="بانک">بانک</option>
-              <option value="چک">چک</option>
-            </select>
-          </div>
-          {paymentMethod !== 'نسیه' && (
+      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ فاکتور (sales-invoice.html) */}
+        <div className="gbox">
+          <div className="gh">مشخصاتِ فاکتور</div>
+          <div className="gb" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div className="field">
-              <label className="label">مبلغِ دریافتی</label>
-              <input className="input" type="number" min="0" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />
+              <label className="label">مشتری</label>
+              <SearchSelect
+                options={customers.map((c) => ({ id: c.id, label: c.name, sublabel: c.code }))}
+                value={customerId}
+                onChange={setCustomerId}
+                placeholder="جست‌وجویِ مشتری…"
+              />
             </div>
-          )}
+            <div className="field">
+              <label className="label">انبار</label>
+              <select className="select" value={warehouseId ?? ''} onChange={(e) => setWarehouseId(Number(e.target.value))}>
+                {warehouses.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <JalaliDateInput label="تاریخِ فاکتور" value={invoiceDate} onChange={setInvoiceDate} />
+            <div className="field">
+              <label className="label">روشِ پرداخت</label>
+              <select className="select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                <option value="نسیه">نسیه</option>
+                <option value="نقدی">نقدی</option>
+                <option value="بانک">بانک</option>
+                <option value="چک">چک</option>
+              </select>
+            </div>
+            {paymentMethod !== 'نسیه' && (
+              <div className="field">
+                <label className="label">مبلغِ دریافتی</label>
+                <input className="input" type="number" min="0" value={paidAmount} onChange={(e) => setPaidAmount(e.target.value)} />
+              </div>
+            )}
+          </div>
         </div>
 
         <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="salePrice" />

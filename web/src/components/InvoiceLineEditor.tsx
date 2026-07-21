@@ -76,21 +76,24 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
 
   return (
     <div>
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'auto' }}>
-        <table ref={tableRef} style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* پورتِ `.dgrid-wrap`/`table.dgrid`ِ design-system — همان کلاس‌هایِ گریدِ فشردهٔ فاکتورِ فروش/خرید. */}
+      <div className="dgrid-wrap">
+        <table ref={tableRef} className="dgrid">
           <thead>
-            <tr style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--border)' }}>
-              {['کالا', 'تعداد', 'قیمتِ واحد', ...(hideDiscount ? [] : ['تخفیف٪']), 'مالیات٪', 'جمع', ''].map((h) => (
-                <th key={h} style={{ padding: '8px 10px', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textAlign: 'start' }}>
-                  {h}
-                </th>
-              ))}
+            <tr>
+              <th>کالا</th>
+              <th className="num">تعداد</th>
+              <th className="num">قیمتِ واحد</th>
+              {!hideDiscount && <th className="num">تخفیف٪</th>}
+              <th className="num">مالیات٪</th>
+              <th className="num">جمع</th>
+              <th style={{ width: 36 }} className="c" />
             </tr>
           </thead>
           <tbody>
             {lines.map((line, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--gray-100)' }}>
-                <td style={{ padding: '6px 10px', minWidth: 220 }}>
+              <tr key={i}>
+                <td style={{ minWidth: 220 }}>
                   <SearchSelect
                     options={products.map((p) => ({ id: p.id, label: p.name, sublabel: p.code }))}
                     value={line.productId}
@@ -101,18 +104,18 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
                     placeholder="جست‌وجویِ کالا…"
                   />
                 </td>
-                <td style={{ padding: '6px 10px', width: 90 }}>
+                <td className="num">
                   <input className="input input-sm" type="number" min="0" step="any" value={line.quantity} onChange={(e) => updateLine(i, { quantity: e.target.value })} />
                 </td>
-                <td style={{ padding: '6px 10px', width: 130 }}>
+                <td className="num">
                   <input className="input input-sm" type="number" min="0" step="any" value={line.unitPrice} onChange={(e) => updateLine(i, { unitPrice: e.target.value })} />
                 </td>
                 {!hideDiscount && (
-                  <td style={{ padding: '6px 10px', width: 80 }}>
+                  <td className="num">
                     <input className="input input-sm" type="number" min="0" max="100" step="any" value={line.discountPct} onChange={(e) => updateLine(i, { discountPct: e.target.value })} />
                   </td>
                 )}
-                <td style={{ padding: '6px 10px', width: 80 }}>
+                <td className="num">
                   <input
                     className="input input-sm" type="number" min="0" max="100" step="any"
                     value={line.taxPct}
@@ -120,23 +123,29 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
                     onKeyDown={(e) => handleLastCellKeyDown(e, i)}
                   />
                 </td>
-                <td className="num" style={{ padding: '6px 10px', fontWeight: 600, whiteSpace: 'nowrap' }}>{money(lineTotal(line))}</td>
-                <td style={{ padding: '6px 10px' }}>
+                <td className="num strong">{money(lineTotal(line))}</td>
+                <td className="c">
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => removeLine(i)}>
-                    حذف
+                    ✕
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={hideDiscount ? 4 : 5}>جمع — {lines.length} ردیف</td>
+              <td className="num">{money(grandTotal)}</td>
+              <td />
+            </tr>
+          </tfoot>
         </table>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-2)' }}>
+      <div style={{ marginTop: 'var(--space-2)' }}>
         <button type="button" className="btn btn-secondary btn-sm" onClick={addLine}>
           + افزودنِ ردیف
         </button>
-        <div style={{ fontSize: 'var(--text-md)', fontWeight: 700 }}>جمعِ کل: {money(grandTotal)} ریال</div>
       </div>
     </div>
   );

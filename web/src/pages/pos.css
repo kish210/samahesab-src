@@ -1,0 +1,55 @@
+/* پورتِ عینِ کلاس‌هایِ design-system/screens/pos.html — صفحهٔ لمسیِ صندوقِ فروش.
+   نامِ کلاس‌ها و مقادیر دقیقاً همان است تا ساختار/فونت/رنگ با نمونهٔ سیستم‌طراحی یکی باشد. */
+.pos { display: flex; gap: 10px; flex: 1; min-height: 0; }
+.pos-right { flex: 1.5; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pos-left { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 360px; max-width: 430px; }
+
+.cats { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+.cats .cat { flex: none; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--text-body); cursor: pointer; }
+.cats .cat.on { background: var(--blue-700); border-color: var(--blue-700); color: #fff; }
+
+.pgrid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; align-content: start; }
+.pitem { background: #fff; border: 1px solid var(--border); border-radius: 9px; padding: 10px 11px; min-height: 76px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; transition: border-color 80ms; user-select: none; }
+.pitem:hover { border-color: var(--blue-400); }
+.pitem:active { background: var(--blue-50); transform: scale(.985); }
+.pitem .n { font-size: 12.5px; font-weight: 600; color: var(--text-strong); line-height: 17px; }
+.pitem .p { font-size: 12px; color: var(--blue-700); font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 6px; }
+.pitem .s { font-size: 10px; color: var(--text-muted); }
+.pitem.low .s { color: var(--danger-500); font-weight: 600; }
+
+.cart { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--border-strong); border-radius: 9px; overflow: hidden; min-height: 0; }
+.cart .hd { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--gray-50); border-bottom: 1px solid var(--border); font-size: 12.5px; font-weight: 700; color: var(--blue-700); }
+.cart .hd .cust { margin-inline-start: auto; font-size: 11.5px; font-weight: 500; color: var(--text-muted); }
+.cart .rows { flex: 1; overflow-y: auto; }
+.crow { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid var(--gray-100); }
+.crow .nm { flex: 1; min-width: 0; }
+.crow .nm .t { font-size: 12.5px; font-weight: 600; color: var(--text-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crow .nm .u { font-size: 10.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.qty { display: flex; align-items: center; gap: 2px; }
+.qty button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border-strong); background: #fff; font-size: 15px; cursor: pointer; color: var(--text-body); }
+.qty button:active { background: var(--blue-50); }
+.qty .q { width: 32px; text-align: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.crow .amt { width: 86px; text-align: end; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-strong); direction: ltr; }
+
+.totals { border-top: 1px solid var(--border); }
+.totals .r { display: flex; justify-content: space-between; padding: 5px 14px; font-size: 12px; color: var(--text-muted); }
+.totals .r .v { font-variant-numeric: tabular-nums; color: var(--text-body); font-weight: 600; direction: ltr; }
+.totals .grand { background: var(--blue-700); color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+.totals .grand .l { font-size: 13px; }
+.totals .grand .v { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
+
+.paygrid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+.paygrid .pb { height: 56px; border-radius: 9px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 700; color: var(--text-body); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.paygrid .pb svg { width: 19px; height: 19px; color: var(--blue-600); }
+.paygrid .pb:active { transform: scale(.98); }
+.paygrid .pb:disabled { opacity: .5; cursor: default; }
+.paygrid .pb.cash { grid-column: 1 / -1; height: 62px; background: var(--success-500); border-color: var(--success-500); color: #fff; font-size: 16px; flex-direction: row; gap: 9px; }
+.paygrid .pb.cash svg { color: #fff; width: 22px; height: 22px; }
+.paygrid .pb.cash:hover:not(:disabled) { background: var(--success-700); }
+.paygrid .pb.on { background: var(--blue-50); border-color: var(--blue-600); color: var(--blue-700); }
+
+.fnrow { display: flex; gap: 7px; }
+.fnrow .fb { flex: 1; height: 40px; border-radius: 8px; border: 1px solid var(--border-strong); background: #fff; font-family: var(--font-sans); font-size: 11.5px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.fnrow .fb:hover { color: var(--text-body); border-color: var(--gray-400); }
+.fnrow .fb.warn { color: var(--danger-700); }
+.fnrow .fb:disabled { opacity: .5; cursor: default; }

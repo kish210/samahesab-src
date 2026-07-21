@@ -3,14 +3,20 @@ import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
 import { money, numberFormat } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import './pos.css';
 
 interface ProductRow {
   id: number;
+  groupId: number | null;
   code: string;
   name: string;
   salePrice: number;
   taxRate: number;
+  minStock: number;
+  isActive: boolean;
 }
+
+interface ProductGroupDto { id: number; name: string }
 
 interface WarehouseDto {
   id: number;
@@ -57,24 +63,22 @@ function lineTotals(l: CartLine) {
 }
 
 /**
- * U-WEB-POS — صندوقِ فروشِ وب. معادلِ جریانِ POSِ دسکتاپ رویِ همان APIها:
- * جست‌وجو/افزودن به سبد · تعداد · تخفیفِ ردیف · تعلیق (Hold) و فراخوان (Recall) · پرداخت.
- * ثبتِ نهایی از `POST /api/sales/pos` (سرور خودش تاریخ/شعبه/سالِ مالی و سندِ حسابداری را می‌سازد).
+ * U-WEB-POS — صندوقِ فروشِ وب، پورتِ ساختاریِ design-system/screens/pos.html: تب‌هایِ دستهٔ کالا +
+ * کاشیِ کالایِ لمسی + سبدِ ردیفی با استپرِ ±/جمع + دکمه‌هایِ پرداختِ مستقیم (نقدی/کارت‌خوان/چک/نسیه).
+ * معادلِ جریانِ POSِ دسکتاپ رویِ همان APIها — ثبتِ نهایی از `POST /api/sales/pos`.
  */
 export function PosPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
-  const [warehouses, setWarehouses] = useState<WarehouseDto[]>([]);
-  const [customers, setCustomers] = useState<CustomerOption[]>([]);
+  const [groups, setGroups] = useState<ProductGroupDto[]>([]);
+  const [groupId, setGroupId] = useState<number | null>(null);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
+  const [customerName, setCustomerName] = useState('متفرقه');
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 200);
   const [cart, setCart] = useState<CartLine[]>([]);
-
-  const [invoiceDiscount, setInvoiceDiscount] = useState('0');
-  const [paymentMethod, setPaymentMethod] = useState('نقدی');
-  const [paid, setPaid] = useState('0');
+  const [invoiceDiscount, setInvoiceDiscount] = useState(0);
 
   const [held, setHeld] = useState<HeldSaleListDto[]>([]);
   const [showHeld, setShowHeld] = useState(false);
@@ -84,18 +88,17 @@ export function PosPage() {
 
   useEffect(() => {
     Promise.all([
-      apiGet<ProductRow[]>('/api/products/list'),
+      apiGet<ProductRow[]>('/api/products'),
+      apiGet<ProductGroupDto[]>('/api/products/groups'),
       apiGet<WarehouseDto[]>('/api/warehouse'),
       apiGet<CustomerOption[]>('/api/customers'),
     ])
-      .then(([p, w, c]) => {
-        setProducts(p);
-        setWarehouses(w);
-        setCustomers(c);
+      .then(([p, g, w, c]) => {
+        setProducts(p.filter((x) => x.isActive));
+        setGroups(g);
         if (w.length > 0) setWarehouseId(w[0].id);
-        // مشتریِ پیش‌فرض: «متفرقه/نقدی» اگر بود، وگرنه اولین مشتری.
         const walkIn = c.find((x) => x.code === 'WALKIN') ?? c[0];
-        if (walkIn) setCustomerId(walkIn.id);
+        if (walkIn) { setCustomerId(walkIn.id); setCustomerName(walkIn.name); }
       })
       .catch((e) => setMsg({ kind: 'error', text: e instanceof ApiError ? e.message : 'خطا در بارگیریِ دادهٔ اولیه.' }));
     refreshHeld();
@@ -107,11 +110,14 @@ export function PosPage() {
 
   const filtered = useMemo(() => {
     const term = debouncedSearch.trim();
-    if (!term) return products.slice(0, 24);
-    return products.filter((p) => p.name.includes(term) || p.code.includes(term)).slice(0, 24);
-  }, [products, debouncedSearch]);
+    let list = products;
+    if (groupId != null) list = list.filter((p) => p.groupId === groupId);
+    if (term) list = list.filter((p) => p.name.includes(term) || p.code.includes(term));
+    return list.slice(0, 40);
+  }, [products, groupId, debouncedSearch]);
 
   function addToCart(p: ProductRow) {
+    setMsg(null);
     setCart((prev) => {
       const i = prev.findIndex((l) => l.productId === p.id);
       if (i >= 0) {
@@ -126,34 +132,30 @@ export function PosPage() {
     });
   }
 
-  function updateLine(index: number, patch: Partial<CartLine>) {
-    setCart((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
-  }
-
-  function removeLine(index: number) {
-    setCart((prev) => prev.filter((_, i) => i !== index));
+  function changeQty(index: number, delta: number) {
+    setCart((prev) => {
+      const next = prev[index].quantity + delta;
+      if (next <= 0) return prev.filter((_, i) => i !== index);
+      return prev.map((l, i) => (i === index ? { ...l, quantity: next } : l));
+    });
   }
 
   const totals = useMemo(() => {
     const t = cart.reduce(
       (acc, l) => {
         const x = lineTotals(l);
-        return { net: acc.net + x.net, tax: acc.tax + x.tax, total: acc.total + x.total };
+        return { sub: acc.sub + x.sub, disc: acc.disc + x.disc, net: acc.net + x.net, tax: acc.tax + x.tax, total: acc.total + x.total };
       },
-      { net: 0, tax: 0, total: 0 },
+      { sub: 0, disc: 0, net: 0, tax: 0, total: 0 },
     );
-    const invDisc = Number(invoiceDiscount) || 0;
-    return { ...t, grand: Math.max(0, t.total - invDisc) };
+    return { ...t, grand: Math.max(0, t.total - invoiceDiscount) };
   }, [cart, invoiceDiscount]);
 
-  async function checkout() {
+  /** پرداختِ مستقیم — مبلغِ دقیق، هم‌الگو با دکمه‌هایِ `.paygrid`ِ نمونهٔ سیستم‌طراحی (بدونِ فرمِ جدا). */
+  async function pay(paymentMethod: 'نقدی' | 'بانک' | 'چک' | 'نسیه') {
     setMsg(null);
     if (cart.length === 0) {
       setMsg({ kind: 'error', text: 'سبد خالی است.' });
-      return;
-    }
-    if (paymentMethod !== 'نسیه' && (Number(paid) || 0) < totals.grand) {
-      setMsg({ kind: 'error', text: `مبلغِ دریافتی کافی نیست (لازم: ${money(totals.grand)} ریال).` });
       return;
     }
     setBusy(true);
@@ -166,18 +168,17 @@ export function PosPage() {
           discountPct: l.discountPct,
           taxPct: l.taxPct,
         })),
-        paid: paymentMethod === 'نسیه' ? 0 : Number(paid) || 0,
+        paid: paymentMethod === 'نسیه' ? 0 : Math.round(totals.grand),
         paymentMethod,
         customerId: customerId ?? 1,
         warehouseId: warehouseId ?? 1,
-        discount: Number(invoiceDiscount) || 0,
+        discount: invoiceDiscount,
         otherCosts: 0,
         description: 'فروشِ صندوق (کلاینتِ وب)',
       });
       setMsg({ kind: 'success', text: `فاکتور با موفقیت ثبت شد (شناسه: ${res.invoiceId}).` });
       setCart([]);
-      setInvoiceDiscount('0');
-      setPaid('0');
+      setInvoiceDiscount(0);
     } catch (e) {
       setMsg({ kind: 'error', text: e instanceof ApiError ? e.message : 'ثبتِ فروش ناموفق بود.' });
     } finally {
@@ -219,26 +220,35 @@ export function PosPage() {
     }
   }
 
+  function cancelCart() {
+    if (cart.length === 0) return;
+    if (!confirm('سبدِ جاری ابطال شود؟')) return;
+    setCart([]);
+    setInvoiceDiscount(0);
+    setMsg(null);
+  }
+
+  function promptInvoiceDiscount() {
+    const v = window.prompt('تخفیفِ کلیِ فاکتور (ریال):', String(invoiceDiscount));
+    if (v == null) return;
+    setInvoiceDiscount(Number(v) || 0);
+  }
+
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <PageHeader
         title="صندوقِ فروش (POS)"
         actions={
-          <>
-            <button className="btn btn-secondary btn-sm" onClick={() => setShowHeld((s) => !s)}>
-              سبدهایِ معلق ({numberFormat.format(held.length)})
-            </button>
-            <button className="btn btn-secondary btn-sm" onClick={hold} disabled={busy}>
-              تعلیقِ سبد
-            </button>
-          </>
+          <button className="btn btn-secondary btn-sm" onClick={() => setShowHeld((s) => !s)}>
+            سبدهایِ معلق ({numberFormat.format(held.length)})
+          </button>
         }
       />
 
-      {msg && <div style={{ marginBottom: 'var(--space-3)' }}><StatusMessage kind={msg.kind}>{msg.text}</StatusMessage></div>}
+      {msg && <div style={{ marginBottom: 'var(--space-2)' }}><StatusMessage kind={msg.kind}>{msg.text}</StatusMessage></div>}
 
       {showHeld && (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
           <div style={{ fontWeight: 600, marginBottom: 'var(--space-2)' }}>سبدهایِ معلق</div>
           {held.length === 0 && <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>سبدِ معلقی نیست.</div>}
           {held.map((h) => (
@@ -251,138 +261,89 @@ export function PosPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: 'var(--space-4)', alignItems: 'start' }}>
-        {/* ── انتخابِ کالا ── */}
-        <div>
-          <input
-            className="input"
-            placeholder="جست‌وجویِ کالا (نام/کد)… سپس روی کالا بزنید"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ marginBottom: 'var(--space-3)' }}
-            autoFocus
-          />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 'var(--space-2)' }}>
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => addToCart(p)}
-                style={{
-                  textAlign: 'start', padding: '10px 12px', cursor: 'pointer',
-                  background: 'var(--bg-surface)', border: '1px solid var(--border-strong)',
-                  borderRadius: 'var(--radius-sm)', fontFamily: 'var(--font-sans)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-strong)' }}>{p.name}</div>
-                <div className="num" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{p.code}</div>
-                <div className="num" style={{ fontSize: 'var(--text-sm)', color: 'var(--blue-700)', marginTop: 4 }}>{money(p.salePrice)}</div>
-              </button>
-            ))}
-            {filtered.length === 0 && <div style={{ color: 'var(--text-muted)' }}>کالایی یافت نشد.</div>}
+      <div className="pos">
+        <div className="pos-left">
+          <div className="cart">
+            <div className="hd">
+              فاکتورِ صندوق
+              <span className="cust">مشتری: <b style={{ color: '#fff' }}>{customerName}</b></span>
+            </div>
+            <div className="rows">
+              {cart.map((l, i) => (
+                <div className="crow" key={l.productId}>
+                  <div className="nm">
+                    <div className="t">{l.name}</div>
+                    <div className="u">{numberFormat.format(l.quantity)} × {money(l.unitPrice)}{l.discountPct > 0 ? ' − تخفیف' : ''}</div>
+                  </div>
+                  <div className="qty">
+                    <button type="button" onClick={() => changeQty(i, -1)}>−</button>
+                    <span className="q">{numberFormat.format(l.quantity)}</span>
+                    <button type="button" onClick={() => changeQty(i, 1)}>+</button>
+                  </div>
+                  <div className="amt">{money(lineTotals(l).total)}</div>
+                </div>
+              ))}
+              {cart.length === 0 && (
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12.5 }}>سبد خالی است — رویِ یک کالا بزنید.</div>
+              )}
+            </div>
+            <div className="totals">
+              <div className="r"><span>جمعِ اقلام ({numberFormat.format(cart.length)})</span><span className="v">{money(totals.sub)}</span></div>
+              <div className="r"><span>تخفیفِ سطری</span><span className="v" style={{ color: 'var(--danger-500)' }}>−{money(totals.disc)}</span></div>
+              <div className="r">
+                <span>تخفیفِ کلی</span>
+                <span className="v" style={{ cursor: 'pointer', textDecoration: 'underline dotted' }} onClick={promptInvoiceDiscount}>
+                  {invoiceDiscount > 0 ? `−${money(invoiceDiscount)}` : 'تعیین'}
+                </span>
+              </div>
+              <div className="r"><span>مالیات</span><span className="v">{money(totals.tax)}</span></div>
+              <div className="grand"><span className="l">مبلغِ قابلِ پرداخت</span><span className="v">{money(totals.grand)}</span></div>
+            </div>
+          </div>
+
+          <div className="paygrid">
+            <button type="button" className="pb cash" disabled={busy || cart.length === 0} onClick={() => pay('نقدی')}>
+              پرداختِ نقدی
+            </button>
+            <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('بانک')}>کارت‌خوان</button>
+            <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('نسیه')}>نسیه</button>
+            <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('چک')}>چک</button>
+          </div>
+          <div className="fnrow">
+            <button type="button" className="fb" disabled={busy} onClick={hold}>تعلیقِ فاکتور</button>
+            <button type="button" className="fb" disabled={busy} onClick={() => setShowHeld((s) => !s)}>بازیابی ({numberFormat.format(held.length)})</button>
+            <button type="button" className="fb" disabled={busy} onClick={promptInvoiceDiscount}>تخفیفِ کلی</button>
+            <button type="button" className="fb warn" disabled={busy || cart.length === 0} onClick={cancelCart}>ابطال</button>
           </div>
         </div>
 
-        {/* ── سبد و پرداخت ── */}
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
-            <div className="field">
-              <label className="label">مشتری</label>
-              <select className="select select-sm" value={customerId ?? ''} onChange={(e) => setCustomerId(Number(e.target.value))}>
-                {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label className="label">انبار</label>
-              <select className="select select-sm" value={warehouseId ?? ''} onChange={(e) => setWarehouseId(Number(e.target.value))}>
-                {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-              </select>
-            </div>
+        <div className="pos-right">
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input className="input-c" style={{ flex: 1, height: 44, fontSize: 14 }}
+              placeholder="🔍 اسکن بارکد یا جست‌وجویِ کالا…" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
           </div>
-
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 'var(--space-2)' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['کالا', 'تعداد', 'تخفیف٪', 'جمع', ''].map((h) => (
-                  <th key={h} style={{ padding: '6px 4px', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'start' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {cart.map((l, i) => (
-                <tr key={l.productId} style={{ borderBottom: '1px solid var(--gray-100)' }}>
-                  <td style={{ padding: '5px 4px', fontSize: 'var(--text-sm)' }}>{l.name}</td>
-                  <td style={{ padding: '5px 4px' }}>
-                    <input className="input input-sm" type="number" min="0" step="any" style={{ width: 62 }}
-                      value={l.quantity} onChange={(e) => updateLine(i, { quantity: Number(e.target.value) || 0 })} />
-                  </td>
-                  <td style={{ padding: '5px 4px' }}>
-                    <input className="input input-sm" type="number" min="0" max="100" style={{ width: 58 }}
-                      value={l.discountPct} onChange={(e) => updateLine(i, { discountPct: Number(e.target.value) || 0 })} />
-                  </td>
-                  <td className="num" style={{ padding: '5px 4px', fontSize: 'var(--text-sm)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {money(lineTotals(l).total)}
-                  </td>
-                  <td style={{ padding: '5px 4px' }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => removeLine(i)}>×</button>
-                  </td>
-                </tr>
-              ))}
-              {cart.length === 0 && (
-                <tr><td colSpan={5} style={{ padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)' }}>سبد خالی است.</td></tr>
-              )}
-            </tbody>
-          </table>
-
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 'var(--space-2)', fontSize: 'var(--text-sm)' }}>
-            <Row label="جمعِ خالص" value={money(totals.net)} />
-            <Row label="مالیات" value={money(totals.tax)} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ color: 'var(--text-muted)' }}>تخفیفِ فاکتور</span>
-              <input className="input input-sm" type="number" min="0" style={{ width: 120 }}
-                value={invoiceDiscount} onChange={(e) => setInvoiceDiscount(e.target.value)} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 'var(--text-md)', fontWeight: 700, borderTop: '1px solid var(--gray-100)' }}>
-              <span>قابلِ پرداخت</span>
-              <span className="num">{money(totals.grand)} ریال</span>
-            </div>
+          <div className="cats">
+            <button type="button" className={`cat${groupId == null ? ' on' : ''}`} onClick={() => setGroupId(null)}>همه</button>
+            {groups.map((g) => (
+              <button key={g.id} type="button" className={`cat${g.id === groupId ? ' on' : ''}`} onClick={() => setGroupId(g.id)}>
+                {g.name}
+              </button>
+            ))}
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
-            <div className="field">
-              <label className="label">روشِ پرداخت</label>
-              <select className="select select-sm" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                <option value="نقدی">نقدی</option>
-                <option value="بانک">بانک</option>
-                <option value="چک">چک</option>
-                <option value="نسیه">نسیه</option>
-              </select>
-            </div>
-            <div className="field">
-              <label className="label">دریافتی</label>
-              <input className="input input-sm" type="number" min="0" value={paid}
-                onChange={(e) => setPaid(e.target.value)} disabled={paymentMethod === 'نسیه'} />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
-            <button className="btn btn-secondary btn-sm" onClick={() => setPaid(String(Math.round(totals.grand)))} disabled={paymentMethod === 'نسیه'}>
-              مبلغِ دقیق
-            </button>
-            <button className="btn btn-primary" style={{ flex: 1 }} onClick={checkout} disabled={busy}>
-              {busy ? 'در حالِ ثبت…' : 'ثبتِ فروش'}
-            </button>
+          <div className="pgrid">
+            {filtered.map((p) => (
+              <div key={p.id} className={`pitem${p.minStock > 0 ? ' low' : ''}`} onClick={() => addToCart(p)}>
+                <div className="n">{p.name}</div>
+                <div>
+                  <div className="p">{money(p.salePrice)} ریال</div>
+                  <div className="s">{p.code}</div>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && <div style={{ color: 'var(--text-muted)', padding: 12 }}>کالایی یافت نشد.</div>}
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
-      <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-      <span className="num">{value}</span>
     </div>
   );
 }

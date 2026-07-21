@@ -111,43 +111,43 @@ export function WarehousePage() {
       </div>
 
       {transferOpen && (
-        <form
-          onSubmit={submitTransfer}
-          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', marginBottom: 'var(--space-4)', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3)', alignItems: 'end' }}
-        >
-          <div className="field">
-            <label className="label">به انبار</label>
-            <select className="select" value={toWarehouseId ?? ''} onChange={(e) => setToWarehouseId(Number(e.target.value) || null)}>
-              <option value="">— انتخاب —</option>
-              {warehouses.filter((w) => w.id !== warehouseId).map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label className="label">کالا</label>
-            <SearchSelect
-              options={rows.map((r) => ({ id: r.productId, label: r.name, sublabel: r.code }))}
-              value={transferProductId}
-              onChange={setTransferProductId}
-              placeholder="جست‌وجویِ کالا…"
-            />
-          </div>
-          <div className="field">
-            <label className="label">مقدار</label>
-            <input className="input" type="number" min="0" step="any" value={transferQty} onChange={(e) => setTransferQty(e.target.value)} />
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'در حالِ ثبت…' : 'ثبتِ انتقال'}
-          </button>
-          {transferMsg && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <StatusMessage kind={transferMsg.kind}>{transferMsg.text}</StatusMessage>
+        <div className="gbox" style={{ marginBottom: 'var(--space-4)' }}>
+          <div className="gh">انتقال بینِ انبار</div>
+          <form onSubmit={submitTransfer} className="gb" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3)', alignItems: 'end' }}>
+            <div className="field">
+              <label className="label">به انبار</label>
+              <select className="select" value={toWarehouseId ?? ''} onChange={(e) => setToWarehouseId(Number(e.target.value) || null)}>
+                <option value="">— انتخاب —</option>
+                {warehouses.filter((w) => w.id !== warehouseId).map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-        </form>
+            <div className="field">
+              <label className="label">کالا</label>
+              <SearchSelect
+                options={rows.map((r) => ({ id: r.productId, label: r.name, sublabel: r.code }))}
+                value={transferProductId}
+                onChange={setTransferProductId}
+                placeholder="جست‌وجویِ کالا…"
+              />
+            </div>
+            <div className="field">
+              <label className="label">مقدار</label>
+              <input className="input" type="number" min="0" step="any" value={transferQty} onChange={(e) => setTransferQty(e.target.value)} />
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'در حالِ ثبت…' : 'ثبتِ انتقال'}
+            </button>
+            {transferMsg && (
+              <div style={{ gridColumn: '1 / -1' }}>
+                <StatusMessage kind={transferMsg.kind}>{transferMsg.text}</StatusMessage>
+              </div>
+            )}
+          </form>
+        </div>
       )}
 
       {error && <StatusMessage kind="error">{error}</StatusMessage>}

@@ -44,7 +44,7 @@ function MiniKpi({ label, value, danger, onClick }: { label: string; value: stri
 }
 
 const QUICK_ACCESS = [
-  { icon: '📄', label: 'ثبتِ سند', key: 'Ctrl+1', to: '/vouchers' },
+  { icon: '📄', label: 'ثبتِ سند', key: 'Ctrl+1', to: '/vouchers/new' },
   { icon: '🛒', label: 'فاکتورِ فروش', key: 'Ctrl+2', to: '/sales/new' },
   { icon: '🚚', label: 'فاکتورِ خرید', key: 'Ctrl+3', to: '/purchase/new' },
   { icon: '🖥', label: 'صندوقِ فروش', key: 'F12', to: '/pos' },
@@ -81,7 +81,7 @@ export function DashboardPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => setRefreshKey((k) => k + 1)}>🔄 بازخوانی</button>
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/vouchers')}>+ سندِ جدید</button>
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/vouchers/new')}>+ سندِ جدید</button>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiGet, ApiError } from '../api/client';
 import { money, numberFormat } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
@@ -26,6 +27,7 @@ interface PagedResult<T> {
 }
 
 export function VouchersPage() {
+  const navigate = useNavigate();
   const fiscalYearId = useActiveFiscalYear();
   const [fromDate, setFromDate] = useState('1405/01/01');
   const [toDate, setToDate] = useState('1405/12/29');
@@ -62,7 +64,9 @@ export function VouchersPage() {
 
   return (
     <div>
-      <PageHeader title="اسنادِ حسابداری" />
+      <PageHeader title="اسنادِ حسابداری" actions={
+        <button className="btn btn-primary" onClick={() => navigate('/vouchers/new')}>+ سندِ نو</button>
+      } />
 
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'end', marginBottom: 'var(--space-4)' }}>
         <div className="field">

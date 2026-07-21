@@ -13,6 +13,7 @@ import { WarehousePage } from './pages/WarehousePage';
 import { TreasuryPage } from './pages/TreasuryPage';
 import { ChequesPage } from './pages/ChequesPage';
 import { VouchersPage } from './pages/VouchersPage';
+import { CreateVoucherPage } from './pages/CreateVoucherPage';
 import { TrialBalancePage } from './pages/TrialBalancePage';
 import { GeneralLedgerPage } from './pages/GeneralLedgerPage';
 import { SalesInvoicesPage } from './pages/SalesInvoicesPage';
@@ -71,6 +72,7 @@ function AppRoutes() {
         <Route path="cheques" element={<ChequesPage />} />
 
         <Route path="vouchers" element={<VouchersPage />} />
+        <Route path="vouchers/new" element={<CreateVoucherPage />} />
         <Route path="trial-balance" element={<TrialBalancePage />} />
         <Route path="general-ledger" element={<GeneralLedgerPage />} />
 

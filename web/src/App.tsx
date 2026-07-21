@@ -24,6 +24,7 @@ import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
 import { ModulesPage } from './pages/ModulesPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { PartyEditPage } from './pages/PartyEditPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { PosPage } from './pages/PosPage';
@@ -87,6 +88,7 @@ function AppRoutes() {
         <Route path="accounts" element={<AccountsPage />} />
 
         <Route path="modules" element={<ModulesPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );

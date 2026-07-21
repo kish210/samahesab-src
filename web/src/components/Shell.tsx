@@ -70,25 +70,23 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/restaurant', label: 'میزها و سالن‌ها', icon: 'restaurant', moduleKey: 'Restaurant' },
     { to: '/restaurant/kitchen', label: 'تابلویِ آشپزخانه', icon: 'restaurant', moduleKey: 'Restaurant' },
   ] },
-  { title: 'سیستم', items: [
+  // «سیستم» قبلاً فقط مدیریتِ ماژول‌ها بود؛ به «تنظیمات» تغییرِ نام یافت و صفحهٔ نو
+  // «دربارهٔ سیستم» (نسخه/مجوز/کاربرِ جاری) هم زیرش اضافه شد — طبقِ بازخوردِ کاربر
+  // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.
+  { title: 'تنظیمات', items: [
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
+    { to: '/settings', label: 'دربارهٔ سیستم', icon: 'settings' },
   ] },
 ];
 
 const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
 
-/** منویِ افقیِ توپ‌بار — عمداً به تعدادِ ثابتِ کوچکی از دسته‌بندی محدود است (نه تکرارِ ۱به۱ِ هرزیرمنویِ
- * سایدبار) تا شلوغ نشود؛ هر دکمه به اولین گروهِ سایدبارِ مرتبط با آن ناوبری می‌کند. */
-const TOP_MENU_MAP: [string, string[]][] = [
-  ['حسابداری', ['حسابداری']],
-  ['خزانه‌داری', ['خزانه']],
-  ['خرید', ['خرید']],
-  ['فروش', ['فروش', 'POS', 'رستوران']],
-  ['انبار', ['انبارداری']],
-  ['اشخاص', ['اشخاص']],
-  ['گزارشات', ['گزارش‌هایِ مالی']],
-  ['سیستم', ['سیستم']],
-];
+/** این ۸ عنوان دقیقاً هم‌ارزِ `MENUS` در design-system/screens/erp-shell.js‌اند — طبقِ خواستهٔ
+ * کاربر این‌ها فقط در توپ‌بار (دکمه‌هایِ دسته) دیده می‌شوند، نه در سایدبار — تا هر بخش یک‌بار
+ * دیده شود (سایدبار فقط بخش‌هایِ خارج از این دسته‌ها را نشان می‌دهد: داشبورد/POS/رستوران). */
+const TOPBAR_GROUP_TITLES = new Set([
+  'حسابداری', 'خزانه', 'انبارداری', 'فروش', 'خرید', 'اشخاص', 'گزارش‌هایِ مالی', 'تنظیمات',
+]);
 
 /** عنوانِ صفحهٔ جاری — هم‌الگو با `CurrentPageTitle` در MainShellWindowِ دسکتاپ (بایندِ توپ‌بار). */
 function currentPageTitle(pathname: string): string {
@@ -100,8 +98,8 @@ function currentPageTitle(pathname: string): string {
 
 export function Shell() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
   const initial = (user?.fullName || 'S').trim().charAt(0);
   const [pendingCheques, setPendingCheques] = useState(0);
   const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
@@ -140,15 +138,13 @@ export function Shell() {
 
   const activeGroupObj = visibleNavGroups.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'));
   const activeGroup = activeGroupObj?.title;
-  const activeTopMenu = TOP_MENU_MAP.find(([, titles]) => titles.includes(activeGroup ?? ''))?.[0];
   // تب‌هایِ زیرِ گروهِ فعال — فقط وقتی بیش از یک زیرصفحه دارد (وگرنه یک‌تب اضافه بی‌فایده است).
   const activeTabs = activeGroupObj && activeGroupObj.items.length > 1 ? activeGroupObj.items : null;
 
-  function goToTopMenu(titles: string[]) {
-    const group = visibleNavGroups.find((g) => g.title && titles.includes(g.title));
-    if (!group) return;
-    navigate(group.items[0].to);
-  }
+  // سایدبار فقط بخش‌هایِ خارج از توپ‌بار را نشان می‌دهد (داشبورد/POS/رستوران) — دسته‌هایِ
+  // TOPBAR_GROUP_TITLES از سایدبار حذف شده‌اند چون همان‌ها در توپ‌بار هستند.
+  const sidebarGroups = visibleNavGroups.filter((g) => !g.title || !TOPBAR_GROUP_TITLES.has(g.title));
+  const topbarGroups = visibleNavGroups.filter((g) => g.title && TOPBAR_GROUP_TITLES.has(g.title));
 
   return (
     <div className="erp" style={{ height: '100%' }}>
@@ -162,9 +158,10 @@ export function Shell() {
           </div>
         </div>
         <nav className="erp-menu">
-          {TOP_MENU_MAP.filter(([, titles]) => visibleNavGroups.some((g) => g.title && titles.includes(g.title))).map(([label, titles]) => (
-            <button key={label} type="button" className={label === activeTopMenu ? 'active' : ''} onClick={() => goToTopMenu(titles)}>
-              {label}
+          {topbarGroups.map((g) => (
+            <button key={g.title} type="button" className={g.title === activeGroup ? 'active' : ''}
+              onClick={() => navigate(g.items[0].to)}>
+              {g.title}
             </button>
           ))}
         </nav>
@@ -209,7 +206,7 @@ export function Shell() {
             در توپ‌بار/تب‌استریپ هستند)، رَدیفِ آیکونِ جمع‌شده (۶۰px) که با هاور تا ۲۲۰px باز می‌شود ── */}
         <aside className="erp-side">
           <nav className="nav">
-            {visibleNavGroups.map((group, gi) => {
+            {sidebarGroups.map((group, gi) => {
               const main = group.items[0];
               const isActive = group.title ? group.title === activeGroup : location.pathname === main.to;
               return (

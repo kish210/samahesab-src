@@ -4,8 +4,18 @@
    Brand blue (cloud + wordmark), deep navy, gold tagline.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
 @import url('./design-components.css');
+
+/* فونت به‌صورتِ محلی سرو می‌شود (نه CDNِ گوگل‌فونت) — این برنامه رویِ شبکهٔ محلی/بدونِ اینترنت
+   هم باید کار کند؛ وابستگی به fonts.googleapis.com یعنی در نبودِ اینترنت (یا مسدودبودنِ CDN)
+   کلِ برنامه به فانتِ سیستم (Segoe UI) سقوط می‌کرد — دقیقاً باگِ «فونت در همه‌جا درست نیست».
+   فایل‌هایِ .ttf همان‌هایی‌اند که دسکتاپ (WPF) از قبل به‌صورتِ محلی دارد. @font-face باید بعدِ
+   @importِ بالا بیاید (CSS اجازه نمی‌دهد @import بعدِ قاعده‌هایِ دیگر باشد). */
+@font-face { font-family: 'Vazirmatn'; src: url('/fonts/Vazirmatn-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
+@font-face { font-family: 'Vazirmatn'; src: url('/fonts/Vazirmatn-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Vazirmatn'; src: url('/fonts/Vazirmatn-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Vazirmatn'; src: url('/fonts/Vazirmatn-SemiBold.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Vazirmatn'; src: url('/fonts/Vazirmatn-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
 
 :root {
   /* ---- Brand: Blue scale — PRIMARY #4B5F97 / SECONDARY #324A7A (logo) ---- */
@@ -150,6 +160,11 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
+
+/* input/select/button/textarea رویِ اکثرِ مرورگرها فونتِ خانواده را از body ارث نمی‌برند
+   (استایل‌شیتِ داخلیِ UA بجایِ آن فونتِ سیستم را می‌گذارد) — این باگِ واقعیِ «فونت در همه‌جا
+   درست نیست» بود: متنِ صفحه درست ولی هر ورودی/دکمه/کمبو با فونتِ سیستم نمایش داده می‌شد. */
+input, select, button, textarea { font-family: inherit; }
 
 body {
   margin: 0;

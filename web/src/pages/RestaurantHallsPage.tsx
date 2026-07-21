@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
-import { money } from '../lib/format';
+import { money, numberFormat } from '../lib/format';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import './restaurant.css';
 
@@ -200,7 +200,7 @@ export function RestaurantHallsPage() {
                 onClick={() => !busy && openOrMoveTable(t)}>
                 <span className="badge2">{t.status}</span>
                 <div className="tn">{t.name}</div>
-                <div className="seats">{t.capacity} نفره</div>
+                <div className="seats">{numberFormat.format(t.capacity)} نفره</div>
               </div>
             ))}
           </div>
@@ -226,7 +226,7 @@ export function RestaurantHallsPage() {
           <div className="order-card">
             <div className="hd">
               <span className="tn">{activeTable ? activeTable.name : order ? order.orderType : 'میزی انتخاب نشده'}</span>
-              {order && <span style={{ fontSize: 11, background: 'rgba(255,255,255,.18)', padding: '2px 8px', borderRadius: 99 }}>{order.guestCount} نفر</span>}
+              {order && <span style={{ fontSize: 11, background: 'rgba(255,255,255,.18)', padding: '2px 8px', borderRadius: 99 }}>{numberFormat.format(order.guestCount)} نفر</span>}
               {order && <span className="m">{order.orderNumber} · {order.status}</span>}
             </div>
             <div className="rows">
@@ -237,11 +237,11 @@ export function RestaurantHallsPage() {
                   {it.statusCode === 0 ? (
                     <div className="q">
                       <button type="button" onClick={() => changeQty(it, -1)}>−</button>
-                      <span className="n">{it.quantity}</span>
+                      <span className="n">{numberFormat.format(it.quantity)}</span>
                       <button type="button" onClick={() => changeQty(it, 1)}>+</button>
                     </div>
                   ) : (
-                    <div className="q"><span className="n">{it.quantity}</span></div>
+                    <div className="q"><span className="n">{numberFormat.format(it.quantity)}</span></div>
                   )}
                   <div className="amt">{money(it.lineTotal)}</div>
                 </div>

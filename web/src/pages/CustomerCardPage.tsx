@@ -165,7 +165,7 @@ export function CustomerCardPage() {
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
                   <span>سقفِ اعتبار: {numberFormat.format(card.creditLimit)}</span>
-                  <span>{usedPct}٪</span>
+                  <span>{numberFormat.format(usedPct)}٪</span>
                 </div>
               </>
             )}

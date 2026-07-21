@@ -77,8 +77,6 @@ const NAV_GROUPS: NavGroup[] = [
 
 const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
 
-const COLLAPSE_KEY = 'sh:navCollapsed';
-
 /** منویِ افقیِ توپ‌بار — عمداً به تعدادِ ثابتِ کوچکی از دسته‌بندی محدود است (نه تکرارِ ۱به۱ِ هرزیرمنویِ
  * سایدبار) تا شلوغ نشود؛ هر دکمه به اولین گروهِ سایدبارِ مرتبط با آن ناوبری می‌کند. */
 const TOP_MENU_MAP: [string, string[]][] = [
@@ -109,9 +107,8 @@ export function Shell() {
   const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
-    try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); } catch { return {}; }
-  });
+  // آکاردئون — همیشه فقط گروهِ صفحهٔ جاری باز است تا سایدبار شلوغ نشود (نه هرچند گروهِ هم‌زمان‌بازِ قبلی).
+  const [openGroup, setOpenGroup] = useState<string | undefined>();
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -143,26 +140,22 @@ export function Shell() {
     g.items.map((i) => ({ label: i.label, sub: g.title ?? 'اصلی', icon: i.icon, to: i.to })),
   );
 
-  function toggleGroup(title: string) {
-    setCollapsed((prev) => {
-      const next = { ...prev, [title]: !prev[title] };
-      localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next));
-      return next;
-    });
-  }
-
   const activeGroup = NAV_GROUPS.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'))?.title;
   const activeTopMenu = TOP_MENU_MAP.find(([, titles]) => titles.includes(activeGroup ?? ''))?.[0];
+
+  // با هر تغییرِ مسیر، فقط گروهِ صفحهٔ جاری در سایدبار باز می‌ماند (رفتارِ آکاردئون).
+  useEffect(() => {
+    if (activeGroup) setOpenGroup(activeGroup);
+  }, [activeGroup]);
+
+  function toggleGroup(title: string) {
+    setOpenGroup((prev) => (prev === title ? undefined : title));
+  }
 
   function goToTopMenu(titles: string[]) {
     const group = visibleNavGroups.find((g) => g.title && titles.includes(g.title));
     if (!group) return;
-    setCollapsed((prev) => {
-      if (!prev[group.title!]) return prev;
-      const next = { ...prev, [group.title!]: false };
-      localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next));
-      return next;
-    });
+    setOpenGroup(group.title);
     navigate(group.items[0].to);
   }
 
@@ -225,7 +218,7 @@ export function Shell() {
         <aside className="erp-side">
           <nav className="nav">
             {visibleNavGroups.map((group, gi) => {
-              const isCollapsed = group.title ? !!collapsed[group.title] : false;
+              const isCollapsed = group.title ? group.title !== openGroup : false;
               return (
                 <div key={gi}>
                   {group.title && (

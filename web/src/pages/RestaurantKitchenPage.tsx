@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, ApiError } from '../api/client';
+import { numberFormat } from '../lib/format';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
 interface KitchenItemDto {
@@ -87,7 +88,7 @@ export function RestaurantKitchenPage() {
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 10 }}>
                   {t.items.map((it) => (
                     <li key={it.id} style={{ fontSize: 13, padding: '3px 0', borderBottom: '1px solid rgba(0,0,0,.06)' }}>
-                      <span className="num">{it.quantity}×</span> {it.productName}
+                      <span className="num">{numberFormat.format(it.quantity)}×</span> {it.productName}
                       {it.notes && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{it.notes}</div>}
                     </li>
                   ))}

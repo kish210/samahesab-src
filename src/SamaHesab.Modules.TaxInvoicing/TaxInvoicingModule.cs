@@ -46,8 +46,9 @@ public sealed class TaxInvoicingModule : IModule
         });
     }
 
-    // UIِ صفحاتِ تنظیمات/فهرستِ ارسال هنوز ساخته نشده (فازِ بعدی) — تا آن‌موقع منو خالی می‌ماند
-    // تا NavKeyِ بی‌صفحه در منویِ کاربر ظاهر نشود.
+    // UIِ وب (`TaxInvoicingPage.tsx`) اضافه شد؛ UIِ دسکتاپِ WPF هنوز ساخته نشده — منو همچنان
+    // خالی می‌ماند تا NavKeyِ بی‌صفحه در منویِ دسکتاپ ظاهر نشود (وب از NAV_GROUPِ خودش در
+    // Shell.tsx استفاده می‌کند، نه از این متد).
     public IReadOnlyList<ModuleMenu> GetMenus() => System.Array.Empty<ModuleMenu>();
 
     public IReadOnlyList<ModulePermission> GetPermissions() => new[]

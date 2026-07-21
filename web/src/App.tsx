@@ -25,6 +25,7 @@ import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
 import { ModulesPage } from './pages/ModulesPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { TaxInvoicingPage } from './pages/TaxInvoicingPage';
 import { PartyEditPage } from './pages/PartyEditPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { PosPage } from './pages/PosPage';
@@ -89,6 +90,7 @@ function AppRoutes() {
 
         <Route path="modules" element={<ModulesPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="tax-invoicing" element={<TaxInvoicingPage />} />
       </Route>
     </Routes>
   );

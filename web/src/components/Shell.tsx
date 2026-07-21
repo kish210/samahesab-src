@@ -70,6 +70,9 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/restaurant', label: 'میزها و سالن‌ها', icon: 'restaurant', moduleKey: 'Restaurant' },
     { to: '/restaurant/kitchen', label: 'تابلویِ آشپزخانه', icon: 'restaurant', moduleKey: 'Restaurant' },
   ] },
+  { title: 'مودیان', items: [
+    { to: '/tax-invoicing', label: 'صورتحسابِ الکترونیکی', icon: 'accounting', moduleKey: 'TaxInvoicing' },
+  ] },
   // «سیستم» قبلاً فقط مدیریتِ ماژول‌ها بود؛ به «تنظیمات» تغییرِ نام یافت و صفحهٔ نو
   // «دربارهٔ سیستم» (نسخه/مجوز/کاربرِ جاری) هم زیرش اضافه شد — طبقِ بازخوردِ کاربر
   // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.

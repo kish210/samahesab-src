@@ -28,7 +28,6 @@ import { PartyEditPage } from './pages/PartyEditPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { PosPage } from './pages/PosPage';
 import { RestaurantHallsPage } from './pages/RestaurantHallsPage';
-import { RestaurantOrderPage } from './pages/RestaurantOrderPage';
 import { RestaurantKitchenPage } from './pages/RestaurantKitchenPage';
 import { ReturnFormPage } from './pages/ReturnFormPage';
 
@@ -68,7 +67,6 @@ function AppRoutes() {
 
         <Route path="pos" element={<PosPage />} />
         <Route path="restaurant" element={<RestaurantHallsPage />} />
-        <Route path="restaurant/orders/:id" element={<RestaurantOrderPage />} />
         <Route path="restaurant/kitchen" element={<RestaurantKitchenPage />} />
         <Route path="sales" element={<SalesInvoicesPage />} />
         <Route path="sales/new" element={<CreateSalesInvoicePage />} />

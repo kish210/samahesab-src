@@ -2,7 +2,7 @@
 type IconName =
   | 'home' | 'accounting' | 'sales' | 'purchasing' | 'inventory' | 'treasury'
   | 'cheque' | 'pos' | 'people' | 'reports' | 'settings' | 'search' | 'bell'
-  | 'modules';
+  | 'modules' | 'restaurant';
 
 const PATHS: Record<IconName, string> = {
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
@@ -19,6 +19,7 @@ const PATHS: Record<IconName, string> = {
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   bell: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
   modules: '<rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>',
+  restaurant: '<path d="M5 3v7a3 3 0 0 0 6 0V3M8 3v18M19 3c-1.5 1-2.5 3-2.5 6 0 2 1 3 2.5 3v9"/>',
 };
 
 export function ErpIcon({ name }: { name: IconName }) {

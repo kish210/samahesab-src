@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { ErpIcon, type IconName } from './ErpIcons';
@@ -36,6 +36,8 @@ const NAV_GROUPS: NavGroup[] = [
   { title: 'حسابداری', items: [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
     { to: '/accounts', label: 'دفترِ حساب‌ها', icon: 'accounting' },
+  ] },
+  { title: 'گزارش‌هایِ مالی', items: [
     { to: '/trial-balance', label: 'تراز آزمایشی', icon: 'reports' },
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
     { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },
@@ -59,8 +61,16 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/customers', label: 'مشتریان', icon: 'people' },
     { to: '/suppliers', label: 'تأمین‌کنندگان', icon: 'people' },
   ] },
-  { title: 'ماژول‌ها', items: [
-    { to: '/pos', label: 'صندوقِ فروش (POS)', icon: 'pos', moduleKey: 'POS' },
+  // هر ماژولِ اختیاری زیرمنویِ جداگانهٔ خودش را دارد (نه یک «ماژول‌ها»یِ مخلوط) — هر کدام
+  // فقط وقتی دیده می‌شود که moduleKeyاش واقعاً روی سرور بارگذاری‌شده باشد.
+  { title: 'POS', items: [
+    { to: '/pos', label: 'صندوقِ فروش', icon: 'pos', moduleKey: 'POS' },
+  ] },
+  { title: 'رستوران', items: [
+    { to: '/restaurant', label: 'میزها و سالن‌ها', icon: 'restaurant', moduleKey: 'Restaurant' },
+    { to: '/restaurant/kitchen', label: 'تابلویِ آشپزخانه', icon: 'restaurant', moduleKey: 'Restaurant' },
+  ] },
+  { title: 'سیستم', items: [
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
   ] },
 ];
@@ -68,6 +78,19 @@ const NAV_GROUPS: NavGroup[] = [
 const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
 
 const COLLAPSE_KEY = 'sh:navCollapsed';
+
+/** منویِ افقیِ توپ‌بار — عمداً به تعدادِ ثابتِ کوچکی از دسته‌بندی محدود است (نه تکرارِ ۱به۱ِ هرزیرمنویِ
+ * سایدبار) تا شلوغ نشود؛ هر دکمه به اولین گروهِ سایدبارِ مرتبط با آن ناوبری می‌کند. */
+const TOP_MENU_MAP: [string, string[]][] = [
+  ['حسابداری', ['حسابداری']],
+  ['خزانه‌داری', ['خزانه']],
+  ['خرید', ['خرید']],
+  ['فروش', ['فروش', 'POS', 'رستوران']],
+  ['انبار', ['انبارداری']],
+  ['اشخاص', ['اشخاص']],
+  ['گزارشات', ['گزارش‌هایِ مالی']],
+  ['سیستم', ['سیستم']],
+];
 
 /** عنوانِ صفحهٔ جاری — هم‌الگو با `CurrentPageTitle` در MainShellWindowِ دسکتاپ (بایندِ توپ‌بار). */
 function currentPageTitle(pathname: string): string {
@@ -77,10 +100,9 @@ function currentPageTitle(pathname: string): string {
   return prefix?.label ?? 'سما حساب';
 }
 
-const TOP_MENUS = ['حسابداری', 'خزانه', 'انبارداری', 'فروش', 'خرید', 'اشخاص', 'ماژول‌ها'];
-
 export function Shell() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const initial = (user?.fullName || 'S').trim().charAt(0);
   const [pendingCheques, setPendingCheques] = useState(0);
@@ -130,6 +152,19 @@ export function Shell() {
   }
 
   const activeGroup = NAV_GROUPS.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'))?.title;
+  const activeTopMenu = TOP_MENU_MAP.find(([, titles]) => titles.includes(activeGroup ?? ''))?.[0];
+
+  function goToTopMenu(titles: string[]) {
+    const group = visibleNavGroups.find((g) => g.title && titles.includes(g.title));
+    if (!group) return;
+    setCollapsed((prev) => {
+      if (!prev[group.title!]) return prev;
+      const next = { ...prev, [group.title!]: false };
+      localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next));
+      return next;
+    });
+    navigate(group.items[0].to);
+  }
 
   return (
     <div className="erp" style={{ height: '100%' }}>
@@ -143,8 +178,10 @@ export function Shell() {
           </div>
         </div>
         <nav className="erp-menu">
-          {TOP_MENUS.map((m) => (
-            <button key={m} type="button" className={m === activeGroup ? 'active' : ''}>{m}</button>
+          {TOP_MENU_MAP.filter(([, titles]) => visibleNavGroups.some((g) => g.title && titles.includes(g.title))).map(([label, titles]) => (
+            <button key={label} type="button" className={label === activeTopMenu ? 'active' : ''} onClick={() => goToTopMenu(titles)}>
+              {label}
+            </button>
           ))}
         </nav>
         <div className="search">

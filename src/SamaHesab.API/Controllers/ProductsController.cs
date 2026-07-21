@@ -36,6 +36,12 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Card(int id, CancellationToken ct)
         => (await _mediator.Send(new GetProductCardQuery(id), ct)) is { } dto ? Ok(dto) : NotFound();
 
+    /// <summary>کاردکسِ کالا (گردشِ ورود/خروج/موجودی) — از قبل در Application موجود بود
+    /// (`GetKardexQuery`) ولی هیچ اندپوینتی صدایش نمی‌زد.</summary>
+    [HttpGet("{id:int}/kardex")]
+    public async Task<IActionResult> Kardex(int id, [FromQuery] int? warehouseId, [FromQuery] string? fromDate, [FromQuery] string? toDate, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetKardexQuery(id, warehouseId, fromDate, toDate), ct));
+
     /// <summary>غیرفعال‌سازیِ (حذفِ نرمِ) کالا.</summary>
     [HttpPost("{id:int}/deactivate")]
     public async Task<IActionResult> Deactivate(int id, CancellationToken ct)

@@ -42,6 +42,14 @@ interface CustomerLoyaltyDto {
   balance: number;
   recent: LoyaltyTxnDto[];
 }
+interface PartyLedgerRow {
+  date: string;
+  docType: string;
+  docNumber: string | null;
+  description: string | null;
+  amount: number;
+  runningBalance: number;
+}
 
 function Kv({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
@@ -62,6 +70,8 @@ export function CustomerCardPage() {
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
+  const [ledger, setLedger] = useState<PartyLedgerRow[] | null>(null);
+  const [activeMiniTab, setActiveMiniTab] = useState<'ledger' | 'loyalty'>('ledger');
 
   function loadLoyalty() {
     if (!id) return;
@@ -73,6 +83,7 @@ export function CustomerCardPage() {
     apiGet<CustomerCardDto>(`/api/customers/${id}/card`)
       .then(setCard)
       .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ کارتِ مشتری.'));
+    apiGet<PartyLedgerRow[]>(`/api/customers/${id}/ledger`).then(setLedger).catch(() => setLedger([]));
     loadLoyalty();
   }, [id]);
 
@@ -188,53 +199,97 @@ export function CustomerCardPage() {
             </div>
           </div>
 
-          <div style={{
-            gridColumn: '1 / -1', background: 'var(--bg-surface)', border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)', padding: 14,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <h3 style={{ margin: 0, fontSize: 14 }}>باشگاهِ مشتریان — تاریخچهٔ امتیاز</h3>
+          <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            {/* پورتِ `.minitabs`ِ design-system (customer-card.html) — گردشِ حساب (U-PARTY-LEDGER،
+                رویِ GetPartyLedgerQueryِ ازقبل‌موجودِ بدونِ UI) + باشگاهِ مشتریان. */}
+            <div className="minitabs">
+              <button type="button" className={activeMiniTab === 'ledger' ? 'on' : ''} onClick={() => setActiveMiniTab('ledger')}>گردشِ حساب</button>
+              <button type="button" className={activeMiniTab === 'loyalty' ? 'on' : ''} onClick={() => setActiveMiniTab('loyalty')}>باشگاهِ مشتریان</button>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'end', flexWrap: 'wrap', marginBottom: 10 }}>
-              <div className="field" style={{ maxWidth: 160 }}>
-                <label className="label">مبلغ/تعدادِ امتیاز</label>
-                <input className="input num" type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
-              </div>
-              <div className="field" style={{ maxWidth: 220 }}>
-                <label className="label">علت</label>
-                <input className="input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="مثلاً خریدِ حضوری" />
-              </div>
-              <button type="button" className="btn btn-primary btn-sm" disabled={busy || !Number(amount)} onClick={award}>
-                افزودنِ امتیاز (از رویِ مبلغِ خرید)
-              </button>
-              <button type="button" className="btn btn-secondary btn-sm" disabled={busy || !Number(amount)} onClick={redeem}>
-                استفاده از امتیاز
-              </button>
-            </div>
-            {loyaltyError && <StatusMessage kind="error">{loyaltyError}</StatusMessage>}
-            {loyalty && loyalty.recent.length > 0 ? (
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-                <thead>
-                  <tr style={{ color: 'var(--text-muted)', textAlign: 'right' }}>
-                    <th style={{ padding: '4px 6px', fontWeight: 500 }}>تاریخ</th>
-                    <th style={{ padding: '4px 6px', fontWeight: 500 }}>نوع</th>
-                    <th style={{ padding: '4px 6px', fontWeight: 500 }}>امتیاز</th>
-                    <th style={{ padding: '4px 6px', fontWeight: 500 }}>شرح</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loyalty.recent.map((t, i) => (
-                    <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
-                      <td className="num" style={{ padding: '5px 6px' }}>{new Date(t.date).toLocaleDateString('fa-IR')}</td>
-                      <td style={{ padding: '5px 6px' }}>{t.type}</td>
-                      <td className="num" style={{ padding: '5px 6px', color: t.points >= 0 ? 'var(--success-700)' : 'var(--danger-700)' }}>{money(t.points)}</td>
-                      <td style={{ padding: '5px 6px' }}>{t.description ?? ''}</td>
+
+            {activeMiniTab === 'ledger' && (
+              <div className="dgrid-wrap" style={{ borderRadius: '0 0 8px 8px', borderTop: 'none' }}>
+                <table className="dgrid">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 80 }}>تاریخ</th>
+                      <th style={{ width: 90 }}>نوع</th>
+                      <th style={{ width: 90 }}>سند</th>
+                      <th>شرح</th>
+                      <th style={{ width: 115 }} className="num">مبلغ</th>
+                      <th style={{ width: 125 }} className="num">مانده</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>هنوز تراکنشِ امتیازی ثبت نشده است.</div>
+                  </thead>
+                  <tbody>
+                    {(ledger ?? []).map((r, i) => (
+                      <tr key={i}>
+                        <td className="num mut">{r.date}</td>
+                        <td>{r.docType}</td>
+                        <td className="num">{r.docNumber ?? '—'}</td>
+                        <td>{r.description ?? ''}</td>
+                        <td className="num" style={{ color: r.amount >= 0 ? undefined : 'var(--success-700)' }}>{numberFormat.format(r.amount)}</td>
+                        <td className="num strong">{numberFormat.format(r.runningBalance)}</td>
+                      </tr>
+                    ))}
+                    {ledger !== null && ledger.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>
+                          گردشی ثبت نشده.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activeMiniTab === 'loyalty' && (
+              <div style={{
+                background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderTop: 'none',
+                borderRadius: '0 0 8px 8px', padding: 14,
+              }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'end', flexWrap: 'wrap', marginBottom: 10 }}>
+                  <div className="field" style={{ maxWidth: 160 }}>
+                    <label className="label">مبلغ/تعدادِ امتیاز</label>
+                    <input className="input num" type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                  </div>
+                  <div className="field" style={{ maxWidth: 220 }}>
+                    <label className="label">علت</label>
+                    <input className="input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="مثلاً خریدِ حضوری" />
+                  </div>
+                  <button type="button" className="btn btn-primary btn-sm" disabled={busy || !Number(amount)} onClick={award}>
+                    افزودنِ امتیاز (از رویِ مبلغِ خرید)
+                  </button>
+                  <button type="button" className="btn btn-secondary btn-sm" disabled={busy || !Number(amount)} onClick={redeem}>
+                    استفاده از امتیاز
+                  </button>
+                </div>
+                {loyaltyError && <StatusMessage kind="error">{loyaltyError}</StatusMessage>}
+                {loyalty && loyalty.recent.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
+                    <thead>
+                      <tr style={{ color: 'var(--text-muted)', textAlign: 'right' }}>
+                        <th style={{ padding: '4px 6px', fontWeight: 500 }}>تاریخ</th>
+                        <th style={{ padding: '4px 6px', fontWeight: 500 }}>نوع</th>
+                        <th style={{ padding: '4px 6px', fontWeight: 500 }}>امتیاز</th>
+                        <th style={{ padding: '4px 6px', fontWeight: 500 }}>شرح</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {loyalty.recent.map((t, i) => (
+                        <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
+                          <td className="num" style={{ padding: '5px 6px' }}>{new Date(t.date).toLocaleDateString('fa-IR')}</td>
+                          <td style={{ padding: '5px 6px' }}>{t.type}</td>
+                          <td className="num" style={{ padding: '5px 6px', color: t.points >= 0 ? 'var(--success-700)' : 'var(--danger-700)' }}>{money(t.points)}</td>
+                          <td style={{ padding: '5px 6px' }}>{t.description ?? ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>هنوز تراکنشِ امتیازی ثبت نشده است.</div>
+                )}
+              </div>
             )}
           </div>
         </div>

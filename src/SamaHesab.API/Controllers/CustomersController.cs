@@ -40,6 +40,13 @@ public class CustomersController : ControllerBase
         return result.Succeeded ? Ok(result.Value) : NotFound(new { message = result.ErrorMessage });
     }
 
+    /// <summary>دفترِ معینِ طرف‌حساب (U-PARTY-LEDGER، backlog #9) — رویدادهایِ Σ کاملِ فاکتور/دریافت/
+    /// پرداخت/پیش‌پرداخت به‌ترتیبِ زمانی با ماندهٔ درحالِ‌گردش. `GetPartyLedgerQuery` از قبل در
+    /// Application آماده بود ولی هیچ اندپوینتی صدایش نمی‌زد (تبِ «گردشِ حساب» در وب خالی می‌ماند).</summary>
+    [HttpGet("{id:int}/ledger")]
+    public async Task<IActionResult> Ledger(int id, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetPartyLedgerQuery(id), ct));
+
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? search, CancellationToken ct)
         => Ok(await _mediator.Send(new GetCustomersQuery(search), ct));

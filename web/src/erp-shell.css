@@ -130,6 +130,11 @@ table.dgrid { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 .st.b { background: var(--blue-50); color: var(--blue-700); }
 .st.n { background: var(--gray-150); color: var(--gray-600); }
 
+/* پورتِ `.minitabs`ِ design-system — تب‌هایِ ریزِ داخلِ کارتِ مشتری/کالا (گردشِ حساب/باشگاه و…). */
+.minitabs { display: flex; gap: 1px; background: var(--gray-150); border: 1px solid var(--border-strong); border-bottom: none; border-radius: 8px 8px 0 0; overflow: hidden; }
+.minitabs button { flex: none; padding: 8px 16px; border: none; background: transparent; font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; }
+.minitabs button.on { background: #fff; color: var(--blue-700); font-weight: 600; }
+
 .sumbar { display: flex; align-items: center; gap: 18px; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; flex-wrap: wrap; }
 .sumbar.ok { background: var(--success-50); border: 1px solid #BFDDC9; color: var(--success-700); }
 .sumbar.bad { background: var(--danger-50); border: 1px solid #E8C5C3; color: var(--danger-700); }

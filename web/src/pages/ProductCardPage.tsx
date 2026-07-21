@@ -11,6 +11,17 @@ interface ProductCardStockRow {
   isLow: boolean;
 }
 
+interface KardexRow {
+  date: string;
+  type: string;
+  documentNumber: string | null;
+  in: number;
+  out: number;
+  balance: number;
+  unitCost: number;
+  notes: string | null;
+}
+
 interface ProductCardDto {
   id: number;
   code: string;
@@ -33,6 +44,7 @@ interface ProductCardDto {
 export function ProductCardPage() {
   const { id } = useParams();
   const [card, setCard] = useState<ProductCardDto | null>(null);
+  const [kardex, setKardex] = useState<KardexRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,6 +52,7 @@ export function ProductCardPage() {
     apiGet<ProductCardDto>(`/api/products/${id}/card`)
       .then(setCard)
       .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ کارتِ کالا.'));
+    apiGet<KardexRow[]>(`/api/products/${id}/kardex`).then(setKardex).catch(() => {});
   }, [id]);
 
   if (error) return <StatusMessage kind="error">{error}</StatusMessage>;
@@ -82,12 +95,53 @@ export function ProductCardPage() {
           ))}
         </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px', marginBottom: 'var(--space-3)' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>مجموعِ موجودی (همهٔ انبارها)</div>
             <div className="num" style={{ fontSize: 20, fontWeight: 800, marginTop: 3 }}>{money(card.totalStock)}</div>
           </div>
           <DataTable columns={stockColumns} rows={card.warehouseStocks} rowKey={(r, i) => `${r.warehouseName}-${i}`} emptyText="موجودی‌ای ثبت نشده." />
+
+          {/* پورتِ گریدِ «کاردکس (گردشِ کالا)»ِ product-card.html — رویِ GetKardexQueryِ
+              ازقبل‌موجود که هیچ اندپوینتی صدایش نمی‌زد. */}
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-strong)', marginBottom: 6 }}>کاردکس (گردشِ کالا)</div>
+            <div className="dgrid-wrap">
+              <table className="dgrid">
+                <thead>
+                  <tr>
+                    <th style={{ width: 80 }}>تاریخ</th>
+                    <th style={{ width: 95 }}>سند</th>
+                    <th>شرح</th>
+                    <th style={{ width: 70 }} className="num">ورود</th>
+                    <th style={{ width: 70 }} className="num">خروج</th>
+                    <th style={{ width: 70 }} className="num">مانده</th>
+                    <th style={{ width: 110 }} className="num">فی</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {kardex.map((r, i) => (
+                    <tr key={i}>
+                      <td className="num mut">{r.date}</td>
+                      <td className="num">{r.documentNumber ?? '—'}</td>
+                      <td>{r.type}{r.notes && <div className="mut" style={{ fontSize: 10.5 }}>{r.notes}</div>}</td>
+                      <td className="num" style={{ color: r.in > 0 ? 'var(--success-700)' : undefined }}>{r.in > 0 ? money(r.in) : '·'}</td>
+                      <td className="num" style={{ color: r.out > 0 ? 'var(--danger-500)' : undefined }}>{r.out > 0 ? money(r.out) : '·'}</td>
+                      <td className="num strong">{money(r.balance)}</td>
+                      <td className="num mut">{r.unitCost > 0 ? money(r.unitCost) : '—'}</td>
+                    </tr>
+                  ))}
+                  {kardex.length === 0 && (
+                    <tr>
+                      <td colSpan={7} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>
+                        گردشی ثبت نشده.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

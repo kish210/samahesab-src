@@ -177,10 +177,10 @@ export function Shell() {
             </button>
           ))}
         </nav>
-        <div className="search">
+        <div className="search" style={{ cursor: 'pointer' }}
+          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}>
           <ErpIcon name="search" />
-          <input placeholder="جستجو در همه‌جا…   Ctrl+K" readOnly style={{ cursor: 'pointer' }}
-            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))} />
+          <input placeholder="جستجو در همه‌جا…   Ctrl+K" readOnly style={{ cursor: 'pointer' }} tabIndex={-1} />
         </div>
         <button type="button" className="tb-ic" title="اعلان‌ها">
           <ErpIcon name="bell" />

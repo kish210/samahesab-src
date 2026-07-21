@@ -18,6 +18,7 @@ import { TrialBalancePage } from './pages/TrialBalancePage';
 import { GeneralLedgerPage } from './pages/GeneralLedgerPage';
 import { BalanceSheetPage } from './pages/BalanceSheetPage';
 import { IncomeStatementPage } from './pages/IncomeStatementPage';
+import { AccountsPage } from './pages/AccountsPage';
 import { SalesInvoicesPage } from './pages/SalesInvoicesPage';
 import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
@@ -79,6 +80,7 @@ function AppRoutes() {
         <Route path="general-ledger" element={<GeneralLedgerPage />} />
         <Route path="balance-sheet" element={<BalanceSheetPage />} />
         <Route path="income-statement" element={<IncomeStatementPage />} />
+        <Route path="accounts" element={<AccountsPage />} />
 
         <Route path="modules" element={<ModulesPage />} />
       </Route>

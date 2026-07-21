@@ -35,6 +35,7 @@ const NAV_GROUPS: NavGroup[] = [
   { items: [{ to: '/', label: 'داشبورد', icon: 'home', end: true }] },
   { title: 'حسابداری', items: [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
+    { to: '/accounts', label: 'دفترِ حساب‌ها', icon: 'accounting' },
     { to: '/trial-balance', label: 'تراز آزمایشی', icon: 'reports' },
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
     { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },

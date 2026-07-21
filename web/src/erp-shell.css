@@ -57,6 +57,57 @@ html, body, #root { height: 100%; overflow: hidden; }
 .erp-status .ok-dot { width: 7px; height: 7px; border-radius: 99px; background: #6FCF97; }
 .erp-status .grow { flex: 1; }
 
+/* ============================================================
+   پرایمیتیوهایِ فرم/گریدِ فشرده — پورتِ عینِ design-system/screens/erp.css
+   (بخشِ «DENSE FORM + GRID PRIMITIVES») تا جدول‌ها/بج‌ها/فیلدهایِ فشردهٔ
+   همهٔ صفحه‌هایِ گزارش/فهرست دقیقاً هم‌الگویِ سیستم‌طراحی باشند.
+   ============================================================ */
+.gbox { background: var(--white, #fff); border: 1px solid var(--border); border-radius: 8px; }
+.gbox .gh { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--border); background: var(--gray-50); border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600; color: var(--blue-700); }
+.gbox .gh .tools { margin-inline-start: auto; display: flex; gap: 4px; }
+.gbox .gb { padding: 10px 12px; }
+
+.frow { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.frow > label { width: 86px; flex: none; font-size: 12px; color: var(--text-muted); text-align: start; }
+.frow > label .req { color: var(--danger-500); }
+.fgrid { display: grid; gap: 8px 18px; }
+.input-c, .select-c { height: var(--control-h, 32px); font-size: 12.5px; padding: 0 9px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; color: var(--text-strong); font-family: var(--font-sans); width: 100%; min-width: 0; }
+.input-c:focus, .select-c:focus { outline: none; border-color: var(--blue-600); box-shadow: var(--ring-focus); }
+.input-c:disabled { background: var(--gray-100); color: var(--text-muted); }
+.input-c.num { text-align: left; direction: ltr; font-variant-numeric: tabular-nums; }
+
+.dgrid-wrap { background: #fff; border: 1px solid var(--border-strong); border-radius: 8px; overflow: auto; }
+table.dgrid { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.dgrid th, .dgrid td { border-inline-end: 1px solid var(--gray-150); }
+.dgrid th:last-child, .dgrid td:last-child { border-inline-end: none; }
+.dgrid thead th { height: 32px; padding: 0 9px; background: var(--gray-100); border-bottom: 1px solid var(--border-strong); font-size: 11.5px; font-weight: 600; color: var(--gray-600); text-align: start; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+.dgrid tbody td { height: var(--row-h, 34px); padding: 0 9px; border-bottom: 1px solid var(--gray-100); color: var(--text-body); white-space: nowrap; }
+.dgrid tbody tr:hover td { background: var(--blue-50); }
+.dgrid tbody tr.sel td { background: var(--blue-100); box-shadow: inset 0 -1px 0 var(--blue-200); }
+.dgrid tbody tr:nth-child(even) td { background: var(--gray-50); }
+.dgrid tbody tr:nth-child(even):hover td { background: var(--blue-50); }
+.dgrid .num { text-align: end; direction: ltr; }
+.dgrid .c { text-align: center; }
+.dgrid .strong { color: var(--text-strong); font-weight: 600; }
+.dgrid .mut { color: var(--text-muted); }
+.dgrid tfoot td { height: 32px; padding: 0 9px; background: var(--gray-100); border-top: 2px solid var(--border-strong); font-weight: 700; color: var(--text-strong); }
+
+.st { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.st i { width: 6px; height: 6px; border-radius: 99px; background: currentColor; }
+.st.g { background: var(--success-50); color: var(--success-700); }
+.st.a { background: var(--warning-50, #fffbeb); color: var(--warning-700, #9a6700); }
+.st.r { background: var(--danger-50); color: var(--danger-700); }
+.st.b { background: var(--blue-50); color: var(--blue-700); }
+.st.n { background: var(--gray-150); color: var(--gray-600); }
+
+.sumbar { display: flex; align-items: center; gap: 18px; padding: 8px 14px; border-radius: 8px; font-size: 12.5px; flex-wrap: wrap; }
+.sumbar.ok { background: var(--success-50); border: 1px solid #BFDDC9; color: var(--success-700); }
+.sumbar.bad { background: var(--danger-50); border: 1px solid #E8C5C3; color: var(--danger-700); }
+.sumbar .s { display: flex; align-items: baseline; gap: 6px; }
+.sumbar .s .l { font-size: 11px; opacity: .75; }
+.sumbar .s .v { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+.sumbar .grow { flex: 1; }
+
 /* پالتِ فرمان (Ctrl+K) — همان الگوی erp-shell.js */
 .cmdk-ov { position: fixed; inset: 0; background: rgba(8,14,28,.5); backdrop-filter: blur(2px); display: none; align-items: flex-start; justify-content: center; z-index: 200; padding-top: 12vh; }
 .cmdk-ov.on { display: flex; }

@@ -72,6 +72,14 @@ html, body, #root { height: 100%; overflow: hidden; }
 .erp-side:hover .grouplabel, .erp-side.pinned .grouplabel { opacity: 1; height: 26px; padding-top: 10px; }
 .erp-side .sep { height: 1px; background: rgba(255,255,255,.08); margin: 8px 4px; }
 
+/* تب‌استریپِ اسنادِ باز — پورتِ `.erp-tabs`ِ design-system. تب‌هایِ زیرِ گروهِ فعالِ سایدبار را نشان
+   می‌دهد (مثلاً زیرِ «حسابداری»: اسنادِ حسابداری/دفترِ حساب‌ها) تا کاربر بینِ زیرصفحه‌هایِ همان
+   بخش سوییچ کند، بدونِ برگشت به سایدبار — سایدبار دیگر نیازی به تکرارِ همین آیتم‌ها ندارد. */
+.erp-tabs { height: var(--tabstrip-h); flex: none; background: var(--gray-150); border-bottom: 1px solid var(--border-strong); display: flex; align-items: flex-end; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.erp-tabs .dt { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 6px 6px 0 0; font-size: 12px; font-weight: 500; color: var(--text-muted); background: transparent; border: 1px solid transparent; border-bottom: none; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.erp-tabs .dt:hover { background: rgba(255,255,255,.6); color: var(--text-body); text-decoration: none; }
+.erp-tabs .dt.on { background: var(--bg-app); border-color: var(--border-strong); color: var(--blue-700); font-weight: 600; margin-bottom: -1px; padding-bottom: 1px; }
+
 .erp-status { height: var(--statusbar-h); flex: none; background: var(--blue-700); color: rgba(255,255,255,.85); display: flex; align-items: center; padding: 0 12px; gap: 0; font-size: 11px; }
 .erp-status .si { display: flex; align-items: center; gap: 6px; padding: 0 11px; border-inline-start: 1px solid rgba(255,255,255,.14); height: 16px; }
 .erp-status .si:first-child { border-inline-start: none; padding-inline-start: 0; }

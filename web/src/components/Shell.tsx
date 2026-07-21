@@ -107,8 +107,6 @@ export function Shell() {
   const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
-  // آکاردئون — همیشه فقط گروهِ صفحهٔ جاری باز است تا سایدبار شلوغ نشود (نه هرچند گروهِ هم‌زمان‌بازِ قبلی).
-  const [openGroup, setOpenGroup] = useState<string | undefined>();
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -140,22 +138,15 @@ export function Shell() {
     g.items.map((i) => ({ label: i.label, sub: g.title ?? 'اصلی', icon: i.icon, to: i.to })),
   );
 
-  const activeGroup = NAV_GROUPS.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'))?.title;
+  const activeGroupObj = visibleNavGroups.find((g) => g.items.some((i) => location.pathname.startsWith(i.to) && i.to !== '/'));
+  const activeGroup = activeGroupObj?.title;
   const activeTopMenu = TOP_MENU_MAP.find(([, titles]) => titles.includes(activeGroup ?? ''))?.[0];
-
-  // با هر تغییرِ مسیر، فقط گروهِ صفحهٔ جاری در سایدبار باز می‌ماند (رفتارِ آکاردئون).
-  useEffect(() => {
-    if (activeGroup) setOpenGroup(activeGroup);
-  }, [activeGroup]);
-
-  function toggleGroup(title: string) {
-    setOpenGroup((prev) => (prev === title ? undefined : title));
-  }
+  // تب‌هایِ زیرِ گروهِ فعال — فقط وقتی بیش از یک زیرصفحه دارد (وگرنه یک‌تب اضافه بی‌فایده است).
+  const activeTabs = activeGroupObj && activeGroupObj.items.length > 1 ? activeGroupObj.items : null;
 
   function goToTopMenu(titles: string[]) {
     const group = visibleNavGroups.find((g) => g.title && titles.includes(g.title));
     if (!group) return;
-    setOpenGroup(group.title);
     navigate(group.items[0].to);
   }
 
@@ -214,27 +205,20 @@ export function Shell() {
       )}
 
       <div className="erp-body">
-        {/* ── سایدبار — رَدیفِ آیکونِ جمع‌شده (۶۰px)، با هاور تا ۲۲۰px بازمی‌شود ── */}
+        {/* ── سایدبار — یک ردیفِ مستقیم به‌ازایِ هر بخش (بدونِ تکرارِ زیرمنوهایی که همین حالا
+            در توپ‌بار/تب‌استریپ هستند)، رَدیفِ آیکونِ جمع‌شده (۶۰px) که با هاور تا ۲۲۰px باز می‌شود ── */}
         <aside className="erp-side">
           <nav className="nav">
             {visibleNavGroups.map((group, gi) => {
-              const isCollapsed = group.title ? group.title !== openGroup : false;
+              const main = group.items[0];
+              const isActive = group.title ? group.title === activeGroup : location.pathname === main.to;
               return (
                 <div key={gi}>
-                  {group.title && (
-                    <button type="button" className="grouplabel" onClick={() => toggleGroup(group.title!)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                      <span>{group.title}</span>
-                      <span style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'none', transition: 'transform 120ms' }}>▾</span>
-                    </button>
-                  )}
-                  {!isCollapsed && group.items.map((item) => (
-                    <NavLink key={item.to} to={item.to} end={item.end} title={item.label}
-                      className={({ isActive }) => `ni${isActive ? ' active' : ''}`}>
-                      <ErpIcon name={item.icon} />
-                      <span className="lb">{item.label}</span>
-                    </NavLink>
-                  ))}
+                  <NavLink to={main.to} end={main.end} title={group.title ?? main.label}
+                    className={() => `ni${isActive ? ' active' : ''}`}>
+                    <ErpIcon name={main.icon} />
+                    <span className="lb">{group.title ?? main.label}</span>
+                  </NavLink>
                   {gi === 0 && <div className="sep" />}
                 </div>
               );
@@ -243,6 +227,18 @@ export function Shell() {
         </aside>
 
         <div className="erp-main">
+          {/* ── تب‌استریپِ زیرصفحه‌هایِ بخشِ فعال — سایدبار فقط به اولین صفحهٔ هر بخش می‌رود،
+              سوییچ بینِ زیرصفحه‌ها (مثلاً اسنادِ حسابداری/دفترِ حساب‌ها) از همین‌جا انجام می‌شود. */}
+          {activeTabs && (
+            <div className="erp-tabs">
+              {activeTabs.map((item) => (
+                <NavLink key={item.to} to={item.to} end={item.end}
+                  className={({ isActive }) => `dt${isActive ? ' on' : ''}`}>
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
           <main style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: 'var(--space-6)', background: 'var(--bg-app)' }}>
             <Outlet />
           </main>

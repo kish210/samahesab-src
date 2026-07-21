@@ -16,6 +16,8 @@ import { VouchersPage } from './pages/VouchersPage';
 import { CreateVoucherPage } from './pages/CreateVoucherPage';
 import { TrialBalancePage } from './pages/TrialBalancePage';
 import { GeneralLedgerPage } from './pages/GeneralLedgerPage';
+import { BalanceSheetPage } from './pages/BalanceSheetPage';
+import { IncomeStatementPage } from './pages/IncomeStatementPage';
 import { SalesInvoicesPage } from './pages/SalesInvoicesPage';
 import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
@@ -75,6 +77,8 @@ function AppRoutes() {
         <Route path="vouchers/new" element={<CreateVoucherPage />} />
         <Route path="trial-balance" element={<TrialBalancePage />} />
         <Route path="general-ledger" element={<GeneralLedgerPage />} />
+        <Route path="balance-sheet" element={<BalanceSheetPage />} />
+        <Route path="income-statement" element={<IncomeStatementPage />} />
 
         <Route path="modules" element={<ModulesPage />} />
       </Route>

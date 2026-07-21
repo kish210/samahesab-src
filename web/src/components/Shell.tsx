@@ -37,6 +37,8 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
     { to: '/trial-balance', label: 'تراز آزمایشی', icon: 'reports' },
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
+    { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },
+    { to: '/income-statement', label: 'صورتِ سودوزیان', icon: 'reports' },
   ] },
   { title: 'خزانه', items: [
     { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },

@@ -8,6 +8,7 @@ import { todayJalaliString } from '../lib/jalali';
 import '../erp-shell.css';
 
 interface ChequeBoardRow { dueState: 'Overdue' | 'DueToday' | 'Upcoming' }
+interface LicenseStatus { isExpired: boolean; daysRemaining: number | null; expiresUtc: string | null }
 
 interface NavItem {
   to: string;
@@ -81,6 +82,8 @@ export function Shell() {
   const initial = (user?.fullName || 'S').trim().charAt(0);
   const [pendingCheques, setPendingCheques] = useState(0);
   const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
+  const [license, setLicense] = useState<LicenseStatus | null>(null);
+  const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => {
     try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}'); } catch { return {}; }
   });
@@ -100,6 +103,13 @@ export function Shell() {
   useEffect(() => {
     apiGet<string[]>('/api/module-capabilities').then(setLoadedModules).catch(() => setLoadedModules([]));
   }, []);
+
+  // بنرِ اطلاع‌رسانیِ «یک‌سالِ رایگان» — فقط وقتی نزدیکِ اتمام یا تمام‌شده باشد نمایش می‌یابد؛
+  // اطلاع‌رسانی است، نه قفلِ فنی (نگاه کن به ServerLicenseStatusProvider.cs).
+  useEffect(() => {
+    apiGet<LicenseStatus>('/api/license/status').then(setLicense).catch(() => {});
+  }, []);
+  const showLicenseBanner = !licenseBannerDismissed && license && (license.isExpired || (license.daysRemaining !== null && license.daysRemaining <= 30));
 
   const visibleNavGroups: NavGroup[] = NAV_GROUPS
     .map((g) => ({ ...g, items: g.items.filter((i) => !i.moduleKey || loadedModules === null || loadedModules.includes(i.moduleKey)) }))
@@ -151,6 +161,24 @@ export function Shell() {
           </div>
         </button>
       </header>
+
+      {showLicenseBanner && (
+        <div style={{
+          flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          padding: '6px 16px', fontSize: 12.5,
+          background: license!.isExpired ? 'var(--danger-50, #fef2f2)' : 'var(--warning-50, #fffbeb)',
+          color: license!.isExpired ? 'var(--danger-700)' : 'var(--warning-700, #9a6700)',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <span>
+            {license!.isExpired
+              ? 'دورهٔ یک‌سالهٔ رایگانِ این نصب به پایان رسیده — برایِ تمدید با پشتیبانی تماس بگیرید.'
+              : `${license!.daysRemaining} روز به پایانِ دورهٔ یک‌سالهٔ رایگانِ این نصب مانده است.`}
+          </span>
+          <button type="button" onClick={() => setLicenseBannerDismissed(true)}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontSize: 12 }}>✕</button>
+        </div>
+      )}
 
       <div className="erp-body">
         {/* ── سایدبار — رَدیفِ آیکونِ جمع‌شده (۶۰px)، با هاور تا ۲۲۰px بازمی‌شود ── */}

@@ -7,7 +7,7 @@
 ; =============================================================================
 
 #define AppName       "سما حساب — وب"
-#define AppVersion    "2.9.0"
+#define AppVersion    "2.9.1"
 #define AppPublisher  "سماع رایانه کیش"
 #define ApiExe        "SamaHesab.API.exe"
 #define ApiTrayExe    "SamaHesabApiTray.exe"
@@ -260,7 +260,10 @@ begin
       '{' + #13#10 +
       '  "ConnectionStrings": {' + #13#10 +
       '    "DefaultConnection": "Server=' + Srv + ';Database=SamaHesab;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Encrypt=False;"' + #13#10 +
-      '  }' + #13#10 +
+      '  },' + #13#10 +
+      // U-LIC-FREEYEAR: مُهرِ لحظهٔ نصب — یک‌سالِ رایگانِ کامل از همین لحظه شمرده می‌شود
+      // (بنرِ اطلاع‌رسانی در وب، نه قفلِ فنی — نگاه کن به ServerLicenseStatusProvider.cs).
+      '  "Server": { "InstalledUtc": "' + GetDateTimeString('yyyy-mm-dd', #0, #0) + 'T00:00:00Z" }' + #13#10 +
       '}';
     SaveStringToFile(ExpandConstant('{app}\server\appsettings.Production.json'), Json, False);
   end;

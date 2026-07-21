@@ -60,6 +60,9 @@ public static class DependencyInjection
         // پیش‌فرضِ نامحدود (سرور/تست)؛ کلاینتِ دسکتاپ آن را با نسخهٔ واقعی override می‌کند.
         services.AddSingleton<SamaHesab.Application.Licensing.ILicenseContext,
             SamaHesab.Application.Licensing.UnlimitedLicenseContext>();
+        // U-LIC-FREEYEAR — بنرِ اطلاع‌رسانیِ «یک‌سالِ رایگان» (نه دروازهٔ فنی؛ نگاه کن به ServerLicenseStatus.cs).
+        services.AddSingleton<SamaHesab.Application.Licensing.IServerLicenseStatusProvider,
+            Services.Licensing.ServerLicenseStatusProvider>();
         services.AddScoped<IPdfService, PdfService>();   // فاز ۱۱ — P2/DT-7: PDFِ بومیِ فارسی (QuestPDF)
         services.AddScoped<IBarcodeService, BarcodeService>();   // فاز ۱۱ — P2/DT-7: تصویرِ QR برای اسناد (QRCoder)
         services.AddScoped<IBackupService, BackupService>();

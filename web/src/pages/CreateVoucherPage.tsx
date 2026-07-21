@@ -105,89 +105,100 @@ export function CreateVoucherPage() {
 
   const accountOptions = accounts.map((a) => ({ id: a.id, label: a.name, sublabel: a.code }));
 
+  const hasAmounts = totalDebit > 0 || totalCredit > 0;
+
   return (
     <div>
       <PageHeader title="ثبتِ سندِ حسابداریِ نو" />
-      <form onSubmit={submit}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}>
-          <JalaliDateInput label="تاریخِ سند" value={voucherDate} onChange={setVoucherDate} />
-          <div className="field">
-            <label className="label">شرحِ سند</label>
-            <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="شرحِ کلیِ سند…" />
+      <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ سند (voucher.html) */}
+        <div className="gbox">
+          <div className="gh">مشخصاتِ سند</div>
+          <div className="gb" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+            <JalaliDateInput label="تاریخِ سند" value={voucherDate} onChange={setVoucherDate} />
+            <div className="field">
+              <label className="label">شرحِ سند</label>
+              <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="شرحِ کلیِ سند…" />
+            </div>
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
-              <th style={{ padding: '6px 8px' }}>حساب</th>
-              <th style={{ padding: '6px 8px' }}>شرح</th>
-              <th style={{ padding: '6px 8px', width: 140 }}>بدهکار</th>
-              <th style={{ padding: '6px 8px', width: 140 }}>بستانکار</th>
-              <th style={{ width: 40 }} />
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((l, i) => (
-              <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
-                <td style={{ padding: '6px 8px' }}>
-                  <SearchSelect
-                    options={accountOptions}
-                    value={l.accountId}
-                    onChange={(id) => updateLine(i, { accountId: id })}
-                    placeholder="جست‌وجویِ حساب…"
-                  />
-                </td>
-                <td style={{ padding: '6px 8px' }}>
-                  <input className="input" value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} />
-                </td>
-                <td style={{ padding: '6px 8px' }}>
-                  <input className="input num" type="number" min="0" value={l.debit}
-                    onChange={(e) => updateLine(i, { debit: e.target.value, credit: e.target.value ? '' : l.credit })} />
-                </td>
-                <td style={{ padding: '6px 8px' }}>
-                  <input className="input num" type="number" min="0" value={l.credit}
-                    onChange={(e) => updateLine(i, { credit: e.target.value, debit: e.target.value ? '' : l.debit })} />
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                  {lines.length > 2 && (
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => removeLine(i)}>✕</button>
-                  )}
-                </td>
+        <div className="dgrid-wrap">
+          <table className="dgrid">
+            <thead>
+              <tr>
+                <th>حساب</th>
+                <th>شرح</th>
+                <th style={{ width: 140 }} className="num">بدهکار</th>
+                <th style={{ width: 140 }} className="num">بستانکار</th>
+                <th style={{ width: 36 }} className="c" />
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr style={{ borderTop: '2px solid var(--border-strong)', fontWeight: 700 }}>
-              <td colSpan={2} style={{ padding: '8px' }}>جمع</td>
-              <td className="num" style={{ padding: '8px' }}>{money(totalDebit)}</td>
-              <td className="num" style={{ padding: '8px' }}>{money(totalCredit)}</td>
-              <td />
-            </tr>
-          </tfoot>
-        </table>
-
-        <button type="button" className="btn btn-secondary btn-sm" onClick={addLine} style={{ marginTop: 'var(--space-2)' }}>
-          + ردیفِ نو
-        </button>
-
-        <div style={{ marginTop: 'var(--space-3)' }}>
-          {totalDebit > 0 || totalCredit > 0 ? (
-            <span className={`badge ${isBalanced ? 'badge-green' : 'badge-red'}`}>
-              {isBalanced ? 'تراز است' : `تفاوت: ${money(Math.abs(totalDebit - totalCredit))}`}
-            </span>
-          ) : null}
+            </thead>
+            <tbody>
+              {lines.map((l, i) => (
+                <tr key={i}>
+                  <td>
+                    <SearchSelect
+                      options={accountOptions}
+                      value={l.accountId}
+                      onChange={(id) => updateLine(i, { accountId: id })}
+                      placeholder="جست‌وجویِ حساب…"
+                    />
+                  </td>
+                  <td>
+                    <input className="input" value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} />
+                  </td>
+                  <td className="num">
+                    <input className="input num" type="number" min="0" value={l.debit}
+                      onChange={(e) => updateLine(i, { debit: e.target.value, credit: e.target.value ? '' : l.credit })} />
+                  </td>
+                  <td className="num">
+                    <input className="input num" type="number" min="0" value={l.credit}
+                      onChange={(e) => updateLine(i, { credit: e.target.value, debit: e.target.value ? '' : l.debit })} />
+                  </td>
+                  <td className="c">
+                    {lines.length > 2 && (
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => removeLine(i)}>✕</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={2}>جمع — {lines.length} ردیف</td>
+                <td className="num">{money(totalDebit)}</td>
+                <td className="num">{money(totalCredit)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          </table>
         </div>
 
-        {error && (
-          <div style={{ marginTop: 'var(--space-3)' }}>
-            <StatusMessage kind="error">{error}</StatusMessage>
+        <div>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={addLine}>
+            + ردیفِ نو
+          </button>
+        </div>
+
+        {/* پورتِ `.sumbar`ِ design-system — نوارِ جمع/تراز پایینِ فرم */}
+        {hasAmounts && (
+          <div className={`sumbar ${isBalanced ? 'ok' : 'bad'}`}>
+            <b>{isBalanced ? 'سند تراز است' : 'سند تراز نیست'}</b>
+            <div className="grow" />
+            <div className="s"><span className="l">جمعِ بدهکار</span><span className="v">{money(totalDebit)}</span></div>
+            <div className="s"><span className="l">جمعِ بستانکار</span><span className="v">{money(totalCredit)}</span></div>
+            <div className="s"><span className="l">اختلاف</span><span className="v" style={{ color: isBalanced ? 'var(--success-500)' : 'var(--danger-500)' }}>{money(Math.abs(totalDebit - totalCredit))}</span></div>
           </div>
         )}
 
-        <button type="submit" className="btn btn-primary" disabled={submitting} style={{ marginTop: 'var(--space-4)' }}>
-          {submitting ? 'در حالِ ثبت…' : 'ثبتِ سند'}
-        </button>
+        {error && <StatusMessage kind="error">{error}</StatusMessage>}
+
+        <div>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'در حالِ ثبت…' : 'ثبتِ سند'}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -41,6 +41,7 @@ import { HotelPage } from './pages/HotelPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { ContractingPage } from './pages/ContractingPage';
 import { SupportPage } from './pages/SupportPage';
+import { StockCountPage } from './pages/StockCountPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -75,6 +76,7 @@ function AppRoutes() {
         <Route path="products/:id/edit" element={<ProductEditPage />} />
         <Route path="products/:id" element={<ProductCardPage />} />
         <Route path="warehouse" element={<WarehousePage />} />
+        <Route path="stock-count" element={<StockCountPage />} />
 
         <Route path="pos" element={<PosPage />} />
         <Route path="restaurant" element={<RestaurantHallsPage />} />

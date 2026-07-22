@@ -18,6 +18,11 @@ public class StockCountController : ControllerBase
     private readonly IMediator _mediator;
     public StockCountController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>فهرستِ همهٔ اسنادِ انبارگردانی (U-WEB-STOCKCOUNT).</summary>
+    [HttpGet]
+    public async Task<IActionResult> List(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetStockCountsQuery(), ct));
+
     public record StartRequest(int WarehouseId, string Date);
 
     /// <summary>شروع انبارگردانی یک انبار (موجودی سیستمی snapshot می‌شود).</summary>

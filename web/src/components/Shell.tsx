@@ -45,6 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
   ] },
   { title: 'انبار', items: [
     { to: '/warehouse', label: 'انبار', icon: 'inventory' },
+    { to: '/stock-count', label: 'انبارگردانی', icon: 'inventory' },
   ] },
   { title: 'خزانه', items: [
     { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },

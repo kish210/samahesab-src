@@ -15,6 +15,17 @@ interface AccountOption {
   name: string;
 }
 
+interface VoucherTypeOption {
+  id: number;
+  name: string;
+}
+
+interface CostCenterOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
 interface VoucherLine {
   accountId: number | null;
   debit: string;
@@ -33,7 +44,12 @@ export function CreateVoucherPage() {
   const navigate = useNavigate();
   const fiscalYearId = useActiveFiscalYear();
   const [accounts, setAccounts] = useState<AccountOption[]>([]);
+  const [voucherTypes, setVoucherTypes] = useState<VoucherTypeOption[]>([]);
+  const [costCenters, setCostCenters] = useState<CostCenterOption[]>([]);
   const [voucherDate, setVoucherDate] = useState(todayJalaliString());
+  const [voucherTypeId, setVoucherTypeId] = useState<number>(9);
+  const [costCenterId, setCostCenterId] = useState<number | null>(null);
+  const [reference, setReference] = useState('');
   const [description, setDescription] = useState('');
   const [lines, setLines] = useState<VoucherLine[]>([emptyLine(), emptyLine()]);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +57,8 @@ export function CreateVoucherPage() {
 
   useEffect(() => {
     apiGet<AccountOption[]>('/api/accounts?leafOnly=true').then(setAccounts).catch(() => {});
+    apiGet<VoucherTypeOption[]>('/api/vouchers/types').then(setVoucherTypes).catch(() => {});
+    apiGet<CostCenterOption[]>('/api/accounting/dimensions/cost-centers?activeOnly=true').then(setCostCenters).catch(() => {});
   }, []);
 
   const totalDebit = lines.reduce((s, l) => s + (Number(l.debit) || 0), 0);
@@ -72,6 +90,8 @@ export function CreateVoucherPage() {
         debit: Number(l.debit) || 0,
         credit: Number(l.credit) || 0,
         description: l.description || null,
+        costCenterId,
+        projectId: null,
       }));
     if (items.length < 2) {
       setError('سند باید حداقل دو ردیفِ حساب داشته باشد.');
@@ -88,9 +108,9 @@ export function CreateVoucherPage() {
         branchId: user?.branchId ?? 1,
         fiscalYearId: fiscalYearId ?? 1,
         voucherDate,
-        voucherTypeId: 1,
+        voucherTypeId,
         description: description || null,
-        reference: null,
+        reference: reference || null,
         currencyId: null,
         exchangeRate: 1,
         items,
@@ -113,10 +133,34 @@ export function CreateVoucherPage() {
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ سند (voucher.html) */}
         <div className="gbox">
-          <div className="gh">مشخصاتِ سند</div>
+          <div className="gh">
+            مشخصاتِ سند
+            <span className="st a" style={{ marginInlineStart: 6 }}><i />پیش‌نویس</span>
+          </div>
           <div className="gb" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             <JalaliDateInput label="تاریخِ سند" value={voucherDate} onChange={setVoucherDate} />
             <div className="field">
+              <label className="label">نوعِ سند</label>
+              <select className="select" value={voucherTypeId} onChange={(e) => setVoucherTypeId(Number(e.target.value))}>
+                {voucherTypes.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label className="label">مرکزِ هزینه</label>
+              <select className="select" value={costCenterId ?? ''} onChange={(e) => setCostCenterId(e.target.value ? Number(e.target.value) : null)}>
+                <option value="">— بدونِ مرکزِ هزینه —</option>
+                {costCenters.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label className="label">ارجاع</label>
+              <input className="input" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="شمارهٔ مرجع/سفارش…" />
+            </div>
+            <div className="field" style={{ gridColumn: '1 / -1' }}>
               <label className="label">شرحِ سند</label>
               <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="شرحِ کلیِ سند…" />
             </div>

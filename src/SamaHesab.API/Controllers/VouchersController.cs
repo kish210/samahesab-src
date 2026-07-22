@@ -14,6 +14,11 @@ public class VouchersController : ControllerBase
     private readonly IMediator _mediator;
     public VouchersController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>فهرستِ نوعِ سند (برایِ کمبویِ فیلتر/فرمِ ثبت).</summary>
+    [HttpGet("types")]
+    public async Task<IActionResult> Types(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetVoucherTypesQuery(), ct));
+
     /// <summary>فهرستِ صفحه‌بندی‌شدهٔ اسناد (فیلتر: بازهٔ تاریخ/نوع/وضعیت/جستجو).</summary>
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] int fiscalYearId, [FromQuery] string? fromDate,

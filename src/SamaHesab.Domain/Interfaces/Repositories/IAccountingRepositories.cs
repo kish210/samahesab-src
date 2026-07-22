@@ -25,6 +25,12 @@ public interface IVoucherRepository : IRepository<Entities.Accounting.Voucher>
     Task<(List<Entities.Accounting.Voucher> Items, int TotalCount)> GetPagedByDateRangeAsync(
         int companyId, int fiscalYearId, string fromDate, string toDate,
         int? status, string? searchText, int pageNumber, int pageSize, CancellationToken ct = default)
+        => GetPagedByDateRangeAsync(companyId, fiscalYearId, fromDate, toDate, null, status, searchText, pageNumber, pageSize, ct);
+
+    /// <summary>هم‌پوشانی با فیلترِ نوعِ سند (voucherTypeId) — پیش‌فرضِ default-interface-method تا اورلودِ بالا را صدا بزند.</summary>
+    Task<(List<Entities.Accounting.Voucher> Items, int TotalCount)> GetPagedByDateRangeAsync(
+        int companyId, int fiscalYearId, string fromDate, string toDate,
+        int? voucherTypeId, int? status, string? searchText, int pageNumber, int pageSize, CancellationToken ct = default)
         => throw new NotImplementedException();
 
     /// <summary>مجموعِ بدهکار−بستانکارِ یک حساب پیش از تاریخِ مشخص (ماندهٔ ابتدا) — یک SUMِ DB-level، بدونِ بارگذاریِ تاریخچه.</summary>

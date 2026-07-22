@@ -53,13 +53,11 @@ public class GetVouchersQueryHandler : IRequestHandler<GetVouchersQuery, PagedRe
         var toDate = request.ToDate ?? "1410/12/29";
 
         var statusMap = new Dictionary<int, string> { {1,"پیش‌نویس"},{2,"قطعی"},{3,"دائمی"} };
-        var typeMap = new Dictionary<int, string> {
-            {1,"افتتاحیه"},{2,"اختتامیه"},{3,"فروش"},{4,"خرید"},{5,"صندوق"},{6,"بانک"},
-            {7,"چک"},{9,"عمومی"},{10,"پرداخت"},{11,"دریافت"},{12,"حقوق"} };
+        var typeMap = VoucherTypeCatalog.Names;
 
         var (paged, total) = await _voucherRepository.GetPagedByDateRangeAsync(
             companyId, request.FiscalYearId, fromDate, toDate,
-            request.Status, request.SearchText, request.PageNumber, request.PageSize, ct);
+            request.VoucherTypeId, request.Status, request.SearchText, request.PageNumber, request.PageSize, ct);
 
         // نام کاربرِ ثبت‌کننده (CreatedByUserId → نام) — «—» اگر ثبت نشده باشد.
         var userIds = paged.Where(v => v.CreatedByUserId.HasValue).Select(v => v.CreatedByUserId!.Value).Distinct().ToList();

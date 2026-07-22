@@ -45,12 +45,14 @@ public class VoucherRepository : GenericRepository<Voucher>, IVoucherRepository
 
     public async Task<(List<Voucher> Items, int TotalCount)> GetPagedByDateRangeAsync(
         int companyId, int fiscalYearId, string fromDate, string toDate,
-        int? status, string? searchText, int pageNumber, int pageSize, CancellationToken ct = default)
+        int? voucherTypeId, int? status, string? searchText, int pageNumber, int pageSize, CancellationToken ct = default)
     {
         var query = DbSet.Where(v => v.CompanyId == companyId && v.FiscalYearId == fiscalYearId
             && string.Compare(v.VoucherDate, fromDate) >= 0
             && string.Compare(v.VoucherDate, toDate) <= 0);
 
+        if (voucherTypeId.HasValue)
+            query = query.Where(v => v.VoucherTypeId == voucherTypeId.Value);
         if (status.HasValue)
             query = query.Where(v => (int)v.Status == status.Value);
         if (!string.IsNullOrWhiteSpace(searchText))

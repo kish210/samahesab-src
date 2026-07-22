@@ -171,7 +171,7 @@ export function VouchersPage() {
     <div>
       <PageHeader title="اسنادِ حسابداری" actions={
         <>
-          <button className="btn btn-secondary" onClick={() => navigate('/accounts')}>دفترِ کل</button>
+          <button className="btn btn-secondary" onClick={() => navigate('/general-ledger')}>دفترِ کل</button>
           <button className="btn btn-secondary" onClick={() => navigate('/trial-balance')}>تراز آزمایشی</button>
           <button className="btn btn-secondary" onClick={exportCsv} disabled={!result}>خروجی اکسل</button>
           <button className="btn btn-secondary" onClick={() => window.print()}>چاپ</button>

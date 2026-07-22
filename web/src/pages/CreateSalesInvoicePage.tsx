@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
@@ -24,12 +24,14 @@ interface WarehouseOption {
 export function CreateSalesInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fiscalYearId = useActiveFiscalYear();
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
 
-  const [customerId, setCustomerId] = useState<number | null>(null);
+  const presetCustomerId = Number(searchParams.get('customerId')) || null;
+  const [customerId, setCustomerId] = useState<number | null>(presetCustomerId);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [invoiceDate, setInvoiceDate] = useState(todayJalaliString());
   const [paymentMethod, setPaymentMethod] = useState('نسیه');

@@ -20,10 +20,10 @@ public class ChequesController : ControllerBase
     public async Task<IActionResult> Board([FromQuery] string today, CancellationToken ct)
         => Ok(await _mediator.Send(new GetChequeBoardQuery(today), ct));
 
-    /// <summary>فهرستِ کاملِ چک‌ها — الگوی API-only.</summary>
+    /// <summary>فهرستِ کاملِ چک‌ها (اختیاری: فیلترِ طرف‌حساب) — الگوی API-only.</summary>
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken ct)
-        => Ok(await _mediator.Send(new GetChequesQuery(), ct));
+    public async Task<IActionResult> List([FromQuery] int? partyId, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetChequesQuery(partyId), ct));
 
     /// <summary>ثبتِ چکِ دریافتی/پرداختیِ نو — الگوی API-only (Commandِ ازقبل‌موجود، بدونِ اندپوینتِ وب تا این‌جا).</summary>
     [HttpPost]

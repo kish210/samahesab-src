@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
+import { todayJalaliString } from '../lib/jalali';
 import { StatusMessage } from '../components/PageHeader';
 
 interface CustomerCardDto {
@@ -50,6 +51,25 @@ interface PartyLedgerRow {
   amount: number;
   runningBalance: number;
 }
+interface SalesInvoiceRowDto {
+  id: number;
+  number: string;
+  date: string;
+  customerName: string;
+  total: number;
+  paid: number;
+  remain: number;
+  status: string;
+}
+interface ChequeRowDto {
+  id: number;
+  chequeNumber: string;
+  bankName: string;
+  amount: number;
+  dueDate: string;
+  status: number; // InProcess=0, Cleared=1, Returned=2, Transferred=3, Cancelled=4
+}
+const CHEQUE_STATUS_LABEL: Record<number, string> = { 0: 'در جریان', 1: 'وصول‌شده', 2: 'برگشتی', 3: 'واگذارشده', 4: 'ابطال‌شده' };
 
 function Kv({ label, value }: { label: string; value: string | null | undefined }) {
   if (!value) return null;
@@ -63,6 +83,7 @@ function Kv({ label, value }: { label: string; value: string | null | undefined 
 
 export function CustomerCardPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [card, setCard] = useState<CustomerCardDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loyalty, setLoyalty] = useState<CustomerLoyaltyDto | null>(null);
@@ -71,7 +92,9 @@ export function CustomerCardPage() {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [ledger, setLedger] = useState<PartyLedgerRow[] | null>(null);
-  const [activeMiniTab, setActiveMiniTab] = useState<'ledger' | 'loyalty'>('ledger');
+  const [invoices, setInvoices] = useState<SalesInvoiceRowDto[] | null>(null);
+  const [cheques, setCheques] = useState<ChequeRowDto[] | null>(null);
+  const [activeMiniTab, setActiveMiniTab] = useState<'ledger' | 'invoices' | 'cheques' | 'loyalty'>('ledger');
 
   function loadLoyalty() {
     if (!id) return;
@@ -84,8 +107,14 @@ export function CustomerCardPage() {
       .then(setCard)
       .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ کارتِ مشتری.'));
     apiGet<PartyLedgerRow[]>(`/api/customers/${id}/ledger`).then(setLedger).catch(() => setLedger([]));
+    apiGet<SalesInvoiceRowDto[]>(`/api/sales/invoices?customerId=${id}`).then(setInvoices).catch(() => setInvoices([]));
+    apiGet<ChequeRowDto[]>(`/api/cheques?partyId=${id}`).then(setCheques).catch(() => setCheques([]));
     loadLoyalty();
   }, [id]);
+
+  const currentJalaliYear = todayJalaliString().slice(0, 4);
+  const invoiceCount = invoices?.length ?? 0;
+  const ytdPurchases = (invoices ?? []).filter((i) => i.date.startsWith(currentJalaliYear)).reduce((s, i) => s + i.total, 0);
 
   async function award() {
     if (!id || !Number(amount)) return;
@@ -126,9 +155,17 @@ export function CustomerCardPage() {
 
   return (
     <div>
-      <Link to="/customers" style={{ fontSize: 'var(--text-sm)' }}>
-        ← بازگشت به فهرستِ مشتریان
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link to="/customers" style={{ fontSize: 'var(--text-sm)' }}>
+          ← بازگشت به فهرستِ مشتریان
+        </Link>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/parties/${id}/edit`)}>ویرایش</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/sales/new?customerId=${id}`)}>فاکتورِ جدید</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate('/treasury')}>دریافتِ وجه</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>صورت‌حساب</button>
+        </div>
+      </div>
 
       <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)', alignItems: 'flex-start' }}>
         <div style={{ width: 280, flex: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
@@ -143,7 +180,10 @@ export function CustomerCardPage() {
                 {card.name?.slice(0, 2) ?? '؟'}
               </div>
               <div>
-                <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text-strong)' }}>{card.name}</div>
+                <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text-strong)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {card.name}
+                  <span className={`st ${card.isActive ? 'g' : 'n'}`}><i />{card.isActive ? 'فعال' : 'غیرفعال'}</span>
+                </div>
                 <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>کد: {card.code}</div>
               </div>
             </div>
@@ -183,7 +223,15 @@ export function CustomerCardPage() {
           </div>
         </div>
 
-        <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 'var(--space-3)' }}>
+          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>جمعِ خریدِ امسال</div>
+            <div className="num" style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{numberFormat.format(ytdPurchases)}</div>
+          </div>
+          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>تعدادِ فاکتور</div>
+            <div className="num" style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{numberFormat.format(invoiceCount)}</div>
+          </div>
           <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>سطحِ قیمت</div>
             <div style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{card.priceLevel}</div>
@@ -201,11 +249,85 @@ export function CustomerCardPage() {
 
           <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             {/* پورتِ `.minitabs`ِ design-system (customer-card.html) — گردشِ حساب (U-PARTY-LEDGER،
-                رویِ GetPartyLedgerQueryِ ازقبل‌موجودِ بدونِ UI) + باشگاهِ مشتریان. */}
+                رویِ GetPartyLedgerQueryِ ازقبل‌موجودِ بدونِ UI) + فاکتورها/چک‌ها (U-WEB-CUSTCARD-1،
+                رویِ endpointِ ازقبل‌موجودی که فقط کنترلر customerId/partyId را فراموش کرده بود
+                پاس بدهد) + باشگاهِ مشتریان. */}
             <div className="minitabs">
               <button type="button" className={activeMiniTab === 'ledger' ? 'on' : ''} onClick={() => setActiveMiniTab('ledger')}>گردشِ حساب</button>
+              <button type="button" className={activeMiniTab === 'invoices' ? 'on' : ''} onClick={() => setActiveMiniTab('invoices')}>فاکتورها</button>
+              <button type="button" className={activeMiniTab === 'cheques' ? 'on' : ''} onClick={() => setActiveMiniTab('cheques')}>چک‌ها</button>
               <button type="button" className={activeMiniTab === 'loyalty' ? 'on' : ''} onClick={() => setActiveMiniTab('loyalty')}>باشگاهِ مشتریان</button>
             </div>
+
+            {activeMiniTab === 'invoices' && (
+              <div className="dgrid-wrap" style={{ borderRadius: '0 0 8px 8px', borderTop: 'none' }}>
+                <table className="dgrid">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 90 }}>شماره</th>
+                      <th style={{ width: 90 }}>تاریخ</th>
+                      <th style={{ width: 90 }} className="c">وضعیت</th>
+                      <th style={{ width: 115 }} className="num">مبلغِ کل</th>
+                      <th style={{ width: 115 }} className="num">پرداختی</th>
+                      <th style={{ width: 115 }} className="num">مانده</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(invoices ?? []).map((r) => (
+                      <tr key={r.id}>
+                        <td className="num">{r.number}</td>
+                        <td className="num mut">{r.date}</td>
+                        <td className="c">{r.status}</td>
+                        <td className="num">{numberFormat.format(r.total)}</td>
+                        <td className="num">{numberFormat.format(r.paid)}</td>
+                        <td className="num strong">{numberFormat.format(r.remain)}</td>
+                      </tr>
+                    ))}
+                    {invoices !== null && invoices.length === 0 && (
+                      <tr>
+                        <td colSpan={6} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>
+                          فاکتوری ثبت نشده.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activeMiniTab === 'cheques' && (
+              <div className="dgrid-wrap" style={{ borderRadius: '0 0 8px 8px', borderTop: 'none' }}>
+                <table className="dgrid">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 100 }}>شمارهٔ چک</th>
+                      <th>بانک</th>
+                      <th style={{ width: 90 }}>سررسید</th>
+                      <th style={{ width: 115 }} className="num">مبلغ</th>
+                      <th style={{ width: 100 }} className="c">وضعیت</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(cheques ?? []).map((c) => (
+                      <tr key={c.id}>
+                        <td className="num">{c.chequeNumber}</td>
+                        <td>{c.bankName}</td>
+                        <td className="num mut">{c.dueDate}</td>
+                        <td className="num strong">{numberFormat.format(c.amount)}</td>
+                        <td className="c">{CHEQUE_STATUS_LABEL[c.status] ?? c.status}</td>
+                      </tr>
+                    ))}
+                    {cheques !== null && cheques.length === 0 && (
+                      <tr>
+                        <td colSpan={5} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>
+                          چکی ثبت نشده.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {activeMiniTab === 'ledger' && (
               <div className="dgrid-wrap" style={{ borderRadius: '0 0 8px 8px', borderTop: 'none' }}>

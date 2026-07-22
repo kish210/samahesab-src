@@ -44,6 +44,7 @@ import { SupportPage } from './pages/SupportPage';
 import { StockCountPage } from './pages/StockCountPage';
 import { ReportsCenterPage } from './pages/ReportsCenterPage';
 import { BranchesPage } from './pages/BranchesPage';
+import { ShiftPage } from './pages/ShiftPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -81,6 +82,7 @@ function AppRoutes() {
         <Route path="stock-count" element={<StockCountPage />} />
 
         <Route path="pos" element={<PosPage />} />
+        <Route path="pos/shift" element={<ShiftPage />} />
         <Route path="restaurant" element={<RestaurantHallsPage />} />
         <Route path="restaurant/kitchen" element={<RestaurantKitchenPage />} />
         <Route path="sales" element={<SalesInvoicesPage />} />

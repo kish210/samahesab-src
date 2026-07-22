@@ -71,6 +71,7 @@ const NAV_GROUPS: NavGroup[] = [
   // فقط وقتی دیده می‌شود که moduleKeyاش واقعاً روی سرور بارگذاری‌شده باشد.
   { title: 'POS', items: [
     { to: '/pos', label: 'صندوقِ فروش', icon: 'pos', moduleKey: 'POS' },
+    { to: '/pos/shift', label: 'شیفتِ صندوق', icon: 'pos', moduleKey: 'POS' },
   ] },
   { title: 'رستوران', items: [
     { to: '/restaurant', label: 'میزها و سالن‌ها', icon: 'restaurant', moduleKey: 'Restaurant' },

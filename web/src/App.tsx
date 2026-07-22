@@ -37,6 +37,7 @@ import { ReturnFormPage } from './pages/ReturnFormPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeEditPage } from './pages/EmployeeEditPage';
 import { PayrollPage } from './pages/PayrollPage';
+import { HotelPage } from './pages/HotelPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -103,6 +104,7 @@ function AppRoutes() {
         <Route path="hr/employees/new" element={<EmployeeEditPage />} />
         <Route path="hr/employees/:id/edit" element={<EmployeeEditPage />} />
         <Route path="hr/payroll" element={<PayrollPage />} />
+        <Route path="hotel" element={<HotelPage />} />
       </Route>
     </Routes>
   );

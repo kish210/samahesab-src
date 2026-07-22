@@ -18,9 +18,12 @@ public sealed class HotelModule : IModule
 
     public void RegisterServices(IServiceCollection services)
     {
-        // فعلاً ماژولِ هتل فقط دامنه/مدل دارد (هندلر/سرویسِ Application ندارد).
-        // با افزودنِ کوئری/کامند، MediatRِ همین اسمبلی این‌جا ثبت می‌شود:
-        //   services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(HotelModule).Assembly));
+        // U-WEB-HOTEL — لایهٔ Application (اتاق/نوعِ اتاق/رزرو/فولیو) نو اضافه شد.
+        services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(HotelModule).Assembly));
+        // ریپازیتوریِ اختصاصی با Include — IRepository<T>.GetByIdAsync عمومی ناوبری‌ها را
+        // بارگذاری نمی‌کند (باگِ کشف‌شده در تستِ زنده: Rooms/Charges/Payments همیشه خالی می‌ماند).
+        services.AddScoped<IReservationRepository, Infrastructure.ReservationRepository>();
+        services.AddScoped<IFolioRepository, Infrastructure.FolioRepository>();
     }
 
     /// <summary>مپِ EFِ موجودیت‌های هتل (G4) — منتقل‌شده از ApplicationDbContext. schema Htl.</summary>

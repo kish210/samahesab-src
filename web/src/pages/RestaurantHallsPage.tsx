@@ -60,6 +60,7 @@ export function RestaurantHallsPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [moveMode, setMoveMode] = useState(false);
+  const [takeoutMode, setTakeoutMode] = useState(false);
 
   function loadHalls() {
     apiGet<HallDto[]>('/api/restaurant/halls').then((data) => {
@@ -155,6 +156,19 @@ export function RestaurantHallsPage() {
     }
   }
 
+  async function openTakeout(orderType: 1 | 2) {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await apiPost<{ orderId: number }>('/api/restaurant/orders/open', { orderType, tableId: null, guestCount: 1 });
+      loadOrder(res.orderId);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'بازکردنِ سفارش ناموفق بود.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function settle() {
     if (!order) return;
     setBusy(true);
@@ -181,10 +195,13 @@ export function RestaurantHallsPage() {
         <div className="rest-main">
           <div className="floor-tabs">
             {(halls ?? []).map((h) => (
-              <button key={h.id} type="button" className={`ft${h.id === hallId ? ' on' : ''}`} onClick={() => setHallId(h.id)}>
+              <button key={h.id} type="button" className={`ft${!takeoutMode && h.id === hallId ? ' on' : ''}`} onClick={() => { setHallId(h.id); setTakeoutMode(false); }}>
                 {h.name}
               </button>
             ))}
+            <button type="button" className={`ft${takeoutMode ? ' on' : ''}`} onClick={() => setTakeoutMode(true)}>
+              بیرون‌بر / پیک
+            </button>
             {moveMode && (
               <button type="button" className="ft on" style={{ marginInlineStart: 'auto', background: 'var(--gold-500)', borderColor: 'var(--gold-500)' }}
                 onClick={() => setMoveMode(false)}>
@@ -193,17 +210,28 @@ export function RestaurantHallsPage() {
             )}
           </div>
 
-          <div className="rest-tables">
-            {activeHall?.tables.map((t) => (
-              <div key={t.id}
-                className={`tbl-card ${TABLE_STYLE[t.statusCode] ?? 'free'}${order?.tableId === t.id ? ' selected' : ''}`}
-                onClick={() => !busy && openOrMoveTable(t)}>
-                <span className="badge2">{t.status}</span>
-                <div className="tn">{t.name}</div>
-                <div className="seats">{numberFormat.format(t.capacity)} نفره</div>
-              </div>
-            ))}
-          </div>
+          {takeoutMode ? (
+            <div style={{ display: 'flex', gap: 10, padding: '14px 4px' }}>
+              <button type="button" className="tbl-card free" style={{ flex: 1, minHeight: 90 }} disabled={busy} onClick={() => openTakeout(1)}>
+                <div className="tn">+ سفارشِ بیرون‌بر</div>
+              </button>
+              <button type="button" className="tbl-card free" style={{ flex: 1, minHeight: 90 }} disabled={busy} onClick={() => openTakeout(2)}>
+                <div className="tn">+ سفارشِ پیک</div>
+              </button>
+            </div>
+          ) : (
+            <div className="rest-tables">
+              {activeHall?.tables.map((t) => (
+                <div key={t.id}
+                  className={`tbl-card ${TABLE_STYLE[t.statusCode] ?? 'free'}${order?.tableId === t.id ? ' selected' : ''}`}
+                  onClick={() => !busy && openOrMoveTable(t)}>
+                  <span className="badge2">{t.status}</span>
+                  <div className="tn">{t.name}</div>
+                  <div className="seats">{numberFormat.format(t.capacity)} نفره</div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="menu-cats">
             {groups.map((g) => (
@@ -250,6 +278,8 @@ export function RestaurantHallsPage() {
             {order && (
               <div className="ot">
                 <div className="r"><span>جمعِ اقلام</span><span className="v">{money(order.subTotal)}</span></div>
+                {order.serviceCharge > 0 && <div className="r"><span>مالیات و خدمات</span><span className="v">{money(order.serviceCharge)}</span></div>}
+                {order.tax > 0 && <div className="r"><span>مالیات</span><span className="v">{money(order.tax)}</span></div>}
                 <div className="grand"><span className="l">جمعِ کل</span><span className="v">{money(order.grandTotal)}</span></div>
               </div>
             )}
@@ -258,7 +288,10 @@ export function RestaurantHallsPage() {
             <button type="button" className="kot" disabled={!order || !hasPendingItems || busy} onClick={sendToKitchen}>
               ارسال به آشپزخانه (KOT)
             </button>
-            <button type="button" disabled={!order || busy} onClick={() => setMoveMode((m) => !m)}>
+            <button type="button" disabled={!order} onClick={() => window.print()}>
+              صورتحساب
+            </button>
+            <button type="button" disabled={!order || !order.tableId || busy} onClick={() => setMoveMode((m) => !m)}>
               انتقالِ میز
             </button>
             <button type="button" className="settle" disabled={!order || order.items.length === 0 || busy} onClick={settle}>

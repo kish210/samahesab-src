@@ -752,4 +752,42 @@
   سبز + build سبزِ وب. ⚠️ **محدودیتِ صادقانه:** قراردادهایِ خدماتیِ تکرارشونده
   (`ServiceContract`/`GenerateDueServiceContractInvoicesCommand` — صورتحسابِ ماهانهٔ خودکار)
   عمداً در این پورت نیامده؛ یک ویژگیِ مستقل است (فروشِ اشتراکی، نه پیمانِ عمرانی) و می‌تواند
-  در پورتی جداگانه اضافه شود.
+  در پورتی جداگانه اضافه شود. **(بعداً همین نشست کامل حذف شد — ادامهٔ همین آیتم را در ادامهٔ
+  changelog ببین.)**
+
+- ✅ **حذفِ کاملِ فیچرِ «قراردادِ خدماتیِ تکرارشونده» (ServiceContract) به‌درخواستِ صریحِ کاربر
+  (@2026-07-22).** کاربر بعد از دیدنِ محدودیتِ بالا گفت این فیچر اصلاً نیاز نیست — با یک
+  Explore agent همهٔ ارجاعات نقشه‌برداری شد (Domain/Application/دسکتاپ/DB/تست) تا حذف بدونِ
+  شکستنِ چیزِ دیگری انجام شود. حذف شد: `Domain/ServiceContract.cs`،
+  `Domain/ServiceContractExtraItem.cs`، `Application/Contracting/Commands/
+  ServiceContractCommands.cs` (کاملِ کامند/کوئری/هندلرها)، `WPF/ViewModels/Contracting/
+  ServiceContractListViewModel.cs` + `Views/Contracting/ServiceContractListView.xaml(.cs)`.
+  ویرایشِ نقطه‌ای (فایلِ مشترک، فقط خطوطِ مربوطه): `ContractingModule.cs` (بلاکِ EF mapping،
+  آیتمِ منو، ورودیِ migration در `GetMigrationScripts`)، `WPF/App.xaml.cs` (ثبتِ DI)،
+  `WPF/Assets/Themes/DataTemplates.xaml` (یک DataTemplate)، `WPF/ViewModels/Shell/
+  MainViewModel.cs` (سه‌جا: نگاشتِ فیچر→ماژول، نگاشتِ view-factory، تاپلِ آیتمِ منو).
+  `RecurrenceSchedule`/`RecurrenceFrequency` **دست‌نخورد ماند** — این‌ها را فیچرِ فعالِ
+  «سندِ تکرارشونده» (`RecurringVoucherCommands.cs`) هم استفاده می‌کند، پس مشترک‌اند و نباید
+  حذف می‌شدند. برایِ DB: migrationِ نوِ `76_DropServiceContracts.sql` (هم‌الگو با
+  `58_DropRecurringInvoices.sql` — فرزند قبل از والد، idempotent) جایگزینِ ورودیِ
+  `59_ServiceContracts.sql` در `GetMigrationScripts()` شد تا نصب‌هایِ موجود هم جدولِ
+  `Con.ServiceContracts`/`ServiceContractExtraItems` را خودکار drop کنند؛ روی DBِ محلی هم
+  اجرا و تأیید شد. Build سبزِ API + build سبزِ WPF (دسکتاپ هم کامپایل شد، طبقِ خواستِ کاربر
+  «از دسکتاپ هم حذف بشه») + کلِ ۸۲۳ تستِ backend سبز (هیچ تستی به ServiceContract وابسته
+  نبود). کامنت‌هایِ موقتِ «این فیچر عمداً نیامده» در `ContractingController.cs`/
+  `ContractingPage.tsx` هم پاک شدند چون دیگر موضوعیت ندارند.
+
+- ✅ **رفعِ باگِ نسخهٔ ثابت/کهنه در فوترِ برندِ وب (@2026-07-22، گزارشِ کاربر: «نسخه‌ای که
+  وب build گرفتی، نسخه‌ای نیست که من به kishwifi.com/download آپلود کردم»).** ریشه: عنصرِ
+  `.ver` در `Shell.tsx` رشتهٔ ثابتِ `"نسخهٔ ۲٫۹"` را هاردکد داشت — نه‌فقط با نسخهٔ واقعیِ
+  فعلی (۲.۹.۳) مچ نمی‌شد، با هیچ ریلیزِ بعدی هم خودکار به‌روز نمی‌شد (چون کسی فراموش می‌کرد
+  دستی عوضش کند). رفع: اندپوینتِ نوِ `GET /api/version` در `Program.cs` (بدونِ احراز، هم‌ردیفِ
+  `/health`) که نسخهٔ واقعیِ اسمبلیِ در حالِ اجرا را برمی‌گرداند (همان منبعِ واحدِ
+  `Directory.Build.props` → `AssemblyVersion` که دسکتاپ هم با `Services/AppVersion.cs`
+  از همان‌جا می‌خواند) + `Shell.tsx` حالا این را در mount می‌خواند و به‌جایِ رشتهٔ ثابت نمایش
+  می‌دهد (با ارقامِ فارسی، هم‌الگو با `AppVersion.Display` دسکتاپ). تستِ زندهٔ کامل:
+  `curl /api/version` → `{"version":"2.9.3"}`، و در UIِ واقعی `.ver` → «نسخهٔ ۲.۹.۳» تأیید شد.
+  Build سبزِ API + وب. ⚠️ توجه: این فقط نسخهٔ *سرور/API* را نشان می‌دهد؛ برای اطمینانِ کامل
+  که کاربر همان build را که روی kishwifi.com/download آپلود کرده اجرا می‌کند، باید مطمئن شود
+  همان نصابِ v2.9.3 (یا هرچه بعداً منتشر شود) واقعاً روی سرورش deploy شده — این رفع فقط
+  «نمایشِ اشتباه/کهنهٔ نسخه در UI» را حل می‌کند، نه فرایندِ استقرار را.

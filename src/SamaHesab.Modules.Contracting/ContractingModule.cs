@@ -32,22 +32,6 @@ public sealed class ContractingModule : IModule
             b.HasMany(s => s.Deductions).WithOne().HasForeignKey(d => d.StatementId);
         });
         modelBuilder.Entity<StatementDeduction>().ToTable("StatementDeductions", "Con");
-
-        // قراردادهایِ خدماتیِ تکرارشونده (جایگزینِ فیچرِ قدیمیِ فاکتورِ تکرارشونده — @2026-07-10)
-        modelBuilder.Entity<ServiceContract>(b =>
-        {
-            b.ToTable("ServiceContracts", "Con");
-            b.HasMany(s => s.ExtraItems).WithOne().HasForeignKey(e => e.ServiceContractId);
-            b.Property(s => s.MonthlyAmount).HasPrecision(18, 2);
-            b.Property(s => s.TaxPct).HasPrecision(18, 2);
-        });
-        modelBuilder.Entity<ServiceContractExtraItem>(b =>
-        {
-            b.ToTable("ServiceContractExtraItems", "Con");
-            b.Property(e => e.Quantity).HasPrecision(18, 3);
-            b.Property(e => e.UnitPrice).HasPrecision(18, 2);
-            b.Property(e => e.TaxPct).HasPrecision(18, 2);
-        });
     }
 
     public IReadOnlyList<ModuleMenu> GetMenus() => new[]
@@ -55,10 +39,9 @@ public sealed class ContractingModule : IModule
         new ModuleMenu("Contracting", "صورت‌وضعیتِ پیمان", "ContractingStatement", Order: 10),
         new ModuleMenu("Contracting", "داشبوردِ پیمان", "ContractingDashboard", Order: 20),
         new ModuleMenu("Contracting", "گزارش‌های پیمانکاری", "ContractingReports", Order: 30),
-        new ModuleMenu("Contracting", "قراردادهایِ خدماتی", "ServiceContracts", Order: 40),
     };
 
     public IReadOnlyList<ModulePermission> GetPermissions() => System.Array.Empty<ModulePermission>();
     public IReadOnlyList<string> GetMigrationScripts() => new[]
-        { "43_Contracting.sql", "44_DemoData_Contracting.sql", "59_ServiceContracts.sql" };
+        { "43_Contracting.sql", "44_DemoData_Contracting.sql", "76_DropServiceContracts.sql" };
 }

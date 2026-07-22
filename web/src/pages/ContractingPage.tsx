@@ -46,8 +46,7 @@ const STATEMENT_TYPES = ['موقت', 'قطعی'];
 const STATEMENT_STATUSES = ['پیش‌نویس', 'تأییدشده', 'ثبت‌شده'];
 
 /** U-WEB-CONTRACTING — ماژولِ پیمانکاری. پیش از این نشست هیچ Commandی برایِ ساختِ پیمان
- * وجود نداشت (نه در وب، نه در دسکتاپ) — با SaveContractProjectCommand رفع شد.
- * ⚠️ محدودیتِ صادقانه: قراردادهایِ خدماتیِ تکرارشونده (ServiceContract) در این پورت نیامده. */
+ * وجود نداشت (نه در وب، نه در دسکتاپ) — با SaveContractProjectCommand رفع شد. */
 export function ContractingPage() {
   const [tab, setTab] = useState<'projects' | 'settings'>('projects');
   const [projects, setProjects] = useState<ProjectRow[]>([]);

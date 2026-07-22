@@ -128,6 +128,7 @@ export function Shell() {
   const [loadedModules, setLoadedModules] = useState<string[] | null>(null);
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -150,6 +151,15 @@ export function Shell() {
   useEffect(() => {
     apiGet<LicenseStatus>('/api/license/status').then(setLicense).catch(() => {});
   }, []);
+
+  // نسخهٔ واقعیِ سرور (نه رشتهٔ ثابتِ قدیمی که با هر ریلیز دستی به‌روز نمی‌شد و می‌توانست
+  // با نسخهٔ واقعاً منتشرشده روی kishwifi.com/download ناهم‌خوان باشد).
+  useEffect(() => {
+    apiGet<{ version: string }>('/api/version').then((r) => setAppVersion(r.version)).catch(() => {});
+  }, []);
+  const versionDisplay = appVersion
+    ? `نسخهٔ ${appVersion.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)])}`
+    : 'نسخهٔ …';
   const showLicenseBanner = !licenseBannerDismissed && license && (license.isExpired || (license.daysRemaining !== null && license.daysRemaining <= 30));
 
   const visibleNavGroups: NavGroup[] = NAV_GROUPS
@@ -177,7 +187,7 @@ export function Shell() {
           <div className="mark">س</div>
           <div>
             <div className="nm">سما حساب</div>
-            <div className="ver">نسخهٔ ۲٫۹</div>
+            <div className="ver">{versionDisplay}</div>
           </div>
         </div>
         <nav className="erp-menu">

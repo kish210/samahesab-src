@@ -262,4 +262,12 @@ app.MapGet("/health", async (SamaHesab.Infrastructure.Data.ApplicationDbContext 
     return Results.Ok(new { status = dbOk ? "healthy" : "degraded", db = dbOk, utc = DateTime.UtcNow });
 });
 
+// نسخهٔ درحالِ‌اجرایِ API (از AssemblyVersion، خودش از Directory.Build.props مشتق می‌شود) —
+// وبِ کلاینت این را برایِ نمایشِ نسخهٔ واقعیِ سرور می‌خواند (به‌جایِ رشتهٔ ثابتِ قدیمی). بدونِ احراز.
+app.MapGet("/api/version", () =>
+{
+    var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0);
+    return Results.Ok(new { version = $"{v.Major}.{v.Minor}.{v.Build}" });
+});
+
 app.Run();

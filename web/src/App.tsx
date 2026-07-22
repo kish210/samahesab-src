@@ -42,6 +42,7 @@ import { AttendancePage } from './pages/AttendancePage';
 import { ContractingPage } from './pages/ContractingPage';
 import { SupportPage } from './pages/SupportPage';
 import { StockCountPage } from './pages/StockCountPage';
+import { ReportsCenterPage } from './pages/ReportsCenterPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -99,6 +100,7 @@ function AppRoutes() {
         <Route path="income-statement" element={<IncomeStatementPage />} />
         <Route path="branch-summary" element={<BranchSummaryPage />} />
         <Route path="accounts" element={<AccountsPage />} />
+        <Route path="reports-center" element={<ReportsCenterPage />} />
 
         <Route path="modules" element={<ModulesPage />} />
         <Route path="settings" element={<SettingsPage />} />

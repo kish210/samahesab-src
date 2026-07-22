@@ -25,6 +25,14 @@ public class ChequesController : ControllerBase
     public async Task<IActionResult> List(CancellationToken ct)
         => Ok(await _mediator.Send(new GetChequesQuery(), ct));
 
+    /// <summary>ثبتِ چکِ دریافتی/پرداختیِ نو — الگوی API-only (Commandِ ازقبل‌موجود، بدونِ اندپوینتِ وب تا این‌جا).</summary>
+    [HttpPost]
+    public async Task<IActionResult> Register([FromBody] RegisterChequeCommand command, CancellationToken ct)
+    {
+        var r = await _mediator.Send(command, ct);
+        return r.Succeeded ? Ok(new { chequeId = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
     public record ChangeStatusRequest(ChequeAction Action, string Date, string? ReturnReason = null);
 
     /// <summary>تغییر وضعیت چک: وصول (سند خودکار)/برگشت/واگذاری.</summary>

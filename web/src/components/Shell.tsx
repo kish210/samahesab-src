@@ -99,6 +99,7 @@ const NAV_GROUPS: NavGroup[] = [
   // «دربارهٔ سیستم» (نسخه/مجوز/کاربرِ جاری) هم زیرش اضافه شد — طبقِ بازخوردِ کاربر
   // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.
   { title: 'تنظیمات', items: [
+    { to: '/branches', label: 'شعب', icon: 'settings' },
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
     { to: '/support', label: 'پشتیبانی', icon: 'bell' },
     { to: '/settings', label: 'دربارهٔ سیستم', icon: 'settings' },

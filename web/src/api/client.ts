@@ -125,6 +125,10 @@ export function apiPost<T>(path: string, body?: unknown) {
   return apiFetch<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined });
 }
 
+export function apiPut<T>(path: string, body?: unknown) {
+  return apiFetch<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined });
+}
+
 export function apiDelete<T>(path: string) {
   return apiFetch<T>(path, { method: 'DELETE' });
 }

@@ -1,5 +1,5 @@
 ; =============================================================================
-;  SAMA HESAB ERP — WEB installer  ->  SamaHesab_Web_Setup.exe
+;  SAMA HESAB ERP — WEB installer  ->  SamaHesab_Web_Setup_v{AppVersion}.exe
 ;  از نسخهٔ ۲.۹ به بعد تنها نصابِ رسمی: فقط سرورِ Web API + کلاینتِ وب + پایگاه‌داده.
 ;  دسکتاپِ WPF (SamaHesab.exe/pos/restoran) دیگر بسته‌بندی/منتشر نمی‌شود — کاربر از
 ;  مرورگر روی http://<server>:5080/web/ کار می‌کند (لوکال یا از هر دستگاهِ دیگرِ شبکه).
@@ -32,7 +32,7 @@ DisableProgramGroupPage=yes
 SetupIconFile=..\src\SamaHesab.WPF\app.ico
 UninstallDisplayIcon={app}\{#ApiExe}
 OutputDir=Output
-OutputBaseFilename=SamaHesab_Web_Setup
+OutputBaseFilename=SamaHesab_Web_Setup_v{#AppVersion}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

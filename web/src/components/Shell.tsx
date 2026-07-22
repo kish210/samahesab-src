@@ -90,6 +90,9 @@ const NAV_GROUPS: NavGroup[] = [
   { title: 'هتل', items: [
     { to: '/hotel', label: 'هتل / اقامتگاه', icon: 'restaurant', moduleKey: 'Hotel' },
   ] },
+  { title: 'پیمانکاری', items: [
+    { to: '/contracting', label: 'پیمانکاری', icon: 'accounting', moduleKey: 'Contracting' },
+  ] },
   // «سیستم» قبلاً فقط مدیریتِ ماژول‌ها بود؛ به «تنظیمات» تغییرِ نام یافت و صفحهٔ نو
   // «دربارهٔ سیستم» (نسخه/مجوز/کاربرِ جاری) هم زیرش اضافه شد — طبقِ بازخوردِ کاربر
   // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.

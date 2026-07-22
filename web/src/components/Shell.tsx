@@ -80,6 +80,10 @@ const NAV_GROUPS: NavGroup[] = [
   { title: 'گردشگری', items: [
     { to: '/tourism', label: 'فروش و محصولات', icon: 'sales', moduleKey: 'Tourism' },
   ] },
+  { title: 'حقوق و دستمزد', items: [
+    { to: '/hr/employees', label: 'پرسنل', icon: 'people', moduleKey: 'HR' },
+    { to: '/hr/payroll', label: 'حقوق و دستمزد', icon: 'accounting', moduleKey: 'HR' },
+  ] },
   // «سیستم» قبلاً فقط مدیریتِ ماژول‌ها بود؛ به «تنظیمات» تغییرِ نام یافت و صفحهٔ نو
   // «دربارهٔ سیستم» (نسخه/مجوز/کاربرِ جاری) هم زیرش اضافه شد — طبقِ بازخوردِ کاربر
   // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.

@@ -42,4 +42,10 @@ public class ReportDataController : ControllerBase
     [HttpGet("inventory-valuation")]
     public async Task<IActionResult> InventoryValuation([FromQuery] int? warehouseId, [FromQuery] string? search)
         => Ok(await _mediator.Send(new GetInventoryValuationQuery(warehouseId, search)));
+
+    /// <summary>گزارشِ per-branch (U-BRANCH-BASEDATA) — تعدادِ مشتری/تأمین‌کننده/کالا/انبار/کارمند
+    /// به‌ازایِ هر شعبه. تا این‌جا فقط لایهٔ Application داشت، هیچ endpointی صدایش نمی‌زد.</summary>
+    [HttpGet("branch-summary")]
+    public async Task<IActionResult> BranchSummary()
+        => Ok(await _mediator.Send(new GetBranchSummaryQuery()));
 }

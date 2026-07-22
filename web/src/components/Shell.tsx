@@ -46,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
     { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },
     { to: '/income-statement', label: 'صورتِ سودوزیان', icon: 'reports' },
+    { to: '/branch-summary', label: 'خلاصهٔ شعب', icon: 'reports' },
   ] },
   { title: 'انبارداری', items: [
     { to: '/products', label: 'کالاها', icon: 'inventory' },

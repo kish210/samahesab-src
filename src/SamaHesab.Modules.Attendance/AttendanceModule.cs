@@ -49,5 +49,6 @@ public sealed class AttendanceModule : IModule
     {
         "41_AttendanceSchema.sql",
         "45_AttendanceDevices.sql",
+        "75_AttendanceDeviceConnection.sql",
     };
 }

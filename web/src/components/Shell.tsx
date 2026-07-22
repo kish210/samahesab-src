@@ -84,6 +84,9 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/hr/employees', label: 'پرسنل', icon: 'people', moduleKey: 'HR' },
     { to: '/hr/payroll', label: 'حقوق و دستمزد', icon: 'accounting', moduleKey: 'HR' },
   ] },
+  { title: 'حضور و غیاب', items: [
+    { to: '/attendance', label: 'حضور و غیاب', icon: 'people', moduleKey: 'Attendance' },
+  ] },
   { title: 'هتل', items: [
     { to: '/hotel', label: 'هتل / اقامتگاه', icon: 'restaurant', moduleKey: 'Hotel' },
   ] },

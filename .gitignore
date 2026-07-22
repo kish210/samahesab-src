@@ -118,6 +118,8 @@ telerik-license.txt
 # Build/publish artifacts for installers
 /dist/
 /installer/Output/
+# پوشهٔ آماده‌سازیِ آپلودِ دستی به kishwifi.com/download (فقط استیجینگِ محلی، نه git)
+/download/
 
 # مخزنِ سورسِ خصوصی (clone محلی — نباید درون این مخزن باشد)
 samahesab-src/

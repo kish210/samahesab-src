@@ -4,53 +4,55 @@ using System.Text.Json;
 
 namespace SamaHesab.WPF.Services;
 
-/// <summary>اطلاعاتِ یک نسخهٔ جدیدِ موجود روی GitHub Releases.</summary>
+/// <summary>اطلاعاتِ یک نسخهٔ جدیدِ موجود روی سرورِ دانلود.</summary>
 public record UpdateInfo(Version Version, string Tag, string DownloadUrl, string FileName, string? Notes);
 
 /// <summary>
-/// به‌روزرسانِ خودکار از GitHub Releases (پلتفرم/زیرساخت).
-/// آخرین Release را می‌خواند، نسخه‌اش را با نسخهٔ اسمبلیِ جاری مقایسه می‌کند،
-/// و در صورتِ جدیدتر بودن، نصابِ آن را دانلود و اجرا می‌کند (با تأییدِ کاربر).
-/// بررسی فقط در زمانِ استارت‌آپ (سیستم بیکار) انجام می‌شود؛ آفلاین/خطا بی‌صدا رد می‌شود.
+/// به‌روزرسانِ خودکار — منبعِ نسخه/فایل از `https://kishwifi.com/download/version.json`
+/// (سرورِ پشتیبانیِ وردپرسِ کاربر، آپلودِ دستی از installer/Output از طریقِ cPanel؛ نگاه کن به
+/// پوشهٔ محلیِ `download/` که نمونهٔ همین فایل‌ها را برایِ آپلود آماده می‌کند).
+/// منبعِ قبلی GitHub Releasesِ عمومی بود؛ به‌درخواستِ کاربر (@2026-07-22) این منبع اضافه/جایگزین شد
+/// چون کاربر می‌خواست نصاب‌ها را روی دامنهٔ خودش هم میزبانی کند، نه فقط GitHub.
+/// قالبِ version.json: {"version":"X.Y.Z","notes":"...","files":[{"name":"...","url":"..."}]}
+/// آخرین نسخه را می‌خواند، با نسخهٔ اسمبلیِ جاری مقایسه می‌کند، و در صورتِ جدیدتر بودن،
+/// نصابِ آن را دانلود و اجرا می‌کند (با تأییدِ کاربر). بررسی فقط در زمانِ استارت‌آپ انجام
+/// می‌شود؛ آفلاین/خطا بی‌صدا رد می‌شود.
 /// </summary>
 public class UpdateService
 {
-    private const string Owner = "kish210";
-    private const string Repo = "SamaHesab";
+    private const string ManifestUrl = "https://kishwifi.com/download/version.json";
 
     /// <summary>نسخهٔ جاریِ برنامه (از Directory.Build.props روی اسمبلی نشسته).</summary>
     public static Version CurrentVersion =>
         Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0);
 
-    /// <summary>اگر نسخهٔ جدیدتری روی GitHub باشد آن را برمی‌گرداند؛ وگرنه null. هرگز استثنا نمی‌دهد.</summary>
+    /// <summary>اگر نسخهٔ جدیدتری روی سرورِ دانلود باشد آن را برمی‌گرداند؛ وگرنه null. هرگز استثنا نمی‌دهد.</summary>
     public async Task<UpdateInfo?> CheckAsync(CancellationToken ct = default)
     {
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(6) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("SamaHesab-Updater");
-            http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
 
-            var json = await http.GetStringAsync(
-                $"https://api.github.com/repos/{Owner}/{Repo}/releases/latest", ct);
+            var json = await http.GetStringAsync(ManifestUrl, ct);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            var tag = root.GetProperty("tag_name").GetString() ?? "";
+            var tag = root.GetProperty("version").GetString() ?? "";
             if (!TryParseVersion(tag, out var latest)) return null;
             if (latest <= CurrentVersion) return null;   // چیزی جدیدتر نیست
 
-            // نصابِ دسکتاپ را بردار. ترتیبِ asset‌ها در API تضمینی نیست، پس
+            // نصابِ دسکتاپ را بردار. ترتیبِ فایل‌ها در manifest تضمینی نیست، پس
             // نصابِ کلاینت/سرور را کنار می‌گذاریم و نصابِ اصلیِ دسکتاپ را ترجیح می‌دهیم.
-            if (!root.TryGetProperty("assets", out var assets)) return null;
-            var notes = root.TryGetProperty("body", out var b) ? b.GetString() : null;
+            if (!root.TryGetProperty("files", out var files)) return null;
+            var notes = root.TryGetProperty("notes", out var b) ? b.GetString() : null;
 
             (string url, string name)? fallback = null;
-            foreach (var a in assets.EnumerateArray())
+            foreach (var f in files.EnumerateArray())
             {
-                var name = a.GetProperty("name").GetString() ?? "";
+                var name = f.GetProperty("name").GetString() ?? "";
                 if (!name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) continue;
-                var url = a.GetProperty("browser_download_url").GetString();
+                var url = f.GetProperty("url").GetString();
                 if (string.IsNullOrEmpty(url)) continue;
 
                 // نصابِ کلاینت/سرور هدفِ آپدیتِ خودکارِ دسکتاپ نیست؛ نادیده بگیر مگر اینکه چیزِ دیگری نباشد.

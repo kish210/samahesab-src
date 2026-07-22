@@ -44,6 +44,8 @@ public partial class MainViewModel : BaseViewModel
     public bool CanTreasury   => _currentUser.HasPermission("Treasury", "View", "");
     public bool CanSales      => _currentUser.HasPermission("Sales", "Invoice", "View");
     public bool CanPurchase   => _currentUser.HasPermission("Purchase", "Invoice", "View");
+    // منویِ «خرید و فروش» طبقِ ساختارِ حسابفا یکی شد (@2026-07-22) — دکمهٔ ادغام‌شده با هرکدام از دو مجوز نمایش داده می‌شود.
+    public bool CanSalesOrPurchase => CanSales || CanPurchase;
     public bool CanInventory  => _currentUser.HasPermission("Inventory", "View", "");
     public bool CanCustomers  => _currentUser.HasPermission("Customers", "View", "");
     public bool CanReports    => _currentUser.HasPermission("Reports", "View", "");

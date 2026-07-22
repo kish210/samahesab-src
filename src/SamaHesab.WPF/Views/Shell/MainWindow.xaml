@@ -175,23 +175,65 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- منو (دکمه‌های بازشونده) -->
+                <!-- منو (دکمه‌های بازشونده) — ترتیب/گروه‌بندی هم‌راستا با ساختارِ منویِ حسابفا شد
+                     (@2026-07-22، طبقِ درخواستِ صریحِ کاربر): اشخاص → کالاها و خدمات → انبار →
+                     خزانه‌داری → خرید و فروش → حسابداری → گزارشات → سیستم. «کالاها و خدمات» از
+                     «انبار» جدا شد (تعریفِ کالا/خدمات/قیمت/بارکد در یکی، عملیاتِ انباری در دیگری)؛
+                     «خرید» و «فروش و درآمد» در یک دکمهٔ «خرید و فروش» ادغام شدند — هردو طبقِ
+                     تصمیمِ صریحِ کاربر (حسابفا هم همین دو تفکیک/ادغام را دارد). -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource TopMenuBtn}" Content="حسابداری" Click="TopMenu_Click"
-                            Visibility="{Binding CanAccounting, Converter={StaticResource BoolVis}}">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="اشخاص" Click="TopMenu_Click"
+                            Visibility="{Binding CanCustomers, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
-                                <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
-                                <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
-                                <MenuItem Header="دفترِ معین (پرش به سند)" Command="{Binding NavigateCommand}" CommandParameter="AccountLedger"/>
-                                <MenuItem Header="ابعاد حسابداری (سال مالی/مرکز هزینه/پروژه)" Command="{Binding NavigateCommand}" CommandParameter="AccDimensions"/>
+                                <MenuItem Header="➕ شخصِ جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="CustomerEdit"/>
                                 <Separator/>
-                                <MenuItem Header="بهره‌وری سند (الگو/تکرارشونده)" Command="{Binding NavigateCommand}" CommandParameter="VoucherTools"/>
-                                <MenuItem Header="عملیات پایان دوره" Command="{Binding NavigateCommand}" CommandParameter="EndOfPeriod"/>
-                                <MenuItem Header="کارتابلِ تأیید اسناد" Command="{Binding NavigateCommand}" CommandParameter="VoucherApprovals"/>
-                                <MenuItem Header="داشبورد حسابدار" Command="{Binding NavigateCommand}" CommandParameter="AccountantDash"/>
-                                <MenuItem Header="داشبورد مدیریتی" Command="{Binding NavigateCommand}" CommandParameter="ManagerDash"/>
+                                <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
+                                <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
+                                <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
+                                <MenuItem Header="سهامداران" Command="{Binding NavigateCommand}" CommandParameter="Shareholders"
+                                          Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
+                                <Separator/>
+                                <MenuItem Header="دریافت و پرداختِ وجه" Command="{Binding NavigateCommand}" CommandParameter="ReceivePayment"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="کالاها و خدمات" Click="TopMenu_Click"
+                            Visibility="{Binding CanInventory, Converter={StaticResource BoolVis}}">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="➕ کالای جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="ProductEdit"/>
+                                <MenuItem Header="➕ خدماتِ جدید" Command="{Binding NavigateCommand}" CommandParameter="ServiceEdit"/>
+                                <Separator/>
+                                <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
+                                <MenuItem Header="مدیریت لیست‌قیمت" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>
+                                <MenuItem Header="صفحهٔ لیست قیمتِ کالا" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>
+                                <Separator/>
+                                <MenuItem Header="ساخت / چاپ بارکد" Command="{Binding NavigateCommand}" CommandParameter="BarcodePrint"/>
+                                <MenuItem Header="چاپ بارکد تعدادی" Command="{Binding NavigateCommand}" CommandParameter="BarcodePrint"/>
+                                <Separator/>
+                                <MenuItem Header="تخفیف پلکانی" Command="{Binding NavigateCommand}" CommandParameter="DiscountTiers"/>
+                                <MenuItem Header="بچ و سریال (انقضا)" Command="{Binding NavigateCommand}" CommandParameter="BatchSerial"/>
+                                <MenuItem Header="کارت کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductCard"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Style="{StaticResource TopMenuBtn}" Content="انبار" Click="TopMenu_Click"
+                            Visibility="{Binding CanInventory, Converter={StaticResource BoolVis}}">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
+                                <MenuItem Header="نمای انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseOverview"/>
+                                <MenuItem Header="داشبورد انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseDash"/>
+                                <Separator/>
+                                <MenuItem Header="⚡ انتقال/تعدیلِ سریع" Command="{Binding NavigateCommand}" CommandParameter="QuickStock"/>
+                                <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
+                                <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
+                                <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
+                                <Separator/>
+                                <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
+                                <MenuItem Header="گزارش موجودی/ارزش انبار" Command="{Binding NavigateCommand}" CommandParameter="InventoryReport"/>
+                                <MenuItem Header="گزارش نقطهٔ سفارش" Command="{Binding NavigateCommand}" CommandParameter="ReorderReport"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
@@ -210,8 +252,8 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="خرید" Click="TopMenu_Click"
-                            Visibility="{Binding CanPurchase, Converter={StaticResource BoolVis}}">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="خرید و فروش" Click="TopMenu_Click"
+                            Visibility="{Binding CanSalesOrPurchase, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="فاکتور خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseInvoice"/>
@@ -219,17 +261,10 @@
                                 <MenuItem Header="سفارش‌های خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseOrders"/>
                                 <MenuItem Header="گزارش خرید" Command="{Binding NavigateCommand}" CommandParameter="PurchaseReport"/>
                                 <MenuItem Header="صورت‌حساب تأمین‌کننده" Command="{Binding NavigateCommand}" CommandParameter="SupplierStatement"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="فروش و درآمد" Click="TopMenu_Click"
-                            Visibility="{Binding CanSales, Converter={StaticResource BoolVis}}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
+                                <Separator/>
                                 <MenuItem Header="داشبورد فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesDash"/>
                                 <MenuItem Header="فروش جدید" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoice"/>
                                 <MenuItem Header="فاکتور سریع (صندوق)" Command="{Binding NavigateCommand}" CommandParameter="POS" Visibility="{Binding PosEnabled, Converter={StaticResource BoolVis}}"/>
-                                <Separator/>
                                 <MenuItem Header="فاکتورهای فروش" Command="{Binding NavigateCommand}" CommandParameter="SalesInvoiceList"/>
                                 <MenuItem Header="کنسینمنت‌هایِ باز (تسویه)" Command="{Binding NavigateCommand}" CommandParameter="OpenConsignments"/>
                                 <Separator/>
@@ -242,49 +277,21 @@
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="انبار" Click="TopMenu_Click"
-                            Visibility="{Binding CanInventory, Converter={StaticResource BoolVis}}">
+                    <Button Style="{StaticResource TopMenuBtn}" Content="حسابداری" Click="TopMenu_Click"
+                            Visibility="{Binding CanAccounting, Converter={StaticResource BoolVis}}">
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="➕ کالای جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="ProductEdit"/>
-                                <MenuItem Header="➕ خدماتِ جدید" Command="{Binding NavigateCommand}" CommandParameter="ServiceEdit"/>
+                                <MenuItem Header="ثبت سند" Command="{Binding NavigateCommand}" CommandParameter="VoucherEdit"/>
+                                <MenuItem Header="اسناد حسابداری" Command="{Binding NavigateCommand}" CommandParameter="Vouchers"/>
+                                <MenuItem Header="نمودار حساب‌ها" Command="{Binding NavigateCommand}" CommandParameter="ChartOfAccounts"/>
+                                <MenuItem Header="دفترِ معین (پرش به سند)" Command="{Binding NavigateCommand}" CommandParameter="AccountLedger"/>
+                                <MenuItem Header="ابعاد حسابداری (سال مالی/مرکز هزینه/پروژه)" Command="{Binding NavigateCommand}" CommandParameter="AccDimensions"/>
                                 <Separator/>
-                                <MenuItem Header="کالاها" Command="{Binding NavigateCommand}" CommandParameter="Products"/>
-                                <MenuItem Header="مدیریت لیست‌قیمت" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>
-                                <MenuItem Header="صفحهٔ لیست قیمتِ کالا" Command="{Binding NavigateCommand}" CommandParameter="PriceList"/>
-                                <Separator/>
-                                <MenuItem Header="ساخت / چاپ بارکد" Command="{Binding NavigateCommand}" CommandParameter="BarcodePrint"/>
-                                <MenuItem Header="چاپ بارکد تعدادی" Command="{Binding NavigateCommand}" CommandParameter="BarcodePrint"/>
-                                <Separator/>
-                                <MenuItem Header="تخفیف پلکانی" Command="{Binding NavigateCommand}" CommandParameter="DiscountTiers"/>
-                                <MenuItem Header="بچ و سریال (انقضا)" Command="{Binding NavigateCommand}" CommandParameter="BatchSerial"/>
-                                <MenuItem Header="گزارش موجودی/ارزش انبار" Command="{Binding NavigateCommand}" CommandParameter="InventoryReport"/>
-                                <MenuItem Header="گزارش نقطهٔ سفارش" Command="{Binding NavigateCommand}" CommandParameter="ReorderReport"/>
-                                <MenuItem Header="نمای انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseOverview"/>
-                                <MenuItem Header="داشبورد انبار" Command="{Binding NavigateCommand}" CommandParameter="WarehouseDash"/>
-                                <MenuItem Header="کارت کالا" Command="{Binding NavigateCommand}" CommandParameter="ProductCard"/>
-                                <MenuItem Header="انبارها" Command="{Binding NavigateCommand}" CommandParameter="Warehouses"/>
-                                <MenuItem Header="⚡ انتقال/تعدیلِ سریع" Command="{Binding NavigateCommand}" CommandParameter="QuickStock"/>
-                                <MenuItem Header="تعدیل موجودی" Command="{Binding NavigateCommand}" CommandParameter="StockAdjust"/>
-                                <MenuItem Header="انبارگردانی" Command="{Binding NavigateCommand}" CommandParameter="StockCount"/>
-                                <MenuItem Header="انتقال بین انبار" Command="{Binding NavigateCommand}" CommandParameter="StockTransfer"/>
-                                <MenuItem Header="کاردکس کالا" Command="{Binding NavigateCommand}" CommandParameter="Kardex"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <Button Style="{StaticResource TopMenuBtn}" Content="اشخاص" Click="TopMenu_Click"
-                            Visibility="{Binding CanCustomers, Converter={StaticResource BoolVis}}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="➕ شخصِ جدید (F2)" Command="{Binding NavigateCommand}" CommandParameter="CustomerEdit"/>
-                                <Separator/>
-                                <MenuItem Header="همهٔ اشخاص (طرف‌حساب)" Command="{Binding NavigateCommand}" CommandParameter="Persons"/>
-                                <MenuItem Header="مشتریان" Command="{Binding NavigateCommand}" CommandParameter="Customers"/>
-                                <MenuItem Header="تأمین‌کنندگان" Command="{Binding NavigateCommand}" CommandParameter="Suppliers"/>
-                                <MenuItem Header="سهامداران" Command="{Binding NavigateCommand}" CommandParameter="Shareholders"
-                                          Visibility="{Binding CanSecurity, Converter={StaticResource BoolVis}}"/>
-                                <Separator/>
-                                <MenuItem Header="دریافت و پرداختِ وجه" Command="{Binding NavigateCommand}" CommandParameter="ReceivePayment"/>
+                                <MenuItem Header="بهره‌وری سند (الگو/تکرارشونده)" Command="{Binding NavigateCommand}" CommandParameter="VoucherTools"/>
+                                <MenuItem Header="عملیات پایان دوره" Command="{Binding NavigateCommand}" CommandParameter="EndOfPeriod"/>
+                                <MenuItem Header="کارتابلِ تأیید اسناد" Command="{Binding NavigateCommand}" CommandParameter="VoucherApprovals"/>
+                                <MenuItem Header="داشبورد حسابدار" Command="{Binding NavigateCommand}" CommandParameter="AccountantDash"/>
+                                <MenuItem Header="داشبورد مدیریتی" Command="{Binding NavigateCommand}" CommandParameter="ManagerDash"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

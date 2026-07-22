@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SamaHesab.API.Services;
 using SamaHesab.Application.Common.Interfaces;
 using SamaHesab.Application.Security.Commands;
+using SamaHesab.Application.Settings.Queries;
 
 namespace SamaHesab.API.Controllers;
 
@@ -28,6 +29,12 @@ public class AuthController : ControllerBase
     }
 
     public record LoginRequest(string Username, string Password, int CompanyId = 1, int BranchId = 1);
+
+    /// <summary>فهرستِ شرکت‌ها برایِ کمبویِ انتخابِ شرکت در صفحهٔ ورود — پیش از احرازِ هویت (فقط نام/کد، بدونِ دادهٔ حساس).</summary>
+    [HttpGet("companies")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Companies(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetCompaniesQuery(), ct));
     public record RefreshRequest(string RefreshToken);
 
     private int RefreshDays => int.TryParse(_config["Jwt:RefreshTokenDays"], out var d) ? d : 14;

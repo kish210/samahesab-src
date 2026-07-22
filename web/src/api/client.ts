@@ -5,23 +5,40 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080';
 
 const TOKEN_KEY = 'sh_access_token';
 const REFRESH_KEY = 'sh_refresh_token';
+const REMEMBER_KEY = 'sh_remember';
+
+/** «مرا به خاطر بسپار» (LoginPage) — اگر خاموش باشد، توکن‌ها در sessionStorage می‌مانند (با
+ * بستنِ تب/مرورگر پاک می‌شوند)، نه localStorage. خودِ پرچمِ ترجیح همیشه در localStorage است
+ * (فقط یک بولینِ بی‌اهمیت، نه دادهٔ حساس) تا انتخابِ کاربر بینِ نشست‌ها به خاطر بماند. */
+export function tokenStorage(): Storage {
+  return localStorage.getItem(REMEMBER_KEY) === '0' ? sessionStorage : localStorage;
+}
+
+export function setRememberMe(remember: boolean) {
+  localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0');
+  // پاک‌کردنِ باقیماندهٔ توکن از حافظهٔ دیگر — وگرنه اگر کاربر بینِ دو ورود انتخابش را عوض کند،
+  // نسخهٔ کهنه در حافظهٔ قبلی می‌ماند (مثلاً بعدِ خاموش‌کردنِ «به خاطر بسپار»، localStorage همچنان توکنِ قدیمی دارد).
+  const other = remember ? sessionStorage : localStorage;
+  other.removeItem(TOKEN_KEY);
+  other.removeItem(REFRESH_KEY);
+}
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return tokenStorage().getItem(TOKEN_KEY);
 }
 
 export function setTokens(accessToken: string, refreshToken: string) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_KEY, refreshToken);
+  tokenStorage().setItem(TOKEN_KEY, accessToken);
+  tokenStorage().setItem(REFRESH_KEY, refreshToken);
 }
 
 export function clearTokens() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_KEY);
+  tokenStorage().removeItem(TOKEN_KEY);
+  tokenStorage().removeItem(REFRESH_KEY);
 }
 
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_KEY);
+  return tokenStorage().getItem(REFRESH_KEY);
 }
 
 export class ApiError extends Error {

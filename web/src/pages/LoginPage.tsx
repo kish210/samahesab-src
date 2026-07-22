@@ -1,18 +1,32 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { apiPost, ApiError } from '../api/client';
+import { apiGet, apiPost, setRememberMe, ApiError } from '../api/client';
+
+interface CompanyOption {
+  id: number;
+  code: string;
+  name: string;
+}
 
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'recovery'>('login');
 
+  const [companies, setCompanies] = useState<CompanyOption[]>([]);
+  const [companyId, setCompanyId] = useState(1);
+  const [remember, setRemember] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [recoverySuccess, setRecoverySuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    apiGet<CompanyOption[]>('/api/auth/companies').then(setCompanies).catch(() => {});
+  }, []);
 
   const [recCode, setRecCode] = useState('');
   const [recNewPassword, setRecNewPassword] = useState('');
@@ -24,7 +38,8 @@ export function LoginPage() {
     setLocalError(null);
     setSubmitting(true);
     try {
-      await login(username, password);
+      setRememberMe(remember);
+      await login(username, password, companyId);
       navigate('/', { replace: true });
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : 'ورود ناموفق بود.');
@@ -98,6 +113,17 @@ export function LoginPage() {
             <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>ورود به کلاینتِ وب</div>
           </div>
 
+          {companies.length > 1 && (
+            <div className="field">
+              <label className="label" htmlFor="company">شرکت</label>
+              <select id="company" className="select" value={companyId} onChange={(e) => setCompanyId(Number(e.target.value))}>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="field">
             <label className="label" htmlFor="username">
               نامِ کاربری
@@ -116,15 +142,34 @@ export function LoginPage() {
             <label className="label" htmlFor="password">
               رمزِ عبور
             </label>
-            <input
-              id="password"
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className="input"
+                style={{ paddingInlineEnd: 36 }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'پنهان‌کردنِ رمز' : 'نمایشِ رمز'}
+                style={{
+                  position: 'absolute', insetInlineEnd: 8, top: '50%', transform: 'translateY(-50%)',
+                  background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 15, padding: 4,
+                }}
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
           </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--text-body)' }}>
+            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+            مرا به خاطر بسپار
+          </label>
 
           {recoverySuccess && (
             <div style={{ color: 'var(--success-700)', background: 'var(--success-50)', borderRadius: 'var(--radius-sm)', padding: '8px 12px', fontSize: 'var(--text-sm)' }}>

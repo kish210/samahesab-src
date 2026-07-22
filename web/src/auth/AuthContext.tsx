@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { apiGet, apiPost, clearTokens, getAccessToken, setTokens } from '../api/client';
+import { apiGet, apiPost, clearTokens, getAccessToken, setTokens, tokenStorage } from '../api/client';
 
 export interface AuthUser {
   userId: number;
@@ -30,7 +30,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const raw = localStorage.getItem(USER_KEY);
+    const raw = tokenStorage().getItem(USER_KEY);
     return raw ? (JSON.parse(raw) as AuthUser) : null;
   });
   const [isReady, setIsReady] = useState(false);
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // اگر توکن نداریم ولی کاربر در حافظه مانده (ناسازگاری) پاک شود.
     if (!getAccessToken() && user) {
       setUser(null);
-      localStorage.removeItem(USER_KEY);
+      tokenStorage().removeItem(USER_KEY);
     }
     setIsReady(true);
   }, []);
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onUnauthorized = () => {
       setUser(null);
-      localStorage.removeItem(USER_KEY);
+      tokenStorage().removeItem(USER_KEY);
     };
     window.addEventListener('sh:unauthorized', onUnauthorized);
     return () => window.removeEventListener('sh:unauthorized', onUnauthorized);
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         roles: me.roles,
       };
       setUser(authUser);
-      localStorage.setItem(USER_KEY, JSON.stringify(authUser));
+      tokenStorage().setItem(USER_KEY, JSON.stringify(authUser));
     } catch (e) {
       const message = e instanceof Error ? e.message : 'ورود ناموفق بود.';
       setError(message);
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     clearTokens();
-    localStorage.removeItem(USER_KEY);
+    tokenStorage().removeItem(USER_KEY);
     setUser(null);
   }, []);
 

@@ -3,7 +3,11 @@
  * 🆘 HC-WP+ — بخشِ عمومیِ «امکانات + دانلودِ» نرم‌افزار برای سایت (kishwifi.com).
  * شورت‌کد: [samahesab_product]  — هیرو + گریدِ امکانات + دکمهٔ دانلود.
  * نسخه/لینکِ دانلود از تنظیمات (SamaHesab ▸ دانلود) خوانده می‌شود و با ویژگیِ شورت‌کد قابلِ override است:
- *   [samahesab_product version="2.5.0" url="https://github.com/kish210/SamaHesab/releases/latest"]
+ *   [samahesab_product version="2.5.0" url="https://kishwifi.com/download/SamaHesab_Setup_v2.9.3.exe"]
+ * منبعِ زندهٔ نسخه/لینک: از @2026-07-22 به‌جایِ GitHub Releases API، از
+ * https://kishwifi.com/download/version.json خوانده می‌شود (همان قالبِ manifestی که
+ * UpdateService.csِ دسکتاپ هم استفاده می‌کند: {version, notes, files:[{name,url}]}) —
+ * چون کاربر خواست نصاب‌ها رویِ دامنهٔ خودش هم میزبانی و از همان‌جا چک شوند، نه فقط GitHub.
  */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
@@ -23,7 +27,7 @@ class SamaHesab_Landing {
     public function register_settings() {
         register_setting( 'samahesab_download_group', 'samahesab_download_url' );
         register_setting( 'samahesab_download_group', 'samahesab_version' );
-        register_setting( 'samahesab_download_group', 'samahesab_github_repo' );
+        register_setting( 'samahesab_download_group', 'samahesab_manifest_url' );
     }
 
     private function features() {
@@ -44,15 +48,16 @@ class SamaHesab_Landing {
         );
     }
 
-    /** مخزنِ گیت‌هاب (قابلِ تنظیم در «SamaHesab ▸ دانلود»). */
-    private function github_repo() {
-        $r = trim( (string) get_option( 'samahesab_github_repo', 'kish210/SamaHesab' ) );
-        return '' !== $r ? $r : 'kish210/SamaHesab';
+    /** آدرسِ manifestِ نسخه (قابلِ تنظیم در «SamaHesab ▸ دانلود»). */
+    private function manifest_url() {
+        $r = trim( (string) get_option( 'samahesab_manifest_url', 'https://kishwifi.com/download/version.json' ) );
+        return '' !== $r ? $r : 'https://kishwifi.com/download/version.json';
     }
 
     /**
-     * 🔗 لینکِ هوشمند: آخرین Releaseِ گیت‌هاب را زنده می‌خوانَد (نسخه + نصابِ .exe) و ۱ ساعت کَش می‌کند.
-     * با ساختِ Releaseِ تازه روی گیت‌هاب، سایت خودکار به‌روز می‌شود — بدونِ تغییر در سایت.
+     * 🔗 لینکِ هوشمند: manifestِ version.jsonِ رویِ kishwifi.com/download را زنده می‌خوانَد
+     * (نسخه + نصابِ .exe) و ۱ ساعت کَش می‌کند. با آپلودِ نصابِ تازه + به‌روزرسانیِ version.json
+     * (طبقِ راهنمایِ cPanel)، سایت خودکار به‌روز می‌شود — بدونِ تغییر در کدِ سایت.
      * در صورتِ نبودِ شبکه/خطا → null (تا fallback به تنظیماتِ دستی برود).
      */
     private function latest_release() {
@@ -62,17 +67,16 @@ class SamaHesab_Landing {
             return empty( $cached['version'] ) ? null : $cached;
         }
 
-        // کَشِ منفی: اگر گیت‌هاب در دسترس نبود، ۱۵ دقیقه دوباره تلاش نکن تا رندرِ صفحه بلاک نشود.
+        // کَشِ منفی: اگر سرور در دسترس نبود، ۱۵ دقیقه دوباره تلاش نکن تا رندرِ صفحه بلاک نشود.
         $fail = function () {
             set_transient( 'samahesab_latest_release', array( 'failed' => 1 ), 15 * MINUTE_IN_SECONDS );
             return null;
         };
 
-        $repo = $this->github_repo();
-        $resp = wp_remote_get( "https://api.github.com/repos/{$repo}/releases/latest", array(
+        $resp = wp_remote_get( $this->manifest_url(), array(
             'timeout' => 7,
             'headers' => array(
-                'Accept'     => 'application/vnd.github+json',
+                'Accept'     => 'application/json',
                 'User-Agent' => 'SamaHesab-Support-Center',
             ),
         ) );
@@ -80,19 +84,19 @@ class SamaHesab_Landing {
             return $fail();
         }
         $data = json_decode( wp_remote_retrieve_body( $resp ), true );
-        if ( empty( $data['tag_name'] ) ) {
+        if ( empty( $data['version'] ) ) {
             return $fail();
         }
 
-        // یافتنِ نصابِ .exe از assets — هدف: «نصابِ تک‌سیستمی» (کاملِ برنامه + پایگاه‌دادهٔ محلی).
+        // یافتنِ نصابِ .exe از files — هدف: «نصابِ تک‌سیستمی» (کاملِ برنامه + پایگاه‌دادهٔ محلی).
         // ترتیبِ اولویت: ۱) نصابِ تک‌سیستمی (شاملِ «setup» ولی نه «client»/«server») ۲) هر «setup» ۳) هر .exe.
         $single = '';   // SamaHesab_Setup_vX.exe — تک‌سیستمی
         $anySetup = '';
         $anyExe = '';
-        if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
-            foreach ( $data['assets'] as $a ) {
-                $name = isset( $a['name'] ) ? strtolower( $a['name'] ) : '';
-                $u    = ! empty( $a['browser_download_url'] ) ? $a['browser_download_url'] : '';
+        if ( ! empty( $data['files'] ) && is_array( $data['files'] ) ) {
+            foreach ( $data['files'] as $f ) {
+                $name = isset( $f['name'] ) ? strtolower( $f['name'] ) : '';
+                $u    = ! empty( $f['url'] ) ? $f['url'] : '';
                 if ( '' === $u || '.exe' !== substr( $name, -4 ) ) {
                     continue;
                 }
@@ -107,11 +111,11 @@ class SamaHesab_Landing {
         }
         $download = $single ?: ( $anySetup ?: $anyExe );
         if ( '' === $download ) {
-            $download = ! empty( $data['html_url'] ) ? $data['html_url'] : "https://github.com/{$repo}/releases/latest";
+            return $fail();
         }
 
         $result = array(
-            'version' => ltrim( (string) $data['tag_name'], 'vV' ),
+            'version' => ltrim( (string) $data['version'], 'vV' ),
             'url'     => $download,
         );
         set_transient( 'samahesab_latest_release', $result, HOUR_IN_SECONDS );
@@ -134,15 +138,15 @@ class SamaHesab_Landing {
     }
 
     public function product( $atts ) {
-        // «آخرین Releaseِ زندهٔ گیت‌هاب» بالاترین اولویت دارد (نسخه همیشه به‌روز می‌مانَد).
-        // فقط اگر گیت در دسترس نبود → ویژگیِ صریحِ شورت‌کد، سپس تنظیماتِ دستی (fallback).
+        // «آخرین manifestِ زندهٔ kishwifi.com/download» بالاترین اولویت دارد (نسخه همیشه به‌روز می‌مانَد).
+        // فقط اگر سرور در دسترس نبود → ویژگیِ صریحِ شورت‌کد، سپس تنظیماتِ دستی (fallback).
         $atts   = shortcode_atts( array( 'version' => '', 'url' => '' ), $atts, 'samahesab_product' );
         $latest = $this->latest_release();
 
         $version = $latest ? $latest['version']
             : ( '' !== $atts['version'] ? $atts['version'] : get_option( 'samahesab_version', '2.5.0' ) );
         $url = $latest ? $latest['url']
-            : ( '' !== $atts['url'] ? $atts['url'] : get_option( 'samahesab_download_url', 'https://github.com/' . $this->github_repo() . '/releases/latest' ) );
+            : ( '' !== $atts['url'] ? $atts['url'] : get_option( 'samahesab_download_url', 'https://kishwifi.com/download/' ) );
 
         $version = esc_html( $version );
         $url     = esc_url( $url );

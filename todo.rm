@@ -648,3 +648,19 @@
   بی‌صدا). تستِ زندهٔ HTTPِ واقعی روی دامنهٔ آپلودشده در این نشست انجام نشد (فقط ساختارِ کد
   و JSON محلی تأیید شد). `ModuleMarketplaceViewModel` (بازارِ ماژول‌ها) عمداً دست‌نخورد ماند
   — طبقِ خواستِ کاربر فقط «لینکِ آپدیت» (نصابِ دسکتاپ) مدنظر بود، نه بستهٔ ماژول‌ها.
+
+- ✅ **افزودنِ بسته‌هایِ ماژول به download/ + به‌روزرسانیِ پلاگینِ وردپرس برایِ خواندن از
+  kishwifi.com/download (@2026-07-22، ادامهٔ درخواستِ بالا).** `installer/build-modules.ps1`
+  اجرا شد (۹ ماژول: Hotel/Contracting/Restaurant/POS/HR/CRM/Tourism/Attendance/TaxInvoicing)
+  → `download/modules/*.mspkg` + `modules-catalog.json` هم کنارِ نصاب‌های اصلی در پوشهٔ
+  استیجینگِ محلی قرار گرفتند (برایِ آپلودِ اختیاریِ کاربر، اگر خواست بازارِ ماژول را هم
+  رویِ دامنهٔ خودش میزبانی کند — کدِ `ModuleMarketplaceViewModel` عمداً دست‌نخورد ماند، هنوز
+  از GitHub Releasesِ تگِ `modules` می‌خواند، طبقِ محدودهٔ درخواستِ اولیه). **پلاگینِ وردپرسِ
+  `samahesab-support-center`** (v1.4.6→۱.۴.۷): `class-sama-landing.php::latest_release()` از
+  GitHub Releases API به `https://kishwifi.com/download/version.json` تغییر کرد (همان
+  الگویِ JSONِ UpdateService.cs، انتخابِ نصابِ تک‌سیستمی از فیلدِ `files` به‌جایِ `assets`ِ
+  گیت‌هاب). صفحهٔ تنظیماتِ ادمین (`class-sama-admin.php::download_page`) فیلدِ قدیمیِ
+  «مخزنِ گیت‌هاب» را با «آدرسِ manifest» جایگزین کرد (`samahesab_manifest_url`، پیش‌فرض
+  همان URLِ بالا)؛ متنِ راهنما هم به‌روزرسانی شد. ⚠️ **محدودیتِ صادقانه:** PHP روی این ماشین
+  نصب نیست، پس فقط بازخوانیِ دستیِ کد (نه `php -l`) برایِ اطمینان از نبودِ خطایِ نحوی انجام
+  شد؛ تستِ فعال‌سازیِ واقعیِ پلاگین در یک وردپرسِ زنده در این نشست انجام نشد.

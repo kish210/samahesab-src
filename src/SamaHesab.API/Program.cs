@@ -61,8 +61,9 @@ try
 }
 catch (Exception ex) { Console.WriteLine($"[module] server folder load skipped: {ex.Message}"); }
 
-// همگام‌سازیِ پشتیبانی سمتِ کلاینت است؛ میزبانِ API نسخهٔ no-op می‌گیرد (رفعِ ValidateOnBuild در Development).
-builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.OfflineSupportApiClient>();
+// U-WEB-SUPPORT — کانفیگ از appsettings.json (بخشِ "Support") در kishwifi.com می‌خواند؛ اگر
+// تنظیم نشده باشد، دقیقاً رفتارِ OfflineSupportApiClientِ قبلی را دارد (fail-soft، نه throw).
+builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.ConfiguredSupportApiClient>();
 
 // ── API-side current-user (from JWT claims) ──
 builder.Services.AddHttpContextAccessor();

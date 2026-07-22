@@ -40,6 +40,7 @@ import { PayrollPage } from './pages/PayrollPage';
 import { HotelPage } from './pages/HotelPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { ContractingPage } from './pages/ContractingPage';
+import { SupportPage } from './pages/SupportPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -109,6 +110,7 @@ function AppRoutes() {
         <Route path="hotel" element={<HotelPage />} />
         <Route path="attendance" element={<AttendancePage />} />
         <Route path="contracting" element={<ContractingPage />} />
+        <Route path="support" element={<SupportPage />} />
       </Route>
     </Routes>
   );

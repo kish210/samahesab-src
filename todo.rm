@@ -791,3 +791,34 @@
   که کاربر همان build را که روی kishwifi.com/download آپلود کرده اجرا می‌کند، باید مطمئن شود
   همان نصابِ v2.9.3 (یا هرچه بعداً منتشر شود) واقعاً روی سرورش deploy شده — این رفع فقط
   «نمایشِ اشتباه/کهنهٔ نسخه در UI» را حل می‌کند، نه فرایندِ استقرار را.
+
+- ✅ **رفعِ ناهماهنگیِ نسخهٔ آپلودشده + بازارِ ماژولِ دسکتاپ از kishwifi.com + پورتِ کاملِ
+  ماژولِ پشتیبانی به وب (@2026-07-22).** کاربر گفت نصابِ وبی که آپلود کرده «نسخهٔ درست»
+  نیست — چون `download/SamaHesab_Web_Setup.exe` از قبل از این نشست (بدونِ Contracting/
+  حذفِ ServiceContract/رفعِ نسخه) ساخته شده بود. رفع: `installer/publish-web.ps1` دوباره
+  اجرا شد (بارِ دوم، بعد از افزودنِ ماژولِ پشتیبانی) تا نصابِ نهایی همهٔ تغییراتِ همین نشست
+  را داشته باشد — کاربر باید همان فایلِ تازه را دوباره روی kishwifi.com/download آپلود کند.
+  **بازارِ ماژولِ دسکتاپ:** به‌درخواستِ صریحِ کاربر، `ModuleMarketplaceViewModel.cs`
+  (`CatalogUrl`/`PackageBaseUrl`) از GitHub Releases (`kish210/SamaHesab/releases/download/
+  modules/`) به `https://kishwifi.com/download/modules/` تغییر کرد — پیش‌تر عمداً از
+  GitHub می‌خواند (تصمیمِ نشستِ قبلی)، حالا هم‌راستا با version.jsonِ نصاب شد.
+  **ماژولِ پشتیبانی در وب (تیکت/گزارشِ باگ/مرکزِ راهنما/یادداشتِ نسخه):** یک Explore agent
+  نقشه‌برداریِ کامل کرد — Domain/Application/DB از قبل کامل بود (`SamaHesab.Application/
+  Support/**`، schema `Sup`)، فقط هیچ کنترلرِ APIای آن‌ها را expose نمی‌کرد. ساخته شد:
+  `SupportController.cs` (`api/support/*`: tickets/bug-reports/knowledge-base/release-notes)
+  + `SupportPage.tsx` (۴ تب) + گروهِ نوِ سایدبار زیرِ «تنظیمات». **کشفِ یک مسئلهٔ معماریِ
+  واقعی:** میزبانِ API پیش‌تر `OfflineSupportApiClient` (no-op دائمی) داشت — یعنی حتی اگر
+  کنترلر ساخته می‌شد، مرکزِ راهنما/یادداشتِ نسخه همیشه خالی می‌ماندند (این‌ها فقط کَشِ
+  محلیِ سرورِ وردپرسِ kishwifi.com‌اند). رفع شد با `ConfiguredSupportApiClient.cs` (نو —
+  عیناً پروتکلِ `SamaHesab.WPF/Services/SupportApiClient.cs`، ولی کانفیگ از
+  `appsettings.json` بخشِ `"Support"` می‌خواند، نه از AppSettingsStoreِ per-machineِ
+  دسکتاپ) که جایگزینِ Offline در `Program.cs` شد — اگر خالی بماند (پیش‌فرض)، رفتارش
+  دقیقاً مثلِ قبل (fail-soft) است؛ با پرکردنِ BaseUrl/CustomerId/ApiKey/LicenseId، میزبانِ
+  API هم می‌تواند از kishwifi.com سینک کند. تستِ زندهٔ کاملِ End-to-End: ساختِ تیکت (وضعیتِ
+  «در صفِ ارسال» — چون Support کانفیگ نشده، دقیقاً طبقِ طراحی) → پاسخ در گفت‌وگو → گزارشِ
+  باگ (پیامِ «محلی ثبت شد») → مرکزِ راهنما/یادداشتِ نسخه (خالیِ گویا، نه کرش) — همه تأیید
+  شد؛ دادهٔ تستی پاک شد. Build سبزِ API+WPF + کلِ ۸۲۳ تستِ backend سبز + build سبزِ وب.
+  ⚠️ **محدودیتِ صادقانه:** پشتیبانیِ ریموت/تشخیصی به‌درخواستِ کاربر پورت نشد (نیازمندِ
+  نشستِ زندهٔ دسکتاپ‌اند، روی وب معنا ندارند). بدونِ پرکردنِ واقعیِ `Support` در
+  appsettings.json (اعتبارنامهٔ واقعیِ kishwifi.com)، مرکزِ راهنما/یادداشتِ نسخه در وب
+  همیشه خالی می‌مانند — این یک تصمیمِ عمدیِ زیرساختی است، نه باگ.

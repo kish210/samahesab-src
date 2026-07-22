@@ -11,14 +11,15 @@ using SamaHesab.WPF.ViewModels.Shell;
 namespace SamaHesab.WPF.ViewModels.Settings;
 
 /// <summary>
-/// بازارِ ماژول‌ها — فهرستِ ماژول‌های آمادهٔ نصب را از releaseِ «modules»ِ مخزنِ عمومیِ
-/// kish210/SamaHesab می‌خواند (همان جایی که نصاب‌ها هستند) و اجازهٔ دانلود/نصب می‌دهد.
-/// منبعِ سورس جداست (samahesab-src)؛ این فقط بسته‌های کامپایل‌شده را می‌گیرد.
+/// بازارِ ماژول‌ها — فهرستِ ماژول‌های آمادهٔ نصب را از kishwifi.com/download/modules می‌خواند
+/// (همان جایی که نصاب‌ها هستند؛ به‌درخواستِ کاربر @2026-07-22 از GitHub Releases به این آدرس
+/// تغییر کرد — قبلاً عمداً از GitHub می‌خواند، حالا هم‌راستا با version.jsonِ نصاب شد) و
+/// اجازهٔ دانلود/نصب می‌دهد. منبعِ سورس جداست (samahesab-src)؛ این فقط بسته‌های کامپایل‌شده را می‌گیرد.
 /// </summary>
 public partial class ModuleMarketplaceViewModel : BaseViewModel
 {
-    private const string CatalogUrl = "https://github.com/kish210/SamaHesab/releases/download/modules/modules-catalog.json";
-    private const string PackageBaseUrl = "https://github.com/kish210/SamaHesab/releases/download/modules/";
+    private const string CatalogUrl = "https://kishwifi.com/download/modules/modules-catalog.json";
+    private const string PackageBaseUrl = "https://kishwifi.com/download/modules/";
 
     private readonly ModuleService _modules;
     // نسخهٔ *در حالِ اجرا* per ماژول (از IModoleهای بارگذاری‌شده — شاملِ ماژولِ دانلودشدهٔ runtime).

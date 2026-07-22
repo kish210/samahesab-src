@@ -32,7 +32,7 @@ public record ApiProductCardStock(string WarehouseName, decimal Quantity, bool I
 public record ApiProductCard(int Id, string Code, string Name, string? Barcode, bool IsActive,
     decimal PurchasePrice, decimal SalePrice, decimal WholesalePrice, decimal ConsumerPrice, decimal TaxRate,
     decimal MinStock, decimal? MaxStock, decimal? ReorderPoint, string Tracking,
-    decimal TotalStock, List<ApiProductCardStock> WarehouseStocks);
+    decimal TotalStock, List<ApiProductCardStock> WarehouseStocks, decimal AverageCost = 0);
 public record ApiGroup(int Id, string Name);
 public record ApiMe(int UserId, int CompanyId, int BranchId, string Username, string FullName,
     string[] Roles, string[]? Permissions = null, int? SalespersonPartyId = null);

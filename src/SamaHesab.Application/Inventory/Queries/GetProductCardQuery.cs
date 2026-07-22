@@ -11,7 +11,8 @@ public record ProductCardDto(
     int Id, string Code, string Name, string? Barcode, bool IsActive,
     decimal PurchasePrice, decimal SalePrice, decimal WholesalePrice, decimal ConsumerPrice, decimal TaxRate,
     decimal MinStock, decimal? MaxStock, decimal? ReorderPoint, string Tracking,
-    decimal TotalStock, List<ProductCardStockRow> WarehouseStocks);
+    decimal TotalStock, List<ProductCardStockRow> WarehouseStocks,
+    decimal AverageCost = 0);
 
 public record GetProductCardQuery(int ProductId) : IRequest<ProductCardDto?>;
 
@@ -42,9 +43,11 @@ public class GetProductCardQueryHandler : IRequestHandler<GetProductCardQuery, P
         }).ToList();
 
         var tracking = p.HasSerial ? "سریال" : p.HasBatch ? "بچ" : "ندارد";
+        var totalQty = stock.Sum(s => s.Quantity);
+        var avgCost = totalQty > 0 ? stock.Sum(s => s.Quantity * s.AverageCost) / totalQty : 0m;
         return new ProductCardDto(p.Id, p.Code, p.Name, p.Barcode, p.IsActive,
             p.PurchasePrice, p.SalePrice, p.WholesalePrice, p.ConsumerPrice, p.TaxRate,
             p.MinStock, p.MaxStock, p.ReorderPoint, tracking,
-            stock.Sum(s => s.Quantity), rows);
+            totalQty, rows, avgCost);
     }
 }

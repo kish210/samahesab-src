@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { apiGet, ApiError } from '../api/client';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { StatusMessage } from '../components/PageHeader';
@@ -39,23 +39,42 @@ interface ProductCardDto {
   tracking: string;
   totalStock: number;
   warehouseStocks: ProductCardStockRow[];
+  averageCost: number;
 }
 
 export function ProductCardPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [card, setCard] = useState<ProductCardDto | null>(null);
   const [kardex, setKardex] = useState<KardexRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
+  function load() {
     if (!id) return;
     apiGet<ProductCardDto>(`/api/products/${id}/card`)
       .then(setCard)
       .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ کارتِ کالا.'));
     apiGet<KardexRow[]>(`/api/products/${id}/kardex`).then(setKardex).catch(() => {});
-  }, [id]);
+  }
 
-  if (error) return <StatusMessage kind="error">{error}</StatusMessage>;
+  useEffect(load, [id]);
+
+  async function toggleActive() {
+    if (!id || !card) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await apiPost(`/api/products/${id}/${card.isActive ? 'deactivate' : 'activate'}`, {});
+      load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'تغییرِ وضعیتِ کالا ناموفق بود.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!card && error) return <StatusMessage kind="error">{error}</StatusMessage>;
   if (!card) return <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>;
 
   const stockColumns: Column<ProductCardStockRow>[] = [
@@ -68,13 +87,26 @@ export function ProductCardPage() {
 
   return (
     <div>
-      <Link to="/products" style={{ fontSize: 'var(--text-sm)' }}>
-        ← بازگشت به فهرستِ کالاها
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link to="/products" style={{ fontSize: 'var(--text-sm)' }}>
+          ← بازگشت به فهرستِ کالاها
+        </Link>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/products/${id}/edit`)}>ذخیره</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>چاپِ بارکد</button>
+          <button className="btn btn-secondary btn-sm" disabled={busy} onClick={toggleActive}>
+            {busy ? '…' : card.isActive ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
+          </button>
+        </div>
+      </div>
+      {error && <StatusMessage kind="error">{error}</StatusMessage>}
 
       <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)', alignItems: 'flex-start' }}>
         <div style={{ width: 300, flex: 'none', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-strong)' }}>{card.name}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-strong)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {card.name}
+            <span className={`st ${card.isActive ? 'g' : 'n'}`}><i />{card.isActive ? 'فعال' : 'غیرفعال'}</span>
+          </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
             کد: {card.code} {card.barcode ? `· بارکد: ${card.barcode}` : ''}
           </div>
@@ -87,6 +119,7 @@ export function ProductCardPage() {
             ['نرخِ مالیات', `${card.taxRate}٪`],
             ['روشِ ردیابی', card.tracking],
             ['حداقلِ موجودی', money(card.minStock)],
+            ...(card.reorderPoint != null ? [['نقطهٔ سفارش', money(card.reorderPoint)]] : []),
           ].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-sm)', padding: '5px 0' }}>
               <span style={{ color: 'var(--text-muted)' }}>{k}</span>
@@ -96,9 +129,21 @@ export function ProductCardPage() {
         </div>
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>مجموعِ موجودی (همهٔ انبارها)</div>
-            <div className="num" style={{ fontSize: 20, fontWeight: 800, marginTop: 3 }}>{money(card.totalStock)}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>مجموعِ موجودی (همهٔ انبارها)</div>
+              <div className="num" style={{ fontSize: 20, fontWeight: 800, marginTop: 3 }}>{money(card.totalStock)}</div>
+            </div>
+            {card.reorderPoint != null && (
+              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>نقطهٔ سفارش</div>
+                <div className="num" style={{ fontSize: 20, fontWeight: 800, marginTop: 3, color: card.totalStock <= card.reorderPoint ? 'var(--danger-700)' : undefined }}>{money(card.reorderPoint)}</div>
+              </div>
+            )}
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 14px' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>میانگینِ بهایِ تمام‌شده</div>
+              <div className="num" style={{ fontSize: 20, fontWeight: 800, marginTop: 3 }}>{money(card.averageCost)}</div>
+            </div>
           </div>
           <DataTable columns={stockColumns} rows={card.warehouseStocks} rowKey={(r, i) => `${r.warehouseName}-${i}`} emptyText="موجودی‌ای ثبت نشده." />
 

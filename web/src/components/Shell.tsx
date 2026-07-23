@@ -66,6 +66,7 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/income-statement', label: 'صورتِ سودوزیان', icon: 'reports' },
     { to: '/branch-summary', label: 'خلاصهٔ شعب', icon: 'reports' },
     { to: '/reports-center', label: 'مرکزِ گزارشات', icon: 'reports' },
+    { to: '/analytics', label: 'تحلیل و هوشِ تجاری', icon: 'reports' },
   ] },
   // هر ماژولِ اختیاری زیرمنویِ جداگانهٔ خودش را دارد (نه یک «ماژول‌ها»یِ مخلوط) — هر کدام
   // فقط وقتی دیده می‌شود که moduleKeyاش واقعاً روی سرور بارگذاری‌شده باشد.

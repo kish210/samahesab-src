@@ -4,6 +4,8 @@ import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { StatusMessage } from '../components/PageHeader';
+import { JalaliDateInput } from '../components/JalaliDateInput';
+import { jalaliOf } from '../lib/jalali';
 
 interface ProductCardStockRow {
   warehouseName: string;
@@ -20,6 +22,28 @@ interface KardexRow {
   balance: number;
   unitCost: number;
   notes: string | null;
+}
+
+interface BatchRow {
+  id: number;
+  productId: number;
+  batchNumber: string;
+  productionDate: string | null;
+  expiryDate: string | null;
+  quantity: number;
+  purchasePrice: number | null;
+  notes: string | null;
+}
+
+interface SerialRow {
+  id: number;
+  productId: number;
+  warehouseId: number | null;
+  serialNumber: string;
+  status: string;
+  purchasePrice: number | null;
+  purchaseDate: string | null;
+  saleDate: string | null;
 }
 
 interface ProductCardDto {
@@ -50,6 +74,17 @@ export function ProductCardPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // U-WEB-BATCHSERIAL — بچ/سریال: Application (GetBatchesQuery/SaveBatchCommand/GetSerialsQuery/
+  // SaveSerialCommand) از قبل کامل بود، فقط در کارتِ کالا وایر نشده بود.
+  const [batches, setBatches] = useState<BatchRow[]>([]);
+  const [serials, setSerials] = useState<SerialRow[]>([]);
+  const [showBatchForm, setShowBatchForm] = useState(false);
+  const [batchForm, setBatchForm] = useState({ batchNumber: '', productionDate: '', expiryDate: '', quantity: 0, purchasePrice: '' });
+  const [showSerialForm, setShowSerialForm] = useState(false);
+  const [serialForm, setSerialForm] = useState({ serialNumber: '', purchasePrice: '', purchaseDate: '' });
+  const [bsBusy, setBsBusy] = useState(false);
+  const [bsError, setBsError] = useState<string | null>(null);
+
   function load() {
     if (!id) return;
     apiGet<ProductCardDto>(`/api/products/${id}/card`)
@@ -59,6 +94,77 @@ export function ProductCardPage() {
   }
 
   useEffect(load, [id]);
+
+  function loadBatches() {
+    if (!id) return;
+    apiGet<BatchRow[]>(`/api/inventory/batches?productId=${id}`).then(setBatches).catch(() => {});
+  }
+  function loadSerials() {
+    if (!id) return;
+    apiGet<SerialRow[]>(`/api/inventory/serials?productId=${id}`).then(setSerials).catch(() => {});
+  }
+  useEffect(() => {
+    if (!card) return;
+    if (card.tracking === 'بچ') loadBatches();
+    if (card.tracking === 'سریال') loadSerials();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card?.tracking, id]);
+
+  // افقِ ۶۰روزهٔ هشدارِ انقضا — تاریخ‌هایِ شمسیِ «yyyy/MM/dd» به‌صورتِ رشته‌ای قابلِ مقایسه‌اند.
+  const expiryHorizon = (() => {
+    const future = new Date();
+    future.setDate(future.getDate() + 60);
+    const { y, m, d } = jalaliOf(future);
+    return `${y}/${String(m).padStart(2, '0')}/${String(d).padStart(2, '0')}`;
+  })();
+
+  async function saveBatch() {
+    if (!id) return;
+    if (!batchForm.batchNumber.trim()) { setBsError('شمارهٔ بچ الزامی است.'); return; }
+    setBsBusy(true);
+    setBsError(null);
+    try {
+      await apiPost('/api/inventory/batches', {
+        productId: Number(id),
+        batchNumber: batchForm.batchNumber,
+        productionDate: batchForm.productionDate || null,
+        expiryDate: batchForm.expiryDate || null,
+        quantity: batchForm.quantity,
+        purchasePrice: batchForm.purchasePrice ? Number(batchForm.purchasePrice) : null,
+        notes: null,
+      });
+      setShowBatchForm(false);
+      setBatchForm({ batchNumber: '', productionDate: '', expiryDate: '', quantity: 0, purchasePrice: '' });
+      loadBatches();
+    } catch (e) {
+      setBsError(e instanceof ApiError ? e.message : 'ذخیرهٔ بچ ناموفق بود.');
+    } finally {
+      setBsBusy(false);
+    }
+  }
+
+  async function saveSerial() {
+    if (!id) return;
+    if (!serialForm.serialNumber.trim()) { setBsError('شمارهٔ سریال الزامی است.'); return; }
+    setBsBusy(true);
+    setBsError(null);
+    try {
+      await apiPost('/api/inventory/serials', {
+        productId: Number(id),
+        serialNumber: serialForm.serialNumber,
+        warehouseId: null,
+        purchasePrice: serialForm.purchasePrice ? Number(serialForm.purchasePrice) : null,
+        purchaseDate: serialForm.purchaseDate || null,
+      });
+      setShowSerialForm(false);
+      setSerialForm({ serialNumber: '', purchasePrice: '', purchaseDate: '' });
+      loadSerials();
+    } catch (e) {
+      setBsError(e instanceof ApiError ? e.message : 'ذخیرهٔ سریال ناموفق بود.');
+    } finally {
+      setBsBusy(false);
+    }
+  }
 
   async function toggleActive() {
     if (!id || !card) return;
@@ -187,6 +293,116 @@ export function ProductCardPage() {
               </table>
             </div>
           </div>
+
+          {card.tracking === 'بچ' && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-strong)' }}>بچ‌ها (کنترلِ انقضا)</div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowBatchForm((v) => !v)}>افزودنِ بچ</button>
+              </div>
+              {bsError && <StatusMessage kind="error">{bsError}</StatusMessage>}
+              {showBatchForm && (
+                <div className="gbox" style={{ padding: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3)' }}>
+                    <div className="field">
+                      <label className="label">شمارهٔ بچ</label>
+                      <input className="input" value={batchForm.batchNumber} onChange={(e) => setBatchForm({ ...batchForm, batchNumber: e.target.value })} />
+                    </div>
+                    <JalaliDateInput value={batchForm.productionDate} onChange={(v) => setBatchForm({ ...batchForm, productionDate: v })} label="تاریخِ تولید" />
+                    <JalaliDateInput value={batchForm.expiryDate} onChange={(v) => setBatchForm({ ...batchForm, expiryDate: v })} label="تاریخِ انقضا" />
+                    <div className="field">
+                      <label className="label">تعداد</label>
+                      <input className="input" type="number" value={batchForm.quantity} onChange={(e) => setBatchForm({ ...batchForm, quantity: Number(e.target.value) })} style={{ direction: 'ltr' }} />
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 'var(--space-2)' }}>
+                    <button type="button" className="btn btn-primary btn-sm" disabled={bsBusy} onClick={saveBatch}>{bsBusy ? '…' : 'ذخیره'}</button>
+                  </div>
+                </div>
+              )}
+              <div className="dgrid-wrap">
+                <table className="dgrid">
+                  <thead>
+                    <tr>
+                      <th>شمارهٔ بچ</th>
+                      <th style={{ width: 90 }}>تولید</th>
+                      <th style={{ width: 90 }}>انقضا</th>
+                      <th style={{ width: 80 }} className="num">تعداد</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {batches.map((b) => {
+                      const expiring = !!b.expiryDate && b.expiryDate <= expiryHorizon;
+                      return (
+                        <tr key={b.id}>
+                          <td>{b.batchNumber}</td>
+                          <td className="num mut">{b.productionDate ?? '—'}</td>
+                          <td className="num" style={{ color: expiring ? 'var(--danger-700)' : undefined, fontWeight: expiring ? 600 : undefined }}>
+                            {b.expiryDate ?? '—'}{expiring && ' ⚠'}
+                          </td>
+                          <td className="num">{money(b.quantity)}</td>
+                        </tr>
+                      );
+                    })}
+                    {batches.length === 0 && (
+                      <tr><td colSpan={4} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>بچی ثبت نشده.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {card.tracking === 'سریال' && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-strong)' }}>سریال‌ها</div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowSerialForm((v) => !v)}>افزودنِ سریال</button>
+              </div>
+              {bsError && <StatusMessage kind="error">{bsError}</StatusMessage>}
+              {showSerialForm && (
+                <div className="gbox" style={{ padding: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3)' }}>
+                    <div className="field">
+                      <label className="label">شمارهٔ سریال</label>
+                      <input className="input" value={serialForm.serialNumber} onChange={(e) => setSerialForm({ ...serialForm, serialNumber: e.target.value })} />
+                    </div>
+                    <div className="field">
+                      <label className="label">قیمتِ خرید</label>
+                      <input className="input" type="number" value={serialForm.purchasePrice} onChange={(e) => setSerialForm({ ...serialForm, purchasePrice: e.target.value })} style={{ direction: 'ltr' }} />
+                    </div>
+                    <JalaliDateInput value={serialForm.purchaseDate} onChange={(v) => setSerialForm({ ...serialForm, purchaseDate: v })} label="تاریخِ خرید" />
+                  </div>
+                  <div style={{ marginTop: 'var(--space-2)' }}>
+                    <button type="button" className="btn btn-primary btn-sm" disabled={bsBusy} onClick={saveSerial}>{bsBusy ? '…' : 'ذخیره'}</button>
+                  </div>
+                </div>
+              )}
+              <div className="dgrid-wrap">
+                <table className="dgrid">
+                  <thead>
+                    <tr>
+                      <th>شمارهٔ سریال</th>
+                      <th style={{ width: 100 }}>وضعیت</th>
+                      <th style={{ width: 90 }}>تاریخِ خرید</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {serials.map((s) => (
+                      <tr key={s.id}>
+                        <td>{s.serialNumber}</td>
+                        <td><span className={`badge ${s.status === 'موجود' ? 'badge-green' : s.status === 'فروخته شده' ? 'badge-gray' : 'badge-yellow'}`}>{s.status}</span></td>
+                        <td className="num mut">{s.purchaseDate ?? '—'}</td>
+                      </tr>
+                    ))}
+                    {serials.length === 0 && (
+                      <tr><td colSpan={3} style={{ height: 'auto', padding: 'var(--space-4)', textAlign: 'center', color: 'var(--text-muted)', whiteSpace: 'normal' }}>سریالی ثبت نشده.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

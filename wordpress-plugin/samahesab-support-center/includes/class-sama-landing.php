@@ -179,23 +179,59 @@ class SamaHesab_Landing {
             '5' => $fa[5], '6' => $fa[6], '7' => $fa[7], '8' => $fa[8], '9' => $fa[9] ) );
     }
 
-    /** [samahesab_versions] — جدولِ همهٔ نسخه‌های منتشرشده + لینکِ دانلودِ هرکدام (اگر آپلود شده باشد). */
+    /**
+     * ۴ نوعِ نصابِ ثابتِ محصول — کدِ کلید، برچسبِ فارسی، و زیررشتهٔ تشخیص از نامِ فایل
+     * (ترتیب مهم است: «کلاینت»/«سرور» باید قبل از «دسکتاپِ تک‌سیستمی» چک شوند، وگرنه
+     * SamaHesab_Client_Setup هم به‌اشتباه با «دسکتاپ» تطبیق می‌خورد چون هر دو «setup» دارند).
+     */
+    private function install_kinds() {
+        return array(
+            array( 'client',  'کلاینت',        'client' ),
+            array( 'server',  'سرور (API)',    'server' ),
+            array( 'web',     'وب',            'web' ),
+            array( 'desktop', 'دسکتاپ (تک‌سیستمی)', 'setup' ),
+        );
+    }
+
+    /** یافتنِ فایلِ متناظرِ هر نوعِ نصاب در آرایهٔ files یک نسخه (بر اساسِ زیررشتهٔ نام). */
+    private function match_file( $files, $needle ) {
+        foreach ( $files as $f ) {
+            $name = isset( $f['name'] ) ? strtolower( $f['name'] ) : '';
+            if ( 'setup' === $needle ) {
+                // «دسکتاپ» یعنی نصابِ تک‌سیستمی: شاملِ setup ولی نه client/server/web.
+                if ( false !== strpos( $name, 'setup' ) && false === strpos( $name, 'client' )
+                    && false === strpos( $name, 'server' ) && false === strpos( $name, 'web' ) ) {
+                    return $f;
+                }
+            } elseif ( false !== strpos( $name, $needle ) ) {
+                return $f;
+            }
+        }
+        return null;
+    }
+
+    /** [samahesab_versions] — جدولِ همهٔ نسخه‌های منتشرشده + لینکِ دانلودِ هرکدام از ۴ نوعِ نصاب
+     * (دسکتاپ/وب/سرور/کلاینت) — هرکدام که هنوز روی kishwifi.com آپلود نشده «—»ی خاکستری می‌گیرد. */
     public function versions( $atts ) {
-        $list = $this->version_archive();
+        $list  = $this->version_archive();
+        $kinds = $this->install_kinds();
         ob_start();
         ?>
         <style>
-        .samahesab-versions{font-family:'Vazirmatn','IRANSansX','Tahoma',sans-serif !important;direction:rtl;max-width:900px;margin:24px auto}
+        .samahesab-versions{font-family:'Vazirmatn','IRANSansX','Tahoma',sans-serif !important;direction:rtl;max-width:1000px;margin:24px auto}
         .samahesab-versions *{box-sizing:border-box}
-        .sh-vrow{display:flex;align-items:center;gap:16px;padding:16px 18px;border:1px solid #e7ecf1;border-radius:12px;margin-bottom:10px;background:#fff}
-        .sh-vver{font-weight:800;font-size:16px;color:#243140;min-width:90px}
-        .sh-vdate{color:#5b6675;font-size:13px;min-width:110px}
-        .sh-vnotes{flex:1;color:#5b6675;font-size:13.5px}
-        .sh-vdl{display:flex;gap:8px;flex-wrap:wrap}
-        .sh-vdl a{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#2c7fb8;
-            border:1px solid #2c7fb8;border-radius:8px;padding:6px 12px;text-decoration:none;white-space:nowrap}
-        .sh-vdl a:hover{background:#eaf4fb}
-        .sh-vsoon{font-size:12.5px;color:#9aa4b0;background:#f4f6f9;border-radius:8px;padding:6px 12px;white-space:nowrap}
+        .sh-vrow{padding:16px 18px;border:1px solid #e7ecf1;border-radius:12px;margin-bottom:10px;background:#fff}
+        .sh-vtop{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+        .sh-vver{font-weight:800;font-size:16px;color:#243140}
+        .sh-vdate{color:#5b6675;font-size:13px}
+        .sh-vnotes{flex:1 1 100%;color:#5b6675;font-size:13.5px}
+        .sh-vkinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+        .sh-vkind{display:flex;align-items:center;justify-content:space-between;gap:8px;
+            border:1px solid #e7ecf1;border-radius:8px;padding:7px 12px;font-size:13px}
+        .sh-vkind b{font-weight:700;color:#243140}
+        .sh-vkind a{color:#2c7fb8;font-weight:700;text-decoration:none;white-space:nowrap}
+        .sh-vkind a:hover{text-decoration:underline}
+        .sh-vkind .na{color:#b7bec7;font-size:12px}
         .sh-vempty{text-align:center;color:#5b6675;padding:30px}
         </style>
         <div class="samahesab-versions" dir="rtl">
@@ -208,17 +244,26 @@ class SamaHesab_Landing {
                 $files = ( isset( $v['files'] ) && is_array( $v['files'] ) ) ? $v['files'] : array();
                 ?>
                 <div class="sh-vrow">
-                    <span class="sh-vver">نسخهٔ <?php echo $ver; ?></span>
-                    <span class="sh-vdate"><?php echo esc_html( $date ); ?></span>
-                    <span class="sh-vnotes"><?php echo $notes; ?></span>
-                    <span class="sh-vdl">
-                        <?php if ( empty( $files ) ) : ?>
-                            <span class="sh-vsoon">به‌زودی</span>
-                        <?php else : foreach ( $files as $f ) :
-                            if ( empty( $f['url'] ) ) { continue; } ?>
-                            <a href="<?php echo esc_url( $f['url'] ); ?>">⬇️ <?php echo esc_html( isset( $f['name'] ) ? $f['name'] : 'دانلود' ); ?></a>
-                        <?php endforeach; endif; ?>
-                    </span>
+                    <div class="sh-vtop">
+                        <span class="sh-vver">نسخهٔ <?php echo $ver; ?></span>
+                        <span class="sh-vdate"><?php echo esc_html( $date ); ?></span>
+                        <span class="sh-vnotes"><?php echo $notes; ?></span>
+                    </div>
+                    <div class="sh-vkinds">
+                        <?php foreach ( $kinds as $k ) :
+                            list( $key, $label, $needle ) = $k;
+                            $f = $this->match_file( $files, $needle );
+                            ?>
+                            <div class="sh-vkind">
+                                <b><?php echo esc_html( $label ); ?></b>
+                                <?php if ( $f && ! empty( $f['url'] ) ) : ?>
+                                    <a href="<?php echo esc_url( $f['url'] ); ?>">⬇️ دانلود</a>
+                                <?php else : ?>
+                                    <span class="na">به‌زودی</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             <?php endforeach; endif; ?>
         </div>

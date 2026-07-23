@@ -21,6 +21,7 @@ class SamaHesab_Landing {
 
     public function hooks() {
         add_shortcode( 'samahesab_product', array( $this, 'product' ) );
+        add_shortcode( 'samahesab_versions', array( $this, 'versions' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
     }
 
@@ -125,6 +126,104 @@ class SamaHesab_Landing {
         );
         set_transient( 'samahesab_latest_release', $result, HOUR_IN_SECONDS );
         return $result;
+    }
+
+    /**
+     * 📚 U-WP-VERSION-ARCHIVE — «همهٔ نسخه‌ها»: برخلافِ `latest_release()` (فقط آخرین نسخه)،
+     * این متد کلِ آرشیوِ نسخه‌ها را از https://kishwifi.com/download/versions.json می‌خوانَد
+     * (آرایه‌ای از {version, publishedAt, notes, files:[{name,url}]}) — عمداً از هیچ API‌ای
+     * بیرون از kishwifi.com (نه GitHub) نمی‌خواند، طبقِ تصمیمِ کاربر که دانلود فقط از دامنهٔ
+     * خودش سرو شود. نسخه‌هایی که هنوز فایل‌شان روی سرور آپلود نشده (`files` خالی) با نشانِ
+     * «به‌زودی» نمایش داده می‌شوند، نه لینکِ شکسته.
+     */
+    private function version_archive() {
+        $cached = get_transient( 'samahesab_version_archive' );
+        if ( is_array( $cached ) ) {
+            return $cached;
+        }
+        $url = trailingslashit( dirname( $this->manifest_url() ) ) . 'versions.json';
+        $resp = wp_remote_get( $url, array(
+            'timeout' => 7,
+            'headers' => array( 'Accept' => 'application/json', 'User-Agent' => 'SamaHesab-Support-Center' ),
+        ) );
+        if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) ) {
+            set_transient( 'samahesab_version_archive', array(), 15 * MINUTE_IN_SECONDS );
+            return array();
+        }
+        $data = json_decode( wp_remote_retrieve_body( $resp ), true );
+        $list = is_array( $data ) ? $data : array();
+        set_transient( 'samahesab_version_archive', $list, HOUR_IN_SECONDS );
+        return $list;
+    }
+
+    /** تبدیلِ تاریخِ میلادی (ISO 8601) به رشتهٔ شمسیِ «۱۴۰۵/۰۴/۳۱» — بدونِ وابستگی به افزونهٔ جانبی. */
+    private function to_jalali( $iso_date ) {
+        $ts = strtotime( (string) $iso_date );
+        if ( ! $ts ) { return ''; }
+        $gy = (int) gmdate( 'Y', $ts ); $gm = (int) gmdate( 'n', $ts ); $gd = (int) gmdate( 'j', $ts );
+        $g_days_in_month = array( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
+        $gy2 = ( $gm > 2 ) ? ( $gy + 1 ) : $gy;
+        $days = 355666 + ( 365 * $gy ) + (int) ( ( $gy2 + 3 ) / 4 ) - (int) ( ( $gy2 + 99 ) / 100 )
+            + (int) ( ( $gy2 + 399 ) / 400 ) + $gd + $g_days_in_month[ $gm - 1 ];
+        if ( $gm > 2 && ( ( $gy % 4 === 0 && $gy % 100 !== 0 ) || $gy % 400 === 0 ) ) { $days++; }
+        $jy = -1595 + ( 33 * (int) ( $days / 12053 ) );
+        $days %= 12053;
+        $jy += 4 * (int) ( $days / 1461 );
+        $days %= 1461;
+        if ( $days > 365 ) { $jy += (int) ( ( $days - 1 ) / 365 ); $days = ( $days - 1 ) % 365; }
+        if ( $days < 186 ) { $jm = 1 + (int) ( $days / 31 ); $jd = 1 + ( $days % 31 ); }
+        else { $jm = 7 + (int) ( ( $days - 186 ) / 30 ); $jd = 1 + ( ( $days - 186 ) % 30 ); }
+        $fa = array( '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' );
+        $s = sprintf( '%04d/%02d/%02d', $jy, $jm, $jd );
+        return strtr( $s, array( '0' => $fa[0], '1' => $fa[1], '2' => $fa[2], '3' => $fa[3], '4' => $fa[4],
+            '5' => $fa[5], '6' => $fa[6], '7' => $fa[7], '8' => $fa[8], '9' => $fa[9] ) );
+    }
+
+    /** [samahesab_versions] — جدولِ همهٔ نسخه‌های منتشرشده + لینکِ دانلودِ هرکدام (اگر آپلود شده باشد). */
+    public function versions( $atts ) {
+        $list = $this->version_archive();
+        ob_start();
+        ?>
+        <style>
+        .samahesab-versions{font-family:'Vazirmatn','IRANSansX','Tahoma',sans-serif !important;direction:rtl;max-width:900px;margin:24px auto}
+        .samahesab-versions *{box-sizing:border-box}
+        .sh-vrow{display:flex;align-items:center;gap:16px;padding:16px 18px;border:1px solid #e7ecf1;border-radius:12px;margin-bottom:10px;background:#fff}
+        .sh-vver{font-weight:800;font-size:16px;color:#243140;min-width:90px}
+        .sh-vdate{color:#5b6675;font-size:13px;min-width:110px}
+        .sh-vnotes{flex:1;color:#5b6675;font-size:13.5px}
+        .sh-vdl{display:flex;gap:8px;flex-wrap:wrap}
+        .sh-vdl a{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#2c7fb8;
+            border:1px solid #2c7fb8;border-radius:8px;padding:6px 12px;text-decoration:none;white-space:nowrap}
+        .sh-vdl a:hover{background:#eaf4fb}
+        .sh-vsoon{font-size:12.5px;color:#9aa4b0;background:#f4f6f9;border-radius:8px;padding:6px 12px;white-space:nowrap}
+        .sh-vempty{text-align:center;color:#5b6675;padding:30px}
+        </style>
+        <div class="samahesab-versions" dir="rtl">
+            <?php if ( empty( $list ) ) : ?>
+                <div class="sh-vempty">فهرستِ نسخه‌ها فعلاً در دسترس نیست.</div>
+            <?php else : foreach ( $list as $v ) :
+                $ver   = isset( $v['version'] ) ? esc_html( $v['version'] ) : '';
+                $date  = isset( $v['publishedAt'] ) ? $this->to_jalali( $v['publishedAt'] ) : '';
+                $notes = isset( $v['notes'] ) ? esc_html( $v['notes'] ) : '';
+                $files = ( isset( $v['files'] ) && is_array( $v['files'] ) ) ? $v['files'] : array();
+                ?>
+                <div class="sh-vrow">
+                    <span class="sh-vver">نسخهٔ <?php echo $ver; ?></span>
+                    <span class="sh-vdate"><?php echo esc_html( $date ); ?></span>
+                    <span class="sh-vnotes"><?php echo $notes; ?></span>
+                    <span class="sh-vdl">
+                        <?php if ( empty( $files ) ) : ?>
+                            <span class="sh-vsoon">به‌زودی</span>
+                        <?php else : foreach ( $files as $f ) :
+                            if ( empty( $f['url'] ) ) { continue; } ?>
+                            <a href="<?php echo esc_url( $f['url'] ); ?>">⬇️ <?php echo esc_html( isset( $f['name'] ) ? $f['name'] : 'دانلود' ); ?></a>
+                        <?php endforeach; endif; ?>
+                    </span>
+                </div>
+            <?php endforeach; endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     /** اسکرین‌شات‌های همراهِ پلاگین (URL → عنوان) برای گالریِ اعتمادساز. */

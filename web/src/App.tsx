@@ -45,6 +45,7 @@ import { StockCountPage } from './pages/StockCountPage';
 import { ReportsCenterPage } from './pages/ReportsCenterPage';
 import { BranchesPage } from './pages/BranchesPage';
 import { ShiftPage } from './pages/ShiftPage';
+import { SecurityPage } from './pages/SecurityPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -106,6 +107,7 @@ function AppRoutes() {
         <Route path="reports-center" element={<ReportsCenterPage />} />
 
         <Route path="branches" element={<BranchesPage />} />
+        <Route path="security" element={<SecurityPage />} />
         <Route path="modules" element={<ModulesPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="tax-invoicing" element={<TaxInvoicingPage />} />

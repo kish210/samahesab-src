@@ -101,6 +101,7 @@ const NAV_GROUPS: NavGroup[] = [
   // که وب برخلافِ دسکتاپ هیچ بخشِ «تنظیمات»ی نداشت.
   { title: 'تنظیمات', items: [
     { to: '/branches', label: 'شعب', icon: 'settings' },
+    { to: '/security', label: 'امنیت', icon: 'settings' },
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
     { to: '/support', label: 'پشتیبانی', icon: 'bell' },
     { to: '/settings', label: 'دربارهٔ سیستم', icon: 'settings' },

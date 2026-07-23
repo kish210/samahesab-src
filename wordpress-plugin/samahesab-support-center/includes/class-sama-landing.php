@@ -129,6 +129,31 @@ class SamaHesab_Landing {
     }
 
     /**
+     * ۴ فایلِ خامِ آخرین نسخه (بدونِ انتخابِ فقط‌یکی مثلِ latest_release()) — برایِ نمایشِ
+     * ردیفِ «وب/سرور/کلاینت/دسکتاپ» کنارِ CTAِ اصلیِ صفحهٔ محصول (کاربر: «لینکِ سایت فقط
+     * دسکتاپ بود، وب/سرور/کلاینت نبود»). همان manifest_url()/کَشِ latest_release() را
+     * می‌خواند ولی به‌جایِ یک URL، کلِ آرایهٔ files را برمی‌گرداند.
+     */
+    private function latest_files() {
+        $cached = get_transient( 'samahesab_latest_files' );
+        if ( is_array( $cached ) ) {
+            return $cached;
+        }
+        $resp = wp_remote_get( $this->manifest_url(), array(
+            'timeout' => 7,
+            'headers' => array( 'Accept' => 'application/json', 'User-Agent' => 'SamaHesab-Support-Center' ),
+        ) );
+        if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) ) {
+            set_transient( 'samahesab_latest_files', array(), 15 * MINUTE_IN_SECONDS );
+            return array();
+        }
+        $data  = json_decode( wp_remote_retrieve_body( $resp ), true );
+        $files = ( ! empty( $data['files'] ) && is_array( $data['files'] ) ) ? $data['files'] : array();
+        set_transient( 'samahesab_latest_files', $files, HOUR_IN_SECONDS );
+        return $files;
+    }
+
+    /**
      * 📚 U-WP-VERSION-ARCHIVE — «همهٔ نسخه‌ها»: برخلافِ `latest_release()` (فقط آخرین نسخه)،
      * این متد کلِ آرشیوِ نسخه‌ها را از https://kishwifi.com/download/versions.json می‌خوانَد
      * (آرایه‌ای از {version, publishedAt, notes, files:[{name,url}]}) — عمداً از هیچ API‌ای
@@ -302,6 +327,8 @@ class SamaHesab_Landing {
 
         $shots    = $this->shots();
         $hero_img = SAMAHESAB_SC_URL . 'assets/screenshots/dashboard.png';
+        $kinds    = $this->install_kinds();
+        $files    = $latest ? $this->latest_files() : array();
 
         ob_start();
         ?>
@@ -360,6 +387,13 @@ class SamaHesab_Landing {
         .sh-dl h2{font-size:28px;color:var(--sh-dark);margin:0 0 10px;font-weight:800}
         .sh-dl p{color:var(--sh-text);margin:0 0 22px}
         .sh-note{font-size:12.5px;color:var(--sh-text);margin-top:14px}
+        .sh-kinds{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px}
+        .sh-kind{display:flex;align-items:center;gap:8px;border:1px solid var(--sh-line);border-radius:10px;
+            padding:9px 16px;font-size:13.5px;background:#fff}
+        .sh-kind b{color:var(--sh-dark)}
+        .sh-kind a{color:var(--sh-primary);font-weight:700;text-decoration:none}
+        .sh-kind a:hover{text-decoration:underline}
+        .sh-kind .na{color:#b7bec7;font-size:12px}
         @media (max-width:880px){
             .sh-hero{grid-template-columns:1fr;text-align:center;padding:30px 0}
             .sh-hero .sh-cta{justify-content:center}
@@ -428,6 +462,23 @@ class SamaHesab_Landing {
                     <h2>همین حالا رایگان شروع کنید</h2>
                     <p>نصابِ خودکفا (شاملِ همهٔ پیش‌نیازها). نصب در چند دقیقه، روی ویندوز ۱۰ و ۱۱.</p>
                     <a class="sh-btn sh-btn-primary" href="<?php echo $url; ?>">⬇️ دانلودِ سما حساب <?php echo $version; ?></a>
+                    <?php if ( ! empty( $files ) ) : ?>
+                    <div class="sh-kinds">
+                        <?php foreach ( $kinds as $k ) :
+                            list( $key, $label, $needle ) = $k;
+                            $f = $this->match_file( $files, $needle );
+                            ?>
+                            <div class="sh-kind">
+                                <b><?php echo esc_html( $label ); ?></b>
+                                <?php if ( $f && ! empty( $f['url'] ) ) : ?>
+                                    <a href="<?php echo esc_url( $f['url'] ); ?>">⬇️ دانلود</a>
+                                <?php else : ?>
+                                    <span class="na">به‌زودی</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
                     <div class="sh-note">پشتیبانی و راهنما از طریقِ مرکزِ پشتیبانیِ درونِ نرم‌افزار یا تماس با سماع رایانه کیش.</div>
                 </div>
             </section>

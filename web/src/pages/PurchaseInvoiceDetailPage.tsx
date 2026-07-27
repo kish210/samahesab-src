@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { apiGet, ApiError } from '../api/client';
-import { money } from '../lib/format';
+import { money, numberToPersianWords } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
@@ -120,6 +120,16 @@ export function PurchaseInvoiceDetailPage() {
             <div style={{ fontWeight: 700 }}>مبلغِ کل: {money(inv.grandTotal)}</div>
             <div>پرداختی: {money(inv.paidAmount)}</div>
             <div style={{ fontWeight: 700, color: inv.remainAmount > 0 ? 'var(--danger-700)' : 'inherit' }}>مانده: {money(inv.remainAmount)}</div>
+          </div>
+
+          <div style={{ marginTop: 'var(--space-3)', fontSize: 13 }}>
+            <b>به حروف:</b> {numberToPersianWords(inv.grandTotal)} ریال
+          </div>
+
+          {/* .print-only مقدارِ display:block!important دارد → flex می‌شکند؛ inline-block می‌ماند. */}
+          <div className="print-only" style={{ marginTop: 40, fontSize: 12 }}>
+            <span style={{ display: 'inline-block', width: '48%' }}>مهر و امضایِ تأمین‌کننده</span>
+            <span style={{ display: 'inline-block', width: '48%', textAlign: 'left' }}>مهر و امضایِ خریدار</span>
           </div>
         </div>
       )}

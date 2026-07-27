@@ -3,6 +3,7 @@ import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
 import { money, numberFormat } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import { Barcode } from '../components/Barcode';
 import './pos.css';
 
 interface ProductRow {
@@ -294,6 +295,10 @@ export function PosPage() {
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 6 }}>
                 <span>مبلغِ کل</span><span className="num">{money(receipt.grand)} ریال</span>
+              </div>
+              {/* بارکدِ شمارهٔ فاکتور — رسید را برایِ پیگیری/مرجوعیِ اسکن‌محور قابلِ‌اسکن می‌کند. */}
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <Barcode value={`INV${receipt.invoiceId}`} moduleWidth={1.6} height={44} />
               </div>
             </div>
             <div className="no-print" style={{ display: 'flex', gap: 8, marginTop: 'var(--space-3)' }}>

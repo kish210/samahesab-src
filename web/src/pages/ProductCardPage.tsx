@@ -5,6 +5,7 @@ import { money } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
 import { StatusMessage } from '../components/PageHeader';
 import { JalaliDateInput } from '../components/JalaliDateInput';
+import { Barcode } from '../components/Barcode';
 import { jalaliOf } from '../lib/jalali';
 
 interface ProductCardStockRow {
@@ -208,11 +209,12 @@ export function ProductCardPage() {
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
 
       {/* برچسبِ چاپیِ کالا — روی صفحه دیده نمی‌شود، فقط هنگامِ «چاپِ بارکد» ظاهر می‌شود.
-          ⚠️ محدودیتِ صادقانه: نمادِ بارکدِ واقعاً اسکن‌شدنی رندر نمی‌شود (نیازِ کتابخانه‌ای
-          مثلِ JsBarcode دارد که هنوز به وب اضافه نشده)؛ فقط کد/نام/قیمت به‌صورتِ خوانا چاپ می‌شود. */}
+          نمادِ بارکد حالا واقعاً اسکن‌شدنی است (Code 128 به‌صورتِ SVGِ خالص، بدونِ کتابخانه). */}
       <div className="print-area print-only" style={{ textAlign: 'center', padding: 24, border: '1px dashed #999', maxWidth: 320, margin: '0 auto' }}>
         <div style={{ fontSize: 18, fontWeight: 700 }}>{card.name}</div>
-        <div style={{ fontFamily: 'monospace', fontSize: 22, letterSpacing: 3, margin: '10px 0' }}>{card.barcode || card.code}</div>
+        <div style={{ margin: '12px 0' }}>
+          <Barcode value={card.barcode || card.code} />
+        </div>
         <div style={{ fontSize: 14 }}>{money(card.salePrice)} ریال</div>
       </div>
 

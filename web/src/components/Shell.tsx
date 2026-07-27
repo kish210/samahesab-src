@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { ErpIcon, type IconName } from './ErpIcons';
 import { CommandPalette, type PaletteItem } from './CommandPalette';
+import { CalculatorPopover } from './CalculatorPopover';
 import { apiGet } from '../api/client';
 import { todayJalaliString } from '../lib/jalali';
 import '../erp-shell.css';
@@ -136,6 +137,7 @@ export function Shell() {
   const [license, setLicense] = useState<LicenseStatus | null>(null);
   const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
   const [appVersion, setAppVersion] = useState<string | null>(null);
+  const [calcOpen, setCalcOpen] = useState(false);
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -209,6 +211,14 @@ export function Shell() {
           onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}>
           <ErpIcon name="search" />
           <input placeholder="جستجو در همه‌جا…   Ctrl+K" readOnly style={{ cursor: 'pointer' }} tabIndex={-1} />
+        </div>
+        {/* ماشین‌حساب — دکمهٔ توپ‌بارِ design-system که تا حالا پیاده نشده بود. */}
+        <div style={{ position: 'relative' }}>
+          <button type="button" className="tb-ic" title="ماشین‌حساب"
+            aria-expanded={calcOpen} onClick={() => setCalcOpen((v) => !v)}>
+            <ErpIcon name="calc" />
+          </button>
+          {calcOpen && <CalculatorPopover onClose={() => setCalcOpen(false)} />}
         </div>
         <button type="button" className="tb-ic" title="اعلان‌ها">
           <ErpIcon name="bell" />

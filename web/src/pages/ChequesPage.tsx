@@ -321,7 +321,10 @@ export function ChequesPage() {
 
       {loading && <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>}
       {!loading && (
-        <>
+        <div className="print-area">
+          <div className="print-only" style={{ display: 'none', marginBottom: 'var(--space-3)' }}>
+            <h2>تابلویِ چک</h2>
+          </div>
           <DataTable
             columns={columns}
             rows={filtered}
@@ -333,7 +336,7 @@ export function ChequesPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-3)', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
             <span>جمعِ فیلترشده — {filtered.length} فقره · {money(filteredTotal)} ریال</span>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

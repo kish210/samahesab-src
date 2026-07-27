@@ -174,7 +174,7 @@ export function VouchersPage() {
           <button className="btn btn-secondary" onClick={() => navigate('/general-ledger')}>دفترِ کل</button>
           <button className="btn btn-secondary" onClick={() => navigate('/trial-balance')}>تراز آزمایشی</button>
           <button className="btn btn-secondary" onClick={exportCsv} disabled={!result}>خروجی اکسل</button>
-          <button className="btn btn-secondary" onClick={() => window.print()}>چاپ</button>
+          <button className="btn btn-secondary" onClick={() => window.print()} disabled={!selected} title={!selected ? 'ابتدا یک سند را انتخاب کنید' : undefined}>چاپ</button>
           <button className="btn btn-primary" onClick={() => navigate('/vouchers/new')}>+ سندِ نو</button>
         </>
       } />
@@ -240,46 +240,48 @@ export function VouchersPage() {
 
           {selected && (
             <div className="preview-col" style={{ width: 320, flex: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div className="gbox">
-                <div className="gh">
-                  پیش‌نمایشِ سند {selected.voucherNumber}
-                  <span className={`st ${selected.statusName === 'قطعی' ? 'g' : 'a'}`} style={{ marginInlineStart: 6 }}>
-                    <i />{selected.statusName}
-                  </span>
+              <div className="print-area">
+                <div className="gbox">
+                  <div className="gh">
+                    پیش‌نمایشِ سند {selected.voucherNumber}
+                    <span className={`st ${selected.statusName === 'قطعی' ? 'g' : 'a'}`} style={{ marginInlineStart: 6 }}>
+                      <i />{selected.statusName}
+                    </span>
+                  </div>
+                  <div className="gb" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}><span style={{ color: 'var(--text-muted)' }}>تاریخ</span><b>{selected.voucherDate}</b></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}><span style={{ color: 'var(--text-muted)' }}>نوع</span><b>{selected.voucherTypeName}</b></div>
+                    {selected.description && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{selected.description}</div>}
+                  </div>
                 </div>
-                <div className="gb" style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}><span style={{ color: 'var(--text-muted)' }}>تاریخ</span><b>{selected.voucherDate}</b></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}><span style={{ color: 'var(--text-muted)' }}>نوع</span><b>{selected.voucherTypeName}</b></div>
-                  {selected.description && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{selected.description}</div>}
-                </div>
-              </div>
 
-              {previewLines && (
-                <div className="dgrid-wrap">
-                  <table className="dgrid" style={{ fontSize: 11.5 }}>
-                    <thead><tr><th>حساب</th><th className="num">بدهکار</th><th className="num">بستانکار</th></tr></thead>
-                    <tbody>
-                      {previewLines.map((l, i) => (
-                        <tr key={i}>
-                          <td>{l.accountName}</td>
-                          <td className="num strong">{l.debit ? money(l.debit) : '۰'}</td>
-                          <td className="num strong">{l.credit ? money(l.credit) : '۰'}</td>
+                {previewLines && (
+                  <div className="dgrid-wrap">
+                    <table className="dgrid" style={{ fontSize: 11.5 }}>
+                      <thead><tr><th>حساب</th><th className="num">بدهکار</th><th className="num">بستانکار</th></tr></thead>
+                      <tbody>
+                        {previewLines.map((l, i) => (
+                          <tr key={i}>
+                            <td>{l.accountName}</td>
+                            <td className="num strong">{l.debit ? money(l.debit) : '۰'}</td>
+                            <td className="num strong">{l.credit ? money(l.credit) : '۰'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td>جمع</td>
+                          <td className="num">{money(previewLines.reduce((s, l) => s + l.debit, 0))}</td>
+                          <td className="num">{money(previewLines.reduce((s, l) => s + l.credit, 0))}</td>
                         </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td>جمع</td>
-                        <td className="num">{money(previewLines.reduce((s, l) => s + l.debit, 0))}</td>
-                        <td className="num">{money(previewLines.reduce((s, l) => s + l.credit, 0))}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              )}
+                      </tfoot>
+                    </table>
+                  </div>
+                )}
 
-              <div className={`sumbar ${selected.isBalanced ? 'ok' : 'bad'}`} style={{ justifyContent: 'center' }}>
-                <b>{selected.isBalanced ? '✓ تراز' : '✗ ناتراز'}</b>
+                <div className={`sumbar ${selected.isBalanced ? 'ok' : 'bad'}`} style={{ justifyContent: 'center' }}>
+                  <b>{selected.isBalanced ? '✓ تراز' : '✗ ناتراز'}</b>
+                </div>
               </div>
 
               {actionMsg && <StatusMessage kind={actionMsg.includes('ناموفق') ? 'error' : 'success'}>{actionMsg}</StatusMessage>}

@@ -190,7 +190,7 @@ export function GeneralLedgerPage() {
         <>
           <button className="btn btn-secondary" onClick={() => navigate('/trial-balance')}>تراز آزمایشی</button>
           <button className="btn btn-secondary" onClick={exportCsv} disabled={!rows}>اکسل</button>
-          <button className="btn btn-secondary" onClick={() => window.print()}>چاپ</button>
+          <button className="btn btn-secondary" onClick={() => window.print()} disabled={!selectedAccount}>چاپ</button>
         </>
       } />
 
@@ -218,22 +218,24 @@ export function GeneralLedgerPage() {
             </button>
           </div>
 
-          {selectedAccount && (
-            <div className="gbox" style={{ marginBottom: 'var(--space-3)' }}>
-              <div className="gh" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{selectedAccount.code} — {selectedAccount.name}</span>
-                {rows && (
-                  <span className="num" style={{ fontWeight: 700, color: endingBalance >= 0 ? 'var(--text-strong)' : 'var(--success-700)' }}>
-                    ماندهٔ پایانِ دوره: {money(endingBalance)}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
           {!selectedAccount && <StatusMessage kind="muted">حسابی را از درختِ کنار انتخاب کنید.</StatusMessage>}
           {error && <StatusMessage kind="error">{error}</StatusMessage>}
-          {rows && !error && <DataTable columns={columns} rows={rows} rowKey={(r) => `${r.date}-${r.voucherNumber}-${r.debit}-${r.credit}`} emptyText="ردیفی یافت نشد." />}
+
+          {selectedAccount && (
+            <div className="print-area">
+              <div className="gbox" style={{ marginBottom: 'var(--space-3)' }}>
+                <div className="gh" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{selectedAccount.code} — {selectedAccount.name}</span>
+                  {rows && (
+                    <span className="num" style={{ fontWeight: 700, color: endingBalance >= 0 ? 'var(--text-strong)' : 'var(--success-700)' }}>
+                      ماندهٔ پایانِ دوره: {money(endingBalance)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {rows && !error && <DataTable columns={columns} rows={rows} rowKey={(r) => `${r.date}-${r.voucherNumber}-${r.debit}-${r.credit}`} emptyText="ردیفی یافت نشد." />}
+            </div>
+          )}
         </div>
       </div>
     </div>

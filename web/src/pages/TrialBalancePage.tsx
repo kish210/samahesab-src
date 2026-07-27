@@ -157,7 +157,11 @@ export function TrialBalancePage() {
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
 
       {visibleRows && !error && (
-        <>
+        <div className="print-area">
+          <div className="print-only" style={{ display: 'none', marginBottom: 'var(--space-3)' }}>
+            <h2>تراز آزمایشی</h2>
+            <div>از {fromDate} تا {toDate}</div>
+          </div>
           <div className="dgrid-wrap">
             <table className="dgrid">
               <thead>
@@ -207,7 +211,7 @@ export function TrialBalancePage() {
             <div className="s"><span className="l">جمعِ بستانکار</span><span className="v">{money(totalCredit)}</span></div>
             <div className="s"><span className="l">اختلاف</span><span className="v" style={{ color: Math.abs(diff) < 1 ? 'var(--success-500)' : 'var(--danger-500)' }}>{money(Math.abs(diff))}</span></div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

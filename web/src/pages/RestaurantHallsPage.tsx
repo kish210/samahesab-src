@@ -251,7 +251,7 @@ export function RestaurantHallsPage() {
         </div>
 
         <div className="rest-order">
-          <div className="order-card">
+          <div className="order-card print-area">
             <div className="hd">
               <span className="tn">{activeTable ? activeTable.name : order ? order.orderType : 'میزی انتخاب نشده'}</span>
               {order && <span style={{ fontSize: 11, background: 'rgba(255,255,255,.18)', padding: '2px 8px', borderRadius: 99 }}>{numberFormat.format(order.guestCount)} نفر</span>}

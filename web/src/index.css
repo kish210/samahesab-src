@@ -2,3 +2,18 @@
 
 html, body, #root { height: 100%; }
 #root { display: flex; flex-direction: column; }
+
+/* U-WEB-PRINT — قبلاً هر دکمهٔ «چاپ» فقط window.print()ِ خام صدا می‌زد که کلِ پوستهٔ
+   اپ (سایدبار/تاپ‌بار/دکمه‌ها) را هم چاپ می‌کرد. با این قاعده، فقط عنصری با
+   کلاسِ .print-area چاپ می‌شود؛ بقیهٔ صفحه در چاپ نامرئی می‌شود. هر صفحه‌ای که
+   چاپ دارد، محتوایِ قابلِ‌چاپش را در یک <div className="print-area"> بگذارد.
+   .print-only = عنصری که فقط هنگامِ چاپ دیده می‌شود (مثلاً سربرگِ گزارش/فاکتور
+   که رویِ صفحه لازم نیست ولی رویِ کاغذ باید باشد). */
+.print-only { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0 0 auto 0; width: 100%; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+}

@@ -207,7 +207,16 @@ export function ProductCardPage() {
       </div>
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
 
-      <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)', alignItems: 'flex-start' }}>
+      {/* برچسبِ چاپیِ کالا — روی صفحه دیده نمی‌شود، فقط هنگامِ «چاپِ بارکد» ظاهر می‌شود.
+          ⚠️ محدودیتِ صادقانه: نمادِ بارکدِ واقعاً اسکن‌شدنی رندر نمی‌شود (نیازِ کتابخانه‌ای
+          مثلِ JsBarcode دارد که هنوز به وب اضافه نشده)؛ فقط کد/نام/قیمت به‌صورتِ خوانا چاپ می‌شود. */}
+      <div className="print-area print-only" style={{ textAlign: 'center', padding: 24, border: '1px dashed #999', maxWidth: 320, margin: '0 auto' }}>
+        <div style={{ fontSize: 18, fontWeight: 700 }}>{card.name}</div>
+        <div style={{ fontFamily: 'monospace', fontSize: 22, letterSpacing: 3, margin: '10px 0' }}>{card.barcode || card.code}</div>
+        <div style={{ fontSize: 14 }}>{money(card.salePrice)} ریال</div>
+      </div>
+
+      <div className="no-print" style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)', alignItems: 'flex-start' }}>
         <div style={{ width: 300, flex: 'none', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 14 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-strong)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {card.name}

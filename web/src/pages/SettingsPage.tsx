@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiGet, apiPost, ApiError } from '../api/client';
+import { apiGet, apiPost, apiPut, ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
@@ -27,9 +27,19 @@ function Kv({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** کلیدهایِ `CompanySettingKeys`ِ سرور — همین‌ها در `PUT /api/settings/company` مجازند. */
+const COMPANY_FIELDS = [
+  { key: 'CompanyName', label: 'نامِ شرکت' },
+  { key: 'CompanyNationalId', label: 'شناسهٔ ملی' },
+  { key: 'CompanyEconomicCode', label: 'کدِ اقتصادی' },
+  { key: 'CompanyPhone', label: 'تلفن' },
+  { key: 'CompanyAddress', label: 'آدرس' },
+] as const;
+
 /** «تنظیمات → دربارهٔ سیستم» — وب برخلافِ دسکتاپ هیچ صفحهٔ تنظیماتی نداشت. این صفحه اطلاعاتِ
- * پایه (نسخه/مجوز/کاربر) را نشان می‌دهد؛ تنظیماتِ شرکت/کاربران (`CompanySettingsView`/
- * `UserManagementView` در دسکتاپ هم فقط استابِ «در حالِ توسعه»اند) خارج از حدودِ این افزودن است. */
+ * پایه (نسخه/مجوز/کاربر) + **اطلاعاتِ شرکت** را نشان/ویرایش می‌کند. اطلاعاتِ شرکت تا پیش از
+ * این هیچ UIای نداشت (نه وب، نه دسکتاپ که فقط استابِ «در حالِ توسعه» بود) ⇒ سربرگِ چاپیِ
+ * فاکتور همیشه خالی می‌ماند؛ با این فرم پر می‌شود. */
 export function SettingsPage() {
   const { user } = useAuth();
   const [license, setLicense] = useState<LicenseStatus | null>(null);
@@ -37,9 +47,31 @@ export function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ kind: 'error' | 'success'; text: string } | null>(null);
 
+  const [company, setCompany] = useState<Record<string, string>>({});
+  const [savingCompany, setSavingCompany] = useState(false);
+  const [companyMsg, setCompanyMsg] = useState<{ kind: 'error' | 'success'; text: string } | null>(null);
+
   useEffect(() => {
     apiGet<LicenseStatus>('/api/license/status').then(setLicense).catch(() => {});
+    apiGet<Record<string, string | null>>('/api/settings/company')
+      .then((d) => setCompany(Object.fromEntries(Object.entries(d).map(([k, v]) => [k, v ?? '']))))
+      .catch(() => {});
   }, []);
+
+  async function saveCompany() {
+    setSavingCompany(true);
+    setCompanyMsg(null);
+    try {
+      // فقط کلیدهایِ شناخته‌شده ارسال می‌شوند — سرور بقیه را رد می‌کند.
+      const body = Object.fromEntries(COMPANY_FIELDS.map((f) => [f.key, company[f.key]?.trim() || null]));
+      await apiPut('/api/settings/company', body);
+      setCompanyMsg({ kind: 'success', text: 'اطلاعاتِ شرکت ذخیره شد — از این پس در سربرگِ چاپیِ فاکتورها می‌آید.' });
+    } catch (e) {
+      setCompanyMsg({ kind: 'error', text: e instanceof ApiError ? e.message : 'ذخیره ناموفق بود.' });
+    } finally {
+      setSavingCompany(false);
+    }
+  }
 
   function makeCode() {
     setNewCode(generateRecoveryCode());
@@ -91,6 +123,34 @@ export function SettingsPage() {
           <div className="gb">
             <Kv label="نام" value={user?.fullName ?? '—'} />
             <Kv label="نامِ کاربری" value={user?.username ?? '—'} />
+          </div>
+        </div>
+
+        <div className="gbox" style={{ gridColumn: '1 / -1' }}>
+          <div className="gh">اطلاعاتِ شرکت (سربرگِ فاکتور)</div>
+          <div className="gb" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+              این اطلاعات در سربرگِ چاپیِ فاکتورِ فروش/خرید نمایش داده می‌شود. خالی‌گذاشتنِ هر فیلد یعنی در چاپ نمی‌آید.
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(220px, 1fr))', gap: 'var(--space-3)' }}>
+              {COMPANY_FIELDS.map((f) => (
+                <div className="field" key={f.key} style={f.key === 'CompanyAddress' ? { gridColumn: '1 / -1' } : undefined}>
+                  <label className="label" htmlFor={`cs-${f.key}`}>{f.label}</label>
+                  <input
+                    id={`cs-${f.key}`}
+                    className="input"
+                    value={company[f.key] ?? ''}
+                    onChange={(e) => setCompany((p) => ({ ...p, [f.key]: e.target.value }))}
+                  />
+                </div>
+              ))}
+            </div>
+            <div>
+              <button className="btn btn-primary btn-sm" disabled={savingCompany} onClick={saveCompany}>
+                {savingCompany ? 'در حالِ ذخیره…' : 'ذخیرهٔ اطلاعاتِ شرکت'}
+              </button>
+            </div>
+            {companyMsg && <StatusMessage kind={companyMsg.kind}>{companyMsg.text}</StatusMessage>}
           </div>
         </div>
 

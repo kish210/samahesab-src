@@ -20,6 +20,22 @@ public static class CompanySettingKeys
     /// در همین جدولِ کلید-مقدار می‌ماند چون ستونِ Value از نوعِ nvarchar(max) است و
     /// این‌طور نیازی به جدول/مسیرِ استاتیکِ جدا برایِ یک تصویرِ کوچک نیست.</summary>
     public const string CompanyLogo = "CompanyLogo";
+
+    /// <summary>کلیدِ ماژول‌هایِ غیرفعال‌شده (comma-separated). غیرفعال‌سازی سطحِ نمایش است:
+    /// ماژول از منو/capabilities پنهان می‌شود و دادهٔ تاریخی‌اش دست‌نخورده می‌ماند (قاعدهٔ removability).</summary>
+    public const string DisabledModules = "DisabledModules";
+}
+
+/// <summary>خواندن/نوشتنِ مجموعهٔ کلیدِ ماژول‌هایِ غیرفعال از تنظیماتِ شرکتی (comma-separated).</summary>
+public static class DisabledModulesHelper
+{
+    public static HashSet<string> Parse(string? csv) =>
+        string.IsNullOrWhiteSpace(csv)
+            ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            : csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    public static string ToCsv(IEnumerable<string> keys) => string.Join(",", keys.Distinct(StringComparer.OrdinalIgnoreCase));
 }
 
 /// <summary>خواندنِ یک تنظیمِ شرکتی از DB با پیش‌فرض — قابلِ استفاده توسطِ هندلرهای Application.</summary>

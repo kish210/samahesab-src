@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { apiGet, apiUpload, apiDelete, ApiError } from '../api/client';
+import { apiGet, apiPost, apiUpload, apiDelete, ApiError } from '../api/client';
 import { DataTable, type Column } from '../components/DataTable';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 
@@ -8,6 +8,7 @@ interface ModuleRow {
   displayName: string;
   version: string;
   source: string;
+  enabled: boolean;
 }
 
 interface InstallResult {
@@ -73,24 +74,40 @@ export function ModulesPage() {
     }
   }
 
+  async function toggle(key: string, enabled: boolean) {
+    setMsg(null);
+    try {
+      const res = await apiPost<{ message: string }>(`/api/modules/${encodeURIComponent(key)}/toggle`, { enabled });
+      setMsg({ kind: 'success', text: res.message });
+      await load();
+      // منویِ کناری از /api/module-capabilities می‌خواند؛ رفرشِ سبک تا لینکِ ماژولِ غیرفعال محو شود.
+      window.dispatchEvent(new CustomEvent('sh:modules-changed'));
+    } catch (err) {
+      setMsg({ kind: 'error', text: err instanceof ApiError ? err.message : 'تغییرِ وضعیتِ ماژول ناموفق بود.' });
+    }
+  }
+
   const columns: Column<ModuleRow>[] = [
     { key: 'name', header: 'ماژول', render: (r) => r.displayName },
     { key: 'key', header: 'کلید', render: (r) => <span style={{ direction: 'ltr', fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{r.key}</span> },
     { key: 'version', header: 'نسخه', render: (r) => <span style={{ direction: 'ltr' }}>{r.version}</span> },
     {
       key: 'source', header: 'وضعیت',
-      render: (r) => (
-        <span className={`badge ${r.source.includes('ری‌استارت') ? 'badge-amber' : 'badge-green'}`}>{r.source}</span>
-      ),
+      render: (r) =>
+        r.source.includes('ری‌استارت')
+          ? <span className="badge badge-amber">{r.source}</span>
+          : <span className={`badge ${r.enabled ? 'badge-green' : 'badge-gray'}`}>{r.enabled ? 'فعال' : 'غیرفعال'}</span>,
     },
     {
       key: 'action', header: '',
       render: (r) =>
         r.source.includes('ری‌استارت') ? (
-          <button className="btn btn-ghost btn-sm" onClick={() => remove(r.key)}>
-            حذف
+          <button className="btn btn-ghost btn-sm" onClick={() => remove(r.key)}>حذف</button>
+        ) : (
+          <button className="btn btn-ghost btn-sm" onClick={() => toggle(r.key, !r.enabled)}>
+            {r.enabled ? 'غیرفعال‌سازی' : 'فعال‌سازی'}
           </button>
-        ) : null,
+        ),
     },
   ];
 

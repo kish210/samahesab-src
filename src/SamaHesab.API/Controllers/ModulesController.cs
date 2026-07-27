@@ -1,6 +1,8 @@
 using System.IO.Compression;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SamaHesab.Application.Settings;
 using SamaHesab.Infrastructure.Modules;
 using SamaHesab.Modules.Abstractions;
 
@@ -20,24 +22,35 @@ public class ModulesController : ControllerBase
     private readonly IEnumerable<IModule> _loadedModules;
     private readonly IConfiguration _config;
     private readonly ILogger<ModulesController> _logger;
+    private readonly IMediator _mediator;
 
-    public ModulesController(IEnumerable<IModule> loadedModules, IConfiguration config, ILogger<ModulesController> logger)
+    public ModulesController(IEnumerable<IModule> loadedModules, IConfiguration config,
+        ILogger<ModulesController> logger, IMediator mediator)
     {
         _loadedModules = loadedModules;
         _config = config;
         _logger = logger;
+        _mediator = mediator;
     }
 
-    public record ModuleRow(string Key, string DisplayName, string Version, string Source);
+    public record ModuleRow(string Key, string DisplayName, string Version, string Source, bool Enabled);
 
     private string ModulesDir => ModuleLoader.ServerModulesDirectory(_config["Modules:Directory"]);
 
+    private async Task<HashSet<string>> GetDisabledAsync(CancellationToken ct)
+    {
+        var settings = await _mediator.Send(new GetCompanySettingsQuery(), ct);
+        settings.TryGetValue(CompanySettingKeys.DisabledModules, out var csv);
+        return DisabledModulesHelper.Parse(csv);
+    }
+
     /// <summary>فهرستِ ماژول‌هایِ بارگذاری‌شده (bundle) + فایل‌هایِ نصب‌شدهٔ منتظرِ ری‌استارت.</summary>
     [HttpGet]
-    public IActionResult List()
+    public async Task<IActionResult> List(CancellationToken ct)
     {
+        var disabled = await GetDisabledAsync(ct);
         var loaded = _loadedModules
-            .Select(m => new ModuleRow(m.Key, m.DisplayName, m.Version, "بارگذاری‌شده"))
+            .Select(m => new ModuleRow(m.Key, m.DisplayName, m.Version, "بارگذاری‌شده", !disabled.Contains(m.Key)))
             .ToList();
         var loadedKeys = loaded.Select(r => r.Key).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -50,7 +63,7 @@ public class ModulesController : ControllerBase
                 {
                     var key = Path.GetFileNameWithoutExtension(pkg);
                     if (!loadedKeys.Contains(key))
-                        pending.Add(new ModuleRow(key, key, "?", "نصب‌شده — نیازمندِ ری‌استارت"));
+                        pending.Add(new ModuleRow(key, key, "?", "نصب‌شده — نیازمندِ ری‌استارت", true));
                 }
         }
         catch (Exception ex) { _logger.LogWarning(ex, "خواندنِ فولدرِ ماژول‌ها ناموفق بود"); }
@@ -141,5 +154,31 @@ public class ModulesController : ControllerBase
         if (!removed)
             return NotFound(new { message = "بستهٔ نصب‌شده‌ای با این کلید یافت نشد (ماژولِ داخلیِ برنامه حذف‌شدنی نیست)." });
         return Ok(new { removed = true, restartRequired = true, message = "ماژول حذف شد. برایِ اعمال، سرور را ری‌استارت کنید." });
+    }
+
+    public record ToggleModuleRequest(bool Enabled);
+
+    /// <summary>
+    /// U-WEB-MODULE-TOGGLE — فعال/غیرفعال‌کردنِ یک ماژولِ بارگذاری‌شده (بدونِ ری‌استارت، بدونِ حذفِ
+    /// داده). غیرفعال = پنهان‌شدن از منو/capabilities؛ دادهٔ تاریخیِ ماژول دست‌نخورده می‌ماند
+    /// (قاعدهٔ removability). وضعیت در تنظیماتِ شرکتی (`DisabledModules`) ذخیره می‌شود.
+    /// </summary>
+    [HttpPost("{key}/toggle")]
+    public async Task<IActionResult> Toggle(string key, [FromBody] ToggleModuleRequest req, CancellationToken ct)
+    {
+        var mod = _loadedModules.FirstOrDefault(m => string.Equals(m.Key, key, StringComparison.OrdinalIgnoreCase));
+        if (mod is null)
+            return NotFound(new { message = "ماژولِ بارگذاری‌شده‌ای با این کلید یافت نشد." });
+
+        var disabled = await GetDisabledAsync(ct);
+        if (req.Enabled) disabled.RemoveWhere(k => string.Equals(k, mod.Key, StringComparison.OrdinalIgnoreCase));
+        else disabled.Add(mod.Key);
+
+        var r = await _mediator.Send(new SaveCompanySettingCommand(
+            CompanySettingKeys.DisabledModules, DisabledModulesHelper.ToCsv(disabled)), ct);
+        if (!r.Succeeded) return BadRequest(new { message = r.ErrorMessage });
+
+        return Ok(new { key = mod.Key, enabled = req.Enabled,
+            message = req.Enabled ? "ماژول فعال شد." : "ماژول غیرفعال شد (داده‌ها حفظ شد)." });
     }
 }

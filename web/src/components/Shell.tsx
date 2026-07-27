@@ -154,7 +154,13 @@ export function Shell() {
   // navbar فقط ماژول‌هایِ واقعاً بارگذاری‌شده روی این سرور را نشان بدهد (نه هر ماژولِ اختیاری را
   // کورکورانه) — طبقِ قاعدهٔ CLAUDE.md: هسته نباید لینکِ مرده به ماژولِ نصب‌نشده نشان بدهد.
   useEffect(() => {
-    apiGet<string[]>('/api/module-capabilities').then(setLoadedModules).catch(() => setLoadedModules([]));
+    function loadCaps() {
+      apiGet<string[]>('/api/module-capabilities').then(setLoadedModules).catch(() => setLoadedModules([]));
+    }
+    loadCaps();
+    // پس از فعال/غیرفعال‌کردنِ ماژول در صفحهٔ مدیریت، منو باید تازه شود.
+    window.addEventListener('sh:modules-changed', loadCaps);
+    return () => window.removeEventListener('sh:modules-changed', loadCaps);
   }, []);
 
   // بنرِ اطلاع‌رسانیِ «یک‌سالِ رایگان» — فقط وقتی نزدیکِ اتمام یا تمام‌شده باشد نمایش می‌یابد؛

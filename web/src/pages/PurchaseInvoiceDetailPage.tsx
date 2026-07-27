@@ -51,7 +51,11 @@ export function PurchaseInvoiceDetailPage() {
   useEffect(() => {
     apiGet<PurchaseInvoiceDetailDto>(`/api/purchase/invoices/${id}`)
       .then(setInv)
-      .catch((e) => setError(e instanceof ApiError ? e.message : 'خطا در بارگیریِ فاکتور.'))
+      // ۴۰۴ = فاکتور نیست (نه قطعیِ ارتباط) — قرینهٔ SalesInvoiceDetailPage.
+      .catch((e) => setError(
+        e instanceof ApiError
+          ? (e.status === 404 ? 'فاکتوری با این شناسه یافت نشد.' : e.message)
+          : 'خطا در بارگیریِ فاکتور.'))
       .finally(() => setLoading(false));
     apiGet<Record<string, string | null>>('/api/settings/company').then(setCompany).catch(() => {});
   }, [id]);

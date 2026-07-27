@@ -1250,3 +1250,12 @@
   `dist\api\SamaHesab.API.exe` را اجرا کنید، یا با دسترسیِ مدیر `dist\api\*` را رویِ
   `C:\Program Files\SamaHesab\server` کپی کنید. ساختِ خودِ `.exe` نیازمندِ ماشینی با Inno Setup است.
   ⏭️ **باقی‌ماندهٔ درخواستِ کاربر:** پورتِ ویزاردِ راه‌اندازیِ اولیه (FirstRunWizard) به وب.
+
+- ✅ **اصلاح + ساختِ نصابِ واقعیِ v2.9.5 (@2026-07-27).** یادداشتِ قبلیِ «ISCC رویِ این ماشین
+  نصب نیست» **اشتباه** بود — ISCC در `C:\Users\admin\AppData\Local\Programs\Inno Setup 6\ISCC.exe`
+  نصب است (همان‌جا که CLAUDE.md برایِ PC می‌گوید؛ جستجویِ اولیهٔ من فقط Program Files را دید).
+  با اجرایِ `ISCC installer\web-setup.iss` رویِ `dist\api`ِ تازه، نصابِ کامل ساخته شد:
+  **`installer\Output\SamaHesab_Web_Setup_v2.9.5.exe` (۷۸MB)** — شاملِ سرور+وبِ کاملِ نسخهٔ ۲.۹.۵
+  با همهٔ ویژگی‌هایِ این نشست. آمادهٔ نصب/جایگزینی روی ماشینِ کاربر.
+  (فایلِ .exe در سورس‌ریپو commit نمی‌شود — طبقِ CLAUDE.md نصاب‌ها فقط به release روی
+  kish210/SamaHesab می‌روند، نه samahesab-src.)

@@ -48,21 +48,22 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/warehouse', label: 'انبار', icon: 'inventory' },
     { to: '/stock-count', label: 'انبارگردانی', icon: 'inventory' },
   ] },
-  { title: 'خزانه', items: [
-    { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },
-    { to: '/cheques', label: 'تابلویِ چک', icon: 'cheque' },
-  ] },
   { title: 'خرید و فروش', items: [
     { to: '/sales', label: 'فاکتورهایِ فروش', icon: 'sales' },
     { to: '/purchase', label: 'فاکتورهایِ خرید', icon: 'purchasing' },
   ] },
+  // دستهٔ «خزانه» طبقِ خواستِ کاربر حذف شد؛ دریافت/پرداخت حالا در کارتِ شخص انجام می‌شود.
+  // تابلویِ چک به «حسابداری» و فهرستِ دریافتنی/پرداختنی به «گزارش‌هایِ مالی» منتقل شد تا هیچ
+  // صفحه‌ای بی‌مسیر (orphan) نشود.
   { title: 'حسابداری', items: [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
     { to: '/accounts', label: 'دفترِ حساب‌ها', icon: 'accounting' },
+    { to: '/cheques', label: 'تابلویِ چک', icon: 'cheque' },
   ] },
   { title: 'گزارش‌هایِ مالی', items: [
     { to: '/trial-balance', label: 'تراز آزمایشی', icon: 'reports' },
     { to: '/general-ledger', label: 'دفترِ کل/معین', icon: 'reports' },
+    { to: '/treasury', label: 'دریافتنی/پرداختنی', icon: 'treasury' },
     { to: '/balance-sheet', label: 'ترازنامه', icon: 'reports' },
     { to: '/income-statement', label: 'صورتِ سودوزیان', icon: 'reports' },
     { to: '/branch-summary', label: 'خلاصهٔ شعب', icon: 'reports' },
@@ -116,7 +117,7 @@ const FLAT_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
  * کاربر این‌ها فقط در توپ‌بار (دکمه‌هایِ دسته) دیده می‌شوند، نه در سایدبار — تا هر بخش یک‌بار
  * دیده شود (سایدبار فقط بخش‌هایِ خارج از این دسته‌ها را نشان می‌دهد: داشبورد/POS/رستوران). */
 const TOPBAR_GROUP_TITLES = new Set([
-  'اشخاص', 'کالاها و خدمات', 'انبار', 'خزانه', 'خرید و فروش', 'حسابداری', 'گزارش‌هایِ مالی', 'تنظیمات',
+  'اشخاص', 'کالاها و خدمات', 'انبار', 'خرید و فروش', 'حسابداری', 'گزارش‌هایِ مالی', 'تنظیمات',
 ]);
 
 /** عنوانِ صفحهٔ جاری — هم‌الگو با `CurrentPageTitle` در MainShellWindowِ دسکتاپ (بایندِ توپ‌بار). */

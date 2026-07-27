@@ -4,6 +4,8 @@ import { apiGet, apiPost, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { todayJalaliString } from '../lib/jalali';
 import { StatusMessage } from '../components/PageHeader';
+import { useAuth } from '../auth/AuthContext';
+import { useActiveFiscalYear } from '../hooks/useActiveFiscalYear';
 
 interface CustomerCardDto {
   id: number;
@@ -84,6 +86,8 @@ function Kv({ label, value }: { label: string; value: string | null | undefined 
 export function CustomerCardPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const fiscalYearId = useActiveFiscalYear();
   const [card, setCard] = useState<CustomerCardDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loyalty, setLoyalty] = useState<CustomerLoyaltyDto | null>(null);
@@ -96,9 +100,53 @@ export function CustomerCardPage() {
   const [cheques, setCheques] = useState<ChequeRowDto[] | null>(null);
   const [activeMiniTab, setActiveMiniTab] = useState<'ledger' | 'invoices' | 'cheques' | 'loyalty'>('ledger');
 
+  // U-WEB-CARD-PAY — ثبتِ دریافت/پرداختِ درجا در کارتِ شخص (به‌جایِ رفتن به صفحهٔ خزانه).
+  const [payModal, setPayModal] = useState<'receive' | 'pay' | null>(null);
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState<'نقدی' | 'بانک' | 'چک'>('نقدی');
+  const [payBusy, setPayBusy] = useState(false);
+  const [payMsg, setPayMsg] = useState<{ kind: 'error' | 'success'; text: string } | null>(null);
+
   function loadLoyalty() {
     if (!id) return;
     apiGet<CustomerLoyaltyDto>(`/api/loyalty/${id}`).then(setLoyalty).catch(() => {});
+  }
+
+  /** بارخوانیِ مجددِ کارت + دفترِ معین پس از ثبتِ دریافت/پرداخت — تا مانده و گردشِ حساب تازه شود. */
+  function reloadAfterTxn() {
+    if (!id) return;
+    apiGet<CustomerCardDto>(`/api/customers/${id}/card`).then(setCard).catch(() => {});
+    apiGet<PartyLedgerRow[]>(`/api/customers/${id}/ledger`).then(setLedger).catch(() => {});
+  }
+
+  async function submitPayment() {
+    if (!id || !payModal) return;
+    const amt = Number(payAmount);
+    if (!amt || amt <= 0) { setPayMsg({ kind: 'error', text: 'مبلغ باید بزرگتر از صفر باشد.' }); return; }
+    setPayBusy(true);
+    setPayMsg(null);
+    try {
+      const base = {
+        branchId: user?.branchId ?? 1,
+        fiscalYearId: fiscalYearId ?? 1,
+        date: todayJalaliString(),
+        amount: amt,
+        paymentMethod: payMethod,
+      };
+      if (payModal === 'receive') {
+        await apiPost('/api/treasury/receipts', { ...base, customerId: Number(id), description: 'دریافت از کارتِ شخص' });
+      } else {
+        await apiPost('/api/treasury/payments', { ...base, supplierId: Number(id), description: 'پرداخت از کارتِ شخص' });
+      }
+      setPayMsg({ kind: 'success', text: payModal === 'receive' ? 'دریافت ثبت شد.' : 'پرداخت ثبت شد.' });
+      setPayAmount('');
+      reloadAfterTxn();
+      setActiveMiniTab('ledger');
+    } catch (e) {
+      setPayMsg({ kind: 'error', text: e instanceof ApiError ? e.message : 'ثبتِ تراکنش ناموفق بود.' });
+    } finally {
+      setPayBusy(false);
+    }
   }
 
   useEffect(() => {
@@ -162,10 +210,49 @@ export function CustomerCardPage() {
         <div style={{ display: 'flex', gap: 6 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/parties/${id}/edit`)}>ویرایش</button>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/sales/new?customerId=${id}`)}>فاکتورِ جدید</button>
-          <button className="btn btn-secondary btn-sm" onClick={() => navigate('/treasury')}>دریافتِ وجه</button>
+          {card.isCustomer && (
+            <button className="btn btn-secondary btn-sm" onClick={() => { setPayModal('receive'); setPayMsg(null); }}>دریافتِ وجه</button>
+          )}
+          {card.isSupplier && (
+            <button className="btn btn-secondary btn-sm" onClick={() => { setPayModal('pay'); setPayMsg(null); }}>پرداختِ وجه</button>
+          )}
           <button className="btn btn-secondary btn-sm" onClick={() => window.print()}>صورت‌حساب</button>
         </div>
       </div>
+
+      {payModal && (
+        <div className="no-print" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}
+          onClick={() => !payBusy && setPayModal(null)}>
+          <div style={{ background: 'var(--bg-surface, #fff)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', width: 340 }}
+            onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, marginBottom: 'var(--space-3)' }}>
+              {payModal === 'receive' ? 'دریافتِ وجه از' : 'پرداختِ وجه به'} {card.name}
+            </div>
+            <div className="field" style={{ marginBottom: 'var(--space-3)' }}>
+              <label className="label">مبلغ (ریال)</label>
+              <input className="input num" inputMode="numeric" value={payAmount} autoFocus
+                onChange={(e) => setPayAmount(e.target.value.replace(/[^\d]/g, ''))}
+                onKeyDown={(e) => { if (e.key === 'Enter') submitPayment(); }} />
+              {payAmount && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{money(Number(payAmount))} ریال</div>}
+            </div>
+            <div className="field" style={{ marginBottom: 'var(--space-3)' }}>
+              <label className="label">روشِ پرداخت</label>
+              <select className="select" value={payMethod} onChange={(e) => setPayMethod(e.target.value as 'نقدی' | 'بانک' | 'چک')}>
+                <option value="نقدی">نقدی</option>
+                <option value="بانک">بانک/کارت‌خوان</option>
+                <option value="چک">چک</option>
+              </select>
+            </div>
+            {payMsg && <div style={{ marginBottom: 'var(--space-2)' }}><StatusMessage kind={payMsg.kind}>{payMsg.text}</StatusMessage></div>}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-primary btn-sm" style={{ flex: 1 }} disabled={payBusy} onClick={submitPayment}>
+                {payBusy ? 'در حالِ ثبت…' : 'ثبت'}
+              </button>
+              <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} disabled={payBusy} onClick={() => setPayModal(null)}>بستن</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="print-area" style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)', alignItems: 'flex-start' }}>
         <div style={{ width: 280, flex: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>

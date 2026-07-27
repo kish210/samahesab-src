@@ -32,12 +32,22 @@ public class SettingsController : ControllerBase
         {
             CompanySettingKeys.CompanyName, CompanySettingKeys.CompanyNationalId,
             CompanySettingKeys.CompanyEconomicCode, CompanySettingKeys.CompanyPhone,
-            CompanySettingKeys.CompanyAddress,
+            CompanySettingKeys.CompanyAddress, CompanySettingKeys.CompanyLogo,
         };
 
         var unknown = values.Keys.Where(k => !allowed.Contains(k)).ToList();
         if (unknown.Count > 0)
             return BadRequest(new { message = $"کلیدِ ناشناخته: {string.Join("، ", unknown)}" });
+
+        // لوگو در هر بارگیریِ صفحهٔ فاکتور خوانده می‌شود؛ سقفِ اندازه می‌گذاریم تا یک تصویرِ
+        // بزرگ کلِ صفحات را کند نکند. مرورگر هم پیش از ارسال کوچکش می‌کند — این گاردِ سرور است.
+        if (values.TryGetValue(CompanySettingKeys.CompanyLogo, out var logo) && logo is not null)
+        {
+            if (logo.Length > 0 && !logo.StartsWith("data:image/", StringComparison.Ordinal))
+                return BadRequest(new { message = "لوگو باید یک data-URIِ تصویر باشد." });
+            if (logo.Length > 400_000)
+                return BadRequest(new { message = "لوگو بیش از حد بزرگ است (حداکثر حدودِ ۳۰۰ کیلوبایت)." });
+        }
 
         foreach (var (key, value) in values)
         {

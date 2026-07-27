@@ -91,6 +91,9 @@ export function SalesInvoiceDetailPage() {
       {inv && (
         <div className="print-area">
           <div className="print-only" style={{ marginBottom: 'var(--space-4)', textAlign: 'center' }}>
+            {company.CompanyLogo && (
+              <img src={company.CompanyLogo} alt="" style={{ maxWidth: 240, maxHeight: 120, marginBottom: 6 }} />
+            )}
             {company.CompanyName && <div style={{ fontSize: 18, fontWeight: 700 }}>{company.CompanyName}</div>}
             {company.CompanyAddress && <div style={{ fontSize: 12 }}>{company.CompanyAddress}</div>}
             {(company.CompanyPhone || company.CompanyEconomicCode) && (

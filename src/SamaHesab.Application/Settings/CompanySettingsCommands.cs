@@ -15,6 +15,11 @@ public static class CompanySettingKeys
     public const string CompanyEconomicCode = "CompanyEconomicCode";
     public const string CompanyPhone = "CompanyPhone";
     public const string CompanyAddress = "CompanyAddress";
+
+    /// <summary>لوگویِ سربرگِ چاپ به‌صورتِ data-URI (کوچک‌شده در مرورگر پیش از ارسال).
+    /// در همین جدولِ کلید-مقدار می‌ماند چون ستونِ Value از نوعِ nvarchar(max) است و
+    /// این‌طور نیازی به جدول/مسیرِ استاتیکِ جدا برایِ یک تصویرِ کوچک نیست.</summary>
+    public const string CompanyLogo = "CompanyLogo";
 }
 
 /// <summary>خواندنِ یک تنظیمِ شرکتی از DB با پیش‌فرض — قابلِ استفاده توسطِ هندلرهای Application.</summary>

@@ -27,6 +27,35 @@ function Kv({ label, value }: { label: string; value: string }) {
   );
 }
 
+/**
+ * لوگو را پیش از ارسال در خودِ مرورگر کوچک می‌کند. بدونِ این، کاربر می‌تواند یک عکسِ چندمگابایتی
+ * بگذارد که در **هر** بارگیریِ صفحهٔ فاکتور دوباره دانلود شود (سربرگِ چاپ همیشه لوگو را می‌خواند).
+ * خروجی PNGِ حداکثر ۲۴۰×۱۲۰ است — برایِ سربرگِ کاغذ کافی و همیشه کوچک.
+ */
+function shrinkToDataUri(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('خواندنِ فایل ناموفق بود.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('این فایل یک تصویرِ معتبر نیست.'));
+      img.onload = () => {
+        const MAX_W = 240, MAX_H = 120;
+        const scale = Math.min(MAX_W / img.width, MAX_H / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('پردازشِ تصویر ممکن نشد.')); return; }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 /** کلیدهایِ `CompanySettingKeys`ِ سرور — همین‌ها در `PUT /api/settings/company` مجازند. */
 const COMPANY_FIELDS = [
   { key: 'CompanyName', label: 'نامِ شرکت' },
@@ -63,7 +92,9 @@ export function SettingsPage() {
     setCompanyMsg(null);
     try {
       // فقط کلیدهایِ شناخته‌شده ارسال می‌شوند — سرور بقیه را رد می‌کند.
-      const body = Object.fromEntries(COMPANY_FIELDS.map((f) => [f.key, company[f.key]?.trim() || null]));
+      const body: Record<string, string | null> = Object.fromEntries(
+        COMPANY_FIELDS.map((f) => [f.key, company[f.key]?.trim() || null]));
+      body.CompanyLogo = company.CompanyLogo || null;
       await apiPut('/api/settings/company', body);
       setCompanyMsg({ kind: 'success', text: 'اطلاعاتِ شرکت ذخیره شد — از این پس در سربرگِ چاپیِ فاکتورها می‌آید.' });
     } catch (e) {
@@ -145,6 +176,37 @@ export function SettingsPage() {
                 </div>
               ))}
             </div>
+            <div className="field">
+              <label className="label">لوگو (سربرگِ چاپ)</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                {company.CompanyLogo ? (
+                  <img src={company.CompanyLogo} alt="لوگویِ شرکت"
+                    style={{ maxWidth: 120, maxHeight: 60, border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: 4 }} />
+                ) : (
+                  <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>لوگویی انتخاب نشده.</span>
+                )}
+                <input type="file" accept="image/*" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';   // تا انتخابِ دوبارهٔ همان فایل هم رویداد بدهد
+                  if (!file) return;
+                  setCompanyMsg(null);
+                  try {
+                    const uri = await shrinkToDataUri(file);
+                    setCompany((p) => ({ ...p, CompanyLogo: uri }));
+                  } catch (err) {
+                    setCompanyMsg({ kind: 'error', text: err instanceof Error ? err.message : 'بارگذاریِ لوگو ناموفق بود.' });
+                  }
+                }} />
+                {company.CompanyLogo && (
+                  <button type="button" className="btn btn-ghost btn-sm"
+                    onClick={() => setCompany((p) => ({ ...p, CompanyLogo: '' }))}>حذفِ لوگو</button>
+                )}
+              </div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: 4 }}>
+                تصویر پیش از ذخیره در مرورگر به حداکثر ۲۴۰×۱۲۰ کوچک می‌شود. تغییرات با دکمهٔ زیر ذخیره می‌شود.
+              </div>
+            </div>
+
             <div>
               <button className="btn btn-primary btn-sm" disabled={savingCompany} onClick={saveCompany}>
                 {savingCompany ? 'در حالِ ذخیره…' : 'ذخیرهٔ اطلاعاتِ شرکت'}

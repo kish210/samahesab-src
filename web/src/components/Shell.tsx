@@ -106,6 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/branches', label: 'شعب', icon: 'settings' },
     { to: '/security', label: 'امنیت', icon: 'settings' },
     { to: '/modules', label: 'مدیریتِ ماژول‌ها', icon: 'modules' },
+    { to: '/migration', label: 'مهاجرت از سایرِ برنامه‌ها', icon: 'inventory' },
     { to: '/support', label: 'پشتیبانی', icon: 'bell' },
     { to: '/settings', label: 'دربارهٔ سیستم', icon: 'settings' },
   ] },

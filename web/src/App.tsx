@@ -28,6 +28,7 @@ import { PurchaseInvoiceDetailPage } from './pages/PurchaseInvoiceDetailPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
 import { ModulesPage } from './pages/ModulesPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { MigrationPage } from './pages/MigrationPage';
 import { TaxInvoicingPage } from './pages/TaxInvoicingPage';
 import { TourismPage } from './pages/TourismPage';
 import { PartyEditPage } from './pages/PartyEditPage';
@@ -116,6 +117,7 @@ function AppRoutes() {
         <Route path="security" element={<SecurityPage />} />
         <Route path="modules" element={<ModulesPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="migration" element={<MigrationPage />} />
         <Route path="tax-invoicing" element={<TaxInvoicingPage />} />
         <Route path="tourism" element={<TourismPage />} />
 

@@ -53,6 +53,16 @@ interface CartLine {
   discountPct: number;
 }
 
+interface ReceiptData {
+  invoiceId: number;
+  date: string;
+  items: CartLine[];
+  paymentMethod: string;
+  customerName: string;
+  invoiceDiscount: number;
+  grand: number;
+}
+
 /** جمع‌هایِ یک ردیف — همان فرمولِ سرور: (تعداد×قیمت) − تخفیف، سپس مالیات رویِ خالص. */
 function lineTotals(l: CartLine) {
   const sub = l.quantity * l.unitPrice;
@@ -85,6 +95,7 @@ export function PosPage() {
 
   const [msg, setMsg] = useState<{ kind: 'error' | 'success'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -177,6 +188,15 @@ export function PosPage() {
         description: 'فروشِ صندوق (کلاینتِ وب)',
       });
       setMsg({ kind: 'success', text: `فاکتور با موفقیت ثبت شد (شناسه: ${res.invoiceId}).` });
+      setReceipt({
+        invoiceId: res.invoiceId,
+        date: new Date().toLocaleString('fa-IR'),
+        items: cart,
+        paymentMethod,
+        customerName,
+        invoiceDiscount,
+        grand: totals.grand,
+      });
       setCart([]);
       setInvoiceDiscount(0);
     } catch (e) {
@@ -246,6 +266,43 @@ export function PosPage() {
       />
 
       {msg && <div style={{ marginBottom: 'var(--space-2)' }}><StatusMessage kind={msg.kind}>{msg.text}</StatusMessage></div>}
+
+      {receipt && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+          <div style={{ background: '#fff', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', width: 340, maxHeight: '90vh', overflow: 'auto' }}>
+            <div className="print-area">
+              <div style={{ textAlign: 'center', marginBottom: 'var(--space-2)' }}>
+                <div style={{ fontWeight: 700 }}>رسیدِ فروش</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>شمارهٔ فاکتور: {receipt.invoiceId} — {receipt.date}</div>
+                <div style={{ fontSize: 12 }}>مشتری: {receipt.customerName} — پرداخت: {receipt.paymentMethod}</div>
+              </div>
+              <div style={{ borderTop: '1px dashed #999', borderBottom: '1px dashed #999', padding: '6px 0' }}>
+                {receipt.items.map((l) => {
+                  const t = lineTotals(l);
+                  return (
+                    <div key={l.productId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0' }}>
+                      <span>{l.name} × {numberFormat.format(l.quantity)}</span>
+                      <span className="num">{money(t.total)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {receipt.invoiceDiscount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
+                  <span>تخفیفِ کلی</span><span className="num">−{money(receipt.invoiceDiscount)}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: 6 }}>
+                <span>مبلغِ کل</span><span className="num">{money(receipt.grand)} ریال</span>
+              </div>
+            </div>
+            <div className="no-print" style={{ display: 'flex', gap: 8, marginTop: 'var(--space-3)' }}>
+              <button type="button" className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => window.print()}>چاپِ رسید</button>
+              <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setReceipt(null)}>بستن</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showHeld && (
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>

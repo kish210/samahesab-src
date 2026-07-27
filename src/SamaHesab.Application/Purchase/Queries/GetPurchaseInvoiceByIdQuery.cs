@@ -1,4 +1,5 @@
 using MediatR;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Entities.Purchase;
 using SamaHesab.Domain.Interfaces.Repositories;
@@ -19,16 +20,17 @@ public record PurchaseInvoiceDetailDto(
     int Id, string Number, string Date, int SupplierId, int WarehouseId,
     decimal Shipping, decimal OtherCosts, decimal GrandTotal, decimal PaidAmount, decimal RemainAmount,
     string? DueDate, string? Description, string InvoiceType, string StatusCode,
-    IReadOnlyList<PurchaseInvoiceDetailItem> Items);
+    IReadOnlyList<PurchaseInvoiceDetailItem> Items, string? SupplierName = null);
 
 public class GetPurchaseInvoiceByIdQueryHandler : IRequestHandler<GetPurchaseInvoiceByIdQuery, PurchaseInvoiceDetailDto?>
 {
     private readonly IRepository<PurchaseInvoice> _invoices;
     private readonly IRepository<PurchaseInvoiceItem> _items;
     private readonly IRepository<Product> _products;
+    private readonly IRepository<Party> _parties;
     public GetPurchaseInvoiceByIdQueryHandler(IRepository<PurchaseInvoice> invoices,
-        IRepository<PurchaseInvoiceItem> items, IRepository<Product> products)
-    { _invoices = invoices; _items = items; _products = products; }
+        IRepository<PurchaseInvoiceItem> items, IRepository<Product> products, IRepository<Party> parties)
+    { _invoices = invoices; _items = items; _products = products; _parties = parties; }
 
     public async Task<PurchaseInvoiceDetailDto?> Handle(GetPurchaseInvoiceByIdQuery req, CancellationToken ct)
     {
@@ -48,9 +50,11 @@ public class GetPurchaseInvoiceByIdQueryHandler : IRequestHandler<GetPurchaseInv
                 l.Quantity, l.UnitPrice, l.DiscountPct, l.TaxPct, l.Description);
         }).ToList();
 
+        var supplier = await _parties.GetByIdAsync(inv.SupplierId, ct);
+
         return new PurchaseInvoiceDetailDto(
             inv.Id, inv.InvoiceNumber, inv.InvoiceDate, inv.SupplierId, inv.WarehouseId,
             inv.Shipping, inv.OtherCosts, inv.GrandTotal, inv.PaidAmount, inv.RemainAmount,
-            inv.DueDate, inv.Description, inv.InvoiceType, inv.StatusCode, items);
+            inv.DueDate, inv.Description, inv.InvoiceType, inv.StatusCode, items, supplier?.FullName);
     }
 }

@@ -1,5 +1,6 @@
 using MediatR;
 using SamaHesab.Application.Common.Interfaces;
+using SamaHesab.Domain.Entities.CRM;
 using SamaHesab.Domain.Entities.Inventory;
 using SamaHesab.Domain.Entities.Sales;
 using SamaHesab.Domain.Enums;
@@ -21,16 +22,18 @@ public record SalesInvoiceDetailDto(
     int Id, string Number, string Date, int CustomerId, int WarehouseId, string PriceLevel,
     decimal Shipping, decimal OtherCosts, decimal GrandTotal, decimal PaidAmount, decimal RemainAmount,
     string? DueDate, string? Description, string? Reference, string? Title,
-    string InvoiceType, IReadOnlyList<SalesInvoiceDetailItem> Items, decimal InvoiceDiscount = 0);
+    string InvoiceType, IReadOnlyList<SalesInvoiceDetailItem> Items, decimal InvoiceDiscount = 0,
+    string? CustomerName = null);
 
 public class GetSalesInvoiceByIdQueryHandler : IRequestHandler<GetSalesInvoiceByIdQuery, SalesInvoiceDetailDto?>
 {
     private readonly IRepository<SalesInvoice> _invoices;
     private readonly IRepository<SalesInvoiceItem> _items;
     private readonly IRepository<Product> _products;
+    private readonly IRepository<Party> _parties;
     public GetSalesInvoiceByIdQueryHandler(IRepository<SalesInvoice> invoices,
-        IRepository<SalesInvoiceItem> items, IRepository<Product> products)
-    { _invoices = invoices; _items = items; _products = products; }
+        IRepository<SalesInvoiceItem> items, IRepository<Product> products, IRepository<Party> parties)
+    { _invoices = invoices; _items = items; _products = products; _parties = parties; }
 
     private static string TypeFa(InvoiceType t) => t switch
     {
@@ -57,10 +60,12 @@ public class GetSalesInvoiceByIdQueryHandler : IRequestHandler<GetSalesInvoiceBy
                 l.Quantity, l.UnitPrice, l.DiscountPct, l.TaxPct, l.Description);
         }).ToList();
 
+        var customer = await _parties.GetByIdAsync(inv.CustomerId, ct);
+
         return new SalesInvoiceDetailDto(
             inv.Id, inv.InvoiceNumber, inv.InvoiceDate, inv.CustomerId, inv.WarehouseId, inv.PriceLevel,
             inv.Shipping, inv.OtherCosts, inv.GrandTotal, inv.PaidAmount, inv.RemainAmount,
             inv.DueDate, inv.Description, inv.Reference, inv.Title, TypeFa(inv.InvoiceType), items,
-            inv.InvoiceDiscount);
+            inv.InvoiceDiscount, customer?.FullName);
     }
 }

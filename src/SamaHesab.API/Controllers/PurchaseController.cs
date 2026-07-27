@@ -20,6 +20,14 @@ public class PurchaseController : ControllerBase
         [FromQuery] string? search, CancellationToken ct)
         => Ok(await _mediator.Send(new GetPurchaseInvoicesQuery(from, to, search), ct));
 
+    /// <summary>یک فاکتورِ خرید با اقلامش — برایِ صفحهٔ نمایش/چاپ.</summary>
+    [HttpGet("invoices/{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    {
+        var dto = await _mediator.Send(new GetPurchaseInvoiceByIdQuery(id), ct);
+        return dto is null ? NotFound() : Ok(dto);
+    }
+
     /// <summary>Create a purchase invoice (increases stock + posts the automatic voucher).</summary>
     [HttpPost("invoices")]
     public async Task<IActionResult> Create([FromBody] CreatePurchaseInvoiceCommand command, CancellationToken ct)

@@ -1045,3 +1045,27 @@
   اسکن‌شدنی رندر نمی‌شود چون کتابخانه‌ای مثلِ JsBarcode هنوز به وب اضافه نشده؛
   فقط کد/نام/قیمت خوانا چاپ می‌شود)، `RestaurantHallsPage` (کارتِ سفارش/صورتحساب).
   Build سبزِ وب (`npm run build`). تغییرِ خالصِ CSS/فرانت‌اند، بدونِ لمسِ backend.
+
+- ✅ **وب: نمایش/چاپِ فاکتورِ فروش+خرید و رسیدِ POS (@2026-07-27).** ادامهٔ U-WEB-PRINT —
+  ممیزی نشان داد ۳ موردِ چاپیِ مهم اصلاً وجود نداشتند (نه فقط خراب بودند): فاکتورِ فروش/خرید
+  اصلاً صفحهٔ نمایشِ تکی نداشتند (فهرست فقط لیست بود، بدونِ کلیک/GET-by-id در API)، و POS
+  بعدِ فروش فقط توستِ موفقیت نشان می‌داد، بدونِ رسید. رفع:
+  - Backend: `GET api/sales/invoices/{id}` و `GET api/purchase/invoices/{id}` به کنترلرها
+    اضافه شد (هندلرهایِ `GetSalesInvoiceByIdQuery`/`GetPurchaseInvoiceByIdQuery` از قبل در
+    Application برایِ حالتِ «مشاهده»ی دسکتاپ آماده بودند، فقط اکسپوز نشده بودند به وب).
+    هر دو DTO با `CustomerName`/`SupplierName` (از `Party.FullName`) تکمیل شد. `SettingsController`
+    نو با `GET api/settings/company` (نام/آدرس/تلفن/کدِ اقتصادیِ شرکت، از `GetCompanySettingsQuery`ِ
+    از‌قبل‌موجود) برایِ سربرگِ چاپیِ فاکتور.
+  - وب: `SalesInvoiceDetailPage.tsx`/`PurchaseInvoiceDetailPage.tsx` نو (مسیرِ
+    `sales/invoices/:id`/`purchase/invoices/:id`) — سربرگِ شرکتی (فقط چاپ، `.print-only`)،
+    مشخصاتِ فاکتور، جدولِ اقلام، جمع‌بندی؛ `SalesInvoicesPage`/`PurchaseInvoicesPage` با
+    `onRowClick`ِ `DataTable` به این صفحات وصل شدند (قبلاً کلیکِ ردیف کاری نمی‌کرد).
+  - POS: `PosPage.tsx` — قبل از خالی‌کردنِ سبد بعدِ پرداخت، عکسِ لحظه‌ای (`ReceiptData`:
+    اقلام/جمع/شمارهٔ فاکتور/مشتری/روشِ پرداخت) در state ذخیره می‌شود؛ مودالِ رسید با
+    `.print-area` (دکمه‌هایِ چاپ/بستن در `.no-print` بیرون از آن، نه داخلش — تا با پنهان‌شدنِ
+    والدِ no-print هنگامِ چاپ، رسید هم پنهان نشود).
+  - تستِ زندهٔ Backend: API از سورس (`dotnet run --urls :5099`، بدونِ لمسِ سرویسِ نصب‌شدهٔ
+    ۵۰۸۰) روی همان DBِ محلی اجرا و لاگین شد؛ `GET /api/sales/invoices/1` مقادیرِ کاملِ
+    اقلام/جمع/مشتری را درست برگرداند؛ `GET /api/settings/company` پاسخِ `{}`ِ درستِ خالی داد
+    (شرکتی هنوز تنظیماتی ثبت نکرده). فاکتورِ خریدِ آزمایشی در DB نبود، ولی هندلر قرینهٔ
+    دقیقِ همان الگو است. `npm run build` و `dotnet build/test` (۸۲۳/۸۲۳) سبز.

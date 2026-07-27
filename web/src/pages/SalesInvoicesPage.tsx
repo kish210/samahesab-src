@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiGet, ApiError } from '../api/client';
 import { money } from '../lib/format';
 import { DataTable, type Column } from '../components/DataTable';
@@ -17,6 +17,7 @@ interface SalesInvoiceRow {
 }
 
 export function SalesInvoicesPage() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<SalesInvoiceRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,15 @@ export function SalesInvoicesPage() {
       />
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {loading && !error && <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>}
-      {!loading && !error && <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} emptyText="فاکتوری یافت نشد." />}
+      {!loading && !error && (
+        <DataTable
+          columns={columns}
+          rows={rows}
+          rowKey={(r) => r.id}
+          emptyText="فاکتوری یافت نشد."
+          onRowClick={(r) => navigate(`/sales/invoices/${r.id}`)}
+        />
+      )}
     </div>
   );
 }

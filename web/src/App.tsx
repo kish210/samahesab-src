@@ -21,8 +21,10 @@ import { IncomeStatementPage } from './pages/IncomeStatementPage';
 import { BranchSummaryPage } from './pages/BranchSummaryPage';
 import { AccountsPage } from './pages/AccountsPage';
 import { SalesInvoicesPage } from './pages/SalesInvoicesPage';
+import { SalesInvoiceDetailPage } from './pages/SalesInvoiceDetailPage';
 import { CreateSalesInvoicePage } from './pages/CreateSalesInvoicePage';
 import { PurchaseInvoicesPage } from './pages/PurchaseInvoicesPage';
+import { PurchaseInvoiceDetailPage } from './pages/PurchaseInvoiceDetailPage';
 import { CreatePurchaseInvoicePage } from './pages/CreatePurchaseInvoicePage';
 import { ModulesPage } from './pages/ModulesPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -90,9 +92,11 @@ function AppRoutes() {
         <Route path="sales" element={<SalesInvoicesPage />} />
         <Route path="sales/new" element={<CreateSalesInvoicePage />} />
         <Route path="sales/return" element={<ReturnFormPage mode="sales" />} />
+        <Route path="sales/invoices/:id" element={<SalesInvoiceDetailPage />} />
         <Route path="purchase" element={<PurchaseInvoicesPage />} />
         <Route path="purchase/new" element={<CreatePurchaseInvoicePage />} />
         <Route path="purchase/return" element={<ReturnFormPage mode="purchase" />} />
+        <Route path="purchase/invoices/:id" element={<PurchaseInvoiceDetailPage />} />
 
         <Route path="treasury" element={<TreasuryPage />} />
         <Route path="cheques" element={<ChequesPage />} />

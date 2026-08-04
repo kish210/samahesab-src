@@ -25,4 +25,12 @@
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" /><!-- فاز ۱۲ P-G8 -->
   </ItemGroup>
+
+  <!-- U-WEB-TEMPLATES — پکِ قالب‌های پیش‌فرضِ چاپ (.shtpl) همراهِ API به خروجی کپی می‌شود تا
+       «نصبِ قالب‌های پیش‌فرض» از کلاینتِ وب هم در دسترس باشد (هم‌الگو با SamaHesab.WPF.csproj). -->
+  <ItemGroup>
+    <Content Include="..\..\Templates\**\*.shtpl" Link="Templates\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

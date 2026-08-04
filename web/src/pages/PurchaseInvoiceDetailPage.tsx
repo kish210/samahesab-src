@@ -81,6 +81,9 @@ export function PurchaseInvoiceDetailPage() {
         actions={
           <>
             <Link to="/purchase" className="btn btn-secondary btn-sm">بازگشت به فهرست</Link>
+            {inv && inv.invoiceType !== 'برگشت خرید' && inv.paidAmount === 0 && (
+              <Link to={`/purchase/invoices/${inv.id}/edit`} className="btn btn-secondary btn-sm" title="مرجوعیِ کامل + صدورِ فاکتورِ نو با دادهٔ ویرایش‌شده">ویرایش</Link>
+            )}
             <button type="button" className="btn btn-primary btn-sm" disabled={!inv} onClick={() => window.print()}>چاپ</button>
           </>
         }

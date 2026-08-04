@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { apiGet, apiPost, ApiError } from '../api/client';
+import { useNavigate, useParams } from 'react-router-dom';
+import { apiGet, apiPost, apiPut, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
 import { QuickCreateModal } from '../components/QuickCreateModal';
@@ -22,9 +22,19 @@ interface WarehouseOption {
   name: string;
 }
 
+interface PurchaseInvoiceDetailDto {
+  id: number; number: string; date: string; supplierId: number; warehouseId: number;
+  shipping: number; otherCosts: number; paidAmount: number; description: string | null;
+  items: { productId: number; quantity: number; unitPrice: number; discountPct: number; taxPct: number }[];
+}
+
+/** قرینهٔ CreateSalesInvoicePage — هم ثبتِ فاکتورِ نو، هم (روی مسیرِ `purchase/invoices/:id/edit`)
+ * ویرایش (U-WEB-INV-EDIT، از طریقِ `EditPurchaseInvoiceCommand`). */
 export function CreatePurchaseInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = !!editId;
   const fiscalYearId = useActiveFiscalYear();
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
   const [warehouses, setWarehouses] = useState<WarehouseOption[]>([]);
@@ -42,6 +52,8 @@ export function CreatePurchaseInvoicePage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [quickAddSupplier, setQuickAddSupplier] = useState<string | null>(null);
+  const [loadingInvoice, setLoadingInvoice] = useState(isEdit);
+  const [originalNumber, setOriginalNumber] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -52,9 +64,34 @@ export function CreatePurchaseInvoicePage() {
       setSuppliers(s);
       setWarehouses(w);
       setProducts(p);
-      if (w.length > 0) setWarehouseId(w[0].id);
+      if (!isEdit && w.length > 0) setWarehouseId(w[0].id);
     });
-  }, []);
+  }, [isEdit]);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    apiGet<PurchaseInvoiceDetailDto>(`/api/purchase/invoices/${editId}`)
+      .then((inv) => {
+        setOriginalNumber(inv.number);
+        setSupplierId(inv.supplierId);
+        setWarehouseId(inv.warehouseId);
+        setInvoiceDate(inv.date);
+        setShipping(String(inv.shipping || 0));
+        setOtherCosts(String(inv.otherCosts || 0));
+        setNotes(inv.description ?? '');
+        setLines(inv.items.length > 0
+          ? inv.items.map((it) => ({
+              productId: it.productId, quantity: String(it.quantity), unitPrice: String(it.unitPrice),
+              discountPct: String(it.discountPct), taxPct: String(it.taxPct),
+            }))
+          : [emptyLine()]);
+        if (inv.paidAmount !== 0) {
+          setError('این فاکتور پرداختی/دریافتیِ ثبت‌شده دارد — ابتدا از «دریافت/پرداخت» یا مرجوعی، آن را برگردانید، سپس ویرایش کنید.');
+        }
+      })
+      .catch((e) => setError(e instanceof ApiError ? e.message : 'بارگیریِ فاکتور برایِ ویرایش ناموفق بود.'))
+      .finally(() => setLoadingInvoice(false));
+  }, [isEdit, editId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -83,19 +120,33 @@ export function CreatePurchaseInvoicePage() {
 
     setSubmitting(true);
     try {
-      await apiPost('/api/purchase/invoices', {
-        branchId: user?.branchId ?? 1,
-        fiscalYearId: fiscalYearId ?? 1,
-        invoiceDate,
-        supplierId,
-        warehouseId,
-        invoiceType: 'فاکتور خرید',
-        description: notes || null,
-        shipping: Number(shipping) || 0,
-        otherCosts: Number(otherCosts) || 0,
-        items,
-        paidAmount: Number(paidAmount) || 0,
-      });
+      if (isEdit) {
+        await apiPut(`/api/purchase/invoices/${editId}`, {
+          invoiceId: Number(editId),
+          invoiceDate,
+          supplierId,
+          warehouseId,
+          description: notes || null,
+          shipping: Number(shipping) || 0,
+          otherCosts: Number(otherCosts) || 0,
+          items,
+          paidAmount: Number(paidAmount) || 0,
+        });
+      } else {
+        await apiPost('/api/purchase/invoices', {
+          branchId: user?.branchId ?? 1,
+          fiscalYearId: fiscalYearId ?? 1,
+          invoiceDate,
+          supplierId,
+          warehouseId,
+          invoiceType: 'فاکتور خرید',
+          description: notes || null,
+          shipping: Number(shipping) || 0,
+          otherCosts: Number(otherCosts) || 0,
+          items,
+          paidAmount: Number(paidAmount) || 0,
+        });
+      }
       navigate('/purchase', { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'ثبتِ فاکتور ناموفق بود.');
@@ -107,9 +158,17 @@ export function CreatePurchaseInvoicePage() {
   const totals = computeInvoiceTotals(lines);
   const grandTotal = totals.itemsTotal + (Number(shipping) || 0) + (Number(otherCosts) || 0);
 
+  if (loadingInvoice) return <StatusMessage kind="muted">در حالِ بارگیریِ فاکتور…</StatusMessage>;
+
   return (
     <div>
-      <PageHeader title="فاکتورِ خریدِ نو" />
+      <PageHeader title={isEdit ? `ویرایشِ فاکتورِ خرید — ${originalNumber ?? ''}` : 'فاکتورِ خریدِ نو'} />
+      {isEdit && (
+        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-3)' }}>
+          ذخیره یعنی فاکتورِ اصلیِ «{originalNumber}» به‌طورِ کامل مرجوع می‌شود و یک فاکتورِ نو با دادهٔ زیر صادر می‌شود
+          (فاکتورِ اصلی به‌عنوانِ سابقهٔ تاریخی می‌ماند).
+        </p>
+      )}
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ فاکتور (هم‌الگو با sales-invoice.html) */}
         <div className="gbox">
@@ -170,7 +229,7 @@ export function CreatePurchaseInvoicePage() {
         )}
 
         <button type="submit" className="btn btn-primary" disabled={submitting} style={{ marginTop: 'var(--space-4)' }}>
-          {submitting ? 'در حالِ ثبت…' : 'ثبتِ فاکتور'}
+          {submitting ? 'در حالِ ثبت…' : isEdit ? 'ذخیرهٔ ویرایش' : 'ثبتِ فاکتور'}
         </button>
       </form>
 

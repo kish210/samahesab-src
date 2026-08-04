@@ -38,6 +38,17 @@ public class PurchaseController : ControllerBase
             : BadRequest(new { message = result.ErrorMessage });
     }
 
+    /// <summary>U-WEB-INV-EDIT — ویرایشِ فاکتورِ خرید (مرجوعیِ کامل + صدورِ فاکتورِ نو؛ نگاه کن
+    /// به توضیحِ `EditPurchaseInvoiceCommand`). Idِ مسیر مرجع است.</summary>
+    [HttpPut("invoices/{id:int}")]
+    public async Task<IActionResult> Edit(int id, [FromBody] EditPurchaseInvoiceCommand command, CancellationToken ct)
+    {
+        var result = await _mediator.Send(command with { InvoiceId = id }, ct);
+        return result.Succeeded
+            ? Ok(new { invoiceId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
+
     /// <summary>مرجوعی خرید (C2-C): خروج کالا از انبار (بازگشت به تأمین‌کننده) + سند حسابداری معکوس.</summary>
     [HttpPost("returns")]
     public async Task<IActionResult> Return([FromBody] CreatePurchaseReturnCommand command, CancellationToken ct)

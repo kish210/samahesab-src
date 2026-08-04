@@ -48,6 +48,17 @@ public class SalesController : ControllerBase
             : BadRequest(new { message = result.ErrorMessage });
     }
 
+    /// <summary>U-WEB-INV-EDIT — ویرایشِ فاکتورِ فروش (مرجوعیِ کامل + صدورِ فاکتورِ نو؛ نگاه کن
+    /// به توضیحِ `EditSalesInvoiceCommand`). Idِ مسیر مرجع است.</summary>
+    [HttpPut("invoices/{id:int}")]
+    public async Task<IActionResult> Edit(int id, [FromBody] EditSalesInvoiceCommand command, CancellationToken ct)
+    {
+        var result = await _mediator.Send(command with { InvoiceId = id }, ct);
+        return result.Succeeded
+            ? Ok(new { invoiceId = result.Value })
+            : BadRequest(new { message = result.ErrorMessage });
+    }
+
     /// <summary>مرجوعی فروش (کار #۳۲): بازگشت کالا به انبار + سند حسابداری معکوس.</summary>
     [HttpPost("returns")]
     public async Task<IActionResult> Return([FromBody] CreateSalesReturnCommand command, CancellationToken ct)

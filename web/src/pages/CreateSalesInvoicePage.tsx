@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiGet, apiPost, ApiError } from '../api/client';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { apiGet, apiPost, apiPut, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
 import { QuickCreateModal } from '../components/QuickCreateModal';
@@ -22,9 +22,22 @@ interface WarehouseOption {
   name: string;
 }
 
+interface SalesInvoiceDetailDto {
+  id: number; number: string; date: string; customerId: number; warehouseId: number;
+  priceLevel: string; shipping: number; otherCosts: number; paidAmount: number;
+  description: string | null; items: { productId: number; quantity: number; unitPrice: number; discountPct: number; taxPct: number }[];
+  invoiceDiscount: number;
+}
+
+/** هم برایِ ثبتِ فاکتورِ نو و هم — وقتی مسیر `sales/invoices/:id/edit` باشد — برایِ «ویرایشِ
+ * فاکتور» استفاده می‌شود (U-WEB-INV-EDIT). چون هر فاکتورِ وب بلافاصله Posted می‌شود، «ویرایش»
+ * از دلِ سرور با مرجوعیِ کاملِ فاکتورِ اصلی + صدورِ فاکتورِ نو انجام می‌شود (نگاه کن به
+ * `EditSalesInvoiceCommand`) — این صفحه فقط دادهٔ فرم را می‌گیرد و به `PUT` به‌جایِ `POST` می‌فرستد. */
 export function CreateSalesInvoicePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = !!editId;
   const [searchParams] = useSearchParams();
   const fiscalYearId = useActiveFiscalYear();
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -46,6 +59,8 @@ export function CreateSalesInvoicePage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [quickAddCustomer, setQuickAddCustomer] = useState<string | null>(null);
+  const [loadingInvoice, setLoadingInvoice] = useState(isEdit);
+  const [originalNumber, setOriginalNumber] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -56,9 +71,35 @@ export function CreateSalesInvoicePage() {
       setCustomers(c);
       setWarehouses(w);
       setProducts(p);
-      if (w.length > 0) setWarehouseId(w[0].id);
+      if (!isEdit && w.length > 0) setWarehouseId(w[0].id);
     });
-  }, []);
+  }, [isEdit]);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    apiGet<SalesInvoiceDetailDto>(`/api/sales/invoices/${editId}`)
+      .then((inv) => {
+        setOriginalNumber(inv.number);
+        setCustomerId(inv.customerId);
+        setWarehouseId(inv.warehouseId);
+        setInvoiceDate(inv.date);
+        setInvoiceDiscount(String(inv.invoiceDiscount || 0));
+        setShipping(String(inv.shipping || 0));
+        setOtherCosts(String(inv.otherCosts || 0));
+        setNotes(inv.description ?? '');
+        setLines(inv.items.length > 0
+          ? inv.items.map((it) => ({
+              productId: it.productId, quantity: String(it.quantity), unitPrice: String(it.unitPrice),
+              discountPct: String(it.discountPct), taxPct: String(it.taxPct),
+            }))
+          : [emptyLine()]);
+        if (inv.paidAmount !== 0) {
+          setError('این فاکتور پرداختی/دریافتیِ ثبت‌شده دارد — ابتدا از «دریافت/پرداخت» یا مرجوعی، آن را برگردانید، سپس ویرایش کنید.');
+        }
+      })
+      .catch((e) => setError(e instanceof ApiError ? e.message : 'بارگیریِ فاکتور برایِ ویرایش ناموفق بود.'))
+      .finally(() => setLoadingInvoice(false));
+  }, [isEdit, editId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -87,22 +128,39 @@ export function CreateSalesInvoicePage() {
 
     setSubmitting(true);
     try {
-      await apiPost<{ invoiceId: number }>('/api/sales/invoices', {
-        branchId: user?.branchId ?? 1,
-        fiscalYearId: fiscalYearId ?? 1,
-        invoiceDate,
-        customerId,
-        warehouseId,
-        invoiceType: 0, // Sale
-        priceLevel: 'خرده',
-        description: notes || null,
-        shipping: Number(shipping) || 0,
-        otherCosts: Number(otherCosts) || 0,
-        invoiceDiscount: Number(invoiceDiscount) || 0,
-        items,
-        paidAmount: paymentMethod === 'نسیه' ? 0 : Number(paidAmount) || 0,
-        paymentMethod,
-      });
+      if (isEdit) {
+        await apiPut<{ invoiceId: number }>(`/api/sales/invoices/${editId}`, {
+          invoiceId: Number(editId),
+          invoiceDate,
+          customerId,
+          warehouseId,
+          priceLevel: 'خرده',
+          description: notes || null,
+          shipping: Number(shipping) || 0,
+          otherCosts: Number(otherCosts) || 0,
+          invoiceDiscount: Number(invoiceDiscount) || 0,
+          items,
+          paidAmount: paymentMethod === 'نسیه' ? 0 : Number(paidAmount) || 0,
+          paymentMethod,
+        });
+      } else {
+        await apiPost<{ invoiceId: number }>('/api/sales/invoices', {
+          branchId: user?.branchId ?? 1,
+          fiscalYearId: fiscalYearId ?? 1,
+          invoiceDate,
+          customerId,
+          warehouseId,
+          invoiceType: 0, // Sale
+          priceLevel: 'خرده',
+          description: notes || null,
+          shipping: Number(shipping) || 0,
+          otherCosts: Number(otherCosts) || 0,
+          invoiceDiscount: Number(invoiceDiscount) || 0,
+          items,
+          paidAmount: paymentMethod === 'نسیه' ? 0 : Number(paidAmount) || 0,
+          paymentMethod,
+        });
+      }
       navigate('/sales', { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'ثبتِ فاکتور ناموفق بود.');
@@ -114,9 +172,17 @@ export function CreateSalesInvoicePage() {
   const totals = computeInvoiceTotals(lines);
   const grandTotal = totals.itemsTotal - (Number(invoiceDiscount) || 0) + (Number(shipping) || 0) + (Number(otherCosts) || 0);
 
+  if (loadingInvoice) return <StatusMessage kind="muted">در حالِ بارگیریِ فاکتور…</StatusMessage>;
+
   return (
     <div>
-      <PageHeader title="فاکتورِ فروشِ نو" />
+      <PageHeader title={isEdit ? `ویرایشِ فاکتورِ فروش — ${originalNumber ?? ''}` : 'فاکتورِ فروشِ نو'} />
+      {isEdit && (
+        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-3)' }}>
+          ذخیره یعنی فاکتورِ اصلیِ «{originalNumber}» به‌طورِ کامل مرجوع می‌شود و یک فاکتورِ نو با دادهٔ زیر صادر می‌شود
+          (فاکتورِ اصلی به‌عنوانِ سابقهٔ تاریخی می‌ماند).
+        </p>
+      )}
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* پورتِ `.gbox`ِ design-system برایِ مشخصاتِ فاکتور (sales-invoice.html) */}
         <div className="gbox">
@@ -190,7 +256,7 @@ export function CreateSalesInvoicePage() {
         )}
 
         <button type="submit" className="btn btn-primary" disabled={submitting} style={{ marginTop: 'var(--space-4)' }}>
-          {submitting ? 'در حالِ ثبت…' : 'ثبتِ فاکتور'}
+          {submitting ? 'در حالِ ثبت…' : isEdit ? 'ذخیرهٔ ویرایش' : 'ثبتِ فاکتور'}
         </button>
       </form>
 

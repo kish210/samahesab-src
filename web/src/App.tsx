@@ -97,10 +97,12 @@ function AppRoutes() {
         <Route path="sales/new" element={<CreateSalesInvoicePage />} />
         <Route path="sales/return" element={<ReturnFormPage mode="sales" />} />
         <Route path="sales/invoices/:id" element={<SalesInvoiceDetailPage />} />
+        <Route path="sales/invoices/:id/edit" element={<CreateSalesInvoicePage />} />
         <Route path="purchase" element={<PurchaseInvoicesPage />} />
         <Route path="purchase/new" element={<CreatePurchaseInvoicePage />} />
         <Route path="purchase/return" element={<ReturnFormPage mode="purchase" />} />
         <Route path="purchase/invoices/:id" element={<PurchaseInvoiceDetailPage />} />
+        <Route path="purchase/invoices/:id/edit" element={<CreatePurchaseInvoicePage />} />
 
         <Route path="treasury" element={<TreasuryPage />} />
         <Route path="cheques" element={<ChequesPage />} />

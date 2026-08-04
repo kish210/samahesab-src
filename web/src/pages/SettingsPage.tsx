@@ -2,21 +2,9 @@ import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiPut, ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import { generateRecoveryCode } from '../lib/recoveryCode';
 
 interface LicenseStatus { isExpired: boolean; daysRemaining: number | null; expiresUtc: string | null }
-
-/** کدِ بازیابیِ تصادفیِ ۱۶نویسه‌ای — همان الگویِ `RecoveryCodeGenerator`ِ دسکتاپ (حروفِ بزرگ+عدد،
- * بدونِ کاراکترهایِ مبهم مثلِ 0/O یا 1/I). */
-function generateRecoveryCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  for (let i = 0; i < 16; i++) {
-    code += chars[bytes[i] % chars.length];
-    if (i % 4 === 3 && i < 15) code += '-';
-  }
-  return code;
-}
 
 function Kv({ label, value }: { label: string; value: string }) {
   return (

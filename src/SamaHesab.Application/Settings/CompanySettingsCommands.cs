@@ -24,6 +24,11 @@ public static class CompanySettingKeys
     /// <summary>کلیدِ ماژول‌هایِ غیرفعال‌شده (comma-separated). غیرفعال‌سازی سطحِ نمایش است:
     /// ماژول از منو/capabilities پنهان می‌شود و دادهٔ تاریخی‌اش دست‌نخورده می‌ماند (قاعدهٔ removability).</summary>
     public const string DisabledModules = "DisabledModules";
+
+    /// <summary>"true" پس از اتمام/ردِ ویزاردِ راه‌اندازیِ اولیهٔ وب (U-WEB-WIZARD) — معادلِ
+    /// `AppSettingsStore.SetupCompleted`ِ دسکتاپ که فایلِ محلیِ per-machine بود، اینجا سطحِ
+    /// شرکت است (چون وب می‌تواند از چند ماشین باز شود).</summary>
+    public const string SetupCompleted = "SetupCompleted";
 }
 
 /// <summary>خواندن/نوشتنِ مجموعهٔ کلیدِ ماژول‌هایِ غیرفعال از تنظیماتِ شرکتی (comma-separated).</summary>

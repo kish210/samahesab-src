@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Shell } from './components/Shell';
 import { LoginPage } from './pages/LoginPage';
+import { SetupWizardPage } from './pages/SetupWizardPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CustomersPage } from './pages/CustomersPage';
 import { CustomerCardPage } from './pages/CustomerCardPage';
@@ -62,6 +63,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/setup" element={<ProtectedRoute><SetupWizardPage /></ProtectedRoute>} />
       <Route
         path="/"
         element={

@@ -140,6 +140,8 @@ export function Shell() {
   const [licenseBannerDismissed, setLicenseBannerDismissed] = useState(false);
   const [appVersion, setAppVersion] = useState<string | null>(null);
   const [calcOpen, setCalcOpen] = useState(false);
+  const [setupDismissed, setSetupDismissed] = useState(false);
+  const [setupCompleted, setSetupCompleted] = useState<boolean | null>(null);
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -168,6 +170,15 @@ export function Shell() {
   useEffect(() => {
     apiGet<LicenseStatus>('/api/license/status').then(setLicense).catch(() => {});
   }, []);
+
+  // بنرِ «راه‌اندازیِ اولیه» — وب برخلافِ دسکتاپ ریدایرکتِ اجباری ندارد (چند کاربر/مرورگر
+  // ممکن است هم‌زمان به همین سرور وصل باشند)؛ فقط پیشنهاد می‌دهد، کاربر می‌تواند ردش کند.
+  useEffect(() => {
+    apiGet<Record<string, string | null>>('/api/settings/company')
+      .then((d) => setSetupCompleted(d.SetupCompleted === 'true'))
+      .catch(() => setSetupCompleted(true));
+  }, []);
+  const showSetupBanner = !setupDismissed && setupCompleted === false && location.pathname !== '/setup';
 
   // نسخهٔ واقعیِ سرور (نه رشتهٔ ثابتِ قدیمی که با هر ریلیز دستی به‌روز نمی‌شد و می‌توانست
   // با نسخهٔ واقعاً منتشرشده روی kishwifi.com/download ناهم‌خوان باشد).
@@ -240,6 +251,22 @@ export function Shell() {
           </div>
         </button>
       </header>
+
+      {showSetupBanner && (
+        <div style={{
+          flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          padding: '6px 16px', fontSize: 12.5,
+          background: 'var(--blue-50, #eff6ff)', color: 'var(--blue-700, #1d4ed8)',
+          borderBottom: '1px solid var(--border)',
+        }}>
+          <span>راه‌اندازیِ اولیهٔ سما حساب هنوز کامل نشده — اطلاعاتِ شرکت/سالِ مالی/رمزِ عبور را تکمیل کنید.</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/setup')}>شروعِ راه‌اندازی</button>
+            <button type="button" onClick={() => setSetupDismissed(true)}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontSize: 12 }}>✕</button>
+          </div>
+        </div>
+      )}
 
       {showLicenseBanner && (
         <div style={{

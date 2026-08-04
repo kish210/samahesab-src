@@ -31,6 +31,15 @@ public class WarehouseController : ControllerBase
     public async Task<IActionResult> Stock([FromQuery] int warehouseId, [FromQuery] string? q, CancellationToken ct)
         => Ok(await _mediator.Send(new GetWarehouseStockQuery(warehouseId, q), ct));
 
+    /// <summary>ساختِ انبارِ نو — تا پیش از این وب هیچ راهی برایِ ساختِ انبار نداشت
+    /// (فقط دسکتاپ/ویزاردِ راه‌اندازیِ اولیه). لازمِ ویزاردِ راه‌اندازیِ وب (U-WEB-WIZARD).</summary>
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateWarehouseCommand cmd, CancellationToken ct)
+    {
+        var r = await _mediator.Send(cmd, ct);
+        return r.Succeeded ? Ok(new { id = r.Value }) : BadRequest(new { message = r.ErrorMessage });
+    }
+
     [HttpPost("receive")]
     public async Task<IActionResult> Receive([FromBody] ReceiveStockCommand cmd, CancellationToken ct)
     {

@@ -109,6 +109,19 @@ public class AuthController : ControllerBase
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
+    public record ChangePasswordRequest(string NewPassword);
+
+    /// <summary>تغییرِ رمزِ کاربرِ جاری (خودسرویس) — پیش‌تر وب هیچ راهی برایِ این نداشت (فقط
+    /// ویزاردِ راه‌اندازیِ دسکتاپ). لازمِ ویزاردِ راه‌اندازیِ وب (U-WEB-WIZARD) + هر جایِ دیگر
+    /// که کاربر بخواهد رمزِ خودش را عوض کند.</summary>
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest req, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new ChangeUserPasswordCommand(_currentUser.UserId!.Value, req.NewPassword), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
     public record ResetPasswordRecoveryRequest(string Username, string RecoveryCode, string NewPassword, int CompanyId = 1);
 
     /// <summary>بازنشانیِ رمزِ فراموش‌شده با کدِ بازیابی — بدونِ نیازِ لاگین (صفحهٔ ورود).</summary>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import { RichHtmlEditor } from '../components/RichHtmlEditor';
 
 interface TemplateRow { id: number; name: string; paperSize: string; isDefault: boolean; isActive: boolean; isSystem: boolean }
 interface TemplateFull { id: number; documentType: string; name: string; paperSize: string; headerHtml: string | null; bodyHtml: string; footerHtml: string | null }
@@ -17,6 +18,11 @@ const DOCUMENT_TYPES: { id: string; name: string }[] = [
   { id: 'RestaurantReceipt', name: 'رسید رستوران' }, { id: 'PosReceipt', name: 'رسید صندوق' },
 ];
 const PAPER_SIZES = ['A4P', 'A4L', 'A5', 'Thermal80', 'Thermal58', 'Custom'];
+const COMMON_TOKENS = [
+  'InvoiceNumber', 'InvoiceDate', 'CustomerName', 'CustomerCode', 'BranchName',
+  'TotalAmount', 'PaidAmount', 'RemainAmount', 'Discount', 'Tax', 'Shipping', 'OtherCosts',
+  'Description', 'Reference', 'PriceLevel',
+];
 
 const BLANK_BODY = `<div style="font-family:Tahoma;direction:rtl;padding:16px">
   <h2 style="text-align:center">{InvoiceNumber}</h2>
@@ -219,19 +225,16 @@ export function TemplatesPage() {
                 </div>
               </div>
               <div className="field">
-                <label className="label">سربرگ (HTML، اختیاری)</label>
-                <textarea className="input" style={{ direction: 'ltr', fontFamily: 'monospace', minHeight: 60 }}
-                  value={header} onChange={(e) => setHeader(e.target.value)} />
+                <label className="label">سربرگ (اختیاری)</label>
+                <RichHtmlEditor value={header} onChange={setHeader} tokens={COMMON_TOKENS} minHeight={60} placeholder="سربرگِ فاکتور…" />
               </div>
               <div className="field">
-                <label className="label">بدنه (HTML)</label>
-                <textarea className="input" style={{ direction: 'ltr', fontFamily: 'monospace', minHeight: 180 }}
-                  value={body} onChange={(e) => setBody(e.target.value)} />
+                <label className="label">بدنه</label>
+                <RichHtmlEditor value={body} onChange={setBody} tokens={COMMON_TOKENS} minHeight={220} placeholder="بدنهٔ فاکتور…" />
               </div>
               <div className="field">
-                <label className="label">فوتر (HTML، اختیاری)</label>
-                <textarea className="input" style={{ direction: 'ltr', fontFamily: 'monospace', minHeight: 60 }}
-                  value={footer} onChange={(e) => setFooter(e.target.value)} />
+                <label className="label">فوتر (اختیاری)</label>
+                <RichHtmlEditor value={footer} onChange={setFooter} tokens={COMMON_TOKENS} minHeight={60} placeholder="فوترِ فاکتور…" />
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                 <button className="btn btn-primary btn-sm" disabled={saving} onClick={save}>

@@ -220,11 +220,13 @@ export function Shell() {
           </div>
         </div>
         <nav className="erp-menu">
+          {/* NavLink (نه button+onClick) تا میانی‌کلیک/Ctrl+کلیک بازکردنِ بخش در تبِ نوِ
+              مرورگر را بدهد — چندتب‌شدنِ فرمِ اصلی (کاربر: «دو فرم هم‌زمان باز باشد»)
+              بر پایهٔ تب‌هایِ سطحِ خودِ مرورگر، نه پیاده‌سازیِ تب‌بندیِ سفارشی. */}
           {topbarGroups.map((g) => (
-            <button key={g.title} type="button" className={g.title === activeGroup ? 'active' : ''}
-              onClick={() => navigate(g.items[0].to)}>
+            <NavLink key={g.title} to={g.items[0].to} className={() => g.title === activeGroup ? 'active' : ''}>
               {g.title}
-            </button>
+            </NavLink>
           ))}
         </nav>
         <div className="search" style={{ cursor: 'pointer' }}

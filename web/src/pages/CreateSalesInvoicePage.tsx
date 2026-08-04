@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
+import { QuickCreateModal } from '../components/QuickCreateModal';
 import { InvoiceLineEditor, emptyLine, computeInvoiceTotals, type InvoiceLine, type ProductOption } from '../components/InvoiceLineEditor';
 import { InvoiceSidePanel } from '../components/InvoiceSidePanel';
 import { useAuth } from '../auth/AuthContext';
@@ -44,6 +45,7 @@ export function CreateSalesInvoicePage() {
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [quickAddCustomer, setQuickAddCustomer] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -127,6 +129,8 @@ export function CreateSalesInvoicePage() {
                 value={customerId}
                 onChange={setCustomerId}
                 placeholder="جست‌وجویِ مشتری…"
+                createNewLabel="مشتریِ جدید"
+                onCreateNew={(q) => setQuickAddCustomer(q)}
               />
             </div>
             <div className="field">
@@ -160,7 +164,8 @@ export function CreateSalesInvoicePage() {
 
         <div className="inv-layout">
           <div className="inv-left">
-            <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="salePrice" />
+            <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="salePrice"
+              onProductCreated={(p) => setProducts((prev) => [...prev, p])} />
           </div>
           <InvoiceSidePanel
             itemsSubtotal={totals.subTotal}
@@ -188,6 +193,19 @@ export function CreateSalesInvoicePage() {
           {submitting ? 'در حالِ ثبت…' : 'ثبتِ فاکتور'}
         </button>
       </form>
+
+      {quickAddCustomer !== null && (
+        <QuickCreateModal
+          kind="customer"
+          initialName={quickAddCustomer}
+          onClose={() => setQuickAddCustomer(null)}
+          onCreated={(item) => {
+            setCustomers((prev) => [...prev, { id: item.id, name: item.name, code: item.code }]);
+            setCustomerId(item.id);
+            setQuickAddCustomer(null);
+          }}
+        />
+      )}
     </div>
   );
 }

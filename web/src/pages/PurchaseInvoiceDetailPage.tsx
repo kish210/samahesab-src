@@ -47,6 +47,7 @@ export function PurchaseInvoiceDetailPage() {
   const [company, setCompany] = useState<Record<string, string | null>>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [templateHtml, setTemplateHtml] = useState<string | null>(null);
 
   useEffect(() => {
     apiGet<PurchaseInvoiceDetailDto>(`/api/purchase/invoices/${id}`)
@@ -58,6 +59,9 @@ export function PurchaseInvoiceDetailPage() {
           : 'خطا در بارگیریِ فاکتور.'))
       .finally(() => setLoading(false));
     apiGet<Record<string, string | null>>('/api/settings/company').then(setCompany).catch(() => {});
+    apiGet<{ html: string | null }>(`/api/document-templates/render-invoice?documentType=PurchaseInvoice&entityId=${id}`)
+      .then((r) => setTemplateHtml(r.html))
+      .catch(() => setTemplateHtml(null));
   }, [id]);
 
   const columns: Column<PurchaseInvoiceDetailItem>[] = [
@@ -84,7 +88,10 @@ export function PurchaseInvoiceDetailPage() {
       {error && <StatusMessage kind="error">{error}</StatusMessage>}
       {loading && !error && <StatusMessage kind="muted">در حالِ بارگیری…</StatusMessage>}
 
-      {inv && (
+      {inv && templateHtml && (
+        <div className="print-area" dangerouslySetInnerHTML={{ __html: templateHtml }} />
+      )}
+      {inv && !templateHtml && (
         <div className="print-area">
           <div className="print-only" style={{ marginBottom: 'var(--space-4)', textAlign: 'center' }}>
             {company.CompanyLogo && (

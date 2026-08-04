@@ -14,9 +14,9 @@ html, body, #root { height: 100%; overflow: hidden; }
 .erp-top .brand .nm { font-size: 14px; font-weight: 700; }
 .erp-top .brand .ver { font-size: 10px; color: var(--blue-200); }
 .erp-menu { display: flex; align-items: center; gap: 2px; overflow-x: auto; }
-.erp-menu > button { background: transparent; border: none; color: rgba(255,255,255,.85); font-family: var(--font-sans); font-size: 13px; font-weight: 500; padding: 7px 11px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
-.erp-menu > button:hover { background: rgba(255,255,255,.10); color: #fff; }
-.erp-menu > button.active { background: rgba(255,255,255,.16); color: #fff; }
+.erp-menu > button, .erp-menu > a { background: transparent; border: none; color: rgba(255,255,255,.85); font-family: var(--font-sans); font-size: 13px; font-weight: 500; padding: 7px 11px; border-radius: 6px; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+.erp-menu > button, .erp-menu > a:hover { background: rgba(255,255,255,.10); color: #fff; }
+.erp-menu > button, .erp-menu > a.active { background: rgba(255,255,255,.16); color: #fff; }
 .erp-top .search { margin-inline-start: auto; width: 300px; max-width: 26%; min-width: 40px; position: relative; flex: none; }
 .erp-top .search input { width: 100%; height: 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.10); color: #fff; font-family: var(--font-sans); font-size: 12.5px; padding: 0 34px 0 12px; }
 .erp-top .search input::placeholder { color: rgba(255,255,255,.55); }
@@ -32,10 +32,10 @@ html, body, #root { height: 100%; overflow: hidden; }
   .erp-top .search svg { inset-inline-start: 9px; pointer-events: none; }
 }
 @media (max-width: 1020px) and (min-width: 861px) {
-  .erp-menu > button { padding: 7px 8px; font-size: 12.5px; }
+  .erp-menu > button, .erp-menu > a { padding: 7px 8px; font-size: 12.5px; }
 }
 @media (max-width: 860px) {
-  .erp-menu > button { padding: 6px 7px; font-size: 12px; }
+  .erp-menu > button, .erp-menu > a { padding: 6px 7px; font-size: 12px; }
 }
 @media (max-width: 900px) {
   /* آزادسازیِ فضایِ بیشتر برایِ ۸ دکمهٔ منو: نسخه زیرِ برند و متنِ نامِ‌کاربری/خروج پنهان می‌شوند —

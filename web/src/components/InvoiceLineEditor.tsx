@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { SearchSelect } from './SearchSelect';
+import { QuickCreateModal } from './QuickCreateModal';
 import { money } from '../lib/format';
 
 export interface ProductOption {
@@ -61,10 +62,14 @@ interface Props {
   /** فرمِ مرجوعی تخفیفِ ردیف ندارد (Commandِ سرور فقط productId/quantity/unitPrice/taxPct می‌گیرد) —
    * ستونِ تخفیف پنهان می‌شود تا فیلدی که نادیده گرفته می‌شود به کاربر نشان داده نشود. */
   hideDiscount?: boolean;
+  /** وقتی کالایِ نو از دلِ همین گرید ساخته می‌شود (دکمهٔ «+ کالایِ جدید» در SearchSelect)، به
+   * فهرستِ محلیِ کالاهایِ صفحهٔ والد هم اضافه می‌شود تا ردیف‌هایِ بعدی هم آن را ببینند. */
+  onProductCreated?: (p: ProductOption) => void;
 }
 
-export function InvoiceLineEditor({ products, lines, onChange, priceField, hideDiscount = false }: Props) {
+export function InvoiceLineEditor({ products, lines, onChange, priceField, hideDiscount = false, onProductCreated }: Props) {
   const tableRef = useRef<HTMLTableElement>(null);
+  const [quickAdd, setQuickAdd] = useState<{ rowIndex: number; query: string } | null>(null);
 
   function updateLine(index: number, patch: Partial<InvoiceLine>) {
     const next = lines.slice();
@@ -123,6 +128,8 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
                       updateLine(i, { productId: id, unitPrice: p ? String(p[priceField]) : line.unitPrice });
                     }}
                     placeholder="جست‌وجویِ کالا…"
+                    createNewLabel="کالایِ جدید"
+                    onCreateNew={(query) => setQuickAdd({ rowIndex: i, query })}
                   />
                 </td>
                 <td className="num">
@@ -168,6 +175,21 @@ export function InvoiceLineEditor({ products, lines, onChange, priceField, hideD
           + افزودنِ ردیف
         </button>
       </div>
+
+      {quickAdd && (
+        <QuickCreateModal
+          kind="product"
+          initialName={quickAdd.query}
+          onClose={() => setQuickAdd(null)}
+          onCreated={(item) => {
+            const p = item as ProductOption & { salePrice: number; purchasePrice: number };
+            const newProduct: ProductOption = { id: p.id, code: p.code, name: p.name, salePrice: p.salePrice, purchasePrice: p.purchasePrice };
+            onProductCreated?.(newProduct);
+            updateLine(quickAdd.rowIndex, { productId: newProduct.id, unitPrice: String(newProduct[priceField]) });
+            setQuickAdd(null);
+          }}
+        />
+      )}
     </div>
   );
 }

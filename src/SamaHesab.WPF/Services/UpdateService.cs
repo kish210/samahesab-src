@@ -4,8 +4,11 @@ using System.Text.Json;
 
 namespace SamaHesab.WPF.Services;
 
-/// <summary>اطلاعاتِ یک نسخهٔ جدیدِ موجود روی سرورِ دانلود.</summary>
-public record UpdateInfo(Version Version, string Tag, string DownloadUrl, string FileName, string? Notes);
+/// <summary>اطلاعاتِ یک نسخهٔ جدیدِ موجود روی سرورِ دانلود.
+/// <c>IsWebOnly</c> — از v2.9 به بعد تنها نصابِ منتشرشده «Web_Setup» (سرور+وب) است، نه نصابِ
+/// دسکتاپ؛ اجرایِ خودکارِ آن رویِ نصبِ دسکتاپِ کاربر (CLOSEAPPLICATIONS/RESTARTAPPLICATIONS)
+/// نادرست است — کاربرِ دسکتاپ باید آگاهانه به کلاینتِ وب مهاجرت کند، نه با یک دانلودِ خودکار.</summary>
+public record UpdateInfo(Version Version, string Tag, string DownloadUrl, string FileName, string? Notes, bool IsWebOnly = false);
 
 /// <summary>
 /// به‌روزرسانِ خودکار — منبعِ نسخه/فایل از `https://kishwifi.com/download/version.json`
@@ -21,6 +24,9 @@ public record UpdateInfo(Version Version, string Tag, string DownloadUrl, string
 public class UpdateService
 {
     private const string ManifestUrl = "https://kishwifi.com/download/version.json";
+
+    /// <summary>صفحهٔ دانلودِ عمومی برایِ راهنماییِ کاربرِ دسکتاپ به نصابِ وبِ جدید.</summary>
+    public const string WebDownloadPageUrl = "https://kishwifi.com/download/";
 
     /// <summary>نسخهٔ جاریِ برنامه (از Directory.Build.props روی اسمبلی نشسته).</summary>
     public static Version CurrentVersion =>
@@ -47,7 +53,7 @@ public class UpdateService
             if (!root.TryGetProperty("files", out var files)) return null;
             var notes = root.TryGetProperty("notes", out var b) ? b.GetString() : null;
 
-            (string url, string name)? fallback = null;
+            (string url, string name, bool isWebOnly)? fallback = null;
             foreach (var f in files.EnumerateArray())
             {
                 var name = f.GetProperty("name").GetString() ?? "";
@@ -55,14 +61,18 @@ public class UpdateService
                 var url = f.GetProperty("url").GetString();
                 if (string.IsNullOrEmpty(url)) continue;
 
-                // نصابِ کلاینت/سرور هدفِ آپدیتِ خودکارِ دسکتاپ نیست؛ نادیده بگیر مگر اینکه چیزِ دیگری نباشد.
+                // نصابِ کلاینت/سرور/وب هدفِ آپدیتِ خودکارِ دسکتاپ نیست؛ نادیده بگیر مگر اینکه چیزِ دیگری نباشد.
+                bool isWebOnly = name.IndexOf("Web_Setup", StringComparison.OrdinalIgnoreCase) >= 0;
                 bool isClientOrServer = name.IndexOf("Client", StringComparison.OrdinalIgnoreCase) >= 0
                                      || name.IndexOf("Server", StringComparison.OrdinalIgnoreCase) >= 0;
-                if (isClientOrServer) { fallback ??= (url, name); continue; }
+                if (isWebOnly) { fallback ??= (url, name, true); continue; }
+                if (isClientOrServer) { fallback ??= (url, name, false); continue; }
 
                 return new UpdateInfo(latest, tag, url, name, notes);
             }
-            if (fallback is { } fb) return new UpdateInfo(latest, tag, fb.url, fb.name, notes);
+            // از v2.9 به بعد معمولاً فقط Web_Setup منتشر می‌شود ⇒ به همان fallback می‌رسیم —
+            // IsWebOnly=true یعنی «پیشنهادِ آگاهانهٔ مهاجرت»، نه دانلود/اجرایِ خودکار.
+            if (fallback is { } fb) return new UpdateInfo(latest, tag, fb.url, fb.name, notes, fb.isWebOnly);
             return null;
         }
         catch { return null; }   // آفلاین/خطا → بی‌صدا

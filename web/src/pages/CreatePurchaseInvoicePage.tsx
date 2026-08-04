@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { SearchSelect } from '../components/SearchSelect';
+import { QuickCreateModal } from '../components/QuickCreateModal';
 import { InvoiceLineEditor, emptyLine, computeInvoiceTotals, type InvoiceLine, type ProductOption } from '../components/InvoiceLineEditor';
 import { InvoiceSidePanel } from '../components/InvoiceSidePanel';
 import { useAuth } from '../auth/AuthContext';
@@ -40,6 +41,7 @@ export function CreatePurchaseInvoicePage() {
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [quickAddSupplier, setQuickAddSupplier] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -120,6 +122,8 @@ export function CreatePurchaseInvoicePage() {
                 value={supplierId}
                 onChange={setSupplierId}
                 placeholder="جست‌وجویِ تأمین‌کننده…"
+                createNewLabel="تأمین‌کنندهٔ جدید"
+                onCreateNew={(q) => setQuickAddSupplier(q)}
               />
             </div>
             <div className="field">
@@ -142,7 +146,8 @@ export function CreatePurchaseInvoicePage() {
 
         <div className="inv-layout">
           <div className="inv-left">
-            <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="purchasePrice" />
+            <InvoiceLineEditor products={products} lines={lines} onChange={setLines} priceField="purchasePrice"
+              onProductCreated={(p) => setProducts((prev) => [...prev, p])} />
           </div>
           <InvoiceSidePanel
             itemsSubtotal={totals.subTotal}
@@ -168,6 +173,19 @@ export function CreatePurchaseInvoicePage() {
           {submitting ? 'در حالِ ثبت…' : 'ثبتِ فاکتور'}
         </button>
       </form>
+
+      {quickAddSupplier !== null && (
+        <QuickCreateModal
+          kind="supplier"
+          initialName={quickAddSupplier}
+          onClose={() => setQuickAddSupplier(null)}
+          onCreated={(item) => {
+            setSuppliers((prev) => [...prev, { id: item.id, name: item.name, code: item.code }]);
+            setSupplierId(item.id);
+            setQuickAddSupplier(null);
+          }}
+        />
+      )}
     </div>
   );
 }

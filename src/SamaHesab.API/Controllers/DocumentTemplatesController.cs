@@ -2,6 +2,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SamaHesab.Application.Documents;
+using SamaHesab.Application.Sales.Queries;
+using SamaHesab.Application.Purchase.Queries;
+using SamaHesab.Application.Settings;
 
 namespace SamaHesab.API.Controllers;
 
@@ -78,6 +81,51 @@ public class DocumentTemplatesController : ControllerBase
         var html = DocumentTemplateEngine.Render(req.HeaderHtml, data)
                  + DocumentTemplateEngine.Render(req.BodyHtml, data)
                  + DocumentTemplateEngine.Render(req.FooterHtml, data);
+        return Ok(new { html });
+    }
+
+    /// <summary>
+    /// U-WEB-TEMPLATES-BIND — رندرِ واقعیِ چاپِ یک فاکتورِ فروش/خرید با قالبِ پیش‌فرضِ همان نوعِ
+    /// سند (اگر شرکت قالبِ سفارشی تعیین کرده باشد). اگر هیچ قالبِ پیش‌فرضی نباشد `html: null`
+    /// برمی‌گردد — کلاینت در این حالت به layoutِ هاردکدِ فعلیِ صفحهٔ فاکتور برمی‌گردد (بدونِ شکستنِ
+    /// چاپِ ازقبل‌تست‌شده برایِ شرکت‌هایی که هنوز قالبِ سفارشی نساخته‌اند).
+    /// </summary>
+    [HttpGet("render-invoice")]
+    public async Task<IActionResult> RenderInvoice([FromQuery] string documentType, [FromQuery] int entityId, CancellationToken ct)
+    {
+        if (documentType != "SalesInvoice" && documentType != "PurchaseInvoice")
+            return BadRequest(new { message = "نوعِ سند برایِ رندر پشتیبانی نمی‌شود." });
+
+        var list = await _mediator.Send(new GetDocumentTemplatesQuery(documentType), ct);
+        // فقط قالبِ پیش‌فرضِ *سفارشیِ شرکت* (نه قالب‌هایِ سیستمیِ پکِ نمونه) رندرِ واقعیِ فاکتور را
+        // به‌جایِ layoutِ هاردکدِ ازقبل‌تست‌شده می‌گیرد — تا نصبِ پکِ نمونه (که یکی از آن‌ها ممکن است
+        // پیش‌فرض علامت‌گذاری شود) به‌طورِ ناخواسته چاپِ همهٔ شرکت‌ها را عوض نکند.
+        var defaultTemplate = list.FirstOrDefault(t => t.IsDefault && !t.IsSystem);
+        if (defaultTemplate is null) return Ok(new { html = (string?)null });
+
+        var full = await _mediator.Send(new GetDocumentTemplateQuery(defaultTemplate.Id), ct);
+        if (full is null) return Ok(new { html = (string?)null });
+
+        var companySettings = await _mediator.Send(new GetCompanySettingsQuery(), ct);
+        companySettings.TryGetValue(CompanySettingKeys.CompanyName, out var companyName);
+
+        DocumentData data;
+        if (documentType == "SalesInvoice")
+        {
+            var inv = await _mediator.Send(new GetSalesInvoiceByIdQuery(entityId), ct);
+            if (inv is null) return NotFound(new { message = "فاکتور یافت نشد." });
+            data = InvoiceDocumentData.FromSalesInvoice(inv, companyName);
+        }
+        else
+        {
+            var inv = await _mediator.Send(new GetPurchaseInvoiceByIdQuery(entityId), ct);
+            if (inv is null) return NotFound(new { message = "فاکتور یافت نشد." });
+            data = InvoiceDocumentData.FromPurchaseInvoice(inv, companyName);
+        }
+
+        var html = DocumentTemplateEngine.Render(full.HeaderHtml, data)
+                 + DocumentTemplateEngine.Render(full.BodyHtml, data)
+                 + DocumentTemplateEngine.Render(full.FooterHtml, data);
         return Ok(new { html });
     }
 }

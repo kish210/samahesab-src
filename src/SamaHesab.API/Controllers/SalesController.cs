@@ -71,7 +71,8 @@ public class SalesController : ControllerBase
 
     public record PosSaleItem(int ProductId, decimal Quantity, decimal UnitPrice, decimal DiscountPct = 0, decimal TaxPct = 0);
     public record PosSaleRequest(List<PosSaleItem> Items, decimal Paid = 0, string PaymentMethod = "نقدی",
-        int CustomerId = 1, int WarehouseId = 1, decimal Discount = 0, decimal OtherCosts = 0, string? Description = null);
+        int CustomerId = 1, int WarehouseId = 1, decimal Discount = 0, decimal OtherCosts = 0, string? Description = null,
+        InvoiceType Type = InvoiceType.Sale);
 
     /// <summary>
     /// Simplified POS / restaurant checkout: the kiosk sends only items + payment and the
@@ -93,17 +94,18 @@ public class SalesController : ControllerBase
             InvoiceDate: _calendar.GetCurrentPersianDate(),
             CustomerId: req.CustomerId,
             WarehouseId: req.WarehouseId,
-            InvoiceType: InvoiceType.Sale,
+            InvoiceType: req.Type,
             PriceLevel: "خرده",
             SalesRepId: null,
             DueDate: null,
-            Description: req.Description ?? "فروش صندوق (POS)",
+            Description: req.Description ?? (req.Type == InvoiceType.Quotation ? "پیش‌فاکتور (POS)" : "فروش صندوق (POS)"),
             Shipping: 0,
             OtherCosts: req.OtherCosts,
             Items: req.Items.Select(i => new SalesInvoiceItemDto(
                 i.ProductId, i.Quantity, i.UnitPrice, i.DiscountPct, i.TaxPct, null, null, null)).ToList(),
             InvoiceDiscount: req.Discount,
-            PaidAmount: req.Paid,
+            // پیش‌فاکتور پرداختی نمی‌گیرد (هنوز فروشِ قطعی نیست) — حتی اگر کلاینتی Paid فرستاد صفر می‌شود.
+            PaidAmount: req.Type == InvoiceType.Quotation ? 0 : req.Paid,
             PaymentMethod: req.PaymentMethod,
             CommissionPercent: 0);
 

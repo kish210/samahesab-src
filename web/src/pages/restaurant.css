@@ -23,6 +23,8 @@
 .tbl-card.bill { border-color: var(--gold-500); background: var(--gold-50); }
 .tbl-card.bill .foot { color: var(--gold-700); }
 .tbl-card.bill .badge2 { background: var(--gold-500); color: #fff; }
+.tbl-card.reserved { border-color: var(--violet-600, #7c3aed); background: #f5f3ff; }
+.tbl-card.reserved .badge2 { background: var(--violet-600, #7c3aed); color: #fff; }
 .tbl-card.free .badge2 { background: var(--gray-150); color: var(--gray-600); }
 .tbl-card.selected { box-shadow: 0 0 0 2px var(--blue-600); }
 .tbl-card.menu-tile { aspect-ratio: auto; min-height: 64px; border-style: solid; border-color: var(--border); }
@@ -60,3 +62,12 @@
 .obtns .kot:hover:not(:disabled) { background: var(--success-700); }
 .obtns .settle { grid-column: 1/-1; background: var(--blue-700); border-color: var(--blue-700); color: #fff; }
 .obtns .settle svg { color: #fff; }
+
+/* دکمه‌هایِ کمکیِ صفحهٔ رستوران (رزرو/یادداشت/استپرِ مهمان). */
+.resv-btn { margin-top: auto; align-self: flex-start; height: 26px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--violet-600, #7c3aed); background: #fff; color: var(--violet-600, #7c3aed); font-family: var(--font-sans); font-size: 11px; font-weight: 700; cursor: pointer; }
+.resv-btn:hover:not(:disabled) { background: var(--violet-600, #7c3aed); color: #fff; }
+.resv-btn:disabled { opacity: .45; cursor: default; }
+.hstep { width: 18px; height: 18px; border: none; border-radius: 50%; background: rgba(255,255,255,.28); color: #fff; font-size: 13px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.hstep:hover { background: rgba(255,255,255,.45); }
+.note-btn { flex: none; width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-strong); background: #fff; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+.note-btn:hover { color: var(--blue-700); border-color: var(--blue-600); }

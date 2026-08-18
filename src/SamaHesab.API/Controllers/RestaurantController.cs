@@ -101,6 +101,14 @@ public class RestaurantController : ControllerBase
         return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
     }
 
+    /// <summary>تغییر تعداد مهمانِ سفارشِ باز (U-REST-GUEST).</summary>
+    [HttpPost("orders/{id:int}/guest-count/{count:int}")]
+    public async Task<IActionResult> ChangeGuestCount(int id, int count, CancellationToken ct)
+    {
+        var r = await _mediator.Send(new ChangeGuestCountCommand(id, count), ct);
+        return r.Succeeded ? Ok() : BadRequest(new { message = r.ErrorMessage });
+    }
+
     /// <summary>تسویه‌ی سفارش و آزادسازی میز.</summary>
     [HttpPost("orders/{id:int}/settle")]
     public async Task<IActionResult> Settle(int id, [FromBody] SettleOrderCommand cmd, CancellationToken ct)

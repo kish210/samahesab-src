@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import { apiGet, apiPost, apiDelete, ApiError } from '../api/client';
-import { money, numberFormat } from '../lib/format';
+import { money, numberFormat, numberToPersianWords } from '../lib/format';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { Barcode } from '../components/Barcode';
+import { SearchSelect, type SearchSelectOption } from '../components/SearchSelect';
+import { printThermal } from '../lib/thermalPrint';
 import './pos.css';
 
 interface ProductRow {
@@ -62,6 +64,7 @@ interface ReceiptData {
   customerName: string;
   invoiceDiscount: number;
   grand: number;
+  kind: 'فروش' | 'پیش‌فاکتور';
 }
 
 /** جمع‌هایِ یک ردیف — همان فرمولِ سرور: (تعداد×قیمت) − تخفیف، سپس مالیات رویِ خالص. */
@@ -83,8 +86,10 @@ export function PosPage() {
   const [groups, setGroups] = useState<ProductGroupDto[]>([]);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
+  const [warehouses, setWarehouses] = useState<WarehouseDto[]>([]);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [customerName, setCustomerName] = useState('متفرقه');
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 200);
@@ -108,7 +113,9 @@ export function PosPage() {
       .then(([p, g, w, c]) => {
         setProducts(p.filter((x) => x.isActive));
         setGroups(g);
+        setWarehouses(w);
         if (w.length > 0) setWarehouseId(w[0].id);
+        setCustomers(c);
         const walkIn = c.find((x) => x.code === 'WALKIN') ?? c[0];
         if (walkIn) { setCustomerId(walkIn.id); setCustomerName(walkIn.name); }
       })
@@ -128,20 +135,67 @@ export function PosPage() {
     return list.slice(0, 40);
   }, [products, groupId, debouncedSearch]);
 
-  function addToCart(p: ProductRow) {
+  function addToCart(p: ProductRow, quantity = 1) {
     setMsg(null);
     setCart((prev) => {
       const i = prev.findIndex((l) => l.productId === p.id);
       if (i >= 0) {
         const next = prev.slice();
-        next[i] = { ...next[i], quantity: next[i].quantity + 1 };
+        next[i] = { ...next[i], quantity: next[i].quantity + quantity };
         return next;
       }
       return [...prev, {
         productId: p.id, code: p.code, name: p.name,
-        unitPrice: p.salePrice, taxPct: p.taxRate ?? 0, quantity: 1, discountPct: 0,
+        unitPrice: p.salePrice, taxPct: p.taxRate ?? 0, quantity, discountPct: 0,
       }];
     });
+  }
+
+  /** انتخابِ مشتری از کمبو — نام هم برایِ رسید/هدرِ فاکتور به‌روز می‌شود. */
+  function selectCustomer(id: number | null) {
+    setCustomerId(id);
+    const c = customers.find((x) => x.id === id);
+    setCustomerName(c ? c.name : 'متفرقه');
+  }
+
+  /** اسکنِ بارکد (Enter در کادر جست‌وجو): بارکد را واقعاً resolve می‌کند، نه فقط فیلترِ نام/کد. */
+  async function resolveBarcodeAndAdd(code: string) {
+    const hit = await apiGet<{
+      productId: number; code: string; name: string; salePrice: number;
+      taxRate: number; groupId: number | null; weighted: boolean; embeddedValue: number | null;
+    }>(`/api/barcode/resolve?code=${encodeURIComponent(code)}`);
+    const p = products.find((x) => x.id === hit.productId);
+    if (!p) {
+      // کالا در فهرستِ فعال نیست یا هنوز بارگیری نشده — از دادهٔ خودِ پاسخ استفاده کن.
+      addToCart({
+        id: hit.productId, groupId: hit.groupId, code: hit.code, name: hit.name,
+        salePrice: hit.salePrice, taxRate: hit.taxRate, minStock: 0, isActive: true,
+      }, hit.weighted && hit.embeddedValue ? hit.embeddedValue : 1);
+      return;
+    }
+    addToCart(p, hit.weighted && hit.embeddedValue ? hit.embeddedValue : 1);
+  }
+
+  /** Enter در کادر جست‌وجو: اول بارکد resolve، بعدِ آن مطابقتِ دقیقِ کد/نام. */
+  async function onSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== 'Enter') return;
+    const code = search.trim();
+    if (!code) return;
+    e.preventDefault();
+    setMsg(null);
+    try {
+      await resolveBarcodeAndAdd(code);
+      setSearch('');
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        // بارکد نبود — مطابقتِ دقیقِ کد/نام به‌عنوانِ fallback (تایپِ دستیِ کدِ کالا).
+        const exact = products.find((p) => p.code === code || p.name === code);
+        if (exact) { addToCart(exact); setSearch(''); }
+        else setMsg({ kind: 'error', text: `بارکد/کدِ «${code}» یافت نشد.` });
+      } else {
+        setMsg({ kind: 'error', text: err instanceof ApiError ? err.message : 'خطا در خواندنِ بارکد.' });
+      }
+    }
   }
 
   function changeQty(index: number, delta: number) {
@@ -163,13 +217,15 @@ export function PosPage() {
     return { ...t, grand: Math.max(0, t.total - invoiceDiscount) };
   }, [cart, invoiceDiscount]);
 
-  /** پرداختِ مستقیم — مبلغِ دقیق، هم‌الگو با دکمه‌هایِ `.paygrid`ِ نمونهٔ سیستم‌طراحی (بدونِ فرمِ جدا). */
-  async function pay(paymentMethod: 'نقدی' | 'بانک' | 'چک' | 'نسیه') {
+  /** پرداختِ مستقیم — مبلغِ دقیق، هم‌الگو با دکمه‌هایِ `.paygrid`ِ نمونهٔ سیستم‌طراحی (بدونِ فرمِ جدا).
+   * `kind='پیش‌فاکتور'` هم از همین مسیر می‌رود ولی InvoiceType.Quotation=2 می‌فرستد (سند/موجودی نمی‌سازد). */
+  async function pay(paymentMethod: 'نقدی' | 'بانک' | 'چک' | 'نسیه', kind: 'فروش' | 'پیش‌فاکتور' = 'فروش') {
     setMsg(null);
     if (cart.length === 0) {
       setMsg({ kind: 'error', text: 'سبد خالی است.' });
       return;
     }
+    const isQuote = kind === 'پیش‌فاکتور';
     setBusy(true);
     try {
       const res = await apiPost<{ invoiceId: number }>('/api/sales/pos', {
@@ -180,15 +236,18 @@ export function PosPage() {
           discountPct: l.discountPct,
           taxPct: l.taxPct,
         })),
-        paid: paymentMethod === 'نسیه' ? 0 : Math.round(totals.grand),
+        paid: isQuote ? 0 : (paymentMethod === 'نسیه' ? 0 : Math.round(totals.grand)),
         paymentMethod,
         customerId: customerId ?? 1,
         warehouseId: warehouseId ?? 1,
         discount: invoiceDiscount,
         otherCosts: 0,
-        description: 'فروشِ صندوق (کلاینتِ وب)',
+        description: isQuote ? 'پیش‌فاکتور (کلاینتِ وب)' : 'فروشِ صندوق (کلاینتِ وب)',
+        type: isQuote ? 2 : 0,   // InvoiceType.Quotation=2 / Sale=0
       });
-      setMsg({ kind: 'success', text: `فاکتور با موفقیت ثبت شد (شناسه: ${res.invoiceId}).` });
+      setMsg({ kind: 'success', text: isQuote
+        ? `پیش‌فاکتور با موفقیت ثبت شد (شناسه: ${res.invoiceId}).`
+        : `فاکتور با موفقیت ثبت شد (شناسه: ${res.invoiceId}).` });
       setReceipt({
         invoiceId: res.invoiceId,
         date: new Date().toLocaleString('fa-IR'),
@@ -197,6 +256,7 @@ export function PosPage() {
         customerName,
         invoiceDiscount,
         grand: totals.grand,
+        kind,
       });
       setCart([]);
       setInvoiceDiscount(0);
@@ -205,6 +265,37 @@ export function PosPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  /** چاپِ حرارتیِ رسید (۸۰mm) — همان دادهٔ رسیدِ رویِ صفحه را در پنجرهٔ چاپ می‌برد. */
+  function printReceipt() {
+    if (!receipt) return;
+    printThermal({
+      title: receipt.kind === 'پیش‌فاکتور' ? 'پیش‌فاکتور' : 'رسیدِ فروش',
+      header: [
+        { label: 'شماره', value: String(receipt.invoiceId) },
+        { label: 'تاریخ', value: receipt.date },
+        { label: 'مشتری', value: receipt.customerName },
+        { label: 'پرداخت', value: receipt.kind === 'پیش‌فاکتور' ? '—' : receipt.paymentMethod },
+      ],
+      items: receipt.items.map((l) => {
+        const t = lineTotals(l);
+        return {
+          name: l.name,
+          qty: `${numberFormat.format(l.quantity)} × ${money(l.unitPrice)}`,
+          amount: money(t.total),
+        };
+      }),
+      totals: [
+        { label: 'جمعِ اقلام', value: money(totals.sub) },
+        ...(totals.disc > 0 ? [{ label: 'تخفیفِ سطری', value: `−${money(totals.disc)}` }] : []),
+        ...(receipt.invoiceDiscount > 0 ? [{ label: 'تخفیفِ کلی', value: `−${money(receipt.invoiceDiscount)}` }] : []),
+        ...(totals.tax > 0 ? [{ label: 'مالیات', value: money(totals.tax) }] : []),
+        { label: 'مبلغِ کل', value: `${money(receipt.grand)} ریال`, bold: true },
+      ],
+      amountInWords: `${numberToPersianWords(receipt.grand)} ریال`,
+      footer: ['ممنون از خریدِ شما — سما حساب'],
+    });
   }
 
   async function hold() {
@@ -255,6 +346,9 @@ export function PosPage() {
     setInvoiceDiscount(Number(v) || 0);
   }
 
+  const warehouseOptions: SearchSelectOption[] = warehouses.map((w) => ({ id: w.id, label: w.name }));
+  const customerOptions: SearchSelectOption[] = customers.map((c) => ({ id: c.id, label: c.name, sublabel: c.code }));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
       <PageHeader
@@ -273,9 +367,9 @@ export function PosPage() {
           <div style={{ background: '#fff', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', width: 340, maxHeight: '90vh', overflow: 'auto' }}>
             <div className="print-area">
               <div style={{ textAlign: 'center', marginBottom: 'var(--space-2)' }}>
-                <div style={{ fontWeight: 700 }}>رسیدِ فروش</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>شمارهٔ فاکتور: {receipt.invoiceId} — {receipt.date}</div>
-                <div style={{ fontSize: 12 }}>مشتری: {receipt.customerName} — پرداخت: {receipt.paymentMethod}</div>
+                <div style={{ fontWeight: 700 }}>{receipt.kind === 'پیش‌فاکتور' ? 'پیش‌فاکتور' : 'رسیدِ فروش'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>شماره: {receipt.invoiceId} — {receipt.date}</div>
+                <div style={{ fontSize: 12 }}>مشتری: {receipt.customerName} — پرداخت: {receipt.kind === 'پیش‌فاکتور' ? '—' : receipt.paymentMethod}</div>
               </div>
               <div style={{ borderTop: '1px dashed #999', borderBottom: '1px dashed #999', padding: '6px 0' }}>
                 {receipt.items.map((l) => {
@@ -302,7 +396,7 @@ export function PosPage() {
               </div>
             </div>
             <div className="no-print" style={{ display: 'flex', gap: 8, marginTop: 'var(--space-3)' }}>
-              <button type="button" className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => window.print()}>چاپِ رسید</button>
+              <button type="button" className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={printReceipt}>🖨 چاپِ حرارتی</button>
               <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setReceipt(null)}>بستن</button>
             </div>
           </div>
@@ -370,6 +464,9 @@ export function PosPage() {
             <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('بانک')}>کارت‌خوان</button>
             <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('نسیه')}>نسیه</button>
             <button type="button" className="pb" disabled={busy || cart.length === 0} onClick={() => pay('چک')}>چک</button>
+            <button type="button" className="pb quote" disabled={busy || cart.length === 0} onClick={() => pay('نقدی', 'پیش‌فاکتور')}>
+              پیش‌فاکتور (بدونِ ثبتِ سند/موجودی)
+            </button>
           </div>
           <div className="fnrow">
             <button type="button" className="fb" disabled={busy} onClick={hold}>تعلیقِ فاکتور</button>
@@ -380,9 +477,17 @@ export function PosPage() {
         </div>
 
         <div className="pos-right">
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <div style={{ flex: 1 }}>
+              <SearchSelect options={warehouseOptions} value={warehouseId} onChange={setWarehouseId} placeholder="انبار…" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <SearchSelect options={customerOptions} value={customerId} onChange={selectCustomer} placeholder="مشتری (پیش‌فرض: متفرقه)…" />
+            </div>
+          </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <input className="input-c" style={{ flex: 1, height: 44, fontSize: 14 }}
-              placeholder="🔍 اسکن بارکد یا جست‌وجویِ کالا…" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+              placeholder="🔍 اسکن بارکد (Enter) یا جست‌وجویِ کالا…" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={onSearchKeyDown} autoFocus />
           </div>
           <div className="cats">
             <button type="button" className={`cat${groupId == null ? ' on' : ''}`} onClick={() => setGroupId(null)}>همه</button>

@@ -153,4 +153,13 @@ public class RestaurantTests
         o.AssignWaiter(42);
         Assert.Equal(42, o.WaiterId);
     }
+
+    [Fact]
+    public void SetGuestCount_Updates_And_Rejects_Invalid()
+    {
+        var o = DineInOrder();   // guestCount=2
+        o.SetGuestCount(5);
+        Assert.Equal(5, o.GuestCount);
+        Assert.Throws<InvalidOperationException>(() => o.SetGuestCount(0));
+    }
 }

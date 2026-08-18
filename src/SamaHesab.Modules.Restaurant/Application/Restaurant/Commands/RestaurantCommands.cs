@@ -180,6 +180,33 @@ public class EditOrderItemCommandHandler :
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// تغییر تعداد مهمانِ سفارشِ باز (U-REST-GUEST)
+// ─────────────────────────────────────────────────────────────────────────────
+public record ChangeGuestCountCommand(int OrderId, int GuestCount) : IRequest<Result>;
+
+public class ChangeGuestCountCommandHandler : IRequestHandler<ChangeGuestCountCommand, Result>
+{
+    private readonly IRestaurantOrderRepository _orders;
+    private readonly IUnitOfWork _uow;
+    public ChangeGuestCountCommandHandler(IRestaurantOrderRepository orders, IUnitOfWork uow)
+    { _orders = orders; _uow = uow; }
+
+    public async Task<Result> Handle(ChangeGuestCountCommand req, CancellationToken ct)
+    {
+        var order = await _orders.GetByIdAsync(req.OrderId, ct);
+        if (order is null) return Result.Failure("سفارش یافت نشد.");
+        try
+        {
+            order.SetGuestCount(req.GuestCount);
+            _orders.Update(order);
+            await _uow.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex) { return Result.Failure(ex.GetBaseException().Message); }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // انتقال سفارش به میز دیگر (#36)
 // ─────────────────────────────────────────────────────────────────────────────
 public record MoveOrderTableCommand(int OrderId, int NewTableId) : IRequest<Result>;

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiGet, apiPost, ApiError } from '../api/client';
 import { numberFormat } from '../lib/format';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
+import { printThermal } from '../lib/thermalPrint';
 
 interface KitchenItemDto {
   id: number;
@@ -46,6 +47,25 @@ export function RestaurantKitchenPage() {
     const t = setInterval(load, 15000);
     return () => clearInterval(t);
   }, []);
+
+  /** چاپِ حرارتیِ رسیدِ آشپزخانه (KOT) — فقط همان رسید در پنجرهٔ ۸۰mm. */
+  function printTicket(t: KitchenTicketDto) {
+    printThermal({
+      title: `رسیدِ آشپزخانه ${t.ticketNumber}`,
+      header: [
+        { label: 'میز', value: t.tableName ?? 'بیرون‌بر/پیک' },
+        { label: 'وضعیت', value: t.status },
+        { label: 'زمان', value: new Date(t.createdAt).toLocaleTimeString('fa-IR') },
+      ],
+      items: t.items.map((it) => ({
+        name: it.productName,
+        qty: `تعداد: ${numberFormat.format(it.quantity)}`,
+        amount: '',
+        note: it.notes ?? undefined,
+      })),
+      footer: ['— KOT —'],
+    });
+  }
 
   async function advance(ticket: KitchenTicketDto) {
     const next = NEXT_STATUS[ticket.statusCode];
@@ -93,12 +113,15 @@ export function RestaurantKitchenPage() {
                     </li>
                   ))}
                 </ul>
-                {next && (
-                  <button type="button" className="btn btn-primary btn-sm" disabled={busyId === t.id} style={{ width: '100%' }}
-                    onClick={() => advance(t)}>
-                    {busyId === t.id ? '...' : next.label}
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button type="button" className="btn btn-secondary btn-sm no-print" onClick={() => printTicket(t)}>🖨 چاپ</button>
+                  {next && (
+                    <button type="button" className="btn btn-primary btn-sm" disabled={busyId === t.id} style={{ flex: 1 }}
+                      onClick={() => advance(t)}>
+                      {busyId === t.id ? '...' : next.label}
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

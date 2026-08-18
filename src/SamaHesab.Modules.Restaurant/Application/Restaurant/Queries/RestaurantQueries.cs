@@ -81,7 +81,7 @@ public class GetHallsWithTablesQueryHandler : IRequestHandler<GetHallsWithTables
 public record GetOrderQuery(int OrderId) : IRequest<OrderDto?>;
 
 public record OrderDto(int Id, string OrderNumber, string OrderType, string Status,
-    int? TableId, int GuestCount, decimal SubTotal, decimal Discount, decimal ServiceCharge,
+    int? TableId, int GuestCount, int? WaiterId, decimal SubTotal, decimal Discount, decimal ServiceCharge,
     decimal Tax, decimal Tip, decimal GrandTotal, decimal PaidAmount, int? SalesInvoiceId, List<OrderItemDto> Items);
 public record OrderItemDto(int Id, int ProductId, string ProductName, decimal Quantity,
     decimal UnitPrice, decimal DiscountAmount, decimal LineTotal, string Status, int StatusCode, string? Notes);
@@ -109,7 +109,7 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, OrderDto?>
         var o = await _orders.GetWithItemsAsync(request.OrderId, ct);
         if (o is null) return null;
         return new OrderDto(o.Id, o.OrderNumber, o.OrderType.ToString(),
-            OrderFa.GetValueOrDefault(o.Status, "?"), o.TableId, o.GuestCount,
+            OrderFa.GetValueOrDefault(o.Status, "?"), o.TableId, o.GuestCount, o.WaiterId,
             o.SubTotal, o.Discount, o.ServiceCharge, o.Tax, o.Tip, o.GrandTotal, o.PaidAmount, o.SalesInvoiceId,
             o.Items.Select(i => new OrderItemDto(i.Id, i.ProductId, i.ProductName, i.Quantity,
                 i.UnitPrice, i.DiscountAmount, i.LineTotal,

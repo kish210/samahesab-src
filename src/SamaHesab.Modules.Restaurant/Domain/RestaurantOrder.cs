@@ -107,6 +107,16 @@ public class RestaurantOrder : AuditableEntity
     /// <summary>تخصیص/تغییر گارسون سفارش.</summary>
     public void AssignWaiter(int waiterId) { WaiterId = waiterId; UpdatedAt = DateTime.Now; }
 
+    /// <summary>تغییر تعداد مهمانِ سفارشِ باز (U-REST-GUEST).</summary>
+    public void SetGuestCount(int count)
+    {
+        EnsureEditable();
+        if (count < 1)
+            throw new InvalidOperationException("تعداد نفرات باید بزرگ‌تر از صفر باشد.");
+        GuestCount = count;
+        UpdatedAt = DateTime.Now;
+    }
+
     /// <summary>ردیف‌های در انتظار را به آشپزخانه ارسال می‌کند و رویداد ساخت رسید آشپزخانه را منتشر می‌کند.</summary>
     public IReadOnlyList<RestaurantOrderItem> SendToKitchen(int kitchenTicketId)
     {

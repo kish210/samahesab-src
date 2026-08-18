@@ -339,7 +339,9 @@ export function RestaurantHallsPage() {
               {activeHall?.tables.map((t) => (
                 <div key={t.id}
                   className={`tbl-card ${TABLE_STYLE[t.statusCode] ?? 'free'}${order?.tableId === t.id ? ' selected' : ''}`}
-                  onClick={() => !busy && openOrMoveTable(t)}>
+                  role="button" tabIndex={0} aria-disabled={busy}
+                  onClick={() => !busy && openOrMoveTable(t)}
+                  onKeyDown={(e) => { if (e.target === e.currentTarget && !busy && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openOrMoveTable(t); } }}>
                   <span className="badge2">{t.status}</span>
                   <div className="tn">{t.name}</div>
                   <div className="seats">{numberFormat.format(t.capacity)} نفره</div>
@@ -362,7 +364,10 @@ export function RestaurantHallsPage() {
           </div>
           <div className="menu-grid">
             {menuProducts.map((p) => (
-              <div key={p.id} className="tbl-card menu-tile" onClick={() => addToOrder(p)}>
+              <div key={p.id} className="tbl-card menu-tile"
+                role="button" tabIndex={0}
+                onClick={() => addToOrder(p)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addToOrder(p); } }}>
                 <div className="tn" style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
                 <div className="foot" style={{ color: 'var(--blue-700)' }}>{money(p.salePrice)} ریال</div>
               </div>

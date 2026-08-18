@@ -183,7 +183,10 @@ export function AnalyticsPage() {
           {custResults.length > 0 && !custAnalytics && (
             <div className="gbox" style={{ padding: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
               {custResults.map((c) => (
-                <div key={c.id} style={{ padding: '6px 4px', cursor: 'pointer' }} onClick={() => loadCustomer360(c.id)}>
+                <div key={c.id} style={{ padding: '6px 4px', cursor: 'pointer' }}
+                  role="button" tabIndex={0}
+                  onClick={() => loadCustomer360(c.id)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadCustomer360(c.id); } }}>
                   {c.code} — {c.name}
                 </div>
               ))}

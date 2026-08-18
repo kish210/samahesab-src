@@ -33,7 +33,7 @@ public class SettingsController : ControllerBase
             CompanySettingKeys.CompanyName, CompanySettingKeys.CompanyNationalId,
             CompanySettingKeys.CompanyEconomicCode, CompanySettingKeys.CompanyPhone,
             CompanySettingKeys.CompanyAddress, CompanySettingKeys.CompanyLogo,
-            CompanySettingKeys.SetupCompleted,
+            CompanySettingKeys.SetupCompleted, CompanySettingKeys.BusinessType,
         };
 
         var unknown = values.Keys.Where(k => !allowed.Contains(k)).ToList();

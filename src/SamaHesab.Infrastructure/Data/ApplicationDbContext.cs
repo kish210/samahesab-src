@@ -67,6 +67,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Voucher> Vouchers { get; set; }
     public DbSet<VoucherItem> VoucherItems { get; set; }
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<FixedAsset> FixedAssets { get; set; }
     public DbSet<Cheque> Cheques { get; set; }
     public DbSet<BankAccount> BankAccounts { get; set; }
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
@@ -135,6 +136,7 @@ public class ApplicationDbContext : DbContext
         // Map each entity to its REAL schema-qualified table (the DB was created
         // by the SQL scripts in /database with schemas Acc/Inv/Crm/Sal).
         modelBuilder.Entity<Account>().ToTable("Accounts", "Acc");
+        modelBuilder.Entity<FixedAsset>().ToTable("FixedAssets", "Acc");
         modelBuilder.Entity<Voucher>().ToTable("Vouchers", "Acc");
         modelBuilder.Entity<VoucherItem>().ToTable("VoucherItems", "Acc");
         modelBuilder.Entity<Cheque>().ToTable("Cheques", "Acc");

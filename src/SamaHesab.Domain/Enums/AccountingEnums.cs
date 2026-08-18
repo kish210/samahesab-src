@@ -52,3 +52,10 @@ public enum PaymentType
     Transfer,     // حواله
     Installment   // اقساط
 }
+
+/// <summary>روشِ استهلاکِ داراییِ ثابت (راهکاران: استهلاک هم‌زمان با چند روش/استاندارد).</summary>
+public enum DepreciationMethod
+{
+    StraightLine,      // خط مستقیم
+    DecliningBalance   // نزولی (ماندهٔ کاهنده)
+}

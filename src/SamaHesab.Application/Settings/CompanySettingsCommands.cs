@@ -16,6 +16,9 @@ public static class CompanySettingKeys
     public const string CompanyPhone = "CompanyPhone";
     public const string CompanyAddress = "CompanyAddress";
 
+    /// <summary>صنف/شغلِ شرکت (راه‌اندازیِ اولیه) — برای پیش‌پُرِ کالاهای نمونهٔ متناسب و گزارش‌های BI.</summary>
+    public const string BusinessType = "BusinessType";
+
     /// <summary>لوگویِ سربرگِ چاپ به‌صورتِ data-URI (کوچک‌شده در مرورگر پیش از ارسال).
     /// در همین جدولِ کلید-مقدار می‌ماند چون ستونِ Value از نوعِ nvarchar(max) است و
     /// این‌طور نیازی به جدول/مسیرِ استاتیکِ جدا برایِ یک تصویرِ کوچک نیست.</summary>

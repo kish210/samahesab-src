@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, ApiError } from '../api/client';
+import { fetchGitHubReleases, submitGitHubIssue, type GitHubRelease } from '../api/github';
 import { PageHeader, StatusMessage } from '../components/PageHeader';
 import { DataTable, type Column } from '../components/DataTable';
 
@@ -99,10 +100,29 @@ export function SupportPage() {
   useEffect(() => { if (tab === 'kb') loadArticles(); }, [tab]);
 
   // ── یادداشتِ نسخه ──
+  // اول از GitHub (ریلیزهای مخزنِ عمومیِ kish210/SamaHesab — همیشه در دسترس)؛ اگر خالی/خطا بود
+  // fallback به یادداشت‌های مرکزِ پشتیبانی (که بدونِ کانفیگِ Support خالی می‌مانند).
+  const [ghReleases, setGhReleases] = useState<GitHubRelease[] | null>(null);
   const [releases, setReleases] = useState<ReleaseRow[]>([]);
   useEffect(() => {
-    if (tab === 'releases') apiGet<ReleaseRow[]>('/api/support/release-notes').then(setReleases).catch(() => {});
+    if (tab !== 'releases') return;
+    fetchGitHubReleases().then((rows) => {
+      setGhReleases(rows.length > 0 ? rows : []);
+      if (rows.length === 0) apiGet<ReleaseRow[]>('/api/support/release-notes').then(setReleases).catch(() => {});
+    }).catch(() => {
+      setGhReleases([]);
+      apiGet<ReleaseRow[]>('/api/support/release-notes').then(setReleases).catch(() => {});
+    });
   }, [tab]);
+
+  // ── گزارشِ باگ → GitHub Issue ──
+  async function submitGitHub() {
+    if (!bTitle.trim() || !bDescription.trim()) { setError('عنوان و شرحِ مشکل الزامی است.'); return; }
+    try {
+      const r = await submitGitHubIssue(bTitle.trim(), bDescription.trim());
+      setNotice(`${r.message} — ${r.url}`);
+    } catch (e) { setError(e instanceof ApiError ? e.message : 'ثبتِ Issue در GitHub ناموفق بود.'); }
+  }
 
   const ticketColumns: Column<TicketRow>[] = [
     { key: 'subject', header: 'موضوع', render: (r) => <a onClick={() => setSelectedTicket(r)} style={{ cursor: 'pointer' }}>{r.subject}</a> },
@@ -209,8 +229,9 @@ export function SupportPage() {
             <label className="label">مراحلِ تکرار</label>
             <textarea className="input" rows={2} value={bSteps} onChange={(e) => setBSteps(e.target.value)} />
           </div>
-          <div style={{ marginTop: 'var(--space-3)' }}>
+          <div style={{ marginTop: 'var(--space-3)', display: 'flex', gap: 'var(--space-2)' }}>
             <button type="button" className="btn btn-primary btn-sm" onClick={submitBugReport}>ارسالِ گزارش</button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={submitGitHub} title="ثبتِ همین گزارش به‌عنوان Issue در مخزنِ GitHub (نیازمندِ تنظیمِ GITHUB_TOKEN روی سرور)">ارسال به GitHub (Issue)</button>
           </div>
         </div>
       )}
@@ -237,8 +258,23 @@ export function SupportPage() {
 
       {tab === 'releases' && (
         <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
-          {releases.length === 0 && <div style={{ color: 'var(--text-muted)' }}>یادداشتِ نسخه‌ای موجود نیست.</div>}
-          {releases.map((r) => (
+          {ghReleases === null && <div style={{ color: 'var(--text-muted)' }}>در حال بارگیری…</div>}
+          {ghReleases !== null && ghReleases.length === 0 && releases.length === 0 &&
+            <div style={{ color: 'var(--text-muted)' }}>یادداشتِ نسخه‌ای موجود نیست.</div>}
+          {ghReleases !== null && ghReleases.map((r) => (
+            <div key={r.tagName} className="gbox" style={{ padding: 'var(--space-3)' }}>
+              <div className="gh" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{r.name ?? r.tagName}</span>
+                <span className="badge badge-gray">{r.tagName}</span>
+                {r.publishedAt && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  {new Date(r.publishedAt).toLocaleDateString('fa-IR')}
+                </span>}
+              </div>
+              {r.body && <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 6, color: 'var(--text)' }}>{r.body}</pre>}
+              {r.htmlUrl && <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: 8 }}>مشاهده در GitHub ↗</a>}
+            </div>
+          ))}
+          {ghReleases !== null && ghReleases.length === 0 && releases.map((r) => (
             <div key={r.remoteId} className="gbox" style={{ padding: 'var(--space-3)' }}>
               <div className="gh">نسخهٔ {r.version} {r.isCurrent && <span className="badge badge-green">فعلی</span>}</div>
               {r.highlights && <div style={{ marginTop: 6 }}><b>ویژگی‌های جدید:</b> {r.highlights}</div>}

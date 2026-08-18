@@ -64,6 +64,8 @@ catch (Exception ex) { Console.WriteLine($"[module] server folder load skipped: 
 // U-WEB-SUPPORT — کانفیگ از appsettings.json (بخشِ "Support") در kishwifi.com می‌خواند؛ اگر
 // تنظیم نشده باشد، دقیقاً رفتارِ OfflineSupportApiClientِ قبلی را دارد (fail-soft، نه throw).
 builder.Services.AddSingleton<SamaHesab.Application.Support.ISupportApiClient, SamaHesab.API.Services.ConfiguredSupportApiClient>();
+// GitHub (REST) — یادداشتِ نسخه از مخزنِ عمومی + ثبتِ Issue؛ توکن فقط سمتِ سرور (GitHub:Token / GITHUB_TOKEN)
+builder.Services.AddHttpClient<SamaHesab.API.Services.GitHubService>();
 
 // ── API-side current-user (from JWT claims) ──
 builder.Services.AddHttpContextAccessor();

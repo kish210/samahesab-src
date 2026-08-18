@@ -131,7 +131,7 @@ function currentPageTitle(pathname: string): string {
 }
 
 export function Shell() {
-  const { user, logout } = useAuth();
+  const { user, logout, idleState, extendIdle } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const initial = (user?.fullName || 'S').trim().charAt(0);
@@ -143,6 +143,8 @@ export function Shell() {
   const [calcOpen, setCalcOpen] = useState(false);
   const [setupDismissed, setSetupDismissed] = useState(false);
   const [setupCompleted, setSetupCompleted] = useState<boolean | null>(null);
+  // شمارشِ معکوسِ هشدارِ انقضای نشست (از ۶۰ ثانیه) — با هر تیکِ ۱ ثانیه کم می‌شود.
+  const [warnSeconds, setWarnSeconds] = useState(60);
 
   useEffect(() => {
     document.title = `${currentPageTitle(location.pathname)} — سما حساب`;
@@ -181,11 +183,54 @@ export function Shell() {
   }, []);
   const showSetupBanner = !setupDismissed && setupCompleted === false && location.pathname !== '/setup';
 
+  // ── شمارندهٔ هشدارِ «خروجِ خودکار نشست» — وقتی هشدار فعال شد، هر ثانیه کم می‌شود تا کاربر
+  // ببیند چقدر فرصت دارد؛ با «ادامه‌ی کار» (extendIdle) ریست می‌شود. هم‌الگو با کنترلِ امنیتیِ
+  // نشستِ حسابفا: نشستِ بی‌کار نباید بی‌نهایت باز بماند.
+  useEffect(() => {
+    if (idleState !== 'warning') {
+      setWarnSeconds(60);
+      return;
+    }
+    setWarnSeconds(60);
+    const t = window.setInterval(() => setWarnSeconds((s) => Math.max(0, s - 1)), 1000);
+    return () => window.clearInterval(t);
+  }, [idleState]);
+
   // نسخهٔ واقعیِ سرور (نه رشتهٔ ثابتِ قدیمی که با هر ریلیز دستی به‌روز نمی‌شد و می‌توانست
   // با نسخهٔ واقعاً منتشرشده روی kishwifi.com/download ناهم‌خوان باشد).
   useEffect(() => {
     apiGet<{ version: string }>('/api/version').then((r) => setAppVersion(r.version)).catch(() => {});
   }, []);
+
+  // ── میان‌برهایِ سراسریِ کیبورد — همان کلیدهایی که داشبورد/راهنمایِ کاربر تبلیغ می‌کنند
+  // (Ctrl+1..6، F12، Ctrl+R). قبلاً فقط برچسب بودند و هیچ کاری نمی‌کردند (شکافِ «آمادگیِ
+  // تجاری»). deliberate: Ctrl+R (ریفرشِ مرورگر) و F12 (دِو‌تولز) هم به همان اکشنِ تبلیغ‌شده
+  // می‌روند تا وعدهٔ رابط کاربری عمل شود. هنگامِ تایپ در فیلد (input/select/…) کلیدهایِ
+  // عددی دخالت نمی‌کنند تا گردشِ کارِ ورودِ داده قطع نشود. هم‌الگو با CommandPalette (Ctrl+K/F3).
+  useEffect(() => {
+    const SHORTCUT_ROUTES: Record<string, string> = {
+      '1': '/vouchers/new',
+      '2': '/sales/new',
+      '3': '/purchase/new',
+      '4': '/warehouse',
+      '5': '/cheques',
+      '6': '/customers',
+    };
+    function onKeyDown(e: KeyboardEvent) {
+      const t = e.target as HTMLElement | null;
+      const typing = !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+      if (e.ctrlKey || e.metaKey) {
+        const key = e.key.toLowerCase();
+        if (key === 'r') { e.preventDefault(); navigate('/trial-balance'); return; }
+        const route = SHORTCUT_ROUTES[key];
+        if (route && !typing) { e.preventDefault(); navigate(route); }
+        return;
+      }
+      if (e.key === 'F12') { e.preventDefault(); navigate('/pos'); }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [navigate]);
   const versionDisplay = appVersion
     ? `نسخهٔ ${appVersion.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)])}`
     : 'نسخهٔ …';
@@ -339,6 +384,40 @@ export function Shell() {
       </div>
 
       <CommandPalette items={palette} />
+
+      {/* ── هشدارِ انقضای نشست — مودالِ مرکزی با شمارشِ معکوس؛ «ادامه‌ی کار» تایمر را ریست می‌کند،
+          در غیرِ این صورت نشست به‌صورتِ خودکار بسته و به صفحهٔ ورود برمی‌گردد. ── */}
+      {idleState === 'warning' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="هشدارِ انقضای نشست"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1200,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div
+            style={{
+              width: 'min(420px, calc(100% - 32px))', padding: 'var(--space-6)',
+              background: 'var(--bg-card, #fff)', borderRadius: 16, boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
+              textAlign: 'center', direction: 'rtl',
+            }}
+          >
+            <div style={{ fontSize: 34, marginBottom: 8 }}>⏳</div>
+            <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 700 }}>نشستِ شما به‌زودی منقضی می‌شود</h3>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: 13.5, lineHeight: 1.9 }}>
+              به‌دلیلِ بی‌تحرکی، این نشست تا <b style={{ color: 'var(--text-strong, inherit)' }}>{warnSeconds} ثانیهٔ دیگر</b>
+              بسته می‌شود. برای ادامه‌ی کار، دکمهٔ «ادامه‌ی کار» را بزنید.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'var(--space-5)' }}>
+              <button type="button" className="btn btn-primary" onClick={extendIdle}>ادامه‌ی کار</button>
+              <button type="button" className="btn btn-ghost" onClick={logout}>خروج از سیستم</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

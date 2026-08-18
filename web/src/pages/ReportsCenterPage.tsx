@@ -11,6 +11,29 @@ interface ReportCategory { name: string; items: ReportItem[] }
 interface ReportRunRow { code: string; name: string; debit: number; credit: number; balance: number }
 interface ReportRunResult { rows: ReportRunRow[] | null; redirectMessage: string | null }
 
+/** خروجیِ اکسلِ (CSV) سمتِ کلاینت — با BOM تا اکسلِ فارسی درست باز کند (هم‌الگو با خروجیِ
+ *  اکسلِ حسابفا). مستقیماً از همان ردیف‌هایِ نمایش‌داده‌شده ساخته می‌شود، بدونِ نیاز به اندپوینتِ
+ *  جدا؛ نامِ فایل از کدِ گزارش ساخته می‌شود. */
+function downloadReportCsv(filename: string, header: string[], rows: ReportRunRow[]) {
+  const esc = (v: string | number) => {
+    const s = String(v ?? '');
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [header.map(esc).join(',')];
+  for (const r of rows) {
+    lines.push([r.code, r.name, r.debit, r.credit, r.balance].map(esc).join(','));
+  }
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 const CATEGORIES: ReportCategory[] = [
   { name: 'حسابداری', items: [
     { code: 'TrialBalance', name: 'تراز آزمایشی' },
@@ -124,6 +147,24 @@ export function ReportsCenterPage() {
               <button type="button" className="btn btn-primary btn-sm" onClick={run} disabled={loading}>
                 {loading ? 'در حالِ اجرا…' : 'اجرایِ گزارش'}
               </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                title="دانلودِ خروجیِ اکسل (CSV) از همین ردیف‌ها"
+                disabled={!result?.rows?.length}
+                onClick={() => downloadReportCsv(`report-${report.code}`, ['کد', 'نام', 'بدهکار', 'بستانکار', 'مانده'], result!.rows!)}
+              >
+                خروجیِ اکسل (CSV)
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm"
+                title="چاپِ گزارش — برای PDF «ذخیره به‌عنوان PDF» را در دیالوگِ چاپ انتخاب کنید"
+                disabled={!result?.rows?.length}
+                onClick={() => window.print()}
+              >
+                🖨 چاپ
+              </button>
             </div>
           </div>
 
@@ -131,13 +172,18 @@ export function ReportsCenterPage() {
           {result?.redirectMessage && <StatusMessage kind="muted">{result.redirectMessage}</StatusMessage>}
 
           {result?.rows && (
-            <>
+            <div className="print-area">
+              {/* سربرگی که فقط رویِ کاغذ/PDF دیده می‌شود — هم‌الگو با TrialBalancePage/دفترِ کل */}
+              <div className="print-only" style={{ display: 'none', marginBottom: 'var(--space-3)' }}>
+                <h2>{report.name}</h2>
+                <div>از {fromDate} تا {toDate}</div>
+              </div>
               <DataTable columns={columns} rows={result.rows} rowKey={(r, i) => `${r.code}-${i}`} emptyText="داده‌ای برایِ این بازه نیست." />
               <div className="sumbar" style={{ marginTop: 'var(--space-3)' }}>
                 <span>جمعِ بدهکار: {money(totalDebit)}</span>
                 <span>جمعِ بستانکار: {money(totalCredit)}</span>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

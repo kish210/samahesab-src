@@ -1,0 +1,50 @@
+name: Build & Test
+
+# CI برای «آمادگیِ تجاری» — هر push/PR به main: build کاملِ .NET + تست‌ها + build کلاینتِ وب.
+# رانرِ windows-latest مطابقِ محیطِ توسعه‌ی محلی (build.bat) است؛ تست‌هایی که به SQL Server
+# محلی نیاز دارند (DatabaseBootstrap/SqlInstanceProbe/…)، در نبودِ SQL بی‌صدا رد می‌شوند.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node 22 (web client)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Restore NuGet packages
+        run: dotnet restore SamaHesab.sln
+
+      - name: Build solution (Release)
+        run: dotnet build SamaHesab.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test tests/SamaHesab.Tests/SamaHesab.Tests.csproj --configuration Release --no-build
+
+      - name: Install web client dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Build web client
+        working-directory: web
+        run: npm run build

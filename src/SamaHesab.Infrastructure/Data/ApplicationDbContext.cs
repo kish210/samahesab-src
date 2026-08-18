@@ -72,6 +72,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Loan> Loans { get; set; }
     public DbSet<Cheque> Cheques { get; set; }
     public DbSet<BankAccount> BankAccounts { get; set; }
+    public DbSet<BankReconciledItem> BankReconciledItems { get; set; }
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
     public DbSet<VoucherTemplateLine> VoucherTemplateLines { get; set; }
     public DbSet<RecurringVoucher> RecurringVouchers { get; set; }
@@ -141,6 +142,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<FixedAsset>().ToTable("FixedAssets", "Acc");
         modelBuilder.Entity<FinancialStatementNote>().ToTable("FinancialStatementNotes", "Acc");
         modelBuilder.Entity<Loan>().ToTable("Loans", "Acc");
+        modelBuilder.Entity<BankReconciledItem>().ToTable("BankReconciledItems", "Acc");
         modelBuilder.Entity<Voucher>().ToTable("Vouchers", "Acc");
         modelBuilder.Entity<VoucherItem>().ToTable("VoucherItems", "Acc");
         modelBuilder.Entity<Cheque>().ToTable("Cheques", "Acc");

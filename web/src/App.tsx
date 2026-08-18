@@ -27,6 +27,7 @@ const BranchSummaryPage = lazy(() => import('./pages/BranchSummaryPage').then((m
 const AccountsPage = lazy(() => import('./pages/AccountsPage').then((m) => ({ default: m.AccountsPage })));
 const FixedAssetsPage = lazy(() => import('./pages/FixedAssetsPage').then((m) => ({ default: m.FixedAssetsPage })));
 const LoansPage = lazy(() => import('./pages/LoansPage').then((m) => ({ default: m.LoansPage })));
+const BankReconciliationPage = lazy(() => import('./pages/BankReconciliationPage').then((m) => ({ default: m.BankReconciliationPage })));
 const SalesInvoicesPage = lazy(() => import('./pages/SalesInvoicesPage').then((m) => ({ default: m.SalesInvoicesPage })));
 const SalesInvoiceDetailPage = lazy(() => import('./pages/SalesInvoiceDetailPage').then((m) => ({ default: m.SalesInvoiceDetailPage })));
 const CreateSalesInvoicePage = lazy(() => import('./pages/CreateSalesInvoicePage').then((m) => ({ default: m.CreateSalesInvoicePage })));
@@ -130,6 +131,7 @@ function AppRoutes() {
           <Route path="accounts" element={<AccountsPage />} />
           <Route path="fixed-assets" element={<FixedAssetsPage />} />
           <Route path="loans" element={<LoansPage />} />
+          <Route path="bank-reconciliation" element={<BankReconciliationPage />} />
           <Route path="reports-center" element={<ReportsCenterPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
 

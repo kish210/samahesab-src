@@ -209,9 +209,13 @@ blazorCtp.Mappings[".wasm"] = "application/wasm";
 //    SPA-fallback سرو می‌شود تا لینکِ عمیقِ /itinerary/{token} مستقیم باز شود. درخواست‌های /api روی
 //    ۵۰۹۰ به همان کنترلرها می‌روند (همان‌مبدأ، بی‌نیاز از CORS).
 const int guestPortalPort = 5090;
-var guestDir = System.IO.Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "guest");
-if (System.IO.Directory.Exists(guestDir))
+// U-WEB-STATIC-ASSETS: وجودِ پوشه را از طریقِ WebRootFileProvider (شاملِ static-web-assets) چک می‌کنیم،
+// نه Directory.Exists(WebRootPath/guest) — دومی فقط روی خروجیِ publishشده درست است؛ در اجرایِ مستقیمِ
+// dotnet از bin (Development) فایل‌هایِ wwwroot از manifest سرو می‌شوند و WebRootPath رویِ دیسک نیست.
+var guestIndex = app.Environment.WebRootFileProvider.GetFileInfo("guest/index.html");
+if (guestIndex.Exists && guestIndex.PhysicalPath is { } guestIndexPath)
 {
+    var guestDir = System.IO.Path.GetDirectoryName(guestIndexPath)!;
     var guestFiles = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(guestDir);
     app.MapWhen(
         ctx => ctx.Connection.LocalPort == guestPortalPort && !ctx.Request.Path.StartsWithSegments("/api"),
@@ -232,9 +236,10 @@ if (System.IO.Directory.Exists(guestDir))
 //    می‌کند، پس /web/assets/x.js → assets/x.js از همین پوشه خوانده می‌شود. مسیرهایِ غیرفایلیِ
 //    مثلِ /web/customers/4 (routingِ سمتِ کلاینت) باید به index.html برگردند وگرنه رفرش/لینکِ
 //    مستقیم ۴۰۴ می‌دهد — هم‌الگو با SPA-fallbackِ پنلِ مهمان بالا.
-var webClientDir = System.IO.Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "web");
-if (System.IO.Directory.Exists(webClientDir))
+var webClientIndex = app.Environment.WebRootFileProvider.GetFileInfo("web/index.html");
+if (webClientIndex.Exists && webClientIndex.PhysicalPath is { } webIndexPath)
 {
+    var webClientDir = System.IO.Path.GetDirectoryName(webIndexPath)!;
     var webClientFiles = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(webClientDir);
     app.Map("/web", branch =>
     {

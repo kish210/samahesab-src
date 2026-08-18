@@ -1,5 +1,13 @@
 # SamaHesab — backlog
 
+## 📌 buildِ کامل + تستِ عملیاتیِ زنده + دیباگِ عملیاتی (U-OPS-SMOKE، @2026-08-18)
+
+**build:** کلِ sln (۲۳ پروژه) با `-p:EnableWindowsTargeting=true` سبز شد (۰ خطا؛ ۸ پروژهٔ net9.0-windows دسکتاپ/WPF/ApiTray فقط با این پرچم روی لینوکس بیلد می‌شوند). **تست:** ۸۳۰ پاس/۰ شکست.
+
+**تستِ زندهٔ API (بدونِ SQL Server — بوتِ مقاوم):** API با موفقیت بالا آمد و بدونِ DB به‌صورتِ graceful ادامه داد: `/health` = degraded · `/api/version` = 2.9.11 · `/swagger` = ۲۳۵ مسیر/۲۷۹ عملیات (همهٔ ماژول‌ها: Hotel/Contracting/CRM/Restaurant/HR/POS/Tourism/Attendance/TaxInvoicing/FixedAssets/GitHub/... ثبت شدند) · `/web/` = ۲۰۰ · لاگینِ بدونِ DB = ۵۰۰ ProblemDetails (نه کرش) · بدونِ توکن = ۴۰۱ درست.
+
+**باگِ واقعیِ یافت‌شده و رفع‌شده (دیباگِ عملیاتی):** SPA-fallbackِ `/web/...` فقط روی خروجیِ publishشده کار می‌کرد؛ در اجرایِ مستقیمِ `dotnet SamaHesab.API.dll` از bin (Development) فایل‌هایِ wwwroot از static-web-assets سرو می‌شوند نه از WebRootPath رویِ دیسک، پس `Directory.Exists(WebRootPath/web)` false می‌شد و لینکِ عمیقِ `/web/customers/4` **۴۰۴** می‌داد. رفع در `Program.cs`: چکِ وجود از `WebRootFileProvider.GetFileInfo("web/index.html")` + مشتق‌کردنِ مسیر از `PhysicalPath` (برایِ guest هم). بعد از رفع: `/web/customers/4` و `/web/xyz` = ۲۰۰ text/html.
+
 ## 📌 تکمیلِ فروشگاهی (POS) + رستوران برایِ آمادگیِ فروش (U-POS-REST-SALE، @2026-08-18)
 
 **POS (صندوقِ فروش):** ✅ **اسکنِ بارکدِ واقعی** — Enter در کادر جستوجو بارکد را از `GET /api/barcode/resolve` حل میکند (پشتیبانیِ بارکدِ وزنی/قیمتدار → تعدادِ تعبیهشده) و در ۴۰۴ با مطابقتِ دقیقِ کد/نام fallback میشود (نه فقط فیلترِ نام) · ✅ **انتخابِ انبار** و **انتخابِ مشتری** (SearchSelect) در هدر — قبلاً انبار=اولین و مشتری=همیشه «متفرقه» بود.

@@ -54,6 +54,39 @@ public class ReportsController : ControllerBase
         return Export(t, format, "profit-loss");
     }
 
+    [HttpGet("balance-sheet")]
+    public async Task<IActionResult> BalanceSheet(string from, string to, string format = "csv", CancellationToken ct = default)
+    {
+        var bs = await _mediator.Send(new GetBalanceSheetQuery(from, to), ct);
+        var rows = new List<string[]>();
+        foreach (var r in bs.Assets) rows.Add(new[] { "دارایی", r.Code, r.Name, Num(r.Amount) });
+        rows.Add(new[] { "—", "", "جمع دارایی‌ها", Num(bs.TotalAssets) });
+        foreach (var r in bs.Liabilities) rows.Add(new[] { "بدهی", r.Code, r.Name, Num(r.Amount) });
+        rows.Add(new[] { "—", "", "جمع بدهی‌ها", Num(bs.TotalLiabilities) });
+        foreach (var r in bs.Equity) rows.Add(new[] { "حقوق صاحبان سهام", r.Code, r.Name, Num(r.Amount) });
+        rows.Add(new[] { "—", "", "جمع حقوق صاحبان سهام", Num(bs.TotalEquity) });
+        rows.Add(new[] { "—", "", "وضعیتِ تراز", bs.IsBalanced ? "متوازن" : "نامتوازن" });
+        var t = new ReportTable("ترازنامه", new[] { "نوع", "کد", "نام", "مبلغ" }, rows);
+        return Export(t, format, "balance-sheet");
+    }
+
+    [HttpGet("cash-flow")]
+    public async Task<IActionResult> CashFlow(string from, string to, string format = "csv", CancellationToken ct = default)
+    {
+        var cf = await _mediator.Send(new GetCashFlowQuery(from, to), ct);
+        var rows = new List<string[]>
+        {
+            new[] { "عملیاتی", Num(cf.Operating) },
+            new[] { "سرمایه‌گذاری", Num(cf.Investing) },
+            new[] { "تأمین مالی", Num(cf.Financing) },
+            new[] { "خالص تغییر نقد", Num(cf.NetChange) },
+            new[] { "موجودی نقد اول دوره", Num(cf.OpeningCash) },
+            new[] { "موجودی نقد پایان دوره", Num(cf.ClosingCash) },
+        };
+        var t = new ReportTable("جریان وجوه نقد", new[] { "بخش", "مبلغ" }, rows);
+        return Export(t, format, "cash-flow");
+    }
+
     // ── فروش / BI ───────────────────────────────────────────────────────────────
     [HttpGet("top-customers")]
     public async Task<IActionResult> TopCustomers(string from, string to, int take = 20, string format = "csv", CancellationToken ct = default)

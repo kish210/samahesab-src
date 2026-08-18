@@ -59,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
     { to: '/vouchers', label: 'اسنادِ حسابداری', icon: 'accounting' },
     { to: '/accounts', label: 'دفترِ حساب‌ها', icon: 'accounting' },
     { to: '/fixed-assets', label: 'دارایی‌های ثابت', icon: 'accounting' },
+    { to: '/loans', label: 'تسهیلات مالی (وام)', icon: 'accounting' },
     { to: '/cheques', label: 'تابلویِ چک', icon: 'cheque' },
   ] },
   { title: 'گزارش‌هایِ مالی', items: [

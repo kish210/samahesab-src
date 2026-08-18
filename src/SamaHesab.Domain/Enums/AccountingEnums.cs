@@ -59,3 +59,18 @@ public enum DepreciationMethod
     StraightLine,      // خط مستقیم
     DecliningBalance   // نزولی (ماندهٔ کاهنده)
 }
+
+/// <summary>نوعِ صورتِ مالی برایِ یادداشت‌هایِ توضیحی (U-FIN-NOTES).</summary>
+public enum FinancialStatementType
+{
+    BalanceSheet = 1,   // ترازنامه
+    IncomeStatement = 2, // صورتِ سود و زیان
+    CashFlow = 3         // صورتِ جریانِ وجوهِ نقد
+}
+
+/// <summary>وضعیتِ تسهیلاتِ مالی/وام (U-LOAN).</summary>
+public enum LoanStatus
+{
+    Active = 1,   // در جریان (باز)
+    Closed = 2    // تسویه‌شده
+}

@@ -68,6 +68,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<VoucherItem> VoucherItems { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<FixedAsset> FixedAssets { get; set; }
+    public DbSet<FinancialStatementNote> FinancialStatementNotes { get; set; }
+    public DbSet<Loan> Loans { get; set; }
     public DbSet<Cheque> Cheques { get; set; }
     public DbSet<BankAccount> BankAccounts { get; set; }
     public DbSet<VoucherTemplate> VoucherTemplates { get; set; }
@@ -137,6 +139,8 @@ public class ApplicationDbContext : DbContext
         // by the SQL scripts in /database with schemas Acc/Inv/Crm/Sal).
         modelBuilder.Entity<Account>().ToTable("Accounts", "Acc");
         modelBuilder.Entity<FixedAsset>().ToTable("FixedAssets", "Acc");
+        modelBuilder.Entity<FinancialStatementNote>().ToTable("FinancialStatementNotes", "Acc");
+        modelBuilder.Entity<Loan>().ToTable("Loans", "Acc");
         modelBuilder.Entity<Voucher>().ToTable("Vouchers", "Acc");
         modelBuilder.Entity<VoucherItem>().ToTable("VoucherItems", "Acc");
         modelBuilder.Entity<Cheque>().ToTable("Cheques", "Acc");

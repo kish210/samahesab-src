@@ -95,7 +95,8 @@ jobs:
       - name: Create draft release with installer
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: powershell
+        # pwsh (نه Windows PowerShell 5.1) — اسکریپتِ inline با متنِ فارسی را UTF-8 درست می‌خواند
+        shell: pwsh
         run: |
           $v = "${{ steps.ver.outputs.version }}"
           $exe = "installer\Output\SamaHesab_Web_Setup_v$v.exe"

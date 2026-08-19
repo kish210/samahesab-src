@@ -102,5 +102,5 @@ jobs:
           gh release create "v$v" $exe --draft --repo "${{ github.repository }}" `
             --title "نسخهٔ $v — نصابِ وب (سرور + کلاینتِ وب)" `
             --notes "نصابِ ساخته‌شدهٔ خودکار در CI (windows-latest).
-برایِ انتشارِ نهایی به ریپویِ عمومی:
-  gh release upload -R kish210/SamaHesab v$v $exe"
+            برایِ انتشارِ نهایی به ریپویِ عمومی:
+              gh release upload -R kish210/SamaHesab v$v $exe"

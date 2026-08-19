@@ -4,6 +4,8 @@
 
 **workflowِ نو `release.yml`** (روی `workflow_dispatch` با ورودیِ version و روی push تگِ `v*`): روی رانرِ windows-latest همان مسیرِ رسمیِ انتشار را اجرا می‌کند — `installer\publish-web.ps1` (API+Tray+Seller/Guest+کلاینتِ وب) → `ISCC installer\web-setup.iss` → ساختِ `SamaHesab_Web_Setup_vX.exe` → **draft release** با فایلِ exe روی همین ریپو. دیگر ساختِ نصاب به ماشینِ ویندوزِ توسعه وابسته نیست.
 
+**✅ اجرایِ واقعی (2026-08-19):** runِ `release.yml` روی تگِ `v2.9.12` موفق شد — **`SamaHesab_Web_Setup_v2.9.12.exe` (۸۱.۸MB) ساخته و در draft releaseِ `v2.9.12` روی samahesab-src بارگذاری شد.** در مسیر ۲ باگِ واقعی پیدا و رفع شد: (۱) `publish-web.ps1` بدونِ BOM بود → Windows PowerShell 5.1 متنِ فارسی را ANSI می‌خواند → ParserError؛ BOM اضافه شد. (۲) اسکریپتِ inlineِ GitHub در PS 5.1 همان مشکل را داشت → قدمِ ساختِ release به `shell: pwsh` تغییر کرد. هر دو با actionlint v1.7.12 + runِ واقعی تأیید شدند.
+
 **وضعیتِ انتشار (مهم):** آخرین release روی ریپویِ عمومیِ `kish210/SamaHesab` هنوز **v2.9.9** است — نسخه‌های ۲.۹.۱۰/۱۱/۱۲ (بکاپِ خودکار، GitHub، داراییِ ثابت، وام، یادداشت‌های صورتِ مالی، مغایرت‌گیری بانکی، POS/رستوران، چاپِ حرارتی، …) هنوز به کاربر نرسیده‌اند. ⛔ مانع: اپِ GitHubِ Freebuff روی `kish210/SamaHesab` هیچ دسترسیِ نوشتنی ندارد (`permissions` همگی false). برایِ انتشار: در تنظیماتِ GitHub App دسترسیِ `Contents: Write` به `kish210/SamaHesab` بدهید، سپس یا همین workflow را برایِ `kish210/SamaHesab` گسترش دهید یا با `gh release upload -R kish210/SamaHesab v2.9.12 installer/Output/SamaHesab_Web_Setup_v2.9.12.exe`.
 
 ## 📌 رفعِ دسترسی‌پذیریِ کیبورد در وب (U-WEB-A11Y، @2026-08-18)

@@ -1,0 +1,106 @@
+name: Release (web installer)
+
+# ساختِ خودکارِ نصابِ وب (فقط سرور+وب، بدونِ دسکتاپِ WPF) روی رانرِ windows-latest
+# و انتشارِ draft روی همین ریپو (samahesab-src).
+#
+# چرا: نصابِ رسمی قبلاً فقط روی ماشینِ ویندوزِ توسعه (ISCC) ساخته می‌شد؛ این workflow
+# همان مسیرِ installer\publish-web.ps1 + ISCC installer\web-setup.iss را در CI اجرا می‌کند.
+#
+# پس از ساخت، انتقالِ exe به ریپویِ عمومیِ نصاب (نیازِ دسترسیِ Write اپِ GitHub به آن ریپو):
+#   gh release upload -R kish210/SamaHesab v2.9.12 installer/Output/SamaHesab_Web_Setup_v2.9.12.exe
+# (یا اگر اپِ GitHub به kish210/SamaHesab دسترسی داشته باشد، همین workflow را می‌توان
+#  طوری گسترش داد که مستقیم همان‌جا release بسازد.)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'نسخه (مثل 2.9.12) — باید با installer/web-setup.iss یکی باشد'
+        required: true
+  push:
+    tags: ['v*']
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install Inno Setup (ISCC)
+        shell: powershell
+        run: choco install innosetup -y --no-progress
+
+      - name: Resolve version
+        id: ver
+        shell: powershell
+        run: |
+          if ("${{ github.event_name }}" -eq "push") {
+            $v = "${{ github.ref_name }}"
+            $v = $v -replace '^v',''
+          } else {
+            $v = "${{ github.event.inputs.version }}"
+          }
+          Write-Host "version=$v"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$v"
+
+      - name: Version sanity check (web-setup.iss)
+        shell: powershell
+        run: |
+          $v = "${{ steps.ver.outputs.version }}"
+          $m = Select-String -Path installer\web-setup.iss -Pattern '#define AppVersion\s+"([^"]+)"'
+          if (-not $m -or $m.Matches[0].Groups[1].Value -ne $v) {
+            throw "web-setup.iss AppVersion ($($m.Matches[0].Groups[1].Value)) != requested ($v)"
+          }
+          Write-Host "OK: web-setup.iss version = $v"
+
+      - name: Publish API + Web client (publish-web.ps1)
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File installer\publish-web.ps1
+
+      - name: Compile installer (ISCC web-setup.iss)
+        shell: powershell
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "ISCC not found at $iscc" }
+          & $iscc installer\web-setup.iss
+          if ($LASTEXITCODE) { throw "ISCC failed: $LASTEXITCODE" }
+
+      - name: Verify installer output
+        shell: powershell
+        run: |
+          $v = "${{ steps.ver.outputs.version }}"
+          $exe = "installer\Output\SamaHesab_Web_Setup_v$v.exe"
+          if (-not (Test-Path $exe)) { throw "Installer not found: $exe" }
+          Get-Item $exe | Select-Object Name, Length
+
+      - name: Create draft release with installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: powershell
+        run: |
+          $v = "${{ steps.ver.outputs.version }}"
+          $exe = "installer\Output\SamaHesab_Web_Setup_v$v.exe"
+          gh release create "v$v" $exe --draft --repo "${{ github.repository }}" `
+            --title "نسخهٔ $v — نصابِ وب (سرور + کلاینتِ وب)" `
+            --notes "نصابِ ساخته‌شدهٔ خودکار در CI (windows-latest).
+برایِ انتشارِ نهایی به ریپویِ عمومی:
+  gh release upload -R kish210/SamaHesab v$v $exe"

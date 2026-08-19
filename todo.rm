@@ -1,5 +1,11 @@
 # SamaHesab — backlog
 
+## 📌 اتوماتیک‌سازیِ ساختِ نصاب در CI + وضعیتِ انتشار (U-REL-CI، @2026-08-19)
+
+**workflowِ نو `release.yml`** (روی `workflow_dispatch` با ورودیِ version و روی push تگِ `v*`): روی رانرِ windows-latest همان مسیرِ رسمیِ انتشار را اجرا می‌کند — `installer\publish-web.ps1` (API+Tray+Seller/Guest+کلاینتِ وب) → `ISCC installer\web-setup.iss` → ساختِ `SamaHesab_Web_Setup_vX.exe` → **draft release** با فایلِ exe روی همین ریپو. دیگر ساختِ نصاب به ماشینِ ویندوزِ توسعه وابسته نیست.
+
+**وضعیتِ انتشار (مهم):** آخرین release روی ریپویِ عمومیِ `kish210/SamaHesab` هنوز **v2.9.9** است — نسخه‌های ۲.۹.۱۰/۱۱/۱۲ (بکاپِ خودکار، GitHub، داراییِ ثابت، وام، یادداشت‌های صورتِ مالی، مغایرت‌گیری بانکی، POS/رستوران، چاپِ حرارتی، …) هنوز به کاربر نرسیده‌اند. ⛔ مانع: اپِ GitHubِ Freebuff روی `kish210/SamaHesab` هیچ دسترسیِ نوشتنی ندارد (`permissions` همگی false). برایِ انتشار: در تنظیماتِ GitHub App دسترسیِ `Contents: Write` به `kish210/SamaHesab` بدهید، سپس یا همین workflow را برایِ `kish210/SamaHesab` گسترش دهید یا با `gh release upload -R kish210/SamaHesab v2.9.12 installer/Output/SamaHesab_Web_Setup_v2.9.12.exe`.
+
 ## 📌 رفعِ دسترسی‌پذیریِ کیبورد در وب (U-WEB-A11Y، @2026-08-18)
 
 `/impeccable audit` رویِ `web/` اجرا شد (پلاگینِ نصب‌شدهٔ Impeccable برایِ Claude Code — امتیازِ Audit: ابتدا ۱۴/۲۰ Good). یافته‌هایِ اصلاح‌شده: **code-splitting** (`App.tsx` با `React.lazy`/`Suspense` — باندلِ اصلی از ~۶۰۰KB→۲۷۷KB) و **کیبورد-اکسسیبل‌کردن**ِ تایل‌هایِ کلیک‌پذیر (میزِ رستوران/تایلِ منو در `RestaurantHallsPage.tsx`، نتیجهٔ جست‌وجویِ مشتری در `AnalyticsPage.tsx`) با `role="button"`+`tabIndex`+`onKeyDown` — روی میز با دکمهٔ رزروِ تودرتو هماهنگ شد (`e.target===e.currentTarget`) تا Enter رویِ دکمهٔ رزرو دوبار عمل نکند. امتیازِ Audit بعدِ رفع‌ها: ۱۶/۲۰. یافته‌هایِ بازِ باقی‌مانده: `aria-label` روی دکمه‌هایِ آیکونیِ `Shell.tsx`، تصمیمِ دارک‌مود (پیاده‌سازی یا مستندسازیِ عمدیِ نبودش).

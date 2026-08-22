@@ -284,17 +284,17 @@ export function Shell() {
         </div>
         {/* ماشین‌حساب — دکمهٔ توپ‌بارِ design-system که تا حالا پیاده نشده بود. */}
         <div style={{ position: 'relative' }}>
-          <button type="button" className="tb-ic" title="ماشین‌حساب"
+          <button type="button" className="tb-ic" title="ماشین‌حساب" aria-label="ماشین‌حساب"
             aria-expanded={calcOpen} onClick={() => setCalcOpen((v) => !v)}>
             <ErpIcon name="calc" />
           </button>
           {calcOpen && <CalculatorPopover onClose={() => setCalcOpen(false)} />}
         </div>
-        <button type="button" className="tb-ic" title="اعلان‌ها">
+        <button type="button" className="tb-ic" title="اعلان‌ها" aria-label="اعلان‌ها">
           <ErpIcon name="bell" />
-          {pendingCheques > 0 && <span className="ping" />}
+          {pendingCheques > 0 && <span className="ping" aria-hidden="true" />}
         </button>
-        <button type="button" className="user" onClick={logout} title="خروج">
+        <button type="button" className="user" onClick={logout} title="خروج" aria-label="خروج از سیستم">
           <span className="av">{initial}</span>
           <div>
             <div className="un">{user?.fullName}</div>

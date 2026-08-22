@@ -7,7 +7,7 @@
 ; =============================================================================
 
 #define AppName       "سما حساب — وب"
-#define AppVersion    "2.9.13"
+#define AppVersion    "2.9.14"
 #define AppPublisher  "سماع رایانه کیش"
 #define ApiExe        "SamaHesab.API.exe"
 #define ApiTrayExe    "SamaHesabApiTray.exe"
@@ -39,7 +39,12 @@ WizardStyle=modern
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-MinVersion=10.0.17763
+; .NET 9 حداقل Windows 10 (build اولیه ۱۵۰۷) می‌خواهد — پیش‌تر ۱۷۷۶۳=1809 بود که
+; Windows 10 LTSC/قدیمی‌تر و بعضی Windows Server 2016 را reject می‌کرد.
+MinVersion=10.0
+CloseApplications=yes
+RestartApplications=yes
+SetupLogging=yes
 UninstallDisplayName={#AppName}
 
 [Languages]
